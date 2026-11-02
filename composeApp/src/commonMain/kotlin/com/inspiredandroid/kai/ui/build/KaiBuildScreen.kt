@@ -45,8 +45,7 @@ import com.inspiredandroid.kai.build.terminal.TerminalModifiers
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.sandbox.SandboxFilesContent
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.kai_build_exit_content_description
 import kai.composeapp.generated.resources.kai_build_new_project_content_description
@@ -244,7 +243,7 @@ fun KaiBuildScreenContent(
                             Text(
                                 text = "Starting session…",
                                 style = KaiTypography.bodyMedium,
-                                color = TextSecondary,
+                                color = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
                     }
@@ -344,7 +343,7 @@ private fun KaiBuildTopBar(
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = stringResource(Res.string.kai_build_exit_content_description),
-                    tint = com.inspiredandroid.kai.ui.TextSecondary,
+                    tint = LocalDesignColorTokens.current.textSecondary,
                 )
             }
             Column(
@@ -362,7 +361,7 @@ private fun KaiBuildTopBar(
                 Text(
                     text = title,
                     style = KaiTypography.titleMedium,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

@@ -26,8 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.inspiredandroid.kai.ui.CardFill
 import com.inspiredandroid.kai.ui.KaiBorders
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 /**
  * Terminal-style status pill (Plan 3, Phase 1). Small colored dot plus a label so
@@ -122,7 +121,7 @@ fun BuildProgressBlock(
                 Text(
                     text = title,
                     style = KaiTypography.titleSmall,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.weight(1f),
                 )
@@ -132,7 +131,7 @@ fun BuildProgressBlock(
                 Text(
                     text = subtitle,
                     style = KaiTypography.bodySmall,
-                    color = TextSecondary,
+                    color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
             if (progress != null) {
