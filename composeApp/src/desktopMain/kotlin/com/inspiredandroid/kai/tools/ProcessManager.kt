@@ -89,8 +89,14 @@ class ProcessManager {
             }
             // Ensure stdout/stderr are fully drained before publishing the finished state,
             // otherwise callers reading the log immediately after can miss trailing output.
-            try { stdoutDrain.get(5, TimeUnit.SECONDS) } catch (_: Exception) { }
-            try { stderrDrain.get(5, TimeUnit.SECONDS) } catch (_: Exception) { }
+            try {
+                stdoutDrain.get(5, TimeUnit.SECONDS)
+            } catch (_: Exception) {
+            }
+            try {
+                stderrDrain.get(5, TimeUnit.SECONDS)
+            } catch (_: Exception) {
+            }
             session.finished = true
         }
 
