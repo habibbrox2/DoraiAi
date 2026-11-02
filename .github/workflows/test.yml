@@ -51,8 +51,8 @@ jobs:
             esac
           done
           if (("${#unexpected[@]}" > 0)); then
-            printf 'Unconverted site image(s) found:\n'
-            printf ' - %s\n' "${unexpected[@]}"
+            printf 'Unconverted site image(s) found:\\n'
+            printf ' - %s\\n' "${unexpected[@]}"
             echo "Run the WebP conversion maintenance script locally and review the resulting asset changes."
             exit 1
           fi
@@ -176,14 +176,17 @@ jobs:
       - name: Verify Paparazzi golden files
         run: ./gradlew :screenshotTests:verifyPaparazziDebug --no-daemon --stacktrace
 
-      - name: Upload screenshot regression reports
+      # Paparazzi writes expected/actual/delta PNGs here when comparisons fail.
+      # Keep this upload unconditional so visual evidence survives a failed verify task.
+      - name: Upload screenshot regression reports and visual diffs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: screenshot-regression-reports-${{ github.run_id }}
+          name: screenshot-regression-evidence-${{ github.run_id }}
           path: |
             screenshotTests/build/test-results/testDebugUnitTest/
             screenshotTests/build/reports/tests/testDebugUnitTest/
+            screenshotTests/build/paparazzi/failures/debug/
           if-no-files-found: warn
           retention-days: 14
 
