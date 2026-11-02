@@ -1149,17 +1149,17 @@
 <tr>
 <td>Chat timeline</td>
 <td>ChatTimeline, UserMessage, BotMessage, MessageActionRow, ErrorMessage</td>
-<td>Review completed; long/streaming/error state coverage to verify</td>
+<td>Review completed; long/streaming/error state coverage to verify; Dynamic UI dark variant added (<code>chatWithDynamicUi_dark</code>)</td>
 </tr>
 <tr>
 <td>Agent activity</td>
 <td>AgentActivityDisclosure, AgentActivityTimeline, ToolExecutionCard, ToolConfirmationCard, AgentReviewComponents</td>
-<td>Legacy palette found in tool cards; semantic token migration required</td>
+<td>Legacy palette found in tool cards; semantic token migration required; screenshot coverage added (<code>AgentActivityTimeline</code> all statuses, tool call, shell, file op, permission)</td>
 </tr>
 <tr>
 <td>Composer</td>
 <td>QuestionInput, ChatComposer, SkillAutocomplete, ServiceSelector</td>
-<td>Source reviewed; attachment/slash/keyboard states need explicit screenshots</td>
+<td>Source reviewed; screenshot coverage added (<code>ChatComposer</code> empty/draft/loading states)</td>
 </tr>
 <tr>
 <td>Settings navigation</td>
@@ -1184,7 +1184,7 @@
 <tr>
 <td>Build workspace</td>
 <td>BuildSetupContent, BuildProjectsContent, BuildSessionBar, BuildStatusPill</td>
-<td>Source reviewed; empty/loading/error/session states need screenshot coverage</td>
+<td>Source reviewed; screenshot coverage added (<code>KaiBuildScreenContent</code> not-installed/installing/ready/projects/active-project + <code>BuildStatusPill</code> variants)</td>
 </tr>
 <tr>
 <td>Sandbox</td>
@@ -1265,7 +1265,7 @@
 <tr>
 <td>Full route/state screenshot matrix</td>
 <td>Not present at baseline</td>
-<td>Phase C tool/shell/settings coverage complete; Dynamic UI, Build Workspace, Agent Activity, Composer pending</td>
+<td>Phase C complete: tool/shell/settings + Dynamic UI, Build Workspace, Agent Activity, Composer coverage added (<code>ScreenshotTest</code>, 35 cases)</td>
 </tr>
 </tbody>
 </table>
