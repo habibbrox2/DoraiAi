@@ -54,7 +54,6 @@ import com.inspiredandroid.kai.getBackgroundDispatcher
 import com.inspiredandroid.kai.ui.CardFill
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SuccessGreen
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.chat.ChatSpacing
 import com.inspiredandroid.kai.ui.dynamicui.FrozenSubmission
 import com.inspiredandroid.kai.ui.dynamicui.toSpeakableText

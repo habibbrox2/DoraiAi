@@ -34,14 +34,13 @@ import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.chat.activities.ActivityDetails
 import com.inspiredandroid.kai.ui.chat.activities.ActivityStatus
 import com.inspiredandroid.kai.ui.chat.activities.ActivityType
 import com.inspiredandroid.kai.ui.chat.activities.AgentActivity
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 @Composable
 fun AgentActivityTimeline(
@@ -69,7 +68,7 @@ fun AgentActivityTimeline(
                     if (failed > 0) append(" • $failed failed")
                 },
                 style = KaiTypography.labelMedium,
-                color = TextSecondary,
+                color = LocalDesignColorTokens.current.textSecondary,
             )
         }
 
@@ -113,7 +112,7 @@ private fun AgentActivityItem(
                 Text(
                     text = activity.title,
                     style = KaiTypography.bodyMedium,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -121,7 +120,7 @@ private fun AgentActivityItem(
                     Text(
                         text = desc,
                         style = KaiTypography.bodySmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -132,7 +131,7 @@ private fun AgentActivityItem(
                 Icon(
                     imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = if (expanded) "Collapse" else "Expand",
-                    tint = TextSecondary,
+                    tint = LocalDesignColorTokens.current.textSecondary,
                     modifier = Modifier.size(20.dp),
                 )
             }
@@ -162,11 +161,11 @@ private fun ActivityStatusIndicator(
     modifier: Modifier = Modifier,
 ) {
     val (color, _) = when (status) {
-        ActivityStatus.PENDING -> TextSecondary to ""
+        ActivityStatus.PENDING -> LocalDesignColorTokens.current.textSecondary to ""
         ActivityStatus.RUNNING -> DesignTokens.AgentViolet to ""
         ActivityStatus.COMPLETED -> DesignTokens.Success to ""
         ActivityStatus.FAILED -> DesignTokens.Error to ""
-        ActivityStatus.CANCELLED -> TextSecondary to ""
+        ActivityStatus.CANCELLED -> LocalDesignColorTokens.current.textSecondary to ""
         ActivityStatus.DENIED -> DesignTokens.Error to ""
         ActivityStatus.TIMEOUT -> DesignTokens.Error to ""
     }
@@ -199,13 +198,13 @@ private fun ActivityDetailsView(
                     Text(
                         text = "Arguments:",
                         style = KaiTypography.labelSmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                     )
                     Text(
                         text = args,
                         style = KaiTypography.bodySmall,
                         fontFamily = FontFamily.Monospace,
-                        color = TextPrimary,
+                        color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(KaiShapes.xs)
@@ -218,13 +217,13 @@ private fun ActivityDetailsView(
                     Text(
                         text = "Result:",
                         style = KaiTypography.labelSmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                     )
                     Text(
                         text = result.take(500) + if (result.length > 500) "..." else "",
                         style = KaiTypography.bodySmall,
                         fontFamily = FontFamily.Monospace,
-                        color = TextPrimary,
+                        color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(KaiShapes.xs)
@@ -251,7 +250,7 @@ private fun ActivityDetailsView(
                     text = "$ ${details.command}",
                     style = KaiTypography.bodySmall,
                     fontFamily = FontFamily.Monospace,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(KaiShapes.xs)
@@ -263,7 +262,7 @@ private fun ActivityDetailsView(
                     Text(
                         text = "cwd: $cwd",
                         style = KaiTypography.labelSmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
                 details.stdout?.let { stdout ->
@@ -272,7 +271,7 @@ private fun ActivityDetailsView(
                             text = stdout,
                             style = KaiTypography.bodySmall,
                             fontFamily = FontFamily.Monospace,
-                            color = TextPrimary,
+                            color = LocalDesignColorTokens.current.textPrimary,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(KaiShapes.xs)
@@ -317,20 +316,20 @@ private fun ActivityDetailsView(
                 Text(
                     text = "Skill: ${details.skillName} (${details.skillId})",
                     style = KaiTypography.bodySmall,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
                 details.description?.let { desc ->
                     Text(
                         text = desc,
                         style = KaiTypography.bodySmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
                 details.stage?.let { stage ->
                     Text(
                         text = "Stage: $stage",
                         style = KaiTypography.labelSmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
             }
@@ -341,13 +340,13 @@ private fun ActivityDetailsView(
                 Text(
                     text = "${details.operation}: ${details.path}",
                     style = KaiTypography.bodySmall,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
                 details.changeSummary?.let { summary ->
                     Text(
                         text = summary,
                         style = KaiTypography.bodySmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
             }
@@ -358,18 +357,18 @@ private fun ActivityDetailsView(
                 Text(
                     text = "Action: ${details.action}",
                     style = KaiTypography.bodySmall,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Text(
                     text = "Target: ${details.target}",
                     style = KaiTypography.bodySmall,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
                 details.scope?.let { scope ->
                     Text(
                         text = "Scope: $scope",
                         style = KaiTypography.bodySmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
             }
@@ -380,7 +379,7 @@ private fun ActivityDetailsView(
                 Text(
                     text = content,
                     style = KaiTypography.bodySmall,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
             }
         }

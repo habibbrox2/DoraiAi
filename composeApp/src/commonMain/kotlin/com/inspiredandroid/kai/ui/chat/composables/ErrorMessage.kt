@@ -12,8 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.inspiredandroid.kai.network.UiError
-import com.inspiredandroid.kai.ui.TextPrimary
 import com.inspiredandroid.kai.ui.handCursor
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.ic_refresh
 import org.jetbrains.compose.resources.stringResource
@@ -38,7 +38,7 @@ internal fun ErrorMessage(
     ) {
         Text(
             text = text,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
         Spacer(Modifier.height(8.dp))
         IconButton(
@@ -48,7 +48,7 @@ internal fun ErrorMessage(
             Icon(
                 imageVector = vectorResource(Res.drawable.ic_refresh),
                 contentDescription = null,
-                tint = TextPrimary,
+                tint = LocalDesignColorTokens.current.textPrimary,
             )
         }
     }

@@ -10,9 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.chat.ChatSpacing
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 /**
  * Consistent heading used by panels, sheets and sections in the chat workspace
@@ -39,13 +38,13 @@ fun PanelHeading(
                 text = title,
                 style = KaiTypography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
             )
             if (subtitle != null) {
                 Text(
                     text = subtitle,
                     style = KaiTypography.bodySmall,
-                    color = TextSecondary,
+                    color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
         }

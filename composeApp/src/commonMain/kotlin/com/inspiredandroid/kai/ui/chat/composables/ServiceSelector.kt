@@ -68,11 +68,10 @@ import com.inspiredandroid.kai.ui.CardFill
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SurfaceRaised
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.KaiSearchField
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.settings.SettingsModel
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.settings_model_label
 import kai.composeapp.generated.resources.settings_model_loading
@@ -140,13 +139,13 @@ internal fun ServiceSelector(
                     imageVector = vectorResource(current.icon),
                     contentDescription = null,
                     modifier = Modifier.size(14.dp),
-                    tint = TextSecondary,
+                    tint = LocalDesignColorTokens.current.textSecondary,
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
                     text = current.serviceName,
                     style = KaiTypography.labelSmall,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.widthIn(max = 100.dp),
@@ -155,7 +154,7 @@ internal fun ServiceSelector(
                     Text(
                         text = " · $currentModelLabel",
                         style = KaiTypography.labelSmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.widthIn(max = 120.dp),
@@ -166,7 +165,7 @@ internal fun ServiceSelector(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = current.serviceName,
                     modifier = Modifier.size(16.dp),
-                    tint = TextSecondary,
+                    tint = LocalDesignColorTokens.current.textSecondary,
                 )
             }
         } else {
@@ -187,7 +186,7 @@ internal fun ServiceSelector(
                     imageVector = vectorResource(current.icon),
                     contentDescription = current.serviceName,
                     modifier = Modifier.size(18.dp),
-                    tint = TextSecondary,
+                    tint = LocalDesignColorTokens.current.textSecondary,
                 )
             }
         }
@@ -250,7 +249,7 @@ internal fun ServiceSelector(
                                 Text(
                                     text = "Select Model & Provider",
                                     style = KaiTypography.titleMedium,
-                                    color = TextPrimary,
+                                    color = LocalDesignColorTokens.current.textPrimary,
                                 )
                                 androidx.compose.material3.IconButton(
                                     onClick = { expanded = false },
@@ -259,7 +258,7 @@ internal fun ServiceSelector(
                                     Icon(
                                         imageVector = Icons.Default.Close,
                                         contentDescription = "Close",
-                                        tint = TextSecondary,
+                                        tint = LocalDesignColorTokens.current.textSecondary,
                                         modifier = Modifier.size(16.dp),
                                     )
                                 }
@@ -294,7 +293,7 @@ internal fun ServiceSelector(
                                         )
                                     }
                                     HorizontalDivider(
-                                        color = TextSecondary.copy(alpha = 0.12f),
+                                        color = LocalDesignColorTokens.current.textSecondary.copy(alpha = 0.12f),
                                         modifier = Modifier.padding(vertical = 6.dp),
                                     )
                                 } else if (isLoadingModels) {
@@ -312,7 +311,7 @@ internal fun ServiceSelector(
                                         Text(
                                             text = stringResource(Res.string.settings_model_loading),
                                             style = KaiTypography.labelSmall,
-                                            color = TextSecondary,
+                                            color = LocalDesignColorTokens.current.textSecondary,
                                         )
                                     }
                                 }
@@ -350,7 +349,7 @@ private fun PickerSectionLabel(text: String) {
     Text(
         text = text,
         style = KaiTypography.labelSmall,
-        color = TextSecondary,
+        color = LocalDesignColorTokens.current.textSecondary,
         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
     )
 }
@@ -373,7 +372,7 @@ private fun ModelMenuItem(
     val textColor = if (isCurrent) {
         com.inspiredandroid.kai.ui.AccentPrimary
     } else {
-        TextPrimary
+        LocalDesignColorTokens.current.textPrimary
     }
     val shortName = model.displayName?.takeIf { it.isNotBlank() } ?: model.id
     Row(
@@ -413,12 +412,12 @@ private fun ServiceMenuItem(
     val textColor = if (isCurrent) {
         com.inspiredandroid.kai.ui.AccentPrimary
     } else {
-        TextPrimary
+        LocalDesignColorTokens.current.textPrimary
     }
     val subTextColor = if (isCurrent) {
         com.inspiredandroid.kai.ui.AccentPrimary.copy(alpha = 0.7f)
     } else {
-        TextSecondary
+        LocalDesignColorTokens.current.textSecondary
     }
     Row(
         modifier = Modifier

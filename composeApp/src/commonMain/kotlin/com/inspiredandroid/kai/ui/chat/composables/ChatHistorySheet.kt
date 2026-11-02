@@ -48,13 +48,12 @@ import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SurfaceRaised
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.chat.ChatActions
 import com.inspiredandroid.kai.ui.chat.ConversationSummary
 import com.inspiredandroid.kai.ui.components.VerticalScrollbarForList
 import com.inspiredandroid.kai.ui.components.animatedGradientBorder
 import com.inspiredandroid.kai.ui.handCursor
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.chat_history_delete_content_description
 import kai.composeapp.generated.resources.chat_history_empty
@@ -108,7 +107,7 @@ internal fun ChatHistorySheet(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     text = stringResource(Res.string.chat_history_title),
                     style = KaiTypography.titleLarge,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Spacer(Modifier.height(12.dp))
 
@@ -116,7 +115,7 @@ internal fun ChatHistorySheet(
                     Text(
                         text = stringResource(Res.string.chat_history_empty),
                         style = KaiTypography.bodyMedium,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp),
                     )
                 } else {
@@ -172,14 +171,14 @@ internal fun ChatHistorySheet(
                                                 Icon(
                                                     imageVector = vectorResource(Res.drawable.ic_history),
                                                     contentDescription = null,
-                                                    tint = TextPrimary,
+                                                    tint = LocalDesignColorTokens.current.textPrimary,
                                                     modifier = Modifier.size(12.dp),
                                                 )
                                                 Spacer(Modifier.width(4.dp))
                                                 Text(
                                                     text = stringResource(Res.string.chat_history_heartbeat_label),
                                                     style = KaiTypography.labelSmall,
-                                                    color = TextPrimary,
+                                                    color = LocalDesignColorTokens.current.textPrimary,
                                                 )
                                             }
                                         }
@@ -190,7 +189,7 @@ internal fun ChatHistorySheet(
                                                 color = if (isActive) {
                                                     AccentPrimary
                                                 } else {
-                                                    TextPrimary
+                                                    LocalDesignColorTokens.current.textPrimary
                                                 },
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis,
@@ -199,7 +198,7 @@ internal fun ChatHistorySheet(
                                         Text(
                                             text = formatDate(conversation.updatedAt),
                                             style = KaiTypography.bodySmall,
-                                            color = TextSecondary,
+                                            color = LocalDesignColorTokens.current.textSecondary,
                                         )
                                     }
                                     IconButton(
@@ -209,7 +208,7 @@ internal fun ChatHistorySheet(
                                         Icon(
                                             imageVector = Icons.Default.Delete,
                                             contentDescription = stringResource(Res.string.chat_history_delete_content_description),
-                                            tint = TextSecondary,
+                                            tint = LocalDesignColorTokens.current.textSecondary,
                                         )
                                     }
                                 }

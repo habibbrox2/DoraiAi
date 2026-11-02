@@ -51,8 +51,6 @@ import com.inspiredandroid.kai.prefersReducedMotion
 import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.CardFill
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.chat.ChatSpacing
 import com.inspiredandroid.kai.ui.chat.ChatUiState
 import com.inspiredandroid.kai.ui.chat.History
@@ -66,6 +64,7 @@ import com.inspiredandroid.kai.ui.dynamicui.toSpeakableText
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.markdown.KaiUiBlock
 import com.inspiredandroid.kai.ui.markdown.parseMarkdown
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.fallback_answered_by
 import kai.composeapp.generated.resources.fallback_service_failed
@@ -231,7 +230,7 @@ fun ChatTimeline(
                                     Text(
                                         text = stringResource(Res.string.fallback_answered_by, history.fallbackServiceName),
                                         style = KaiTypography.labelSmall,
-                                        color = TextSecondary,
+                                        color = LocalDesignColorTokens.current.textSecondary,
                                         modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
                                     )
                                 }
@@ -376,7 +375,7 @@ fun ChatTimeline(
                     }
                 },
                 containerColor = com.inspiredandroid.kai.ui.CardFill.copy(alpha = 0.95f),
-                contentColor = com.inspiredandroid.kai.ui.TextPrimary,
+                contentColor = LocalDesignColorTokens.current.textPrimary,
                 shape = CircleShape,
             ) {
                 Icon(

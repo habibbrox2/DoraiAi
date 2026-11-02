@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.inspiredandroid.kai.ui.TextPrimary
 import com.inspiredandroid.kai.ui.handCursor
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
@@ -27,7 +27,7 @@ internal fun SmallIconButton(
             modifier = Modifier.size(20.dp),
             painter = painterResource(iconResource),
             contentDescription = contentDescription,
-            tint = TextPrimary,
+            tint = LocalDesignColorTokens.current.textPrimary,
         )
     }
 }
@@ -43,7 +43,7 @@ internal fun SmallIconButton(
             modifier = Modifier.size(20.dp),
             imageVector = imageVector,
             contentDescription = contentDescription,
-            tint = TextPrimary,
+            tint = LocalDesignColorTokens.current.textPrimary,
         )
     }
 }

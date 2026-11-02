@@ -33,9 +33,8 @@ import com.inspiredandroid.kai.ui.CardFill
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SurfaceRaised
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.handCursor
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.error_free_limit_body
 import kai.composeapp.generated.resources.error_free_limit_title
@@ -61,21 +60,21 @@ internal fun FreeProviderSuggestionsPanel(
         Text(
             text = stringResource(Res.string.error_free_limit_title),
             style = KaiTypography.titleMedium,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(8.dp))
         Text(
             text = stringResource(Res.string.error_free_limit_body),
             style = KaiTypography.bodyMedium,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(6.dp))
         Text(
             text = uiErrorText(error),
             style = KaiTypography.bodySmall,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(12.dp))
@@ -101,13 +100,13 @@ internal fun FreeProviderSuggestionsPanel(
                                 imageVector = vectorResource(suggestion.service.icon),
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp),
-                                tint = TextPrimary,
+                                tint = LocalDesignColorTokens.current.textPrimary,
                             )
                             Spacer(Modifier.width(6.dp))
                             Text(
                                 text = suggestion.service.displayName,
                                 style = KaiTypography.labelMedium,
-                                color = TextPrimary,
+                                color = LocalDesignColorTokens.current.textPrimary,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
@@ -124,7 +123,7 @@ internal fun FreeProviderSuggestionsPanel(
             Icon(
                 imageVector = vectorResource(Res.drawable.ic_refresh),
                 contentDescription = null,
-                tint = TextPrimary,
+                tint = LocalDesignColorTokens.current.textPrimary,
             )
         }
     }

@@ -16,10 +16,10 @@ import androidx.compose.ui.Modifier
 import com.inspiredandroid.kai.data.ServiceEntry
 import com.inspiredandroid.kai.prefersReducedMotion
 import com.inspiredandroid.kai.ui.AccentPrimary
-import com.inspiredandroid.kai.ui.TextPrimary
 import com.inspiredandroid.kai.ui.chat.ChatActions
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.settings.SettingsModel
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.ic_volume_off
 import kai.composeapp.generated.resources.ic_volume_up
@@ -114,7 +114,7 @@ internal fun SandboxToggleButton(
             tint = if (isSandboxOpen) {
                 AccentPrimary
             } else {
-                TextPrimary
+                LocalDesignColorTokens.current.textPrimary
             },
         )
     }
@@ -144,7 +144,7 @@ internal fun SpeechToggleButton(
                 vectorResource(Res.drawable.ic_volume_off)
             },
             contentDescription = stringResource(Res.string.toggle_speech_output_content_description),
-            tint = TextPrimary,
+            tint = LocalDesignColorTokens.current.textPrimary,
         )
     }
 }
