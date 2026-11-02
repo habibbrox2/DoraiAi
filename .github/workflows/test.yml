@@ -179,7 +179,7 @@ jobs:
           assert_count '*GemmaLocalScreenshotTest_*.png' 7
           assert_count '*MathScreenshotTest_*.png' 5
           assert_count '*KaiUiScreenshotTest_*.png' 23
-          assert_count '*ScreenshotTest_*.png' 7
+          assert_count 'com.inspiredandroid.kai.screenshots_ScreenshotTest_*.png' 7
           assert_count '*PremiumScreenScreenshotTest_*.png' 2
 
           git config user.name "github-actions[bot]"
