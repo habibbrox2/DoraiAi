@@ -130,5 +130,4 @@ class ActivityMapperTest {
         assertEquals("after", details.newContent)
         assertTrue(details.changeSummary.orEmpty().contains("Updated README"))
     }
-
 }

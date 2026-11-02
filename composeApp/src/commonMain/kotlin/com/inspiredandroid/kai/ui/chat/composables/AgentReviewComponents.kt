@@ -44,9 +44,13 @@ internal fun FileChangeReviewCard(activityId: String, details: ActivityDetails.F
                 before = safeActivityPreview(details.oldContent, 30_000),
                 after = safeActivityPreview(details.newContent, 30_000),
             )
+
             !details.diff.isNullOrBlank() -> ActivityCodePreview("Patch supplied by tool", details.diff)
+
             !details.newContent.isNullOrBlank() -> ActivityCodePreview("New content · original snapshot unavailable", details.newContent, DesignTokens.Success)
+
             !details.oldContent.isNullOrBlank() -> ActivityCodePreview("Original content · updated snapshot unavailable", details.oldContent, DesignTokens.Error)
+
             else -> Text("The tool did not provide before/after content. A source diff cannot be computed from this activity.", style = KaiTypography.labelSmall, color = DesignTokens.TertiaryText)
         }
         details.changeSummary?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview("Tool result", it) }

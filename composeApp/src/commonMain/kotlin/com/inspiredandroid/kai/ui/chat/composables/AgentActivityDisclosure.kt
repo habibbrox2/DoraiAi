@@ -43,10 +43,10 @@ import com.inspiredandroid.kai.ui.chat.ChatSpacing
 import com.inspiredandroid.kai.ui.chat.activities.ActivityDetails
 import com.inspiredandroid.kai.ui.chat.activities.ActivityStatus
 import com.inspiredandroid.kai.ui.chat.activities.AgentActivity
-import com.inspiredandroid.kai.ui.chat.activities.summarizeAgentRun
 import com.inspiredandroid.kai.ui.chat.activities.formatAgentRunDuration
-import kotlin.time.Clock
+import com.inspiredandroid.kai.ui.chat.activities.summarizeAgentRun
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import kotlin.time.Clock
 
 private val secretAssignment = Regex(
     """(?i)(api[_-]?key|access[_-]?token|refresh[_-]?token|password|secret|authorization)(["']?\s*[:=]\s*["']?)([^"'\s,}]+)""",

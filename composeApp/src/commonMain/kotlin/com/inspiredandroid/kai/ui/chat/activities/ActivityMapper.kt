@@ -140,15 +140,20 @@ object ActivityMapper {
 
     private fun withResult(details: ActivityDetails, result: String, failed: Boolean): ActivityDetails = when (details) {
         is ActivityDetails.ToolCall -> details.copy(result = result, error = if (failed) result else null)
+
         is ActivityDetails.ShellCommand -> parseShellResult(details, result)
+
         is ActivityDetails.FileOperation -> details.copy(
             changeSummary = jsonString(result, "change_summary", "summary", "message") ?: result,
             oldContent = details.oldContent ?: jsonString(result, "old_content", "oldContent", "before"),
             newContent = details.newContent ?: jsonString(result, "new_content", "newContent", "content", "after"),
             diff = details.diff ?: jsonString(result, "diff", "patch", "unified_diff"),
         )
+
         is ActivityDetails.Generic -> details.copy(content = result)
+
         is ActivityDetails.Skill -> details
+
         is ActivityDetails.Permission -> details
     }
 

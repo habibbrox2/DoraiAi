@@ -50,8 +50,10 @@ fun computeSideBySideDiff(before: String, after: String, maxLines: Int = 250): S
     val oldLines = allOld.take(maxLines)
     val newLines = allNew.take(maxLines)
     val lcs = Array(oldLines.size + 1) { IntArray(newLines.size + 1) }
-    for (i in oldLines.indices.reversed()) for (j in newLines.indices.reversed()) {
-        lcs[i][j] = if (oldLines[i] == newLines[j]) lcs[i + 1][j + 1] + 1 else maxOf(lcs[i + 1][j], lcs[i][j + 1])
+    for (i in oldLines.indices.reversed()) {
+        for (j in newLines.indices.reversed()) {
+            lcs[i][j] = if (oldLines[i] == newLines[j]) lcs[i + 1][j + 1] + 1 else maxOf(lcs[i + 1][j], lcs[i][j + 1])
+        }
     }
     data class Raw(val oldNo: Int?, val newNo: Int?, val old: String?, val new: String?, val kind: DiffLineKind)
     val raw = mutableListOf<Raw>()
@@ -59,9 +61,21 @@ fun computeSideBySideDiff(before: String, after: String, maxLines: Int = 250): S
     var j = 0
     while (i < oldLines.size || j < newLines.size) {
         when {
-            i < oldLines.size && j < newLines.size && oldLines[i] == newLines[j] -> { raw += Raw(i + 1, j + 1, oldLines[i], newLines[j], DiffLineKind.UNCHANGED); i++; j++ }
-            j < newLines.size && (i == oldLines.size || lcs[i][j + 1] > lcs[i + 1][j]) -> { raw += Raw(null, j + 1, null, newLines[j], DiffLineKind.ADDED); j++ }
-            else -> { raw += Raw(i + 1, null, oldLines[i], null, DiffLineKind.REMOVED); i++ }
+            i < oldLines.size && j < newLines.size && oldLines[i] == newLines[j] -> {
+                raw += Raw(i + 1, j + 1, oldLines[i], newLines[j], DiffLineKind.UNCHANGED)
+                i++
+                j++
+            }
+
+            j < newLines.size && (i == oldLines.size || lcs[i][j + 1] > lcs[i + 1][j]) -> {
+                raw += Raw(null, j + 1, null, newLines[j], DiffLineKind.ADDED)
+                j++
+            }
+
+            else -> {
+                raw += Raw(i + 1, null, oldLines[i], null, DiffLineKind.REMOVED)
+                i++
+            }
         }
     }
     val aligned = mutableListOf<SideBySideDiffLine>()
