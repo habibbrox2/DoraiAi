@@ -9,243 +9,157 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: unit-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
-    name: Run Unit Tests
+  quality:
+    name: Quality and Web Assets
     runs-on: ubuntu-latest
-    # Bot-authored PR commits must still be tested. Suppress only bot-triggered
-    # push runs (the workflow's own generated commit) to avoid CI loops.
-    if: |
-      !contains(github.event.head_commit.message, '[skip ci]') &&
-      (github.event_name != 'push' || github.actor != 'github-actions[bot]')
-
-    permissions:
-      contents: write
-
+    timeout-minutes: 15
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref || github.ref }}
 
-      - name: Check if fork PR
-        id: fork-check
-        if: github.event_name == 'pull_request'
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Check formatting without modifying sources
+        run: ./gradlew spotlessCheck --no-daemon --stacktrace
+
+      - name: Validate committed WebP assets
+        shell: bash
         run: |
-          if [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
-            echo "is_fork=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_fork=false" >> $GITHUB_OUTPUT
+          set -euo pipefail
+          shopt -s nullglob
+          unexpected=()
+          for png in site/img/*.png; do
+            name="${png##*/}"
+            case "$name" in
+              og-preview.png|preview.png) ;;
+              *) unexpected+=("$png") ;;
+            esac
+          done
+          if (("${#unexpected[@]}" > 0)); then
+            printf 'Unconverted site image(s) found:\n'
+            printf ' - %s\n' "${unexpected[@]}"
+            echo "Run the WebP conversion maintenance script locally and review the resulting asset changes."
+            exit 1
           fi
+          echo "Site image format validation passed."
+
+  desktop:
+    name: Desktop Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run desktop and shared tests
+        run: ./gradlew :composeApp:desktopTest --no-daemon --stacktrace
+
+  android:
+    name: Android FOSS Compile and Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
           packages: platform-tools
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Set execution flag for gradlew
-        run: chmod +x gradlew
-
-      - name: Verify Java version
-        run: |
-          echo "JAVA_HOME: $JAVA_HOME"
-          java -version
-
-      - name: Run spotlessApply
-        run: ./gradlew spotlessApply --no-daemon --stacktrace
-
-      - name: Run updateScreenshots
-        run: ./gradlew :screenshotTests:updateScreenshots --no-daemon --stacktrace
-
-      - name: Install cwebp
-        run: sudo apt-get update && sudo apt-get install -y webp
-
-      - name: Convert site images to WebP
-        run: ./scripts/convert-site-images-to-webp.sh
-
-      - name: Run desktop tests
-        run: ./gradlew :composeApp:desktopTest --no-daemon --stacktrace
-
-      - name: Compile Android FOSS debug and run unit tests
+      - name: Run Android FOSS compile and unit tests
         run: ./gradlew :androidApp:compileFossDebugKotlin :androidApp:testFossDebugUnitTest --no-daemon --stacktrace
 
-      - name: Check for changes
-        id: changes
-        run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "has_changes=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-          fi
+  screenshots:
+    name: Screenshot Regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Capture generated changes for review
-        if: |
-          github.event_name == 'pull_request' &&
-          steps.changes.outputs.has_changes == 'true'
-        run: |
-          git status --short > generated-changes-status.txt
-          git diff --binary > generated-changes.patch
-          git diff --stat > generated-changes-stat.txt
-          git diff --name-only -z | xargs -0 tar -czf generated-files.tar.gz --
-          echo "Captured generated changes and exact file contents for review."
-
-      - name: Upload generated changes for review
-        if: always() && github.event_name == 'pull_request' && steps.changes.outputs.has_changes == 'true'
-        uses: actions/upload-artifact@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
-          name: generated-changes-review-${{ github.run_id }}
-          path: |
-            generated-changes-status.txt
-            generated-changes-stat.txt
-            generated-changes.patch
-            generated-files.tar.gz
-          if-no-files-found: error
-          retention-days: 7
+          distribution: temurin
+          java-version: "21"
 
-      - name: Commit reviewed generated source changes to PR branch
-        if: |
-          github.event_name == 'pull_request' &&
-          steps.fork-check.outputs.is_fork == 'false' &&
-          steps.changes.outputs.has_changes == 'true'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
 
-          # Drop binary assets already verified as pixel-identical.
-          git restore -- \
-            screenshots/mobile-1.png \
-            screenshots/mobile-2.png \
-            screenshots/mobile-3.png \
-            screenshots/mobile-4.png \
-            screenshots/mobile-5.png \
-            screenshots/mobile-7.png \
-            site/img/ecopulse-light.webp \
-            site/img/gemma-local-chat.webp \
-            site/img/gemma-local-context-slider.webp \
-            site/img/gemma-local-download.webp \
-            site/img/gemma-local-model-card.webp \
-            site/img/gemma-local-select.webp \
-            site/img/gemma-local-settings.webp \
-            site/img/recipe-light.webp
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
 
-          git add -- \
-            androidApp/src/main/kotlin/com/inspiredandroid/kai/MainActivity.kt \
-            androidApp/src/main/kotlin/com/inspiredandroid/kai/updater/AndroidApkSignatureVerifier.kt \
-            androidApp/src/main/kotlin/com/inspiredandroid/kai/updater/AndroidUpdateDownloadWorker.kt \
-            androidApp/src/main/kotlin/com/inspiredandroid/kai/updater/AndroidUpdateInstaller.kt \
-            androidApp/src/main/kotlin/com/inspiredandroid/kai/updater/AndroidUpdateSettingsSection.kt \
-            androidApp/src/main/kotlin/com/inspiredandroid/kai/updater/AndroidUpdateApkPathValidation.kt \
-            androidApp/src/test/kotlin/com/inspiredandroid/kai/updater/AndroidUpdateApkPathValidationTest.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/App.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/settings/SettingsScreen.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/settings/SettingsDetailPane.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/settings/GeneralSettings.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/updater/AndroidUpdateDiscovery.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/updater/AndroidUpdateDownloadRequestValidation.kt \
-            composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/updater/AndroidUpdateDownloadRequestValidationTest.kt \
-            composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/updater/AndroidUpdateDiscoveryTest.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/updater/AndroidApkVersionValidation.kt \
-            composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/updater/AndroidApkVersionValidationTest.kt \
-            androidApp/build.gradle.kts \
-            gradle/libs.versions.toml \
-            composeApp/build.gradle.kts \
-            composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/network/CloudflareModelSearchIntegrationTest.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/updater/AndroidApkIdentityValidation.kt \
-            composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/updater/AndroidApkIdentityValidationTest.kt \
-            composeApp/src/androidMain/kotlin/com/inspiredandroid/kai/Platform.android.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/AppSettings.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/RemoteDataRepository.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/Service.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/ToolPermissionManager.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/mcp/McpClient.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/mcp/McpServerManager.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/mcp/PopularMcpServers.kt \
-            composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/mcp/McpProtocolCompatibilityTest.kt \
-            composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/mcp/PopularMcpServersTest.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/network/Requests.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/skills/SkillMarketplaces.kt \
-            composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/testutil/FakeDataRepository.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/network/CloudflareModelSearchParser.kt \
-            composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/network/CloudflareModelSearchParserTest.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/settings/ModelSelectionSheet.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/settings/ServicesSettings.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/settings/SettingsActions.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/settings/SettingsUiState.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/settings/SettingsViewModel.kt \
-            composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/ui/settings/SettingsViewModelTest.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/Theme.kt \
-            iosApp/Configuration/Config.xcconfig \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/ChatTimelineData.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/ChatUiState.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/activities/ActivityMapper.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/BotMessage.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/ChatTimeline.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/AgentActivityDisclosure.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/AgentReviewComponents.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/activities/AgentReviewModels.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/ToolConfirmationCard.kt \
-            composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/ui/chat/activities/ActivityMapperTest.kt \
-            composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/ui/chat/activities/AgentReviewModelsTest.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/ChatScreen.kt \
-            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/settings/GeneralSettings.kt \
-            iosApp/Configuration/Config.xcconfig
+      # This executes Paparazzi tests against committed golden files.
+      # It deliberately does not run recordPaparazziDebug/updateScreenshots.
+      - name: Verify screenshot golden files
+        run: ./gradlew :screenshotTests:testDebugUnitTest --no-daemon --stacktrace
 
-          if git diff --cached --quiet; then
-            echo "No reviewed source changes to commit."
-            exit 0
-          fi
-
-          git commit -m "chore: apply reviewed formatting and version sync"
-          git push origin "HEAD:${GITHUB_HEAD_REF}"
-
-      - name: Fail if unreviewed generated changes remain
-        if: github.event_name == 'pull_request'
-        run: |
-          # Review artifacts are temporary workspace files, not repository changes.
-          rm -f generated-changes-status.txt generated-changes-stat.txt generated-changes.patch generated-files.tar.gz
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "::error::Unreviewed generated changes remain after the allowlisted commit."
-            git status --short
-            exit 1
-          fi
-
-      - name: Commit and push changes
-        if: |
-          steps.changes.outputs.has_changes == 'true' &&
-          github.event_name == 'push'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add -A
-          git commit -m "Auto-fix: spotlessApply and updateScreenshots [skip ci]"
-          git pull --rebase origin main
-          git push origin HEAD:main
-
-      # Preserve XML failure messages and HTML stack traces even when a test task fails.
-      - name: Upload screenshot test reports
+      - name: Upload screenshot regression reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: screenshot-test-reports-${{ github.run_id }}
+          name: screenshot-regression-reports-${{ github.run_id }}
           path: |
             screenshotTests/build/test-results/testDebugUnitTest/
             screenshotTests/build/reports/tests/testDebugUnitTest/
           if-no-files-found: warn
           retention-days: 14
+
+  # Preserve the existing required check name while exposing parallel job results.
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - quality
+      - desktop
+      - android
+      - screenshots
+    steps:
+      - name: Require every validation job to pass
+        shell: bash
+        run: |
+          results=("${{ needs.quality.result }}" "${{ needs.desktop.result }}" "${{ needs.android.result }}" "${{ needs.screenshots.result }}")
+          for result in "${results[@]}"; do
+            if [[ "$result" != "success" ]]; then
+              echo "A required validation job did not succeed: $result"
+              exit 1
+            fi
+          done
+          echo "All validation jobs passed."
