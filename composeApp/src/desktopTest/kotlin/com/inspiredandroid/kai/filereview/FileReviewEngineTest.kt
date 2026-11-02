@@ -16,8 +16,11 @@ class FileReviewEngineTest {
         val privateDir = Files.createTempDirectory("file-review-private").toFile()
         val fs = object : FileReviewFileSystem {
             override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? {
-                if (!guestPath.startsWith("/root/") || guestPath.split('/').any { it == ".." || it == "." }) return null
-                val relative = guestPath.removePrefix("/root/")
+                if (workspace != FileReviewWorkspace.PROJECT) return null
+                if (guestPath.isBlank() || guestPath.startsWith("/") || guestPath.contains('\\')) return null
+                val parts = guestPath.split('/')
+                if (parts.any { it.isBlank() || it == ".." || it == "." }) return null
+                val relative = parts.joinToString("/")
                 val file = File(root, relative)
                 val canonicalRoot = root.canonicalPath
                 val canonicalFile = file.canonicalPath
@@ -43,7 +46,7 @@ class FileReviewEngineTest {
         try {
             val target = File(f.root, "main.kt").apply { writeText("before") }
             val proposed = assertIs<FileReviewActionResult.Success>(
-                f.engine.proposeTextChange(FileReviewWorkspace.CHAT_SANDBOX, "/root/main.kt", "after"),
+                f.engine.proposeTextChange(FileReviewWorkspace.PROJECT, "main.kt", "after"),
             ).proposal
             assertEquals("before", target.readText())
             val accepted = assertIs<FileReviewActionResult.Success>(f.engine.accept(proposed.id)).proposal
@@ -63,7 +66,7 @@ class FileReviewEngineTest {
         val f = fixture()
         try {
             val proposed = assertIs<FileReviewActionResult.Success>(
-                f.engine.proposeTextChange(FileReviewWorkspace.KAI_BUILD, "/root/new.kt", "new"),
+                f.engine.proposeTextChange(FileReviewWorkspace.PROJECT, "new.kt", "new"),
             ).proposal
             assertEquals(FileReviewOperation.CREATE, proposed.operation)
             assertIs<FileReviewActionResult.Success>(f.engine.accept(proposed.id))
@@ -82,7 +85,7 @@ class FileReviewEngineTest {
         try {
             val target = File(f.root, "remove.txt").apply { writeText("keep me") }
             val proposed = assertIs<FileReviewActionResult.Success>(
-                f.engine.proposeDelete(FileReviewWorkspace.CHAT_SANDBOX, "/root/remove.txt"),
+                f.engine.proposeDelete(FileReviewWorkspace.PROJECT, "remove.txt"),
             ).proposal
             assertTrue(target.exists())
             assertIs<FileReviewActionResult.Success>(f.engine.accept(proposed.id))
@@ -101,7 +104,7 @@ class FileReviewEngineTest {
         try {
             val target = File(f.root, "main.kt").apply { writeText("before") }
             val proposal = assertIs<FileReviewActionResult.Success>(
-                f.engine.proposeTextChange(FileReviewWorkspace.CHAT_SANDBOX, "/root/main.kt", "agent"),
+                f.engine.proposeTextChange(FileReviewWorkspace.PROJECT, "main.kt", "agent"),
             ).proposal
             target.writeText("user edit")
             val result = assertIs<FileReviewActionResult.Conflict>(f.engine.accept(proposal.id))
@@ -122,10 +125,10 @@ class FileReviewEngineTest {
             File(outside, "secret").writeText("secret")
             Files.createSymbolicLink(File(f.root, "link").toPath(), outside.toPath())
             assertIs<FileReviewActionResult.Failure>(
-                f.engine.proposeTextChange(FileReviewWorkspace.CHAT_SANDBOX, "/root/link/secret", "changed"),
+                f.engine.proposeTextChange(FileReviewWorkspace.PROJECT, "link/secret", "changed"),
             )
             assertIs<FileReviewActionResult.Failure>(
-                f.engine.proposeTextChange(FileReviewWorkspace.CHAT_SANDBOX, "/root/../outside", "changed"),
+                f.engine.proposeTextChange(FileReviewWorkspace.PROJECT, "../outside", "changed"),
             )
             outside.deleteRecursively()
         } finally {
@@ -147,7 +150,7 @@ class FileReviewEngineTest {
         try {
             val target = File(f.root, "main.kt").apply { writeText("before") }
             val proposal = assertIs<FileReviewActionResult.Success>(
-                f.engine.proposeTextChange(FileReviewWorkspace.CHAT_SANDBOX, "/root/main.kt", "after"),
+                f.engine.proposeTextChange(FileReviewWorkspace.PROJECT, "main.kt", "after"),
             ).proposal
             val result = f.engine.accept(proposal.id)
             assertIs<FileReviewActionResult.Failure>(result)
@@ -164,7 +167,7 @@ class FileReviewEngineTest {
         try {
             val target = File(f.root, "main.kt").apply { writeText("before") }
             val proposal = assertIs<FileReviewActionResult.Success>(
-                f.engine.proposeTextChange(FileReviewWorkspace.CHAT_SANDBOX, "/root/main.kt", "accepted"),
+                f.engine.proposeTextChange(FileReviewWorkspace.PROJECT, "main.kt", "accepted"),
             ).proposal
             assertIs<FileReviewActionResult.Success>(f.engine.accept(proposal.id))
             target.writeText("newer user edit")
@@ -181,12 +184,12 @@ class FileReviewEngineTest {
         val f = fixture()
         try {
             val proposal = assertIs<FileReviewActionResult.Success>(
-                f.engine.proposeTextChange(FileReviewWorkspace.CHAT_SANDBOX, "/root/main.kt", "staged"),
+                f.engine.proposeTextChange(FileReviewWorkspace.PROJECT, "main.kt", "staged"),
             ).proposal
             val restarted = FileReviewEngine(
                 f.privateDir,
                 object : FileReviewFileSystem {
-                    override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? = File(f.root, guestPath.removePrefix("/root/"))
+                    override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? = File(f.root, guestPath)
                 },
             )
             restarted.initialize()
