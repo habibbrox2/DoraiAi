@@ -19,7 +19,9 @@ class FileReviewEngineTest {
                 val file = File(root, relative)
                 val canonicalRoot = root.canonicalPath
                 val canonicalFile = file.canonicalPath
-                if (canonicalFile != canonicalRoot && !canonicalFile.startsWith(canonicalRoot + File.separator)) return null
+                if (canonicalFile != canonicalRoot && !canonicalFile.startsWith(canonicalRoot + File.separator)) {
+                    return null
+                }
                 var cursor = root
                 for (part in relative.split('/')) {
                     cursor = File(cursor, part)
@@ -133,7 +135,9 @@ class FileReviewEngineTest {
     @Test
     fun atomicMoveFailureLeavesOriginalUntouched() {
         val failingMover = AtomicFileMover { source, target, replace ->
-            if (target.name == "main.kt") throw AtomicMoveNotSupportedException(source.path, target.path, "test failure")
+            if (target.name == "main.kt") {
+                throw AtomicMoveNotSupportedException(source.path, target.path, "test failure")
+            }
             else NioAtomicFileMover.move(source, target, replace)
         }
         val f = fixture(failingMover)
@@ -177,7 +181,8 @@ class FileReviewEngineTest {
                 f.engine.proposeTextChange(FileReviewWorkspace.CHAT_SANDBOX, "/root/main.kt", "staged"),
             ).proposal
             val restarted = FileReviewEngine(f.privateDir, object : FileReviewFileSystem {
-                override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? = File(f.root, guestPath.removePrefix("/root/"))
+                override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? =
+                    File(f.root, guestPath.removePrefix("/root/"))
             })
             restarted.initialize()
             assertEquals(FileReviewState.PROPOSED, restarted.proposals.value.single { it.id == proposal.id }.state)

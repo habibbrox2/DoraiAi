@@ -6,21 +6,24 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.ByteBuffer
 import java.nio.charset.CodingErrorAction
 import java.nio.charset.StandardCharsets
-import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.BasicFileAttributes
 import java.security.MessageDigest
 import java.util.UUID
+
+interface FileReviewFileSystem {
+    fun resolve(workspace: FileReviewWorkspace, guestPath: String): File?
+}
 
 fun interface AtomicFileMover {
     fun move(source: File, target: File, replaceExisting: Boolean)
@@ -29,7 +32,12 @@ fun interface AtomicFileMover {
 object NioAtomicFileMover : AtomicFileMover {
     override fun move(source: File, target: File, replaceExisting: Boolean) {
         if (replaceExisting) {
-            Files.move(source.toPath(), target.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+            Files.move(
+                source.toPath(),
+                target.toPath(),
+                StandardCopyOption.ATOMIC_MOVE,
+                StandardCopyOption.REPLACE_EXISTING,
+            )
         } else {
             Files.move(source.toPath(), target.toPath(), StandardCopyOption.ATOMIC_MOVE)
         }
@@ -48,7 +56,10 @@ class FileReviewEngine(
 ) : FileReviewController {
 
     private val mutex = Mutex()
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
     private val journal = File(stagingRoot, "journal.json")
     private val _proposals = MutableStateFlow<List<FileReviewProposal>>(emptyList())
     override val proposals: StateFlow<List<FileReviewProposal>> = _proposals
@@ -81,7 +92,9 @@ class FileReviewEngine(
             withContext(Dispatchers.IO) {
                 try {
                     val proposed = encodeStrictUtf8(content)
-                    if (proposed.size.toLong() > FILE_REVIEW_MAX_BYTES) return@withContext FileReviewActionResult.Failure("Proposed text exceeds the 512 KiB limit")
+                    if (proposed.size.toLong() > FILE_REVIEW_MAX_BYTES) {
+                        return@withContext FileReviewActionResult.Failure("Proposed text exceeds the 512 KiB limit")
+                    }
                     createProposal(workspace, path, proposed, delete = false)
                 } catch (e: Exception) {
                     FileReviewActionResult.Failure(e.message ?: "Could not stage file change")
@@ -110,7 +123,9 @@ class FileReviewEngine(
         delete: Boolean,
     ): FileReviewActionResult {
         val target = fileSystem.resolve(workspace, path)
-            ?: return FileReviewActionResult.Failure("Path is outside the selected workspace or contains an unsafe path component")
+            ?: return FileReviewActionResult.Failure(
+                "Path is outside the selected workspace or contains an unsafe path component",
+            )
         val parent = target.parentFile ?: return FileReviewActionResult.Failure("Target has no parent directory")
         if (!parent.isDirectory || Files.isSymbolicLink(parent.toPath())) {
             return FileReviewActionResult.Failure("Parent directory is missing or unsafe")
@@ -119,11 +134,15 @@ class FileReviewEngine(
         if (original != null && !isStrictUtf8(original)) {
             return FileReviewActionResult.Failure("Binary or invalid UTF-8 files cannot be staged")
         }
-        if (delete && original == null) return FileReviewActionResult.Failure("Cannot delete a file that does not exist")
+        if (delete && original == null) {
+            return FileReviewActionResult.Failure("Cannot delete a file that does not exist")
+        }
         if (!delete && proposed == null) return FileReviewActionResult.Failure("Missing proposed content")
         val totalStaged = stagingRoot.walkTopDown().filter { it.isFile && it != journal }.sumOf { it.length() }
         val requested = (original?.size ?: 0).toLong() + (proposed?.size ?: 0).toLong()
-        if (totalStaged + requested > MAX_STAGING_BYTES) return FileReviewActionResult.Failure("File Review staging quota exceeded")
+        if (totalStaged + requested > MAX_STAGING_BYTES) {
+            return FileReviewActionResult.Failure("File Review staging quota exceeded")
+        }
         val operation = when {
             delete -> FileReviewOperation.DELETE
             original == null -> FileReviewOperation.CREATE
@@ -175,7 +194,9 @@ class FileReviewEngine(
         return mutex.withLock {
             withContext(Dispatchers.IO) {
                 val proposal = find(proposalId) ?: return@withContext FileReviewActionResult.NotFound
-                if (proposal.state != FileReviewState.PROPOSED) return@withContext FileReviewActionResult.Failure("Proposal is not pending review")
+                if (proposal.state != FileReviewState.PROPOSED) {
+                    return@withContext FileReviewActionResult.Failure("Proposal is not pending review")
+                }
                 val target = fileSystem.resolve(proposal.workspace, proposal.path)
                     ?: return@withContext FileReviewActionResult.Failure("Workspace path is no longer safe")
                 val current = try { readTarget(target) } catch (e: Exception) {
@@ -192,14 +213,22 @@ class FileReviewEngine(
                         FileReviewOperation.DELETE -> Files.delete(target.toPath())
                         FileReviewOperation.CREATE, FileReviewOperation.UPDATE -> {
                             val bytes = proposedFile(proposalId).readBytes()
-                            writeTargetAtomically(target, bytes, replaceExisting = proposal.operation == FileReviewOperation.UPDATE)
+                            writeTargetAtomically(
+                                target,
+                                bytes,
+                                replaceExisting = proposal.operation == FileReviewOperation.UPDATE,
+                            )
                         }
                     }
                     val after = readTarget(target)
                     if (after?.let(::sha256) != proposal.proposedSha256) {
                         throw IllegalStateException("Post-write SHA-256 verification failed")
                     }
-                    val accepted = applying.copy(state = FileReviewState.ACCEPTED, updatedAtMs = clock(), rollbackAvailable = true)
+                    val accepted = applying.copy(
+                        state = FileReviewState.ACCEPTED,
+                        updatedAtMs = clock(),
+                        rollbackAvailable = true,
+                    )
                     replace(accepted)
                     persistJournal()
                     FileReviewActionResult.Success(accepted)
@@ -227,7 +256,11 @@ class FileReviewEngine(
                 }
                 originalFile(proposalId).delete()
                 proposedFile(proposalId).delete()
-                val rejected = proposal.copy(state = FileReviewState.REJECTED, updatedAtMs = clock(), rollbackAvailable = false)
+                val rejected = proposal.copy(
+                    state = FileReviewState.REJECTED,
+                    updatedAtMs = clock(),
+                    rollbackAvailable = false,
+                )
                 replace(rejected)
                 persistJournal()
                 FileReviewActionResult.Success(rejected)
@@ -247,14 +280,21 @@ class FileReviewEngine(
                     ?: return@withContext FileReviewActionResult.Failure("Workspace path is no longer safe")
                 val current = readTarget(target)
                 if (current?.let(::sha256) != proposal.proposedSha256) {
-                    return@withContext markConflict(proposal, "File changed after Accept; rollback would overwrite newer work")
+                    return@withContext markConflict(
+                        proposal,
+                        "File changed after Accept; rollback would overwrite newer work",
+                    )
                 }
                 val rollingBack = proposal.copy(state = FileReviewState.ROLLING_BACK, updatedAtMs = clock())
                 replace(rollingBack)
                 persistJournal()
                 try {
                     restoreOriginal(proposal, target)
-                    val rolledBack = rollingBack.copy(state = FileReviewState.ROLLED_BACK, updatedAtMs = clock(), rollbackAvailable = false)
+                    val rolledBack = rollingBack.copy(
+                        state = FileReviewState.ROLLED_BACK,
+                        updatedAtMs = clock(),
+                        rollbackAvailable = false,
+                    )
                     replace(rolledBack)
                     persistJournal()
                     FileReviewActionResult.Success(rolledBack)
@@ -289,7 +329,13 @@ class FileReviewEngine(
         val parent = target.parentFile ?: error("Target has no parent")
         if (!parent.isDirectory || Files.isSymbolicLink(parent.toPath())) error("Target parent is unsafe")
         val temp = File(parent, ".${target.name}.${UUID.randomUUID()}.kai-tmp")
-        val permissions = if (target.exists()) runCatching { Files.getPosixFilePermissions(target.toPath(), LinkOption.NOFOLLOW_LINKS) }.getOrNull() else null
+        val permissions = if (target.exists()) {
+            runCatching {
+                Files.getPosixFilePermissions(target.toPath(), LinkOption.NOFOLLOW_LINKS)
+            }.getOrNull()
+        } else {
+            null
+        }
         try {
             writeSynced(temp, bytes)
             if (sha256(temp.readBytes()) != sha256(bytes)) error("Temporary file verification failed")
@@ -323,7 +369,9 @@ class FileReviewEngine(
     private fun readTarget(file: File): ByteArray? {
         if (!Files.exists(file.toPath(), LinkOption.NOFOLLOW_LINKS)) return null
         val attrs = Files.readAttributes(file.toPath(), BasicFileAttributes::class.java, LinkOption.NOFOLLOW_LINKS)
-        if (attrs.isSymbolicLink || !attrs.isRegularFile) throw IllegalArgumentException("Target is not a regular non-symlink file")
+        if (attrs.isSymbolicLink || !attrs.isRegularFile) {
+            throw IllegalArgumentException("Target is not a regular non-symlink file")
+        }
         if (attrs.size() > FILE_REVIEW_MAX_BYTES) throw IllegalArgumentException("Target exceeds the 512 KiB limit")
         return Files.readAllBytes(file.toPath())
     }
@@ -331,19 +379,40 @@ class FileReviewEngine(
     private fun recoverApplyingTransactions() {
         var changed = false
         _proposals.value = _proposals.value.map { proposal ->
-            if (proposal.state != FileReviewState.APPLYING && proposal.state != FileReviewState.ROLLING_BACK) return@map proposal
+            if (proposal.state != FileReviewState.APPLYING && proposal.state != FileReviewState.ROLLING_BACK) {
+                return@map proposal
+            }
             val target = fileSystem.resolve(proposal.workspace, proposal.path)
             val currentResult = target?.let { runCatching { readTarget(it) } }
-            val currentHash = if (currentResult?.isSuccess == true) currentResult.getOrNull()?.let(::sha256) else "<unsafe-target>"
+            val currentHash = if (currentResult?.isSuccess == true) {
+                currentResult.getOrNull()?.let(::sha256)
+            } else {
+                "<unsafe-target>"
+            }
             val recovered = when (proposal.state) {
                 FileReviewState.APPLYING -> when {
-                    currentHash == proposal.proposedSha256 -> proposal.copy(state = FileReviewState.ACCEPTED, rollbackAvailable = true, updatedAtMs = clock())
-                    currentHash == proposal.originalSha256 -> proposal.copy(state = FileReviewState.FAILED, updatedAtMs = clock())
+                    currentHash == proposal.proposedSha256 -> proposal.copy(
+                        state = FileReviewState.ACCEPTED,
+                        rollbackAvailable = true,
+                        updatedAtMs = clock(),
+                    )
+                    currentHash == proposal.originalSha256 -> proposal.copy(
+                        state = FileReviewState.FAILED,
+                        updatedAtMs = clock(),
+                    )
                     else -> proposal.copy(state = FileReviewState.CONFLICT, updatedAtMs = clock())
                 }
                 FileReviewState.ROLLING_BACK -> when {
-                    currentHash == proposal.originalSha256 -> proposal.copy(state = FileReviewState.ROLLED_BACK, rollbackAvailable = false, updatedAtMs = clock())
-                    currentHash == proposal.proposedSha256 -> proposal.copy(state = FileReviewState.ACCEPTED, rollbackAvailable = true, updatedAtMs = clock())
+                    currentHash == proposal.originalSha256 -> proposal.copy(
+                        state = FileReviewState.ROLLED_BACK,
+                        rollbackAvailable = false,
+                        updatedAtMs = clock(),
+                    )
+                    currentHash == proposal.proposedSha256 -> proposal.copy(
+                        state = FileReviewState.ACCEPTED,
+                        rollbackAvailable = true,
+                        updatedAtMs = clock(),
+                    )
                     else -> proposal.copy(state = FileReviewState.CONFLICT, updatedAtMs = clock())
                 }
                 else -> proposal
@@ -365,7 +434,9 @@ class FileReviewEngine(
                     changed = true
                     proposal.copy(state = FileReviewState.REJECTED, updatedAtMs = now, rollbackAvailable = false)
                 }
-                proposal.state == FileReviewState.ACCEPTED && proposal.rollbackAvailable && now - proposal.updatedAtMs > BACKUP_TTL_MS -> {
+                proposal.state == FileReviewState.ACCEPTED &&
+                    proposal.rollbackAvailable &&
+                    now - proposal.updatedAtMs > BACKUP_TTL_MS -> {
                     originalFile(proposal.id).delete()
                     proposedFile(proposal.id).delete()
                     changed = true
@@ -394,7 +465,11 @@ class FileReviewEngine(
     private fun proposedFile(id: String) = File(stagingRoot, "$id.proposed")
 
     private fun persistJournal() {
-        writeAtomic(journal, json.encodeToString(_proposals.value).toByteArray(Charsets.UTF_8), replaceExisting = journal.exists())
+        writeAtomic(
+            journal,
+            json.encodeToString(_proposals.value).toByteArray(Charsets.UTF_8),
+            replaceExisting = journal.exists(),
+        )
     }
 
     private fun encodeStrictUtf8(value: String): ByteArray {
