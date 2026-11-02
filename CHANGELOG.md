@@ -1,3 +1,18 @@
+## Brox Kai v2.0 — IDE-grade Agent Review Experience
+
+### Added
+- Added a bounded, line-numbered side-by-side file diff when a tool supplies both before and after snapshots.
+- Added explicit fallback states for patch-only, new-content-only, and missing-snapshot file activity; the UI never invents an original version.
+- Added per-file session review annotations (Reviewed / Needs changes), clearly separated from applying or reverting filesystem changes.
+- Added an observable Agent Run Summary with step, completion, failure, file, terminal, and elapsed-time metrics.
+
+### Safety and limitations
+- Review annotations are presentation-only; no filesystem write-back or rollback is implied.
+- Diff computation is bounded to 250 lines per side.
+- No private provider reasoning, inferred token usage, or inferred cost is exposed.
+
+---
+
 ## Brox Kai v2.0 — Premium Agent Conversation Experience
 
 ### Added

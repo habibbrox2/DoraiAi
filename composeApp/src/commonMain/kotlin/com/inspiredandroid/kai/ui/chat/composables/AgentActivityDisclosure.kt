@@ -43,6 +43,9 @@ import com.inspiredandroid.kai.ui.chat.ChatSpacing
 import com.inspiredandroid.kai.ui.chat.activities.ActivityDetails
 import com.inspiredandroid.kai.ui.chat.activities.ActivityStatus
 import com.inspiredandroid.kai.ui.chat.activities.AgentActivity
+import com.inspiredandroid.kai.ui.chat.activities.summarizeAgentRun
+import com.inspiredandroid.kai.ui.chat.activities.formatAgentRunDuration
+import kotlin.time.Clock
 import com.inspiredandroid.kai.ui.theme.DesignTokens
 
 private val secretAssignment = Regex(
@@ -58,14 +61,18 @@ internal fun AgentActivityDisclosure(activities: List<AgentActivity>, modifier: 
     var expanded by remember(runId) {
         mutableStateOf(activities.any { it.status == ActivityStatus.PENDING || it.status == ActivityStatus.RUNNING })
     }
-    val completed = activities.count { it.status == ActivityStatus.COMPLETED }
-    val running = activities.count { it.status == ActivityStatus.PENDING || it.status == ActivityStatus.RUNNING }
-    val failed = activities.count { it.status == ActivityStatus.FAILED || it.status == ActivityStatus.TIMEOUT }
+    val runSummary = summarizeAgentRun(activities, Clock.System.now().toEpochMilliseconds())
+    val completed = runSummary.completed
+    val running = runSummary.running
+    val failed = runSummary.failed
     val summary = buildList {
+        add("${runSummary.total} steps")
+        if (runSummary.fileCount > 0) add("${runSummary.fileCount} files")
+        if (runSummary.terminalCount > 0) add("${runSummary.terminalCount} terminal")
+        add(formatAgentRunDuration(runSummary.durationMs))
         if (running > 0) add("$running running")
-        if (completed > 0) add("$completed completed")
+        if (completed > 0) add("$completed done")
         if (failed > 0) add("$failed failed")
-        if (isEmpty()) add("${activities.size} activities")
     }.joinToString(" · ")
     val overallColor = when {
         failed > 0 -> DesignTokens.Error
@@ -90,7 +97,7 @@ internal fun AgentActivityDisclosure(activities: List<AgentActivity>, modifier: 
             ) {
                 Box(Modifier.size(9.dp).clip(CircleShape).background(overallColor))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Agent activity", style = KaiTypography.labelLarge.copy(fontWeight = FontWeight.SemiBold), color = DesignTokens.PrimaryText)
+                    Text("Agent run", style = KaiTypography.labelLarge.copy(fontWeight = FontWeight.SemiBold), color = DesignTokens.PrimaryText)
                     Text(summary, style = KaiTypography.labelSmall, color = DesignTokens.SecondaryText)
                 }
                 Text(activities.size.toString(), style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.Bold), color = DesignTokens.TertiaryText)
@@ -169,9 +176,7 @@ private fun AgentActivityRow(activity: AgentActivity) {
 
                         is ActivityDetails.FileOperation -> {
                             Text("${details.operation} · ${safeActivityPreview(details.path, 240)}", style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.Medium), color = DesignTokens.BrandCyan)
-                            details.changeSummary?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview("Result", it) }
-                            details.oldContent?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview("Before", it, DesignTokens.Error) }
-                            details.newContent?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview("After", it, DesignTokens.Success) }
+                            FileChangeReviewCard(activityId = activity.id, details = details, status = activity.status)
                         }
 
                         is ActivityDetails.Generic -> details.content?.let { ActivityCodePreview("Details", it) }

@@ -198,8 +198,11 @@ jobs:
             composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/BotMessage.kt \
             composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/ChatTimeline.kt \
             composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/AgentActivityDisclosure.kt \
+            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/AgentReviewComponents.kt \
+            composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/activities/AgentReviewModels.kt \
             composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/ToolConfirmationCard.kt \
             composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/ui/chat/activities/ActivityMapperTest.kt \
+            composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/ui/chat/activities/AgentReviewModelsTest.kt \
             composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/ChatScreen.kt \
             composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/settings/GeneralSettings.kt \
             iosApp/Configuration/Config.xcconfig

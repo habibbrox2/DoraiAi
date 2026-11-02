@@ -2,6 +2,9 @@ package com.inspiredandroid.kai.ui.chat.activities
 
 import com.inspiredandroid.kai.ui.chat.History
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlin.time.Clock
 
 /**
@@ -105,6 +108,7 @@ object ActivityMapper {
     private fun activityType(toolName: String): ActivityType {
         val name = toolName.lowercase()
         if (name == "execute_shell_command" || name.contains("shell") || name.contains("terminal")) return ActivityType.SHELL_COMMAND
+        if (name.contains("patch")) return ActivityType.FILE_EDIT
         if (name.contains("file") || name.contains("filesystem")) {
             return when {
                 name.contains("delete") || name.contains("remove") -> ActivityType.FILE_DELETE
@@ -137,16 +141,22 @@ object ActivityMapper {
     private fun withResult(details: ActivityDetails, result: String, failed: Boolean): ActivityDetails = when (details) {
         is ActivityDetails.ToolCall -> details.copy(result = result, error = if (failed) result else null)
         is ActivityDetails.ShellCommand -> parseShellResult(details, result)
-        is ActivityDetails.FileOperation -> details.copy(changeSummary = result)
+        is ActivityDetails.FileOperation -> details.copy(
+            changeSummary = jsonString(result, "change_summary", "summary", "message") ?: result,
+            oldContent = details.oldContent ?: jsonString(result, "old_content", "oldContent", "before"),
+            newContent = details.newContent ?: jsonString(result, "new_content", "newContent", "content", "after"),
+            diff = details.diff ?: jsonString(result, "diff", "patch", "unified_diff"),
+        )
         is ActivityDetails.Generic -> details.copy(content = result)
         is ActivityDetails.Skill -> details
         is ActivityDetails.Permission -> details
     }
 
     private fun parseFileOperation(toolName: String, args: String): ActivityDetails.FileOperation {
-        val path = Regex("\"(?:path|file_path|filename)\"\\s*:\\s*\"([^\"]+)\"").find(args)?.groupValues?.get(1).orEmpty()
-        val oldContent = Regex("\"(?:old_content|oldContent|before)\"\\s*:\\s*\"((?:\\\\.|[^\"])*)\"").find(args)?.groupValues?.get(1)
-        val newContent = Regex("\"(?:new_content|newContent|content|after)\"\\s*:\\s*\"((?:\\\\.|[^\"])*)\"").find(args)?.groupValues?.get(1)
+        val path = jsonString(args, "path", "file_path", "filePath", "filename", "file").orEmpty()
+        val oldContent = jsonString(args, "old_content", "oldContent", "before")
+        val newContent = jsonString(args, "new_content", "newContent", "content", "after")
+        val diff = jsonString(args, "diff", "patch", "unified_diff")
         val operation = when (activityType(toolName)) {
             ActivityType.FILE_DELETE -> "Delete"
             ActivityType.FILE_EDIT -> "Edit"
@@ -156,9 +166,21 @@ object ActivityMapper {
         return ActivityDetails.FileOperation(
             path = path.ifBlank { "File operation" },
             operation = operation,
-            oldContent = oldContent?.replace("\\n", "\n"),
-            newContent = newContent?.replace("\\n", "\n"),
+            oldContent = oldContent,
+            newContent = newContent,
+            diff = diff,
         )
+    }
+
+    private fun jsonString(source: String, vararg keys: String): String? {
+        val parsed = runCatching { Json.parseToJsonElement(source) as? JsonObject }.getOrNull()
+        return keys.firstNotNullOfOrNull { key ->
+            val value = parsed?.get(key) ?: return@firstNotNullOfOrNull null
+            when (value) {
+                is JsonPrimitive -> value.content
+                else -> value.toString()
+            }
+        }
     }
 
     internal fun parseShellCommand(args: String): ActivityDetails.ShellCommand = try {

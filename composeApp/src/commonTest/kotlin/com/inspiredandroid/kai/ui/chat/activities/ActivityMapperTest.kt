@@ -84,4 +84,51 @@ class ActivityMapperTest {
         assertEquals("pwd", details.command)
         assertEquals("/workspace", details.workingDirectory)
     }
+
+    @Test
+    fun fileOperationArgumentsDecodeBeforeAfterAndPatch() {
+        val history = listOf(
+            History(
+                id = "assistant-file-run",
+                role = History.Role.ASSISTANT,
+                content = "",
+                toolCalls = persistentListOf(
+                    ToolCallInfo(
+                        id = "file-call",
+                        name = "edit_file",
+                        arguments = """{"path":"src/Main.kt","old_content":"fun main() {}","new_content":"fun main() { println(1) }","diff":"@@ -1 +1 @@\\n-fun main() {}\\n+fun main() { println(1) }"}""",
+                    ),
+                ),
+            ),
+        )
+        val details = assertIs<ActivityDetails.FileOperation>(ActivityMapper.historyToActivities(history).single().details)
+        assertEquals("src/Main.kt", details.path)
+        assertEquals("fun main() {}", details.oldContent)
+        assertEquals("fun main() { println(1) }", details.newContent)
+        assertTrue(details.diff.orEmpty().contains("@@ -1 +1 @@"))
+    }
+
+    @Test
+    fun fileOperationResultCanSupplyBeforeAndAfterSnapshots() {
+        val history = listOf(
+            History(
+                id = "assistant-file-run",
+                role = History.Role.ASSISTANT,
+                content = "",
+                toolCalls = persistentListOf(ToolCallInfo(id = "file-call", name = "write_file", arguments = """{"path":"README.md"}""")),
+            ),
+            History(
+                id = "file-result",
+                role = History.Role.TOOL,
+                content = """{"success":true,"old_content":"before","new_content":"after","summary":"Updated README"}""",
+                toolCallId = "file-call",
+                toolName = "write_file",
+            ),
+        )
+        val details = assertIs<ActivityDetails.FileOperation>(ActivityMapper.historyToActivities(history).single().details)
+        assertEquals("before", details.oldContent)
+        assertEquals("after", details.newContent)
+        assertTrue(details.changeSummary.orEmpty().contains("Updated README"))
+    }
+
 }
