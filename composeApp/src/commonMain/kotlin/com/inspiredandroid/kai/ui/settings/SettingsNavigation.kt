@@ -19,11 +19,22 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.Cloud
+import androidx.compose.material.icons.outlined.Computer
+import androidx.compose.material.icons.outlined.Extension
+import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.SmartToy
+import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -83,6 +94,17 @@ fun SettingsNavRail(
         ) {
             tabs.forEach { tab ->
                 val isSelected = currentTab == tab
+                val icon = when (tab) {
+                    SettingsTab.General -> Icons.Outlined.Settings
+                    SettingsTab.Appearance -> Icons.Outlined.Palette
+                    SettingsTab.Agent -> Icons.Outlined.SmartToy
+                    SettingsTab.Services -> Icons.Outlined.Cloud
+                    SettingsTab.Tools -> Icons.Outlined.Build
+                    SettingsTab.Integrations -> Icons.Outlined.Extension
+                    SettingsTab.Sandbox -> Icons.Outlined.Computer
+                    SettingsTab.Data -> Icons.Outlined.Storage
+                    SettingsTab.Account -> Icons.Outlined.AccountCircle
+                }
                 val label = when (tab) {
                     SettingsTab.General -> stringResource(Res.string.settings_tab_general)
                     SettingsTab.Appearance -> "Appearance"
@@ -137,6 +159,13 @@ fun SettingsNavRail(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = textColor,
+                            modifier = Modifier.size(21.dp),
+                        )
+                        Spacer(Modifier.height(6.dp))
                         Text(
                             text = label,
                             style = KaiTypography.labelSmall,

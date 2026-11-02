@@ -61,7 +61,17 @@ fun SettingsDetailPane(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            item { Spacer(Modifier.height(16.dp)) }
+            item { Spacer(Modifier.height(20.dp)) }
+            item {
+                SettingsPageHeading(
+                    tab = uiState.currentTab,
+                    modifier = Modifier
+                        .widthIn(max = 900.dp)
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                )
+            }
+            item { Spacer(Modifier.height(18.dp)) }
 
             val maxContentWidth = when (uiState.currentTab) {
                 SettingsTab.Services -> 500.dp
@@ -218,6 +228,57 @@ fun AccountPlanContent(
         )
         Text(
             text = "Version " + com.inspiredandroid.kai.Version.appVersion,
+            style = KaiTypography.bodySmall,
+            color = TextSecondary,
+        )
+    }
+}
+
+
+@Composable
+private fun SettingsPageHeading(
+    tab: SettingsTab,
+    modifier: Modifier = Modifier,
+) {
+    val title = when (tab) {
+        SettingsTab.General -> "General"
+        SettingsTab.Appearance -> "Appearance"
+        SettingsTab.Agent -> "Agent"
+        SettingsTab.Services -> "Services"
+        SettingsTab.Tools -> "Tools"
+        SettingsTab.Integrations -> "Integrations"
+        SettingsTab.Sandbox -> "Linux Sandbox"
+        SettingsTab.Data -> "Data & Privacy"
+        SettingsTab.Account -> "Account"
+    }
+    val description = when (tab) {
+        SettingsTab.General -> "Manage your workspace preferences and application behavior."
+        SettingsTab.Appearance -> "Tune the visual experience, theme, and accessibility."
+        SettingsTab.Agent -> "Configure agent behavior, reasoning, and model defaults."
+        SettingsTab.Services -> "Connect providers and manage the models available to Kai."
+        SettingsTab.Tools -> "Control the tools and capabilities available to your agent."
+        SettingsTab.Integrations -> "Manage MCP servers and external integrations."
+        SettingsTab.Sandbox -> "Configure the isolated Linux workspace and its lifecycle."
+        SettingsTab.Data -> "Manage conversations, local data, and privacy controls."
+        SettingsTab.Account -> "Review your account and application information."
+    }
+    Column(
+        modifier = modifier.semantics { heading() },
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Text(
+            text = "SETTINGS / " + title.uppercase(),
+            style = KaiTypography.labelSmall,
+            color = com.inspiredandroid.kai.ui.theme.DesignTokens.PrimaryCyan,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+        )
+        Text(
+            text = title,
+            style = KaiTypography.headlineSmall,
+            color = TextPrimary,
+        )
+        Text(
+            text = description,
             style = KaiTypography.bodySmall,
             color = TextSecondary,
         )
