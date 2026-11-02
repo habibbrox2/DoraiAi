@@ -10,6 +10,8 @@ import com.inspiredandroid.kai.data.ServiceEntry
 import com.inspiredandroid.kai.data.SharedJson
 import com.inspiredandroid.kai.data.SmsDraft
 import com.inspiredandroid.kai.data.UiSubmission
+import com.inspiredandroid.kai.filereview.FileReviewPreview
+import com.inspiredandroid.kai.filereview.FileReviewProposal
 import com.inspiredandroid.kai.network.UiError
 import com.inspiredandroid.kai.network.dtos.gemini.GeminiChatRequestDto
 import com.inspiredandroid.kai.network.dtos.openaicompatible.OpenAICompatibleChatRequestDto
@@ -107,6 +109,9 @@ data class ChatUiState(
     val composerPrefill: String? = null,
     val followUpSuggestions: ImmutableList<String> = persistentListOf(),
     val pendingToolConfirmations: ImmutableList<PendingToolConfirmation> = persistentListOf(),
+    val fileReviewProposals: ImmutableList<FileReviewProposal> = persistentListOf(),
+    val fileReviewPreviews: Map<String, FileReviewPreview> = emptyMap(),
+    val fileReviewActionMessage: String? = null,
 ) {
     val heartbeatConversationId: String?
         get() = savedConversations.firstOrNull { it.isHeartbeat }?.id

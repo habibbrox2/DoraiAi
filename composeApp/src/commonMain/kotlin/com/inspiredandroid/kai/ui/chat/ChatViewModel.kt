@@ -9,6 +9,10 @@ import com.inspiredandroid.kai.data.Service
 import com.inspiredandroid.kai.data.ServiceEntry
 import com.inspiredandroid.kai.data.TaskScheduler
 import com.inspiredandroid.kai.data.UiSubmission
+import com.inspiredandroid.kai.filereview.FileReviewActionResult
+import com.inspiredandroid.kai.filereview.FileReviewController
+import com.inspiredandroid.kai.filereview.FileReviewState
+import com.inspiredandroid.kai.filereview.NoOpFileReviewController
 import com.inspiredandroid.kai.getBackgroundDispatcher
 import com.inspiredandroid.kai.network.UiError
 import com.inspiredandroid.kai.network.shouldShowFreeProviderSuggestions
@@ -53,6 +57,7 @@ class ChatViewModel(
     private val taskScheduler: TaskScheduler,
     private val backgroundDispatcher: CoroutineContext = getBackgroundDispatcher(),
     private val localNetworkPermissionController: PermissionController = PermissionController(AppPermission.LOCAL_NETWORK),
+    private val fileReviewController: FileReviewController = NoOpFileReviewController(),
 ) : ViewModel() {
 
     private val actions = ChatActions(
@@ -89,6 +94,9 @@ class ChatViewModel(
         denyToolExecution = { toolCallId ->
             dataRepository.denyToolExecution(toolCallId)
         },
+        acceptFileChange = ::acceptFileChange,
+        rejectFileChange = ::rejectFileChange,
+        rollbackFileChange = ::rollbackFileChange,
     )
     private val freeModeNames: Map<FreeMode, String> = FreeMode.entries.associateWith { "Free ${it.modelId.replaceFirstChar { c -> c.uppercase() }}" }
     private var currentJob: Job? = null
@@ -104,6 +112,16 @@ class ChatViewModel(
 
     init {
         updateAvailableServices()
+
+        viewModelScope.launch(backgroundDispatcher) {
+            runCatching { fileReviewController.initialize() }
+            fileReviewController.proposals.collect { proposals ->
+                val visible = proposals.filter { it.state != FileReviewState.REJECTED }.takeLast(5)
+                val previews = LinkedHashMap<String, com.inspiredandroid.kai.filereview.FileReviewPreview>()
+                visible.forEach { proposal -> fileReviewController.preview(proposal.id)?.let { previews[proposal.id] = it } }
+                _state.update { it.copy(fileReviewProposals = visible.toImmutableList(), fileReviewPreviews = previews) }
+            }
+        }
 
         // Keep restoreCurrentConversation off the main thread; see issue #197 (large persisted
         // tool outputs caused ANRs when JSON-decoded synchronously during VM construction).
@@ -758,4 +776,23 @@ class ChatViewModel(
         dataRepository.setInteractiveMode(isInteractive)
         _state.update { it.copy(isInteractiveMode = isInteractive) }
     }
+    private fun acceptFileChange(proposalId: String) = performFileReviewAction { fileReviewController.accept(proposalId) }
+    private fun rejectFileChange(proposalId: String) = performFileReviewAction { fileReviewController.reject(proposalId) }
+    private fun rollbackFileChange(proposalId: String) = performFileReviewAction { fileReviewController.rollback(proposalId) }
+
+    private fun performFileReviewAction(action: suspend () -> FileReviewActionResult) {
+        viewModelScope.launch(backgroundDispatcher) {
+            val result = runCatching { action() }.getOrElse {
+                FileReviewActionResult.Failure(it.message ?: "File Review action failed")
+            }
+            val message = when (result) {
+                is FileReviewActionResult.Success -> "${result.proposal.path}: ${result.proposal.state.name.lowercase().replace('_', ' ')}"
+                is FileReviewActionResult.Conflict -> "${result.proposal.path}: conflict — ${result.reason}"
+                is FileReviewActionResult.Failure -> result.reason
+                FileReviewActionResult.NotFound -> "File Review proposal was not found"
+            }
+            _state.update { it.copy(fileReviewActionMessage = message) }
+        }
+    }
+
 }

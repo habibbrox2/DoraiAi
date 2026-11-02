@@ -108,6 +108,8 @@ object ActivityMapper {
     private fun activityType(toolName: String): ActivityType {
         val name = toolName.lowercase()
         if (name == "execute_shell_command" || name.contains("shell") || name.contains("terminal")) return ActivityType.SHELL_COMMAND
+        if (name == "propose_file_delete") return ActivityType.FILE_DELETE
+        if (name == "propose_file_change") return ActivityType.FILE_EDIT
         if (name.contains("patch")) return ActivityType.FILE_EDIT
         if (name.contains("file") || name.contains("filesystem")) {
             return when {
@@ -148,6 +150,7 @@ object ActivityMapper {
             oldContent = details.oldContent ?: jsonString(result, "old_content", "oldContent", "before"),
             newContent = details.newContent ?: jsonString(result, "new_content", "newContent", "content", "after"),
             diff = details.diff ?: jsonString(result, "diff", "patch", "unified_diff"),
+            proposalId = details.proposalId ?: jsonString(result, "proposal_id", "proposalId"),
         )
 
         is ActivityDetails.Generic -> details.copy(content = result)

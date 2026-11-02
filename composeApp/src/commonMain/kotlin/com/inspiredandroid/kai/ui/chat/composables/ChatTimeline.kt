@@ -201,7 +201,7 @@ fun ChatTimeline(
 
                         History.Role.ASSISTANT -> {
                             agentActivitiesByRunId[history.id]?.let { activities ->
-                                AgentActivityDisclosure(activities = activities)
+                                AgentActivityDisclosure(activities = activities, fileReviewProposals = uiState.fileReviewProposals, fileReviewPreviews = uiState.fileReviewPreviews, actions = uiState.actions)
                             }
                             if (history.content.isNotEmpty() && !history.isThinking) {
                                 val isLastAssistant = history.id == lastAssistantId
