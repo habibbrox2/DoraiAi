@@ -144,7 +144,7 @@ fun KaiBuildScreen(
 }
 
 @Composable
-internal fun KaiBuildScreenContent(
+fun KaiBuildScreenContent(
     state: KaiBuildUiState,
     actions: KaiBuildActions,
     onExit: () -> Unit,
