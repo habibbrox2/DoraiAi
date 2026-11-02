@@ -20,6 +20,8 @@ import com.inspiredandroid.kai.ui.dashboard.DashboardScreenContent
 import com.inspiredandroid.kai.ui.dashboard.DashboardUiState
 import com.inspiredandroid.kai.ui.dashboard.ReadinessFact
 import com.inspiredandroid.kai.ui.dashboard.ServiceReadiness
+import com.inspiredandroid.kai.ui.chat.composables.ToolConfirmationCard
+import com.inspiredandroid.kai.ui.chat.composables.ToolExecutionCard
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
 import org.junit.Before
@@ -113,4 +115,43 @@ class PremiumScreenScreenshotTest {
             )
         }
     }
+    @Test
+    fun toolExecution_running_dark() {
+        paparazzi.snap {
+            ToolExecutionCard(
+                toolName = "web_search",
+                arguments = """{"query":"premium AI agent workspace"}""",
+                result = null,
+                isRunning = true,
+            )
+        }
+    }
+
+    @Test
+    fun toolExecution_failed_dark() {
+        paparazzi.snap {
+            ToolExecutionCard(
+                toolName = "execute_shell_command",
+                arguments = """{"command":"./gradlew test"}""",
+                result = "Process exited with code 1",
+                isError = true,
+            )
+        }
+    }
+
+    @Test
+    fun toolConfirmation_pending_dark() {
+        paparazzi.snap {
+            ToolConfirmationCard(
+                toolName = "execute_shell_command",
+                toolCallId = "screenshot-tool-call",
+                arguments = """{"command":"./gradlew test"}""",
+                onDeny = {},
+                onAllowOnce = {},
+                onAllowSession = {},
+                onAlwaysAllow = {},
+            )
+        }
+    }
+
 }
