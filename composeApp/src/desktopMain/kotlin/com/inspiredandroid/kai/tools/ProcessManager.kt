@@ -58,7 +58,7 @@ class ProcessManager {
         sessions[sessionId] = session
 
         // Drain stdout/stderr in background threads with bounded buffers
-        CompletableFuture.runAsync {
+        val stdoutDrain = CompletableFuture.runAsync {
             process.inputStream.bufferedReader().forEachLine { line ->
                 synchronized(session.stdoutBuffer) {
                     if (session.stdoutBuffer.length < MAX_OUTPUT_LENGTH) {
@@ -67,7 +67,7 @@ class ProcessManager {
                 }
             }
         }
-        CompletableFuture.runAsync {
+        val stderrDrain = CompletableFuture.runAsync {
             process.errorStream.bufferedReader().forEachLine { line ->
                 synchronized(session.stderrBuffer) {
                     if (session.stderrBuffer.length < MAX_OUTPUT_LENGTH) {
@@ -87,6 +87,10 @@ class ProcessManager {
             } else {
                 session.exitCode = process.exitValue()
             }
+            // Ensure stdout/stderr are fully drained before publishing the finished state,
+            // otherwise callers reading the log immediately after can miss trailing output.
+            try { stdoutDrain.get(5, TimeUnit.SECONDS) } catch (_: Exception) { }
+            try { stderrDrain.get(5, TimeUnit.SECONDS) } catch (_: Exception) { }
             session.finished = true
         }
 
