@@ -130,22 +130,25 @@ jobs:
         with:
           packages: platform-tools
 
-      # Golden recording is opt-in via the one-time marker committed with a UI test change.
-      # Limit recording to the new screen class; all screenshot suites are then verified.
-      - name: Record requested Premium UI goldens
+      # One-time bootstrap: the legacy screenshot suites had no committed golden images.
+      # Preserve the two existing Premium UI goldens and record only the four missing suites.
+      - name: Record missing Paparazzi baselines
         if: >-
           github.event_name == 'pull_request' &&
           github.event.pull_request.head.repo.full_name == github.repository &&
           hashFiles('screenshotTests/RECORD_GOLDENS') != ''
         run: >-
           ./gradlew :screenshotTests:recordPaparazziDebug
-          --tests com.inspiredandroid.kai.screenshots.PremiumScreenScreenshotTest
+          --tests com.inspiredandroid.kai.screenshots.GemmaLocalScreenshotTest
+          --tests com.inspiredandroid.kai.screenshots.MathScreenshotTest
+          --tests com.inspiredandroid.kai.screenshots.KaiUiScreenshotTest
+          --tests com.inspiredandroid.kai.screenshots.ScreenshotTest
           --no-daemon --stacktrace
 
-      # Commit the two explicitly requested goldens immediately after recording.
-      # Do this before verification so a later baseline mismatch cannot discard the new files.
+      # Commit the complete 44-image baseline set before verification. This bootstrap marker
+      # is removed in the same commit, so future runs verify without silently recording goldens.
       # GITHUB_TOKEN-authored pushes do not recursively trigger another workflow run.
-      - name: Commit generated Premium UI goldens
+      - name: Commit bootstrapped Paparazzi goldens
         if: >-
           github.event_name == 'pull_request' &&
           github.event.pull_request.head.repo.full_name == github.repository &&
@@ -155,14 +158,29 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mapfile -t goldens < <(
-            find screenshotTests/src/test/snapshots/images -maxdepth 1 -type f -name '*PremiumScreenScreenshotTest_*.png' -print | sort
-          )
-          if [[ "${#goldens[@]}" -ne 2 ]]; then
-            echo "::error::Expected exactly two PremiumScreenScreenshotTest golden PNGs; found ${#goldens[@]}."
+          snapshot_dir="screenshotTests/src/test/snapshots/images"
+          mapfile -t goldens < <(find "$snapshot_dir" -maxdepth 1 -type f -name '*.png' -print | sort)
+          if [[ "${#goldens[@]}" -ne 44 ]]; then
+            echo "::error::Expected 44 Paparazzi golden PNGs after bootstrap; found ${#goldens[@]}."
             printf '%s\\n' "${goldens[@]}"
             exit 1
           fi
+
+          assert_count() {
+            local pattern="$1"
+            local expected="$2"
+            local count
+            count=$(find "$snapshot_dir" -maxdepth 1 -type f -name "$pattern" | wc -l)
+            if [[ "$count" -ne "$expected" ]]; then
+              echo "::error::Expected $expected files matching $pattern; found $count."
+              exit 1
+            fi
+          }
+          assert_count '*GemmaLocalScreenshotTest_*.png' 7
+          assert_count '*MathScreenshotTest_*.png' 5
+          assert_count '*KaiUiScreenshotTest_*.png' 23
+          assert_count '*ScreenshotTest_*.png' 7
+          assert_count '*PremiumScreenScreenshotTest_*.png' 2
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -170,7 +188,7 @@ jobs:
           rm screenshotTests/RECORD_GOLDENS
           git add -u -- screenshotTests/RECORD_GOLDENS
           git diff --cached --check
-          git commit -m "test(ui): record Dashboard and Kai Build Paparazzi goldens [skip ci]"
+          git commit -m "test(ui): bootstrap complete Paparazzi golden baseline [skip ci]"
           git push origin "HEAD:${GITHUB_HEAD_REF}"
 
       - name: Verify Paparazzi golden files
