@@ -203,6 +203,7 @@ class FileReviewEngineTest {
             f.privateDir.deleteRecursively()
         }
     }
+
     @Test
     fun failureAfterAtomicReplaceRestoresOriginalBytes() = runTest {
         var failAfterFirstReplace = true
@@ -242,14 +243,17 @@ class FileReviewEngineTest {
                 Json.encodeToString(listOf(proposal.copy(state = FileReviewState.APPLYING))),
             )
 
-            val restarted = FileReviewEngine(f.privateDir, object : FileReviewFileSystem {
-                override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? =
-                    if (workspace == FileReviewWorkspace.PROJECT && guestPath == "main.kt") {
-                        target
-                    } else {
-                        null
-                    }
-            })
+            val restarted = FileReviewEngine(
+                f.privateDir,
+                object : FileReviewFileSystem {
+                    override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? =
+                        if (workspace == FileReviewWorkspace.PROJECT && guestPath == "main.kt") {
+                            target
+                        } else {
+                            null
+                        }
+                },
+            )
             restarted.initialize()
 
             val recovered = restarted.proposals.value.single()
@@ -284,10 +288,13 @@ class FileReviewEngineTest {
                 ),
             )
 
-            val restarted = FileReviewEngine(f.privateDir, object : FileReviewFileSystem {
-                override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? =
-                    if (workspace == FileReviewWorkspace.PROJECT && guestPath == "main.kt") target else null
-            })
+            val restarted = FileReviewEngine(
+                f.privateDir,
+                object : FileReviewFileSystem {
+                    override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? =
+                        if (workspace == FileReviewWorkspace.PROJECT && guestPath == "main.kt") target else null
+                },
+            )
             restarted.initialize()
 
             assertEquals(FileReviewState.ROLLED_BACK, restarted.proposals.value.single().state)
