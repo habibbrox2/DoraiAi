@@ -351,8 +351,7 @@ class FileReviewEngineTest {
             val restarted = FileReviewEngine(
                 f.privateDir,
                 object : FileReviewFileSystem {
-                    override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? =
-                        if (workspace == FileReviewWorkspace.PROJECT && guestPath == "main.kt") target else null
+                    override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? = if (workspace == FileReviewWorkspace.PROJECT && guestPath == "main.kt") target else null
                 },
             )
             restarted.initialize()
@@ -386,8 +385,7 @@ class FileReviewEngineTest {
             val restarted = FileReviewEngine(
                 f.privateDir,
                 object : FileReviewFileSystem {
-                    override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? =
-                        if (workspace == FileReviewWorkspace.PROJECT && guestPath == "main.kt") target else null
+                    override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? = if (workspace == FileReviewWorkspace.PROJECT && guestPath == "main.kt") target else null
                 },
             )
             restarted.initialize()
