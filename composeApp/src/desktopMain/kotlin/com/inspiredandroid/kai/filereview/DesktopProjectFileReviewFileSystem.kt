@@ -12,7 +12,7 @@ class DesktopProjectFileReviewFileSystem(
 ) : FileReviewFileSystem {
     override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? {
         if (workspace != FileReviewWorkspace.PROJECT) return null
-        if (guestPath.isBlank() || guestPath.startsWith("/") || guestPath.contains('\\\\') || guestPath.contains('\\u0000')) return null
+        if (guestPath.isBlank() || guestPath.startsWith("/") || guestPath.contains('\\') || guestPath.contains('\u0000')) return null
         val parts = guestPath.split('/')
         if (parts.any { it.isBlank() || it == "." || it == ".." }) return null
         if (Files.isSymbolicLink(workspaceRoot.toPath())) return null
