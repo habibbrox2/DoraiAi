@@ -36,10 +36,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.inspiredandroid.kai.ui.AccentPrimary
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.chat.ChatSpacing
 import com.inspiredandroid.kai.ui.handCursor
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kotlinx.coroutines.delay
 
 /**
@@ -151,8 +150,8 @@ private fun ActionButton(
 
     val tint = when {
         selected -> AccentPrimary
-        hovered || pressed -> TextPrimary
-        else -> TextSecondary
+        hovered || pressed -> LocalDesignColorTokens.current.textPrimary
+        else -> LocalDesignColorTokens.current.textSecondary
     }
     val chipColor = when {
         selected -> AccentPrimary.copy(alpha = 0.16f)

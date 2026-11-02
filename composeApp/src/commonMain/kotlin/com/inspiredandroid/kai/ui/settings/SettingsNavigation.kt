@@ -10,8 +10,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,6 +21,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.Cloud
+import androidx.compose.material.icons.outlined.Computer
+import androidx.compose.material.icons.outlined.Extension
+import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.SmartToy
+import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,6 +52,7 @@ import com.inspiredandroid.kai.prefersReducedMotion
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.settings_tab_account
 import kai.composeapp.generated.resources.settings_tab_agent
@@ -67,7 +81,7 @@ fun SettingsNavRail(
     Box(
         modifier = modifier
             .fillMaxHeight()
-            .width(116.dp)
+            .width(196.dp)
             .padding(12.dp)
             .clip(SettingsShapes.panel)
             .background(railBg)
@@ -77,12 +91,34 @@ fun SettingsNavRail(
             modifier = Modifier
                 .fillMaxHeight()
                 .verticalScroll(rememberScrollState())
-                .padding(vertical = 14.dp, horizontal = 10.dp),
+                .padding(vertical = 16.dp, horizontal = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            tabs.forEach { tab ->
+            tabs.forEachIndexed { index, tab ->
+                val group = settingsTabGroup(tab)
+                val previousGroup = tabs.getOrNull(index - 1)?.let(::settingsTabGroup)
+                if (group != previousGroup) {
+                    Text(
+                        text = group.uppercase(),
+                        style = KaiTypography.labelSmall,
+                        color = LocalDesignColorTokens.current.textTertiary,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.fillMaxWidth().padding(start = 10.dp, top = 10.dp, bottom = 4.dp),
+                    )
+                }
                 val isSelected = currentTab == tab
+                val icon = when (tab) {
+                    SettingsTab.General -> Icons.Outlined.Settings
+                    SettingsTab.Appearance -> Icons.Outlined.Palette
+                    SettingsTab.Agent -> Icons.Outlined.SmartToy
+                    SettingsTab.Services -> Icons.Outlined.Cloud
+                    SettingsTab.Tools -> Icons.Outlined.Build
+                    SettingsTab.Integrations -> Icons.Outlined.Extension
+                    SettingsTab.Sandbox -> Icons.Outlined.Computer
+                    SettingsTab.Data -> Icons.Outlined.Storage
+                    SettingsTab.Account -> Icons.Outlined.AccountCircle
+                }
                 val label = when (tab) {
                     SettingsTab.General -> stringResource(Res.string.settings_tab_general)
                     SettingsTab.Appearance -> "Appearance"
@@ -101,7 +137,7 @@ fun SettingsNavRail(
                     label = "railBg",
                 )
                 val textColor by animateColorAsState(
-                    targetValue = if (isSelected) DesignTokens.PrimaryCyan else DesignTokens.SecondaryText,
+                    targetValue = if (isSelected) DesignTokens.PrimaryCyan else LocalDesignColorTokens.current.textSecondary,
                     animationSpec = tween(durationMillis = if (prefersReducedMotion()) 0 else 200),
                     label = "railText",
                 )
@@ -113,8 +149,8 @@ fun SettingsNavRail(
 
                 Box(
                     modifier = Modifier
-                        .width(88.dp)
-                        .height(74.dp)
+                        .fillMaxWidth()
+                        .height(48.dp)
                         .clip(SettingsShapes.row)
                         .background(bgColor)
                         .border(
@@ -133,29 +169,31 @@ fun SettingsNavRail(
                         },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = textColor,
+                            modifier = Modifier.size(20.dp),
+                        )
+                        Spacer(Modifier.width(12.dp))
                         Text(
                             text = label,
-                            style = KaiTypography.labelSmall,
+                            style = KaiTypography.labelLarge,
                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                             color = textColor,
-                            textAlign = TextAlign.Center,
-                            maxLines = 2,
+                            maxLines = 1,
                         )
+                        Spacer(Modifier.weight(1f))
                         if (isSelected) {
-                            Spacer(Modifier.height(4.dp))
                             Box(
                                 modifier = Modifier
-                                    .size(4.dp)
+                                    .size(6.dp)
                                     .clip(CircleShape)
-                                    .background(
-                                        Brush.radialGradient(
-                                            colors = listOf(DesignTokens.PrimaryCyan, DesignTokens.PrimaryCyan.copy(alpha = 0.4f)),
-                                        ),
-                                    ),
+                                    .background(DesignTokens.PrimaryCyan),
                             )
                         }
                     }
@@ -163,4 +201,12 @@ fun SettingsNavRail(
             }
         }
     }
+}
+
+private fun settingsTabGroup(tab: SettingsTab): String = when (tab) {
+    SettingsTab.General, SettingsTab.Appearance, SettingsTab.Agent -> "Assistant"
+    SettingsTab.Services -> "Models & services"
+    SettingsTab.Tools, SettingsTab.Integrations -> "Connections"
+    SettingsTab.Sandbox -> "Workspace"
+    SettingsTab.Data, SettingsTab.Account -> "Account"
 }

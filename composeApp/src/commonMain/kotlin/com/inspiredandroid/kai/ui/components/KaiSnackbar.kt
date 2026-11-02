@@ -25,8 +25,8 @@ import com.inspiredandroid.kai.ui.InfoBlue
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SuccessGreen
-import com.inspiredandroid.kai.ui.TextPrimary
 import com.inspiredandroid.kai.ui.WarningAmber
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 /** Color configuration for a KaiSnackbar variant. */
 private data class SnackbarColors(
@@ -87,36 +87,40 @@ fun KaiSnackbar(
     }
 }
 
+@Composable
 private fun snackbarColors(
     variant: SnackbarVariant,
-): SnackbarColors = when (variant) {
-    SnackbarVariant.Success ->
-        SnackbarColors(
-            background = SuccessGreen,
-            text = TextPrimary,
-            border = SuccessGreen.copy(alpha = 0.4f),
-        )
+): SnackbarColors {
+    val colors = LocalDesignColorTokens.current
+    return when (variant) {
+        SnackbarVariant.Success ->
+            SnackbarColors(
+                background = SuccessGreen,
+                text = colors.textPrimary,
+                border = SuccessGreen.copy(alpha = 0.4f),
+            )
 
-    SnackbarVariant.Warning ->
-        SnackbarColors(
-            background = WarningAmber,
-            text = TextPrimary,
-            border = WarningAmber.copy(alpha = 0.4f),
-        )
+        SnackbarVariant.Warning ->
+            SnackbarColors(
+                background = WarningAmber,
+                text = colors.textPrimary,
+                border = WarningAmber.copy(alpha = 0.4f),
+            )
 
-    SnackbarVariant.Error ->
-        SnackbarColors(
-            background = DangerAlert,
-            text = TextPrimary,
-            border = DangerAlert.copy(alpha = 0.4f),
-        )
+        SnackbarVariant.Error ->
+            SnackbarColors(
+                background = DangerAlert,
+                text = colors.textPrimary,
+                border = DangerAlert.copy(alpha = 0.4f),
+            )
 
-    SnackbarVariant.Info ->
-        SnackbarColors(
-            background = InfoBlue,
-            text = TextPrimary,
-            border = InfoBlue.copy(alpha = 0.4f),
-        )
+        SnackbarVariant.Info ->
+            SnackbarColors(
+                background = InfoBlue,
+                text = colors.textPrimary,
+                border = InfoBlue.copy(alpha = 0.4f),
+            )
+    }
 }
 
 /** Visual variants for KaiSnackbar. */

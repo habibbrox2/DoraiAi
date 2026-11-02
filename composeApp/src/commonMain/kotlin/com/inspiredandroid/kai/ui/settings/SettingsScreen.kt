@@ -98,12 +98,11 @@ import com.inspiredandroid.kai.ui.BorderSoft
 import com.inspiredandroid.kai.ui.CardFill
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SurfaceRaised
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.VerticalScrollbarForScroll
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardBorder
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardColors
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.github_mark
 import kai.composeapp.generated.resources.settings_ai_mistakes_warning
@@ -132,10 +131,10 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
-internal val StatusColorConnected = Color(0xFF4CAF50)
-internal val StatusColorChecking = Color(0xFFFF9800)
-internal val StatusColorError = Color(0xFFF44336)
-internal val StatusColorUnknown = Color(0xFF9E9E9E)
+internal val StatusColorConnected = SettingsStatusColors.connected
+internal val StatusColorChecking = SettingsStatusColors.checking
+internal val StatusColorError = SettingsStatusColors.error
+internal val StatusColorUnknown = SettingsStatusColors.unknown
 
 @Composable
 fun SettingsScreen(
@@ -386,14 +385,14 @@ private fun TopBar(onNavigateBack: () -> Unit) {
                 Icon(
                     imageVector = BackIcon,
                     contentDescription = "Navigate back",
-                    tint = TextPrimary,
+                    tint = LocalDesignColorTokens.current.textPrimary,
                 )
             }
             Spacer(Modifier.width(8.dp))
             Text(
                 text = "Settings",
                 style = KaiTypography.titleMedium,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(Modifier.weight(1f))
@@ -519,10 +518,10 @@ private fun SettingsTabSelector(
                     contentColor = if (isSelected) {
                         com.inspiredandroid.kai.ui.AccentPrimary
                     } else {
-                        TextSecondary
+                        LocalDesignColorTokens.current.textSecondary
                     },
                     disabledContainerColor = Color.Transparent,
-                    disabledContentColor = TextSecondary.copy(alpha = 0.5f),
+                    disabledContentColor = LocalDesignColorTokens.current.textSecondary.copy(alpha = 0.5f),
                 )
 
                 val border = when {
@@ -578,7 +577,7 @@ private fun SettingsTabSelector(
                         color = if (isSelected) {
                             com.inspiredandroid.kai.ui.AccentPrimary
                         } else {
-                            TextSecondary
+                            LocalDesignColorTokens.current.textSecondary
                         },
                         style = KaiTypography.labelLarge,
                         maxLines = 1,
@@ -596,7 +595,7 @@ internal fun BottomInfo() {
         text = stringResource(Res.string.settings_ai_mistakes_warning),
         style = KaiTypography.bodySmall,
         textAlign = TextAlign.Center,
-        color = TextPrimary,
+        color = LocalDesignColorTokens.current.textPrimary,
     )
 
     Spacer(Modifier.height(8.dp))
@@ -615,7 +614,7 @@ internal fun BottomInfo() {
             stringResource(Res.string.settings_version, Version.appVersion),
             modifier = Modifier.align(Alignment.CenterVertically),
             style = KaiTypography.bodyMedium,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
 
         IconButton(
@@ -628,7 +627,7 @@ internal fun BottomInfo() {
             Icon(
                 painter = painterResource(Res.drawable.github_mark),
                 contentDescription = "GitHub repository",
-                tint = TextPrimary,
+                tint = LocalDesignColorTokens.current.textPrimary,
                 modifier = Modifier.size(24.dp),
             )
         }
@@ -790,14 +789,14 @@ internal fun ToggleableHeadline(
             Text(
                 text = title,
                 style = KaiTypography.titleMedium,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(Modifier.size(4.dp))
             Text(
                 text = description,
                 style = KaiTypography.bodySmall,
-                color = TextSecondary,
+                color = LocalDesignColorTokens.current.textSecondary,
             )
         }
         actions()
@@ -808,7 +807,7 @@ internal fun ToggleableHeadline(
             colors = androidx.compose.material3.SwitchDefaults.colors(
                 checkedThumbColor = com.inspiredandroid.kai.ui.AccentPrimary,
                 checkedTrackColor = com.inspiredandroid.kai.ui.AccentPrimary.copy(alpha = 0.32f),
-                uncheckedThumbColor = TextSecondary,
+                uncheckedThumbColor = LocalDesignColorTokens.current.textSecondary,
                 uncheckedTrackColor = BorderSoft,
             ),
         )

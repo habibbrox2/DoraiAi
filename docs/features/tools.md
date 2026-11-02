@@ -1,6 +1,6 @@
 # Tools
 
-**Last verified:** 2026-10-21
+**Last verified:** 2026-11-03
 
 Kai's tools feature allows the AI to execute external functions during conversations — web search, notifications, calendar events, shell commands, memory operations, and more. Tools are defined with a schema, executed with safety guards, and managed through per-tool toggles in settings.
 

@@ -1,6 +1,6 @@
 # Skills
 
-**Last verified:** 2026-10-21
+**Last verified:** 2026-11-03
 
 Kai supports installable **skills**: reusable instruction bundles, modeled on Anthropic's [SKILL.md](https://github.com/anthropics/skills) format (now an open standard at [agentskills.io](https://agentskills.io)). A skill packages a name, a description, a body of instructions, and optional bundled files.
 

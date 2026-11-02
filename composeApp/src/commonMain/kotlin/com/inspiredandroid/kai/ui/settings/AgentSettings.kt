@@ -45,11 +45,10 @@ import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.KaiOutlinedTextField
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.SettingsListItem
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.icons.Replay
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.default_soul
 import kai.composeapp.generated.resources.execution_log_status_fail
@@ -209,7 +208,7 @@ private fun SoulEditor(
             Text(
                 text = stringResource(Res.string.settings_soul),
                 style = KaiTypography.titleMedium,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
                 modifier = Modifier.weight(1f),
             )
             if (soulText.isNotEmpty()) {
@@ -220,7 +219,7 @@ private fun SoulEditor(
                     Icon(
                         imageVector = Icons.Default.Replay,
                         contentDescription = stringResource(Res.string.settings_soul_reset),
-                        tint = TextSecondary,
+                        tint = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
             }
@@ -228,7 +227,7 @@ private fun SoulEditor(
         Text(
             text = stringResource(Res.string.settings_soul_description),
             style = KaiTypography.bodySmall,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
         )
         Spacer(Modifier.height(12.dp))
 
@@ -241,7 +240,7 @@ private fun SoulEditor(
             label = {
                 Text(
                     stringResource(Res.string.settings_soul),
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
             },
         )
@@ -249,7 +248,7 @@ private fun SoulEditor(
         Text(
             text = "${editedText.length}/$maxChars",
             style = KaiTypography.bodySmall,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.End,
         )
@@ -384,7 +383,7 @@ private fun AllMemoriesSheet(
             Text(
                 text = stringResource(Res.string.settings_memories_all_title),
                 style = KaiTypography.titleMedium,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
             )
             Spacer(Modifier.height(12.dp))
             memories.forEach { memory ->
@@ -425,13 +424,13 @@ private fun EditMemorySheet(
             Text(
                 text = stringResource(Res.string.settings_memories_edit_title),
                 style = KaiTypography.titleMedium,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
             )
             Spacer(Modifier.height(12.dp))
             Text(
                 text = memory.key,
                 style = KaiTypography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
             )
             Spacer(Modifier.height(8.dp))
             KaiOutlinedTextField(
@@ -539,7 +538,7 @@ private fun TaskDetailsSheet(
             Text(
                 text = task.description,
                 style = KaiTypography.titleMedium,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
             )
             Spacer(Modifier.height(12.dp))
 
@@ -597,7 +596,7 @@ private fun TaskDetailsSheet(
             Text(
                 text = stringResource(Res.string.settings_heartbeat_recent),
                 style = KaiTypography.labelMedium,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
             )
             Spacer(Modifier.height(4.dp))
 
@@ -643,13 +642,13 @@ private fun TaskDetailRow(label: String, value: String) {
         Text(
             text = label,
             style = KaiTypography.bodySmall,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.width(140.dp * LocalDensity.current.fontScale),
         )
         Text(
             text = value,
             style = KaiTypography.bodySmall,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
             modifier = Modifier.weight(1f),
         )
     }
@@ -671,13 +670,13 @@ private fun ExecutionLogRow(success: Boolean, timestampEpochMs: Long, message: S
             Text(
                 text = formatTaskInstant(timestampEpochMs),
                 style = KaiTypography.bodySmall,
-                color = TextSecondary,
+                color = LocalDesignColorTokens.current.textSecondary,
             )
             if (!message.isNullOrBlank()) {
                 Text(
                     text = message,
                     style = KaiTypography.labelSmall,
-                    color = if (success) TextSecondary else DangerAlert,
+                    color = if (success) LocalDesignColorTokens.current.textSecondary else DangerAlert,
                     maxLines = 4,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -691,7 +690,7 @@ private fun EmptyLogText(text: String) {
     Text(
         text = text,
         style = KaiTypography.bodySmall,
-        color = TextSecondary,
+        color = LocalDesignColorTokens.current.textSecondary,
     )
 }
 

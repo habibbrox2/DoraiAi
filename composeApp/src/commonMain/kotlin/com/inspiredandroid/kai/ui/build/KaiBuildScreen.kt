@@ -1,5 +1,6 @@
 package com.inspiredandroid.kai.ui.build
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -44,8 +45,7 @@ import com.inspiredandroid.kai.build.terminal.TerminalModifiers
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.sandbox.SandboxFilesContent
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.kai_build_exit_content_description
 import kai.composeapp.generated.resources.kai_build_new_project_content_description
@@ -143,7 +143,7 @@ fun KaiBuildScreen(
 }
 
 @Composable
-internal fun KaiBuildScreenContent(
+fun KaiBuildScreenContent(
     state: KaiBuildUiState,
     actions: KaiBuildActions,
     onExit: () -> Unit,
@@ -243,7 +243,7 @@ internal fun KaiBuildScreenContent(
                             Text(
                                 text = "Starting session…",
                                 style = KaiTypography.bodyMedium,
-                                color = TextSecondary,
+                                color = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
                     }
@@ -343,17 +343,29 @@ private fun KaiBuildTopBar(
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = stringResource(Res.string.kai_build_exit_content_description),
-                    tint = com.inspiredandroid.kai.ui.TextSecondary,
+                    tint = LocalDesignColorTokens.current.textSecondary,
                 )
             }
-            Text(
-                text = title,
-                style = com.inspiredandroid.kai.ui.KaiTypography.titleMedium,
-                color = com.inspiredandroid.kai.ui.TextPrimary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f).padding(horizontal = com.inspiredandroid.kai.ui.build.BuildSpacing.sm),
-            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = com.inspiredandroid.kai.ui.build.BuildSpacing.sm),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Text(
+                    text = "WORKSPACE",
+                    style = KaiTypography.labelSmall,
+                    color = com.inspiredandroid.kai.ui.AccentPrimary,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                )
+                Text(
+                    text = title,
+                    style = KaiTypography.titleMedium,
+                    color = LocalDesignColorTokens.current.textPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
             actions()
         }
     }

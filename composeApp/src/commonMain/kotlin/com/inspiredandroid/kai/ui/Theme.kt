@@ -47,7 +47,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.inspiredandroid.kai.ui.theme.DesignColorTokens
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import com.inspiredandroid.kai.ui.theme.LocalDesignTokens
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -138,7 +140,7 @@ object KaiThemeColors {
     var borderStrong: Color = Color(0x40FFFFFF)
 }
 
-val TextPrimary: Color get() = KaiThemeColors.textPrimary
+val TextPrimary: Color = DesignTokens.PrimaryText
 val TextSecondary: Color get() = KaiThemeColors.textSecondary
 val TextTertiary: Color get() = KaiThemeColors.textTertiary
 val TextMuted: Color get() = KaiThemeColors.textMuted
@@ -834,6 +836,7 @@ fun Theme(
     CompositionLocalProvider(
         LocalKaiColors provides kaiColors,
         LocalDesignTokens provides DesignTokens,
+        LocalDesignColorTokens provides DesignColorTokens.from(colorScheme),
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

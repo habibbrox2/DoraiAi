@@ -1,7 +1,9 @@
 package com.inspiredandroid.kai.ui.theme
 
+import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -72,3 +74,59 @@ object DesignTokens {
  * CompositionLocal providing access to [DesignTokens] throughout the composable tree.
  */
 val LocalDesignTokens = staticCompositionLocalOf { DesignTokens }
+
+/**
+ * Immutable color roles derived from the active Material color scheme.
+ *
+ * Layout metrics and brand/status constants remain in [DesignTokens]; this palette
+ * represents only theme-dependent foreground, surface, and border roles.
+ */
+data class DesignColorTokens(
+    val textPrimary: Color,
+    val textSecondary: Color,
+    val textTertiary: Color,
+    val textMuted: Color,
+    val surfaceElevated: Color,
+    val surfaceRaised: Color,
+    val cardFill: Color,
+    val cardSurface: Color,
+    val borderSubtle: Color,
+    val borderSoft: Color,
+    val borderStrong: Color,
+) {
+    companion object {
+        fun from(colorScheme: ColorScheme): DesignColorTokens {
+            val isLight = colorScheme.background.luminance() > 0.5f
+            return DesignColorTokens(
+                textPrimary = colorScheme.onSurface,
+                textSecondary = colorScheme.onSurfaceVariant,
+                textTertiary = if (isLight) Color(0xFF64748B) else Color(0xFF94A3B8),
+                textMuted = if (isLight) Color(0xFF94A3B8) else Color(0xFF64748B),
+                surfaceElevated = colorScheme.surfaceContainerHigh,
+                surfaceRaised = colorScheme.surfaceContainerHighest,
+                cardFill = colorScheme.surfaceContainerHigh,
+                cardSurface = colorScheme.surface,
+                borderSubtle = colorScheme.outlineVariant.copy(alpha = 0.55f),
+                borderSoft = colorScheme.outlineVariant,
+                borderStrong = colorScheme.outline,
+            )
+        }
+    }
+}
+
+/** Theme-scoped color roles; unlike [LocalDesignTokens], this follows the active scheme. */
+val LocalDesignColorTokens = staticCompositionLocalOf {
+    DesignColorTokens(
+        textPrimary = DesignTokens.PrimaryText,
+        textSecondary = DesignTokens.SecondaryText,
+        textTertiary = DesignTokens.TertiaryText,
+        textMuted = DesignTokens.MutedText,
+        surfaceElevated = DesignTokens.SurfaceElevated,
+        surfaceRaised = DesignTokens.SurfaceRaised,
+        cardFill = DesignTokens.SurfaceElevated,
+        cardSurface = DesignTokens.SurfaceDark,
+        borderSubtle = DesignTokens.BorderSubtle,
+        borderSoft = DesignTokens.BorderSoft,
+        borderStrong = DesignTokens.BorderStrong,
+    )
+}

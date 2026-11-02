@@ -12,10 +12,10 @@ import com.inspiredandroid.kai.prefersReducedMotion
 import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.SuccessGreen
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.WarningAmber
 import androidx.compose.runtime.remember
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 /**
  * Build-specific design tokens for the Kai Build workspace (Plan 3, Phase 1).
@@ -74,9 +74,10 @@ fun BuildEnvironmentState.toStatusKind(): BuildStatusKind = when (this) {
 /** Color ramp for the four terminal/workflow statuses plus neutral idle. */
 @Composable
 fun rememberBuildStatusColors(): BuildStatusColors {
+    val textSecondary = LocalDesignColorTokens.current.textSecondary
     return remember {
         BuildStatusColors(
-            idle = TextSecondary,
+            idle = textSecondary,
             running = DesignTokens.AgentViolet,
             success = DesignTokens.Success,
             warning = DesignTokens.Warning,

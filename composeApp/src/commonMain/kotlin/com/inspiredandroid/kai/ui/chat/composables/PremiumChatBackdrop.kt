@@ -82,20 +82,24 @@ internal fun AgentOrb(
     state: AgentPresentationState,
     modifier: Modifier = Modifier,
 ) {
-    val reducedMotion = prefersReducedMotion()
-    val transition = rememberInfiniteTransition(label = "agentOrb")
-    val pulse by transition.animateFloat(
-        initialValue = 0.96f,
-        targetValue = if (reducedMotion) 0.96f else 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = if (state == AgentPresentationState.Idle) 2_400 else 900,
-                easing = FastOutSlowInEasing,
+    val pulse = if (prefersReducedMotion()) {
+        0.96f
+    } else {
+        val transition = rememberInfiniteTransition(label = "agentOrb")
+        val animatedPulse by transition.animateFloat(
+            initialValue = 0.96f,
+            targetValue = 1.05f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = if (state == AgentPresentationState.Idle) 2_400 else 900,
+                    easing = FastOutSlowInEasing,
+                ),
+                repeatMode = RepeatMode.Reverse,
             ),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "agentOrbPulse",
-    )
+            label = "agentOrbPulse",
+        )
+        animatedPulse
+    }
     val glow = when (state) {
         AgentPresentationState.Executing -> DesignTokens.Warning
         AgentPresentationState.Generating -> DesignTokens.AgentViolet

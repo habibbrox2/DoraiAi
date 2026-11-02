@@ -53,6 +53,7 @@ import com.inspiredandroid.kai.build.BuildAgent
 import com.inspiredandroid.kai.build.BuildAgents
 import com.inspiredandroid.kai.build.BuildTerminalSession
 import com.inspiredandroid.kai.ui.handCursor
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.kai_build_back_content_description
 import kai.composeapp.generated.resources.kai_build_files_tab
@@ -146,7 +147,7 @@ internal fun BuildSessionBar(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = stringResource(Res.string.kai_build_back_content_description),
-                tint = com.inspiredandroid.kai.ui.TextSecondary,
+                tint = LocalDesignColorTokens.current.textSecondary,
             )
         }
 
@@ -155,7 +156,7 @@ internal fun BuildSessionBar(
         Text(
             text = project,
             style = com.inspiredandroid.kai.ui.KaiTypography.titleSmall,
-            color = com.inspiredandroid.kai.ui.TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             // Cap the header so a long project name can't squeeze the session tabs
@@ -252,9 +253,9 @@ private fun SessionTab(
     val label = if (numbered) "$base ${session.number}" else base
     val contentColor = when {
         // A finished shell keeps its output readable but reads as inactive.
-        !session.busy -> if (selected) com.inspiredandroid.kai.ui.theme.DesignTokens.Background.copy(alpha = 0.75f) else com.inspiredandroid.kai.ui.TextTertiary.copy(alpha = 0.7f)
+        !session.busy -> if (selected) com.inspiredandroid.kai.ui.theme.DesignTokens.Background.copy(alpha = 0.75f) else LocalDesignColorTokens.current.textTertiary.copy(alpha = 0.7f)
         selected -> com.inspiredandroid.kai.ui.theme.DesignTokens.Background
-        else -> com.inspiredandroid.kai.ui.TextSecondary
+        else -> LocalDesignColorTokens.current.textSecondary
     }
     TabPill(
         label = label,
@@ -291,7 +292,7 @@ private fun TabPill(
     contentColor: Color = if (selected) {
         com.inspiredandroid.kai.ui.theme.DesignTokens.Background
     } else {
-        com.inspiredandroid.kai.ui.TextSecondary
+        LocalDesignColorTokens.current.textSecondary
     },
     description: String? = null,
     trailing: @Composable (() -> Unit)? = null,

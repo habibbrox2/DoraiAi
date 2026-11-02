@@ -1,3 +1,46 @@
+## Brox Kai v2.0 — IDE-grade Agent Review Experience
+
+### Added
+- Added a bounded, line-numbered side-by-side file diff when a tool supplies both before and after snapshots.
+- Added explicit fallback states for patch-only, new-content-only, and missing-snapshot file activity; the UI never invents an original version.
+- Added per-file session review annotations (Reviewed / Needs changes), clearly separated from applying or reverting filesystem changes.
+- Added an observable Agent Run Summary with step, completion, failure, file, terminal, and elapsed-time metrics.
+
+### Safety and limitations
+- Review annotations are presentation-only; no filesystem write-back or rollback is implied.
+- Diff computation is bounded to 250 lines per side.
+- No private provider reasoning, inferred token usage, or inferred cost is exposed.
+
+---
+
+## Brox Kai v2.0 — Premium Agent Conversation Experience
+
+### Added
+- Added a turn-scoped Agent Activity disclosure for observable tool, MCP, terminal, and file-operation activity.
+- Correlated concurrent tool execution and completion by stable tool-call IDs, with legacy name matching only when IDs are absent.
+- Added expandable, bounded activity details with secret-pattern redaction and explicit lifecycle status.
+- Kept tool approval cards as separate permission gates; collapsing activity never changes runtime execution.
+- Removed provider reasoning payloads from visible conversation messages; the timeline presents observable execution rather than private model deliberation.
+
+### Tests
+- Added regression coverage for concurrent same-name tool calls, out-of-order completion, failed tool results, and shell command mapping.
+
+---
+
+## Brox Kai v2.0 — 2027 Premium AI Agent UI Migration refinements
+
+### Changed
+- Added a compact Agent HUD layout for narrow chat workspaces; secondary actions move into an overflow menu while provider/model selection remains reachable.
+- Standardized primary chat controls, provider/model picker rows, and assistant message actions on 48dp minimum touch targets.
+- Replaced hardcoded Premium Dark welcome-state colors and settings status colors with shared semantic design tokens.
+- Reduced-motion mode now renders static agent orbs without starting infinite pulse animations.
+
+### Tests
+- Added a compact HUD breakpoint regression test at 720dp.
+- Retained existing premium-dark home, conversation, settings, and sandbox screenshot fixtures.
+
+---
+
 ## Brox Kai v2.0 — One Chat Interface (Interactive UI Merged)
 
 ### Added

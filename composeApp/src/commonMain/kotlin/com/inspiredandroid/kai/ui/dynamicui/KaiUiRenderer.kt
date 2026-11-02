@@ -231,13 +231,12 @@ import com.inspiredandroid.kai.ui.KaiOutlinedTextField
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SurfaceElevated
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.KaiChip
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardBorder
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardColors
 import com.inspiredandroid.kai.ui.rememberCopyToClipboard
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.bot_message_copy_content_description
 import kai.composeapp.generated.resources.kai_ui_code_copy
@@ -489,9 +488,9 @@ private fun RenderText(node: TextNode) {
     }
     val color = when (node.color) {
         "primary" -> AccentPrimary
-        "secondary" -> TextSecondary
+        "secondary" -> LocalDesignColorTokens.current.textSecondary
         "error" -> DangerAlert
-        else -> TextPrimary
+        else -> LocalDesignColorTokens.current.textPrimary
     }
     Text(
         text = node.value.replace("**", ""),
@@ -568,7 +567,7 @@ private fun RenderButton(
         // override on disabled colors bypasses Material's auto-faded disabled appearance.
         val pressedColors = ButtonDefaults.buttonColors(
             disabledContainerColor = AccentPrimary,
-            disabledContentColor = TextPrimary,
+            disabledContentColor = LocalDesignColorTokens.current.textPrimary,
         )
         Button(
             onClick = {},
@@ -1132,7 +1131,7 @@ private fun RenderCountdown(
         Text(
             text = formatted,
             style = KaiTypography.headlineMedium,
-            color = if (expired) DangerAlert else TextPrimary,
+            color = if (expired) DangerAlert else LocalDesignColorTokens.current.textPrimary,
         )
     }
 }
@@ -1152,8 +1151,8 @@ private fun RenderAlert(node: AlertNode) {
     val contentColor = when (node.severity) {
         AlertSeverity.SUCCESS -> onSuccessContainer
         AlertSeverity.WARNING -> onWarningContainer
-        AlertSeverity.ERROR -> TextPrimary
-        AlertSeverity.INFO, null -> TextPrimary
+        AlertSeverity.ERROR -> LocalDesignColorTokens.current.textPrimary
+        AlertSeverity.INFO, null -> LocalDesignColorTokens.current.textPrimary
     }
     Box(
         modifier = Modifier
@@ -1260,9 +1259,9 @@ private fun RenderIcon(node: IconNode) {
     if (imageVector != null) {
         val color = when (node.color) {
             "primary" -> AccentPrimary
-            "secondary" -> TextSecondary
+            "secondary" -> LocalDesignColorTokens.current.textSecondary
             "error" -> DangerAlert
-            else -> TextPrimary
+            else -> LocalDesignColorTokens.current.textPrimary
         }
         Icon(
             imageVector = imageVector,
@@ -1297,7 +1296,7 @@ private fun RenderCode(node: CodeNode) {
                     Text(
                         text = node.language,
                         style = KaiTypography.labelSmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                         modifier = Modifier.padding(bottom = 4.dp, end = 32.dp),
                     )
                 }
@@ -1307,7 +1306,7 @@ private fun RenderCode(node: CodeNode) {
                         fontFamily = FontFamily.Monospace,
                         fontFeatureSettings = "tnum",
                     ),
-                    color = TextSecondary,
+                    color = LocalDesignColorTokens.current.textSecondary,
                     modifier = Modifier.horizontalScroll(rememberScrollState()).padding(end = 32.dp),
                 )
             }
@@ -1323,7 +1322,7 @@ private fun RenderCode(node: CodeNode) {
                 Icon(
                     imageVector = Icons.Filled.ContentCopy,
                     contentDescription = copyCodeDescription,
-                    tint = TextSecondary,
+                    tint = LocalDesignColorTokens.current.textSecondary,
                     modifier = Modifier.size(16.dp),
                 )
             }
@@ -1348,14 +1347,14 @@ private fun RenderQuote(node: QuoteNode) {
                 text = node.text,
                 style = KaiTypography.bodyLarge,
                 fontStyle = FontStyle.Italic,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
             )
             if (node.source != null) {
                 Spacer(Modifier.height(2.dp))
                 Text(
                     text = "— ${node.source}",
                     style = KaiTypography.bodySmall,
-                    color = TextSecondary,
+                    color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
         }
@@ -1371,10 +1370,10 @@ private fun RenderBadge(node: BadgeNode) {
         else -> AccentPrimary
     }
     val contentColor = when (node.color) {
-        "primary" -> TextPrimary
-        "secondary" -> TextSecondary
-        "error" -> TextPrimary
-        else -> TextPrimary
+        "primary" -> LocalDesignColorTokens.current.textPrimary
+        "secondary" -> LocalDesignColorTokens.current.textSecondary
+        "error" -> LocalDesignColorTokens.current.textPrimary
+        else -> LocalDesignColorTokens.current.textPrimary
     }
     Box(
         modifier = Modifier
@@ -1400,18 +1399,18 @@ private fun RenderStat(node: StatNode) {
             text = node.value,
             style = KaiTypography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
             text = node.label,
             style = KaiTypography.bodyMedium,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
         )
         if (node.description != null) {
             Text(
                 text = node.description,
                 style = KaiTypography.bodySmall,
-                color = TextSecondary,
+                color = LocalDesignColorTokens.current.textSecondary,
             )
         }
     }
@@ -1449,7 +1448,7 @@ private fun RenderAvatar(node: AvatarNode) {
                     text = initials,
                     style = KaiTypography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
             }
         }
@@ -1465,7 +1464,7 @@ private fun RenderAvatar(node: AvatarNode) {
                     imageVector = Icons.Default.Person,
                     contentDescription = null,
                     modifier = Modifier.size(sizeDp * 0.6f),
-                    tint = TextPrimary,
+                    tint = LocalDesignColorTokens.current.textPrimary,
                 )
             }
         }
@@ -1584,7 +1583,7 @@ private fun RenderTabs(
                             color = if (isSelected) {
                                 AccentPrimary
                             } else {
-                                TextSecondary
+                                LocalDesignColorTokens.current.textSecondary
                             },
                             maxLines = 1,
                         )

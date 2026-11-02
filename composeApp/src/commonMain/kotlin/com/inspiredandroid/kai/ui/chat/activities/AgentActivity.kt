@@ -97,6 +97,8 @@ sealed class ActivityDetails {
         val changeSummary: String? = null,
         val oldContent: String? = null,
         val newContent: String? = null,
+        val diff: String? = null,
+        val proposalId: String? = null,
     ) : ActivityDetails()
 
     @Immutable

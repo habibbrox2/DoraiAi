@@ -16,6 +16,8 @@ import com.inspiredandroid.kai.data.ToolExecutor
 import com.inspiredandroid.kai.data.createConversationPersistence
 import com.inspiredandroid.kai.data.runMigrations
 import com.inspiredandroid.kai.email.EmailPoller
+import com.inspiredandroid.kai.filereview.FileReviewController
+import com.inspiredandroid.kai.filereview.NoOpFileReviewController
 import com.inspiredandroid.kai.inference.createLocalInferenceEngine
 import com.inspiredandroid.kai.mcp.McpServerManager
 import com.inspiredandroid.kai.network.Requests
@@ -49,6 +51,7 @@ val KAI_BUILD_FILES = named("kaiBuildFiles")
 fun permissionQualifier(permission: AppPermission) = named(permission.name)
 
 val appModule = module {
+    single<FileReviewController> { createFileReviewController() }
     AppPermission.entries.forEach { permission ->
         single(permissionQualifier(permission)) { PermissionController(permission) }
     }
@@ -164,5 +167,5 @@ val appModule = module {
     // Same browser, second environment: Kai Build's Debian instead of the chat sandbox.
     viewModel(KAI_BUILD_FILES) { SandboxFileBrowserViewModel(get<KaiBuildController>().files) }
     viewModel { SplinterlandsViewModel(get<DataRepository>(), get(), get(), get<SplinterlandsApi>()) }
-    viewModel { ChatViewModel(get<DataRepository>(), get<TaskScheduler>(), localNetworkPermissionController = get(permissionQualifier(AppPermission.LOCAL_NETWORK))) }
+    viewModel { ChatViewModel(get<DataRepository>(), get<TaskScheduler>(), localNetworkPermissionController = get(permissionQualifier(AppPermission.LOCAL_NETWORK)), fileReviewController = getOrNull<FileReviewController>() ?: NoOpFileReviewController()) }
 }

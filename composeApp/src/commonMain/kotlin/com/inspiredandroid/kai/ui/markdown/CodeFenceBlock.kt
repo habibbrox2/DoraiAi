@@ -36,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -45,6 +44,7 @@ import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.rememberCopyToClipboard
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kotlinx.coroutines.delay
 
 @Composable
@@ -61,6 +61,7 @@ internal fun CodeFenceBlock(
     }
     val copyToClipboard = rememberCopyToClipboard()
     var isCopied by remember { mutableStateOf(false) }
+    val tokens = LocalDesignColorTokens.current
 
     LaunchedEffect(isCopied) {
         if (isCopied) {
@@ -69,14 +70,6 @@ internal fun CodeFenceBlock(
         }
     }
 
-    // Claude Code Style Colors:
-    // Container: #0A0E14 with border #1E293B
-    // Header Bar: #161B22 with border-bottom #1E293B
-    val containerBg = Color(0xFF0A0E14)
-    val headerBg = Color(0xFF161B22)
-    val borderColor = Color(0xFF1E293B)
-    val mutedText = Color(0xFF94A3B8)
-    val lineNumberColor = Color(0xFF475569)
     val blockShape = RoundedCornerShape(10.dp)
 
     Box(
@@ -84,8 +77,8 @@ internal fun CodeFenceBlock(
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .clip(blockShape)
-            .background(containerBg, blockShape)
-            .border(androidx.compose.foundation.BorderStroke(1.dp, borderColor), blockShape),
+            .background(tokens.surfaceRaised, blockShape)
+            .border(androidx.compose.foundation.BorderStroke(1.dp, tokens.borderSoft), blockShape),
     ) {
         Column {
             // Header Bar
@@ -94,8 +87,8 @@ internal fun CodeFenceBlock(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(headerBg)
-                    .border(androidx.compose.foundation.BorderStroke(1.dp, borderColor))
+                    .background(tokens.cardSurface)
+                    .border(androidx.compose.foundation.BorderStroke(1.dp, tokens.borderSoft))
                     .padding(horizontal = 12.dp, vertical = 6.dp),
             ) {
                 // Left side: Terminal icon + language badge
@@ -107,13 +100,13 @@ internal fun CodeFenceBlock(
                         imageVector = Icons.Default.Terminal,
                         contentDescription = null,
                         modifier = Modifier.size(15.dp),
-                        tint = mutedText,
+                        tint = tokens.textMuted,
                     )
                     Text(
                         text = (language?.takeIf { it.isNotBlank() } ?: "code").lowercase(),
                         style = KaiTypography.labelSmall,
                         fontFamily = FontFamily.Monospace,
-                        color = mutedText,
+                        color = tokens.textMuted,
                     )
                 }
 
@@ -180,7 +173,7 @@ internal fun CodeFenceBlock(
                                 imageVector = Icons.Filled.ContentCopy,
                                 contentDescription = "Copy code",
                                 modifier = Modifier.size(14.dp),
-                                tint = mutedText,
+                                tint = tokens.textMuted,
                             )
                         }
                     }
@@ -208,7 +201,7 @@ internal fun CodeFenceBlock(
                             fontFamily = FontFamily.Monospace,
                             fontSize = 13.sp,
                             lineHeight = 20.sp,
-                            color = lineNumberColor,
+                            color = tokens.textMuted,
                             textAlign = TextAlign.End,
                         )
                     }
@@ -219,7 +212,7 @@ internal fun CodeFenceBlock(
                     fontFamily = FontFamily.Monospace,
                     fontSize = 13.sp,
                     lineHeight = 20.sp,
-                    color = Color(0xFFE2E8F0),
+                    color = tokens.textPrimary,
                 )
             }
         }

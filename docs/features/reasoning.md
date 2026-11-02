@@ -232,3 +232,10 @@ The map describes previously observed responsibilities; verify exact symbols and
 - Existing conversation persistence and historical messages remain compatible.
 - Hiding the disclosure does not cancel runtime work.
 - Cancellation and approval actions are explicit runtime operations.
+
+
+## 11. Premium conversation implementation notes
+
+The conversation UI renders a turn-scoped Agent Activity disclosure from existing persisted history. Tool-call IDs are the primary correlation key; legacy name-based matching is used only when older history lacks an ID. Tool approvals remain separate and continue to use the existing permission actions.
+
+The disclosure shows bounded, redacted previews for tool arguments and results. It does not expose provider reasoning payloads or private chain-of-thought. File-operation tool names are surfaced as file activity when their identity clearly indicates a filesystem operation; a reviewed patch or full source diff is not claimed unless the runtime supplies before/after content.

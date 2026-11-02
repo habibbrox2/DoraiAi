@@ -13,8 +13,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 /**
  * Consistent section heading for settings groups (Phase 1 of Plan 2).
@@ -42,14 +41,14 @@ fun SettingsSectionHeader(
                 text = title,
                 style = KaiTypography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
                 modifier = Modifier.semantics { heading() },
             )
             if (subtitle != null) {
                 Text(
                     text = subtitle,
                     style = KaiTypography.bodyMedium,
-                    color = TextSecondary,
+                    color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
         }

@@ -47,6 +47,7 @@ import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.rememberCopyToClipboard
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kotlinx.coroutines.delay
 
 /**
@@ -85,11 +86,11 @@ fun ShellExecutionCard(
     val terminalBg = DesignTokens.TerminalBackground
     val headerBg = DesignTokens.SurfaceElevated
     val borderColor = DesignTokens.BorderSubtle
-    val textSlate = Color(0xFFCBD5E1)
-    val textMuted = Color(0xFF64748B)
+    val textSlate = LocalDesignColorTokens.current.textPrimary
+    val textMuted = LocalDesignColorTokens.current.textMuted
     val accentCyan = Color(0xFF38BDF8)
-    val successGreen = Color(0xFF10B981)
-    val errorRed = Color(0xFFEF4444)
+    val successGreen = DesignTokens.Success
+    val errorRed = DesignTokens.Error
 
     val cleanOutput = stdout?.trimEnd().orEmpty()
     val cleanError = stderr?.trimEnd().orEmpty()
@@ -253,7 +254,7 @@ fun ShellExecutionCard(
                             text = command,
                             style = KaiTypography.bodySmall.copy(fontWeight = FontWeight.Medium),
                             fontFamily = FontFamily.Monospace,
-                            color = Color(0xFFF1F5F9),
+                            color = LocalDesignColorTokens.current.textPrimary,
                         )
                     }
                 }
@@ -336,10 +337,11 @@ fun ToolExecutionCard(
     result: String? = null,
     isRunning: Boolean = false,
     isError: Boolean = false,
+    initiallyExpanded: Boolean = false,
 ) {
     val copyToClipboard = rememberCopyToClipboard()
     var isCopied by remember { mutableStateOf(false) }
-    var isExpanded by remember { mutableStateOf(false) }
+    var isExpanded by remember(initiallyExpanded) { mutableStateOf(initiallyExpanded) }
 
     LaunchedEffect(isCopied) {
         if (isCopied) {
@@ -348,14 +350,14 @@ fun ToolExecutionCard(
         }
     }
 
-    val cardShape = RoundedCornerShape(10.dp)
-    val cardBg = Color(0xFF111622)
+    val cardShape = RoundedCornerShape(DesignTokens.RadiusCard)
+    val cardBg = DesignTokens.SurfaceElevated
     val borderColor = DesignTokens.BorderSubtle
-    val textSlate = Color(0xFFCBD5E1)
-    val textMuted = Color(0xFF64748B)
-    val accentTeal = Color(0xFF2DD4BF)
-    val successGreen = Color(0xFF10B981)
-    val errorRed = Color(0xFFEF4444)
+    val textSlate = LocalDesignColorTokens.current.textPrimary
+    val textMuted = LocalDesignColorTokens.current.textMuted
+    val accentTeal = DesignTokens.PrimaryCyan
+    val successGreen = DesignTokens.Success
+    val errorRed = DesignTokens.Error
 
     val toolIcon = when {
         toolName.contains("search", ignoreCase = true) -> "🔍"
@@ -460,7 +462,7 @@ fun ToolExecutionCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF0B0F19))
+                        .background(DesignTokens.SurfaceDark)
                         .padding(horizontal = 12.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
@@ -477,11 +479,11 @@ fun ToolExecutionCard(
                                     text = arguments,
                                     style = KaiTypography.bodySmall,
                                     fontFamily = FontFamily.Monospace,
-                                    color = Color(0xFF94A3B8),
+                                    color = LocalDesignColorTokens.current.textSecondary,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(6.dp))
-                                        .background(Color(0xFF131924))
+                                        .background(DesignTokens.SurfaceRaised)
                                         .padding(8.dp),
                                 )
                             }
@@ -526,7 +528,7 @@ fun ToolExecutionCard(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(6.dp))
-                                        .background(Color(0xFF131924))
+                                        .background(DesignTokens.SurfaceRaised)
                                         .padding(8.dp),
                                 )
                             }

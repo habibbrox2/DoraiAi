@@ -61,10 +61,10 @@ import com.inspiredandroid.kai.SandboxFileEntry
 import com.inspiredandroid.kai.formatFileSize
 import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardBorder
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardColors
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import kai.composeapp.generated.resources.Res
@@ -259,7 +259,7 @@ private fun PathBar(
                     Text(
                         text = editorFileName,
                         style = com.inspiredandroid.kai.ui.KaiTypography.bodyMedium,
-                        color = com.inspiredandroid.kai.ui.TextPrimary,
+                        color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                     )
                 }
@@ -309,7 +309,7 @@ private fun Separator() {
     Text(
         text = "›",
         style = KaiTypography.bodyMedium,
-        color = TextSecondary,
+        color = LocalDesignColorTokens.current.textSecondary,
         modifier = Modifier.padding(horizontal = 4.dp),
     )
 }
@@ -340,7 +340,7 @@ private fun FileList(
         Box(Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
             Text(
                 stringResource(Res.string.sandbox_files_empty_directory),
-                color = TextSecondary,
+                color = LocalDesignColorTokens.current.textSecondary,
                 style = KaiTypography.bodyMedium,
             )
         }
@@ -397,14 +397,14 @@ private fun FileRow(
                 Icon(
                     imageVector = if (entry.isDirectory) Icons.Filled.Folder else Icons.AutoMirrored.Filled.InsertDriveFile,
                     contentDescription = if (entry.isDirectory) "Folder" else "File",
-                    tint = if (entry.isDirectory) com.inspiredandroid.kai.ui.AccentPrimary else com.inspiredandroid.kai.ui.TextTertiary,
+                    tint = if (entry.isDirectory) com.inspiredandroid.kai.ui.AccentPrimary else LocalDesignColorTokens.current.textTertiary,
                 )
                 Spacer(Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = entry.name,
                         style = com.inspiredandroid.kai.ui.KaiTypography.bodyLarge,
-                        color = com.inspiredandroid.kai.ui.TextPrimary,
+                        color = LocalDesignColorTokens.current.textPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -412,7 +412,7 @@ private fun FileRow(
                         Text(
                             text = formatFileSize(entry.sizeBytes),
                             style = com.inspiredandroid.kai.ui.KaiTypography.bodySmall,
-                            color = com.inspiredandroid.kai.ui.TextTertiary,
+                            color = LocalDesignColorTokens.current.textTertiary,
                         )
                     }
                 }
@@ -448,7 +448,7 @@ private fun FileRowMenu(
             Icon(
                 imageVector = Icons.Filled.MoreVert,
                 contentDescription = stringResource(Res.string.sandbox_files_action_more),
-                tint = TextSecondary,
+                tint = LocalDesignColorTokens.current.textSecondary,
             )
         }
         DropdownMenu(
@@ -549,7 +549,7 @@ private fun EditorBody(
                     Text(
                         stringResource(Res.string.sandbox_files_editor_read_only),
                         style = KaiTypography.bodySmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                         modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp),
                     )
                 }
@@ -571,7 +571,7 @@ private fun EditorBody(
                     onValueChange = onChange,
                     readOnly = editor.readOnly,
                     modifier = Modifier.fillMaxWidth().weight(1f),
-                    textStyle = TextStyle(fontFamily = FontFamily.Monospace, color = com.inspiredandroid.kai.ui.TextPrimary),
+                    textStyle = TextStyle(fontFamily = FontFamily.Monospace, color = LocalDesignColorTokens.current.textPrimary),
                     shape = com.inspiredandroid.kai.ui.KaiShapes.card,
                     colors = com.inspiredandroid.kai.ui.outlineTextFieldColors(),
                 )
@@ -628,7 +628,7 @@ private fun UnopenableFile(
         Text(
             message,
             style = KaiTypography.bodyMedium,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             TextButton(onClick = { onOpenExternal(path) }, modifier = Modifier.handCursor()) {

@@ -38,4 +38,7 @@ data class ChatActions(
     val consumeComposerPrefill: () -> Unit,
     val confirmToolExecution: (toolCallId: String, allowOnce: Boolean, alwaysAllow: Boolean, allowSession: Boolean) -> Unit = { _, _, _, _ -> },
     val denyToolExecution: (toolCallId: String) -> Unit = {},
+    val acceptFileChange: (proposalId: String) -> Unit = {},
+    val rejectFileChange: (proposalId: String) -> Unit = {},
+    val rollbackFileChange: (proposalId: String) -> Unit = {},
 )

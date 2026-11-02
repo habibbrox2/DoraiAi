@@ -18,11 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardBorder
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardColors
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.heartbeat_banner_dismiss
 import kai.composeapp.generated.resources.heartbeat_banner_message
@@ -58,13 +57,13 @@ internal fun HeartbeatBanner(
                 Icon(
                     imageVector = vectorResource(Res.drawable.ic_history),
                     contentDescription = null,
-                    tint = TextSecondary,
+                    tint = LocalDesignColorTokens.current.textSecondary,
                     modifier = Modifier.size(18.dp),
                 )
                 Text(
                     text = stringResource(Res.string.heartbeat_banner_message),
                     style = KaiTypography.bodySmall,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
@@ -76,7 +75,7 @@ internal fun HeartbeatBanner(
                     Icon(
                         imageVector = vectorResource(Res.drawable.ic_close),
                         contentDescription = stringResource(Res.string.heartbeat_banner_dismiss),
-                        tint = TextSecondary,
+                        tint = LocalDesignColorTokens.current.textSecondary,
                         modifier = Modifier.size(16.dp),
                     )
                 }

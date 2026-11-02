@@ -1,6 +1,6 @@
 # Brox Kai 2.0 — Chat UI Upgrade Plan
 
-**Status:** Proposed implementation baseline  
+**Status:** Core chat workspace migration is present; responsive HUD and accessibility regression work is in progress.  
 **Design direction:** 2027 AI Agent Workspace  
 **Target platforms:** Android, Desktop, Web (Compose Multiplatform)
 
@@ -241,3 +241,12 @@ These are logical boundaries, not a mandate to move every existing file. Prefer 
 - Executing arbitrary model-generated code in the UI process.
 - Displaying private chain-of-thought as a user-facing “thought log”.
 - Showing fake latency, token usage, voice, camera, or terminal controls.
+
+
+## 12. IDE-grade file review and run summary
+
+The activity disclosure renders a bounded side-by-side diff only when the tool payload contains both before and after snapshots. Patch-only payloads are shown as supplied; new-content-only payloads are explicitly labelled as having no original snapshot. Missing source data is called out instead of fabricating a diff.
+
+Per-file review annotations support **Mark reviewed** and **Needs changes** for the current screen session. These annotations do not apply, reject, or revert filesystem changes. The current agent runtime exposes shell/tool execution and a platform-specific sandbox file browser, but no cross-platform file-patch approval/write-back contract. True Accept/Reject patch actions remain deferred until such a contract exists.
+
+The Agent Run Summary derives only observable history: activity counts, completed/running/failed counts, distinct file paths, terminal command count, and elapsed time. Diff calculation is capped at 250 lines per side.

@@ -53,9 +53,8 @@ import com.inspiredandroid.kai.ui.CardFill
 import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.KaiChip
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.settings.SettingsCard
 import kai.composeapp.generated.resources.Res
@@ -141,7 +140,7 @@ internal fun BuildProjectsContent(
                     Text(
                         text = stringResource(Res.string.kai_build_open_with),
                         style = KaiTypography.bodySmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                     )
                     KaiChip(
                         selected = launchAgentId == null,
@@ -205,7 +204,7 @@ internal fun BuildProjectsContent(
                     Text(
                         text = project,
                         style = KaiTypography.titleMedium,
-                        color = TextPrimary,
+                        color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
                     // Shells left behind here: the list is the only place they can be
@@ -327,7 +326,7 @@ private fun ProjectRowMenu(
             Icon(
                 imageVector = Icons.Default.MoreVert,
                 contentDescription = stringResource(Res.string.sandbox_files_action_more),
-                tint = TextSecondary,
+                tint = LocalDesignColorTokens.current.textSecondary,
             )
         }
         DropdownMenu(
@@ -458,13 +457,13 @@ private fun BuildSystemCard(
             Text(
                 text = "${info.distribution} · ${info.architecture}",
                 style = KaiTypography.bodySmall,
-                color = TextSecondary,
+                color = LocalDesignColorTokens.current.textSecondary,
             )
             if (info.packageCount > 0) {
                 Text(
                     text = stringResource(Res.string.kai_build_system_packages, info.packageCount),
                     style = KaiTypography.bodySmall,
-                    color = TextSecondary,
+                    color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
             Spacer(Modifier.height(12.dp))
@@ -537,13 +536,13 @@ private fun SystemInfoRow(label: String, value: String) {
             text = label,
             modifier = Modifier.weight(1f),
             style = KaiTypography.bodyMedium,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
         )
         Spacer(Modifier.width(8.dp))
         Text(
             text = value,
             style = KaiTypography.bodyMedium,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
             textAlign = TextAlign.End,
         )
     }

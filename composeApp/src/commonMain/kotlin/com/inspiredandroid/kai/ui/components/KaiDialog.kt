@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 /**
  * 2027 Premium Obsidian Dialog for confirmations, alerts, and forms.
@@ -85,7 +86,7 @@ fun KaiDialog(
                 Text(
                     text = titleText,
                     style = KaiTypography.headlineSmall,
-                    color = DesignTokens.PrimaryText,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
             }
 
@@ -93,7 +94,7 @@ fun KaiDialog(
                 Text(
                     text = bodyText,
                     style = KaiTypography.bodyMedium,
-                    color = DesignTokens.SecondaryText,
+                    color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
 
@@ -111,7 +112,7 @@ fun KaiDialog(
                             onDismissRequest()
                         },
                         colors = ButtonDefaults.textButtonColors(
-                            contentColor = DesignTokens.SecondaryText,
+                            contentColor = LocalDesignColorTokens.current.textSecondary,
                         ),
                         modifier = Modifier.padding(end = 8.dp),
                     ) {

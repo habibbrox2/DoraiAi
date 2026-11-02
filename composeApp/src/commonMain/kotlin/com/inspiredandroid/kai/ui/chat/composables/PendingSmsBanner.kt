@@ -29,11 +29,10 @@ import com.inspiredandroid.kai.data.SmsDraftStatus
 import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardBorder
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardColors
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.ic_close
 import kai.composeapp.generated.resources.sms_draft_banner_discard
@@ -105,7 +104,7 @@ private fun PendingSmsBanner(
                     text = stringResource(Res.string.sms_draft_banner_to, draft.address),
                     style = KaiTypography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                     modifier = Modifier.weight(1f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -124,7 +123,7 @@ private fun PendingSmsBanner(
                     Icon(
                         imageVector = vectorResource(Res.drawable.ic_close),
                         contentDescription = dismissLabel,
-                        tint = TextSecondary,
+                        tint = LocalDesignColorTokens.current.textSecondary,
                         modifier = Modifier.size(16.dp),
                     )
                 }
@@ -133,7 +132,7 @@ private fun PendingSmsBanner(
             Text(
                 text = draft.body,
                 style = KaiTypography.bodySmall,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -156,13 +155,13 @@ private fun PendingSmsBanner(
                         CircularProgressIndicator(
                             modifier = Modifier.size(14.dp),
                             strokeWidth = 2.dp,
-                            color = TextSecondary,
+                            color = LocalDesignColorTokens.current.textSecondary,
                         )
                         Spacer(Modifier.size(8.dp))
                         Text(
                             text = stringResource(Res.string.sms_draft_banner_sending),
                             style = KaiTypography.labelSmall,
-                            color = TextSecondary,
+                            color = LocalDesignColorTokens.current.textSecondary,
                         )
                     }
                 }

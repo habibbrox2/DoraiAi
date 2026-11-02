@@ -60,7 +60,6 @@ import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.CardFill
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextSecondary
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.waiting_brewing
 import kai.composeapp.generated.resources.waiting_content_description

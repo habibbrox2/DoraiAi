@@ -143,15 +143,6 @@ fun AppSettings.generateInstanceId(serviceId: String): String {
 }
 
 /**
- * The providers every install starts with.
- *
- * Both serve free models without an API key — Kilo's gateway rotates free models and OpenCode
- * Zen ships free "stealth" models — so a fresh install can chat before the user configures
- * anything. Kilo comes first: it is the widest free catalogue of the two.
- */
-private val DEFAULT_SERVICE_INSTANCES = emptyList<ServiceInstance>()
-
-/**
  * Does not seed any services by default per user specification.
  */
 fun AppSettings.seedDefaultServicesIfNeeded() {

@@ -18,14 +18,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.inspiredandroid.kai.linux.LinuxDistro
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.VerticalScrollbarForList
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.settings_tab_data
 import org.jetbrains.compose.resources.stringResource
@@ -61,10 +61,20 @@ fun SettingsDetailPane(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            item { Spacer(Modifier.height(16.dp)) }
+            item { Spacer(Modifier.height(20.dp)) }
+            item {
+                SettingsPageHeading(
+                    tab = uiState.currentTab,
+                    modifier = Modifier
+                        .widthIn(max = 900.dp)
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                )
+            }
+            item { Spacer(Modifier.height(18.dp)) }
 
             val maxContentWidth = when (uiState.currentTab) {
-                SettingsTab.Services -> 500.dp
+                SettingsTab.Services -> 720.dp
                 else -> 900.dp
             }
             item {
@@ -161,12 +171,12 @@ private fun SandboxUnavailableContent() {
         Text(
             text = "Linux Sandbox",
             style = KaiTypography.titleMedium,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
             text = "The Linux sandbox is only available on Android devices.",
             style = KaiTypography.bodySmall,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
         )
     }
 }
@@ -184,15 +194,22 @@ fun DataControlContent(
         Text(
             text = stringResource(Res.string.settings_tab_data),
             style = KaiTypography.titleMedium,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
-        Text(
-            text = "Manage your chat history and stored data.",
-            style = KaiTypography.bodySmall,
-            color = TextSecondary,
-        )
-        Button(onClick = { actions.onClearAllConversations() }) {
-            Text("Clear all conversations")
+        SettingsCard {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    text = "Manage your chat history and stored data.",
+                    style = KaiTypography.bodyMedium,
+                    color = LocalDesignColorTokens.current.textSecondary,
+                )
+                Button(onClick = { actions.onClearAllConversations() }) {
+                    Text("Clear all conversations")
+                }
+            }
         }
     }
 }
@@ -201,25 +218,76 @@ fun DataControlContent(
 fun AccountPlanContent(
     uiState: SettingsUiState,
 ) {
+    SettingsCard {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = "Brox Kai 2.0",
+                style = KaiTypography.titleMedium,
+                color = LocalDesignColorTokens.current.textPrimary,
+            )
+            Text(
+                text = "Version " + com.inspiredandroid.kai.Version.appVersion,
+                style = KaiTypography.bodySmall,
+                color = LocalDesignColorTokens.current.textSecondary,
+            )
+            Text(
+                text = uiState.configuredServices.size.toString() + " configured services",
+                style = KaiTypography.bodySmall,
+                color = LocalDesignColorTokens.current.textSecondary,
+            )
+        }
+    }
+}
+
+@Composable
+private fun SettingsPageHeading(
+    tab: SettingsTab,
+    modifier: Modifier = Modifier,
+) {
+    val title = when (tab) {
+        SettingsTab.General -> "General"
+        SettingsTab.Appearance -> "Appearance"
+        SettingsTab.Agent -> "Agent"
+        SettingsTab.Services -> "Services"
+        SettingsTab.Tools -> "Tools"
+        SettingsTab.Integrations -> "Integrations"
+        SettingsTab.Sandbox -> "Linux Sandbox"
+        SettingsTab.Data -> "Data & Privacy"
+        SettingsTab.Account -> "Account"
+    }
+    val description = when (tab) {
+        SettingsTab.General -> "Manage your workspace preferences and application behavior."
+        SettingsTab.Appearance -> "Tune the visual experience, theme, and accessibility."
+        SettingsTab.Agent -> "Configure agent behavior, reasoning, and model defaults."
+        SettingsTab.Services -> "Connect providers and manage the models available to Kai."
+        SettingsTab.Tools -> "Control the tools and capabilities available to your agent."
+        SettingsTab.Integrations -> "Manage MCP servers and external integrations."
+        SettingsTab.Sandbox -> "Configure the isolated Linux workspace and its lifecycle."
+        SettingsTab.Data -> "Manage conversations, local data, and privacy controls."
+        SettingsTab.Account -> "Review your account and application information."
+    }
     Column(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = modifier.semantics { heading() },
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
-            text = "Account and Plan",
-            style = KaiTypography.titleMedium,
-            color = TextPrimary,
+            text = "SETTINGS / " + title.uppercase(),
+            style = KaiTypography.labelSmall,
+            color = com.inspiredandroid.kai.ui.theme.DesignTokens.PrimaryCyan,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
         )
         Text(
-            text = "Brox Kai 2.0",
-            style = KaiTypography.bodyMedium,
-            color = TextSecondary,
+            text = title,
+            style = KaiTypography.headlineSmall,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
-            text = "Version " + com.inspiredandroid.kai.Version.appVersion,
+            text = description,
             style = KaiTypography.bodySmall,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
         )
     }
 }

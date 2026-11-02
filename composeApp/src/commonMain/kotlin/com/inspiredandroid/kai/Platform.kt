@@ -3,6 +3,7 @@ package com.inspiredandroid.kai
 import androidx.compose.ui.draganddrop.DragAndDropEvent
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.inspiredandroid.kai.filereview.FileReviewController
 import com.inspiredandroid.kai.network.tools.Tool
 import com.inspiredandroid.kai.network.tools.ToolInfo
 import com.russhwolf.settings.Settings
@@ -69,6 +70,9 @@ expect fun getSimOperatorCode(): String?
 expect fun getDeviceInfo(): Map<String, Any>
 
 expect fun getAvailableTools(): List<Tool>
+
+/** Creates the durable File Review controller for the current platform. */
+expect fun createFileReviewController(): FileReviewController
 
 /**
  * Returns all raw tool definitions available on this platform.

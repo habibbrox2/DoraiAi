@@ -1,6 +1,6 @@
 # Appearance
 
-**Last verified:** 2026-10-21
+**Last verified:** 2026-11-03
 
 Kai has a five-way theme picker — **System**, **Light**, **Dark**, **OLED** and **Midnight** — exposed in Settings on every platform as a row of switch buttons, one per theme, so the choice is visible at a glance and takes a single tap. The default is System, which follows the operating system's dark/light preference. The other four force a specific theme regardless of system state. Dark uses a soft dark background (`#121212`) with slightly lighter surfaces (`#1E1E1E`); OLED flattens the background and the lowest surface tier to pure black (`#000000`) for users who want to save power on OLED panels; Midnight is a deep-navy dark theme (background `#06152E`, surfaces `#0E2A4D`) that keeps the cyan brand accent without going pitch black.
 

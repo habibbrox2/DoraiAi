@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -23,20 +24,28 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Widgets
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.inspiredandroid.kai.BackIcon
 import com.inspiredandroid.kai.data.ServiceEntry
 import com.inspiredandroid.kai.prefersReducedMotion
@@ -46,6 +55,7 @@ import com.inspiredandroid.kai.ui.chat.ChatSpacing
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.settings.SettingsModel
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.ic_settings
 import kai.composeapp.generated.resources.interactive_back_content_description
@@ -87,171 +97,313 @@ internal fun AgentHud(
     onGoBack: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
-    val hudBackground = DesignTokens.SurfaceDark.copy(alpha = 0.94f)
-    val hudBorder = BorderStroke(1.dp, DesignTokens.PrimaryCyan.copy(alpha = 0.48f))
-    val hudShape = RoundedCornerShape(DesignTokens.RadiusHud)
-
-    Box(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .padding(top = 12.dp, bottom = 4.dp)
-            .defaultMinSize(minHeight = 56.dp),
+            .padding(top = 12.dp, bottom = 4.dp),
     ) {
+        val compact = isCompactAgentHud(maxWidth)
+        val hudBackground = DesignTokens.SurfaceDark.copy(alpha = 0.94f)
+        val hudBorder = BorderStroke(1.dp, DesignTokens.PrimaryCyan.copy(alpha = 0.38f))
+        val hudShape = RoundedCornerShape(DesignTokens.RadiusHud)
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .defaultMinSize(minHeight = 56.dp)
                 .padding(horizontal = ChatSpacing.md)
                 .clip(hudShape)
                 .background(hudBackground, hudShape)
                 .border(hudBorder, hudShape),
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = ChatSpacing.sm, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                // ─── Left Cluster: Drawer toggle + BK monogram + Title ───
+            if (compact) {
+                CompactAgentHudContent(
+                    textToSpeech = textToSpeech,
+                    isSpeechOutputEnabled = isSpeechOutputEnabled,
+                    isSpeaking = isSpeaking,
+                    actions = actions,
+                    onNavigateToSettings = onNavigateToSettings,
+                    isSandboxAvailable = isSandboxAvailable,
+                    isSandboxOpen = isSandboxOpen,
+                    isShellExecuting = isShellExecuting,
+                    isGenerating = isGenerating,
+                    onToggleSandbox = onToggleSandbox,
+                    onOpenDrawer = onOpenDrawer,
+                    services = services,
+                    models = models,
+                    isLoadingModels = isLoadingModels,
+                    isInteractiveMode = isInteractiveMode,
+                    onToggleInteractiveMode = onToggleInteractiveMode,
+                    onGoBack = onGoBack,
+                )
+            } else {
                 Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = ChatSpacing.sm, vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    if (onOpenDrawer != null) {
-                        IconButton(
-                            modifier = Modifier.size(36.dp).handCursor(),
-                            onClick = onOpenDrawer,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "Open navigation",
-                                tint = DesignTokens.PrimaryText,
-                                modifier = Modifier.size(20.dp),
-                            )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        if (onOpenDrawer != null) {
+                            IconButton(
+                                modifier = Modifier.size(48.dp).handCursor(),
+                                onClick = onOpenDrawer,
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Menu,
+                                    contentDescription = "Open navigation",
+                                    tint = LocalDesignColorTokens.current.textPrimary,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
+                        }
+                        Icon(
+                            painter = painterResource(Res.drawable.logo),
+                            contentDescription = "Brox Kai Logo",
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(28.dp),
+                        )
+                        Text(
+                            text = "Brox Kai 2.0",
+                            style = KaiTypography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                            color = LocalDesignColorTokens.current.textPrimary,
+                            maxLines = 1,
+                        )
+                        onToggleInteractiveMode?.let { toggle ->
+                            IconToggleButton(
+                                checked = isInteractiveMode,
+                                onCheckedChange = { toggle() },
+                                modifier = Modifier.size(48.dp).handCursor(),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Widgets,
+                                    contentDescription = stringResource(Res.string.interactive_mode_content_description),
+                                    tint = if (isInteractiveMode) DesignTokens.PrimaryCyan else LocalDesignColorTokens.current.textTertiary,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
                         }
                     }
 
-                    // Official Brox Kai Logo from Logo Pack
-                    Icon(
-                        painter = painterResource(Res.drawable.logo),
-                        contentDescription = "Brox Kai Logo",
-                        tint = Color.Unspecified,
-                        modifier = Modifier.size(26.dp),
-                    )
-
-                    Spacer(Modifier.width(2.dp))
-
-                    Text(
-                        text = "Brox Kai 2.0",
-                        style = KaiTypography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                        color = DesignTokens.PrimaryText,
-                        maxLines = 1,
-                    )
-
-                    onToggleInteractiveMode?.let { toggle ->
-                        IconToggleButton(
-                            checked = isInteractiveMode,
-                            onCheckedChange = { toggle() },
-                            modifier = Modifier.size(36.dp).handCursor(),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Widgets,
-                                contentDescription = stringResource(Res.string.interactive_mode_content_description),
-                                tint = if (isInteractiveMode) DesignTokens.PrimaryCyan else DesignTokens.TertiaryText,
-                                modifier = Modifier.size(18.dp),
-                            )
-                        }
-                    }
-                }
-
-                // ─── Center Cluster: Agent Status Orb + Model Selector ───
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.weight(1f).padding(horizontal = 10.dp),
-                ) {
-                    AgentStatusOrb(
-                        isGenerating = isGenerating,
-                        isShellExecuting = isShellExecuting,
-                        isSpeaking = isSpeaking,
-                    )
-
-                    Spacer(Modifier.width(8.dp))
-
-                    Text(
-                        text = agentStatusLabel(
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.weight(1f).padding(horizontal = 10.dp),
+                    ) {
+                        AgentStatusOrb(
                             isGenerating = isGenerating,
                             isShellExecuting = isShellExecuting,
                             isSpeaking = isSpeaking,
-                        ),
-                        style = KaiTypography.titleSmall,
-                        color = DesignTokens.PrimaryText,
-                        maxLines = 1,
-                    )
-
-                    Spacer(Modifier.width(6.dp))
-
-                    if (services.isNotEmpty()) {
-                        ServiceSelector(
-                            services = services,
-                            onSelectService = actions.selectService,
-                            models = models,
-                            isLoadingModels = isLoadingModels,
-                            onSelectModel = actions.selectModel,
-                            onLoadModels = actions.loadModels,
-                            showLabel = false,
                         )
-                    }
-                }
-
-                // ─── Right Cluster: Interactive Back + Sandbox + TTS + Settings ───
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    onGoBack?.let { goBack ->
-                        IconButton(
-                            modifier = Modifier.size(36.dp).handCursor(),
-                            onClick = goBack,
-                        ) {
-                            Icon(
-                                imageVector = BackIcon,
-                                contentDescription = stringResource(Res.string.interactive_back_content_description),
-                                tint = DesignTokens.PrimaryText,
-                                modifier = Modifier.size(18.dp),
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = agentStatusLabel(
+                                isGenerating = isGenerating,
+                                isShellExecuting = isShellExecuting,
+                                isSpeaking = isSpeaking,
+                            ),
+                            style = KaiTypography.titleSmall,
+                            color = LocalDesignColorTokens.current.textPrimary,
+                            maxLines = 1,
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        if (services.isNotEmpty()) {
+                            ServiceSelector(
+                                services = services,
+                                onSelectService = actions.selectService,
+                                models = models,
+                                isLoadingModels = isLoadingModels,
+                                onSelectModel = actions.selectModel,
+                                onLoadModels = actions.loadModels,
+                                showLabel = false,
                             )
                         }
                     }
 
-                    if (isSandboxAvailable) {
-                        SandboxToggleButton(
-                            isSandboxOpen = isSandboxOpen,
-                            isShellExecuting = isShellExecuting,
-                            onToggleSandbox = onToggleSandbox,
-                        )
-                    }
-
-                    if (textToSpeech != null) {
-                        SpeechToggleButton(textToSpeech, isSpeechOutputEnabled, isSpeaking, actions)
-                    }
-
-                    IconButton(
-                        modifier = Modifier.size(36.dp).handCursor(),
-                        onClick = onNavigateToSettings,
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
                     ) {
-                        Icon(
-                            imageVector = vectorResource(Res.drawable.ic_settings),
-                            contentDescription = stringResource(Res.string.settings_content_description),
-                            tint = DesignTokens.PrimaryText,
-                            modifier = Modifier.size(20.dp),
-                        )
+                        onGoBack?.let { goBack ->
+                            IconButton(
+                                modifier = Modifier.size(48.dp).handCursor(),
+                                onClick = goBack,
+                            ) {
+                                Icon(
+                                    imageVector = BackIcon,
+                                    contentDescription = stringResource(Res.string.interactive_back_content_description),
+                                    tint = LocalDesignColorTokens.current.textPrimary,
+                                    modifier = Modifier.size(18.dp),
+                                )
+                            }
+                        }
+                        if (isSandboxAvailable) {
+                            SandboxToggleButton(
+                                isSandboxOpen = isSandboxOpen,
+                                isShellExecuting = isShellExecuting,
+                                onToggleSandbox = onToggleSandbox,
+                            )
+                        }
+                        if (textToSpeech != null) {
+                            SpeechToggleButton(textToSpeech, isSpeechOutputEnabled, isSpeaking, actions)
+                        }
+                        IconButton(
+                            modifier = Modifier.size(48.dp).handCursor(),
+                            onClick = onNavigateToSettings,
+                        ) {
+                            Icon(
+                                imageVector = vectorResource(Res.drawable.ic_settings),
+                                contentDescription = stringResource(Res.string.settings_content_description),
+                                tint = LocalDesignColorTokens.current.textPrimary,
+                                modifier = Modifier.size(20.dp),
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
+
+@Composable
+private fun CompactAgentHudContent(
+    textToSpeech: TextToSpeechInstance?,
+    isSpeechOutputEnabled: Boolean,
+    isSpeaking: Boolean,
+    actions: ChatActions,
+    onNavigateToSettings: () -> Unit,
+    isSandboxAvailable: Boolean,
+    isSandboxOpen: Boolean,
+    isShellExecuting: Boolean,
+    isGenerating: Boolean,
+    onToggleSandbox: () -> Unit,
+    onOpenDrawer: (() -> Unit)?,
+    services: ImmutableList<ServiceEntry>,
+    models: ImmutableList<SettingsModel>,
+    isLoadingModels: Boolean,
+    isInteractiveMode: Boolean,
+    onToggleInteractiveMode: (() -> Unit)?,
+    onGoBack: (() -> Unit)?,
+) {
+    var overflowExpanded by remember { mutableStateOf(false) }
+    val statusLabel = agentStatusLabel(isGenerating, isShellExecuting, isSpeaking)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 6.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        if (onOpenDrawer != null) {
+            IconButton(
+                modifier = Modifier.size(48.dp).handCursor(),
+                onClick = onOpenDrawer,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Open navigation",
+                    tint = LocalDesignColorTokens.current.textPrimary,
+                )
+            }
+        }
+        Icon(
+            painter = painterResource(Res.drawable.logo),
+            contentDescription = "Brox Kai Logo",
+            tint = Color.Unspecified,
+            modifier = Modifier.size(26.dp),
+        )
+        Spacer(Modifier.weight(1f))
+        if (services.isNotEmpty()) {
+            ServiceSelector(
+                services = services,
+                onSelectService = actions.selectService,
+                models = models,
+                isLoadingModels = isLoadingModels,
+                onSelectModel = actions.selectModel,
+                onLoadModels = actions.loadModels,
+                showLabel = false,
+            )
+        }
+        AgentStatusOrb(
+            isGenerating = isGenerating,
+            isShellExecuting = isShellExecuting,
+            isSpeaking = isSpeaking,
+            modifier = Modifier.semantics { contentDescription = "Agent status: $statusLabel" },
+        )
+        Box {
+            IconButton(
+                modifier = Modifier.size(48.dp).handCursor(),
+                onClick = { overflowExpanded = true },
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "More agent actions",
+                    tint = LocalDesignColorTokens.current.textPrimary,
+                )
+            }
+            DropdownMenu(
+                expanded = overflowExpanded,
+                onDismissRequest = { overflowExpanded = false },
+            ) {
+                onToggleInteractiveMode?.let { toggle ->
+                    DropdownMenuItem(
+                        text = { Text(if (isInteractiveMode) "Disable interactive UI" else "Enable interactive UI") },
+                        onClick = {
+                            overflowExpanded = false
+                            toggle()
+                        },
+                    )
+                }
+                onGoBack?.let { goBack ->
+                    DropdownMenuItem(
+                        text = { Text("Back") },
+                        onClick = {
+                            overflowExpanded = false
+                            goBack()
+                        },
+                    )
+                }
+                if (isSandboxAvailable) {
+                    DropdownMenuItem(
+                        text = { Text(if (isSandboxOpen) "Close workspace" else "Open workspace") },
+                        onClick = {
+                            overflowExpanded = false
+                            onToggleSandbox()
+                        },
+                    )
+                }
+                if (textToSpeech != null) {
+                    DropdownMenuItem(
+                        text = { Text(if (isSpeechOutputEnabled) "Disable speech output" else "Enable speech output") },
+                        onClick = {
+                            overflowExpanded = false
+                            if (isSpeechOutputEnabled && isSpeaking) {
+                                actions.setIsSpeaking(false, "")
+                                textToSpeech.stop()
+                            }
+                            actions.toggleSpeechOutput()
+                        },
+                    )
+                }
+                DropdownMenuItem(
+                    text = { Text("Settings") },
+                    onClick = {
+                        overflowExpanded = false
+                        onNavigateToSettings()
+                    },
+                )
+            }
+        }
+    }
+}
+
+internal fun isCompactAgentHud(width: Dp): Boolean = width < 720.dp
 
 /**
  * Pulsing Agent Status Orb indicating runtime execution states:
@@ -267,20 +419,24 @@ fun AgentStatusOrb(
     isSpeaking: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val reducedMotion = prefersReducedMotion()
-    val infiniteTransition = rememberInfiniteTransition(label = "hudStatus")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 0.82f,
-        targetValue = if (reducedMotion) 0.82f else 1.25f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = if (isGenerating || isShellExecuting) 650 else 1800,
-                easing = FastOutSlowInEasing,
+    val pulseScale = if (prefersReducedMotion()) {
+        0.82f
+    } else {
+        val infiniteTransition = rememberInfiniteTransition(label = "hudStatus")
+        val animatedPulseScale by infiniteTransition.animateFloat(
+            initialValue = 0.82f,
+            targetValue = 1.25f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = if (isGenerating || isShellExecuting) 650 else 1800,
+                    easing = FastOutSlowInEasing,
+                ),
+                repeatMode = RepeatMode.Reverse,
             ),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "hudStatusPulse",
-    )
+            label = "hudStatusPulse",
+        )
+        animatedPulseScale
+    }
 
     val orbColor = when {
         isShellExecuting -> DesignTokens.Warning

@@ -3,6 +3,7 @@ package com.inspiredandroid.kai.data
 import com.inspiredandroid.kai.network.dtos.anthropic.AnthropicModelsResponseDto
 import com.inspiredandroid.kai.network.dtos.gemini.GeminiModelsResponseDto
 import com.inspiredandroid.kai.network.dtos.openaicompatible.OpenAICompatibleModelResponseDto
+import com.inspiredandroid.kai.ui.settings.ModelSortOption
 import com.inspiredandroid.kai.ui.settings.SettingsModel
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -296,6 +297,42 @@ class ModelTransformationsTest {
         assertEquals("gemini-2.5-pro", result[0].id) // 2025-03
         assertEquals("gemini-2.0-flash", result[1].id) // 2025-02
         assertEquals("gemini-1.5-pro", result[2].id) // 2024-05
+    }
+
+    // --- Model picker sort: Alpha (free first, then A-Z) ---
+
+    @Test
+    fun `alphaSort puts free models first then sorts A-Z by id within each group`() {
+        val models = listOf(
+            SettingsModel(id = "z-paid", subtitle = "", isFreeTier = false),
+            SettingsModel(id = "a-free", subtitle = "", isFreeTier = true),
+            SettingsModel(id = "m-paid", subtitle = "", isFreeTier = false),
+            SettingsModel(id = "b-free", subtitle = "", isFreeTier = true),
+        )
+        val sorted = models.sortedWith(ModelSortOption.Alpha.comparator)
+        assertEquals(listOf("a-free", "b-free", "m-paid", "z-paid"), sorted.map { it.id })
+    }
+
+    @Test
+    fun `alphaSort sorts A-Z by id when all models share the same free tier`() {
+        val models = listOf(
+            SettingsModel(id = "zeta", subtitle = "", isFreeTier = true),
+            SettingsModel(id = "alpha", subtitle = "", isFreeTier = true),
+            SettingsModel(id = "mid", subtitle = "", isFreeTier = true),
+        )
+        val sorted = models.sortedWith(ModelSortOption.Alpha.comparator)
+        assertEquals(listOf("alpha", "mid", "zeta"), sorted.map { it.id })
+    }
+
+    @Test
+    fun `alphaSort uses displayName as tiebreaker when ids are equal`() {
+        val models = listOf(
+            SettingsModel(id = "same-id", subtitle = "", displayName = "Zebra", isFreeTier = false),
+            SettingsModel(id = "same-id", subtitle = "", displayName = "Alpha", isFreeTier = false),
+        )
+        val sorted = models.sortedWith(ModelSortOption.Alpha.comparator)
+        assertEquals("Alpha", sorted[0].displayName)
+        assertEquals("Zebra", sorted[1].displayName)
     }
 
     // --- OpenAI-Compatible ---

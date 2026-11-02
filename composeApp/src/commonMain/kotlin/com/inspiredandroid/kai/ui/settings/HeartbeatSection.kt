@@ -48,13 +48,12 @@ import com.inspiredandroid.kai.ui.KaiOutlinedTextField
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SurfaceRaised
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.KaiRangeSlider
 import com.inspiredandroid.kai.ui.components.KaiSlider
 import com.inspiredandroid.kai.ui.components.RefreshIconButton
 import com.inspiredandroid.kai.ui.components.SettingsListItem
 import com.inspiredandroid.kai.ui.handCursor
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.cron_daily_at
 import kai.composeapp.generated.resources.cron_day_friday
@@ -172,7 +171,7 @@ internal fun HeartbeatSection(
                         Icon(
                             imageVector = Icons.Default.Replay,
                             contentDescription = stringResource(Res.string.settings_soul_reset),
-                            tint = TextSecondary,
+                            tint = LocalDesignColorTokens.current.textSecondary,
                         )
                     }
                 }
@@ -211,13 +210,13 @@ internal fun HeartbeatSection(
                     text = stringResource(Res.string.settings_heartbeat_active_hours),
                     modifier = Modifier.weight(1f),
                     style = KaiTypography.labelMedium,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = "$startDisplay – $endDisplay",
                     style = KaiTypography.labelLarge,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
             }
             KaiRangeSlider(
@@ -239,7 +238,7 @@ internal fun HeartbeatSection(
                 Text(
                     text = stringResource(Res.string.settings_heartbeat_model),
                     style = KaiTypography.labelMedium,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Spacer(Modifier.height(4.dp))
 
@@ -279,9 +278,9 @@ internal fun HeartbeatSection(
                                     text = stringResource(Res.string.settings_heartbeat_model_default),
                                     style = KaiTypography.bodyMedium,
                                     color = if (heartbeatSelectedInstanceId == null) {
-                                        TextPrimary
+                                        LocalDesignColorTokens.current.textPrimary
                                     } else {
-                                        TextSecondary
+                                        LocalDesignColorTokens.current.textSecondary
                                     },
                                 )
                             },
@@ -313,9 +312,9 @@ internal fun HeartbeatSection(
                                         contentDescription = null,
                                         modifier = Modifier.size(18.dp),
                                         tint = if (isSelected) {
-                                            TextPrimary
+                                            LocalDesignColorTokens.current.textPrimary
                                         } else {
-                                            TextSecondary
+                                            LocalDesignColorTokens.current.textSecondary
                                         },
                                     )
                                 },
@@ -325,18 +324,18 @@ internal fun HeartbeatSection(
                                             text = entry.serviceName,
                                             style = KaiTypography.bodyMedium,
                                             color = if (isSelected) {
-                                                TextPrimary
+                                                LocalDesignColorTokens.current.textPrimary
                                             } else {
-                                                TextSecondary
+                                                LocalDesignColorTokens.current.textSecondary
                                             },
                                         )
                                         Text(
                                             text = entry.modelId,
                                             style = KaiTypography.bodySmall,
                                             color = if (isSelected) {
-                                                TextPrimary.copy(alpha = 0.7f)
+                                                LocalDesignColorTokens.current.textPrimary.copy(alpha = 0.7f)
                                             } else {
-                                                TextSecondary
+                                                LocalDesignColorTokens.current.textSecondary
                                             },
                                         )
                                     }
@@ -376,7 +375,7 @@ internal fun HeartbeatSection(
                 label = {
                     Text(
                         stringResource(Res.string.settings_heartbeat_prompt_label),
-                        color = TextPrimary,
+                        color = LocalDesignColorTokens.current.textPrimary,
                     )
                 },
             )
@@ -384,7 +383,7 @@ internal fun HeartbeatSection(
             Text(
                 text = "${editedText.length}/$maxChars",
                 style = KaiTypography.bodySmall,
-                color = TextSecondary,
+                color = LocalDesignColorTokens.current.textSecondary,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.End,
             )
@@ -408,7 +407,7 @@ internal fun HeartbeatSection(
                 Text(
                     text = stringResource(Res.string.settings_heartbeat_recent),
                     style = KaiTypography.labelMedium,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
                 RefreshIconButton(
                     onClick = onRefresh,
@@ -441,7 +440,7 @@ internal fun HeartbeatSection(
                             Text(
                                 text = formatHeartbeatTime(entry.timestampEpochMs),
                                 style = KaiTypography.bodySmall,
-                                color = TextSecondary,
+                                color = LocalDesignColorTokens.current.textSecondary,
                             )
                             if (!entry.success && entry.error != null) {
                                 Text(
@@ -516,7 +515,7 @@ internal fun EmailSection(
                 Text(
                     text = stringResource(Res.string.settings_email_empty),
                     style = KaiTypography.bodySmall,
-                    color = TextSecondary,
+                    color = LocalDesignColorTokens.current.textSecondary,
                 )
             } else {
                 if (pendingCount > 0) {
@@ -564,7 +563,7 @@ internal fun EmailSection(
                             Text(
                                 text = text,
                                 style = KaiTypography.labelSmall,
-                                color = if (failed) DangerAlert else TextSecondary,
+                                color = if (failed) DangerAlert else LocalDesignColorTokens.current.textSecondary,
                                 modifier = Modifier.padding(start = 12.dp, top = 4.dp),
                             )
                         }
@@ -648,7 +647,7 @@ internal fun SmsSection(
                         Text(
                             text = text,
                             style = KaiTypography.labelSmall,
-                            color = if (failed) DangerAlert else TextSecondary,
+                            color = if (failed) DangerAlert else LocalDesignColorTokens.current.textSecondary,
                         )
                     } else {
                         Spacer(Modifier.width(1.dp))
@@ -691,7 +690,7 @@ private fun PermissionRequiredRow(
     Text(
         text = message,
         style = KaiTypography.bodySmall,
-        color = TextSecondary,
+        color = LocalDesignColorTokens.current.textSecondary,
     )
     Spacer(Modifier.height(8.dp))
     OutlinedButton(onClick = onGrant) {
@@ -742,7 +741,7 @@ internal fun NotificationsSection(
                         ),
                         style = KaiTypography.labelSmall,
                         color = if (listenerBound) {
-                            TextSecondary
+                            LocalDesignColorTokens.current.textSecondary
                         } else {
                             DangerAlert
                         },
@@ -883,13 +882,13 @@ private fun PresetSlider(
             text = label(currentPreset),
             modifier = Modifier.weight(1f),
             style = KaiTypography.labelMedium,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
         Spacer(Modifier.width(8.dp))
         Text(
             text = formatValue(currentPreset),
             style = KaiTypography.labelLarge,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
     }
     KaiSlider(

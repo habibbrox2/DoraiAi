@@ -1,7 +1,7 @@
 # Brox Kai 2.0 — Premium AI Agent Workspace UI (2027 Direction)
 
 **Document type:** Product/UI migration plan  
-**Status:** Proposed; implementation not implied by this document  
+**Status:** Core 2027 UI foundation is present in `main`; responsive, accessibility, reduced-motion, and visual-regression refinements are in progress.  
 **Platforms:** Android, Desktop, Web via Kotlin Multiplatform + Compose
 
 ## 1. Product vision

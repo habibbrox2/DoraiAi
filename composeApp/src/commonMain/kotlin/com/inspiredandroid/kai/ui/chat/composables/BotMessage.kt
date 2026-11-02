@@ -54,7 +54,6 @@ import com.inspiredandroid.kai.getBackgroundDispatcher
 import com.inspiredandroid.kai.ui.CardFill
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SuccessGreen
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.chat.ChatSpacing
 import com.inspiredandroid.kai.ui.dynamicui.FrozenSubmission
 import com.inspiredandroid.kai.ui.dynamicui.toSpeakableText
@@ -63,6 +62,7 @@ import com.inspiredandroid.kai.ui.markdown.MarkdownContent
 import com.inspiredandroid.kai.ui.markdown.parseMarkdown
 import com.inspiredandroid.kai.ui.rememberCopyToClipboard
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.bot_message_copy_content_description
 import kai.composeapp.generated.resources.bot_message_thinking_expand_content_description
@@ -73,7 +73,6 @@ import kai.composeapp.generated.resources.ic_copy
 import kai.composeapp.generated.resources.logo
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import nl.marc_apps.tts.TextToSpeechInstance
@@ -118,8 +117,8 @@ internal fun BotMessage(
     )
     val botBubbleBg = DesignTokens.SurfaceElevated
     val botBubbleBorder = DesignTokens.BorderSubtle
-    val botTextColor = DesignTokens.PrimaryText
-    val botMutedColor = DesignTokens.TertiaryText
+    val botTextColor = LocalDesignColorTokens.current.textPrimary
+    val botMutedColor = LocalDesignColorTokens.current.textTertiary
 
     Column(
         modifier = Modifier
@@ -161,20 +160,9 @@ internal fun BotMessage(
                     }
                 }
 
-                // ChatGPT-style Collapsible Thinking Process
-                val nonBlankSegments = remember(reasoningSegments) {
-                    reasoningSegments.filter { it.isNotBlank() }.toImmutableList()
-                }
-                if (nonBlankSegments.isNotEmpty()) {
-                    ReasoningBlockquote(
-                        segments = nonBlankSegments,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-
                 // Markdown Message Body
                 if (message.isNotEmpty()) {
-                    val answerTopPadding = if (nonBlankSegments.isNotEmpty()) 8.dp else 2.dp
+                    val answerTopPadding = 2.dp
                     CompositionLocalProvider(
                         androidx.compose.material3.LocalContentColor provides botTextColor,
                     ) {
@@ -186,7 +174,7 @@ internal fun BotMessage(
                                 frozen = effectiveFrozen,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = answerTopPadding, end = if (message.isNotEmpty() && frozen == null) 24.dp else 0.dp),
+                                    .padding(top = answerTopPadding, end = if (message.isNotEmpty() && frozen == null) 52.dp else 0.dp),
                             )
                         }
                     }
@@ -209,7 +197,7 @@ internal fun BotMessage(
                     },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .size(28.dp)
+                        .size(48.dp)
                         .handCursor(),
                 ) {
                     Icon(
@@ -227,7 +215,7 @@ internal fun BotMessage(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(4.dp)
-                        .size(28.dp)
+                        .size(48.dp)
                         .clip(CircleShape)
                         .background(com.inspiredandroid.kai.ui.theme.DesignTokens.SurfaceRaised)
                         .border(androidx.compose.foundation.BorderStroke(1.dp, com.inspiredandroid.kai.ui.theme.DesignTokens.BorderSubtle), CircleShape)
@@ -337,8 +325,8 @@ private fun ReasoningBlockquote(
     val accentCyan = com.inspiredandroid.kai.ui.theme.DesignTokens.PrimaryCyan
     val containerBg = com.inspiredandroid.kai.ui.theme.DesignTokens.SurfaceDark
     val borderColor = com.inspiredandroid.kai.ui.theme.DesignTokens.BorderSubtle
-    val textSlate = com.inspiredandroid.kai.ui.theme.DesignTokens.SecondaryText
-    val textMuted = com.inspiredandroid.kai.ui.theme.DesignTokens.MutedText
+    val textSlate = LocalDesignColorTokens.current.textSecondary
+    val textMuted = LocalDesignColorTokens.current.textMuted
 
     Column(
         modifier = modifier

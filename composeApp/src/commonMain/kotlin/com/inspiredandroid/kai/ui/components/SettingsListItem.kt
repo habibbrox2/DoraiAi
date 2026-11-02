@@ -18,10 +18,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardSurface
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 @Composable
 fun SettingsListItem(
@@ -36,6 +35,7 @@ fun SettingsListItem(
     refreshContentDescription: String? = null,
     isRefreshing: Boolean = false,
 ) {
+    val colors = LocalDesignColorTokens.current
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -48,12 +48,12 @@ fun SettingsListItem(
             Text(
                 text = title,
                 style = KaiTypography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                color = TextPrimary,
+                color = colors.textPrimary,
             )
             Text(
                 text = subtitle,
                 style = KaiTypography.bodySmall,
-                color = TextSecondary,
+                color = colors.textSecondary,
                 maxLines = subtitleMaxLines,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -72,7 +72,7 @@ fun SettingsListItem(
             Icon(
                 imageVector = Icons.Default.Delete,
                 contentDescription = deleteContentDescription,
-                tint = TextSecondary,
+                tint = colors.textSecondary,
             )
         }
     }

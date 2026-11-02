@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -49,6 +50,7 @@ import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.chat.ChatSpacing
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.privacy_agree_prefix
 import kai.composeapp.generated.resources.privacy_policy
@@ -92,7 +94,7 @@ internal fun EmptyState(
             modifier = Modifier.padding(horizontal = 16.dp),
             style = KaiTypography.displaySmall,
             textAlign = TextAlign.Center,
-            color = Color(0xFFF5F7FF),
+            color = LocalDesignColorTokens.current.textPrimary,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.5.sp,
         )
@@ -104,7 +106,7 @@ internal fun EmptyState(
             modifier = Modifier.padding(horizontal = 16.dp),
             style = KaiTypography.titleMedium,
             textAlign = TextAlign.Center,
-            color = Color(0xFFB5C3EC),
+            color = LocalDesignColorTokens.current.textSecondary,
         )
 
         if (onQuickStart != null) {
@@ -139,7 +141,7 @@ internal fun EmptyState(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 style = KaiTypography.bodySmall,
                 textAlign = TextAlign.Center,
-                color = DesignTokens.TertiaryText,
+                color = LocalDesignColorTokens.current.textTertiary,
             )
         }
     }
@@ -213,8 +215,8 @@ private fun QuickStartCard(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
-    val cardAccent = item.accentColor ?: DesignTokens.PrimaryCyan
-    val cardBg = Color(0xD6111D3D)
+    val cardAccent = item.accentColor
+    val cardBg = DesignTokens.SurfaceRaised
     val cardShape = RoundedCornerShape(DesignTokens.RadiusPill)
 
     val cardBorder = if (isHovered) {
@@ -228,7 +230,7 @@ private fun QuickStartCard(
             .defaultMinSize(minHeight = 56.dp)
             .handCursor()
             .hoverable(interactionSource)
-            .clickable(onClick = onClick)
+            .clickable(role = Role.Button, onClick = onClick)
             .clip(cardShape)
             .background(cardBg, cardShape)
             .border(cardBorder, cardShape),
@@ -247,7 +249,7 @@ private fun QuickStartCard(
             Text(
                 text = item.label,
                 style = KaiTypography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                color = DesignTokens.PrimaryText,
+                color = LocalDesignColorTokens.current.textPrimary,
             )
         }
     }

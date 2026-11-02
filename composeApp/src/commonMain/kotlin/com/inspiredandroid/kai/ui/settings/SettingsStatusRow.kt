@@ -18,8 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 /**
  * A key/value row used by settings cards and the overview surface (Plan 2, Phase 3).
@@ -40,13 +39,13 @@ fun SettingsKeyValueRow(
             Text(
                 text = label,
                 style = KaiTypography.bodyMedium,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
                 modifier = Modifier.weight(1f),
             )
             Text(
                 text = value,
                 style = KaiTypography.bodySmall,
-                color = TextSecondary,
+                color = LocalDesignColorTokens.current.textSecondary,
             )
         }
         if (trailing != null) trailing()
@@ -71,7 +70,7 @@ fun SettingsStatusRow(
         Text(
             text = label,
             style = KaiTypography.bodyMedium,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
             modifier = Modifier.weight(1f),
         )
         Box(

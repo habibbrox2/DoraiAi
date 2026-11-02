@@ -42,6 +42,7 @@ import com.inspiredandroid.kai.network.OpenAICompatibleQuotaExhaustedException
 import com.inspiredandroid.kai.network.OpenAICompatibleRequestTooLargeException
 import com.inspiredandroid.kai.network.Requests
 import com.inspiredandroid.kai.network.ServiceCredentials
+import com.inspiredandroid.kai.network.UiError
 import com.inspiredandroid.kai.network.UnsupportedFileTypeException
 import com.inspiredandroid.kai.network.dtos.anthropic.extractText
 import com.inspiredandroid.kai.network.dtos.gemini.extractText
@@ -70,6 +71,7 @@ import io.github.vinceglb.filekit.readBytes
 import io.github.vinceglb.filekit.size
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.default_soul
+import kai.composeapp.generated.resources.error_service_unavailable
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CompletableDeferred
@@ -264,7 +266,11 @@ class RemoteDataRepository(
 
     override val savedConversations: StateFlow<List<Conversation>> = conversationStorage.conversations
 
-    override fun getConfiguredServiceInstances(): List<ServiceInstance> = appSettings.getConfiguredServiceInstances().filter { Service.fromId(it.serviceId) != Service.Free }
+    override fun getConfiguredServiceInstances(): List<ServiceInstance> = appSettings.getConfiguredServiceInstances()
+        .filter { instance ->
+            val service = Service.fromId(instance.serviceId)
+            service != Service.Free && !KeylessFreeTierFallback.isInternalService(service)
+        }
 
     override fun addConfiguredService(serviceId: String): ServiceInstance {
         val instanceId = appSettings.generateInstanceId(serviceId)
@@ -819,6 +825,7 @@ class RemoteDataRepository(
         systemPrompt: String?,
         instanceId: String,
         history: MutableStateFlow<List<History>> = chatHistory,
+        credentialsOverride: ServiceCredentials? = null,
     ): AssistantTurn {
         if (service.isOnDevice) {
             // No retry: local-inference failures are deterministic, and this path mutates
@@ -830,7 +837,7 @@ class RemoteDataRepository(
             return AssistantTurn(askWithLocalEngine(messages, localPrompt, instanceId, history))
         }
 
-        val creds = instanceCredentials(instanceId, service)
+        val creds = credentialsOverride ?: instanceCredentials(instanceId, service)
         val tools = if (supportsTools(creds.modelId)) getAvailableTools() else emptyList()
 
         if (tools.isEmpty()) {
@@ -939,15 +946,14 @@ class RemoteDataRepository(
         val entries = instances.map { FallbackEntry(instanceId = it.instanceId, service = Service.fromId(it.serviceId)) }
             .filter { it.service != Service.Free }
             .filter { !it.service.isOnDevice || localInferenceEngine != null }
+            .filter { hasValidInstanceApiKey(it.instanceId, it.service) }
         val freeEntry = FallbackEntry(instanceId = "free", service = Service.Free)
         val ordered = if (entries.isEmpty()) {
             listOf(freeEntry)
         } else if (appSettings.isFreeServicePrimary()) {
             listOf(freeEntry) + entries
-        } else if (appSettings.isFreeFallbackEnabled()) {
-            entries + freeEntry
         } else {
-            entries
+            entries + freeEntry
         }
         // On-device models are only tried as the primary service, never as a fallback
         // target — falling into one would silently start a heavy model load the user
@@ -1063,23 +1069,53 @@ class RemoteDataRepository(
         val messages = chatHistory.value
         val systemPrompt = getActiveSystemPrompt()
 
-        val service = currentService()
-        val configuredInstances = getConfiguredServiceInstances()
-        val selectedInstanceId = configuredInstances.firstOrNull { it.serviceId == service.id }?.instanceId
-            ?: service.id
-
-        // Context window validation for selected provider
-        if (!service.isOnDevice) {
-            val creds = instanceCredentials(selectedInstanceId, service)
-            val entryWindowChars = ModelCatalog.estimateContextWindow(creds.modelId) * ESTIMATED_CHARS_PER_TOKEN
-            val historyChars = messages.sumOf { it.content.length } + (systemPrompt?.length ?: 0)
-            if (historyChars > entryWindowChars) {
-                throw ContextWindowExceededException()
+        val entries = getOrderedFallbackEntries()
+        val turn = try {
+            var successfulTurn: AssistantTurn? = null
+            for ((index, entry) in entries.withIndex()) {
+                val historyBeforeAttempt = chatHistory.value
+                try {
+                    successfulTurn = if (entry.service == Service.Free) {
+                        askWithKeylessFreeTierFallback(
+                            messages = messages,
+                            systemPrompt = systemPrompt,
+                            historyBeforeAttempt = historyBeforeAttempt,
+                        )
+                    } else {
+                        validateContextWindow(
+                            service = entry.service,
+                            instanceId = entry.instanceId,
+                            messages = messages,
+                            systemPrompt = systemPrompt,
+                        )
+                        askWithService(entry.service, messages, systemPrompt, entry.instanceId)
+                    }
+                    break
+                } catch (failure: Exception) {
+                    if (failure is kotlinx.coroutines.CancellationException) throw failure
+                    val nextEntry = entries.getOrNull(index + 1)
+                    if (
+                        entry.service.isOnDevice ||
+                        nextEntry == null ||
+                        !KeylessFreeTierFallback.canContinueAfterFailure(historyBeforeAttempt, chatHistory.value)
+                    ) {
+                        throw failure
+                    }
+                    _fallbackStatus.value = FallbackStatus(
+                        serviceName = if (entry.service == Service.Free) KeylessFreeTierFallback.DISPLAY_NAME else entry.service.displayName,
+                        errorReason = if (entry.service == Service.Free) {
+                            UiError.Resource(Res.string.error_service_unavailable)
+                        } else {
+                            failure.toUiError()
+                        },
+                        nextServiceName = if (nextEntry.service == Service.Free) KeylessFreeTierFallback.DISPLAY_NAME else nextEntry.service.displayName,
+                    )
+                }
             }
+            successfulTurn ?: throw AllServicesFailedException()
+        } finally {
+            _fallbackStatus.value = null
         }
-
-        // Never attempt fallback in chat UI: directly invoke selected provider and cleanly surface any errors
-        val turn = askWithService(service, messages, systemPrompt, selectedInstanceId)
 
         chatHistory.update {
             it.toMutableList().apply {
@@ -1093,6 +1129,56 @@ class RemoteDataRepository(
             }
         }
         saveCurrentConversation()
+    }
+
+    private suspend fun askWithKeylessFreeTierFallback(
+        messages: List<History>,
+        systemPrompt: String?,
+        historyBeforeAttempt: List<History>,
+    ): AssistantTurn = KeylessFreeTierFallback.execute(
+        canContinueAfterFailure = {
+            KeylessFreeTierFallback.canContinueAfterFailure(historyBeforeAttempt, chatHistory.value)
+        },
+        onFailure = { _, failure, nextTarget ->
+            if (nextTarget != null) {
+                _fallbackStatus.value = FallbackStatus(
+                    serviceName = KeylessFreeTierFallback.DISPLAY_NAME,
+                    errorReason = failure.toUiError(),
+                    nextServiceName = KeylessFreeTierFallback.DISPLAY_NAME,
+                )
+            }
+        },
+    ) { target ->
+        validateContextWindow(
+            service = target.service,
+            instanceId = "keyless-auto",
+            modelId = target.modelId,
+            messages = messages,
+            systemPrompt = systemPrompt,
+        )
+        askWithService(
+            service = target.service,
+            messages = messages,
+            systemPrompt = systemPrompt,
+            instanceId = "keyless-auto",
+            credentialsOverride = KeylessFreeTierFallback.credentialsFor(target),
+        )
+    }
+
+    private fun validateContextWindow(
+        service: Service,
+        instanceId: String,
+        modelId: String? = null,
+        messages: List<History>,
+        systemPrompt: String?,
+    ) {
+        if (service.isOnDevice) return
+        val effectiveModelId = modelId ?: instanceCredentials(instanceId, service).modelId
+        val entryWindowChars = ModelCatalog.estimateContextWindow(effectiveModelId) * ESTIMATED_CHARS_PER_TOKEN
+        val historyChars = messages.sumOf { it.content.length } + (systemPrompt?.length ?: 0)
+        if (historyChars > entryWindowChars) {
+            throw ContextWindowExceededException()
+        }
     }
 
     private suspend fun handleOpenAICompatibleChatWithTools(
@@ -1780,7 +1866,7 @@ class RemoteDataRepository(
         }
     }
 
-    override fun isUsingSharedKey(): Boolean = currentService() == Service.Free
+    override fun isUsingSharedKey(): Boolean = false
 
     override fun supportedFileExtensions(): List<String> {
         val service = currentService()

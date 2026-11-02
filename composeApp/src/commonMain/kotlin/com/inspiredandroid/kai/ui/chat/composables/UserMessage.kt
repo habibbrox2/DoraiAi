@@ -39,6 +39,7 @@ import com.inspiredandroid.kai.ui.chat.ChatSpacing
 import com.inspiredandroid.kai.ui.components.LocalShowFullScreenImage
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.ic_file
 import kotlinx.collections.immutable.ImmutableList
@@ -127,7 +128,7 @@ internal fun UserMessage(
                             key("${att.fileName ?: att.mimeType}_${att.data.take(8)}") {
                                 val chipColors = SuggestionChipDefaults.suggestionChipColors(
                                     containerColor = DesignTokens.SurfaceRaised,
-                                    labelColor = DesignTokens.PrimaryText,
+                                    labelColor = LocalDesignColorTokens.current.textPrimary,
                                 )
                                 SuggestionChip(
                                     onClick = {},
@@ -156,8 +157,8 @@ internal fun UserMessage(
                 if (message.isNotEmpty()) {
                     Text(
                         text = message,
-                        color = DesignTokens.PrimaryText,
-                        style = KaiTypography.bodyLarge.copy(color = DesignTokens.PrimaryText),
+                        color = LocalDesignColorTokens.current.textPrimary,
+                        style = KaiTypography.bodyLarge.copy(color = LocalDesignColorTokens.current.textPrimary),
                     )
                 }
             }

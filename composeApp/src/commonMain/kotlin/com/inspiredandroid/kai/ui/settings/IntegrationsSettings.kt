@@ -15,9 +15,8 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.handCursor
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.settings_open_github_issue
 import kai.composeapp.generated.resources.settings_request_integration_description
@@ -60,13 +59,13 @@ internal fun IntegrationsContent(
                 Text(
                     text = stringResource(Res.string.settings_request_integration_title),
                     style = KaiTypography.titleMedium,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = stringResource(Res.string.settings_request_integration_description),
                     style = KaiTypography.bodySmall,
-                    color = TextSecondary,
+                    color = LocalDesignColorTokens.current.textSecondary,
                 )
                 Spacer(Modifier.height(8.dp))
                 OutlinedButton(

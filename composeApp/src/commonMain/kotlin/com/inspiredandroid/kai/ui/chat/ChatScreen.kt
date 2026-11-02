@@ -89,7 +89,6 @@ import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SurfaceRaised
-import com.inspiredandroid.kai.ui.TextPrimary
 import com.inspiredandroid.kai.ui.build.KaiBuildScreen
 import com.inspiredandroid.kai.ui.chat.composables.AppSidebar
 import com.inspiredandroid.kai.ui.chat.composables.BotMessage
@@ -110,6 +109,7 @@ import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.sandbox.SandboxTabsContent
 import com.inspiredandroid.kai.ui.settings.SandboxUiState
 import com.inspiredandroid.kai.ui.settings.SandboxViewModel
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.fallback_answered_by
 import kai.composeapp.generated.resources.fallback_service_failed
@@ -567,7 +567,7 @@ private fun ChatModeScreen(
                                         Text(
                                             text = uiErrorText(error),
                                             style = KaiTypography.bodySmall,
-                                            color = TextPrimary,
+                                            color = LocalDesignColorTokens.current.textPrimary,
                                             modifier = Modifier.widthIn(max = 260.dp),
                                         )
                                         IconButton(
@@ -577,7 +577,7 @@ private fun ChatModeScreen(
                                             Icon(
                                                 imageVector = vectorResource(Res.drawable.ic_refresh),
                                                 contentDescription = "Retry",
-                                                tint = TextPrimary,
+                                                tint = LocalDesignColorTokens.current.textPrimary,
                                                 modifier = Modifier.size(16.dp),
                                             )
                                         }

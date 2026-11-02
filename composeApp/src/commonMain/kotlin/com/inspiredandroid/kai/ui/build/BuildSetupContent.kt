@@ -24,7 +24,7 @@ import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.sandbox.SandboxProgressRow
 import com.inspiredandroid.kai.ui.settings.SettingsCard
-import com.inspiredandroid.kai.ui.TextPrimary
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.kai_build_setup_agents_description
 import kai.composeapp.generated.resources.kai_build_setup_agents_title
@@ -95,7 +95,7 @@ internal fun BuildSetupContent(
                     Text(
                         text = agent.title,
                         style = KaiTypography.bodyLarge,
-                        color = TextPrimary,
+                        color = LocalDesignColorTokens.current.textPrimary,
                     )
                 }
             }

@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 /**
  * Small status indicator pill used for tags, status labels, and counts.

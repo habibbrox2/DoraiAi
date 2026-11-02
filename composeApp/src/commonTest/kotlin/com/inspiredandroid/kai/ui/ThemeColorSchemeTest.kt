@@ -1,6 +1,7 @@
 package com.inspiredandroid.kai.ui
 
 import androidx.compose.ui.graphics.Color
+import com.inspiredandroid.kai.ui.theme.DesignColorTokens
 import com.inspiredandroid.kai.ui.theme.DesignTokens
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -9,15 +10,27 @@ import kotlin.test.assertNotNull
 class ThemeColorSchemeTest {
 
     @Test
-    fun `light theme uses correct 2027 minimal design tokens`() {
-        // Light theme tokens updated for 2027 minimal design
-        assertEquals(Color(0xFFFFFFFF), Color(0xFFFFFFFF)) // background is white
+    fun `light color roles are derived from the supplied Material scheme`() {
+        val tokens = DesignColorTokens.from(LightColorScheme)
+
+        assertEquals(LightColorScheme.onSurface, tokens.textPrimary)
+        assertEquals(LightColorScheme.onSurfaceVariant, tokens.textSecondary)
+        assertEquals(LightColorScheme.surfaceContainerHigh, tokens.surfaceElevated)
+        assertEquals(LightColorScheme.surface, tokens.cardSurface)
+        assertEquals(LightColorScheme.outline, tokens.borderStrong)
+        assertEquals(Color(0xFF000000), tokens.textPrimary)
     }
 
     @Test
-    fun `dark theme uses correct 2027 minimal design tokens`() {
-        // Dark theme tokens updated for 2027 minimal design
-        assertEquals(Color(0xFF0E0F12), Color(0xFF0E0F12)) // background is dark navy
+    fun `dark color roles are derived from the supplied Material scheme`() {
+        val tokens = DesignColorTokens.from(DarkColorScheme)
+
+        assertEquals(DarkColorScheme.onSurface, tokens.textPrimary)
+        assertEquals(DarkColorScheme.onSurfaceVariant, tokens.textSecondary)
+        assertEquals(DarkColorScheme.surfaceContainerHigh, tokens.surfaceElevated)
+        assertEquals(DarkColorScheme.surface, tokens.cardSurface)
+        assertEquals(DarkColorScheme.outline, tokens.borderStrong)
+        assertEquals(Color(0xFFF0F3F8), tokens.textPrimary)
     }
 
     @Test

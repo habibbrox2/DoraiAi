@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.inspiredandroid.kai.data.Conversation
 import com.inspiredandroid.kai.data.DataRepository
-import com.inspiredandroid.kai.data.FreeMode
+import com.inspiredandroid.kai.data.KeylessFreeTierFallback
 import com.inspiredandroid.kai.data.Service
 import com.inspiredandroid.kai.data.ServiceEntry
 import com.inspiredandroid.kai.data.TaskScheduler
 import com.inspiredandroid.kai.data.UiSubmission
+import com.inspiredandroid.kai.filereview.FileReviewActionResult
+import com.inspiredandroid.kai.filereview.FileReviewController
+import com.inspiredandroid.kai.filereview.NoOpFileReviewController
 import com.inspiredandroid.kai.getBackgroundDispatcher
 import com.inspiredandroid.kai.network.UiError
 import com.inspiredandroid.kai.network.shouldShowFreeProviderSuggestions
@@ -53,6 +56,7 @@ class ChatViewModel(
     private val taskScheduler: TaskScheduler,
     private val backgroundDispatcher: CoroutineContext = getBackgroundDispatcher(),
     private val localNetworkPermissionController: PermissionController = PermissionController(AppPermission.LOCAL_NETWORK),
+    private val fileReviewController: FileReviewController = NoOpFileReviewController(),
 ) : ViewModel() {
 
     private val actions = ChatActions(
@@ -89,8 +93,10 @@ class ChatViewModel(
         denyToolExecution = { toolCallId ->
             dataRepository.denyToolExecution(toolCallId)
         },
+        acceptFileChange = ::acceptFileChange,
+        rejectFileChange = ::rejectFileChange,
+        rollbackFileChange = ::rollbackFileChange,
     )
-    private val freeModeNames: Map<FreeMode, String> = FreeMode.entries.associateWith { "Free ${it.modelId.replaceFirstChar { c -> c.uppercase() }}" }
     private var currentJob: Job? = null
     private var pendingConversationDeleteJob: Job? = null
 
@@ -104,6 +110,16 @@ class ChatViewModel(
 
     init {
         updateAvailableServices()
+
+        viewModelScope.launch(backgroundDispatcher) {
+            runCatching { fileReviewController.initialize() }
+            fileReviewController.proposals.collect { proposals ->
+                val visible = proposals.sortedByDescending { it.updatedAtMs }.take(20)
+                val previews = LinkedHashMap<String, com.inspiredandroid.kai.filereview.FileReviewPreview>()
+                visible.forEach { proposal -> fileReviewController.preview(proposal.id)?.let { previews[proposal.id] = it } }
+                _state.update { it.copy(fileReviewProposals = visible.toImmutableList(), fileReviewPreviews = previews) }
+            }
+        }
 
         // Keep restoreCurrentConversation off the main thread; see issue #197 (large persisted
         // tool outputs caused ANRs when JSON-decoded synchronously during VM construction).
@@ -447,9 +463,7 @@ class ChatViewModel(
     }
 
     private fun selectService(instanceId: String) {
-        val freeMode = FREE_MODE_INSTANCE_IDS[instanceId]
-        if (freeMode != null) {
-            dataRepository.setFreeMode(freeMode)
+        if (instanceId == FREE_AUTO_INSTANCE_ID) {
             dataRepository.setFreeServicePrimary(true)
             updateAvailableServices()
             return
@@ -468,23 +482,22 @@ class ChatViewModel(
 
     private fun updateAvailableServices() {
         val configuredEntries = dataRepository.getServiceEntries()
-        val currentFreeMode = dataRepository.getFreeMode()
         val freeIsPrimary = dataRepository.isFreeServicePrimary() || configuredEntries.isEmpty()
 
-        val freeModes = (listOf(currentFreeMode) + FreeMode.entries.filter { it != currentFreeMode }).map { mode ->
+        val freeFallback = listOf(
             ServiceEntry(
-                instanceId = mode.instanceId,
+                instanceId = FREE_AUTO_INSTANCE_ID,
                 serviceId = Service.Free.id,
-                serviceName = freeModeNames.getValue(mode),
-                modelId = "",
-                icon = mode.icon,
-            )
-        }
+                serviceName = KeylessFreeTierFallback.DISPLAY_NAME,
+                modelId = KeylessFreeTierFallback.AUTO_MODEL_ID,
+                icon = Service.Free.icon,
+            ),
+        )
 
         val entries = if (freeIsPrimary) {
-            freeModes + configuredEntries
+            freeFallback + configuredEntries
         } else {
-            configuredEntries + freeModes
+            configuredEntries + freeFallback
         }.toImmutableList()
 
         val primaryService = entries.firstOrNull()?.let { Service.fromId(it.serviceId) }
@@ -566,7 +579,7 @@ class ChatViewModel(
     }
 
     companion object {
-        private val FREE_MODE_INSTANCE_IDS = FreeMode.entries.associateBy { it.instanceId }
+        private const val FREE_AUTO_INSTANCE_ID = "free-auto"
     }
 
     private fun regenerate() {
@@ -757,5 +770,23 @@ class ChatViewModel(
         }
         dataRepository.setInteractiveMode(isInteractive)
         _state.update { it.copy(isInteractiveMode = isInteractive) }
+    }
+    private fun acceptFileChange(proposalId: String) = performFileReviewAction { fileReviewController.accept(proposalId) }
+    private fun rejectFileChange(proposalId: String) = performFileReviewAction { fileReviewController.reject(proposalId) }
+    private fun rollbackFileChange(proposalId: String) = performFileReviewAction { fileReviewController.rollback(proposalId) }
+
+    private fun performFileReviewAction(action: suspend () -> FileReviewActionResult) {
+        viewModelScope.launch(backgroundDispatcher) {
+            val result = runCatching { action() }.getOrElse {
+                FileReviewActionResult.Failure(it.message ?: "File Review action failed")
+            }
+            val message = when (result) {
+                is FileReviewActionResult.Success -> "${result.proposal.path}: ${result.proposal.state.name.lowercase().replace('_', ' ')}"
+                is FileReviewActionResult.Conflict -> "${result.proposal.path}: conflict — ${result.reason}"
+                is FileReviewActionResult.Failure -> result.reason
+                FileReviewActionResult.NotFound -> "File Review proposal was not found"
+            }
+            _state.update { it.copy(fileReviewActionMessage = message) }
+        }
     }
 }
