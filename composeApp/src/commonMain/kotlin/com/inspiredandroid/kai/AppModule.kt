@@ -167,5 +167,5 @@ val appModule = module {
     // Same browser, second environment: Kai Build's Debian instead of the chat sandbox.
     viewModel(KAI_BUILD_FILES) { SandboxFileBrowserViewModel(get<KaiBuildController>().files) }
     viewModel { SplinterlandsViewModel(get<DataRepository>(), get(), get(), get<SplinterlandsApi>()) }
-    viewModel { ChatViewModel(get<DataRepository>(), get<TaskScheduler>(), localNetworkPermissionController = get(permissionQualifier(AppPermission.LOCAL_NETWORK)), fileReviewController = get()) }
+    viewModel { ChatViewModel(get<DataRepository>(), get<TaskScheduler>(), localNetworkPermissionController = get(permissionQualifier(AppPermission.LOCAL_NETWORK)), fileReviewController = getOrNull<FileReviewController>() ?: NoOpFileReviewController()) }
 }

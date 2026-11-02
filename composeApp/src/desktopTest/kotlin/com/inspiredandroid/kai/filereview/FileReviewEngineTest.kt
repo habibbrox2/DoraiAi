@@ -182,6 +182,38 @@ class FileReviewEngineTest {
         }
     }
 
+
+    @Test
+    fun rollbackAtomicMoveFailurePreservesAcceptedFileAndRecoveryBackup() = runTest {
+        var failTargetMove = false
+        val mover = AtomicFileMover { source, target, replace ->
+            if (failTargetMove && target.name == "main.kt") {
+                throw AtomicMoveNotSupportedException(source.path, target.path, "rollback test failure")
+            }
+            NioAtomicFileMover.move(source, target, replace)
+        }
+        val f = fixture(mover)
+        try {
+            val target = File(f.root, "main.kt").apply { writeText("before") }
+            val proposal = assertIs<FileReviewActionResult.Success>(
+                f.engine.proposeTextChange(FileReviewWorkspace.PROJECT, "main.kt", "accepted"),
+            ).proposal
+            assertIs<FileReviewActionResult.Success>(f.engine.accept(proposal.id))
+            failTargetMove = true
+
+            assertIs<FileReviewActionResult.Failure>(f.engine.rollback(proposal.id))
+            assertEquals("accepted", target.readText())
+            assertEquals(
+                FileReviewState.RECOVERY_REQUIRED,
+                f.engine.proposals.value.single { it.id == proposal.id }.state,
+            )
+            assertTrue(File(f.privateDir, "${proposal.id}.original").isFile)
+        } finally {
+            f.root.deleteRecursively()
+            f.privateDir.deleteRecursively()
+        }
+    }
+
     @Test
     fun pendingProposalSurvivesEngineRestart() = runTest {
         val f = fixture()
