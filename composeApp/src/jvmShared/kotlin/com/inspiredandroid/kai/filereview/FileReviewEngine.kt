@@ -394,11 +394,19 @@ class FileReviewEngine(
             }
             val recovered = when (proposal.state) {
                 FileReviewState.APPLYING -> when {
-                    currentHash == proposal.proposedSha256 -> proposal.copy(
-                        state = FileReviewState.ACCEPTED,
-                        rollbackAvailable = true,
-                        updatedAtMs = clock(),
-                    )
+                    currentHash == proposal.proposedSha256 -> if (hasValidOriginalBackup(proposal)) {
+                        proposal.copy(
+                            state = FileReviewState.ACCEPTED,
+                            rollbackAvailable = true,
+                            updatedAtMs = clock(),
+                        )
+                    } else {
+                        proposal.copy(
+                            state = FileReviewState.RECOVERY_REQUIRED,
+                            rollbackAvailable = false,
+                            updatedAtMs = clock(),
+                        )
+                    }
 
                     currentHash == proposal.originalSha256 -> proposal.copy(
                         state = FileReviewState.FAILED,
@@ -415,11 +423,19 @@ class FileReviewEngine(
                         updatedAtMs = clock(),
                     )
 
-                    currentHash == proposal.proposedSha256 -> proposal.copy(
-                        state = FileReviewState.ACCEPTED,
-                        rollbackAvailable = true,
-                        updatedAtMs = clock(),
-                    )
+                    currentHash == proposal.proposedSha256 -> if (hasValidOriginalBackup(proposal)) {
+                        proposal.copy(
+                            state = FileReviewState.ACCEPTED,
+                            rollbackAvailable = true,
+                            updatedAtMs = clock(),
+                        )
+                    } else {
+                        proposal.copy(
+                            state = FileReviewState.RECOVERY_REQUIRED,
+                            rollbackAvailable = false,
+                            updatedAtMs = clock(),
+                        )
+                    }
 
                     else -> proposal.copy(state = FileReviewState.CONFLICT, updatedAtMs = clock())
                 }
@@ -430,6 +446,13 @@ class FileReviewEngine(
             recovered
         }
         if (changed) persistJournal()
+    }
+
+    private fun hasValidOriginalBackup(proposal: FileReviewProposal): Boolean {
+        val expectedHash = proposal.originalSha256 ?: return true
+        val backup = originalFile(proposal.id)
+        if (!backup.isFile) return false
+        return runCatching { sha256(backup.readBytes()) == expectedHash }.getOrDefault(false)
     }
 
     private fun cleanupExpired() {
