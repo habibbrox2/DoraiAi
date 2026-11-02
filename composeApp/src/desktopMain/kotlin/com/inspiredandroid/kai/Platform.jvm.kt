@@ -19,8 +19,8 @@ import com.inspiredandroid.kai.data.TaskStore
 import com.inspiredandroid.kai.filereview.DesktopProjectFileReviewFileSystem
 import com.inspiredandroid.kai.filereview.FileReviewController
 import com.inspiredandroid.kai.filereview.FileReviewEngine
-import com.inspiredandroid.kai.mcp.McpServerManager
 import com.inspiredandroid.kai.filereview.NoOpFileReviewController
+import com.inspiredandroid.kai.mcp.McpServerManager
 import com.inspiredandroid.kai.network.tools.Tool
 import com.inspiredandroid.kai.network.tools.ToolInfo
 import com.inspiredandroid.kai.tools.CommonTools
