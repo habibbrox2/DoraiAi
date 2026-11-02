@@ -35,8 +35,8 @@ import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.TextPrimary
 import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.KaiSlider
-import com.inspiredandroid.kai.ui.theme.DesignTokens
 import com.inspiredandroid.kai.ui.handCursor
+import com.inspiredandroid.kai.ui.theme.DesignTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.settings_daemon_mode
 import kai.composeapp.generated.resources.settings_daemon_mode_description
