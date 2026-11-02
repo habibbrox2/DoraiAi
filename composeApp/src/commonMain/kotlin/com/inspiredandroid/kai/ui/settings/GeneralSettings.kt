@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,13 +31,11 @@ import androidx.compose.ui.unit.dp
 import com.inspiredandroid.kai.data.AppLanguage
 import com.inspiredandroid.kai.data.AppSettings
 import com.inspiredandroid.kai.data.ThemeMode
-import com.inspiredandroid.kai.ui.AccentPrimary
-import com.inspiredandroid.kai.ui.BorderSoft
-import com.inspiredandroid.kai.ui.CardFill
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.TextPrimary
 import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.KaiSlider
+import com.inspiredandroid.kai.ui.theme.DesignTokens
 import com.inspiredandroid.kai.ui.handCursor
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.settings_daemon_mode
@@ -220,11 +217,11 @@ private fun ThemeModeButton(
     isSelected: Boolean,
     onClick: () -> Unit,
 ) {
-    val selectedBg = AccentPrimary
-    val selectedText = androidx.compose.ui.graphics.Color(0xFF0F172A)
-    val unselectedBg = androidx.compose.ui.graphics.Color(0xFF1E293B)
-    val unselectedText = androidx.compose.ui.graphics.Color(0xFFE2E8F0)
-    val unselectedBorder = androidx.compose.ui.graphics.Color(0xFF334155)
+    val selectedBg = DesignTokens.PrimaryCyan
+    val selectedText = DesignTokens.BrandNavy
+    val unselectedBg = DesignTokens.SurfaceRaised
+    val unselectedText = DesignTokens.PrimaryText
+    val unselectedBorder = DesignTokens.BorderSubtle
 
     Box(
         modifier = Modifier
@@ -236,7 +233,7 @@ private fun ThemeModeButton(
                 if (!isSelected) {
                     BorderStroke(1.dp, unselectedBorder)
                 } else {
-                    BorderStroke(1.dp, AccentPrimary)
+                    BorderStroke(1.dp, DesignTokens.PrimaryCyan)
                 },
                 SettingsShapes.pill,
             ),
