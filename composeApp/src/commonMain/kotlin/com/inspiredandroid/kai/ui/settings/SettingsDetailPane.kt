@@ -234,7 +234,6 @@ fun AccountPlanContent(
     }
 }
 
-
 @Composable
 private fun SettingsPageHeading(
     tab: SettingsTab,

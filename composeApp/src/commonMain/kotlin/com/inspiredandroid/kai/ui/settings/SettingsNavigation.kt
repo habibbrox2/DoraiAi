@@ -201,7 +201,6 @@ fun SettingsNavRail(
     }
 }
 
-
 private fun settingsTabGroup(tab: SettingsTab): String = when (tab) {
     SettingsTab.General, SettingsTab.Appearance, SettingsTab.Agent -> "Assistant"
     SettingsTab.Services -> "Models & services"
