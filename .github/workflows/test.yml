@@ -130,8 +130,8 @@ jobs:
         with:
           packages: platform-tools
 
-      # One-time bootstrap: the legacy screenshot suites had no committed golden images.
-      # Preserve the two existing Premium UI goldens and record only the four missing suites.
+      # One-time bootstrap: record the missing legacy suites plus newly added Premium tool-state goldens.
+      # Existing Dashboard and Build Premium goldens are preserved by selecting only the three new tests.
       - name: Record missing Paparazzi baselines
         if: >-
           github.event_name == 'pull_request' &&
@@ -143,9 +143,12 @@ jobs:
           --tests com.inspiredandroid.kai.screenshots.MathScreenshotTest
           --tests com.inspiredandroid.kai.screenshots.KaiUiScreenshotTest
           --tests com.inspiredandroid.kai.screenshots.ScreenshotTest
+          --tests com.inspiredandroid.kai.screenshots.PremiumScreenScreenshotTest.toolExecution_running_dark
+          --tests com.inspiredandroid.kai.screenshots.PremiumScreenScreenshotTest.toolExecution_failed_dark
+          --tests com.inspiredandroid.kai.screenshots.PremiumScreenScreenshotTest.toolConfirmation_pending_dark
           --no-daemon --stacktrace
 
-      # Commit the complete 44-image baseline set before verification. This bootstrap marker
+      # Commit the complete 47-image baseline set before verification. This bootstrap marker
       # is removed in the same commit, so future runs verify without silently recording goldens.
       # GITHUB_TOKEN-authored pushes do not recursively trigger another workflow run.
       - name: Commit bootstrapped Paparazzi goldens
@@ -160,8 +163,8 @@ jobs:
           set -euo pipefail
           snapshot_dir="screenshotTests/src/test/snapshots/images"
           mapfile -t goldens < <(find "$snapshot_dir" -maxdepth 1 -type f -name '*.png' -print | sort)
-          if [[ "${#goldens[@]}" -ne 44 ]]; then
-            echo "::error::Expected 44 Paparazzi golden PNGs after bootstrap; found ${#goldens[@]}."
+          if [[ "${#goldens[@]}" -ne 47 ]]; then
+            echo "::error::Expected 47 Paparazzi golden PNGs after bootstrap; found ${#goldens[@]}."
             printf '%s\\n' "${goldens[@]}"
             exit 1
           fi
@@ -180,7 +183,7 @@ jobs:
           assert_count '*MathScreenshotTest_*.png' 5
           assert_count '*KaiUiScreenshotTest_*.png' 23
           assert_count 'com.inspiredandroid.kai.screenshots_ScreenshotTest_*.png' 7
-          assert_count '*PremiumScreenScreenshotTest_*.png' 2
+          assert_count '*PremiumScreenScreenshotTest_*.png' 5
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
