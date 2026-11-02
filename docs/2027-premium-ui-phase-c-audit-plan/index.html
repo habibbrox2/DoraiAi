@@ -1,0 +1,1409 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for Kai - AI Assistant App">
+      
+      
+      
+        <link rel="canonical" href="https://kai9000.com/docs/2027-premium-ui-phase-c-audit-plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Phase C — Final Cleanup, Compatibility Removal & Regression Plan - Kai Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#phase-c-final-cleanup-compatibility-removal-regression-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kai Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Phase C — Final Cleanup, Compatibility Removal &amp; Regression Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kai Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Features
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chat & Conversations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/multi-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Servers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/dynamic-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/memories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/heartbeat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Heartbeat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/daemon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Daemon
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/encryption/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Encryption
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/on-device-inference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    On-Device Inference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/reasoning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reasoning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/system-prompts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Prompts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/sandbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Sandbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/kai-build/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kai Build
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/notifications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notifications
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/sms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SMS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/appearance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appearance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/settings-export-import/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings Export & Import
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/splinterlands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Splinterlands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../desktop-release-smoketest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Desktop Release Smoke Test
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-current-migration-status-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Current migration status (audit)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Current migration status (audit)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-compatibility-api-reference-counts-composeappsrc-all-source-sets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Compatibility API reference counts (composeApp/src, all source sets)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-phase-b2-batch-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Phase B2 batch progress
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-what-has-not-changed-preserved" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 What has NOT changed (preserved)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-phase-c-audit-checklist-read-only-must-pass-before-removal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Phase C audit checklist (read-only, must pass before removal)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-phase-c-removal-rules-only-after-audit-passes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Phase C removal rules (only after audit passes)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-phase-c-regression-matrix-must-be-green" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Phase C regression matrix (must be green)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-phase-c-execution-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Phase C execution sequence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-safety-constraints-during-phase-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Safety constraints during Phase C
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-phase-c-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Phase C status
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="phase-c-final-cleanup-compatibility-removal-regression-plan">Phase C — Final Cleanup, Compatibility Removal &amp; Regression Plan</h1>
+<p><strong>Date:</strong> 2026-11-02
+<strong>Branch:</strong> <code>feature/2027-premium-agent-ui-migration</code>
+<strong>PR:</strong> #11 (Draft/Open)
+<strong>Baseline commit:</strong> latest on branch (post Phase B2 shared-component batch)</p>
+<h2 id="1-purpose">1. Purpose</h2>
+<p>Phase C is the <strong>final cleanup and regression-verification phase</strong> that runs after:
+- Phase B1 (theme-scoped immutable <code>DesignColorTokens</code> + <code>LocalDesignColorTokens</code>) ✅ complete &amp; CI green
+- Phase B2 consumer migration batches (shared components ✅ in progress; Chat, Settings, Dashboard, Build, Sandbox, DynamicUI, Markdown pending)</p>
+<p>Phase C has two goals:
+1. <strong>Remove obsolete compatibility APIs</strong> (<code>KaiThemeColors</code>, <code>TextPrimary</code>/<code>TextSecondary</code>/… getters, <code>LocalKaiColors</code>) only after zero references are confirmed across all source sets, tests, and previews.
+2. <strong>Run the full regression matrix</strong> (theme, layout, screenshot, motion, accessibility) and declare migration complete only when every CI job is green.</p>
+<p>No merge, release or deploy is performed in this phase.</p>
+<h2 id="2-current-migration-status-audit">2. Current migration status (audit)</h2>
+<h3 id="21-compatibility-api-reference-counts-composeappsrc-all-source-sets">2.1 Compatibility API reference counts (composeApp/src, all source sets)</h3>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>References</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>KaiThemeColors</code></td>
+<td>23 (all in <code>Theme.kt</code> definitions/usages)</td>
+<td>Still required (default + wiring)</td>
+</tr>
+<tr>
+<td><code>LocalKaiColors</code></td>
+<td>2</td>
+<td>Still required (compatibility API)</td>
+</tr>
+<tr>
+<td><code>TextPrimary</code> (global getter)</td>
+<td>225 total (incl. tests/strings)</td>
+<td>Migrating — 18 feature component files migrated</td>
+</tr>
+<tr>
+<td><code>LocalDesignColorTokens</code></td>
+<td>18+</td>
+<td>Migrated across Chat, Settings, Sandbox, Shared components</td>
+</tr>
+<tr>
+<td><code>DesignColorTokens</code></td>
+<td>(in DesignTokens.kt)</td>
+<td>Stable</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-phase-b2-batch-progress">2.2 Phase B2 batch progress</h3>
+<table>
+<thead>
+<tr>
+<th>Batch</th>
+<th>Scope</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shared components</td>
+<td>KaiAvatar, KaiSnackbar, OperationalComponents, RefreshIconButton, SettingsListItem, DesktopScrollbar.jvm.kt, KaiDialog, KaiChip</td>
+<td>✅ Migrated (text colors → <code>LocalDesignColorTokens.current</code>)</td>
+</tr>
+<tr>
+<td>Chat</td>
+<td>BotMessage, UserMessage, QuestionInput, EmptyState, ToolExecutionCard</td>
+<td>✅ Migrated (text colors → <code>LocalDesignColorTokens.current</code>)</td>
+</tr>
+<tr>
+<td>Settings</td>
+<td>GeneralSettings, SettingsNavigation, SettingsDesignTokens, ModelSelectionSheet, SkillAutocomplete, TerminalSheet</td>
+<td>✅ Migrated (text colors → <code>LocalDesignColorTokens.current</code>)</td>
+</tr>
+<tr>
+<td>Sandbox</td>
+<td>SandboxTabsContent, SandboxPackagesScreen</td>
+<td>✅ Migrated (text colors → <code>LocalDesignColorTokens.current</code>)</td>
+</tr>
+<tr>
+<td>Dashboard</td>
+<td>DashboardScreen</td>
+<td>⏳ Pending</td>
+</tr>
+<tr>
+<td>Build</td>
+<td>~7 build files</td>
+<td>⏳ Pending</td>
+</tr>
+<tr>
+<td>DynamicUI / Markdown</td>
+<td>KaiUiRenderer, MarkdownRenderer</td>
+<td>⏳ Pending</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-what-has-not-changed-preserved">2.3 What has NOT changed (preserved)</h3>
+<ul>
+<li><code>DesignTokens</code> static layout/brand/status/terminal constants — untouched.</li>
+<li><code>KaiTypography</code>, <code>KaiShapes</code>, <code>KaiBorders</code> — untouched.</li>
+<li><code>LocalDesignTokens</code> static composition local — untouched.</li>
+<li>Persisted <code>ThemeMode</code> (System/Light/Dark), key <code>"theme_mode"</code>, Android system bar behavior — untouched.</li>
+<li><code>useOLED</code> parameter — untouched (audit separately before removal decisions).</li>
+<li>Semantic status colors, code editor, Diff, Markdown, Terminal/ANSI palettes — kept separate.</li>
+<li>No new Midnight/OLED theme mode added.</li>
+</ul>
+<h2 id="3-phase-c-audit-checklist-read-only-must-pass-before-removal">3. Phase C audit checklist (read-only, must pass before removal)</h2>
+<p>Run these before any removal:</p>
+<ol>
+<li><strong>Reference search</strong> across <code>composeApp/src</code> (all source sets), <code>screenshotTests</code>, and <code>androidApp</code>:</li>
+<li><code>KaiThemeColors</code></li>
+<li><code>LocalKaiColors</code></li>
+<li><code>TextPrimary</code> / <code>TextSecondary</code> / <code>TextTertiary</code> / <code>TextMuted</code> (top-level getters, not <code>DesignColorTokens</code> fields)</li>
+<li><code>SurfaceElevatedTheme</code> / <code>CardSurfaceTheme</code> / <code>BorderStrongTheme</code> (if any)</li>
+<li><code>@Preview</code> functions referencing the above</li>
+<li><strong>Confirm zero references</strong> in: <code>commonMain</code>, <code>androidMain</code>, <code>iosMain</code>, <code>desktopMain</code>, <code>wasmJsMain</code>, <code>commonTest</code>, <code>desktopTest</code>, <code>androidApp</code>, <code>screenshotTests</code>.</li>
+<li><strong>Confirm temporary markers</strong> (<code>RECORD_GOLDENS</code>, bootstrap commits, <code>// TODO</code> migration markers) are absent or intentionally retained.</li>
+<li><strong>Confirm no platform-specific references</strong> remain (especially <code>desktopMain</code> scrollbar and iOS/wasm stubs).</li>
+</ol>
+<h2 id="4-phase-c-removal-rules-only-after-audit-passes">4. Phase C removal rules (only after audit passes)</h2>
+<ul>
+<li>Remove <code>KaiThemeColors</code> object <strong>only</strong> if zero references (audit §3.1–3.2).</li>
+<li>Remove <code>TextPrimary</code>/<code>TextSecondary</code>/<code>TextTertiary</code>/<code>TextMuted</code> global getters <strong>only</strong> if zero references.</li>
+<li>Remove <code>LocalKaiColors</code> <strong>only</strong> if zero references.</li>
+<li>Remove <code>SurfaceElevatedTheme</code>/<code>CardSurfaceTheme</code>/etc. <strong>only</strong> if zero references.</li>
+<li>Keep <code>DesignTokens</code> (static) and <code>LocalDesignTokens</code> permanently.</li>
+<li>Keep <code>KaiTypography</code>, <code>KaiShapes</code>, <code>KaiBorders</code> permanently.</li>
+<li>Do <strong>not</strong> remove <code>useOLED</code> without a separate audit (tracked separately).</li>
+<li>Each removal is a separate commit; run CI after each.</li>
+</ul>
+<h2 id="5-phase-c-regression-matrix-must-be-green">5. Phase C regression matrix (must be green)</h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Required checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Theme/root</td>
+<td>System/Light/Dark follow correct ColorScheme; <code>DesignColorTokens</code> derived from Material scheme; persistence round-trip; invalid/missing value → System fallback; no mutable global palette leakage in concurrent composition; Android system bar appearance correct</td>
+</tr>
+<tr>
+<td>Chat</td>
+<td>empty/message/streaming/error/tool states (running/completed/failed), approval pending, expanded/collapsed; phone/tablet/desktop widths; keyboard visible</td>
+</tr>
+<tr>
+<td>Composer</td>
+<td>empty/draft/multiline, attachment, slash/skill menu, sending/stopping, disabled; narrow width, large font, focus traversal</td>
+</tr>
+<tr>
+<td>Model selection</td>
+<td>loading/loaded/selected/empty/provider error/retry/free badge/score bands; compact &amp; wide</td>
+</tr>
+<tr>
+<td>Settings</td>
+<td>all 9 tabs, selected tab, scroll clipping, loading/error/unavailable; compact selector, 840dp rail, large font, Bengali/long labels</td>
+</tr>
+<tr>
+<td>Dashboard</td>
+<td>readiness, missing services, empty/recent conversations, projects; 1/2/4 columns</td>
+</tr>
+<tr>
+<td>Build</td>
+<td>setup/installing/progress/cancel/error, project list, active session, terminal, unavailable; phone/tablet/desktop</td>
+</tr>
+<tr>
+<td>Sandbox</td>
+<td>setup/installing/failed/retry, terminal, files, packages, find, replace confirmation; compact/wide + destructive confirmation</td>
+</tr>
+<tr>
+<td>Markdown</td>
+<td>headings/lists/tables/code/copy/diff/math/invalid fallback/streaming; long code, horizontal overflow, light/dark</td>
+</tr>
+<tr>
+<td>Dynamic UI</td>
+<td>valid/legacy/malformed/oversized/interactive/historical read-only; action enabled/disabled, error fallback</td>
+</tr>
+<tr>
+<td>Shared controls</td>
+<td>hover/focus/pressed/selected/disabled/error/loading; mouse/keyboard/touch; 48dp minimum</td>
+</tr>
+<tr>
+<td>Motion</td>
+<td>normal + reduced motion; verify infinite/looping animation policy</td>
+</tr>
+<tr>
+<td>Screenshots</td>
+<td><code>PremiumScreenScreenshotTest</code>, <code>KaiUiScreenshotTest</code>, <code>ScreenshotTest</code>, <code>MathScreenshotTest</code>, store/tablet suites — intentional golden diffs reviewed, never blanket-accepted</td>
+</tr>
+<tr>
+<td>Spotless</td>
+<td><code>spotlessCheck</code> green</td>
+</tr>
+<tr>
+<td>Tests</td>
+<td>common unit tests, desktop tests, Android FOSS compile + unit tests</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-phase-c-execution-sequence">6. Phase C execution sequence</h2>
+<ol>
+<li>Finish remaining Phase B2 feature batches (Chat → Settings → Dashboard → Build → Sandbox → DynamicUI/Markdown), one batch per commit, CI green after each.</li>
+<li>Run the full audit checklist (§3) and record reference counts in this doc (update §2.1).</li>
+<li>If zero references confirmed, remove obsolete APIs per §4, one removal per commit, CI after each.</li>
+<li>Remove temporary markers / obsolete artifacts (verify no references).</li>
+<li>Run one final CI workflow (all jobs green).</li>
+<li>Declare migration complete only after all jobs green. Do <strong>not</strong> merge PR #11, release or deploy without separate approval.</li>
+</ol>
+<h2 id="7-safety-constraints-during-phase-c">7. Safety constraints during Phase C</h2>
+<ul>
+<li>Never weaken SSRF validation, shell allowlisting, Android network security, encrypted storage, backup exclusions or release-integrity checks.</li>
+<li>Do not add dependencies/plugins to mask compile errors.</li>
+<li>Do not modify source/build/config without explicit authorization (this doc is planning only).</li>
+<li>One CI workflow at a time; wait for completion before next commit.</li>
+<li>Preserve all pre-existing user edits; never reset/stash/overwrite unrelated files.</li>
+<li>PR #11 remains Draft/Open; no merge/release/deploy.</li>
+</ul>
+<h2 id="8-phase-c-status">8. Phase C status</h2>
+<p><strong>Status: Chat, Settings, Sandbox, and Shared component batches migrated to <code>LocalDesignColorTokens.current</code>.</strong> Screenshot tests recorded and passing (<code>:screenshotTests:test</code> green). Remaining Phase B2 batches (Dashboard, Build, DynamicUI/Markdown) still pending before cleanup/removal can begin. This document will be updated with reference counts and verification results as work progresses.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "search.highlight", "content.tabs.link"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

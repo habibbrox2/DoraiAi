@@ -1282,7 +1282,7 @@
 
 
 <h1 id="skills">Skills</h1>
-<p><strong>Last verified:</strong> 2026-10-21</p>
+<p><strong>Last verified:</strong> 2026-11-03</p>
 <p>Kai supports installable <strong>skills</strong>: reusable instruction bundles, modeled on Anthropic's <a href="https://github.com/anthropics/skills">SKILL.md</a> format (now an open standard at <a href="https://agentskills.io">agentskills.io</a>). A skill packages a name, a description, a body of instructions, and optional bundled files.</p>
 <p>User-installed skills live <strong>in the Linux sandbox</strong>: each is a folder at <code>~/skills/&lt;id&gt;/</code> (its <code>SKILL.md</code> plus any files). There is no separate copy of those folders in app settings. Because of this, the Skills UI is <strong>Android-only</strong> (the only platform with a sandbox) and requires the sandbox to be installed first. The user browses a curated set of skill marketplaces (or installs from any GitHub repo) and triggers a skill in chat by starting a message with its slash command.</p>
 <p>In addition, Kai ships a small set of <strong>built-in skills</strong> (currently <code>create-skill</code>) loaded from app compose resources. Built-ins appear in the Skills list once the sandbox is installed, are labeled as built-in, and are not removable through the UI. If a user installs a sandbox skill with the same id, the sandbox copy takes precedence over the built-in. <code>create-skill</code> guides the model through writing a new <code>~/skills/&lt;id&gt;/SKILL.md</code> via the shell; after a turn that used it, the skill list is rescanned so the new skill shows up in the slash menu and Settings without a restart.</p>

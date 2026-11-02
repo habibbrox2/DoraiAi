@@ -1,0 +1,1365 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for Kai - AI Assistant App">
+      
+      
+      
+        <link rel="canonical" href="https://kai9000.com/docs/features/file-review-accept-reject/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>File Review: Accept/Reject and Safe Filesystem Transactions - Kai Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#file-review-acceptreject-and-safe-filesystem-transactions" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kai Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              File Review: Accept/Reject and Safe Filesystem Transactions
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kai Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Features
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chat & Conversations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multi-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Servers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamic-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../heartbeat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Heartbeat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../daemon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Daemon
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../encryption/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Encryption
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../on-device-inference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    On-Device Inference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reasoning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reasoning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../system-prompts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Prompts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sandbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Sandbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kai-build/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kai Build
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notifications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notifications
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SMS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../appearance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appearance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings-export-import/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings Export & Import
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../splinterlands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Splinterlands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../desktop-release-smoketest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Desktop Release Smoke Test
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-current-implementation-findings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Current implementation findings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-required-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Required behavior
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Required behavior">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#transaction-states" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transaction states
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-component-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Component boundaries
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Component boundaries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-proposal-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Proposal API
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-filesystem-adapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Filesystem adapter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-review-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Review UI
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-safe-apply-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Safe apply algorithm
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-crash-recovery-and-retention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Crash recovery and retention
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-security-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Security boundaries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-scope-and-rollout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Scope and rollout
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Scope and rollout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-a-transaction-foundation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase A — transaction foundation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-b-agent-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase B — agent integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-c-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase C — validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-settings-and-remaining-screen-migration-gate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Settings and remaining-screen migration gate
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="file-review-acceptreject-and-safe-filesystem-transactions">File Review: Accept/Reject and Safe Filesystem Transactions</h1>
+<p><strong>Status:</strong> Architecture baseline for implementation<br />
+<strong>Scope:</strong> First-party, locally managed file changes in the agent workspace. This is not a promise that arbitrary shell or MCP side effects can be reversed.</p>
+<h2 id="1-current-implementation-findings">1. Current implementation findings</h2>
+<p>The current Agent Activity timeline classifies tools by name and renders a diff when a tool payload happens to contain before/after snapshots. Its <code>Mark reviewed</code> and <code>Needs changes</code> controls are session-local annotations only.</p>
+<p>The current file browser exposes <code>writeTextFile(path, content): Boolean</code>. Android writes directly with <code>File.writeBytes</code>, without an expected-content hash, staging area, atomic replacement, or durable rollback journal. <code>GuestFileMap</code> blocks path traversal and canonical-path escapes, but resolving a path and later opening it leaves a symlink/time-of-check-to-time-of-use race window.</p>
+<p>The current tool set does not provide a first-party staged file-edit contract. MCP tools and shell commands may have their own side effects and cannot safely be treated as reversible app-managed edits.</p>
+<h2 id="2-required-behavior">2. Required behavior</h2>
+<p>A file edit proposed by the agent must not modify the target file before the user chooses <strong>Accept</strong>. <strong>Reject</strong> discards the staged proposal and leaves the target untouched. After an accepted change, a separate <strong>Rollback</strong> action may restore the original only if the target still matches the exact hash written by that transaction.</p>
+<p>The UI must never show actionable Accept/Reject controls for an operation that the app cannot prove it staged and owns.</p>
+<h3 id="transaction-states">Transaction states</h3>
+<div class="highlight"><pre><span></span><code>PROPOSED -&gt; APPLYING -&gt; ACCEPTED -&gt; ROLLED_BACK
+    |           |
+    v           v
+ REJECTED     CONFLICT
+                |
+                v
+             FAILED
+</code></pre></div>
+<ul>
+<li><code>PROPOSED</code>: immutable original snapshot and proposed content are stored privately; target is unchanged.</li>
+<li><code>APPLYING</code>: the journal records intent before touching the target.</li>
+<li><code>ACCEPTED</code>: atomic replacement succeeded and the resulting SHA-256 was verified.</li>
+<li><code>REJECTED</code>: staged data was discarded; target was never modified.</li>
+<li><code>CONFLICT</code>: target no longer matches the original snapshot; no write is attempted.</li>
+<li><code>FAILED</code>: apply failed. The transaction attempts to restore its backup and records whether recovery succeeded.</li>
+<li><code>ROLLED_BACK</code>: an accepted change was restored after verifying that the current target still matches the accepted hash.</li>
+</ul>
+<h2 id="3-component-boundaries">3. Component boundaries</h2>
+<h3 id="31-proposal-api">3.1 Proposal API</h3>
+<p>Introduce a first-party <code>FileChangeController</code> with typed operations:</p>
+<ul>
+<li><code>proposeTextChange(path, proposedContent, summary)</code></li>
+<li><code>getProposal(id)</code> / <code>observeProposals()</code></li>
+<li><code>accept(id)</code></li>
+<li><code>reject(id)</code></li>
+<li><code>rollback(id)</code></li>
+</ul>
+<p>A proposal contains an opaque ID, normalized workspace-relative path, operation kind, original SHA-256 (or an explicit “file absent” marker), proposed SHA-256, byte counts, timestamps, and transaction state. The original and proposed bytes live in app-private staging storage, not in chat history or tool arguments.</p>
+<p>The model-facing tool may propose a change, but it must not accept, reject, or roll back on the user's behalf. Accept/Reject are UI actions requiring a direct user gesture.</p>
+<h3 id="32-filesystem-adapter">3.2 Filesystem adapter</h3>
+<p>The platform adapter owns path resolution and the atomic compare-and-swap operation. The common contract must return typed outcomes rather than a Boolean:</p>
+<ul>
+<li>applied</li>
+<li>conflict (expected hash mismatch)</li>
+<li>missing</li>
+<li>invalid/out-of-root path</li>
+<li>symlink or unsupported file type</li>
+<li>too large / invalid UTF-8</li>
+<li>unsupported atomic move</li>
+<li>I/O failure with recovery status</li>
+</ul>
+<p>The adapter must support the Android chat sandbox and Kai Build workspace separately. Desktop must use an explicitly configured project root; it must not infer an arbitrary writable root from a model-supplied absolute path. iOS/Web targets without a supported local workspace must report the capability as unavailable.</p>
+<h3 id="33-review-ui">3.3 Review UI</h3>
+<p>Each file proposal is rendered from the controller's durable proposal record, not reconstructed from an arbitrary tool result. The card shows path, operation, before/after diff, hashes (short form), conflict/error state, and transaction state.</p>
+<ul>
+<li><strong>Accept</strong> invokes the controller's <code>accept(id)</code>.</li>
+<li><strong>Reject</strong> invokes <code>reject(id)</code>.</li>
+<li><strong>Rollback</strong> is available only for an accepted transaction with a retained backup and matching current hash.</li>
+<li>While applying, actions are disabled and progress/status is visible.</li>
+<li>A conflict offers refresh/review; it must not silently overwrite the user's newer content.</li>
+<li>The current “Mark reviewed / Needs changes” annotation may remain for unmanaged external operations, but must be visually distinct from transaction actions.</li>
+</ul>
+<h2 id="4-safe-apply-algorithm">4. Safe apply algorithm</h2>
+<p>For one file, the apply operation must run on an I/O dispatcher and under a per-canonical-path in-process mutex:</p>
+<ol>
+<li>Validate the proposal state and workspace root.</li>
+<li>Normalize the relative path; reject absolute paths, empty segments where ambiguous, <code>.</code>, <code>..</code>, NUL, and platform separator tricks.</li>
+<li>Resolve every path component without following symbolic links. Reject a symlink in any parent or at the target. Revalidate immediately before commit.</li>
+<li>Require a regular UTF-8 text file, or an explicitly absent target for a create operation. Enforce a bounded size (initial target: 512 KiB).</li>
+<li>Read current bytes and compute SHA-256. Compare with the proposal's original hash. On mismatch, return <code>CONFLICT</code> without writing.</li>
+<li>Persist a transaction journal and a private backup of the original bytes and relevant file metadata before replacement.</li>
+<li>Write proposed bytes to a uniquely named temporary sibling file; flush the file descriptor, preserve supported permissions, and verify the temporary file's SHA-256.</li>
+<li>Replace the target using an atomic move on the same filesystem. If atomic replacement is unavailable, fail closed; do not fall back to truncating the target in place.</li>
+<li>Re-read the target and verify the proposed SHA-256.</li>
+<li>Mark the journal <code>ACCEPTED</code> only after verification. If any step after replacement fails, restore from the backup with the same atomic-replacement rules and record recovery outcome.</li>
+</ol>
+<p>For rollback, compare the current target against the accepted SHA-256 before restoring the original backup. If the target has changed since acceptance, return <code>CONFLICT</code>; never overwrite later user or agent edits.</p>
+<h2 id="5-crash-recovery-and-retention">5. Crash recovery and retention</h2>
+<ul>
+<li>Journal writes must themselves use temp-file + atomic replacement.</li>
+<li>On startup, reconcile incomplete <code>APPLYING</code> transactions. If the target hash equals the proposed hash, finalize as accepted; if it equals the original hash, mark the apply as not committed; otherwise preserve both the backup and target and mark conflict/recovery-required.</li>
+<li>Keep pending proposals across process restart.</li>
+<li>Expire rejected proposals immediately after cleanup; expire stale pending proposals after a bounded TTL (initial target: 24 hours).</li>
+<li>Retain accepted backups for a bounded rollback window (initial target: 7 days), subject to a storage quota.</li>
+<li>Never put staged source contents or backups in cloud conversation history, analytics, logs, or crash reports.</li>
+</ul>
+<h2 id="6-security-boundaries">6. Security boundaries</h2>
+<ul>
+<li>Use app-private storage for staging, backups, and journals.</li>
+<li>Restrict every proposal to a configured workspace root; no arbitrary absolute paths.</li>
+<li>Reject symlink traversal and re-check canonical containment at commit time.</li>
+<li>Use SHA-256 compare-and-swap to detect concurrent edits; a UI-level “file is unchanged” check is not sufficient.</li>
+<li>Keep a per-path mutex and revalidate immediately before atomic replacement. Document that arbitrary external processes do not honor the app mutex; hash conflict detection and atomic replacement are mandatory.</li>
+<li>Redact secrets in rendered previews, but never use redacted display strings as bytes for apply or rollback.</li>
+<li>Enforce strict UTF-8 and size limits. Binary, lossy-decoded, truncated, or incomplete snapshots are not eligible.</li>
+<li>Do not execute hooks, scripts, or model-provided shell commands as part of Accept/Reject.</li>
+<li>Do not promise rollback for MCP calls, network requests, terminal commands, package installs, or other external side effects.</li>
+</ul>
+<h2 id="7-scope-and-rollout">7. Scope and rollout</h2>
+<h3 id="phase-a-transaction-foundation">Phase A — transaction foundation</h3>
+<ul>
+<li>Add common proposal/state/result models and controller contract.</li>
+<li>Add platform filesystem adapters and private durable staging/journal storage.</li>
+<li>Add SHA-256, atomic replace, conflict checks, rollback, startup recovery, and bounded retention.</li>
+<li>Add tests for path traversal, symlinks, stale hashes, missing/create targets, UTF-8/binary/size limits, atomic-move failure, interrupted apply, rollback conflict, and idempotency.</li>
+</ul>
+<h3 id="phase-b-agent-integration">Phase B — agent integration</h3>
+<ul>
+<li>Add a first-party proposal tool that stages content without writing the target.</li>
+<li>Add proposal IDs to Agent Activity mapping and load proposal records from the controller.</li>
+<li>Wire Accept/Reject/Rollback callbacks through the chat timeline to the controller.</li>
+<li>Keep arbitrary MCP/shell file operations explicitly unmanaged and non-reversible.</li>
+</ul>
+<h3 id="phase-c-validation">Phase C — validation</h3>
+<ul>
+<li>Verify Android chat sandbox and Kai Build use the correct independent roots.</li>
+<li>Verify desktop uses the configured project root and that unsupported platforms hide/disable transaction actions.</li>
+<li>Run common tests, desktop tests, Android FOSS compile/unit tests, and focused filesystem integration tests.</li>
+<li>Verify that no Accept/Reject action can bypass the user gesture or the hash/path checks.</li>
+</ul>
+<h2 id="8-settings-and-remaining-screen-migration-gate">8. Settings and remaining-screen migration gate</h2>
+<p>Settings and remaining screens are deliberately sequenced after Phases A–C. The Settings implementation already has an adaptive navigation rail/detail pane and section components; migration should audit and refine the existing implementation rather than replace it wholesale. After File Review is validated, migrate remaining Settings sections, provider/model selection, MCP/Skills, tool approval, sandbox, and other navigation/detail screens in small independently testable groups.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "search.highlight", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

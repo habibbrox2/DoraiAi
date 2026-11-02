@@ -1,0 +1,1916 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for Kai - AI Assistant App">
+      
+      
+      
+        <link rel="canonical" href="https://kai9000.com/docs/2027-premium-ui-phase-a1-composable-map/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Phase A1 — Composable-to-Route and Feature Ownership Map - Kai Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#phase-a1-composable-to-route-and-feature-ownership-map" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kai Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Phase A1 — Composable-to-Route and Feature Ownership Map
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kai Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Features
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chat & Conversations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/multi-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Servers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/dynamic-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/memories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/heartbeat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Heartbeat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/daemon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Daemon
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/encryption/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Encryption
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/on-device-inference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    On-Device Inference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/reasoning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reasoning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/system-prompts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Prompts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/sandbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Sandbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/kai-build/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kai Build
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/notifications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notifications
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/sms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SMS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/appearance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appearance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/settings-export-import/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings Export & Import
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../features/splinterlands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Splinterlands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../desktop-release-smoketest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Desktop Release Smoke Test
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-verified-application-route-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Verified application route graph
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-route-parent-child-surface-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Route → parent → child surface map
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Route → parent → child surface map">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#home-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Home / Chat
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-workspace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build workspace
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sandbox-embedded-chatworkspace-feature-not-a-top-level-app-route" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sandbox (embedded Chat/workspace feature, not a top-level App route)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dynamic-ui-interactive-response-renderer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dynamic UI / interactive response renderer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markdown-response-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markdown / response content
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shared-primitives-platform-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared primitives / platform support
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-complete-137-file-source-inventory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Complete 137-file source inventory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Complete 137-file source inventory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#theme-and-shared-roots-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Theme and shared roots (4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build (11)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chat-40" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chat (40)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shared-components-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared components (15)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard (2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dynamic-ui-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dynamic UI (6)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#icons-and-maps-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Icons and maps (2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markdown-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markdown (16)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sandbox-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sandbox (9)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settings-31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Settings (31)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#theme-tokens-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Theme tokens (1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-phase-a1-findings-and-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Phase A1 findings and gaps
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Phase A1 findings and gaps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verified" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verified
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#not-yet-fully-verified" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not yet fully verified
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#next-audit-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next audit actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-verified-composition-call-site-trace-phase-a1-closure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Verified composition call-site trace (Phase A1 closure)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Verified composition call-site trace (Phase A1 closure)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chat-route-and-responsive-shell" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chat route and responsive shell
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settings-route-and-all-tab-branches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Settings route and all tab branches
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dashboard-route" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dashboard route
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-route" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build route
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sandbox-embedded-workspace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sandbox embedded workspace
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markdown-and-dynamic-ui-embedding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Markdown and Dynamic UI embedding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#platform-and-overlay-ownership" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Platform and overlay ownership
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a1-coverage-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A1 coverage boundary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-phase-a1-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Phase A1 status
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="phase-a1-composable-to-route-and-feature-ownership-map">Phase A1 — Composable-to-Route and Feature Ownership Map</h1>
+<p><strong>Repository:</strong> <code>habibbrox2/brox-kai-2.0</code><br />
+<strong>Branch:</strong> <code>feature/2027-premium-agent-ui-migration</code><br />
+<strong>Audited head before this document:</strong> <code>6af4d4e77eece8bce749608896400edeb8c76235</code><br />
+<strong>Scope:</strong> 137 Kotlin files under <code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui</code><br />
+<strong>Method:</strong> Git tree inventory plus source inspection of App navigation and the major route/surface composables. This is a structural ownership map, not a claim that every private composable or runtime state has been visually tested.</p>
+<h2 id="1-verified-application-route-graph">1. Verified application route graph</h2>
+<p>Source of truth: <code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/App.kt</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Navigation destination</th>
+<th>Root Composable</th>
+<th>Owner / state boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Home</td>
+<td><code>Home</code> (start destination)</td>
+<td><code>ChatScreen</code></td>
+<td><code>ChatViewModel</code> / <code>ChatUiState</code> / <code>ChatActions</code></td>
+</tr>
+<tr>
+<td>Dashboard</td>
+<td><code>Dashboard</code></td>
+<td><code>DashboardScreen</code></td>
+<td>Dashboard content derives from chat state plus build/sandbox readiness controllers</td>
+</tr>
+<tr>
+<td>Settings</td>
+<td><code>Settings(tab)</code></td>
+<td><code>SettingsScreen</code></td>
+<td><code>SettingsViewModel</code>, <code>SandboxViewModel</code>, <code>SettingsActions</code></td>
+</tr>
+<tr>
+<td>Build</td>
+<td><code>Build(project)</code></td>
+<td><code>KaiBuildScreen</code></td>
+<td><code>KaiBuildViewModel</code> / build controller and terminal session state</td>
+</tr>
+</tbody>
+</table>
+<p>Route facts verified in source:
+- <code>NavHost</code> starts at <code>Home</code>.
+- Home navigates to Dashboard and Settings; its shell also exposes workspace/sandbox flows.
+- Dashboard can navigate to Home, Settings, and Build, and can open a conversation or start a design chat.
+- Settings tab selection is serialized as a string route argument and resolved through <code>Settings.tabOf</code>.
+- Build receives an optional project identifier through its typed route.
+- Sandbox is not a top-level NavHost destination in <code>App.kt</code>; its UI is embedded in the supported Chat/workspace flow.
+- Full-screen image viewing is hosted above the NavHost by <code>FullScreenImageHost</code>.</p>
+<h2 id="2-route-parent-child-surface-map">2. Route → parent → child surface map</h2>
+<h3 id="home-chat">Home / Chat</h3>
+<p><code>App.Home → ChatScreen → ChatScreenContent → ChatModeScreen → ChatShell</code></p>
+<table>
+<thead>
+<tr>
+<th>Parent / feature owner</th>
+<th>Child surfaces identified from source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Chat shell</td>
+<td><code>ChatShell</code>, <code>TopBar</code>, <code>AgentHud</code>, <code>AgentStatusOrb</code>, <code>AppSidebar</code>, <code>ConversationRail</code></td>
+</tr>
+<tr>
+<td>Conversation timeline</td>
+<td><code>ChatTimeline</code>, <code>UserMessage</code>, <code>BotMessage</code>, <code>ErrorMessage</code>, <code>MessageActionRow</code>, <code>HeartbeatBanner</code>, <code>PendingSmsBanners</code></td>
+</tr>
+<tr>
+<td>Composer</td>
+<td><code>ChatComposer</code>, <code>QuestionInput</code>, <code>SkillAutocomplete</code>, <code>ServiceSelector</code>, <code>TrailingIcon</code>, <code>CircleIconButton</code></td>
+</tr>
+<tr>
+<td>Agent activity</td>
+<td><code>AgentActivityDisclosure</code>, <code>AgentActivityTimeline</code>, <code>AgentActivityRow</code>, <code>ActivityCodePreview</code>, <code>ToolExecutionCard</code>, <code>ShellExecutionCard</code>, <code>ToolConfirmationCard</code>, <code>ToolMessage</code>, <code>AgentReviewComponents</code></td>
+</tr>
+<tr>
+<td>Chat overlays / support</td>
+<td><code>ChatHistorySheet</code>, <code>FullScreenImageViewer</code>, <code>FreeProviderSuggestionsPanel</code>, <code>StatusPill</code>, <code>SmallIconButton</code>, <code>PanelHeading</code>, <code>PremiumChatBackdrop</code></td>
+</tr>
+<tr>
+<td>Chat state / mapping (non-UI helpers)</td>
+<td><code>ChatUiState</code>, <code>ChatTimelineData</code>, <code>ChatActions</code>, <code>ChatAdaptivePolicy</code>, <code>ActivityMapper</code>, <code>AgentActivity</code>, <code>AgentReviewModels</code></td>
+</tr>
+</tbody>
+</table>
+<p>Primary owner: <code>ChatViewModel</code> and <code>ChatActions</code>. Presentation components receive state and callbacks; they must not take ownership of provider, persistence, MCP, sandbox execution, or permission business logic.</p>
+<h3 id="dashboard">Dashboard</h3>
+<p><code>App.Dashboard → DashboardScreen → DashboardScreenContent</code></p>
+<p>Children verified in source:
+- <code>DashboardHeader</code>
+- <code>ReadinessCard</code>
+- <code>DashboardActionGrid</code> / <code>DashboardActionCard</code>
+- <code>RecentWorkSection</code>
+- <code>ConversationRow</code> / <code>ProjectRow</code></p>
+<p>Models: <code>DashboardModels.kt</code>. Navigation callbacks return to Chat, open Build/Settings, start Design chat, or load a conversation.</p>
+<h3 id="settings">Settings</h3>
+<p><code>App.Settings(tab) → SettingsScreen → SettingsScreenContent → SettingsNavRail / SettingsOverview / SettingsDetailPane</code></p>
+<table>
+<thead>
+<tr>
+<th>Settings owner</th>
+<th>Child section / surface files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Navigation and layout</td>
+<td><code>SettingsNavigation.kt</code>, <code>SettingsOverview.kt</code>, <code>SettingsDetailPane.kt</code>, <code>SettingsTabScroll.kt</code>, <code>SettingsSectionHeader.kt</code></td>
+</tr>
+<tr>
+<td>General / appearance</td>
+<td><code>GeneralSettings.kt</code>, <code>AppearanceSettings.kt</code>, <code>HeartbeatSection.kt</code></td>
+</tr>
+<tr>
+<td>Agent / model</td>
+<td><code>AgentSettings.kt</code>, <code>ModelSelectionSheet.kt</code></td>
+</tr>
+<tr>
+<td>Services / integrations</td>
+<td><code>ServicesSettings.kt</code>, <code>IntegrationsSettings.kt</code></td>
+</tr>
+<tr>
+<td>Tools / MCP / skills</td>
+<td><code>ToolsSettings.kt</code>, <code>McpSection.kt</code>, <code>SkillsSection.kt</code></td>
+</tr>
+<tr>
+<td>Sandbox / terminal</td>
+<td><code>SandboxSettings.kt</code>, <code>SandboxViewModel.kt</code>, <code>TerminalSheet.kt</code>, <code>AnsiParser.kt</code></td>
+</tr>
+<tr>
+<td>Data / account</td>
+<td><code>ExportImportSection.kt</code>, <code>DataControlContent</code>, <code>AccountPlanContent</code></td>
+</tr>
+<tr>
+<td>Settings support</td>
+<td><code>SettingsActions.kt</code>, <code>SettingsUiState.kt</code>, <code>SettingsViewModel.kt</code>, <code>SettingsConfirmDialog.kt</code>, <code>SettingsStatusBanner.kt</code>, <code>SettingsStatusRow.kt</code>, <code>SplinterlandsComposables.kt</code>, <code>SplinterlandsUiState.kt</code>, <code>SplinterlandsViewModel.kt</code>, <code>SettingsDesignTokens.kt</code></td>
+</tr>
+</tbody>
+</table>
+<p>The Settings root also receives optional Android update content. Sandbox settings state is supplied separately from <code>SandboxViewModel</code>.</p>
+<h3 id="build-workspace">Build workspace</h3>
+<p><code>App.Build(project) → KaiBuildScreen → KaiBuildScreenContent</code></p>
+<p>Children:
+- <code>BuildSetupContent</code> (setup/install steps and setup errors)
+- <code>BuildProjectsContent</code> (project list, create/rename/delete dialogs, system/agent cards)
+- <code>BuildSessionBar</code>
+- <code>BuildStatusPill</code>
+- <code>BuildSectionHeader</code>
+- <code>BuildTerminalContent</code> → terminal hyperlink bar and terminal grid
+- <code>TerminalKeyRow</code> / <code>TerminalKeyIcons</code></p>
+<p>State and actions: <code>KaiBuildViewModel</code>, <code>KaiBuildUiState</code>, <code>KaiBuildActions</code>, build session/terminal models. Terminal-specific ANSI and terminal canvas presentation are intentionally separate from generic app surfaces.</p>
+<h3 id="sandbox-embedded-chatworkspace-feature-not-a-top-level-app-route">Sandbox (embedded Chat/workspace feature, not a top-level App route)</h3>
+<p>Parent: Chat/workspace sandbox content → <code>SandboxTabsContent</code>.</p>
+<p>Children:
+- <code>SandboxFileBrowserScreen.kt</code> → <code>SandboxFilesContent</code>, path bar, file list/row/menu, editor body, unopenable-file view, delete/rename dialogs.
+- <code>SandboxPackagesScreen.kt</code> → <code>SandboxPackagesContent</code>, packages list/row, upgrade row, uninstall confirmation.
+- <code>FindReplacePanel.kt</code>, <code>ReplaceAllConfirmDialog.kt</code>, <code>SandboxStatusText.kt</code>.
+- State owners: <code>SandboxFileBrowserViewModel</code>, <code>SandboxPackagesViewModel</code>, <code>SandboxSessionViewModel</code>, plus Settings sandbox state/view model.</p>
+<h3 id="dynamic-ui-interactive-response-renderer">Dynamic UI / interactive response renderer</h3>
+<p>Parent: Chat assistant message rendering → <code>KaiUiRenderer</code> → typed <code>KaiUiNode</code> tree.</p>
+<p>Renderer children include column, row, card, text, button, text input, checkbox, select, image, table, list, switch, slider, radio group, progress, countdown, alert, chip group, icon, code, quote, badge, stat, avatar, box, tabs, and accordion renderers.</p>
+<p>Supporting files: <code>KaiUiNode.kt</code>, <code>KaiUiNodeBuilders.kt</code>, <code>KaiUiParser.kt</code>, <code>UiAction.kt</code>, <code>KaiUiTts.kt</code>. Renderer actions must remain typed/allowlisted and must not execute arbitrary model-provided code.</p>
+<h3 id="markdown-response-content">Markdown / response content</h3>
+<p>Parent: Chat message content → <code>MarkdownContent</code> / <code>MarkdownRenderer</code>.</p>
+<p>Supporting files:
+- Parsing: <code>BlockScanner.kt</code>, <code>MarkdownParser.kt</code>, <code>MarkdownNode.kt</code>, <code>InlineTokenizer.kt</code>, <code>EmojiShortcodes.kt</code>.
+- Rendering: <code>MarkdownRenderer.kt</code>, <code>MarkdownTextRenderer.kt</code>, <code>MarkdownInlineRenderer.kt</code>, <code>InlineContent.kt</code>.
+- Blocks: <code>CodeFenceBlock.kt</code>, <code>CodeHighlighter.kt</code>, <code>DiffCard.kt</code>.
+- Math: <code>MathAtom.kt</code>, <code>MathParser.kt</code>, <code>MathRenderer.kt</code>, <code>MathSymbols.kt</code>.</p>
+<h3 id="shared-primitives-platform-support">Shared primitives / platform support</h3>
+<p>Shared presentation primitives used by the route trees:
+- <code>KaiDialog</code>, <code>SettingsListItem</code>, <code>KaiBadge</code>, <code>KaiChip</code>, <code>KaiSearchField</code>, <code>KaiSlider</code>, <code>KaiSnackbar</code>, <code>KaiLoadingSpinner</code>, <code>OperationalComponents</code>, <code>RefreshIconButton</code>, <code>KaiAvatar</code>, <code>AnimatedGradientBorder</code>, <code>LogoAnimation</code>, <code>DesktopScrollbar</code>, <code>FullScreenImageHost</code>.
+- Theme roots: <code>Theme.kt</code>, <code>KaiAppTheme.kt</code>, <code>DesignTokens.kt</code>.
+- Other UI/platform helpers: <code>Clipboard.kt</code>, <code>SandboxUriHandler.kt</code>, <code>KaiIcons.kt</code>, <code>GoogleMapsView.kt</code>.</p>
+<h2 id="3-complete-137-file-source-inventory">3. Complete 137-file source inventory</h2>
+<p>This inventory is derived from the recursive Git tree at the audited branch head. Each file is assigned to its feature owner above; helper/model/view-model files are listed with their owning surface, not represented as independent navigation routes.</p>
+<h3 id="theme-and-shared-roots-4">Theme and shared roots (4)</h3>
+<ul>
+<li><code>Clipboard.kt</code></li>
+<li><code>KaiAppTheme.kt</code></li>
+<li><code>SandboxUriHandler.kt</code></li>
+<li><code>Theme.kt</code></li>
+</ul>
+<h3 id="build-11">Build (11)</h3>
+<ul>
+<li><code>build/BuildDesignTokens.kt</code></li>
+<li><code>build/BuildProjectsContent.kt</code></li>
+<li><code>build/BuildSectionHeader.kt</code></li>
+<li><code>build/BuildSessionBar.kt</code></li>
+<li><code>build/BuildSetupContent.kt</code></li>
+<li><code>build/BuildStatusPill.kt</code></li>
+<li><code>build/BuildTerminalContent.kt</code></li>
+<li><code>build/KaiBuildScreen.kt</code></li>
+<li><code>build/KaiBuildViewModel.kt</code></li>
+<li><code>build/TerminalKeyIcons.kt</code></li>
+<li><code>build/TerminalKeyRow.kt</code></li>
+</ul>
+<h3 id="chat-40">Chat (40)</h3>
+<ul>
+<li><code>chat/ChatActions.kt</code></li>
+<li><code>chat/ChatAdaptivePolicy.kt</code></li>
+<li><code>chat/ChatDesignTokens.kt</code></li>
+<li><code>chat/ChatScreen.kt</code></li>
+<li><code>chat/ChatShell.kt</code></li>
+<li><code>chat/ChatTimelineData.kt</code></li>
+<li><code>chat/ChatUiState.kt</code></li>
+<li><code>chat/ChatViewModel.kt</code></li>
+<li><code>chat/activities/ActivityMapper.kt</code></li>
+<li><code>chat/activities/AgentActivity.kt</code></li>
+<li><code>chat/activities/AgentReviewModels.kt</code></li>
+<li><code>chat/composables/AgentActivityDisclosure.kt</code></li>
+<li><code>chat/composables/AgentActivityTimeline.kt</code></li>
+<li><code>chat/composables/AgentHud.kt</code></li>
+<li><code>chat/composables/AgentReviewComponents.kt</code></li>
+<li><code>chat/composables/AppSidebar.kt</code></li>
+<li><code>chat/composables/BotMessage.kt</code></li>
+<li><code>chat/composables/ChatComposer.kt</code></li>
+<li><code>chat/composables/ChatHistorySheet.kt</code></li>
+<li><code>chat/composables/ChatTimeline.kt</code></li>
+<li><code>chat/composables/ConversationRail.kt</code></li>
+<li><code>chat/composables/EmptyState.kt</code></li>
+<li><code>chat/composables/ErrorMessage.kt</code></li>
+<li><code>chat/composables/FreeProviderSuggestionsPanel.kt</code></li>
+<li><code>chat/composables/FullScreenImageViewer.kt</code></li>
+<li><code>chat/composables/HeartbeatBanner.kt</code></li>
+<li><code>chat/composables/MessageActionRow.kt</code></li>
+<li><code>chat/composables/PanelHeading.kt</code></li>
+<li><code>chat/composables/PendingSmsBanner.kt</code></li>
+<li><code>chat/composables/PremiumChatBackdrop.kt</code></li>
+<li><code>chat/composables/QuestionInput.kt</code></li>
+<li><code>chat/composables/ServiceSelector.kt</code></li>
+<li><code>chat/composables/SkillAutocomplete.kt</code></li>
+<li><code>chat/composables/SmallIconButton.kt</code></li>
+<li><code>chat/composables/StatusPill.kt</code></li>
+<li><code>chat/composables/ToolConfirmationCard.kt</code></li>
+<li><code>chat/composables/ToolExecutionCard.kt</code></li>
+<li><code>chat/composables/ToolMessage.kt</code></li>
+<li><code>chat/composables/TopBar.kt</code></li>
+<li><code>chat/composables/UserMessage.kt</code></li>
+</ul>
+<h3 id="shared-components-15">Shared components (15)</h3>
+<ul>
+<li><code>components/AnimatedGradientBorder.kt</code></li>
+<li><code>components/DesktopScrollbar.kt</code></li>
+<li><code>components/FullScreenImageHost.kt</code></li>
+<li><code>components/KaiAvatar.kt</code></li>
+<li><code>components/KaiBadge.kt</code></li>
+<li><code>components/KaiChip.kt</code></li>
+<li><code>components/KaiDialog.kt</code></li>
+<li><code>components/KaiLoadingSpinner.kt</code></li>
+<li><code>components/KaiSearchField.kt</code></li>
+<li><code>components/KaiSlider.kt</code></li>
+<li><code>components/KaiSnackbar.kt</code></li>
+<li><code>components/LogoAnimation.kt</code></li>
+<li><code>components/OperationalComponents.kt</code></li>
+<li><code>components/RefreshIconButton.kt</code></li>
+<li><code>components/SettingsListItem.kt</code></li>
+</ul>
+<h3 id="dashboard-2">Dashboard (2)</h3>
+<ul>
+<li><code>dashboard/DashboardModels.kt</code></li>
+<li><code>dashboard/DashboardScreen.kt</code></li>
+</ul>
+<h3 id="dynamic-ui-6">Dynamic UI (6)</h3>
+<ul>
+<li><code>dynamicui/KaiUiNode.kt</code></li>
+<li><code>dynamicui/KaiUiNodeBuilders.kt</code></li>
+<li><code>dynamicui/KaiUiParser.kt</code></li>
+<li><code>dynamicui/KaiUiRenderer.kt</code></li>
+<li><code>dynamicui/KaiUiTts.kt</code></li>
+<li><code>dynamicui/UiAction.kt</code></li>
+</ul>
+<h3 id="icons-and-maps-2">Icons and maps (2)</h3>
+<ul>
+<li><code>icons/KaiIcons.kt</code></li>
+<li><code>maps/GoogleMapsView.kt</code></li>
+</ul>
+<h3 id="markdown-16">Markdown (16)</h3>
+<ul>
+<li><code>markdown/BlockScanner.kt</code></li>
+<li><code>markdown/CodeFenceBlock.kt</code></li>
+<li><code>markdown/CodeHighlighter.kt</code></li>
+<li><code>markdown/DiffCard.kt</code></li>
+<li><code>markdown/EmojiShortcodes.kt</code></li>
+<li><code>markdown/InlineContent.kt</code></li>
+<li><code>markdown/InlineTokenizer.kt</code></li>
+<li><code>markdown/MarkdownInlineRenderer.kt</code></li>
+<li><code>markdown/MarkdownNode.kt</code></li>
+<li><code>markdown/MarkdownParser.kt</code></li>
+<li><code>markdown/MarkdownRenderer.kt</code></li>
+<li><code>markdown/MarkdownTextRenderer.kt</code></li>
+<li><code>markdown/math/MathAtom.kt</code></li>
+<li><code>markdown/math/MathParser.kt</code></li>
+<li><code>markdown/math/MathRenderer.kt</code></li>
+<li><code>markdown/math/MathSymbols.kt</code></li>
+</ul>
+<h3 id="sandbox-9">Sandbox (9)</h3>
+<ul>
+<li><code>sandbox/FindReplacePanel.kt</code></li>
+<li><code>sandbox/ReplaceAllConfirmDialog.kt</code></li>
+<li><code>sandbox/SandboxFileBrowserScreen.kt</code></li>
+<li><code>sandbox/SandboxFileBrowserViewModel.kt</code></li>
+<li><code>sandbox/SandboxPackagesScreen.kt</code></li>
+<li><code>sandbox/SandboxPackagesViewModel.kt</code></li>
+<li><code>sandbox/SandboxSessionViewModel.kt</code></li>
+<li><code>sandbox/SandboxStatusText.kt</code></li>
+<li><code>sandbox/SandboxTabsContent.kt</code></li>
+</ul>
+<h3 id="settings-31">Settings (31)</h3>
+<ul>
+<li><code>settings/AgentSettings.kt</code></li>
+<li><code>settings/AnsiParser.kt</code></li>
+<li><code>settings/AppearanceSettings.kt</code></li>
+<li><code>settings/ExportImportSection.kt</code></li>
+<li><code>settings/GeneralSettings.kt</code></li>
+<li><code>settings/HeartbeatSection.kt</code></li>
+<li><code>settings/IntegrationsSettings.kt</code></li>
+<li><code>settings/McpSection.kt</code></li>
+<li><code>settings/ModelSelectionSheet.kt</code></li>
+<li><code>settings/SandboxSettings.kt</code></li>
+<li><code>settings/SandboxViewModel.kt</code></li>
+<li><code>settings/ServicesSettings.kt</code></li>
+<li><code>settings/SettingsActions.kt</code></li>
+<li><code>settings/SettingsConfirmDialog.kt</code></li>
+<li><code>settings/SettingsDesignTokens.kt</code></li>
+<li><code>settings/SettingsDetailPane.kt</code></li>
+<li><code>settings/SettingsNavigation.kt</code></li>
+<li><code>settings/SettingsOverview.kt</code></li>
+<li><code>settings/SettingsScreen.kt</code></li>
+<li><code>settings/SettingsSectionHeader.kt</code></li>
+<li><code>settings/SettingsStatusBanner.kt</code></li>
+<li><code>settings/SettingsStatusRow.kt</code></li>
+<li><code>settings/SettingsTabScroll.kt</code></li>
+<li><code>settings/SettingsUiState.kt</code></li>
+<li><code>settings/SettingsViewModel.kt</code></li>
+<li><code>settings/SkillsSection.kt</code></li>
+<li><code>settings/SplinterlandsComposables.kt</code></li>
+<li><code>settings/SplinterlandsUiState.kt</code></li>
+<li><code>settings/SplinterlandsViewModel.kt</code></li>
+<li><code>settings/TerminalSheet.kt</code></li>
+<li><code>settings/ToolsSettings.kt</code></li>
+</ul>
+<h3 id="theme-tokens-1">Theme tokens (1)</h3>
+<ul>
+<li><code>theme/DesignTokens.kt</code></li>
+</ul>
+<h2 id="4-phase-a1-findings-and-gaps">4. Phase A1 findings and gaps</h2>
+<h3 id="verified">Verified</h3>
+<ul>
+<li>All 137 files are present in the current UI source inventory.</li>
+<li>The four application navigation destinations and their root Composables are verified from <code>App.kt</code>.</li>
+<li>Major parent/child feature ownership is verified for Chat, Dashboard, Settings, Build, Sandbox, Dynamic UI, Markdown, and shared primitives.</li>
+<li>Sandbox is an embedded workspace flow, not a separate top-level NavHost destination.</li>
+<li>UI state ownership boundaries are identified for Chat, Settings, Build, and Sandbox.</li>
+</ul>
+<h3 id="not-yet-fully-verified">Not yet fully verified</h3>
+<ul>
+<li>Exact call-site parent for every private Composable in all 137 files (especially shared utilities, settings subsections, Markdown leaf renderers, and dynamically selected sections).</li>
+<li>Every SettingsTab enum value → exact section Composable mapping.</li>
+<li>Every conditional branch and platform-specific visibility path.</li>
+<li>Full set of nested Dialog/Sheet/Popover ownership links.</li>
+<li>Runtime-only routes opened by platform-specific integrations outside the commonMain NavHost.</li>
+<li>Accessibility semantics and per-state coverage; these are Phase C work, not Phase A1 closure evidence.</li>
+</ul>
+<h3 id="next-audit-actions">Next audit actions</h3>
+<ol>
+<li>Finish exact SettingsTab → section call-site mapping.</li>
+<li>Trace every ChatScreen conditional slot and the full ChatShell parent-child composition.</li>
+<li>Trace Build and Sandbox content switch branches to exact child composables.</li>
+<li>Complete shared-component consumer map and dynamic Markdown/Dynamic UI embedding map.</li>
+<li>Update the coverage tracker only after every unresolved mapping row is either source-verified or explicitly marked not applicable.</li>
+</ol>
+<h2 id="6-verified-composition-call-site-trace-phase-a1-closure">6. Verified composition call-site trace (Phase A1 closure)</h2>
+<p>The following call-site trace was checked against the current branch source, not inferred from file names:</p>
+<h3 id="chat-route-and-responsive-shell">Chat route and responsive shell</h3>
+<ul>
+<li><code>AppContent</code> wraps <code>NavHost</code> in <code>FullScreenImageHost</code>; Home resolves to <code>ChatScreen</code>, Dashboard to <code>DashboardScreen</code>, Settings to <code>SettingsScreen</code>, and Build to <code>KaiBuildScreen</code>.</li>
+<li><code>ChatScreen</code> delegates to <code>ChatScreenContent</code>, then <code>ChatModeScreen</code>. <code>ChatModeScreen</code> owns local presentation state (drawer, sandbox visibility, composer prefill, snackbar/scroll state) while actions remain on <code>ChatUiState.actions</code>.</li>
+<li><code>ChatModeScreen</code> supplies <code>ChatShell</code> slots: <code>TopBar</code> as header; <code>AppSidebar</code> as the expanded conversation rail and compact modal drawer content; timeline/empty-state plus <code>ChatComposer</code> as main content; <code>SandboxTabsContent</code> as compact main content or expanded side panel; snackbar/error/free-provider UI in overlays.</li>
+<li><code>ChatShell</code> places header above content. Only Expanded width renders optional rail and side panel; Compact/Medium renders main content full-width. The caller owns the compact drawer and decides whether sandbox is shown.</li>
+<li>Main-content branches verified: empty history → <code>EmptyState</code>; non-empty history → <code>ChatTimeline</code>; compact sandbox-open → <code>SandboxTabsContent</code> replaces timeline/composer; composer is omitted while sandbox is open.</li>
+</ul>
+<h3 id="settings-route-and-all-tab-branches">Settings route and all tab branches</h3>
+<ul>
+<li><code>SettingsScreen</code> → adaptive settings shell/navigation → <code>SettingsDetailPane</code>.</li>
+<li>Exact <code>SettingsTab</code> dispatch in <code>SettingsDetailPane</code>:</li>
+<li>General → <code>SettingsOverview</code> + <code>GeneralContent</code> (Android update slot is passed here).</li>
+<li>Appearance → <code>AppearanceContent</code>.</li>
+<li>Agent → <code>AgentContent</code>.</li>
+<li>Services → <code>ServicesContent</code>.</li>
+<li>Tools → <code>ToolsTabContent</code> (receives sandbox state).</li>
+<li>Integrations → <code>IntegrationsContent</code>.</li>
+<li>Sandbox → <code>SandboxSettingsCard</code> when sandbox UI is available; otherwise <code>SandboxUnavailableContent</code>.</li>
+<li>Data → <code>DataControlContent</code>.</li>
+<li>Account → <code>AccountPlanContent</code>.</li>
+<li>Navigation rail labels/icons and grouping were checked against the same nine enum values in <code>SettingsNavigation.kt</code>. Groups: Assistant (General/Appearance/Agent), Models &amp; services (Services), Connections (Tools/Integrations), Workspace (Sandbox), Account (Data/Account).</li>
+</ul>
+<h3 id="dashboard-route">Dashboard route</h3>
+<ul>
+<li><code>DashboardScreen</code> collects SandboxController and KaiBuildController state, builds <code>DashboardUiState</code>, then calls <code>DashboardScreenContent</code>.</li>
+<li><code>DashboardScreenContent</code> composes exactly: <code>DashboardHeader</code> → <code>ReadinessCard</code> → <code>DashboardActionGrid</code> → <code>RecentWorkSection</code>.</li>
+<li><code>RecentWorkSection</code> conditionally shows conversation rows when conversations exist and project rows only when projects exist and Build is available. Grid columns are 1 below 600dp, 2 below 1000dp, and 4 otherwise.</li>
+</ul>
+<h3 id="build-route">Build route</h3>
+<ul>
+<li><code>KaiBuildScreen</code> owns ViewModel collection/actions and delegates presentation to <code>KaiBuildScreenContent</code>.</li>
+<li>With an open project: <code>BuildSessionBar</code> is shown; then Files → <code>SandboxFilesContent</code>; else a matching/fallback session → <code>BuildTerminalContent</code>; else a starting-session placeholder is shown and a session is requested.</li>
+<li>Without an open project: <code>KaiBuildTopBar</code> is shown; ready state → <code>BuildProjectsContent</code>; not-ready state → <code>BuildSetupContent</code>. Create-project dialog is an overlay controlled by the screen.</li>
+</ul>
+<h3 id="sandbox-embedded-workspace">Sandbox embedded workspace</h3>
+<ul>
+<li><code>ChatModeScreen</code> is the verified call site for <code>SandboxTabsContent</code> in both compact and expanded layouts. Build also reuses <code>SandboxFilesContent</code> as its project file view.</li>
+<li>Ready state: Terminal → optional <code>SessionChipRow</code> + <code>TerminalContent</code>; Files → <code>SandboxFilesContent</code>; Packages → <code>SandboxPackagesContent</code>.</li>
+<li>Not-ready state: setup card reports Needs setup / Installing / Failed, optionally shows progress/cancel or error, and offers setup/retry when not working.</li>
+<li>The tab selection is session-backed when <code>SandboxSessionViewModel</code> exists, otherwise local state is used (e.g. preview).</li>
+</ul>
+<h3 id="markdown-and-dynamic-ui-embedding">Markdown and Dynamic UI embedding</h3>
+<ul>
+<li><code>MarkdownContent</code> converts source text to a parsed <code>MarkdownDocument</code> (with a safe plain-text fallback) and delegates each block to <code>BlockRenderer</code>.</li>
+<li><code>BlockRenderer</code> dispatches headings/paragraphs/lists/quotes/tables/math/code/diff to their leaf renderers. A <code>KaiUiBlock</code> is the direct embedding point for <code>KaiUiRenderer</code>; malformed Kai-UI JSON is rendered as a JSON code fence.</li>
+<li><code>KaiUiRenderer</code> recursively renders the typed <code>KaiUiNode</code> tree and passes callback data through its typed callback contract. Historical/read-only messages set <code>isInteractive = false</code> at the Markdown boundary.</li>
+</ul>
+<h3 id="platform-and-overlay-ownership">Platform and overlay ownership</h3>
+<ul>
+<li>Top-level route set is commonMain NavHost; Android-only capability flags are passed from <code>AppContent</code> for Sandbox and Kai Build. Android update UI is an optional slot passed through Settings → General.</li>
+<li>Full-screen image hosting is above NavHost. Chat snackbar/error/free-provider overlays are owned by the chat route; Settings dialogs/sheets are owned by Settings; Build create-project dialog is owned by Build; Sandbox progress/setup UI is inline within its embedded workspace.</li>
+<li>Platform back handlers are attached to Dashboard, Settings, and Build route boundaries; Chat handles its own back/drawer/sandbox state.</li>
+</ul>
+<h3 id="a1-coverage-boundary">A1 coverage boundary</h3>
+<p>This closes the route/feature-level composition map for all top-level routes and the cross-feature surfaces that materially affect the premium UI migration. It is not a line-by-line inventory of every private leaf composable invocation or every shared primitive consumer; those are implementation-detail references and are intentionally not represented as a false 100% exhaustive call graph. All 137 source files remain assigned to their owning feature in the inventory above. Visual/accessibility state coverage remains Phase C verification.</p>
+<h2 id="7-phase-a1-status">7. Phase A1 status</h2>
+<p><strong>Status: Complete — all top-level route roots, route ownership, responsive Chat slots, nine Settings tab branches, Dashboard composition, Build state branches, Sandbox tabs/readiness branches, Markdown → Dynamic UI embedding, and major overlay/platform boundaries are source-verified.</strong></p>
+<p>The closure is scoped to route and feature-level composition; it does not claim a complete private-composable call graph or runtime visual verification. No runtime behavior, navigation, provider, persistence, MCP, sandbox, or permission logic was changed by this audit. No merge, release, or deployment is included.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "search.highlight", "content.tabs.link"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

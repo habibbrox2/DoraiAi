@@ -145,6 +145,7 @@ string|litert_tool_support|RW1haWwsIHRhc2sgc2NoZWR1bGluZywgYW5kIE1DUCBzZXJ2ZXIgd
 string|model_filter_free|RnJlZQ==
 string|model_free_badge|RnJlZQ==
 string|model_free_empty|Tm8gZnJlZS10aWVyIG1vZGVscyBmb3IgdGhpcyBzZXJ2aWNlLg==
+string|model_sort_alpha|TmFtZQ==
 string|model_sort_context|Q29udGV4dA==
 string|model_sort_date|RGF0ZQ==
 string|model_sort_score|U2NvcmU=
