@@ -65,6 +65,7 @@ import com.inspiredandroid.kai.ui.TextPrimary
 import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.KaiSearchField
 import com.inspiredandroid.kai.ui.components.VerticalScrollbarForGrid
+import com.inspiredandroid.kai.ui.theme.DesignTokens
 import com.inspiredandroid.kai.ui.handCursor
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.ic_arrow_drop_down
@@ -276,7 +277,7 @@ internal fun ModelSelection(
                 Text(
                     text = errorMessage ?: "No models have been loaded yet. Retry model discovery.",
                     style = KaiTypography.bodySmall,
-                    color = if (errorMessage != null) Color(0xFFCF6679) else TextSecondary,
+                    color = if (errorMessage != null) DesignTokens.Error else TextSecondary,
                 )
                 OutlinedButton(onClick = onRetry, enabled = canRetry) {
                     Text("Retry model discovery")
@@ -384,11 +385,11 @@ private fun ModelCard(model: SettingsModel, isSelected: Boolean, onClick: () -> 
 }
 
 private fun arenaScoreColor(score: Int): Color = when {
-    score >= 1400 -> Color(0xFF2E7D32)
-    score >= 1350 -> Color(0xFF558B2F)
-    score >= 1300 -> Color(0xFF9E9D24)
-    score >= 1250 -> Color(0xFFF9A825)
-    else -> Color(0xFFEF6C00)
+    score >= 1400 -> DesignTokens.Success
+    score >= 1350 -> DesignTokens.BrandCyan
+    score >= 1300 -> DesignTokens.PrimaryCyan
+    score >= 1250 -> DesignTokens.Warning
+    else -> DesignTokens.Error
 }
 
 @Composable
@@ -396,7 +397,7 @@ private fun FreeTierBadge(isSelected: Boolean) {
     val background = if (isSelected) {
         TextPrimary
     } else {
-        Color(0xFF1B5E20)
+        DesignTokens.Success
     }
     val content = if (isSelected) {
         SurfaceRaised
