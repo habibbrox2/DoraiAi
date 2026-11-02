@@ -11,7 +11,6 @@ import com.inspiredandroid.kai.data.TaskScheduler
 import com.inspiredandroid.kai.data.UiSubmission
 import com.inspiredandroid.kai.filereview.FileReviewActionResult
 import com.inspiredandroid.kai.filereview.FileReviewController
-import com.inspiredandroid.kai.filereview.FileReviewState
 import com.inspiredandroid.kai.filereview.NoOpFileReviewController
 import com.inspiredandroid.kai.getBackgroundDispatcher
 import com.inspiredandroid.kai.network.UiError
@@ -116,7 +115,7 @@ class ChatViewModel(
         viewModelScope.launch(backgroundDispatcher) {
             runCatching { fileReviewController.initialize() }
             fileReviewController.proposals.collect { proposals ->
-                val visible = proposals.filter { it.state != FileReviewState.REJECTED }.takeLast(5)
+                val visible = proposals.sortedByDescending { it.updatedAtMs }.take(20)
                 val previews = LinkedHashMap<String, com.inspiredandroid.kai.filereview.FileReviewPreview>()
                 visible.forEach { proposal -> fileReviewController.preview(proposal.id)?.let { previews[proposal.id] = it } }
                 _state.update { it.copy(fileReviewProposals = visible.toImmutableList(), fileReviewPreviews = previews) }

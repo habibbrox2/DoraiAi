@@ -52,13 +52,21 @@ internal fun FileChangeReviewCard(
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("${details.operation} · ${safeActivityPreview(details.path, 240)}", style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold), color = DesignTokens.BrandCyan)
         if (proposal != null) {
-            Text("Transaction · ${proposal.state.name.replace('_', ' ')}", style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold), color = when (proposal.state) {
-                FileReviewState.ACCEPTED, FileReviewState.ROLLED_BACK -> DesignTokens.Success
-                FileReviewState.CONFLICT, FileReviewState.FAILED, FileReviewState.RECOVERY_REQUIRED -> DesignTokens.Error
-                else -> DesignTokens.Warning
-            })
+            Text(
+                "Transaction · ${proposal.state.name.replace('_', ' ')}",
+                style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = when (proposal.state) {
+                    FileReviewState.ACCEPTED, FileReviewState.ROLLED_BACK -> DesignTokens.Success
+                    FileReviewState.CONFLICT, FileReviewState.FAILED, FileReviewState.RECOVERY_REQUIRED -> DesignTokens.Error
+                    else -> DesignTokens.Warning
+                },
+            )
             when {
-                preview?.originalText != null && preview.proposedText != null -> SideBySideFileDiff(safeActivityPreview(preview.originalText, 30_000), safeActivityPreview(preview.proposedText, 30_000))
+                preview?.originalText != null && preview.proposedText != null -> SideBySideFileDiff(
+                    safeActivityPreview(preview.originalText, 30_000),
+                    safeActivityPreview(preview.proposedText, 30_000),
+                )
+
                 preview?.proposedText != null -> ActivityCodePreview("Proposed content", preview.proposedText)
 
                 preview?.originalText != null -> ActivityCodePreview("Original content", preview.originalText)
@@ -71,29 +79,58 @@ internal fun FileChangeReviewCard(
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (proposal.state == FileReviewState.PROPOSED || proposal.state == FileReviewState.CONFLICT) {
-                    OutlinedButton(onClick = { onAccept(proposal.id) }, enabled = proposal.state == FileReviewState.PROPOSED) { Text("Accept") }
+                    OutlinedButton(
+                        onClick = { onAccept(proposal.id) },
+                        enabled = proposal.state == FileReviewState.PROPOSED,
+                    ) {
+                        Text("Accept")
+                    }
                     OutlinedButton(onClick = { onReject(proposal.id) }) {
                         Text("Reject")
                     }
                 }
-                if (proposal.state == FileReviewState.ACCEPTED && proposal.rollbackAvailable) OutlinedButton(onClick = { onRollback(proposal.id) }) { Text("Rollback") }
+                if (proposal.state == FileReviewState.ACCEPTED && proposal.rollbackAvailable) {
+                    OutlinedButton(onClick = { onRollback(proposal.id) }) {
+                        Text("Rollback")
+                    }
+                }
             }
-        } else when {
-            details.oldContent != null && details.newContent != null -> SideBySideFileDiff(
-                before = safeActivityPreview(details.oldContent, 30_000),
-                after = safeActivityPreview(details.newContent, 30_000),
+        } else if (details.proposalId != null) {
+            Text(
+                "Proposal record unavailable. This managed change has no session-only review controls.",
+                style = KaiTypography.labelSmall,
+                color = DesignTokens.Warning,
             )
+        } else {
+            when {
+                details.oldContent != null && details.newContent != null -> SideBySideFileDiff(
+                    before = safeActivityPreview(details.oldContent, 30_000),
+                    after = safeActivityPreview(details.newContent, 30_000),
+                )
 
-            !details.diff.isNullOrBlank() -> ActivityCodePreview("Patch supplied by tool", details.diff)
+                !details.diff.isNullOrBlank() -> ActivityCodePreview("Patch supplied by tool", details.diff)
 
-            !details.newContent.isNullOrBlank() -> ActivityCodePreview("New content · original snapshot unavailable", details.newContent, DesignTokens.Success)
+                !details.newContent.isNullOrBlank() -> ActivityCodePreview(
+                    "New content · original snapshot unavailable",
+                    details.newContent,
+                    DesignTokens.Success,
+                )
 
-            !details.oldContent.isNullOrBlank() -> ActivityCodePreview("Original content · updated snapshot unavailable", details.oldContent, DesignTokens.Error)
+                !details.oldContent.isNullOrBlank() -> ActivityCodePreview(
+                    "Original content · updated snapshot unavailable",
+                    details.oldContent,
+                    DesignTokens.Error,
+                )
 
-            else -> Text("The tool did not provide before/after content. A source diff cannot be computed from this activity.", style = KaiTypography.labelSmall, color = DesignTokens.TertiaryText)
+                else -> Text(
+                    "The tool did not provide before/after content. A source diff cannot be computed from this activity.",
+                    style = KaiTypography.labelSmall,
+                    color = DesignTokens.TertiaryText,
+                )
+            }
         }
         details.changeSummary?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview("Tool result", it) }
-        if (proposal == null && (status == ActivityStatus.COMPLETED || status == ActivityStatus.FAILED)) {
+        if (details.proposalId == null && (status == ActivityStatus.COMPLETED || status == ActivityStatus.FAILED)) {
             var reviewState by rememberSaveable(activityId) { mutableStateOf("unreviewed") }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = { reviewState = "reviewed" }) { Text(if (reviewState == "reviewed") "Reviewed ✓" else "Mark reviewed") }
