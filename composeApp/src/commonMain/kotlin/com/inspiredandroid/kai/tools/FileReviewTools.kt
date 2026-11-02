@@ -64,7 +64,9 @@ object FileReviewTools {
             "state" to action.proposal.state.name,
             "error" to action.reason,
         )
+
         is FileReviewActionResult.Failure -> failure(action.reason)
+
         FileReviewActionResult.NotFound -> failure("Proposal not found")
     }
 

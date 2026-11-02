@@ -794,5 +794,4 @@ class ChatViewModel(
             _state.update { it.copy(fileReviewActionMessage = message) }
         }
     }
-
 }

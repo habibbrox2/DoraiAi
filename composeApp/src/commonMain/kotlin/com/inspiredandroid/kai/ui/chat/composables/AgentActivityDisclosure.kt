@@ -38,11 +38,11 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.chat.ChatSpacing
-import com.inspiredandroid.kai.ui.chat.ChatActions
 import com.inspiredandroid.kai.filereview.FileReviewPreview
 import com.inspiredandroid.kai.filereview.FileReviewProposal
+import com.inspiredandroid.kai.ui.KaiTypography
+import com.inspiredandroid.kai.ui.chat.ChatActions
+import com.inspiredandroid.kai.ui.chat.ChatSpacing
 import com.inspiredandroid.kai.ui.chat.activities.ActivityDetails
 import com.inspiredandroid.kai.ui.chat.activities.ActivityStatus
 import com.inspiredandroid.kai.ui.chat.activities.AgentActivity
@@ -58,7 +58,13 @@ private val bearerToken = Regex("""(?i)(Bearer\s+)[A-Za-z0-9._~+/-]+=*""")
 
 /** A turn-scoped execution trace; collapsing it never cancels runtime work. */
 @Composable
-internal fun AgentActivityDisclosure(activities: List<AgentActivity>, modifier: Modifier = Modifier, fileReviewProposals: List<FileReviewProposal> = emptyList(), fileReviewPreviews: Map<String, FileReviewPreview> = emptyMap(), actions: ChatActions? = null) {
+internal fun AgentActivityDisclosure(
+    activities: List<AgentActivity>,
+    modifier: Modifier = Modifier,
+    fileReviewProposals: List<FileReviewProposal> = emptyList(),
+    fileReviewPreviews: Map<String, FileReviewPreview> = emptyMap(),
+    actions: ChatActions? = null,
+) {
     if (activities.isEmpty()) return
     val runId = activities.first().runId
     var expanded by remember(runId) {
@@ -117,7 +123,9 @@ internal fun AgentActivityDisclosure(activities: List<AgentActivity>, modifier: 
                 ) {
                     activities.forEach { activity ->
                         val fileOperation = activity.details as? ActivityDetails.FileOperation
-                        val proposal = fileOperation?.proposalId?.let { id -> fileReviewProposals.firstOrNull { it.id == id } }
+                        val proposal = fileOperation?.proposalId?.let { id ->
+                            fileReviewProposals.firstOrNull { it.id == id }
+                        }
                         val preview = fileOperation?.proposalId?.let(fileReviewPreviews::get)
                         AgentActivityRow(activity, proposal, preview, actions)
                     }
@@ -128,7 +136,12 @@ internal fun AgentActivityDisclosure(activities: List<AgentActivity>, modifier: 
 }
 
 @Composable
-private fun AgentActivityRow(activity: AgentActivity, proposal: FileReviewProposal?, preview: FileReviewPreview?, actions: ChatActions?) {
+private fun AgentActivityRow(
+    activity: AgentActivity,
+    proposal: FileReviewProposal?,
+    preview: FileReviewPreview?,
+    actions: ChatActions?,
+) {
     var detailsExpanded by remember(activity.id) {
         mutableStateOf(activity.status == ActivityStatus.RUNNING || activity.status == ActivityStatus.FAILED)
     }
@@ -184,7 +197,16 @@ private fun AgentActivityRow(activity: AgentActivity, proposal: FileReviewPropos
 
                         is ActivityDetails.FileOperation -> {
                             Text("${details.operation} · ${safeActivityPreview(details.path, 240)}", style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.Medium), color = DesignTokens.BrandCyan)
-                            FileChangeReviewCard(activityId = activity.id, details = details, status = activity.status, proposal = proposal, preview = preview, onAccept = actions?.acceptFileChange ?: {}, onReject = actions?.rejectFileChange ?: {}, onRollback = actions?.rollbackFileChange ?: {})
+                            FileChangeReviewCard(
+                                activityId = activity.id,
+                                details = details,
+                                status = activity.status,
+                                proposal = proposal,
+                                preview = preview,
+                                onAccept = actions?.acceptFileChange ?: {},
+                                onReject = actions?.rejectFileChange ?: {},
+                                onRollback = actions?.rollbackFileChange ?: {},
+                            )
                         }
 
                         is ActivityDetails.Generic -> details.content?.let { ActivityCodePreview("Details", it) }

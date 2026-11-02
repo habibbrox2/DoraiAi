@@ -5,9 +5,9 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Assume.assumeTrue
 import java.io.File
+import java.io.IOException
 import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
-import java.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -203,14 +203,6 @@ class FileReviewEngineTest {
             f.privateDir.deleteRecursively()
         }
     }
-}
-
-private object HostFileSystem {
-    val canCreateSymlinks: Boolean = runCatching {
-        val dir = Files.createTempDirectory("symlink-probe")
-        Files.createSymbolicLink(dir.resolve("link"), dir.resolve("target"))
-        dir.toFile().deleteRecursively()
-    }.isSuccess
     @Test
     fun failureAfterAtomicReplaceRestoresOriginalBytes() = runTest {
         var failAfterFirstReplace = true
@@ -252,7 +244,11 @@ private object HostFileSystem {
 
             val restarted = FileReviewEngine(f.privateDir, object : FileReviewFileSystem {
                 override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? =
-                    if (workspace == FileReviewWorkspace.PROJECT && guestPath == "main.kt") target else null
+                    if (workspace == FileReviewWorkspace.PROJECT && guestPath == "main.kt") {
+                        target
+                    } else {
+                        null
+                    }
             })
             restarted.initialize()
 
@@ -301,5 +297,12 @@ private object HostFileSystem {
             f.privateDir.deleteRecursively()
         }
     }
+}
 
+private object HostFileSystem {
+    val canCreateSymlinks: Boolean = runCatching {
+        val dir = Files.createTempDirectory("symlink-probe")
+        Files.createSymbolicLink(dir.resolve("link"), dir.resolve("target"))
+        dir.toFile().deleteRecursively()
+    }.isSuccess
 }
