@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -78,7 +79,7 @@ fun SettingsNavRail(
     Box(
         modifier = modifier
             .fillMaxHeight()
-            .width(116.dp)
+            .width(196.dp)
             .padding(12.dp)
             .clip(SettingsShapes.panel)
             .background(railBg)
@@ -88,11 +89,22 @@ fun SettingsNavRail(
             modifier = Modifier
                 .fillMaxHeight()
                 .verticalScroll(rememberScrollState())
-                .padding(vertical = 14.dp, horizontal = 10.dp),
+                .padding(vertical = 16.dp, horizontal = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            tabs.forEach { tab ->
+            tabs.forEachIndexed { index, tab ->
+                val group = settingsTabGroup(tab)
+                val previousGroup = tabs.getOrNull(index - 1)?.let(::settingsTabGroup)
+                if (group != previousGroup) {
+                    Text(
+                        text = group.uppercase(),
+                        style = KaiTypography.labelSmall,
+                        color = DesignTokens.TertiaryText,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.fillMaxWidth().padding(start = 10.dp, top = 10.dp, bottom = 4.dp),
+                    )
+                }
                 val isSelected = currentTab == tab
                 val icon = when (tab) {
                     SettingsTab.General -> Icons.Outlined.Settings
@@ -135,8 +147,8 @@ fun SettingsNavRail(
 
                 Box(
                     modifier = Modifier
-                        .width(88.dp)
-                        .height(74.dp)
+                        .fillMaxWidth()
+                        .height(48.dp)
                         .clip(SettingsShapes.row)
                         .background(bgColor)
                         .border(
@@ -155,36 +167,31 @@ fun SettingsNavRail(
                         },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(
                             imageVector = icon,
                             contentDescription = null,
                             tint = textColor,
-                            modifier = Modifier.size(21.dp),
+                            modifier = Modifier.size(20.dp),
                         )
-                        Spacer(Modifier.height(6.dp))
+                        Spacer(Modifier.width(12.dp))
                         Text(
                             text = label,
-                            style = KaiTypography.labelSmall,
+                            style = KaiTypography.labelLarge,
                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                             color = textColor,
-                            textAlign = TextAlign.Center,
-                            maxLines = 2,
+                            maxLines = 1,
                         )
+                        Spacer(Modifier.weight(1f))
                         if (isSelected) {
-                            Spacer(Modifier.height(4.dp))
                             Box(
                                 modifier = Modifier
-                                    .size(4.dp)
+                                    .size(6.dp)
                                     .clip(CircleShape)
-                                    .background(
-                                        Brush.radialGradient(
-                                            colors = listOf(DesignTokens.PrimaryCyan, DesignTokens.PrimaryCyan.copy(alpha = 0.4f)),
-                                        ),
-                                    ),
+                                    .background(DesignTokens.PrimaryCyan),
                             )
                         }
                     }
@@ -192,4 +199,13 @@ fun SettingsNavRail(
             }
         }
     }
+}
+
+
+private fun settingsTabGroup(tab: SettingsTab): String = when (tab) {
+    SettingsTab.General, SettingsTab.Appearance, SettingsTab.Agent -> "Assistant"
+    SettingsTab.Services -> "Models & services"
+    SettingsTab.Tools, SettingsTab.Integrations -> "Connections"
+    SettingsTab.Sandbox -> "Workspace"
+    SettingsTab.Data, SettingsTab.Account -> "Account"
 }
