@@ -33,6 +33,7 @@ import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.DesignTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.ic_flag
 import org.jetbrains.compose.resources.painterResource
@@ -61,11 +62,11 @@ fun ToolConfirmationCard(
             .clip(RoundedCornerShape(DesignTokens.RadiusCard))
             .shadow(
                 elevation = 4.dp,
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(DesignTokens.RadiusCard),
                 ambientColor = DesignTokens.Warning.copy(alpha = 0.18f),
-                spotColor = Color(0xFFF59E0B).copy(alpha = 0.3f),
+                spotColor = DesignTokens.Warning.copy(alpha = 0.3f),
             )
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .background(DesignTokens.SurfaceElevated)
             .border(
                 BorderStroke(1.dp, DesignTokens.Warning.copy(alpha = 0.45f)),
                 RoundedCornerShape(12.dp),
@@ -94,7 +95,7 @@ fun ToolConfirmationCard(
                     Text(
                         text = targetInfo,
                         style = KaiTypography.labelSmall,
-                        color = TextSecondary,
+                        color = DesignTokens.SecondaryText,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         fontFamily = FontFamily.Monospace,
