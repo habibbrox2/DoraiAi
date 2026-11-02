@@ -8,6 +8,7 @@ import com.inspiredandroid.kai.currentPlatform
 import com.inspiredandroid.kai.data.AppLanguage
 import com.inspiredandroid.kai.data.DataRepository
 import com.inspiredandroid.kai.data.ImportSection
+import com.inspiredandroid.kai.data.KeylessFreeTierFallback
 import com.inspiredandroid.kai.data.Service
 import com.inspiredandroid.kai.data.TaskScheduler
 import com.inspiredandroid.kai.data.ThemeMode
@@ -342,6 +343,7 @@ class SettingsViewModel(
         // Hide on-device services on platforms that don't support them
         return Service.all
             .filter { it != Service.Free }
+            .filterNot { KeylessFreeTierFallback.isInternalService(it) }
             .filter { !it.isOnDevice || dataRepository.isLocalInferenceAvailable() }
             .sortedWith(
                 compareBy<Service> {

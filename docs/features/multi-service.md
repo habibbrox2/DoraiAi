@@ -1,6 +1,6 @@
 # Multi-Service
 
-**Last verified:** 2026-10-21
+**Last verified:** 2026-11-02
 
 Kai supports 32 LLM providers (plus a built-in Free tier). Each provider uses one of three API formats: **OpenAI-compatible** (most services), **Gemini native**, or **Anthropic native** -- plus **LiteRT on-device** for local inference. A handful of OpenAI models additionally require OpenAI's **Responses API**; Kai switches to it per model, transparently. Users can configure multiple service instances, reorder them, and Kai automatically falls back through the chain on failure.
 
@@ -25,33 +25,28 @@ A configured connection to a service. Users can add multiple instances of the sa
 
 ### Free Tier
 
-A built-in service that requires no API key. Free is never shown in the service picker — it is used as:
+A built-in service that requires no API key. Its `Auto` model alias is shown in the service picker; its provider targets remain internal. Auto is used as:
 
 - The sole service when no other services are configured
-- A last-resort fallback when "Use as fallback" is enabled (default)
+- An automatic last-resort fallback when configured providers fail
 
-When Free is the only path and the user hits Free FAST/EXPERT rate or quota limits, chat shows a free-provider signup panel (Groq, Cerebras, Gemini, OpenRouter, Ollama Cloud) so they can open an API-key page and continue with a personal free tier. See [chat.md](chat.md).
+Auto tries Kilo Gateway's `kilo-auto/free` router first, then OpenCode Zen's free models in order. Neither provider is offered in **Settings → Services**, and neither is shown as a distinct provider in chat or fallback status. Requests use no API key, and the user-facing model remains `Auto` regardless of which target answers.
 
-### Default providers on a bare install
+When Auto and all configured fallbacks fail because free capacity is exhausted, chat shows a free-provider signup panel (Groq, Cerebras, Gemini, OpenRouter, Ollama Cloud) so users can open an API-key page and continue with a personal free tier. See [chat.md](chat.md).
 
-A fresh install is not empty. The app seeds two providers that need no API key, so chatting works before the user configures anything:
+### Default fallback on a bare install
 
-1. **Kilo Gateway** — its free models are served without a key, and the `kilo-auto/free` router rotates through them.
-2. **OpenCode** — OpenCode Zen's free "stealth" models (`big-pickle` and friends) are served without a key.
-
-Both start with their free model pre-selected, and the built-in Free tier stays the last-resort fallback behind them.
-
-The seeding runs once per install. An install that already has services keeps exactly what it has, and a default provider the user deletes stays deleted — it can be added back from **Settings → Services → Add Service** like any other provider.
+A fresh install has no configured provider instances. Chat uses the built-in `Auto` model alias and tries the hidden keyless Kilo and OpenCode Zen free targets. The provider targets are not user-configurable service entries.
 
 ## Fallback Chain
 
 1. Configured instances are tried in the order the user arranged them
 2. Only instances with valid API keys are considered
-3. If no instances are configured, the Free tier is used as the only service
-4. If instances exist and "Use as fallback" is enabled (default), the Free tier is appended as the last resort
+3. If no usable instances are configured, the Free tier's `Auto` alias is used as the only service
+4. If instances exist, the Free tier's `Auto` alias is always appended as the last resort
 5. Each individual API request retries up to 2 times with increasing delays before the service is considered failed. During a tool-use loop, each request inside the loop retries independently — a failure mid-loop never replays the loop (and its tool executions) from the start. On-device (Local Model) attempts are not retried, since their failures are deterministic rather than transient
-6. On failure, the next instance in the chain is tried; if all fail, the last error is shown
-7. If a fallback succeeds, the response indicates which service answered
+6. On failure, the next instance in the chain is tried; when the Free Auto entry is reached, Kilo's keyless free router is tried before OpenCode Zen's keyless free models. If every target fails, the last error is shown
+7. If a configured-provider fallback succeeds, the response indicates which service answered; keyless Auto targets are always presented as `Auto`
 8. While the chain is being walked, the thinking indicator shows per-attempt status — the name of the service currently being tried, or the reason the previous one failed before moving on — so silent fallbacks are visible to the user
 9. Entries whose context window can't fit the current chat history are skipped during the walk
 10. On-device (Local Model) failures are not silently absorbed — they short-circuit the fallback chain so the user sees the actual error rather than being quietly bumped to a cloud service
@@ -116,8 +111,8 @@ The id is Kai's own random conversation identifier; nothing about the user or th
 | AIHubMix | `aihubmix` | Yes | OpenAI-compatible |
 | Deep Infra | `deepinfra` | Yes | OpenAI-compatible |
 | Fireworks AI | `fireworksai` | Yes | OpenAI-compatible |
-| OpenCode | `opencode` | Yes | OpenAI-compatible (every request carries an `x-opencode-session` header — see [Session Header](#session-header-opencode)) |
-| Kilo Gateway | `kilo` | No (optional — free models work without a key) | OpenAI-compatible (`https://api.kilo.ai/api/gateway`; one key for every provider, model ids are `vendor/model`, and the free tier — including the `kilo-auto/free` router — needs no key at all) |
+| OpenCode | `opencode` | No key for hidden free models | OpenAI-compatible (every request carries an `x-opencode-session` header — see [Session Header](#session-header-opencode)); internal only |
+| Kilo Gateway | `kilo` | Internal only | OpenAI-compatible; Auto uses the keyless `kilo-auto/free` router |
 | Public AI | `publicai` | Yes | OpenAI-compatible |
 | AI Horde | `aihorde` | Yes (anonymous key `0000000000` allowed at lowest priority) | OpenAI-compatible (via [oai.aihorde.net](https://oai.aihorde.net/); model list is the set of text models with online volunteer workers — availability and latency vary) |
 | 1min.AI | `1minai` | Yes | OpenAI-compatible (via 1min.AI's `/openai/v1` adapter; text-only, so image attachments are not sent; requests are capped at 200 messages and 100,000 characters including tool definitions) |
@@ -166,7 +161,7 @@ Free-tier membership is a separate curated list (not derived from live pricing A
 
 ## Chat Screen Service Toggle
 
-The chat screen service toggle lists two distinct Free entries — **Free FAST** and **Free EXPERT** — followed by every configured non-Free service (including on-device and models that do not support tools). When this list contains more than one entry, a circular service icon button appears to the right of the chat input, next to the send/stop button. Because the two Free modes alone already count as two entries, the toggle can appear even when no non-Free services are configured. The icon represents the current primary service (each service has its own simplified vector icon). Tapping it opens a dropdown listing those services with their icons, names, and model IDs; the current primary is highlighted with a primary container background. The dropdown is height-capped to the screen and becomes scrollable when the list is long enough to overflow, so every entry stays reachable.
+The chat screen service toggle lists the **Auto** Free alias followed by configured providers (including on-device and models that do not support tools). When this list contains more than one entry, a circular service icon button appears to the right of the chat input, next to the send/stop button. The icon represents the current primary service (each service has its own simplified vector icon). Tapping it opens a dropdown listing those services with their icons, names, and model IDs; the current primary is highlighted with a primary container background. The dropdown is height-capped to the screen and becomes scrollable when the list is long enough to overflow, so every entry stays reachable.
 
 ### The model is shown and switchable from the chat
 
@@ -179,7 +174,7 @@ Picking a model stores it for that service instance, so it applies to the next m
 
 In **Interactive UI mode**, the same control is filtered to services whose selected model supports tool use (agentic flows), and on-device services are excluded so the user cannot switch to a model that cannot produce kai-ui.
 
-Selecting a non-Free entry reorders the configured list so the chosen service becomes first (primary). Selecting a Free entry (FAST or EXPERT) instead flips an "is Free primary" flag and records the chosen Free mode — Free can be promoted to primary independently of the configured fallback order, without rearranging the non-Free chain. The fallback chain picks up the new state automatically. The fallback walker also skips any entry whose context window can't fit the current chat history, so very long conversations may transparently move past services that would otherwise be eligible.
+Selecting a non-Free entry reorders the configured list so the chosen service becomes first (primary). Selecting Auto instead flips an "is Free primary" flag — Auto can be promoted to primary independently of the configured fallback order, without rearranging the configured provider chain. The fallback walker also skips any entry whose context window can't fit the current chat history, so very long conversations may transparently move past services that would otherwise be eligible.
 
 ## Attachments
 
@@ -192,7 +187,6 @@ Users manage services through the settings screen:
 - **Remove** — delete an instance and its stored credentials; deletion is deferred with a snackbar "Undo" option (~4 seconds) before the service is permanently removed
 - **Reorder** — drag to change priority (first = primary, rest = fallbacks)
 - **Configure** — per-instance API key, model selection, base URL (OpenAI-Compatible only; optional custom model id via checkbox)
-- **Free fallback toggle** — controls whether Free is appended as last resort
 - **Sponsors** — the Free tier card lists all GitHub sponsors in a single grid, with active sponsors first followed by past sponsors
 
 ## Key Files
@@ -200,6 +194,7 @@ Users manage services through the settings screen:
 | File | Purpose |
 |---|---|
 | `composeApp/src/commonMain/.../data/Service.kt` | Service definitions, all provider metadata |
+| `composeApp/src/commonMain/.../data/KeylessFreeTierFallback.kt` | Hidden Kilo/OpenCode free targets and the `Auto` model alias |
 | `composeApp/src/commonMain/.../data/ModelCatalog.kt` | Curated context window / release date / Arena Elo for well-known models |
 | `docs/knowledge/model-catalog/` | OKF bundle: Arena Elo matching policy, attested snapshot, refresh playbook |
 | `composeApp/src/commonMain/.../data/FreeTierModels.kt` | Runtime free-tier model ids per service (Ollama Cloud, OpenRouter) |
@@ -207,7 +202,7 @@ Users manage services through the settings screen:
 | `composeApp/src/commonMain/.../data/FreeProviderSuggestions.kt` | Providers recommended in chat when Free is rate-limited with no services configured |
 | `composeApp/src/commonMain/.../data/ModelTransformations.kt` | Maps provider model DTOs to `SettingsModel`, merges with catalog and free-tier flags |
 | `composeApp/src/commonMain/.../data/AppSettings.kt` | Service instance storage, credential persistence, migration |
-| `composeApp/src/commonMain/.../data/AppSettingsService.kt` | Per-instance settings plus `seedDefaultServicesIfNeeded()` — the one-time seeding of the keyless default providers |
+| `composeApp/src/commonMain/.../data/AppSettingsService.kt` | Per-instance settings and service configuration |
 | `composeApp/src/commonMain/.../data/RemoteDataRepository.kt` | Fallback chain, request orchestration |
 | `composeApp/src/commonMain/.../network/Requests.kt` | HTTP clients for all API formats |
 | `composeApp/src/commonMain/.../data/ModelCapabilities.kt` | Per-model gates: tool support, image support, Responses API routing |

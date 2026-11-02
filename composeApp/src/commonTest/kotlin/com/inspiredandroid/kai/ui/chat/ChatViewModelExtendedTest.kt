@@ -1,6 +1,7 @@
 package com.inspiredandroid.kai.ui.chat
 
 import app.cash.turbine.test
+import com.inspiredandroid.kai.data.KeylessFreeTierFallback
 import com.inspiredandroid.kai.data.Service
 import com.inspiredandroid.kai.data.ServiceEntry
 import com.inspiredandroid.kai.data.TaskScheduler
@@ -86,6 +87,21 @@ class ChatViewModelExtendedTest {
     }
 
     // ---- selectService ----
+
+    @Test
+    fun `free tier is presented as the Auto model alias`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.state.test {
+            val state = awaitItem()
+            val autoEntry = state.availableServices.first()
+            assertEquals("free-auto", autoEntry.instanceId)
+            assertEquals(Service.Free.id, autoEntry.serviceId)
+            assertEquals(KeylessFreeTierFallback.DISPLAY_NAME, autoEntry.serviceName)
+            assertEquals(KeylessFreeTierFallback.AUTO_MODEL_ID, autoEntry.modelId)
+            assertEquals(1, state.availableServices.count { it.serviceId == Service.Free.id })
+        }
+    }
 
     @Test
     fun `selectService reorders configured services so the selected instance is first`() = runTest {

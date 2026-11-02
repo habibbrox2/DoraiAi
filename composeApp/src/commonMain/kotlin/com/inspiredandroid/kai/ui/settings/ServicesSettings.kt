@@ -696,7 +696,7 @@ internal fun ServicesContent(uiState: SettingsUiState, actions: SettingsActions)
 
         Spacer(Modifier.height(16.dp))
         FreeSettings(
-            showFallbackToggle = entries.isNotEmpty(),
+            showFallbackToggle = false,
             isFreeFallbackEnabled = uiState.isFreeFallbackEnabled,
             onToggleFreeFallback = actions.onToggleFreeFallback,
             currentSponsors = uiState.currentSponsors,

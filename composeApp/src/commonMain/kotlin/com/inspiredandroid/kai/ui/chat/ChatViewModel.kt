@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.inspiredandroid.kai.data.Conversation
 import com.inspiredandroid.kai.data.DataRepository
-import com.inspiredandroid.kai.data.FreeMode
+import com.inspiredandroid.kai.data.KeylessFreeTierFallback
 import com.inspiredandroid.kai.data.Service
 import com.inspiredandroid.kai.data.ServiceEntry
 import com.inspiredandroid.kai.data.TaskScheduler
@@ -97,7 +97,6 @@ class ChatViewModel(
         rejectFileChange = ::rejectFileChange,
         rollbackFileChange = ::rollbackFileChange,
     )
-    private val freeModeNames: Map<FreeMode, String> = FreeMode.entries.associateWith { "Free ${it.modelId.replaceFirstChar { c -> c.uppercase() }}" }
     private var currentJob: Job? = null
     private var pendingConversationDeleteJob: Job? = null
 
@@ -464,9 +463,7 @@ class ChatViewModel(
     }
 
     private fun selectService(instanceId: String) {
-        val freeMode = FREE_MODE_INSTANCE_IDS[instanceId]
-        if (freeMode != null) {
-            dataRepository.setFreeMode(freeMode)
+        if (instanceId == FREE_AUTO_INSTANCE_ID) {
             dataRepository.setFreeServicePrimary(true)
             updateAvailableServices()
             return
@@ -485,23 +482,22 @@ class ChatViewModel(
 
     private fun updateAvailableServices() {
         val configuredEntries = dataRepository.getServiceEntries()
-        val currentFreeMode = dataRepository.getFreeMode()
         val freeIsPrimary = dataRepository.isFreeServicePrimary() || configuredEntries.isEmpty()
 
-        val freeModes = (listOf(currentFreeMode) + FreeMode.entries.filter { it != currentFreeMode }).map { mode ->
+        val freeFallback = listOf(
             ServiceEntry(
-                instanceId = mode.instanceId,
+                instanceId = FREE_AUTO_INSTANCE_ID,
                 serviceId = Service.Free.id,
-                serviceName = freeModeNames.getValue(mode),
-                modelId = "",
-                icon = mode.icon,
-            )
-        }
+                serviceName = KeylessFreeTierFallback.DISPLAY_NAME,
+                modelId = KeylessFreeTierFallback.AUTO_MODEL_ID,
+                icon = Service.Free.icon,
+            ),
+        )
 
         val entries = if (freeIsPrimary) {
-            freeModes + configuredEntries
+            freeFallback + configuredEntries
         } else {
-            configuredEntries + freeModes
+            configuredEntries + freeFallback
         }.toImmutableList()
 
         val primaryService = entries.firstOrNull()?.let { Service.fromId(it.serviceId) }
@@ -583,7 +579,7 @@ class ChatViewModel(
     }
 
     companion object {
-        private val FREE_MODE_INSTANCE_IDS = FreeMode.entries.associateBy { it.instanceId }
+        private const val FREE_AUTO_INSTANCE_ID = "free-auto"
     }
 
     private fun regenerate() {

@@ -144,7 +144,7 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun `availableServicesToAdd contains all non-Free services`() = runTest {
+    fun `availableServicesToAdd hides internal keyless fallback providers`() = runTest {
         fakeRepository.setConfiguredServices(Service.Gemini)
 
         val viewModel = SettingsViewModel(fakeRepository, fakeDaemonController, fakeNotificationPermissionController, noOpScheduler, testDispatcher)
@@ -157,6 +157,8 @@ class SettingsViewModelTest {
             assertTrue(state.availableServicesToAdd.contains(Service.Gemini))
             assertTrue(state.availableServicesToAdd.contains(Service.OpenAI))
             assertTrue(state.availableServicesToAdd.contains(Service.DeepSeek))
+            assertFalse(state.availableServicesToAdd.contains(Service.Kilo))
+            assertFalse(state.availableServicesToAdd.contains(Service.OpenCode))
         }
     }
 
