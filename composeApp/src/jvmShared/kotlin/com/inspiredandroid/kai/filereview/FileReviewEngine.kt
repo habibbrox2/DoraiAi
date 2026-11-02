@@ -163,7 +163,7 @@ class FileReviewEngine(
             createdAtMs = now,
             updatedAtMs = now,
         )
-        try {
+        return try {
             original?.let { writeAtomic(originalFile(id), it, replaceExisting = false) }
             proposed?.let { writeAtomic(proposedFile(id), it, replaceExisting = false) }
             _proposals.value = _proposals.value + proposal

@@ -137,8 +137,9 @@ class FileReviewEngineTest {
         val failingMover = AtomicFileMover { source, target, replace ->
             if (target.name == "main.kt") {
                 throw AtomicMoveNotSupportedException(source.path, target.path, "test failure")
+            } else {
+                NioAtomicFileMover.move(source, target, replace)
             }
-            else NioAtomicFileMover.move(source, target, replace)
         }
         val f = fixture(failingMover)
         try {

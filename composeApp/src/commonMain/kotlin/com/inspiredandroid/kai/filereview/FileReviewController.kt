@@ -79,15 +79,10 @@ interface FileReviewController {
 class NoOpFileReviewController : FileReviewController {
     override val proposals: StateFlow<List<FileReviewProposal>> = MutableStateFlow(emptyList())
     override suspend fun initialize() {}
-    override suspend fun proposeTextChange(workspace: FileReviewWorkspace, path: String, content: String) =
-        FileReviewActionResult.Failure("File Review is unavailable on this platform")
-    override suspend fun proposeDelete(workspace: FileReviewWorkspace, path: String) =
-        FileReviewActionResult.Failure("File Review is unavailable on this platform")
+    override suspend fun proposeTextChange(workspace: FileReviewWorkspace, path: String, content: String) = FileReviewActionResult.Failure("File Review is unavailable on this platform")
+    override suspend fun proposeDelete(workspace: FileReviewWorkspace, path: String) = FileReviewActionResult.Failure("File Review is unavailable on this platform")
     override suspend fun preview(proposalId: String): FileReviewPreview? = null
-    override suspend fun accept(proposalId: String) =
-        FileReviewActionResult.Failure("File Review is unavailable on this platform")
-    override suspend fun reject(proposalId: String) =
-        FileReviewActionResult.Failure("File Review is unavailable on this platform")
-    override suspend fun rollback(proposalId: String) =
-        FileReviewActionResult.Failure("File Review is unavailable on this platform")
+    override suspend fun accept(proposalId: String) = FileReviewActionResult.Failure("File Review is unavailable on this platform")
+    override suspend fun reject(proposalId: String) = FileReviewActionResult.Failure("File Review is unavailable on this platform")
+    override suspend fun rollback(proposalId: String) = FileReviewActionResult.Failure("File Review is unavailable on this platform")
 }
