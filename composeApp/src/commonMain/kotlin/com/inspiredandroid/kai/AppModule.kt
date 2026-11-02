@@ -17,7 +17,6 @@ import com.inspiredandroid.kai.data.createConversationPersistence
 import com.inspiredandroid.kai.data.runMigrations
 import com.inspiredandroid.kai.email.EmailPoller
 import com.inspiredandroid.kai.filereview.FileReviewController
-import com.inspiredandroid.kai.filereview.NoOpFileReviewController
 import com.inspiredandroid.kai.inference.createLocalInferenceEngine
 import com.inspiredandroid.kai.mcp.McpServerManager
 import com.inspiredandroid.kai.network.Requests
@@ -51,7 +50,7 @@ val KAI_BUILD_FILES = named("kaiBuildFiles")
 fun permissionQualifier(permission: AppPermission) = named(permission.name)
 
 val appModule = module {
-    single<FileReviewController> { NoOpFileReviewController() }
+    single<FileReviewController> { createFileReviewController() }
     AppPermission.entries.forEach { permission ->
         single(permissionQualifier(permission)) { PermissionController(permission) }
     }

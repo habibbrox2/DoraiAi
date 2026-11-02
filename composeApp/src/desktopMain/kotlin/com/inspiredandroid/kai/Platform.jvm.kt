@@ -17,6 +17,9 @@ import com.inspiredandroid.kai.data.EncryptedFileSettings
 import com.inspiredandroid.kai.data.MemoryStore
 import com.inspiredandroid.kai.data.TaskStore
 import com.inspiredandroid.kai.mcp.McpServerManager
+import com.inspiredandroid.kai.filereview.FileReviewController
+import com.inspiredandroid.kai.filereview.FileReviewEngine
+import com.inspiredandroid.kai.filereview.NoOpFileReviewController
 import com.inspiredandroid.kai.network.tools.Tool
 import com.inspiredandroid.kai.network.tools.ToolInfo
 import com.inspiredandroid.kai.tools.CommonTools
@@ -137,6 +140,16 @@ actual fun getAppFilesDirectory(): String {
     return kaiDir.absolutePath
 }
 
+actual fun createFileReviewController(): FileReviewController {
+    val appRoot = File(getAppFilesDirectory())
+    val projectRoot = File(appRoot, "projects")
+    if (!projectRoot.exists() && !projectRoot.mkdirs()) return NoOpFileReviewController()
+    return FileReviewEngine(
+        stagingRoot = File(appRoot, "file-review"),
+        fileSystem = DesktopProjectFileReviewFileSystem(projectRoot),
+    )
+}
+
 actual fun resolveHostAddresses(hostname: String): List<String> = try {
     java.net.InetAddress.getAllByName(hostname).map { it.hostAddress }
 } catch (_: Exception) {
@@ -155,6 +168,7 @@ actual fun getAvailableTools(): List<Tool> {
     val taskStore: TaskStore by inject(TaskStore::class.java)
     val emailStore: EmailStore by inject(EmailStore::class.java)
     val mcpServerManager: McpServerManager by inject(McpServerManager::class.java)
+    val fileReviewController: FileReviewController by inject(FileReviewController::class.java)
 
     return buildAgentToolSet(
         appSettings = appSettings,
@@ -162,6 +176,7 @@ actual fun getAvailableTools(): List<Tool> {
         taskStore = taskStore,
         mcpServerManager = mcpServerManager,
         emailStore = emailStore,
+        fileReviewController = fileReviewController,
     ) {
         // manage_process rides the shell switch — it only inspects processes that tool started.
         if (appSettings.isToolEnabled(ShellCommandTool.schema.name, defaultEnabled = false)) {

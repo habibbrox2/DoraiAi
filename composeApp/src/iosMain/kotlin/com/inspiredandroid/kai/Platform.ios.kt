@@ -9,6 +9,8 @@ import com.inspiredandroid.kai.data.AppSettings
 import com.inspiredandroid.kai.data.EmailStore
 import com.inspiredandroid.kai.data.MemoryStore
 import com.inspiredandroid.kai.data.TaskStore
+import com.inspiredandroid.kai.filereview.FileReviewController
+import com.inspiredandroid.kai.filereview.NoOpFileReviewController
 import com.inspiredandroid.kai.mcp.McpServerManager
 import com.inspiredandroid.kai.network.tools.Tool
 import com.inspiredandroid.kai.network.tools.ToolInfo
@@ -128,6 +130,8 @@ actual fun resolveHostAddresses(hostname: String): List<String> = emptyList()
 actual fun createSecureSettings(): Settings = KeychainSettings(service = "com.inspiredandroid.kai")
 
 actual fun createLegacySettings(): Settings? = NSUserDefaultsSettings(platform.Foundation.NSUserDefaults.standardUserDefaults)
+
+actual fun createFileReviewController(): FileReviewController = NoOpFileReviewController()
 
 actual fun getPlatformToolDefinitions(): List<ToolInfo> = CommonTools.commonToolDefinitions
 

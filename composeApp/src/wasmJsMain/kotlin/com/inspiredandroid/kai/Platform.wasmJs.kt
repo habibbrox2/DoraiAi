@@ -9,6 +9,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.inspiredandroid.kai.data.AppSettings
 import com.inspiredandroid.kai.data.MemoryStore
 import com.inspiredandroid.kai.data.TaskStore
+import com.inspiredandroid.kai.filereview.FileReviewController
+import com.inspiredandroid.kai.filereview.NoOpFileReviewController
 import com.inspiredandroid.kai.mcp.McpServerManager
 import com.inspiredandroid.kai.network.tools.Tool
 import com.inspiredandroid.kai.network.tools.ToolInfo
@@ -70,6 +72,8 @@ actual fun createSecureSettings(): Settings {
 }
 
 actual fun createLegacySettings(): Settings? = null // Same storage location, no migration needed
+
+actual fun createFileReviewController(): FileReviewController = NoOpFileReviewController()
 
 actual fun getPlatformToolDefinitions(): List<ToolInfo> = CommonTools.commonToolDefinitions
 

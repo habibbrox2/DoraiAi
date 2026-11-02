@@ -18,6 +18,10 @@ import com.inspiredandroid.kai.data.SmsDraftStore
 import com.inspiredandroid.kai.data.SmsStore
 import com.inspiredandroid.kai.data.TaskStore
 import com.inspiredandroid.kai.filereview.FileReviewController
+import com.inspiredandroid.kai.filereview.FileReviewEngine
+import com.inspiredandroid.kai.filereview.NoOpFileReviewController
+import com.inspiredandroid.kai.filereview.AndroidProjectFileReviewFileSystem
+import com.inspiredandroid.kai.linux.LinuxPaths
 import com.inspiredandroid.kai.mcp.McpServerManager
 import com.inspiredandroid.kai.network.tools.Tool
 import com.inspiredandroid.kai.network.tools.ToolInfo
@@ -164,6 +168,16 @@ actual suspend fun compressImageBytes(bytes: ByteArray, mimeType: String): ByteA
 actual fun getAppFilesDirectory(): String {
     val context: Context by inject(Context::class.java)
     return context.filesDir.absolutePath
+}
+
+actual fun createFileReviewController(): FileReviewController {
+    val context: Context by inject(Context::class.java)
+    val projectRoot = LinuxPaths.forSandbox(context).projectsDir
+    if (!projectRoot.exists() && !projectRoot.mkdirs()) return NoOpFileReviewController()
+    return FileReviewEngine(
+        stagingRoot = java.io.File(context.filesDir, "file-review"),
+        fileSystem = AndroidProjectFileReviewFileSystem(projectRoot),
+    )
 }
 
 // Uses dev.spght:encryptedprefs-ktx — a maintained community fork of the deprecated
