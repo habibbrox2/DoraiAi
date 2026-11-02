@@ -2,6 +2,7 @@
 
 package com.inspiredandroid.kai.screenshots
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -22,6 +23,7 @@ import com.inspiredandroid.kai.ui.dashboard.DashboardScreenContent
 import com.inspiredandroid.kai.ui.dashboard.DashboardUiState
 import com.inspiredandroid.kai.ui.dashboard.ReadinessFact
 import com.inspiredandroid.kai.ui.dashboard.ServiceReadiness
+import com.inspiredandroid.kai.ui.theme.DesignTokens
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
 import org.junit.Before
@@ -46,6 +48,21 @@ class PremiumScreenScreenshotTest {
         unsafeUpdateConfig(theme = "android:Theme.Material.NoActionBar")
         snapshot {
             Box(modifier = Modifier.fillMaxSize()) {
+                WithScreenshotTestKoin {
+                    CompositionLocalProvider(LocalInspectionMode provides true) {
+                        Theme(colorScheme = DarkColorScheme) {
+                            content()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun Paparazzi.snapTool(content: @Composable () -> Unit) {
+        unsafeUpdateConfig(theme = "android:Theme.Material.NoActionBar")
+        snapshot {
+            Box(modifier = Modifier.fillMaxSize().background(DesignTokens.Background)) {
                 WithScreenshotTestKoin {
                     CompositionLocalProvider(LocalInspectionMode provides true) {
                         Theme(colorScheme = DarkColorScheme) {
@@ -118,31 +135,33 @@ class PremiumScreenScreenshotTest {
 
     @Test
     fun toolExecution_running_dark() {
-        paparazzi.snap {
+        paparazzi.snapTool {
             ToolExecutionCard(
                 toolName = "web_search",
                 arguments = """{"query":"premium AI agent workspace"}""",
                 result = null,
                 isRunning = true,
+                initiallyExpanded = true,
             )
         }
     }
 
     @Test
     fun toolExecution_failed_dark() {
-        paparazzi.snap {
+        paparazzi.snapTool {
             ToolExecutionCard(
                 toolName = "execute_shell_command",
                 arguments = """{"command":"./gradlew test"}""",
                 result = "Process exited with code 1",
                 isError = true,
+                initiallyExpanded = true,
             )
         }
     }
 
     @Test
     fun toolConfirmation_pending_dark() {
-        paparazzi.snap {
+        paparazzi.snapTool {
             ToolConfirmationCard(
                 toolName = "execute_shell_command",
                 toolCallId = "screenshot-tool-call",
