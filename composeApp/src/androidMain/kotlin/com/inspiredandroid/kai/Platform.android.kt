@@ -17,10 +17,10 @@ import com.inspiredandroid.kai.data.NotificationStore
 import com.inspiredandroid.kai.data.SmsDraftStore
 import com.inspiredandroid.kai.data.SmsStore
 import com.inspiredandroid.kai.data.TaskStore
+import com.inspiredandroid.kai.filereview.AndroidProjectFileReviewFileSystem
 import com.inspiredandroid.kai.filereview.FileReviewController
 import com.inspiredandroid.kai.filereview.FileReviewEngine
 import com.inspiredandroid.kai.filereview.NoOpFileReviewController
-import com.inspiredandroid.kai.filereview.AndroidProjectFileReviewFileSystem
 import com.inspiredandroid.kai.linux.LinuxPaths
 import com.inspiredandroid.kai.mcp.McpServerManager
 import com.inspiredandroid.kai.network.tools.Tool
