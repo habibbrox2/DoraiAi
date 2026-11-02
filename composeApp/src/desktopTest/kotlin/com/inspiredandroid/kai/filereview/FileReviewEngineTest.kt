@@ -1,10 +1,13 @@
 package com.inspiredandroid.kai.filereview
 
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.Assume.assumeTrue
 import java.io.File
 import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
+import java.io.IOException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -208,4 +211,95 @@ private object HostFileSystem {
         Files.createSymbolicLink(dir.resolve("link"), dir.resolve("target"))
         dir.toFile().deleteRecursively()
     }.isSuccess
+    @Test
+    fun failureAfterAtomicReplaceRestoresOriginalBytes() = runTest {
+        var failAfterFirstReplace = true
+        val mover = AtomicFileMover { source, target, replace ->
+            if (target.name == "main.kt" && failAfterFirstReplace) {
+                failAfterFirstReplace = false
+                NioAtomicFileMover.move(source, target, replace)
+                throw IOException("simulated post-replace failure")
+            }
+            NioAtomicFileMover.move(source, target, replace)
+        }
+        val f = fixture(mover)
+        try {
+            val target = File(f.root, "main.kt").apply { writeText("before") }
+            val proposal = assertIs<FileReviewActionResult.Success>(
+                f.engine.proposeTextChange(FileReviewWorkspace.PROJECT, "main.kt", "after"),
+            ).proposal
+            assertIs<FileReviewActionResult.Failure>(f.engine.accept(proposal.id))
+            assertEquals("before", target.readText())
+            assertEquals(FileReviewState.FAILED, f.engine.proposals.value.single().state)
+        } finally {
+            f.root.deleteRecursively()
+            f.privateDir.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun startupRecoversApplyInterruptedAfterAtomicReplacement() = runTest {
+        val f = fixture()
+        try {
+            val target = File(f.root, "main.kt").apply { writeText("before") }
+            val proposal = assertIs<FileReviewActionResult.Success>(
+                f.engine.proposeTextChange(FileReviewWorkspace.PROJECT, "main.kt", "after"),
+            ).proposal
+            target.writeText("after")
+            File(f.privateDir, "journal.json").writeText(
+                Json.encodeToString(listOf(proposal.copy(state = FileReviewState.APPLYING))),
+            )
+
+            val restarted = FileReviewEngine(f.privateDir, object : FileReviewFileSystem {
+                override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? =
+                    if (workspace == FileReviewWorkspace.PROJECT && guestPath == "main.kt") target else null
+            })
+            restarted.initialize()
+
+            val recovered = restarted.proposals.value.single()
+            assertEquals(FileReviewState.ACCEPTED, recovered.state)
+            assertTrue(recovered.rollbackAvailable)
+            assertIs<FileReviewActionResult.Success>(restarted.rollback(proposal.id))
+            assertEquals("before", target.readText())
+        } finally {
+            f.root.deleteRecursively()
+            f.privateDir.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun startupRecoversRollbackInterruptedAfterOriginalWasRestored() = runTest {
+        val f = fixture()
+        try {
+            val target = File(f.root, "main.kt").apply { writeText("before") }
+            val proposal = assertIs<FileReviewActionResult.Success>(
+                f.engine.proposeTextChange(FileReviewWorkspace.PROJECT, "main.kt", "after"),
+            ).proposal
+            assertIs<FileReviewActionResult.Success>(f.engine.accept(proposal.id))
+            target.writeText("before")
+            File(f.privateDir, "journal.json").writeText(
+                Json.encodeToString(
+                    listOf(
+                        f.engine.proposals.value.single().copy(
+                            state = FileReviewState.ROLLING_BACK,
+                            rollbackAvailable = true,
+                        ),
+                    ),
+                ),
+            )
+
+            val restarted = FileReviewEngine(f.privateDir, object : FileReviewFileSystem {
+                override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? =
+                    if (workspace == FileReviewWorkspace.PROJECT && guestPath == "main.kt") target else null
+            })
+            restarted.initialize()
+
+            assertEquals(FileReviewState.ROLLED_BACK, restarted.proposals.value.single().state)
+            assertEquals("before", target.readText())
+        } finally {
+            f.root.deleteRecursively()
+            f.privateDir.deleteRecursively()
+        }
+    }
+
 }

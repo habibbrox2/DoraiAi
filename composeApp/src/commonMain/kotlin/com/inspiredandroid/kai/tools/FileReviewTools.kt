@@ -57,6 +57,7 @@ object FileReviewTools {
             "state" to action.proposal.state.name,
             "message" to "Proposal staged. The target file has not been changed. Ask the user to review it in the Agent Activity timeline.",
         )
+
         is FileReviewActionResult.Conflict -> mapOf(
             "success" to false,
             "proposal_id" to action.proposal.id,

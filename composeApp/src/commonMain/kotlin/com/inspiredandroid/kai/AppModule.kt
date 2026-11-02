@@ -16,9 +16,9 @@ import com.inspiredandroid.kai.data.ToolExecutor
 import com.inspiredandroid.kai.data.createConversationPersistence
 import com.inspiredandroid.kai.data.runMigrations
 import com.inspiredandroid.kai.email.EmailPoller
-import com.inspiredandroid.kai.inference.createLocalInferenceEngine
 import com.inspiredandroid.kai.filereview.FileReviewController
 import com.inspiredandroid.kai.filereview.NoOpFileReviewController
+import com.inspiredandroid.kai.inference.createLocalInferenceEngine
 import com.inspiredandroid.kai.mcp.McpServerManager
 import com.inspiredandroid.kai.network.Requests
 import com.inspiredandroid.kai.notifications.NotificationReader
