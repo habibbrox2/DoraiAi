@@ -8,8 +8,7 @@ const val FILE_REVIEW_MAX_BYTES: Long = 512_000L
 
 @Serializable
 enum class FileReviewWorkspace {
-    CHAT_SANDBOX,
-    KAI_BUILD,
+    PROJECT,
 }
 
 @Serializable
