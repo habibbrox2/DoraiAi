@@ -55,14 +55,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.inspiredandroid.kai.formatContextWindow
 import com.inspiredandroid.kai.formatReleaseDate
-import com.inspiredandroid.kai.ui.BorderSoft
-import com.inspiredandroid.kai.ui.CardFill
 import com.inspiredandroid.kai.ui.KaiOutlinedTextField
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.SurfaceRaised
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.KaiSearchField
 import com.inspiredandroid.kai.ui.components.VerticalScrollbarForGrid
 import com.inspiredandroid.kai.ui.theme.DesignTokens
@@ -108,7 +103,7 @@ internal fun ModelSelection(
                 label = {
                     Text(
                         stringResource(Res.string.settings_model_label),
-                        color = TextPrimary,
+                        color = DesignTokens.PrimaryText,
                     )
                 },
                 trailingIcon = {
@@ -116,7 +111,7 @@ internal fun ModelSelection(
                         modifier = Modifier.handCursor(),
                         imageVector = vectorResource(Res.drawable.ic_arrow_drop_down),
                         contentDescription = null,
-                        tint = TextPrimary,
+                        tint = DesignTokens.PrimaryText,
                     )
                 },
             )
@@ -226,7 +221,7 @@ internal fun ModelSelection(
                         Text(
                             text = stringResource(Res.string.model_free_empty),
                             style = KaiTypography.bodyMedium,
-                            color = TextSecondary,
+                            color = DesignTokens.SecondaryText,
                             modifier = Modifier.padding(24.dp),
                         )
                     } else {
@@ -266,7 +261,7 @@ internal fun ModelSelection(
             Text(
                 text = stringResource(Res.string.settings_model_label),
                 style = KaiTypography.labelLarge,
-                color = TextPrimary,
+                color = DesignTokens.PrimaryText,
             )
             if (isLoading) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -277,7 +272,7 @@ internal fun ModelSelection(
                 Text(
                     text = errorMessage ?: "No models have been loaded yet. Retry model discovery.",
                     style = KaiTypography.bodySmall,
-                    color = if (errorMessage != null) DesignTokens.Error else TextSecondary,
+                    color = if (errorMessage != null) DesignTokens.Error else DesignTokens.SecondaryText,
                 )
                 OutlinedButton(onClick = onRetry, enabled = canRetry) {
                     Text("Retry model discovery")
@@ -308,22 +303,22 @@ private fun ModelCard(model: SettingsModel, isSelected: Boolean, onClick: () -> 
         .joinToString("  ·  ").ifEmpty { null }
 
     val primaryColor = if (isSelected) {
-        TextPrimary
+        DesignTokens.PrimaryText
     } else {
-        TextSecondary
+        DesignTokens.SecondaryText
     }
     val secondaryColor = if (isSelected) {
-        TextPrimary.copy(alpha = 0.7f)
+        DesignTokens.PrimaryText.copy(alpha = 0.7f)
     } else {
-        TextSecondary
+        DesignTokens.SecondaryText
     }
     Box(
         modifier = Modifier
             .handCursor()
             .clip(KaiShapes.card)
             .clickable { onClick() }
-            .background(if (isSelected) SurfaceRaised else CardFill, KaiShapes.card)
-            .border(BorderStroke(1.dp, BorderSoft), KaiShapes.card),
+            .background(if (isSelected) DesignTokens.SurfaceRaised else DesignTokens.SurfaceElevated, KaiShapes.card)
+            .border(BorderStroke(1.dp, DesignTokens.BorderSubtle), KaiShapes.card),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -395,14 +390,14 @@ private fun arenaScoreColor(score: Int): Color = when {
 @Composable
 private fun FreeTierBadge(isSelected: Boolean) {
     val background = if (isSelected) {
-        TextPrimary
+        DesignTokens.PrimaryText
     } else {
         DesignTokens.Success
     }
     val content = if (isSelected) {
-        SurfaceRaised
+        DesignTokens.SurfaceRaised
     } else {
-        TextPrimary
+        DesignTokens.PrimaryText
     }
     Box(
         modifier = Modifier
