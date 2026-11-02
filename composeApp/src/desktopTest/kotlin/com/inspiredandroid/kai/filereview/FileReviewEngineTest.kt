@@ -1,7 +1,9 @@
 package com.inspiredandroid.kai.filereview
 
+import kotlinx.coroutines.test.runTest
 import org.junit.Assume.assumeTrue
 import java.io.File
+import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -36,7 +38,7 @@ class FileReviewEngineTest {
     private data class Fixture(val root: File, val privateDir: File, val engine: FileReviewEngine)
 
     @Test
-    fun proposeAcceptAndRollbackRestoresOriginalBytes() {
+    fun proposeAcceptAndRollbackRestoresOriginalBytes() = runTest {
         val f = fixture()
         try {
             val target = File(f.root, "main.kt").apply { writeText("before") }
@@ -57,7 +59,7 @@ class FileReviewEngineTest {
     }
 
     @Test
-    fun createAcceptAndRollbackRemovesCreatedFile() {
+    fun createAcceptAndRollbackRemovesCreatedFile() = runTest {
         val f = fixture()
         try {
             val proposed = assertIs<FileReviewActionResult.Success>(
@@ -75,7 +77,7 @@ class FileReviewEngineTest {
     }
 
     @Test
-    fun deleteAcceptAndRollbackRestoresFile() {
+    fun deleteAcceptAndRollbackRestoresFile() = runTest {
         val f = fixture()
         try {
             val target = File(f.root, "remove.txt").apply { writeText("keep me") }
@@ -94,7 +96,7 @@ class FileReviewEngineTest {
     }
 
     @Test
-    fun staleHashProducesConflictWithoutOverwritingExternalChange() {
+    fun staleHashProducesConflictWithoutOverwritingExternalChange() = runTest {
         val f = fixture()
         try {
             val target = File(f.root, "main.kt").apply { writeText("before") }
@@ -112,7 +114,7 @@ class FileReviewEngineTest {
     }
 
     @Test
-    fun symlinkAndTraversalAreRejectedByWorkspaceResolver() {
+    fun symlinkAndTraversalAreRejectedByWorkspaceResolver() = runTest {
         val f = fixture()
         try {
             assumeTrue("host filesystem cannot create symlinks", HostFileSystem.canCreateSymlinks)
@@ -133,7 +135,7 @@ class FileReviewEngineTest {
     }
 
     @Test
-    fun atomicMoveFailureLeavesOriginalUntouched() {
+    fun atomicMoveFailureLeavesOriginalUntouched() = runTest {
         val failingMover = AtomicFileMover { source, target, replace ->
             if (target.name == "main.kt") {
                 throw AtomicMoveNotSupportedException(source.path, target.path, "test failure")
@@ -157,7 +159,7 @@ class FileReviewEngineTest {
     }
 
     @Test
-    fun rollbackRefusesToOverwriteChangesMadeAfterAccept() {
+    fun rollbackRefusesToOverwriteChangesMadeAfterAccept() = runTest {
         val f = fixture()
         try {
             val target = File(f.root, "main.kt").apply { writeText("before") }
@@ -175,16 +177,18 @@ class FileReviewEngineTest {
     }
 
     @Test
-    fun pendingProposalSurvivesEngineRestart() {
+    fun pendingProposalSurvivesEngineRestart() = runTest {
         val f = fixture()
         try {
             val proposal = assertIs<FileReviewActionResult.Success>(
                 f.engine.proposeTextChange(FileReviewWorkspace.CHAT_SANDBOX, "/root/main.kt", "staged"),
             ).proposal
-            val restarted = FileReviewEngine(f.privateDir, object : FileReviewFileSystem {
-                override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? =
-                    File(f.root, guestPath.removePrefix("/root/"))
-            })
+            val restarted = FileReviewEngine(
+                f.privateDir,
+                object : FileReviewFileSystem {
+                    override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? = File(f.root, guestPath.removePrefix("/root/"))
+                },
+            )
             restarted.initialize()
             assertEquals(FileReviewState.PROPOSED, restarted.proposals.value.single { it.id == proposal.id }.state)
             assertEquals("staged", restarted.preview(proposal.id)?.proposedText)

@@ -199,7 +199,9 @@ class FileReviewEngine(
                 }
                 val target = fileSystem.resolve(proposal.workspace, proposal.path)
                     ?: return@withContext FileReviewActionResult.Failure("Workspace path is no longer safe")
-                val current = try { readTarget(target) } catch (e: Exception) {
+                val current = try {
+                    readTarget(target)
+                } catch (e: Exception) {
                     return@withContext FileReviewActionResult.Failure(e.message ?: "Could not inspect target")
                 }
                 if (current?.let(::sha256) != proposal.originalSha256) {
@@ -211,6 +213,7 @@ class FileReviewEngine(
                 try {
                     when (proposal.operation) {
                         FileReviewOperation.DELETE -> Files.delete(target.toPath())
+
                         FileReviewOperation.CREATE, FileReviewOperation.UPDATE -> {
                             val bytes = proposedFile(proposalId).readBytes()
                             writeTargetAtomically(
@@ -396,25 +399,31 @@ class FileReviewEngine(
                         rollbackAvailable = true,
                         updatedAtMs = clock(),
                     )
+
                     currentHash == proposal.originalSha256 -> proposal.copy(
                         state = FileReviewState.FAILED,
                         updatedAtMs = clock(),
                     )
+
                     else -> proposal.copy(state = FileReviewState.CONFLICT, updatedAtMs = clock())
                 }
+
                 FileReviewState.ROLLING_BACK -> when {
                     currentHash == proposal.originalSha256 -> proposal.copy(
                         state = FileReviewState.ROLLED_BACK,
                         rollbackAvailable = false,
                         updatedAtMs = clock(),
                     )
+
                     currentHash == proposal.proposedSha256 -> proposal.copy(
                         state = FileReviewState.ACCEPTED,
                         rollbackAvailable = true,
                         updatedAtMs = clock(),
                     )
+
                     else -> proposal.copy(state = FileReviewState.CONFLICT, updatedAtMs = clock())
                 }
+
                 else -> proposal
             }
             changed = true
