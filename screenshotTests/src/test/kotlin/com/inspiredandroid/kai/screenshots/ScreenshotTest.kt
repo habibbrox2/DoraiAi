@@ -4,7 +4,10 @@ package com.inspiredandroid.kai.screenshots
 
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -12,12 +15,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.inspiredandroid.kai.ui.DarkColorScheme
 import com.inspiredandroid.kai.ui.LightColorScheme
 import com.inspiredandroid.kai.ui.Theme
+import com.inspiredandroid.kai.ui.build.BuildStatusKind
+import com.inspiredandroid.kai.ui.build.BuildStatusPill
+import com.inspiredandroid.kai.ui.build.KaiBuildActions
+import com.inspiredandroid.kai.ui.build.KaiBuildScreenContent
 import com.inspiredandroid.kai.ui.chat.ChatScreenContent
+import com.inspiredandroid.kai.ui.chat.composables.AgentActivityTimeline
+import com.inspiredandroid.kai.ui.chat.composables.ChatComposer
 import com.inspiredandroid.kai.ui.chat.composables.ShellExecutionCard
 import com.inspiredandroid.kai.ui.chat.composables.ToolConfirmationCard
 import com.inspiredandroid.kai.ui.chat.composables.ToolExecutionCard
@@ -48,6 +58,28 @@ class ScreenshotTest {
         loadPreviewImage("resource://orc_survival.png", "/orc_survival.png")
         loadPreviewImage("resource://cacio_e_pepe.png", "/cacio_e_pepe.png")
     }
+
+    private val noOpBuildActions = KaiBuildActions(
+        toggleAgent = {},
+        install = {},
+        installAgent = {},
+        cancel = {},
+        uninstall = {},
+        setLaunchAgent = {},
+        openProject = {},
+        createProject = {},
+        deleteProject = {},
+        renameProject = { _, _ -> },
+        closeProject = {},
+        startSession = {},
+        selectSession = {},
+        closeSession = {},
+        submitLine = {},
+        sendKey = { _, _ -> },
+        sendText = { _, _ -> },
+        sendMouse = {},
+        resizeTerminal = { _, _ -> },
+    )
 
     private fun loadPreviewImage(key: String, resourcePath: String) {
         val bitmap = BitmapFactory.decodeStream(javaClass.getResourceAsStream(resourcePath)) ?: return
@@ -338,6 +370,168 @@ class ScreenshotTest {
             SettingsScreenContent(
                 uiState = ScreenshotTestData.settingsAgent,
                 sandboxState = ScreenshotTestData.sandboxState,
+            )
+        }
+    }
+
+    // --- Phase C: Dynamic UI states ---
+
+    @Test
+    fun chatWithDynamicUi_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            ChatScreenContent(
+                uiState = ScreenshotTestData.chatWithDynamicUi,
+                FakeTextToSpeechInstance(),
+            )
+        }
+    }
+
+    // --- Phase C: Build Workspace states ---
+
+    @Test
+    fun buildSetupNotInstalled_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            KaiBuildScreenContent(
+                state = ScreenshotTestData.buildStateNotInstalled,
+                actions = noOpBuildActions,
+                onExit = {},
+            )
+        }
+    }
+
+    @Test
+    fun buildSetupInstalling_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            KaiBuildScreenContent(
+                state = ScreenshotTestData.buildStateInstalling,
+                actions = noOpBuildActions,
+                onExit = {},
+            )
+        }
+    }
+
+    @Test
+    fun buildProjectsReady_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            KaiBuildScreenContent(
+                state = ScreenshotTestData.buildStateReadyWithProjects,
+                actions = noOpBuildActions,
+                onExit = {},
+            )
+        }
+    }
+
+    @Test
+    fun buildWithActiveProject_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            KaiBuildScreenContent(
+                state = ScreenshotTestData.buildStateWithActiveProject,
+                actions = noOpBuildActions,
+                onExit = {},
+            )
+        }
+    }
+
+    @Test
+    fun buildStatusPills_light() {
+        paparazzi.snap(LightColorScheme) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+            ) {
+                BuildStatusPill(label = "Idle", kind = BuildStatusKind.Idle)
+                BuildStatusPill(label = "Running", kind = BuildStatusKind.Running)
+                BuildStatusPill(label = "Success", kind = BuildStatusKind.Success)
+                BuildStatusPill(label = "Warning", kind = BuildStatusKind.Warning)
+                BuildStatusPill(label = "Failed", kind = BuildStatusKind.Failed)
+            }
+        }
+    }
+
+    // --- Phase C: Agent Activity states ---
+
+    @Test
+    fun agentActivityTimelineMixed_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            AgentActivityTimeline(
+                activities = ScreenshotTestData.agentActivitiesMixed,
+            )
+        }
+    }
+
+    @Test
+    fun agentActivityTimelineToolCall_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            AgentActivityTimeline(
+                activities = ScreenshotTestData.agentActivitiesToolCall,
+            )
+        }
+    }
+
+    @Test
+    fun agentActivityTimelineShellCommand_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            AgentActivityTimeline(
+                activities = ScreenshotTestData.agentActivitiesShellCommand,
+            )
+        }
+    }
+
+    @Test
+    fun agentActivityTimelineFileOperation_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            AgentActivityTimeline(
+                activities = ScreenshotTestData.agentActivitiesFileOperation,
+            )
+        }
+    }
+
+    @Test
+    fun agentActivityTimelinePermission_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            AgentActivityTimeline(
+                activities = ScreenshotTestData.agentActivitiesPermission,
+            )
+        }
+    }
+
+    // --- Phase C: Composer states ---
+
+    @Test
+    fun composerEmpty_light() {
+        paparazzi.snap(LightColorScheme) {
+            ChatComposer(
+                uiState = ScreenshotTestData.chatEmptyState,
+                questionInputText = ScreenshotTestData.composerEmptyText,
+                onTextStateChange = {},
+                isSandboxOpen = false,
+            )
+        }
+    }
+
+    @Test
+    fun composerWithDraft_light() {
+        paparazzi.snap(LightColorScheme) {
+            ChatComposer(
+                uiState = ScreenshotTestData.chatEmptyState.copy(
+                    availableModels = ScreenshotTestData.composerAvailableModels,
+                ),
+                questionInputText = ScreenshotTestData.composerDraftText,
+                onTextStateChange = {},
+                isSandboxOpen = false,
+            )
+        }
+    }
+
+    @Test
+    fun composerLoading_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            ChatComposer(
+                uiState = ScreenshotTestData.chatEmptyState.copy(isLoading = true),
+                questionInputText = ScreenshotTestData.composerEmptyText,
+                onTextStateChange = {},
+                isSandboxOpen = false,
             )
         }
     }

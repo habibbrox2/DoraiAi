@@ -1,13 +1,24 @@
 package com.inspiredandroid.kai.screenshots
 
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import com.inspiredandroid.kai.TerminalLine
+import com.inspiredandroid.kai.build.BuildEnvironmentState
+import com.inspiredandroid.kai.build.BuildStep
+import com.inspiredandroid.kai.build.BuildTerminalSession
+import com.inspiredandroid.kai.build.KaiBuildState
 import com.inspiredandroid.kai.data.MemoryEntry
 import com.inspiredandroid.kai.data.Service
 import com.inspiredandroid.kai.getPlatformToolDefinitions
 import com.inspiredandroid.kai.linux.LinuxDistro
+import com.inspiredandroid.kai.ui.build.KaiBuildUiState
 import com.inspiredandroid.kai.ui.chat.ChatActions
 import com.inspiredandroid.kai.ui.chat.ChatUiState
 import com.inspiredandroid.kai.ui.chat.History
+import com.inspiredandroid.kai.ui.chat.activities.ActivityDetails
+import com.inspiredandroid.kai.ui.chat.activities.ActivityStatus
+import com.inspiredandroid.kai.ui.chat.activities.ActivityType
+import com.inspiredandroid.kai.ui.chat.activities.AgentActivity
 import com.inspiredandroid.kai.ui.settings.ConfiguredServiceEntry
 import com.inspiredandroid.kai.ui.settings.ConnectionStatus
 import com.inspiredandroid.kai.ui.settings.McpConnectionStatus
@@ -381,6 +392,183 @@ object ScreenshotTestData {
 
     val settingsIntegrationsState = SettingsUiState(
         currentTab = SettingsTab.Integrations,
+    )
+
+    // --- Build Workspace states ---
+
+    val buildStateNotInstalled = KaiBuildUiState(
+        build = KaiBuildState(
+            environment = BuildEnvironmentState.NotInstalled,
+            projects = persistentListOf(),
+        ),
+    )
+
+    val buildStateInstalling = KaiBuildUiState(
+        build = KaiBuildState(
+            environment = BuildEnvironmentState.Installing(BuildStep.Download, 0.45f),
+            projects = persistentListOf(),
+        ),
+    )
+
+    val buildStateReadyEmpty = KaiBuildUiState(
+        build = KaiBuildState(
+            environment = BuildEnvironmentState.Ready,
+            projects = persistentListOf(),
+        ),
+    )
+
+    val buildStateReadyWithProjects = KaiBuildUiState(
+        build = KaiBuildState(
+            environment = BuildEnvironmentState.Ready,
+            projects = persistentListOf("kai-project", "research-bot"),
+            sessions = persistentListOf(
+                BuildTerminalSession(id = "sess-1", project = "kai-project", agentId = null, number = 1),
+                BuildTerminalSession(id = "sess-2", project = "kai-project", agentId = "claude-code", number = 2),
+            ),
+            activeSessionId = "sess-1",
+        ),
+    )
+
+    val buildStateWithActiveProject = KaiBuildUiState(
+        build = KaiBuildState(
+            environment = BuildEnvironmentState.Ready,
+            projects = persistentListOf("kai-project"),
+            sessions = persistentListOf(),
+            activeSessionId = null,
+        ),
+        openProject = "kai-project",
+    )
+
+    // --- Agent Activity states ---
+
+    val agentActivitiesMixed = persistentListOf(
+        AgentActivity(
+            id = "act-1",
+            type = ActivityType.AGENT_STARTED,
+            title = "Research quantum computing",
+            status = ActivityStatus.COMPLETED,
+            details = ActivityDetails.Generic(content = "Initialized agent with quantum computing research goal."),
+        ),
+        AgentActivity(
+            id = "act-2",
+            type = ActivityType.TOOL_CALL,
+            title = "web_search",
+            status = ActivityStatus.COMPLETED,
+            details = ActivityDetails.ToolCall(
+                toolName = "web_search",
+                toolDisplayName = "Web Search",
+                arguments = "{\"query\":\"quantum computing 2027\"}",
+                result = "Quantum computing is advancing rapidly with error-corrected qubits...",
+            ),
+        ),
+        AgentActivity(
+            id = "act-3",
+            type = ActivityType.SHELL_COMMAND,
+            title = "npm install",
+            status = ActivityStatus.RUNNING,
+            details = ActivityDetails.ShellCommand(
+                command = "npm install",
+                workingDirectory = "/home/user/project",
+            ),
+        ),
+        AgentActivity(
+            id = "act-4",
+            type = ActivityType.FILE_WRITE,
+            title = "Write README.md",
+            status = ActivityStatus.FAILED,
+            details = ActivityDetails.FileOperation(
+                path = "/home/user/project/README.md",
+                operation = "Write",
+                changeSummary = "Added project documentation",
+            ),
+        ),
+        AgentActivity(
+            id = "act-5",
+            type = ActivityType.PERMISSION_REQUEST,
+            title = "File system access",
+            status = ActivityStatus.PENDING,
+            details = ActivityDetails.Permission(
+                action = "read",
+                target = "/home/user/project",
+                scope = "project files",
+            ),
+        ),
+    )
+
+    val agentActivitiesToolCall = persistentListOf(
+        AgentActivity(
+            id = "act-tool",
+            type = ActivityType.TOOL_CALL,
+            title = "file_read",
+            status = ActivityStatus.COMPLETED,
+            details = ActivityDetails.ToolCall(
+                toolName = "file_read",
+                toolDisplayName = "Read File",
+                arguments = "{\"path\":\"/home/user/README.md\"}",
+                result = "# Brox Kai\n\nPremium AI Agent Workspace.",
+            ),
+        ),
+    )
+
+    val agentActivitiesShellCommand = persistentListOf(
+        AgentActivity(
+            id = "act-shell",
+            type = ActivityType.SHELL_COMMAND,
+            title = "fastfetch",
+            status = ActivityStatus.COMPLETED,
+            details = ActivityDetails.ShellCommand(
+                command = "fastfetch",
+                workingDirectory = "~",
+                stdout = "OS: Alpine Linux v3.22 aarch64\nKernel: Linux 6.1.145\nPackages: 65 (apk)",
+                stderr = null,
+                exitCode = 0,
+            ),
+        ),
+    )
+
+    val agentActivitiesFileOperation = persistentListOf(
+        AgentActivity(
+            id = "act-file",
+            type = ActivityType.FILE_EDIT,
+            title = "Edit config.yaml",
+            status = ActivityStatus.RUNNING,
+            details = ActivityDetails.FileOperation(
+                path = "/home/user/project/config.yaml",
+                operation = "Edit",
+                changeSummary = "Updated API endpoint",
+                oldContent = "endpoint: https://api.example.com/v1",
+                newContent = "endpoint: https://api.example.com/v2",
+            ),
+        ),
+    )
+
+    val agentActivitiesPermission = persistentListOf(
+        AgentActivity(
+            id = "act-perm",
+            type = ActivityType.PERMISSION_REQUEST,
+            title = "Access microphone",
+            status = ActivityStatus.PENDING,
+            details = ActivityDetails.Permission(
+                action = "record",
+                target = "microphone",
+                scope = "voice input",
+                allowed = null,
+            ),
+        ),
+    )
+
+    // --- Composer states ---
+
+    val composerEmptyText = TextFieldValue(text = "", selection = TextRange(0, 0))
+
+    val composerDraftText = TextFieldValue(
+        text = "Explain quantum computing in simple terms",
+        selection = TextRange(43, 43),
+    )
+
+    val composerAvailableModels = persistentListOf(
+        SettingsModel(id = "kimi-k2.5", subtitle = "Kimi K2.5", displayName = "Kimi K2.5", isSelected = true, isFreeTier = false, arenaScore = 1280, contextWindow = 131072),
+        SettingsModel(id = "claude-opus-4-6", subtitle = "Claude Opus 4.6", displayName = "Claude Opus 4.6", isSelected = false, isFreeTier = false, arenaScore = 1250, contextWindow = 200000),
     )
 
     // --- Model selector models ---

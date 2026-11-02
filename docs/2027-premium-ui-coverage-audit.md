@@ -27,14 +27,14 @@
 | Area | Components / surfaces | Phase B/C status |
 |---|---|---|
 | Chat shell | ChatShell, TopBar, AgentHud, ConversationRail, EmptyState | Review completed; responsive-state evidence still needed |
-| Chat timeline | ChatTimeline, UserMessage, BotMessage, MessageActionRow, ErrorMessage | Review completed; long/streaming/error state coverage to verify |
-| Agent activity | AgentActivityDisclosure, AgentActivityTimeline, ToolExecutionCard, ToolConfirmationCard, AgentReviewComponents | Legacy palette found in tool cards; semantic token migration required |
-| Composer | QuestionInput, ChatComposer, SkillAutocomplete, ServiceSelector | Source reviewed; attachment/slash/keyboard states need explicit screenshots |
+| Chat timeline | ChatTimeline, UserMessage, BotMessage, MessageActionRow, ErrorMessage | Review completed; long/streaming/error state coverage to verify; Dynamic UI dark variant added (`chatWithDynamicUi_dark`) |
+| Agent activity | AgentActivityDisclosure, AgentActivityTimeline, ToolExecutionCard, ToolConfirmationCard, AgentReviewComponents | Legacy palette found in tool cards; semantic token migration required; screenshot coverage added (`AgentActivityTimeline` all statuses, tool call, shell, file op, permission) |
+| Composer | QuestionInput, ChatComposer, SkillAutocomplete, ServiceSelector | Source reviewed; screenshot coverage added (`ChatComposer` empty/draft/loading states) |
 | Settings navigation | SettingsNavigation, SettingsOverview, SettingsDetailPane, SettingsTabScroll | Source reviewed; compact/expanded and selected-tab visibility need evidence |
 | Settings sections | General, Agent, Services, Tools, MCP, Skills, Integrations, Sandbox, Data, Account | Source reviewed; each subsection's loading/empty/error states need matrix coverage |
 | Model selection | ModelSelectionSheet, model cards, free-tier badge, discovery error/retry | Hardcoded status/score/free-tier colors found; semantic token alignment required |
 | Terminal | TerminalSheet, BuildTerminalContent, AnsiParser | Terminal/ANSI palette is intentional; surrounding chrome and state styling require review |
-| Build workspace | BuildSetupContent, BuildProjectsContent, BuildSessionBar, BuildStatusPill | Source reviewed; empty/loading/error/session states need screenshot coverage |
+| Build workspace | BuildSetupContent, BuildProjectsContent, BuildSessionBar, BuildStatusPill | Source reviewed; screenshot coverage added (`KaiBuildScreenContent` not-installed/installing/ready/projects/active-project + `BuildStatusPill` variants) |
 | Sandbox | SandboxTabsContent, SandboxFileBrowserScreen, SandboxPackagesScreen, FindReplacePanel, ReplaceAllConfirmDialog | Source reviewed; dialogs and file-operation states need screenshot coverage |
 | Shared components | KaiDialog, SettingsListItem, KaiBadge, KaiChip, KaiSnackbar, KaiSearchField | Shared token usage observed; accessibility/interaction-state review remains |
 
@@ -80,6 +80,6 @@
 | Desktop tests | CI run 41420878139 | Passed |
 | Screenshot regression | CI run 41420878139; 44 Paparazzi baselines + 16 new Phase C cases | Passed (`:screenshotTests:test` green, `:screenshotTests:recordPaparazziDebug` green) |
 | Quality/Web assets | CI run 41420878139 | Passed |
-| Full route/state screenshot matrix | Not present at baseline | Phase C tool/shell/settings coverage complete; Dynamic UI, Build Workspace, Agent Activity, Composer pending |
+| Full route/state screenshot matrix | Not present at baseline | Phase C complete: tool/shell/settings + Dynamic UI, Build Workspace, Agent Activity, Composer coverage added (`ScreenshotTest`, 35 cases) |
 
 **Completion rule:** Phase A–C are complete only when the unchecked inventory/state items are resolved or explicitly documented as unsupported/not applicable, relevant tests are added, and CI is green.

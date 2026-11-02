@@ -116,4 +116,4 @@ Run these before any removal:
 
 ## 8. Phase C status
 
-**Status: Chat, Settings, Sandbox, and Shared component batches migrated to `LocalDesignColorTokens.current`.** Screenshot tests recorded and passing (`:screenshotTests:test` green). Remaining Phase B2 batches (Dashboard, Build, DynamicUI/Markdown) still pending before cleanup/removal can begin. This document will be updated with reference counts and verification results as work progresses.
+**Status: Chat, Settings, Sandbox, Shared component, Build Workspace, Agent Activity, Composer, and Dynamic UI batches migrated to `LocalDesignColorTokens.current`.** Phase C screenshot coverage complete across all four pending categories (Build Workspace, Agent Activity, Composer, Dynamic UI). `:screenshotTests:recordPaparazziDebug` and `:screenshotTests:verifyPaparazziDebug` green; `spotlessCheck` green. Remaining Phase B2 batches (Dashboard, DynamicUI/Markdown) still pending before cleanup/removal can begin. This document will be updated with reference counts and verification results as work progresses.
