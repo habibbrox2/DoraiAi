@@ -333,6 +333,75 @@ class FileReviewEngineTest {
             f.privateDir.deleteRecursively()
         }
     }
+
+    @Test
+    fun startupRequiresRecoveryWhenAppliedTransactionLostOriginalBackup() = runTest {
+        val f = fixture()
+        try {
+            val target = File(f.root, "main.kt").apply { writeText("before") }
+            val proposal = assertIs<FileReviewActionResult.Success>(
+                f.engine.proposeTextChange(FileReviewWorkspace.PROJECT, "main.kt", "after"),
+            ).proposal
+            target.writeText("after")
+            File(f.privateDir, "${proposal.id}.original").delete()
+            File(f.privateDir, "journal.json").writeText(
+                Json.encodeToString(listOf(proposal.copy(state = FileReviewState.APPLYING))),
+            )
+
+            val restarted = FileReviewEngine(
+                f.privateDir,
+                object : FileReviewFileSystem {
+                    override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? =
+                        if (workspace == FileReviewWorkspace.PROJECT && guestPath == "main.kt") target else null
+                },
+            )
+            restarted.initialize()
+
+            val recovered = restarted.proposals.value.single()
+            assertEquals(FileReviewState.RECOVERY_REQUIRED, recovered.state)
+            assertTrue(!recovered.rollbackAvailable)
+            assertEquals("after", target.readText())
+        } finally {
+            f.root.deleteRecursively()
+            f.privateDir.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun startupRequiresRecoveryWhenRollbackBackupIsCorrupted() = runTest {
+        val f = fixture()
+        try {
+            val target = File(f.root, "main.kt").apply { writeText("before") }
+            val proposal = assertIs<FileReviewActionResult.Success>(
+                f.engine.proposeTextChange(FileReviewWorkspace.PROJECT, "main.kt", "accepted"),
+            ).proposal
+            assertIs<FileReviewActionResult.Success>(f.engine.accept(proposal.id))
+            File(f.privateDir, "${proposal.id}.original").writeText("corrupted backup")
+            val rollingBack = f.engine.proposals.value.single().copy(
+                state = FileReviewState.ROLLING_BACK,
+                rollbackAvailable = true,
+            )
+            File(f.privateDir, "journal.json").writeText(Json.encodeToString(listOf(rollingBack)))
+
+            val restarted = FileReviewEngine(
+                f.privateDir,
+                object : FileReviewFileSystem {
+                    override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? =
+                        if (workspace == FileReviewWorkspace.PROJECT && guestPath == "main.kt") target else null
+                },
+            )
+            restarted.initialize()
+
+            val recovered = restarted.proposals.value.single()
+            assertEquals(FileReviewState.RECOVERY_REQUIRED, recovered.state)
+            assertTrue(!recovered.rollbackAvailable)
+            assertEquals("accepted", target.readText())
+        } finally {
+            f.root.deleteRecursively()
+            f.privateDir.deleteRecursively()
+        }
+    }
+
 }
 
 private object HostFileSystem {
