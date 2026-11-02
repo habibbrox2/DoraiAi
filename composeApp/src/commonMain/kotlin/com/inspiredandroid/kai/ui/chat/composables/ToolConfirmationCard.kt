@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.TextSecondary
+import com.inspiredandroid.kai.ui.theme.DesignTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.ic_flag
 import org.jetbrains.compose.resources.painterResource
@@ -57,16 +59,16 @@ fun ToolConfirmationCard(
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(DesignTokens.RadiusCard))
             .shadow(
                 elevation = 4.dp,
                 shape = RoundedCornerShape(12.dp),
-                ambientColor = Color(0xFFF59E0B).copy(alpha = 0.3f),
+                ambientColor = DesignTokens.Warning.copy(alpha = 0.18f),
                 spotColor = Color(0xFFF59E0B).copy(alpha = 0.3f),
             )
             .background(MaterialTheme.colorScheme.surfaceContainerHigh)
             .border(
-                BorderStroke(1.dp, Color(0xFFF59E0B).copy(alpha = 0.5f)),
+                BorderStroke(1.dp, DesignTokens.Warning.copy(alpha = 0.45f)),
                 RoundedCornerShape(12.dp),
             ),
     ) {
@@ -80,7 +82,7 @@ fun ToolConfirmationCard(
             Icon(
                 painter = painterResource(Res.drawable.ic_flag),
                 contentDescription = null,
-                tint = Color(0xFFF59E0B),
+                tint = DesignTokens.Warning,
                 modifier = Modifier.size(20.dp),
             )
             Column(modifier = Modifier.weight(1f)) {
@@ -102,52 +104,56 @@ fun ToolConfirmationCard(
             }
         }
 
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            OutlinedButton(
-                onClick = onDeny,
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error,
-                ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)),
-            ) {
-                Text("Deny", style = KaiTypography.labelMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = onDeny,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(DesignTokens.RadiusHud),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = DesignTokens.Error,
+                    ),
+                    border = BorderStroke(1.dp, DesignTokens.Error.copy(alpha = 0.5f)),
+                ) {
+                    Text("Deny", style = KaiTypography.labelMedium)
+                }
+                Button(
+                    onClick = onAllowOnce,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(DesignTokens.RadiusHud),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AccentPrimary.copy(alpha = 0.88f),
+                    ),
+                ) {
+                    Text("Allow once", style = KaiTypography.labelMedium)
+                }
             }
-            Button(
-                onClick = onAllowOnce,
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = AccentPrimary.copy(alpha = 0.8f),
-                ),
-            ) {
-                Text("Allow once", style = KaiTypography.labelMedium)
-            }
-            Button(
-                onClick = onAllowSession,
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF6366F1),
-                ),
-            ) {
-                Text("Allow session", style = KaiTypography.labelMedium)
-            }
-            Button(
-                onClick = onAlwaysAllow,
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF10B981),
-                ),
-            ) {
-                Text("Always allow", style = KaiTypography.labelMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = onAllowSession,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(DesignTokens.RadiusHud),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = DesignTokens.AgentViolet,
+                    ),
+                ) {
+                    Text("Allow session", style = KaiTypography.labelMedium)
+                }
+                Button(
+                    onClick = onAlwaysAllow,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(DesignTokens.RadiusHud),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = DesignTokens.Success,
+                    ),
+                ) {
+                    Text("Always allow", style = KaiTypography.labelMedium)
+                }
             }
         }
     }
