@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.theme.DesignTokens
-import com.inspiredandroid.kai.ui.theme.DesignTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.ic_flag
 import org.jetbrains.compose.resources.painterResource
