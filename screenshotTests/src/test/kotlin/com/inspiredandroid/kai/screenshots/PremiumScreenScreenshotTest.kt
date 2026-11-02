@@ -15,13 +15,13 @@ import com.inspiredandroid.kai.ui.Theme
 import com.inspiredandroid.kai.ui.build.KaiBuildActions
 import com.inspiredandroid.kai.ui.build.KaiBuildScreenContent
 import com.inspiredandroid.kai.ui.build.KaiBuildUiState
+import com.inspiredandroid.kai.ui.chat.composables.ToolConfirmationCard
+import com.inspiredandroid.kai.ui.chat.composables.ToolExecutionCard
 import com.inspiredandroid.kai.ui.components.OperationalStatus
 import com.inspiredandroid.kai.ui.dashboard.DashboardScreenContent
 import com.inspiredandroid.kai.ui.dashboard.DashboardUiState
 import com.inspiredandroid.kai.ui.dashboard.ReadinessFact
 import com.inspiredandroid.kai.ui.dashboard.ServiceReadiness
-import com.inspiredandroid.kai.ui.chat.composables.ToolConfirmationCard
-import com.inspiredandroid.kai.ui.chat.composables.ToolExecutionCard
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
 import org.junit.Before
@@ -115,6 +115,7 @@ class PremiumScreenScreenshotTest {
             )
         }
     }
+
     @Test
     fun toolExecution_running_dark() {
         paparazzi.snap {
@@ -153,5 +154,4 @@ class PremiumScreenScreenshotTest {
             )
         }
     }
-
 }
