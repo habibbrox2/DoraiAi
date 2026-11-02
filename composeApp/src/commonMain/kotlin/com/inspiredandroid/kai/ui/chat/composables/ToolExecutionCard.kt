@@ -348,14 +348,14 @@ fun ToolExecutionCard(
         }
     }
 
-    val cardShape = RoundedCornerShape(10.dp)
-    val cardBg = Color(0xFF111622)
+    val cardShape = RoundedCornerShape(DesignTokens.RadiusCard)
+    val cardBg = DesignTokens.SurfaceElevated
     val borderColor = DesignTokens.BorderSubtle
-    val textSlate = Color(0xFFCBD5E1)
-    val textMuted = Color(0xFF64748B)
-    val accentTeal = Color(0xFF2DD4BF)
-    val successGreen = Color(0xFF10B981)
-    val errorRed = Color(0xFFEF4444)
+    val textSlate = DesignTokens.PrimaryText
+    val textMuted = DesignTokens.MutedText
+    val accentTeal = DesignTokens.PrimaryCyan
+    val successGreen = DesignTokens.Success
+    val errorRed = DesignTokens.Error
 
     val toolIcon = when {
         toolName.contains("search", ignoreCase = true) -> "🔍"
