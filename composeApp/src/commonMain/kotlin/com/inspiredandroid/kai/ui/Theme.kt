@@ -48,6 +48,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.DesignColorTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import com.inspiredandroid.kai.ui.theme.LocalDesignTokens
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -834,6 +836,7 @@ fun Theme(
     CompositionLocalProvider(
         LocalKaiColors provides kaiColors,
         LocalDesignTokens provides DesignTokens,
+        LocalDesignColorTokens provides DesignColorTokens.from(colorScheme),
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
