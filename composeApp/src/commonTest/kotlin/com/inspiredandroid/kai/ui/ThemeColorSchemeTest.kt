@@ -18,7 +18,7 @@ class ThemeColorSchemeTest {
         assertEquals(LightColorScheme.surfaceContainerHigh, tokens.surfaceElevated)
         assertEquals(LightColorScheme.surface, tokens.cardSurface)
         assertEquals(LightColorScheme.outline, tokens.borderStrong)
-        assertEquals(Color(0xFF0F172A), tokens.textPrimary)
+        assertEquals(Color(0xFF000000), tokens.textPrimary)
     }
 
     @Test

@@ -75,7 +75,6 @@ object DesignTokens {
  */
 val LocalDesignTokens = staticCompositionLocalOf { DesignTokens }
 
-
 /**
  * Immutable color roles derived from the active Material color scheme.
  *
