@@ -1,8 +1,8 @@
 package com.inspiredandroid.kai.ui
 
 import androidx.compose.ui.graphics.Color
-import com.inspiredandroid.kai.ui.theme.DesignTokens
 import com.inspiredandroid.kai.ui.theme.DesignColorTokens
+import com.inspiredandroid.kai.ui.theme.DesignTokens
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

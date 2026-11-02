@@ -97,7 +97,7 @@ data class DesignColorTokens(
 ) {
     companion object {
         fun from(colorScheme: ColorScheme): DesignColorTokens {
-            val isLight = colorScheme.background luminance() > 0.5f
+            val isLight = colorScheme.background.luminance() > 0.5f
             return DesignColorTokens(
                 textPrimary = colorScheme.onSurface,
                 textSecondary = colorScheme.onSurfaceVariant,
