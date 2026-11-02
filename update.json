@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "packageName": "com.inspiredandroid.kai",
-  "versionName": "2.0.94",
-  "versionCode": 203,
-  "assetName": "Brox-Kai-2.0-v2.0.94-Android.apk",
-  "downloadUrl": "https://github.com/habibbrox2/brox-kai-2.0/releases/download/v2.0.94/Brox-Kai-2.0-v2.0.94-Android.apk",
-  "sha256": "32299bf511ddc2ef545abbc9f8f72a7aa76656567dda14f4f24534f190ce5081",
+  "versionName": "2.0.95",
+  "versionCode": 204,
+  "assetName": "Brox-Kai-2.0-v2.0.95-Android.apk",
+  "downloadUrl": "https://github.com/habibbrox2/brox-kai-2.0/releases/download/v2.0.95/Brox-Kai-2.0-v2.0.95-Android.apk",
+  "sha256": "99ddebc2bf8942a61afb0b06602244b21e84b5d72125c6a9770e95d3447bca9c",
   "signerCertificateSha256": "df9578135f0bd6a9ba6e9b625c3fd98f947125ad1c8f6f846aa1fced2a096ef2"
 }
