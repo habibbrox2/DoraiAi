@@ -1,5 +1,7 @@
 package com.inspiredandroid.kai.ui.sandbox
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -28,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -42,7 +46,9 @@ import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.TextPrimary
 import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.KaiSearchField
+import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.handCursor
+import com.inspiredandroid.kai.ui.theme.DesignTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.sandbox_files_dialog_cancel
 import kai.composeapp.generated.resources.sandbox_packages_action_clear_search
@@ -213,6 +219,18 @@ private fun PackageRow(
     onUninstall: (PackageEntry) -> Unit,
 ) {
     ListItem(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .clip(KaiShapes.card)
+            .border(BorderStroke(1.dp, DesignTokens.BorderSubtle), KaiShapes.card),
+        colors = ListItemDefaults.colors(
+            containerColor = DesignTokens.SurfaceElevated,
+            headlineColor = DesignTokens.PrimaryText,
+            supportingColor = DesignTokens.SecondaryText,
+            leadingIconColor = DesignTokens.SecondaryText,
+            trailingIconColor = DesignTokens.SecondaryText,
+        ),
         headlineContent = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -246,7 +264,7 @@ private fun PackageRow(
             Icon(
                 imageVector = Icons.Filled.Inventory2,
                 contentDescription = null,
-                tint = if (installed) AccentPrimary else TextSecondary,
+                tint = if (installed) DesignTokens.PrimaryCyan else DesignTokens.SecondaryText,
             )
         },
         trailingContent = {
