@@ -219,7 +219,7 @@ private fun ThemeModeButton(
     val selectedBg = DesignTokens.PrimaryCyan
     val selectedText = DesignTokens.BrandNavy
     val unselectedBg = DesignTokens.SurfaceRaised
-    val unselectedText = DesignTokens.PrimaryText
+    val unselectedText = LocalDesignColorTokens.current.textPrimary
     val unselectedBorder = DesignTokens.BorderSubtle
 
     Box(

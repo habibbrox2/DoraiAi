@@ -18,6 +18,7 @@ import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.chat.ChatSpacing
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 /**
  * Chip with full control over appearance — no hidden minimum-interactive-size
@@ -38,9 +39,9 @@ fun KaiChip(
         else -> DesignTokens.SurfaceElevated
     }
     val contentColor = when {
-        !enabled -> DesignTokens.SecondaryText.copy(alpha = 0.38f)
+        !enabled -> LocalDesignColorTokens.current.textSecondary.copy(alpha = 0.38f)
         selected -> DesignTokens.PrimaryCyan
-        else -> DesignTokens.SecondaryText
+        else -> LocalDesignColorTokens.current.textSecondary
     }
     val borderColor = when {
         !enabled -> DesignTokens.BorderSubtle.copy(alpha = 0.38f)

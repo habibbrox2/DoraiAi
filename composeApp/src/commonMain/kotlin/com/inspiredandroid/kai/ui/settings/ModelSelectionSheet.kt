@@ -62,11 +62,13 @@ import com.inspiredandroid.kai.ui.components.KaiSearchField
 import com.inspiredandroid.kai.ui.components.VerticalScrollbarForGrid
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.ic_arrow_drop_down
 import kai.composeapp.generated.resources.model_filter_free
 import kai.composeapp.generated.resources.model_free_badge
 import kai.composeapp.generated.resources.model_free_empty
+import kai.composeapp.generated.resources.model_sort_alpha
 import kai.composeapp.generated.resources.model_sort_context
 import kai.composeapp.generated.resources.model_sort_date
 import kai.composeapp.generated.resources.model_sort_score
@@ -103,7 +105,7 @@ internal fun ModelSelection(
                 label = {
                     Text(
                         stringResource(Res.string.settings_model_label),
-                        color = DesignTokens.PrimaryText,
+                        color = LocalDesignColorTokens.current.textPrimary,
                     )
                 },
                 trailingIcon = {
@@ -111,7 +113,7 @@ internal fun ModelSelection(
                         modifier = Modifier.handCursor(),
                         imageVector = vectorResource(Res.drawable.ic_arrow_drop_down),
                         contentDescription = null,
-                        tint = DesignTokens.PrimaryText,
+                        tint = LocalDesignColorTokens.current.textPrimary,
                     )
                 },
             )
@@ -176,7 +178,7 @@ internal fun ModelSelection(
                             placeholder = stringResource(Res.string.settings_model_search),
                         )
                     }
-                    var sortOption by remember { mutableStateOf(ModelSortOption.Score) }
+                    var sortOption by remember { mutableStateOf(ModelSortOption.Alpha) }
                     val sortedModels = remember(filteredModels, sortOption, searchQuery) {
                         val base = filteredModels.sortedWith(sortOption.comparator)
                         if (searchQuery.isBlank()) {
@@ -221,7 +223,7 @@ internal fun ModelSelection(
                         Text(
                             text = stringResource(Res.string.model_free_empty),
                             style = KaiTypography.bodyMedium,
-                            color = DesignTokens.SecondaryText,
+                            color = LocalDesignColorTokens.current.textSecondary,
                             modifier = Modifier.padding(24.dp),
                         )
                     } else {
@@ -261,18 +263,18 @@ internal fun ModelSelection(
             Text(
                 text = stringResource(Res.string.settings_model_label),
                 style = KaiTypography.labelLarge,
-                color = DesignTokens.PrimaryText,
+                color = LocalDesignColorTokens.current.textPrimary,
             )
             if (isLoading) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     CircularProgressIndicator(modifier = Modifier.width(18.dp), strokeWidth = 2.dp)
-                    Text("Fetching models from provider…", style = KaiTypography.bodySmall, color = DesignTokens.SecondaryText)
+                    Text("Fetching models from provider…", style = KaiTypography.bodySmall, color = LocalDesignColorTokens.current.textSecondary)
                 }
             } else {
                 Text(
                     text = errorMessage ?: "No models have been loaded yet. Retry model discovery.",
                     style = KaiTypography.bodySmall,
-                    color = if (errorMessage != null) DesignTokens.Error else DesignTokens.SecondaryText,
+                    color = if (errorMessage != null) DesignTokens.Error else LocalDesignColorTokens.current.textSecondary,
                 )
                 OutlinedButton(onClick = onRetry, enabled = canRetry) {
                     Text("Retry model discovery")
@@ -282,10 +284,14 @@ internal fun ModelSelection(
     }
 }
 
-private enum class ModelSortOption(
+internal enum class ModelSortOption(
     val labelRes: StringResource,
     val comparator: Comparator<SettingsModel>,
 ) {
+    Alpha(
+        Res.string.model_sort_alpha,
+        compareByDescending<SettingsModel> { it.isFreeTier }.thenBy { it.id }.thenBy { it.displayName ?: "" },
+    ),
     Date(Res.string.model_sort_date, compareByDescending<SettingsModel> { it.releaseDate }.thenBy { it.id }),
     Score(Res.string.model_sort_score, compareByDescending<SettingsModel> { it.arenaScore }.thenBy { it.id }),
     Ctx(Res.string.model_sort_context, compareByDescending<SettingsModel> { it.contextWindow }.thenBy { it.id }),
@@ -303,14 +309,14 @@ private fun ModelCard(model: SettingsModel, isSelected: Boolean, onClick: () -> 
         .joinToString("  ·  ").ifEmpty { null }
 
     val primaryColor = if (isSelected) {
-        DesignTokens.PrimaryText
+        LocalDesignColorTokens.current.textPrimary
     } else {
-        DesignTokens.SecondaryText
+        LocalDesignColorTokens.current.textSecondary
     }
     val secondaryColor = if (isSelected) {
-        DesignTokens.PrimaryText.copy(alpha = 0.7f)
+        LocalDesignColorTokens.current.textPrimary.copy(alpha = 0.7f)
     } else {
-        DesignTokens.SecondaryText
+        LocalDesignColorTokens.current.textSecondary
     }
     Box(
         modifier = Modifier
@@ -390,14 +396,14 @@ private fun arenaScoreColor(score: Int): Color = when {
 @Composable
 private fun FreeTierBadge(isSelected: Boolean) {
     val background = if (isSelected) {
-        DesignTokens.PrimaryText
+        LocalDesignColorTokens.current.textPrimary
     } else {
         DesignTokens.Success
     }
     val content = if (isSelected) {
         DesignTokens.SurfaceRaised
     } else {
-        DesignTokens.PrimaryText
+        LocalDesignColorTokens.current.textPrimary
     }
     Box(
         modifier = Modifier

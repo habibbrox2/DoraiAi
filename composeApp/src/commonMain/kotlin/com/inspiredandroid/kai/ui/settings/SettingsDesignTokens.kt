@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 /**
  * Shared design tokens for the Brox Kai 2.0 settings control center.
@@ -72,13 +73,13 @@ object SettingsSurfaces {
 
     /** Text colors */
     @Composable
-    fun textPrimary(): Color = DesignTokens.PrimaryText
+    fun textPrimary(): Color = LocalDesignColorTokens.current.textPrimary
 
     @Composable
-    fun textSecondary(): Color = DesignTokens.SecondaryText
+    fun textSecondary(): Color = LocalDesignColorTokens.current.textSecondary
 
     @Composable
-    fun textTertiary(): Color = DesignTokens.TertiaryText
+    fun textTertiary(): Color = LocalDesignColorTokens.current.textTertiary
 
     /** Danger/destructive color */
     @Composable

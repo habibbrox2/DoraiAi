@@ -18,6 +18,9 @@ import com.inspiredandroid.kai.ui.DarkColorScheme
 import com.inspiredandroid.kai.ui.LightColorScheme
 import com.inspiredandroid.kai.ui.Theme
 import com.inspiredandroid.kai.ui.chat.ChatScreenContent
+import com.inspiredandroid.kai.ui.chat.composables.ShellExecutionCard
+import com.inspiredandroid.kai.ui.chat.composables.ToolConfirmationCard
+import com.inspiredandroid.kai.ui.chat.composables.ToolExecutionCard
 import com.inspiredandroid.kai.ui.dynamicui.LocalPreviewImages
 import com.inspiredandroid.kai.ui.settings.SettingsScreenContent
 import nl.marc_apps.tts.experimental.ExperimentalVoiceApi
@@ -148,6 +151,193 @@ class ScreenshotTest {
                 initialSandboxOpen = true,
                 previewSandboxState = ScreenshotTestData.sandboxState,
                 previewSandboxLines = ScreenshotTestData.sandboxTerminalLines,
+            )
+        }
+    }
+
+    // --- Phase C: Tool execution states ---
+
+    @Test
+    fun toolExecutionRunning_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            ToolExecutionCard(
+                toolName = ScreenshotTestData.toolExecutionRunningParams.toolName,
+                arguments = ScreenshotTestData.toolExecutionRunningParams.arguments,
+                result = ScreenshotTestData.toolExecutionRunningParams.result,
+                isRunning = ScreenshotTestData.toolExecutionRunningParams.isRunning,
+                isError = ScreenshotTestData.toolExecutionRunningParams.isError,
+                initiallyExpanded = ScreenshotTestData.toolExecutionRunningParams.initiallyExpanded,
+            )
+        }
+    }
+
+    @Test
+    fun toolExecutionCompleted_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            ToolExecutionCard(
+                toolName = ScreenshotTestData.toolExecutionCompletedParams.toolName,
+                arguments = ScreenshotTestData.toolExecutionCompletedParams.arguments,
+                result = ScreenshotTestData.toolExecutionCompletedParams.result,
+                isRunning = ScreenshotTestData.toolExecutionCompletedParams.isRunning,
+                isError = ScreenshotTestData.toolExecutionCompletedParams.isError,
+                initiallyExpanded = ScreenshotTestData.toolExecutionCompletedParams.initiallyExpanded,
+            )
+        }
+    }
+
+    @Test
+    fun toolExecutionFailed_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            ToolExecutionCard(
+                toolName = ScreenshotTestData.toolExecutionFailedParams.toolName,
+                arguments = ScreenshotTestData.toolExecutionFailedParams.arguments,
+                result = ScreenshotTestData.toolExecutionFailedParams.result,
+                isRunning = ScreenshotTestData.toolExecutionFailedParams.isRunning,
+                isError = ScreenshotTestData.toolExecutionFailedParams.isError,
+                initiallyExpanded = ScreenshotTestData.toolExecutionFailedParams.initiallyExpanded,
+            )
+        }
+    }
+
+    @Test
+    fun toolExecutionExpanded_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            ToolExecutionCard(
+                toolName = ScreenshotTestData.toolExecutionExpandedParams.toolName,
+                arguments = ScreenshotTestData.toolExecutionExpandedParams.arguments,
+                result = ScreenshotTestData.toolExecutionExpandedParams.result,
+                isRunning = ScreenshotTestData.toolExecutionExpandedParams.isRunning,
+                isError = ScreenshotTestData.toolExecutionExpandedParams.isError,
+                initiallyExpanded = ScreenshotTestData.toolExecutionExpandedParams.initiallyExpanded,
+            )
+        }
+    }
+
+    @Test
+    fun toolExecutionLongOutput_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            ToolExecutionCard(
+                toolName = ScreenshotTestData.toolExecutionLongOutputParams.toolName,
+                arguments = ScreenshotTestData.toolExecutionLongOutputParams.arguments,
+                result = ScreenshotTestData.toolExecutionLongOutputParams.result,
+                isRunning = ScreenshotTestData.toolExecutionLongOutputParams.isRunning,
+                isError = ScreenshotTestData.toolExecutionLongOutputParams.isError,
+                initiallyExpanded = ScreenshotTestData.toolExecutionLongOutputParams.initiallyExpanded,
+            )
+        }
+    }
+
+    // --- Phase C: Tool approval states ---
+
+    @Test
+    fun toolApproval_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            ToolConfirmationCard(
+                toolName = ScreenshotTestData.toolApprovalParams.toolName,
+                toolCallId = ScreenshotTestData.toolApprovalParams.toolCallId,
+                arguments = ScreenshotTestData.toolApprovalParams.arguments,
+                onDeny = {},
+                onAllowOnce = {},
+                onAllowSession = {},
+                onAlwaysAllow = {},
+            )
+        }
+    }
+
+    // --- Phase C: Shell execution states ---
+
+    @Test
+    fun shellExecutionRunning_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            ShellExecutionCard(
+                command = ScreenshotTestData.shellExecutionRunningParams.command,
+                workingDirectory = ScreenshotTestData.shellExecutionRunningParams.workingDirectory,
+                stdout = ScreenshotTestData.shellExecutionRunningParams.stdout,
+                stderr = ScreenshotTestData.shellExecutionRunningParams.stderr,
+                exitCode = ScreenshotTestData.shellExecutionRunningParams.exitCode,
+                isRunning = ScreenshotTestData.shellExecutionRunningParams.isRunning,
+            )
+        }
+    }
+
+    @Test
+    fun shellExecutionCompleted_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            ShellExecutionCard(
+                command = ScreenshotTestData.shellExecutionCompletedParams.command,
+                workingDirectory = ScreenshotTestData.shellExecutionCompletedParams.workingDirectory,
+                stdout = ScreenshotTestData.shellExecutionCompletedParams.stdout,
+                stderr = ScreenshotTestData.shellExecutionCompletedParams.stderr,
+                exitCode = ScreenshotTestData.shellExecutionCompletedParams.exitCode,
+                isRunning = ScreenshotTestData.shellExecutionCompletedParams.isRunning,
+            )
+        }
+    }
+
+    @Test
+    fun shellExecutionFailed_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            ShellExecutionCard(
+                command = ScreenshotTestData.shellExecutionFailedParams.command,
+                workingDirectory = ScreenshotTestData.shellExecutionFailedParams.workingDirectory,
+                stdout = ScreenshotTestData.shellExecutionFailedParams.stdout,
+                stderr = ScreenshotTestData.shellExecutionFailedParams.stderr,
+                exitCode = ScreenshotTestData.shellExecutionFailedParams.exitCode,
+                isRunning = ScreenshotTestData.shellExecutionFailedParams.isRunning,
+            )
+        }
+    }
+
+    // --- Phase C: Settings tab states ---
+
+    @Test
+    fun settingsGeneral_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            SettingsScreenContent(
+                uiState = ScreenshotTestData.settingsGeneralState,
+                sandboxState = ScreenshotTestData.sandboxState,
+            )
+        }
+    }
+
+    @Test
+    fun settingsAppearance_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            SettingsScreenContent(
+                uiState = ScreenshotTestData.settingsAppearanceState,
+                sandboxState = ScreenshotTestData.sandboxState,
+            )
+        }
+    }
+
+    @Test
+    fun settingsAccount_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            SettingsScreenContent(
+                uiState = ScreenshotTestData.settingsAccountState,
+                sandboxState = ScreenshotTestData.sandboxState,
+            )
+        }
+    }
+
+    @Test
+    fun settingsData_dark() {
+        paparazzi.snap(DarkColorScheme) {
+            SettingsScreenContent(
+                uiState = ScreenshotTestData.settingsDataState,
+                sandboxState = ScreenshotTestData.sandboxState,
+            )
+        }
+    }
+
+    // --- Phase C: Settings light theme ---
+
+    @Test
+    fun settingsAgent_light() {
+        paparazzi.snap(LightColorScheme) {
+            SettingsScreenContent(
+                uiState = ScreenshotTestData.settingsAgent,
+                sandboxState = ScreenshotTestData.sandboxState,
             )
         }
     }

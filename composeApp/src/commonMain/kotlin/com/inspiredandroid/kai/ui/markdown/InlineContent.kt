@@ -8,10 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import com.inspiredandroid.kai.ui.markdown.math.MathFormula
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kotlinx.collections.immutable.ImmutableList
 
 /**
@@ -29,9 +31,14 @@ internal fun InlineContent(
     modifier: Modifier = Modifier,
     textAlign: TextAlign = TextAlign.Unspecified,
 ) {
+    val tokens = LocalDesignColorTokens.current
     if (!containsMath(inlines)) {
         Text(
-            text = inlines.toAnnotatedString(),
+            text = inlines.toAnnotatedString(
+                inlineCodeBackground = tokens.surfaceElevated,
+                inlineCodeColor = tokens.textPrimary,
+                linkColor = tokens.textSecondary,
+            ),
             style = style,
             textAlign = textAlign,
             modifier = modifier,
@@ -51,7 +58,11 @@ internal fun InlineContent(
         for (seg in segments) {
             when (seg) {
                 is InlineSegment.TextRun -> Text(
-                    text = seg.nodes.toAnnotatedString().flattenNewlines(),
+                    text = seg.nodes.toAnnotatedString(
+                        inlineCodeBackground = tokens.surfaceElevated,
+                        inlineCodeColor = tokens.textPrimary,
+                        linkColor = tokens.textSecondary,
+                    ).flattenNewlines(),
                     style = style,
                     textAlign = textAlign,
                 )

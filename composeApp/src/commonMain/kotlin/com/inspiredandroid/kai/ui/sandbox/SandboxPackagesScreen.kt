@@ -43,10 +43,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.inspiredandroid.kai.linux.PackageEntry
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.KaiSearchField
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.sandbox_files_dialog_cancel
 import kai.composeapp.generated.resources.sandbox_packages_action_clear_search
@@ -183,7 +183,7 @@ private fun PackagesList(
             }
             Text(
                 text = stringResource(emptyRes),
-                color = TextSecondary,
+                color = LocalDesignColorTokens.current.textSecondary,
                 style = KaiTypography.bodyMedium,
             )
         }
@@ -224,10 +224,10 @@ private fun PackageRow(
             .border(BorderStroke(1.dp, DesignTokens.BorderSubtle), KaiShapes.card),
         colors = ListItemDefaults.colors(
             containerColor = DesignTokens.SurfaceElevated,
-            headlineColor = DesignTokens.PrimaryText,
-            supportingColor = DesignTokens.SecondaryText,
-            leadingIconColor = DesignTokens.SecondaryText,
-            trailingIconColor = DesignTokens.SecondaryText,
+            headlineColor = LocalDesignColorTokens.current.textPrimary,
+            supportingColor = LocalDesignColorTokens.current.textSecondary,
+            leadingIconColor = LocalDesignColorTokens.current.textSecondary,
+            trailingIconColor = LocalDesignColorTokens.current.textSecondary,
         ),
         headlineContent = {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -242,7 +242,7 @@ private fun PackageRow(
                     Text(
                         text = entry.version,
                         style = KaiTypography.bodySmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -262,7 +262,7 @@ private fun PackageRow(
             Icon(
                 imageVector = Icons.Filled.Inventory2,
                 contentDescription = null,
-                tint = if (installed) DesignTokens.PrimaryCyan else DesignTokens.SecondaryText,
+                tint = if (installed) DesignTokens.PrimaryCyan else LocalDesignColorTokens.current.textSecondary,
             )
         },
         trailingContent = {

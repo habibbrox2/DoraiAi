@@ -55,6 +55,7 @@ import com.inspiredandroid.kai.ui.chat.ChatSpacing
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.settings.SettingsModel
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.ic_settings
 import kai.composeapp.generated.resources.interactive_back_content_description
@@ -156,7 +157,7 @@ internal fun AgentHud(
                                 Icon(
                                     imageVector = Icons.Default.Menu,
                                     contentDescription = "Open navigation",
-                                    tint = DesignTokens.PrimaryText,
+                                    tint = LocalDesignColorTokens.current.textPrimary,
                                     modifier = Modifier.size(20.dp),
                                 )
                             }
@@ -170,7 +171,7 @@ internal fun AgentHud(
                         Text(
                             text = "Brox Kai 2.0",
                             style = KaiTypography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                            color = DesignTokens.PrimaryText,
+                            color = LocalDesignColorTokens.current.textPrimary,
                             maxLines = 1,
                         )
                         onToggleInteractiveMode?.let { toggle ->
@@ -182,7 +183,7 @@ internal fun AgentHud(
                                 Icon(
                                     imageVector = Icons.Default.Widgets,
                                     contentDescription = stringResource(Res.string.interactive_mode_content_description),
-                                    tint = if (isInteractiveMode) DesignTokens.PrimaryCyan else DesignTokens.TertiaryText,
+                                    tint = if (isInteractiveMode) DesignTokens.PrimaryCyan else LocalDesignColorTokens.current.textTertiary,
                                     modifier = Modifier.size(20.dp),
                                 )
                             }
@@ -207,7 +208,7 @@ internal fun AgentHud(
                                 isSpeaking = isSpeaking,
                             ),
                             style = KaiTypography.titleSmall,
-                            color = DesignTokens.PrimaryText,
+                            color = LocalDesignColorTokens.current.textPrimary,
                             maxLines = 1,
                         )
                         Spacer(Modifier.width(6.dp))
@@ -236,7 +237,7 @@ internal fun AgentHud(
                                 Icon(
                                     imageVector = BackIcon,
                                     contentDescription = stringResource(Res.string.interactive_back_content_description),
-                                    tint = DesignTokens.PrimaryText,
+                                    tint = LocalDesignColorTokens.current.textPrimary,
                                     modifier = Modifier.size(18.dp),
                                 )
                             }
@@ -258,7 +259,7 @@ internal fun AgentHud(
                             Icon(
                                 imageVector = vectorResource(Res.drawable.ic_settings),
                                 contentDescription = stringResource(Res.string.settings_content_description),
-                                tint = DesignTokens.PrimaryText,
+                                tint = LocalDesignColorTokens.current.textPrimary,
                                 modifier = Modifier.size(20.dp),
                             )
                         }
@@ -307,7 +308,7 @@ private fun CompactAgentHudContent(
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = "Open navigation",
-                    tint = DesignTokens.PrimaryText,
+                    tint = LocalDesignColorTokens.current.textPrimary,
                 )
             }
         }
@@ -343,7 +344,7 @@ private fun CompactAgentHudContent(
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = "More agent actions",
-                    tint = DesignTokens.PrimaryText,
+                    tint = LocalDesignColorTokens.current.textPrimary,
                 )
             }
             DropdownMenu(

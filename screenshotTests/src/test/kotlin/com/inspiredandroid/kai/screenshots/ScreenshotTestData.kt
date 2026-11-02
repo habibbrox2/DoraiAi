@@ -253,6 +253,174 @@ object ScreenshotTestData {
         ),
     )
 
+    // --- Tool Execution Card parameters ---
+
+    data class ToolExecutionCardParams(
+        val toolName: String,
+        val arguments: String?,
+        val result: String?,
+        val isRunning: Boolean,
+        val isError: Boolean,
+        val initiallyExpanded: Boolean,
+    )
+
+    val toolExecutionRunningParams = ToolExecutionCardParams(
+        toolName = "web_search",
+        arguments = "{\"query\":\"Brox Kai 2027 premium UI design\"}",
+        result = null,
+        isRunning = true,
+        isError = false,
+        initiallyExpanded = false,
+    )
+
+    val toolExecutionCompletedParams = ToolExecutionCardParams(
+        toolName = "file_read",
+        arguments = "{\"path\":\"/home/user/README.md\"}",
+        result = "# Brox Kai\n\nPremium AI Agent Workspace\n\nBuilt with Compose Multiplatform.",
+        isRunning = false,
+        isError = false,
+        initiallyExpanded = false,
+    )
+
+    val toolExecutionFailedParams = ToolExecutionCardParams(
+        toolName = "execute_shell_command",
+        arguments = "{\"command\":\"rm -rf /important\"}",
+        result = null,
+        isRunning = false,
+        isError = true,
+        initiallyExpanded = false,
+    )
+
+    val toolExecutionExpandedParams = ToolExecutionCardParams(
+        toolName = "web_search",
+        arguments = "{\"query\":\"long running research query\"}",
+        result = "Research results...",
+        isRunning = false,
+        isError = false,
+        initiallyExpanded = true,
+    )
+
+    val toolExecutionLongOutputParams = ToolExecutionCardParams(
+        toolName = "execute_shell_command",
+        arguments = "{\"command\":\"cat /var/log/syslog\"}",
+        result = (1..50).joinToString("\n") { "line $it: system log entry with some content here" },
+        isRunning = false,
+        isError = false,
+        initiallyExpanded = true,
+    )
+
+    // --- Tool Approval Card parameters ---
+
+    data class ToolConfirmationCardParams(
+        val toolName: String,
+        val toolCallId: String,
+        val arguments: String,
+    )
+
+    val toolApprovalParams = ToolConfirmationCardParams(
+        toolName = "fetch_url",
+        toolCallId = "call_123",
+        arguments = "{\"url\":\"https://api.example.com/data\"}",
+    )
+
+    // --- Shell Execution Card parameters ---
+
+    data class ShellExecutionCardParams(
+        val command: String,
+        val workingDirectory: String?,
+        val stdout: String?,
+        val stderr: String?,
+        val exitCode: Int?,
+        val isRunning: Boolean,
+    )
+
+    val shellExecutionRunningParams = ShellExecutionCardParams(
+        command = "npm install",
+        workingDirectory = "/home/user/project",
+        stdout = null,
+        stderr = null,
+        exitCode = null,
+        isRunning = true,
+    )
+
+    val shellExecutionCompletedParams = ShellExecutionCardParams(
+        command = "fastfetch",
+        workingDirectory = "~",
+        stdout = "OS: Alpine Linux v3.22 aarch64\nKernel: Linux 6.1.145\nPackages: 65 (apk)",
+        stderr = null,
+        exitCode = 0,
+        isRunning = false,
+    )
+
+    val shellExecutionFailedParams = ShellExecutionCardParams(
+        command = "npm install",
+        workingDirectory = "/home/user/project",
+        stdout = null,
+        stderr = "ERR! code ENOENT\nERR! syscall open\nERR! path /home/user/project/package.json\nERR! errno -2\nERR! syscall open",
+        exitCode = 1,
+        isRunning = false,
+    )
+
+    // --- Settings tab states ---
+
+    val settingsGeneralState = SettingsUiState(
+        currentTab = SettingsTab.General,
+    )
+
+    val settingsAppearanceState = SettingsUiState(
+        currentTab = SettingsTab.Appearance,
+    )
+
+    val settingsAccountState = SettingsUiState(
+        currentTab = SettingsTab.Account,
+    )
+
+    val settingsDataState = SettingsUiState(
+        currentTab = SettingsTab.Data,
+    )
+
+    val settingsIntegrationsState = SettingsUiState(
+        currentTab = SettingsTab.Integrations,
+    )
+
+    // --- Model selector models ---
+
+    val modelSelectorModels = persistentListOf(
+        SettingsModel(id = "kimi-k2.5", subtitle = "Kimi K2.5", displayName = "Kimi K2.5", isSelected = true, isFreeTier = false, arenaScore = 1280, contextWindow = 131072),
+        SettingsModel(id = "claude-opus-4-6", subtitle = "Claude Opus 4.6", displayName = "Claude Opus 4.6", isSelected = false, isFreeTier = false, arenaScore = 1250, contextWindow = 200000),
+        SettingsModel(id = "gemini-2.5-pro", subtitle = "Gemini 2.5 Pro", displayName = "Gemini 2.5 Pro", isSelected = false, isFreeTier = true, arenaScore = 1220, contextWindow = 1048576),
+    )
+
+    val modelSelectorEmptyModels = persistentListOf<SettingsModel>()
+
+    val modelSelectorScoreBandModels = persistentListOf(
+        SettingsModel(id = "top-tier-model", subtitle = "Top Tier", displayName = "Top Tier Model", isFreeTier = false, arenaScore = 1400, contextWindow = 128000),
+        SettingsModel(id = "mid-tier-model", subtitle = "Mid Tier", displayName = "Mid Tier Model", isFreeTier = false, arenaScore = 1100, contextWindow = 64000),
+        SettingsModel(id = "entry-model", subtitle = "Entry Level", displayName = "Entry Model", isFreeTier = true, arenaScore = 800, contextWindow = 32000),
+    )
+
+    // --- Sandbox states ---
+
+    val sandboxEmptyState = SandboxUiState(
+        showSandbox = true,
+        sandboxInstalled = false,
+        sandboxReady = false,
+        sandboxDiskUsageMB = 0,
+        sandboxPackagesInstalled = false,
+        isSandboxEnabled = false,
+        installedDistros = emptySet(),
+    )
+
+    val sandboxLoadingState = SandboxUiState(
+        showSandbox = true,
+        sandboxInstalled = false,
+        sandboxReady = false,
+        sandboxDiskUsageMB = 0,
+        sandboxPackagesInstalled = false,
+        isSandboxEnabled = false,
+        installedDistros = emptySet(),
+    )
+
     // --- Localized data loading for StoreScreenshotTest ---
 
     private fun loadJson(locale: String): JsonObject {

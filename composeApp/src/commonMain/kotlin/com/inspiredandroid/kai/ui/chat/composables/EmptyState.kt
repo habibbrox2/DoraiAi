@@ -50,6 +50,7 @@ import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.chat.ChatSpacing
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.privacy_agree_prefix
 import kai.composeapp.generated.resources.privacy_policy
@@ -93,7 +94,7 @@ internal fun EmptyState(
             modifier = Modifier.padding(horizontal = 16.dp),
             style = KaiTypography.displaySmall,
             textAlign = TextAlign.Center,
-            color = DesignTokens.PrimaryText,
+            color = LocalDesignColorTokens.current.textPrimary,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.5.sp,
         )
@@ -105,7 +106,7 @@ internal fun EmptyState(
             modifier = Modifier.padding(horizontal = 16.dp),
             style = KaiTypography.titleMedium,
             textAlign = TextAlign.Center,
-            color = DesignTokens.SecondaryText,
+            color = LocalDesignColorTokens.current.textSecondary,
         )
 
         if (onQuickStart != null) {
@@ -140,7 +141,7 @@ internal fun EmptyState(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 style = KaiTypography.bodySmall,
                 textAlign = TextAlign.Center,
-                color = DesignTokens.TertiaryText,
+                color = LocalDesignColorTokens.current.textTertiary,
             )
         }
     }
@@ -248,7 +249,7 @@ private fun QuickStartCard(
             Text(
                 text = item.label,
                 style = KaiTypography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                color = DesignTokens.PrimaryText,
+                color = LocalDesignColorTokens.current.textPrimary,
             )
         }
     }

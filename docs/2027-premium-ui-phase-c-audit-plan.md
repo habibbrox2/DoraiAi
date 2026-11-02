@@ -25,20 +25,20 @@ No merge, release or deploy is performed in this phase.
 |---|---|---|
 | `KaiThemeColors` | 23 (all in `Theme.kt` definitions/usages) | Still required (default + wiring) |
 | `LocalKaiColors` | 2 | Still required (compatibility API) |
-| `TextPrimary` (global getter) | 225 total (incl. tests/strings) | Migrating — 6 shared component files migrated |
-| `LocalDesignColorTokens` | 18 | Growing (Theme.kt + DesignTokens.kt + 6 migrated components) |
+| `TextPrimary` (global getter) | 225 total (incl. tests/strings) | Migrating — 18 feature component files migrated |
+| `LocalDesignColorTokens` | 18+ | Migrated across Chat, Settings, Sandbox, Shared components |
 | `DesignColorTokens` | (in DesignTokens.kt) | Stable |
 
 ### 2.2 Phase B2 batch progress
 
 | Batch | Scope | Status |
 |---|---|---|
-| Shared components | KaiAvatar, KaiSnackbar, OperationalComponents, RefreshIconButton, SettingsListItem, DesktopScrollbar.jvm.kt | ✅ Migrated (text colors → `LocalDesignColorTokens.current`) |
-| Chat | ChatScreen, ChatTimeline, BotMessage, TopBar, ~16 composables | ⏳ Pending |
-| Settings | ~18 settings files | ⏳ Pending |
+| Shared components | KaiAvatar, KaiSnackbar, OperationalComponents, RefreshIconButton, SettingsListItem, DesktopScrollbar.jvm.kt, KaiDialog, KaiChip | ✅ Migrated (text colors → `LocalDesignColorTokens.current`) |
+| Chat | BotMessage, UserMessage, QuestionInput, EmptyState, ToolExecutionCard | ✅ Migrated (text colors → `LocalDesignColorTokens.current`) |
+| Settings | GeneralSettings, SettingsNavigation, SettingsDesignTokens, ModelSelectionSheet, SkillAutocomplete, TerminalSheet | ✅ Migrated (text colors → `LocalDesignColorTokens.current`) |
+| Sandbox | SandboxTabsContent, SandboxPackagesScreen | ✅ Migrated (text colors → `LocalDesignColorTokens.current`) |
 | Dashboard | DashboardScreen | ⏳ Pending |
 | Build | ~7 build files | ⏳ Pending |
-| Sandbox | ~4 sandbox files | ⏳ Pending |
 | DynamicUI / Markdown | KaiUiRenderer, MarkdownRenderer | ⏳ Pending |
 
 ### 2.3 What has NOT changed (preserved)
@@ -116,4 +116,4 @@ Run these before any removal:
 
 ## 8. Phase C status
 
-**Status: audit & plan established; cleanup not started.** Phase B2 feature batches remain before cleanup can begin. This document will be updated with reference counts and verification results as work progresses.
+**Status: Chat, Settings, Sandbox, and Shared component batches migrated to `LocalDesignColorTokens.current`.** Screenshot tests recorded and passing (`:screenshotTests:test` green). Remaining Phase B2 batches (Dashboard, Build, DynamicUI/Markdown) still pending before cleanup/removal can begin. This document will be updated with reference counts and verification results as work progresses.

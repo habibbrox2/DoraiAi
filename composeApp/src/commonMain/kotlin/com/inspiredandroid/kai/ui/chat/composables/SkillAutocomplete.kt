@@ -22,6 +22,7 @@ import com.inspiredandroid.kai.skills.SkillManifest
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kotlinx.collections.immutable.ImmutableList
 
 /**
@@ -91,7 +92,7 @@ private fun SkillRow(skill: SkillManifest, onClick: () -> Unit) {
             Text(
                 text = skill.description,
                 style = KaiTypography.bodySmall,
-                color = DesignTokens.SecondaryText,
+                color = LocalDesignColorTokens.current.textSecondary,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )

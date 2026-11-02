@@ -466,6 +466,7 @@
     <string name="model_sort_date">Date</string>
     <string name="model_sort_score">Score</string>
     <string name="model_sort_context">Context</string>
+    <string name="model_sort_alpha">Name</string>
     <string name="model_free_badge">Free</string>
     <string name="model_filter_free">Free</string>
     <string name="model_free_empty">No free-tier models for this service.</string>

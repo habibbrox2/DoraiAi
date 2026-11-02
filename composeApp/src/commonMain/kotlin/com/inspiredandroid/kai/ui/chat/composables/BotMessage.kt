@@ -62,6 +62,7 @@ import com.inspiredandroid.kai.ui.markdown.MarkdownContent
 import com.inspiredandroid.kai.ui.markdown.parseMarkdown
 import com.inspiredandroid.kai.ui.rememberCopyToClipboard
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.bot_message_copy_content_description
 import kai.composeapp.generated.resources.bot_message_thinking_expand_content_description
@@ -116,8 +117,8 @@ internal fun BotMessage(
     )
     val botBubbleBg = DesignTokens.SurfaceElevated
     val botBubbleBorder = DesignTokens.BorderSubtle
-    val botTextColor = DesignTokens.PrimaryText
-    val botMutedColor = DesignTokens.TertiaryText
+    val botTextColor = LocalDesignColorTokens.current.textPrimary
+    val botMutedColor = LocalDesignColorTokens.current.textTertiary
 
     Column(
         modifier = Modifier
@@ -324,8 +325,8 @@ private fun ReasoningBlockquote(
     val accentCyan = com.inspiredandroid.kai.ui.theme.DesignTokens.PrimaryCyan
     val containerBg = com.inspiredandroid.kai.ui.theme.DesignTokens.SurfaceDark
     val borderColor = com.inspiredandroid.kai.ui.theme.DesignTokens.BorderSubtle
-    val textSlate = com.inspiredandroid.kai.ui.theme.DesignTokens.SecondaryText
-    val textMuted = com.inspiredandroid.kai.ui.theme.DesignTokens.MutedText
+    val textSlate = LocalDesignColorTokens.current.textSecondary
+    val textMuted = LocalDesignColorTokens.current.textMuted
 
     Column(
         modifier = modifier

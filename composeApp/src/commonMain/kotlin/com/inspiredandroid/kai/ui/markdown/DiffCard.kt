@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.sp
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.rememberCopyToClipboard
+import com.inspiredandroid.kai.ui.theme.DesignColorTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kotlinx.coroutines.delay
 
 /**
@@ -206,16 +208,8 @@ internal fun parseDiff(code: String): List<DiffEntry> {
     return entries
 }
 
-/** Palette kept in the same dark family as [CodeFenceBlock] so both look native together. */
+/** Semantic diff colors (kept as design constants); surface/text roles come from [LocalDesignColorTokens]. */
 private object DiffPalette {
-    val container = Color(0xFF0A0E14)
-    val header = Color(0xFF161B22)
-    val fileStrip = Color(0xFF111827)
-    val border = Color(0xFF1E293B)
-    val text = Color(0xFFE2E8F0)
-    val muted = Color(0xFF94A3B8)
-    val dim = Color(0xFF64748B)
-    val lineNumber = Color(0xFF475569)
     val added = Color(0xFF4ADE80)
     val removed = Color(0xFFF87171)
     val hunkText = Color(0xFF93C5FD)
@@ -248,19 +242,20 @@ internal fun DiffCard(
         else -> "${entries.size} files changed"
     }
     val blockShape = RoundedCornerShape(10.dp)
+    val tokens = LocalDesignColorTokens.current
 
     Column(
         modifier = modifier
             .fillMaxWidth()
             .clip(blockShape)
-            .background(DiffPalette.container)
-            .border(1.dp, DiffPalette.border, blockShape),
+            .background(tokens.surfaceRaised)
+            .border(1.dp, tokens.borderSoft, blockShape),
     ) {
         // Header: file name plus patch size, so the change is scannable at a glance.
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(DiffPalette.header)
+                .background(tokens.cardSurface)
                 .padding(start = 12.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -268,7 +263,7 @@ internal fun DiffCard(
                 imageVector = Icons.Default.Code,
                 contentDescription = null,
                 modifier = Modifier.size(14.dp),
-                tint = DiffPalette.muted,
+                tint = tokens.textMuted,
             )
             Spacer(Modifier.width(6.dp))
             Text(
@@ -276,7 +271,7 @@ internal fun DiffCard(
                 modifier = Modifier.weight(1f),
                 style = KaiTypography.labelSmall,
                 fontFamily = FontFamily.Monospace,
-                color = DiffPalette.muted,
+                color = tokens.textMuted,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -313,7 +308,7 @@ internal fun DiffCard(
                         imageVector = Icons.Filled.ContentCopy,
                         contentDescription = "Copy diff",
                         modifier = Modifier.size(14.dp),
-                        tint = DiffPalette.muted,
+                        tint = tokens.textMuted,
                     )
                 }
             }
@@ -322,7 +317,7 @@ internal fun DiffCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp)
-                .background(DiffPalette.border),
+                .background(tokens.borderSoft),
         )
 
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -332,14 +327,14 @@ internal fun DiffCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(1.dp)
-                            .background(DiffPalette.border),
+                            .background(tokens.borderSoft),
                     )
                 }
                 if (entries.size > 1) {
-                    FileStrip(entry = entry)
+                    FileStrip(entry = entry, tokens = tokens)
                 }
                 entry.lines.forEach { line ->
-                    DiffLineRow(line)
+                    DiffLineRow(line, tokens)
                 }
             }
         }
@@ -371,11 +366,11 @@ private fun DiffStat(
 
 /** Per-file strip shown when a single fence holds patches for more than one file. */
 @Composable
-private fun FileStrip(entry: DiffEntry) {
+private fun FileStrip(entry: DiffEntry, tokens: DesignColorTokens) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(DiffPalette.fileStrip)
+            .background(tokens.surfaceElevated)
             .padding(horizontal = 12.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -384,7 +379,7 @@ private fun FileStrip(entry: DiffEntry) {
             modifier = Modifier.weight(1f),
             style = KaiTypography.labelSmall,
             fontFamily = FontFamily.Monospace,
-            color = DiffPalette.muted,
+            color = tokens.textMuted,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -406,7 +401,7 @@ private fun FileStrip(entry: DiffEntry) {
 }
 
 @Composable
-private fun DiffLineRow(line: DiffLine) {
+private fun DiffLineRow(line: DiffLine, tokens: DesignColorTokens) {
     val background: Color
     val foreground: Color
     when (line.kind) {
@@ -427,17 +422,17 @@ private fun DiffLineRow(line: DiffLine) {
 
         DiffLineKind.FileHeader -> {
             background = Color.Transparent
-            foreground = DiffPalette.muted
+            foreground = tokens.textMuted
         }
 
         DiffLineKind.Meta -> {
             background = Color.Transparent
-            foreground = DiffPalette.dim
+            foreground = tokens.textMuted
         }
 
         DiffLineKind.Context -> {
             background = Color.Transparent
-            foreground = DiffPalette.text
+            foreground = tokens.textPrimary
         }
     }
 
@@ -475,8 +470,8 @@ private fun DiffLineRow(line: DiffLine) {
             .background(background),
         verticalAlignment = Alignment.Top,
     ) {
-        DiffLineNumber(line.oldNumber)
-        DiffLineNumber(line.newNumber)
+        DiffLineNumber(line.oldNumber, tokens)
+        DiffLineNumber(line.newNumber, tokens)
         Text(
             text = sign,
             modifier = Modifier.width(14.dp),
@@ -499,13 +494,12 @@ private fun DiffLineRow(line: DiffLine) {
     }
 }
 
-/** Right-aligned old/new line number column, matched to the content line height. */
 @Composable
-private fun DiffLineNumber(value: Int?) {
+private fun DiffLineNumber(value: Int?, tokens: DesignColorTokens) {
     Text(
         text = value?.toString() ?: "",
         modifier = Modifier.width(34.dp).padding(end = 6.dp),
-        color = DiffPalette.lineNumber,
+        color = tokens.textMuted,
         fontFamily = FontFamily.Monospace,
         fontSize = 11.sp,
         lineHeight = 19.sp,

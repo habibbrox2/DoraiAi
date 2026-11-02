@@ -36,6 +36,7 @@ import com.inspiredandroid.kai.ui.chat.activities.DiffLineKind
 import com.inspiredandroid.kai.ui.chat.activities.SideBySideDiffLine
 import com.inspiredandroid.kai.ui.chat.activities.computeSideBySideDiff
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 /** Review annotations are presentation-only; they do not apply or revert filesystem changes. */
 @Composable
@@ -74,7 +75,7 @@ internal fun FileChangeReviewCard(
                 else -> Text(
                     "Staged preview unavailable. The target file has not been changed by this proposal.",
                     style = KaiTypography.labelSmall,
-                    color = DesignTokens.TertiaryText,
+                    color = LocalDesignColorTokens.current.textTertiary,
                 )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -125,7 +126,7 @@ internal fun FileChangeReviewCard(
                 else -> Text(
                     "The tool did not provide before/after content. A source diff cannot be computed from this activity.",
                     style = KaiTypography.labelSmall,
-                    color = DesignTokens.TertiaryText,
+                    color = LocalDesignColorTokens.current.textTertiary,
                 )
             }
         }
@@ -143,7 +144,7 @@ internal fun FileChangeReviewCard(
                     else -> "Review status is local to this screen and does not modify the file."
                 },
                 style = KaiTypography.labelSmall,
-                color = DesignTokens.TertiaryText,
+                color = LocalDesignColorTokens.current.textTertiary,
             )
         }
     }
@@ -163,7 +164,7 @@ private fun SideBySideFileDiff(before: String, after: String) {
                 DiffPane(diff.lines, isOld = false, modifier = Modifier.weight(1f))
             }
             if (diff.truncated) Text("Diff limited to first 250 lines per side.", modifier = Modifier.padding(8.dp), style = KaiTypography.labelSmall, color = DesignTokens.Warning)
-            if (diff.lines.none { it.kind != DiffLineKind.UNCHANGED }) Text("No textual changes detected.", modifier = Modifier.padding(8.dp), style = KaiTypography.labelSmall, color = DesignTokens.TertiaryText)
+            if (diff.lines.none { it.kind != DiffLineKind.UNCHANGED }) Text("No textual changes detected.", modifier = Modifier.padding(8.dp), style = KaiTypography.labelSmall, color = LocalDesignColorTokens.current.textTertiary)
         }
     }
 }
@@ -175,7 +176,7 @@ private fun DiffPane(lines: List<SideBySideDiffLine>, isOld: Boolean, modifier: 
             val number = if (isOld) line.oldLineNumber else line.newLineNumber
             val content = if (isOld) line.oldText else line.newText
             val tint = when {
-                line.kind == DiffLineKind.UNCHANGED -> DesignTokens.SecondaryText
+                line.kind == DiffLineKind.UNCHANGED -> LocalDesignColorTokens.current.textSecondary
                 isOld -> DesignTokens.Error
                 else -> DesignTokens.Success
             }
@@ -184,7 +185,7 @@ private fun DiffPane(lines: List<SideBySideDiffLine>, isOld: Boolean, modifier: 
                 append(" │ ")
                 withStyle(SpanStyle(color = tint)) { append(content.orEmpty()) }
             }
-            Text(annotated, style = KaiTypography.labelSmall.copy(fontFamily = FontFamily.Monospace), maxLines = 1, color = DesignTokens.SecondaryText)
+            Text(annotated, style = KaiTypography.labelSmall.copy(fontFamily = FontFamily.Monospace), maxLines = 1, color = LocalDesignColorTokens.current.textSecondary)
         }
     }
 }

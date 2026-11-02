@@ -140,7 +140,7 @@ object KaiThemeColors {
     var borderStrong: Color = Color(0x40FFFFFF)
 }
 
-val TextPrimary: Color get() = KaiThemeColors.textPrimary
+val TextPrimary: Color = DesignTokens.PrimaryText
 val TextSecondary: Color get() = KaiThemeColors.textSecondary
 val TextTertiary: Color get() = KaiThemeColors.textTertiary
 val TextMuted: Color get() = KaiThemeColors.textMuted

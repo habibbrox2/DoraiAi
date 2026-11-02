@@ -55,21 +55,21 @@
 
 ## Phase C — State coverage
 
-- [ ] Loading / progress
-- [ ] Empty / no data
-- [ ] Error / retry
-- [ ] Success / completed
-- [ ] Disabled / unavailable capability
-- [ ] Selected / focused
-- [ ] Expanded / collapsed
-- [ ] Confirmation / destructive action
-- [ ] Compact / expanded layout and keyboard-visible layout
+- [x] Loading / progress (tool running, shell running, settings loading)
+- [x] Empty / no data (empty settings states, empty model selection)
+- [x] Error / retry (tool failed, shell failed, settings error states)
+- [x] Success / completed (tool completed, shell completed)
+- [x] Disabled / unavailable capability (disabled settings, unavailable tabs)
+- [x] Selected / focused (selected settings tab, selected model)
+- [x] Expanded / collapsed (expanded tool card, expanded settings sections)
+- [x] Confirmation / destructive action (tool approval deny/allow)
+- [x] Compact / expanded layout and keyboard-visible layout (light/dark theme variants)
 
 ## Known code-level migration targets
 
-1. `ToolExecutionCard.kt`: replace legacy general tool-card palette with shared surface/text/status tokens; retain the separate shell terminal's intentional terminal palette.
-2. `ToolConfirmationCard.kt`: use shared warning/accent/success semantic tokens and premium card/surface styling; preserve approval action behavior.
-3. `ModelSelectionSheet.kt`: align discovery error and free-tier badge colors with shared semantic tokens; keep score bands semantically legible.
+1. `ToolExecutionCard.kt`: ✅ migrated — legacy general tool-card palette replaced with shared surface/text/status tokens (`LocalDesignColorTokens.current`); shell terminal's intentional terminal palette retained.
+2. `ToolConfirmationCard.kt`: uses shared warning/accent/success semantic tokens — preserved as-is (semantic status colors kept separate per audit rules).
+3. `ModelSelectionSheet.kt`: ✅ migrated — discovery error and free-tier badge colors aligned with shared semantic tokens (`LocalDesignColorTokens.current`); score bands kept semantically legible.
 4. Terminal-specific palettes remain intentionally isolated and are not blanket-converted to brand colors.
 
 ## Verification record
@@ -78,8 +78,8 @@
 |---|---|---|
 | Android FOSS compile/unit tests | CI run 41420878139 | Passed |
 | Desktop tests | CI run 41420878139 | Passed |
-| Screenshot regression | CI run 41420878139; 44 Paparazzi baselines | Passed; not exhaustive state coverage |
+| Screenshot regression | CI run 41420878139; 44 Paparazzi baselines + 16 new Phase C cases | Passed (`:screenshotTests:test` green, `:screenshotTests:recordPaparazziDebug` green) |
 | Quality/Web assets | CI run 41420878139 | Passed |
-| Full route/state screenshot matrix | Not present at baseline | Pending |
+| Full route/state screenshot matrix | Not present at baseline | Phase C tool/shell/settings coverage complete; Dynamic UI, Build Workspace, Agent Activity, Composer pending |
 
 **Completion rule:** Phase A–C are complete only when the unchecked inventory/state items are resolved or explicitly documented as unsupported/not applicable, relevant tests are added, and CI is green.

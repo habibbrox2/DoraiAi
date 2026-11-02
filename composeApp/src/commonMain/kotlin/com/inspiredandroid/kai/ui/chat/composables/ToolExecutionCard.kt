@@ -47,6 +47,7 @@ import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.rememberCopyToClipboard
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kotlinx.coroutines.delay
 
 /**
@@ -85,8 +86,8 @@ fun ShellExecutionCard(
     val terminalBg = DesignTokens.TerminalBackground
     val headerBg = DesignTokens.SurfaceElevated
     val borderColor = DesignTokens.BorderSubtle
-    val textSlate = DesignTokens.PrimaryText
-    val textMuted = DesignTokens.MutedText
+    val textSlate = LocalDesignColorTokens.current.textPrimary
+    val textMuted = LocalDesignColorTokens.current.textMuted
     val accentCyan = Color(0xFF38BDF8)
     val successGreen = DesignTokens.Success
     val errorRed = DesignTokens.Error
@@ -253,7 +254,7 @@ fun ShellExecutionCard(
                             text = command,
                             style = KaiTypography.bodySmall.copy(fontWeight = FontWeight.Medium),
                             fontFamily = FontFamily.Monospace,
-                            color = DesignTokens.PrimaryText,
+                            color = LocalDesignColorTokens.current.textPrimary,
                         )
                     }
                 }
@@ -352,8 +353,8 @@ fun ToolExecutionCard(
     val cardShape = RoundedCornerShape(DesignTokens.RadiusCard)
     val cardBg = DesignTokens.SurfaceElevated
     val borderColor = DesignTokens.BorderSubtle
-    val textSlate = DesignTokens.PrimaryText
-    val textMuted = DesignTokens.MutedText
+    val textSlate = LocalDesignColorTokens.current.textPrimary
+    val textMuted = LocalDesignColorTokens.current.textMuted
     val accentTeal = DesignTokens.PrimaryCyan
     val successGreen = DesignTokens.Success
     val errorRed = DesignTokens.Error
@@ -478,7 +479,7 @@ fun ToolExecutionCard(
                                     text = arguments,
                                     style = KaiTypography.bodySmall,
                                     fontFamily = FontFamily.Monospace,
-                                    color = DesignTokens.SecondaryText,
+                                    color = LocalDesignColorTokens.current.textSecondary,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(6.dp))

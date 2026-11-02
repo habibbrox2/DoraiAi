@@ -1,6 +1,6 @@
 # Chat & Conversations
 
-**Last verified:** 2026-10-21
+**Last verified:** 2026-11-03
 
 Kai's chat system manages the message history, conversation persistence, file attachments, and speech output. Conversations are service-independent — switching providers does not affect which conversation is loaded or restored. Multiple conversations are persisted and browsable via a history sheet.
 

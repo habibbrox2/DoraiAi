@@ -51,8 +51,6 @@ import com.inspiredandroid.kai.TerminalLine
 import com.inspiredandroid.kai.linux.LinuxDistro
 import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.OperationalStatus
 import com.inspiredandroid.kai.ui.components.StatusBadge
 import com.inspiredandroid.kai.ui.handCursor
@@ -60,6 +58,7 @@ import com.inspiredandroid.kai.ui.settings.SandboxUiState
 import com.inspiredandroid.kai.ui.settings.SettingsCard
 import com.inspiredandroid.kai.ui.settings.TerminalContent
 import com.inspiredandroid.kai.ui.settings.TerminalDarkBg
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.sandbox_session_chip_session
 import kai.composeapp.generated.resources.sandbox_session_chip_temporary
@@ -119,7 +118,7 @@ internal fun SandboxTabsContent(
                     Text(
                         text = "Sandbox workspace",
                         style = com.inspiredandroid.kai.ui.KaiTypography.titleMedium,
-                        color = com.inspiredandroid.kai.ui.TextPrimary,
+                        color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f).semantics { heading() },
                     )
                     StatusBadge(label = "Ready", status = OperationalStatus.Ready)
@@ -185,7 +184,7 @@ internal fun SandboxTabsContent(
                         // moment the user picks the other distribution.
                         text = sandboxState.distro.displayName,
                         style = KaiTypography.titleMedium,
-                        color = TextPrimary,
+                        color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
                     StatusBadge(label = badgeLabel, status = badgeStatus)
@@ -196,7 +195,7 @@ internal fun SandboxTabsContent(
                 Text(
                     text = stringResource(Res.string.settings_sandbox_description),
                     style = KaiTypography.bodySmall,
-                    color = TextSecondary,
+                    color = LocalDesignColorTokens.current.textSecondary,
                 )
 
                 Spacer(Modifier.height(6.dp))
@@ -212,12 +211,12 @@ internal fun SandboxTabsContent(
                             stringResource(Res.string.settings_sandbox_distro_alpine_detail)
                     },
                     style = KaiTypography.bodySmall,
-                    color = TextSecondary,
+                    color = LocalDesignColorTokens.current.textSecondary,
                 )
                 Text(
                     text = "Files, packages, and terminal sessions live inside the environment and are kept between launches.",
                     style = KaiTypography.bodySmall,
-                    color = TextSecondary,
+                    color = LocalDesignColorTokens.current.textSecondary,
                 )
 
                 if (sandboxState.sandboxProgress != null) {
@@ -283,7 +282,7 @@ private fun SessionChipRow(viewModel: SandboxSessionViewModel) {
                 contentColor = if (isSelected) {
                     com.inspiredandroid.kai.ui.theme.DesignTokens.Background
                 } else {
-                    com.inspiredandroid.kai.ui.theme.DesignTokens.SecondaryText
+                    com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens.current.textSecondary
                 },
             )
 
@@ -372,7 +371,7 @@ private fun SandboxSubTabSelector(
                 contentColor = if (isSelected) {
                     com.inspiredandroid.kai.ui.theme.DesignTokens.Background
                 } else {
-                    com.inspiredandroid.kai.ui.theme.DesignTokens.SecondaryText
+                    com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens.current.textSecondary
                 },
             )
 
@@ -452,7 +451,7 @@ internal fun SandboxProgressRow(progress: Float?, statusText: String, onCancel: 
             text = statusText,
             modifier = Modifier.weight(1f),
             style = KaiTypography.bodySmall,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
         )
         TextButton(onClick = onCancel, modifier = Modifier.handCursor()) {
             Text(stringResource(Res.string.settings_sandbox_cancel))

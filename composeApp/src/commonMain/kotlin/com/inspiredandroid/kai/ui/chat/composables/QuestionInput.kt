@@ -73,6 +73,7 @@ import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.outlineTextFieldColors
 import com.inspiredandroid.kai.ui.settings.SettingsModel
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
@@ -202,7 +203,7 @@ internal fun TrailingIcon(
             vectorResource(icon),
             modifier = Modifier.size(24.dp).then(pulseModifier),
             contentDescription = contentDescription,
-            tint = DesignTokens.PrimaryText,
+            tint = LocalDesignColorTokens.current.textPrimary,
         )
     }
 }
@@ -212,7 +213,7 @@ internal fun CircleIconButton(
     icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    tint: Color = DesignTokens.SecondaryText,
+    tint: Color = LocalDesignColorTokens.current.textSecondary,
     contentDescription: String,
 ) {
     Box(
@@ -324,12 +325,12 @@ fun QuestionInput(
                                         Text(
                                             modifier = Modifier.handCursor(),
                                             text = truncateFileName(file.name),
-                                            color = DesignTokens.PrimaryText,
+                                            color = LocalDesignColorTokens.current.textPrimary,
                                         )
                                         Icon(
                                             imageVector = Icons.Default.Close,
                                             contentDescription = "Remove attachment",
-                                            tint = DesignTokens.TertiaryText,
+                                            tint = LocalDesignColorTokens.current.textTertiary,
                                             modifier = Modifier.size(14.dp),
                                         )
                                     }
@@ -422,7 +423,7 @@ fun QuestionInput(
                     placeholder = {
                         Text(
                             stringResource(Res.string.prompt_ask_question),
-                            color = DesignTokens.TertiaryText,
+                            color = LocalDesignColorTokens.current.textTertiary,
                         )
                     },
                     trailingIcon = {
@@ -470,7 +471,7 @@ fun QuestionInput(
                                 icon = vectorResource(Res.drawable.ic_attach),
                                 onClick = { filePickerLauncher.launch() },
                                 modifier = Modifier.padding(start = 6.dp),
-                                tint = DesignTokens.SecondaryText,
+                                tint = LocalDesignColorTokens.current.textSecondary,
                                 contentDescription = "Attach file",
                             )
                         }

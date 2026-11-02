@@ -52,6 +52,7 @@ import com.inspiredandroid.kai.prefersReducedMotion
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.settings_tab_account
 import kai.composeapp.generated.resources.settings_tab_agent
@@ -101,7 +102,7 @@ fun SettingsNavRail(
                     Text(
                         text = group.uppercase(),
                         style = KaiTypography.labelSmall,
-                        color = DesignTokens.TertiaryText,
+                        color = LocalDesignColorTokens.current.textTertiary,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.fillMaxWidth().padding(start = 10.dp, top = 10.dp, bottom = 4.dp),
                     )
@@ -136,7 +137,7 @@ fun SettingsNavRail(
                     label = "railBg",
                 )
                 val textColor by animateColorAsState(
-                    targetValue = if (isSelected) DesignTokens.PrimaryCyan else DesignTokens.SecondaryText,
+                    targetValue = if (isSelected) DesignTokens.PrimaryCyan else LocalDesignColorTokens.current.textSecondary,
                     animationSpec = tween(durationMillis = if (prefersReducedMotion()) 0 else 200),
                     label = "railText",
                 )

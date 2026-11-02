@@ -49,6 +49,7 @@ import com.inspiredandroid.kai.ui.chat.activities.AgentActivity
 import com.inspiredandroid.kai.ui.chat.activities.formatAgentRunDuration
 import com.inspiredandroid.kai.ui.chat.activities.summarizeAgentRun
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kotlin.time.Clock
 
 private val secretAssignment = Regex(
@@ -106,14 +107,14 @@ internal fun AgentActivityDisclosure(
             ) {
                 Box(Modifier.size(9.dp).clip(CircleShape).background(overallColor))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Agent run", style = KaiTypography.labelLarge.copy(fontWeight = FontWeight.SemiBold), color = DesignTokens.PrimaryText)
-                    Text(summary, style = KaiTypography.labelSmall, color = DesignTokens.SecondaryText)
+                    Text("Agent run", style = KaiTypography.labelLarge.copy(fontWeight = FontWeight.SemiBold), color = LocalDesignColorTokens.current.textPrimary)
+                    Text(summary, style = KaiTypography.labelSmall, color = LocalDesignColorTokens.current.textSecondary)
                 }
-                Text(activities.size.toString(), style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.Bold), color = DesignTokens.TertiaryText)
+                Text(activities.size.toString(), style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.Bold), color = LocalDesignColorTokens.current.textTertiary)
                 Icon(
                     imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = if (expanded) "Collapse activity" else "Expand activity",
-                    tint = DesignTokens.TertiaryText,
+                    tint = LocalDesignColorTokens.current.textTertiary,
                 )
             }
             AnimatedVisibility(visible = expanded, enter = expandVertically(), exit = shrinkVertically()) {
@@ -157,7 +158,7 @@ private fun AgentActivityRow(
             ) {
                 Box(Modifier.size(7.dp).clip(CircleShape).background(statusColor))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(activity.title, style = KaiTypography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = DesignTokens.PrimaryText, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(activity.title, style = KaiTypography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = LocalDesignColorTokens.current.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(
                         activityStatusLabel(activity.status) + (activity.durationMs?.let { " · ${formatDuration(it)}" } ?: ""),
                         style = KaiTypography.labelSmall,
@@ -167,7 +168,7 @@ private fun AgentActivityRow(
                 Icon(
                     imageVector = if (detailsExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = if (detailsExpanded) "Hide details" else "Show details",
-                    tint = DesignTokens.TertiaryText,
+                    tint = LocalDesignColorTokens.current.textTertiary,
                 )
             }
             AnimatedVisibility(visible = detailsExpanded, enter = expandVertically(), exit = shrinkVertically()) {
@@ -186,7 +187,7 @@ private fun AgentActivityRow(
                         is ActivityDetails.ShellCommand -> {
                             ActivityCodePreview("Command", details.command)
                             details.workingDirectory?.takeIf { it.isNotBlank() }?.let {
-                                Text("Working directory · ${safeActivityPreview(it, 240)}", style = KaiTypography.labelSmall, color = DesignTokens.TertiaryText)
+                                Text("Working directory · ${safeActivityPreview(it, 240)}", style = KaiTypography.labelSmall, color = LocalDesignColorTokens.current.textTertiary)
                             }
                             details.stdout?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview("Output", it) }
                             details.stderr?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview("Stderr", it, DesignTokens.Error) }
@@ -212,12 +213,12 @@ private fun AgentActivityRow(
                         is ActivityDetails.Generic -> details.content?.let { ActivityCodePreview("Details", it) }
 
                         is ActivityDetails.Skill -> {
-                            Text(details.skillName, style = KaiTypography.labelSmall, color = DesignTokens.PrimaryText)
-                            details.description?.let { Text(safeActivityPreview(it, 500), style = KaiTypography.labelSmall, color = DesignTokens.SecondaryText) }
+                            Text(details.skillName, style = KaiTypography.labelSmall, color = LocalDesignColorTokens.current.textPrimary)
+                            details.description?.let { Text(safeActivityPreview(it, 500), style = KaiTypography.labelSmall, color = LocalDesignColorTokens.current.textSecondary) }
                         }
 
                         is ActivityDetails.Permission -> {
-                            Text("${details.action} · ${details.target}", style = KaiTypography.labelSmall, color = DesignTokens.SecondaryText)
+                            Text("${details.action} · ${details.target}", style = KaiTypography.labelSmall, color = LocalDesignColorTokens.current.textSecondary)
                         }
                     }
                 }
@@ -227,9 +228,9 @@ private fun AgentActivityRow(
 }
 
 @Composable
-internal fun ActivityCodePreview(label: String, value: String, valueColor: Color = DesignTokens.SecondaryText) {
+internal fun ActivityCodePreview(label: String, value: String, valueColor: Color = LocalDesignColorTokens.current.textSecondary) {
     Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-        Text(label, style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold), color = DesignTokens.TertiaryText)
+        Text(label, style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold), color = LocalDesignColorTokens.current.textTertiary)
         Text(
             text = safeActivityPreview(value),
             style = KaiTypography.bodySmall.copy(fontFamily = FontFamily.Monospace),

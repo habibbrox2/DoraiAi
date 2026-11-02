@@ -114,10 +114,10 @@ internal fun terminalColors(darkBackground: Boolean = false): TerminalColors {
         return TerminalColors(
             bg = DesignTokens.TerminalBackground,
             inputBg = DesignTokens.SurfaceElevated,
-            text = DesignTokens.PrimaryText,
+            text = LocalDesignColorTokens.current.textPrimary,
             prompt = DesignTokens.PrimaryCyan,
             error = DesignTokens.Error,
-            dimText = DesignTokens.TertiaryText,
+            dimText = LocalDesignColorTokens.current.textTertiary,
         )
     }
     return TerminalColors(

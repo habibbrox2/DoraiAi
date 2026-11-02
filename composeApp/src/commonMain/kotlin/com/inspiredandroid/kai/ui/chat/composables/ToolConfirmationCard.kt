@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.ic_flag
 import org.jetbrains.compose.resources.painterResource
@@ -92,7 +93,7 @@ fun ToolConfirmationCard(
                     Text(
                         text = targetInfo,
                         style = KaiTypography.labelSmall,
-                        color = DesignTokens.SecondaryText,
+                        color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         fontFamily = FontFamily.Monospace,
