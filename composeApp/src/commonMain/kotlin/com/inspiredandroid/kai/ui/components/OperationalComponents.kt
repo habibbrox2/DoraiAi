@@ -32,12 +32,10 @@ import com.inspiredandroid.kai.ui.BorderSoft
 import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SurfaceRaised
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
-import com.inspiredandroid.kai.ui.TextTertiary
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardBorder
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardColors
 import com.inspiredandroid.kai.ui.settings.SettingsSpacing
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 /**
  * Shared operational status vocabulary (Plan 4, Phase 1) so MCP, skills,
@@ -94,17 +92,20 @@ data class OperationalStatusColors(
 }
 
 @Composable
-fun rememberOperationalStatusColors(): OperationalStatusColors = remember {
-    OperationalStatusColors(
-        connected = TextSecondary,
-        connecting = AccentPrimary,
-        disabled = TextSecondary,
-        installing = AccentPrimary,
-        needsSetup = TextTertiary,
-        error = DangerAlert,
-        active = Color(0xFFE2E8F0),
-        ready = Color(0xFFE2E8F0),
-    )
+fun rememberOperationalStatusColors(): OperationalStatusColors {
+    val colors = LocalDesignColorTokens.current
+    return remember {
+        OperationalStatusColors(
+            connected = colors.textSecondary,
+            connecting = AccentPrimary,
+            disabled = colors.textSecondary,
+            installing = AccentPrimary,
+            needsSetup = colors.textTertiary,
+            error = DangerAlert,
+            active = Color(0xFFE2E8F0),
+            ready = Color(0xFFE2E8F0),
+        )
+    }
 }
 
 /**
@@ -118,10 +119,11 @@ fun StatusBadge(
     status: OperationalStatus,
     modifier: Modifier = Modifier,
 ) {
+    val designColors = LocalDesignColorTokens.current
     val colors = rememberOperationalStatusColors()
     val color = colors.forStatus(status)
     // Use neutral text color for status dot
-    val dotColor = if (color == TextSecondary) Color(0xFF6B7280) else color
+    val dotColor = if (color == designColors.textSecondary) Color(0xFF6B7280) else color
     Row(
         modifier = modifier.semantics {
             contentDescription = "Status: $label"
@@ -156,6 +158,7 @@ fun CapabilityCountCard(
     modifier: Modifier = Modifier,
     status: OperationalStatus? = null,
 ) {
+    val colors = LocalDesignColorTokens.current
     val cardBg = SurfaceRaised.copy(alpha = 0.5f)
     val cardBorder = BorderStroke(1.dp, BorderSoft)
     val cardShape = com.inspiredandroid.kai.ui.settings.SettingsShapes.card
@@ -174,12 +177,12 @@ fun CapabilityCountCard(
                 text = count,
                 style = KaiTypography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
-                color = TextPrimary,
+                color = colors.textPrimary,
             )
             Text(
                 text = label,
                 style = KaiTypography.bodySmall,
-                color = TextSecondary,
+                color = colors.textSecondary,
             )
             if (status != null) {
                 StatusBadge(
@@ -209,6 +212,7 @@ fun CollectionEmptyState(
     message: String,
     modifier: Modifier = Modifier,
 ) {
+    val colors = LocalDesignColorTokens.current
     val cardBg = SurfaceRaised.copy(alpha = 0.4f)
     val cardBorder = BorderStroke(1.dp, BorderSoft.copy(alpha = 0.4f))
     val cardShape = com.inspiredandroid.kai.ui.settings.SettingsShapes.card
@@ -225,7 +229,7 @@ fun CollectionEmptyState(
         Text(
             text = message,
             style = KaiTypography.bodyMedium,
-            color = TextSecondary,
+            color = colors.textSecondary,
             textAlign = TextAlign.Center,
         )
     }

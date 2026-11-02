@@ -20,8 +20,7 @@ import com.inspiredandroid.kai.ui.BorderSoft
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SurfaceElevated
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import org.jetbrains.compose.resources.vectorResource
 
@@ -42,6 +41,7 @@ fun KaiAvatar(
     statusColor: Color? = null,
     modifier: Modifier = Modifier,
 ) {
+    val colors = LocalDesignColorTokens.current
     Box(
         modifier = modifier
             .size(size)
@@ -63,7 +63,7 @@ fun KaiAvatar(
                 modifier = Modifier
                     .size(size * 0.5f)
                     .clip(CircleShape)
-                    .background(TextSecondary),
+                    .background(colors.textSecondary),
             )
         }
 

@@ -9,8 +9,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.handCursor
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 @Composable
 fun RefreshIconButton(
@@ -19,6 +19,7 @@ fun RefreshIconButton(
     contentDescription: String,
     modifier: Modifier = Modifier,
 ) {
+    val colors = LocalDesignColorTokens.current
     IconButton(
         onClick = onClick,
         enabled = !isRefreshing,
@@ -28,13 +29,13 @@ fun RefreshIconButton(
             CircularProgressIndicator(
                 modifier = Modifier.size(18.dp),
                 strokeWidth = 2.dp,
-                color = TextSecondary,
+                color = colors.textSecondary,
             )
         } else {
             Icon(
                 imageVector = Icons.Default.Refresh,
                 contentDescription = contentDescription,
-                tint = TextSecondary,
+                tint = colors.textSecondary,
             )
         }
     }

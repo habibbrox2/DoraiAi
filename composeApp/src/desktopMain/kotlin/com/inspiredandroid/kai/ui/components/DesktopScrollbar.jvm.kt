@@ -11,11 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.inspiredandroid.kai.ui.TextPrimary
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 @Composable
 private fun scrollbarStyle(): ScrollbarStyle {
-    val onSurface = TextPrimary
+    val colors = LocalDesignColorTokens.current
+    val onSurface = colors.textPrimary
     return remember(onSurface) {
         ScrollbarStyle(
             minimalHeight = 48.dp,
