@@ -441,8 +441,13 @@ class FileReviewEngine(
                     originalFile(proposal.id).delete()
                     proposedFile(proposal.id).delete()
                     changed = true
-                    proposal.copy(state = FileReviewState.REJECTED, updatedAtMs = now, rollbackAvailable = false)
+                    proposal.copy(
+                        state = FileReviewState.REJECTED,
+                        updatedAtMs = now,
+                        rollbackAvailable = false,
+                    )
                 }
+
                 proposal.state == FileReviewState.ACCEPTED &&
                     proposal.rollbackAvailable &&
                     now - proposal.updatedAtMs > BACKUP_TTL_MS -> {
