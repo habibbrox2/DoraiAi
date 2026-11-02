@@ -25,7 +25,9 @@ class AndroidProjectFileReviewFileSystem(
         val canonicalTarget = runCatching { target.canonicalFile }.getOrNull() ?: return null
         if (canonicalTarget != root &&
             !canonicalTarget.path.startsWith(root.path + File.separator)
-        ) return null
+        ) {
+            return null
+        }
         return target
     }
 }

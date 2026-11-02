@@ -456,6 +456,7 @@ class FileReviewEngine(
                     changed = true
                     proposal.copy(rollbackAvailable = false)
                 }
+
                 else -> proposal
             }
         }
