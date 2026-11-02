@@ -266,7 +266,7 @@ internal fun ModelSelection(
             if (isLoading) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     CircularProgressIndicator(modifier = Modifier.width(18.dp), strokeWidth = 2.dp)
-                    Text("Fetching models from provider…", style = KaiTypography.bodySmall, color = TextSecondary)
+                    Text("Fetching models from provider…", style = KaiTypography.bodySmall, color = DesignTokens.SecondaryText)
                 }
             } else {
                 Text(
