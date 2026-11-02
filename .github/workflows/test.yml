@@ -156,8 +156,7 @@ jobs:
         run: |
           set -euo pipefail
           mapfile -t goldens < <(
-            find screenshotTests/src/test/snapshots/images -maxdepth 1 -type f \\
-              -name '*PremiumScreenScreenshotTest_*.png' -print | sort
+            find screenshotTests/src/test/snapshots/images -maxdepth 1 -type f -name '*PremiumScreenScreenshotTest_*.png' -print | sort
           )
           if [[ "${#goldens[@]}" -ne 2 ]]; then
             echo "::error::Expected exactly two PremiumScreenScreenshotTest golden PNGs; found ${#goldens[@]}."
