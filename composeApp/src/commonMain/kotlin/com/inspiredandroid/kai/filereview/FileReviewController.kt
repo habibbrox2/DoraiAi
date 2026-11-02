@@ -60,19 +60,15 @@ sealed interface FileReviewActionResult {
     data object NotFound : FileReviewActionResult
 }
 
-/**
- * Resolves only paths inside a configured workspace. Implementations must reject
- * absolute-path tricks, traversal, symlinks and non-regular targets.
- */
-interface FileReviewFileSystem {
-    fun resolve(workspace: FileReviewWorkspace, guestPath: String): java.io.File?
-}
-
 interface FileReviewController {
     val proposals: StateFlow<List<FileReviewProposal>>
 
     suspend fun initialize()
-    suspend fun proposeTextChange(workspace: FileReviewWorkspace, path: String, content: String): FileReviewActionResult
+    suspend fun proposeTextChange(
+        workspace: FileReviewWorkspace,
+        path: String,
+        content: String,
+    ): FileReviewActionResult
     suspend fun proposeDelete(workspace: FileReviewWorkspace, path: String): FileReviewActionResult
     suspend fun preview(proposalId: String): FileReviewPreview?
     suspend fun accept(proposalId: String): FileReviewActionResult
