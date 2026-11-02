@@ -61,9 +61,6 @@ import com.inspiredandroid.kai.ui.KaiElevation
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SurfaceRaised
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
-import com.inspiredandroid.kai.ui.TextTertiary
 import com.inspiredandroid.kai.ui.chat.ChatUiState
 import com.inspiredandroid.kai.ui.chat.ConversationSummary
 import com.inspiredandroid.kai.ui.components.CollectionEmptyState
@@ -77,6 +74,7 @@ import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardBorder
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardColors
 import com.inspiredandroid.kai.ui.settings.SettingsTab
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.logo
 import org.jetbrains.compose.resources.painterResource
@@ -207,7 +205,7 @@ private fun DashboardHeader(
                     Icon(
                         imageVector = BackIcon,
                         contentDescription = "Back to chat",
-                        tint = TextPrimary,
+                        tint = LocalDesignColorTokens.current.textPrimary,
                     )
                 }
             }
@@ -223,12 +221,12 @@ private fun DashboardHeader(
                     text = "Brox Kai",
                     style = KaiTypography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Text(
                     text = "What are you building today?",
                     style = KaiTypography.bodyMedium,
-                    color = TextTertiary,
+                    color = LocalDesignColorTokens.current.textTertiary,
                 )
             }
         }
@@ -310,7 +308,7 @@ private fun ReadinessCard(
                                 "${service.serviceName} · ${service.modelId}"
                             },
                             style = KaiTypography.bodyMedium,
-                            color = TextSecondary,
+                            color = LocalDesignColorTokens.current.textSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f),
@@ -332,7 +330,7 @@ private fun ReadinessCard(
                         Text(
                             text = fact.label,
                             style = KaiTypography.bodyMedium,
-                            color = TextSecondary,
+                            color = LocalDesignColorTokens.current.textSecondary,
                             modifier = Modifier.weight(1f),
                         )
                         StatusBadge(label = fact.value, status = fact.status)
@@ -438,7 +436,7 @@ private fun DashboardActionCard(
     val iconTint = if (action.isPrimary) {
         AccentPrimary
     } else {
-        TextPrimary
+        LocalDesignColorTokens.current.textPrimary
     }
     val border = if (action.isPrimary) {
         BorderStroke(1.dp, AccentPrimary.copy(alpha = 0.5f))
@@ -456,9 +454,9 @@ private fun DashboardActionCard(
                 .fillMaxHeight(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = CardFill,
-                contentColor = TextPrimary,
+                contentColor = LocalDesignColorTokens.current.textPrimary,
                 disabledContainerColor = CardFill.copy(alpha = 0.5f),
-                disabledContentColor = TextPrimary.copy(alpha = 0.4f),
+                disabledContentColor = LocalDesignColorTokens.current.textPrimary.copy(alpha = 0.4f),
             ),
             shape = cardShape,
             border = border,
@@ -495,12 +493,12 @@ private fun DashboardActionCard(
                         text = action.title,
                         style = KaiTypography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = TextPrimary,
+                        color = LocalDesignColorTokens.current.textPrimary,
                     )
                     Text(
                         text = action.subtitle,
                         style = KaiTypography.bodySmall,
-                        color = TextTertiary,
+                        color = LocalDesignColorTokens.current.textTertiary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -508,7 +506,7 @@ private fun DashboardActionCard(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null,
-                    tint = TextTertiary,
+                    tint = LocalDesignColorTokens.current.textTertiary,
                     modifier = Modifier.size(20.dp),
                 )
             }
@@ -539,7 +537,7 @@ private fun DashboardActionCard(
                     Icon(
                         imageVector = action.icon,
                         contentDescription = action.title,
-                        tint = TextTertiary,
+                        tint = LocalDesignColorTokens.current.textTertiary,
                         modifier = Modifier.size(24.dp),
                     )
                 }
@@ -551,12 +549,12 @@ private fun DashboardActionCard(
                         text = action.title,
                         style = KaiTypography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = TextPrimary.copy(alpha = 0.7f),
+                        color = LocalDesignColorTokens.current.textPrimary.copy(alpha = 0.7f),
                     )
                     Text(
                         text = action.subtitle,
                         style = KaiTypography.bodySmall,
-                        color = TextTertiary.copy(alpha = 0.8f),
+                        color = LocalDesignColorTokens.current.textTertiary.copy(alpha = 0.8f),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -620,7 +618,7 @@ private fun RecentWorkSection(
                         text = "Recent conversations",
                         style = KaiTypography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
-                        color = TextPrimary,
+                        color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
                     TextButton(
@@ -652,7 +650,7 @@ private fun RecentWorkSection(
                         text = "Recent projects",
                         style = KaiTypography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
-                        color = TextPrimary,
+                        color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
                     TextButton(
@@ -692,7 +690,7 @@ private fun ConversationRow(
             .handCursor(),
         colors = ButtonDefaults.buttonColors(
             containerColor = CardFill,
-            contentColor = TextPrimary,
+            contentColor = LocalDesignColorTokens.current.textPrimary,
         ),
         shape = cardShape,
         border = BorderStroke(1.dp, BorderSoft),
@@ -725,20 +723,20 @@ private fun ConversationRow(
                 Text(
                     text = conversation.title,
                     style = KaiTypography.bodyLarge,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = formatDashboardDate(conversation.updatedAt),
                     style = KaiTypography.bodySmall,
-                    color = TextTertiary,
+                    color = LocalDesignColorTokens.current.textTertiary,
                 )
             }
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
-                tint = TextTertiary,
+                tint = LocalDesignColorTokens.current.textTertiary,
                 modifier = Modifier.size(18.dp),
             )
         }
@@ -760,7 +758,7 @@ private fun ProjectRow(
             .handCursor(),
         colors = ButtonDefaults.buttonColors(
             containerColor = CardFill,
-            contentColor = TextPrimary,
+            contentColor = LocalDesignColorTokens.current.textPrimary,
         ),
         shape = cardShape,
         border = BorderStroke(1.dp, BorderSoft),
@@ -782,14 +780,14 @@ private fun ProjectRow(
                 Icon(
                     imageVector = Icons.Filled.Build,
                     contentDescription = "Project",
-                    tint = TextPrimary,
+                    tint = LocalDesignColorTokens.current.textPrimary,
                     modifier = Modifier.size(20.dp),
                 )
             }
             Text(
                 text = project,
                 style = KaiTypography.bodyLarge,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
@@ -797,7 +795,7 @@ private fun ProjectRow(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
-                tint = TextTertiary,
+                tint = LocalDesignColorTokens.current.textTertiary,
                 modifier = Modifier.size(18.dp),
             )
         }
