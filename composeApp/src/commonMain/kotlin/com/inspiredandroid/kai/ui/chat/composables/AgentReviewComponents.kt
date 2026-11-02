@@ -38,9 +38,12 @@ import com.inspiredandroid.kai.ui.theme.DesignTokens
 @Composable
 internal fun FileChangeReviewCard(activityId: String, details: ActivityDetails.FileOperation, status: ActivityStatus) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("${details.operation} · ${details.path}", style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold), color = DesignTokens.BrandCyan)
+        Text("${details.operation} · ${safeActivityPreview(details.path, 240)}", style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold), color = DesignTokens.BrandCyan)
         when {
-            details.oldContent != null && details.newContent != null -> SideBySideFileDiff(details.oldContent, details.newContent)
+            details.oldContent != null && details.newContent != null -> SideBySideFileDiff(
+                before = safeActivityPreview(details.oldContent, 30_000),
+                after = safeActivityPreview(details.newContent, 30_000),
+            )
             !details.diff.isNullOrBlank() -> ActivityCodePreview("Patch supplied by tool", details.diff)
             !details.newContent.isNullOrBlank() -> ActivityCodePreview("New content · original snapshot unavailable", details.newContent, DesignTokens.Success)
             !details.oldContent.isNullOrBlank() -> ActivityCodePreview("Original content · updated snapshot unavailable", details.oldContent, DesignTokens.Error)

@@ -197,7 +197,7 @@ private fun AgentActivityRow(activity: AgentActivity) {
 }
 
 @Composable
-private fun ActivityCodePreview(label: String, value: String, valueColor: Color = DesignTokens.SecondaryText) {
+internal fun ActivityCodePreview(label: String, value: String, valueColor: Color = DesignTokens.SecondaryText) {
     Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
         Text(label, style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold), color = DesignTokens.TertiaryText)
         Text(
@@ -210,7 +210,7 @@ private fun ActivityCodePreview(label: String, value: String, valueColor: Color 
     }
 }
 
-private fun safeActivityPreview(value: String, maxLength: Int = 1200): String {
+internal fun safeActivityPreview(value: String, maxLength: Int = 1200): String {
     val redacted = value.replace(secretAssignment, "$1$2[REDACTED]").replace(bearerToken, "$1[REDACTED]")
     return if (redacted.length > maxLength) redacted.take(maxLength) + "…" else redacted
 }
