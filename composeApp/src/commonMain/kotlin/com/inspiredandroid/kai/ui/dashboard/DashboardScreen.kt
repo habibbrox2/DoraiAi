@@ -137,7 +137,7 @@ internal fun dashboardColumnsFor(width: Dp): Int = when {
 }
 
 @Composable
-internal fun DashboardScreenContent(
+fun DashboardScreenContent(
     state: DashboardUiState,
     onNavigateToChat: () -> Unit,
     onOpenBuild: (String) -> Unit,
