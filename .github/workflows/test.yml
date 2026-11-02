@@ -142,10 +142,8 @@ jobs:
           --tests com.inspiredandroid.kai.screenshots.PremiumScreenScreenshotTest
           --no-daemon --stacktrace
 
-      - name: Verify Paparazzi golden files
-        run: ./gradlew :screenshotTests:verifyPaparazziDebug --no-daemon --stacktrace
-
-      # Commit only the two explicitly requested goldens, then remove the marker.
+      # Commit the two explicitly requested goldens immediately after recording.
+      # Do this before verification so a later baseline mismatch cannot discard the new files.
       # GITHUB_TOKEN-authored pushes do not recursively trigger another workflow run.
       - name: Commit generated Premium UI goldens
         if: >-
@@ -158,12 +156,12 @@ jobs:
         run: |
           set -euo pipefail
           mapfile -t goldens < <(
-            find screenshotTests/src/test/snapshots/images -maxdepth 1 -type f \
-              -name 'PremiumScreenScreenshotTest_*.png' -print | sort
+            find screenshotTests/src/test/snapshots/images -maxdepth 1 -type f \\
+              -name '*PremiumScreenScreenshotTest_*.png' -print | sort
           )
           if [[ "${#goldens[@]}" -ne 2 ]]; then
             echo "::error::Expected exactly two PremiumScreenScreenshotTest golden PNGs; found ${#goldens[@]}."
-            printf '%s\n' "${goldens[@]}"
+            printf '%s\\n' "${goldens[@]}"
             exit 1
           fi
 
@@ -175,6 +173,9 @@ jobs:
           git diff --cached --check
           git commit -m "test(ui): record Dashboard and Kai Build Paparazzi goldens [skip ci]"
           git push origin "HEAD:${GITHUB_HEAD_REF}"
+
+      - name: Verify Paparazzi golden files
+        run: ./gradlew :screenshotTests:verifyPaparazziDebug --no-daemon --stacktrace
 
       - name: Upload screenshot regression reports
         if: always()
