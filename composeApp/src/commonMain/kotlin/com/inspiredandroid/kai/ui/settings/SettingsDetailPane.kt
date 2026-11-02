@@ -24,9 +24,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.inspiredandroid.kai.linux.LinuxDistro
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.VerticalScrollbarForList
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.settings_tab_data
 import org.jetbrains.compose.resources.stringResource
@@ -172,12 +171,12 @@ private fun SandboxUnavailableContent() {
         Text(
             text = "Linux Sandbox",
             style = KaiTypography.titleMedium,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
             text = "The Linux sandbox is only available on Android devices.",
             style = KaiTypography.bodySmall,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
         )
     }
 }
@@ -195,7 +194,7 @@ fun DataControlContent(
         Text(
             text = stringResource(Res.string.settings_tab_data),
             style = KaiTypography.titleMedium,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
         SettingsCard {
             Column(
@@ -205,7 +204,7 @@ fun DataControlContent(
                 Text(
                     text = "Manage your chat history and stored data.",
                     style = KaiTypography.bodyMedium,
-                    color = TextSecondary,
+                    color = LocalDesignColorTokens.current.textSecondary,
                 )
                 Button(onClick = { actions.onClearAllConversations() }) {
                     Text("Clear all conversations")
@@ -227,17 +226,17 @@ fun AccountPlanContent(
             Text(
                 text = "Brox Kai 2.0",
                 style = KaiTypography.titleMedium,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
             )
             Text(
                 text = "Version " + com.inspiredandroid.kai.Version.appVersion,
                 style = KaiTypography.bodySmall,
-                color = TextSecondary,
+                color = LocalDesignColorTokens.current.textSecondary,
             )
             Text(
                 text = uiState.configuredServices.size.toString() + " configured services",
                 style = KaiTypography.bodySmall,
-                color = TextSecondary,
+                color = LocalDesignColorTokens.current.textSecondary,
             )
         }
     }
@@ -283,12 +282,12 @@ private fun SettingsPageHeading(
         Text(
             text = title,
             style = KaiTypography.headlineSmall,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
             text = description,
             style = KaiTypography.bodySmall,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
         )
     }
 }

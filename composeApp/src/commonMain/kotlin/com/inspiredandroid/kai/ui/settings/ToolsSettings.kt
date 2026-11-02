@@ -36,14 +36,13 @@ import com.inspiredandroid.kai.ui.BorderSoft
 import com.inspiredandroid.kai.ui.KaiOutlinedTextField
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SurfaceRaised
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.CapabilityCountCard
 import com.inspiredandroid.kai.ui.components.CollectionEmptyState
 import com.inspiredandroid.kai.ui.components.OperationalStatus
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardBorder
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardColors
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.settings_tools_description
 import kai.composeapp.generated.resources.settings_tools_none_available
@@ -130,7 +129,7 @@ internal fun ToolsContent(
         Text(
             text = stringResource(Res.string.settings_tools_description),
             style = KaiTypography.bodySmall,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
         )
 
         Spacer(Modifier.height(16.dp))
@@ -366,12 +365,12 @@ private fun ToolItem(
                 Text(
                     text = tool.nameRes?.let { stringResource(it) } ?: tool.name,
                     style = KaiTypography.titleSmall,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Text(
                     text = tool.descriptionRes?.let { stringResource(it) } ?: tool.description,
                     style = KaiTypography.bodySmall,
-                    color = TextSecondary,
+                    color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
 
@@ -383,7 +382,7 @@ private fun ToolItem(
                 colors = androidx.compose.material3.SwitchDefaults.colors(
                     checkedThumbColor = com.inspiredandroid.kai.ui.AccentPrimary,
                     checkedTrackColor = com.inspiredandroid.kai.ui.AccentPrimary.copy(alpha = 0.3f),
-                    uncheckedThumbColor = TextSecondary,
+                    uncheckedThumbColor = LocalDesignColorTokens.current.textSecondary,
                     uncheckedTrackColor = BorderSoft.copy(alpha = 0.5f),
                 ),
             )

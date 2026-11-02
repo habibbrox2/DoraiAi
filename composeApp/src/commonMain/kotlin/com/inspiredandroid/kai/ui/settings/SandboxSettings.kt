@@ -29,11 +29,10 @@ import com.inspiredandroid.kai.formatFileSize
 import com.inspiredandroid.kai.linux.LinuxDistro
 import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.sandbox.SandboxProgressRow
 import com.inspiredandroid.kai.ui.sandbox.sandboxStatusText
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.settings_sandbox_cancel
 import kai.composeapp.generated.resources.settings_sandbox_description
@@ -79,14 +78,14 @@ internal fun SandboxSettingsCard(
                     // Before install this names what would be installed; after, what is.
                     text = sandboxState.distro.displayName,
                     style = KaiTypography.titleMedium,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
                 if (sandboxState.sandboxReady) {
                     if (sandboxState.sandboxDiskUsageMB > 0) {
                         Text(
                             text = stringResource(Res.string.settings_sandbox_disk_usage, sandboxState.sandboxDiskUsageMB),
                             style = KaiTypography.bodySmall,
-                            color = TextSecondary,
+                            color = LocalDesignColorTokens.current.textSecondary,
                         )
                     }
                 } else {
@@ -94,7 +93,7 @@ internal fun SandboxSettingsCard(
                     Text(
                         text = stringResource(Res.string.settings_sandbox_description),
                         style = KaiTypography.bodySmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
             }
@@ -141,7 +140,7 @@ internal fun SandboxSettingsCard(
                     migration.from.displayName,
                 ),
                 style = KaiTypography.bodyMedium,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
             )
             Text(
                 text = stringResource(
@@ -150,7 +149,7 @@ internal fun SandboxSettingsCard(
                     formatFileSize(migration.bytes),
                 ),
                 style = KaiTypography.bodySmall,
-                color = TextSecondary,
+                color = LocalDesignColorTokens.current.textSecondary,
             )
             Spacer(Modifier.height(8.dp))
             // Its own button rather than a third one in the action row below:
@@ -229,7 +228,7 @@ private fun DistroPicker(
     Text(
         text = stringResource(Res.string.settings_sandbox_distro_title),
         style = KaiTypography.labelLarge,
-        color = TextSecondary,
+        color = LocalDesignColorTokens.current.textSecondary,
     )
     Column(Modifier.selectableGroup()) {
         DistroOption(
@@ -283,12 +282,12 @@ private fun DistroOption(
             Text(
                 text = title,
                 style = KaiTypography.bodyMedium,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
             )
             Text(
                 text = detail,
                 style = KaiTypography.bodySmall,
-                color = TextSecondary,
+                color = LocalDesignColorTokens.current.textSecondary,
             )
         }
     }

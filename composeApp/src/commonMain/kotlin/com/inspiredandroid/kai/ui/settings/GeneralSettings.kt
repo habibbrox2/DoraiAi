@@ -32,11 +32,10 @@ import com.inspiredandroid.kai.data.AppLanguage
 import com.inspiredandroid.kai.data.AppSettings
 import com.inspiredandroid.kai.data.ThemeMode
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.KaiSlider
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.settings_daemon_mode
 import kai.composeapp.generated.resources.settings_daemon_mode_description
@@ -145,12 +144,12 @@ internal fun LanguageSwitch(
         Text(
             text = "Language",
             style = KaiTypography.titleMedium,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
             text = "App display language (default: Bengali)",
             style = KaiTypography.bodyMedium,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
         )
         FlowRow(
@@ -185,12 +184,12 @@ internal fun ThemeModeSwitch(
         Text(
             text = stringResource(Res.string.settings_theme),
             style = KaiTypography.titleMedium,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
             text = stringResource(Res.string.settings_theme_description),
             style = KaiTypography.bodyMedium,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
         )
         // One button per theme: the choice is visible at a glance and takes a single tap,
@@ -266,12 +265,12 @@ private fun UiScaleSection(
             Text(
                 text = stringResource(Res.string.settings_ui_scale),
                 style = KaiTypography.titleMedium,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
             )
             Text(
                 text = "${(sliderValue * 100).roundToInt()}%",
                 style = KaiTypography.labelLarge,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
             )
         }
         KaiSlider(
@@ -299,16 +298,16 @@ private fun TtsSettingsSection() {
         Text(
             text = "Text-to-Speech (TTS)",
             style = KaiTypography.titleMedium,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
             text = "কণ্ঠের স্বরভঙ্গি, গতি ও আবেগ আরও স্বাভাবিক করুন",
             style = KaiTypography.bodyMedium,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
         )
 
-        Text(text = "গতি (Speed): ${(rate * 100).roundToInt()}%", style = KaiTypography.labelLarge, color = TextPrimary)
+        Text(text = "গতি (Speed): ${(rate * 100).roundToInt()}%", style = KaiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         Slider(
             value = rate,
             onValueChange = { rate = it },
@@ -317,7 +316,7 @@ private fun TtsSettingsSection() {
         )
 
         Spacer(Modifier.height(8.dp))
-        Text(text = "স্বরভঙ্গি (Pitch): ${(pitch * 100).roundToInt()}%", style = KaiTypography.labelLarge, color = TextPrimary)
+        Text(text = "স্বরভঙ্গি (Pitch): ${(pitch * 100).roundToInt()}%", style = KaiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         Slider(
             value = pitch,
             onValueChange = { pitch = it },
@@ -326,7 +325,7 @@ private fun TtsSettingsSection() {
         )
 
         Spacer(Modifier.height(8.dp))
-        Text(text = "ভলিউম (Volume): ${(volume * 100).roundToInt()}%", style = KaiTypography.labelLarge, color = TextPrimary)
+        Text(text = "ভলিউম (Volume): ${(volume * 100).roundToInt()}%", style = KaiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         Slider(
             value = volume,
             onValueChange = { volume = it },
@@ -338,7 +337,7 @@ private fun TtsSettingsSection() {
         Text(
             text = "নোট: প্রাকৃতিক কণ্ঠের জন্য গতি ০.৯৫-১.০৫, স্বরভঙ্গি ০.৯৫-১.০৫ রাখলে বেশি স্বাভাবিক শোনাবে।",
             style = KaiTypography.bodySmall,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
         )
     }
 }

@@ -66,10 +66,10 @@ import com.inspiredandroid.kai.linux.LinuxDistro
 import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.SurfaceRaised
-import com.inspiredandroid.kai.ui.TextPrimary
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.sandbox.SandboxSessionViewModel
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.terminal_command_failed
 import kai.composeapp.generated.resources.terminal_help_text
@@ -123,10 +123,10 @@ internal fun terminalColors(darkBackground: Boolean = false): TerminalColors {
     return TerminalColors(
         bg = MaterialTheme.colorScheme.background,
         inputBg = SurfaceRaised,
-        text = TextPrimary,
+        text = LocalDesignColorTokens.current.textPrimary,
         prompt = AccentPrimary,
         error = DangerAlert,
-        dimText = TextPrimary.copy(alpha = 0.4f),
+        dimText = LocalDesignColorTokens.current.textPrimary.copy(alpha = 0.4f),
     )
 }
 

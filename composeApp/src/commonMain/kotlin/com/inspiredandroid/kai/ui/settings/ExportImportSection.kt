@@ -39,10 +39,9 @@ import com.inspiredandroid.kai.saveFileToDevice
 import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.VerticalScrollbarForScroll
 import com.inspiredandroid.kai.ui.handCursor
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.readBytes
@@ -141,13 +140,13 @@ internal fun ExportImportSection(
     Text(
         text = stringResource(Res.string.settings_export_import_title),
         style = KaiTypography.titleMedium,
-        color = TextPrimary,
+        color = LocalDesignColorTokens.current.textPrimary,
     )
     Spacer(Modifier.height(4.dp))
     Text(
         text = stringResource(Res.string.settings_export_import_description),
         style = KaiTypography.bodySmall,
-        color = TextSecondary,
+        color = LocalDesignColorTokens.current.textSecondary,
     )
     Spacer(Modifier.height(12.dp))
     // FlowRow so the two buttons drop onto separate lines at large font scales
@@ -222,7 +221,7 @@ private fun ImportPreviewDialog(
                                 Text(
                                     text = stringResource(Res.string.settings_import_replace_all_description),
                                     style = KaiTypography.bodySmall,
-                                    color = TextSecondary,
+                                    color = LocalDesignColorTokens.current.textSecondary,
                                 )
                             }
                         }
@@ -265,7 +264,7 @@ private fun ImportPreviewDialog(
                                 Text(
                                     text = "($count)",
                                     style = KaiTypography.bodySmall,
-                                    color = TextSecondary,
+                                    color = LocalDesignColorTokens.current.textSecondary,
                                 )
                             }
                         }
@@ -346,7 +345,7 @@ private fun ExportPreviewDialog(
                                 Text(
                                     text = "($count)",
                                     style = KaiTypography.bodySmall,
-                                    color = TextSecondary,
+                                    color = LocalDesignColorTokens.current.textSecondary,
                                 )
                             }
                         }

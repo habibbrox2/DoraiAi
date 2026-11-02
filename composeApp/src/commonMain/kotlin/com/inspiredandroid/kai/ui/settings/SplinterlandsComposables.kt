@@ -63,13 +63,12 @@ import com.inspiredandroid.kai.ui.KaiOutlinedTextField
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SurfaceRaised
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.VerticalScrollbarForScroll
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.icons.DragIndicator
 import com.inspiredandroid.kai.ui.icons.Visibility
 import com.inspiredandroid.kai.ui.icons.VisibilityOff
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import sh.calvin.reorderable.ReorderableColumn
@@ -146,7 +145,7 @@ internal fun SplinterlandsSection(
                     Text(
                         text = "Recent Battles",
                         style = KaiTypography.labelMedium,
-                        color = TextPrimary,
+                        color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
                     TextButton(
@@ -198,7 +197,7 @@ private fun SplinterlandsServiceList(
         Text(
             text = "LLM Services (priority order)",
             style = KaiTypography.labelMedium,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
         Spacer(Modifier.height(4.dp))
         ReorderableColumn(
@@ -224,14 +223,14 @@ private fun SplinterlandsServiceList(
                                 imageVector = Icons.Rounded.DragIndicator,
                                 contentDescription = "Reorder",
                                 modifier = Modifier.draggableHandle().handCursor(),
-                                tint = TextSecondary,
+                                tint = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
                         // Priority number
                         Text(
                             text = "${index + 1}.",
                             style = KaiTypography.labelMedium,
-                            color = TextSecondary,
+                            color = LocalDesignColorTokens.current.textSecondary,
                             modifier = Modifier.width(20.dp),
                         )
                         // Service icon
@@ -240,7 +239,7 @@ private fun SplinterlandsServiceList(
                                 imageVector = org.jetbrains.compose.resources.vectorResource(entry.icon),
                                 contentDescription = entry.serviceName,
                                 modifier = Modifier.size(20.dp),
-                                tint = TextSecondary,
+                                tint = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
                         // Name + model
@@ -248,7 +247,7 @@ private fun SplinterlandsServiceList(
                             Text(
                                 text = entry?.serviceName ?: id,
                                 style = KaiTypography.bodySmall,
-                                color = TextPrimary,
+                                color = LocalDesignColorTokens.current.textPrimary,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
@@ -256,7 +255,7 @@ private fun SplinterlandsServiceList(
                                 Text(
                                     text = entry.modelId,
                                     style = KaiTypography.bodySmall,
-                                    color = TextSecondary,
+                                    color = LocalDesignColorTokens.current.textSecondary,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                 )
@@ -270,7 +269,7 @@ private fun SplinterlandsServiceList(
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Remove",
-                                tint = TextSecondary,
+                                tint = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
                     }
@@ -305,7 +304,7 @@ private fun SplinterlandsServiceList(
                             Column {
                                 Text(service.serviceName, style = KaiTypography.bodyMedium)
                                 if (service.modelId.isNotBlank()) {
-                                    Text(service.modelId, style = KaiTypography.bodySmall, color = TextSecondary)
+                                    Text(service.modelId, style = KaiTypography.bodySmall, color = LocalDesignColorTokens.current.textSecondary)
                                 }
                             }
                         },
@@ -314,7 +313,7 @@ private fun SplinterlandsServiceList(
                                 imageVector = org.jetbrains.compose.resources.vectorResource(service.icon),
                                 contentDescription = service.serviceName,
                                 modifier = Modifier.size(20.dp),
-                                tint = TextSecondary,
+                                tint = LocalDesignColorTokens.current.textSecondary,
                             )
                         },
                         onClick = {
@@ -334,7 +333,7 @@ private fun SplinterlandsModelRankings(modelStats: ImmutableList<ModelStats>) {
     Text(
         text = "Model Rankings",
         style = KaiTypography.labelMedium,
-        color = TextPrimary,
+        color = LocalDesignColorTokens.current.textPrimary,
     )
     Spacer(Modifier.height(6.dp))
     OutlinedCard(
@@ -370,12 +369,12 @@ private fun SplinterlandsModelRow(rank: Int, stats: ModelStats) {
             Text(
                 text = "#$rank",
                 style = KaiTypography.labelSmall,
-                color = TextSecondary,
+                color = LocalDesignColorTokens.current.textSecondary,
             )
             Text(
                 text = stats.modelName,
                 style = KaiTypography.bodySmall,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
                 modifier = Modifier.weight(1f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -383,7 +382,7 @@ private fun SplinterlandsModelRow(rank: Int, stats: ModelStats) {
             Text(
                 text = "${stats.wins}W ${stats.losses}L",
                 style = KaiTypography.labelSmall,
-                color = TextSecondary,
+                color = LocalDesignColorTokens.current.textSecondary,
                 maxLines = 1,
             )
             Text(
@@ -434,7 +433,7 @@ private fun SplinterlandsBattleLogRow(entry: BattleLogEntry) {
                 Text(
                     text = "vs ${entry.opponent}",
                     style = KaiTypography.bodyMedium,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
@@ -447,7 +446,7 @@ private fun SplinterlandsBattleLogRow(entry: BattleLogEntry) {
                     Text(
                         text = relTime,
                         style = KaiTypography.bodySmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
             }
@@ -470,7 +469,7 @@ private fun SplinterlandsBattleLogRow(entry: BattleLogEntry) {
                         Text(
                             text = infoItems.joinToString(" · "),
                             style = KaiTypography.bodySmall,
-                            color = TextSecondary,
+                            color = LocalDesignColorTokens.current.textSecondary,
                             modifier = Modifier.weight(1f),
                         )
                     } else {
@@ -481,7 +480,7 @@ private fun SplinterlandsBattleLogRow(entry: BattleLogEntry) {
                         Text(
                             text = label,
                             style = KaiTypography.labelSmall,
-                            color = TextSecondary,
+                            color = LocalDesignColorTokens.current.textSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -512,7 +511,7 @@ private fun SplinterlandsActivityDialog(
                         Text(
                             text = line,
                             style = KaiTypography.bodySmall,
-                            color = TextPrimary,
+                            color = LocalDesignColorTokens.current.textPrimary,
                             modifier = Modifier.padding(vertical = 1.dp),
                         )
                     }
@@ -589,7 +588,7 @@ private fun SplinterlandsAddAccountForm(
         Text(
             text = "Your posting key is stored securely on this device and is never sent to the LLM. It is only used to sign battle transactions on the Hive blockchain.",
             style = KaiTypography.bodySmall,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
         )
         Spacer(Modifier.height(8.dp))
         KaiOutlinedTextField(
@@ -708,7 +707,7 @@ private fun SplinterlandsAccountRow(
                     Text(
                         text = account.username.take(1).uppercase(),
                         style = KaiTypography.labelMedium,
-                        color = TextPrimary,
+                        color = LocalDesignColorTokens.current.textPrimary,
                     )
                 }
             }
@@ -718,13 +717,13 @@ private fun SplinterlandsAccountRow(
                 Text(
                     text = account.username,
                     style = KaiTypography.bodyMedium,
-                    color = TextPrimary,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
                 if (account.energy >= 0) {
                     Text(
                         text = "\u26A1 ${account.energy}",
                         style = KaiTypography.bodySmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
             }
@@ -734,7 +733,7 @@ private fun SplinterlandsAccountRow(
                 Text(
                     text = "${bs.wins}W ${bs.losses}L",
                     style = KaiTypography.bodySmall,
-                    color = TextSecondary,
+                    color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
 
@@ -778,7 +777,7 @@ private fun SplinterlandsAccountRow(
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Remove",
-                    tint = TextSecondary,
+                    tint = LocalDesignColorTokens.current.textSecondary,
                 )
             }
             if (showConfirm) {
@@ -835,21 +834,21 @@ private fun SplinterlandsAccountRow(
                         Text(
                             text = "vs ${bs.currentOpponent}",
                             style = KaiTypography.bodySmall,
-                            color = TextPrimary,
+                            color = LocalDesignColorTokens.current.textPrimary,
                         )
                     }
                     if (bs.currentMana > 0) {
                         Text(
                             text = "${bs.currentMana} mana",
                             style = KaiTypography.bodySmall,
-                            color = TextSecondary,
+                            color = LocalDesignColorTokens.current.textSecondary,
                         )
                     }
                     if (bs.currentRulesets.isNotBlank()) {
                         Text(
                             text = bs.currentRulesets,
                             style = KaiTypography.bodySmall,
-                            color = TextSecondary,
+                            color = LocalDesignColorTokens.current.textSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -879,7 +878,7 @@ private fun SplinterlandsAccountRow(
                     Text(
                         text = label,
                         style = KaiTypography.labelSmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -915,12 +914,12 @@ private fun SplinterlandsAccountRow(
 
                             LlmServiceStatus.Failed -> Text("\u2718", style = KaiTypography.labelSmall, color = DangerAlert)
 
-                            LlmServiceStatus.Selected -> Text("\u2605", style = KaiTypography.labelSmall, color = TextSecondary)
+                            LlmServiceStatus.Selected -> Text("\u2605", style = KaiTypography.labelSmall, color = LocalDesignColorTokens.current.textSecondary)
                         }
                         Text(
                             text = serviceId,
                             style = KaiTypography.bodySmall,
-                            color = TextSecondary,
+                            color = LocalDesignColorTokens.current.textSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -958,6 +957,6 @@ private fun SplinterlandsCountdown(deadlineMs: Long) {
     Text(
         text = "$mins:${secs.toString().padStart(2, '0')}",
         style = KaiTypography.labelMedium,
-        color = if (remaining <= 30) DangerAlert else TextSecondary,
+        color = if (remaining <= 30) DangerAlert else LocalDesignColorTokens.current.textSecondary,
     )
 }

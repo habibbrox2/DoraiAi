@@ -12,7 +12,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 
 /**
  * Concise settings overview surface (Plan 2, Phase 3). Summarizes the current
@@ -34,7 +34,7 @@ fun SettingsOverview(
                 text = "Overview",
                 style = KaiTypography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
-                color = TextPrimary,
+                color = LocalDesignColorTokens.current.textPrimary,
                 modifier = Modifier.semantics { heading() },
             )
             val active = uiState.configuredServices.firstOrNull()

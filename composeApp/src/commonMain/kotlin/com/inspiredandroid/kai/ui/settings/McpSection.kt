@@ -52,8 +52,6 @@ import com.inspiredandroid.kai.ui.CardFill
 import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.KaiOutlinedTextField
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
-import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.CollectionEmptyState
 import com.inspiredandroid.kai.ui.components.OperationalStatus
 import com.inspiredandroid.kai.ui.components.StatusBadge
@@ -61,6 +59,7 @@ import com.inspiredandroid.kai.ui.components.VerticalScrollbarForScroll
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardBorder
 import com.inspiredandroid.kai.ui.kaiAdaptiveCardColors
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.ic_arrow_drop_down
 import kai.composeapp.generated.resources.settings_mcp_add
@@ -104,13 +103,13 @@ internal fun McpServersSection(
         Text(
             text = stringResource(Res.string.settings_mcp_servers),
             style = KaiTypography.titleMedium,
-            color = TextPrimary,
+            color = LocalDesignColorTokens.current.textPrimary,
         )
         Spacer(Modifier.height(4.dp))
         Text(
             text = stringResource(Res.string.settings_mcp_servers_description),
             style = KaiTypography.bodySmall,
-            color = TextSecondary,
+            color = LocalDesignColorTokens.current.textSecondary,
         )
 
         Spacer(Modifier.height(12.dp))
@@ -218,12 +217,12 @@ private fun McpServerCard(
                     Text(
                         text = server.name,
                         style = KaiTypography.titleMedium,
-                        color = TextPrimary,
+                        color = LocalDesignColorTokens.current.textPrimary,
                     )
                     Text(
                         text = server.url,
                         style = KaiTypography.bodySmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -239,7 +238,7 @@ private fun McpServerCard(
                 Icon(
                     imageVector = vectorResource(Res.drawable.ic_arrow_drop_down),
                     contentDescription = null,
-                    tint = TextSecondary,
+                    tint = LocalDesignColorTokens.current.textSecondary,
                 )
             }
 
@@ -259,7 +258,7 @@ private fun McpServerCard(
                         style = KaiTypography.bodySmall,
                         color = when (server.connectionStatus) {
                             McpConnectionStatus.Error -> DangerAlert
-                            else -> TextSecondary
+                            else -> LocalDesignColorTokens.current.textSecondary
                         },
                     )
                     Spacer(Modifier.height(8.dp))
@@ -276,13 +275,13 @@ private fun McpServerCard(
                                 Text(
                                     text = tool.name,
                                     style = KaiTypography.bodyMedium,
-                                    color = TextPrimary,
+                                    color = LocalDesignColorTokens.current.textPrimary,
                                 )
                                 if (tool.description.isNotEmpty()) {
                                     Text(
                                         text = tool.description,
                                         style = KaiTypography.bodySmall,
-                                        color = TextSecondary,
+                                        color = LocalDesignColorTokens.current.textSecondary,
                                     )
                                 }
                             }
@@ -296,7 +295,7 @@ private fun McpServerCard(
                     Text(
                         text = stringResource(Res.string.settings_mcp_no_tools),
                         style = KaiTypography.bodySmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
 
@@ -359,7 +358,7 @@ private fun AddMcpServerDialog(
                 Text(
                     text = stringResource(Res.string.settings_mcp_add_server),
                     style = KaiTypography.headlineSmall,
-                    color = TextSecondary,
+                    color = LocalDesignColorTokens.current.textSecondary,
                 )
                 Spacer(Modifier.height(16.dp))
 
@@ -392,7 +391,7 @@ private fun AddMcpServerDialog(
                     Text(
                         text = stringResource(Res.string.settings_mcp_api_key_help),
                         style = KaiTypography.bodySmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                     )
                     Spacer(Modifier.height(12.dp))
                 } else {
@@ -490,7 +489,7 @@ private fun AddMcpServerDialog(
                     Text(
                         text = stringResource(Res.string.settings_mcp_popular_servers),
                         style = KaiTypography.titleSmall,
-                        color = TextSecondary,
+                        color = LocalDesignColorTokens.current.textSecondary,
                     )
                     Spacer(Modifier.height(8.dp))
                     for (server in popularMcpServers) {
@@ -514,12 +513,12 @@ private fun AddMcpServerDialog(
                                 Text(
                                     text = server.name,
                                     style = KaiTypography.bodyMedium,
-                                    color = TextSecondary,
+                                    color = LocalDesignColorTokens.current.textSecondary,
                                 )
                                 Text(
                                     text = server.description,
                                     style = KaiTypography.bodySmall,
-                                    color = TextSecondary,
+                                    color = LocalDesignColorTokens.current.textSecondary,
                                 )
                             }
                         }
