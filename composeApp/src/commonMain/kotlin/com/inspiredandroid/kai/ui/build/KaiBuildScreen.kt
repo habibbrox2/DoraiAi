@@ -346,14 +346,26 @@ private fun KaiBuildTopBar(
                     tint = com.inspiredandroid.kai.ui.TextSecondary,
                 )
             }
-            Text(
-                text = title,
-                style = com.inspiredandroid.kai.ui.KaiTypography.titleMedium,
-                color = com.inspiredandroid.kai.ui.TextPrimary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f).padding(horizontal = com.inspiredandroid.kai.ui.build.BuildSpacing.sm),
-            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = com.inspiredandroid.kai.ui.build.BuildSpacing.sm),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Text(
+                    text = "WORKSPACE",
+                    style = KaiTypography.labelSmall,
+                    color = com.inspiredandroid.kai.ui.AccentPrimary,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                )
+                Text(
+                    text = title,
+                    style = KaiTypography.titleMedium,
+                    color = TextPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
             actions()
         }
     }

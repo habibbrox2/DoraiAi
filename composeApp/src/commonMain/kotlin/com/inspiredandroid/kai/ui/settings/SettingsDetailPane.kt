@@ -74,7 +74,7 @@ fun SettingsDetailPane(
             item { Spacer(Modifier.height(18.dp)) }
 
             val maxContentWidth = when (uiState.currentTab) {
-                SettingsTab.Services -> 500.dp
+                SettingsTab.Services -> 720.dp
                 else -> 900.dp
             }
             item {
@@ -196,13 +196,20 @@ fun DataControlContent(
             style = KaiTypography.titleMedium,
             color = TextPrimary,
         )
-        Text(
-            text = "Manage your chat history and stored data.",
-            style = KaiTypography.bodySmall,
-            color = TextSecondary,
-        )
-        Button(onClick = { actions.onClearAllConversations() }) {
-            Text("Clear all conversations")
+        SettingsCard {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    text = "Manage your chat history and stored data.",
+                    style = KaiTypography.bodyMedium,
+                    color = TextSecondary,
+                )
+                Button(onClick = { actions.onClearAllConversations() }) {
+                    Text("Clear all conversations")
+                }
+            }
         }
     }
 }
@@ -211,26 +218,27 @@ fun DataControlContent(
 fun AccountPlanContent(
     uiState: SettingsUiState,
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text(
-            text = "Account and Plan",
-            style = KaiTypography.titleMedium,
-            color = TextPrimary,
-        )
-        Text(
-            text = "Brox Kai 2.0",
-            style = KaiTypography.bodyMedium,
-            color = TextSecondary,
-        )
-        Text(
-            text = "Version " + com.inspiredandroid.kai.Version.appVersion,
-            style = KaiTypography.bodySmall,
-            color = TextSecondary,
-        )
+    SettingsCard {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = "Brox Kai 2.0",
+                style = KaiTypography.titleMedium,
+                color = TextPrimary,
+            )
+            Text(
+                text = "Version " + com.inspiredandroid.kai.Version.appVersion,
+                style = KaiTypography.bodySmall,
+                color = TextSecondary,
+            )
+            Text(
+                text = uiState.configuredServices.size.toString() + " configured services",
+                style = KaiTypography.bodySmall,
+                color = TextSecondary,
+            )
+        }
     }
 }
 
