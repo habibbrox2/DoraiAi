@@ -17,6 +17,7 @@ import com.inspiredandroid.kai.data.NotificationStore
 import com.inspiredandroid.kai.data.SmsDraftStore
 import com.inspiredandroid.kai.data.SmsStore
 import com.inspiredandroid.kai.data.TaskStore
+import com.inspiredandroid.kai.filereview.FileReviewController
 import com.inspiredandroid.kai.mcp.McpServerManager
 import com.inspiredandroid.kai.network.tools.Tool
 import com.inspiredandroid.kai.network.tools.ToolInfo
@@ -239,6 +240,7 @@ actual fun getAvailableTools(): List<Tool> {
     val taskStore: TaskStore by inject(TaskStore::class.java)
     val emailStore: EmailStore by inject(EmailStore::class.java)
     val mcpServerManager: McpServerManager by inject(McpServerManager::class.java)
+    val fileReviewController: FileReviewController by inject(FileReviewController::class.java)
 
     // Gallery permission controller gates the gallery search tool. Both controllers and the
     // repositories behind them are registered in androidToolsModule.
@@ -250,6 +252,7 @@ actual fun getAvailableTools(): List<Tool> {
         taskStore = taskStore,
         mcpServerManager = mcpServerManager,
         emailStore = emailStore,
+        fileReviewController = fileReviewController,
     ) {
         if (appSettings.isToolEnabled(SendNotificationTool.ID)) {
             val notificationPermissionController: PermissionController =

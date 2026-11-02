@@ -4,6 +4,7 @@ import com.inspiredandroid.kai.data.AppSettings
 import com.inspiredandroid.kai.data.EmailStore
 import com.inspiredandroid.kai.data.MemoryStore
 import com.inspiredandroid.kai.data.TaskStore
+import com.inspiredandroid.kai.filereview.FileReviewController
 import com.inspiredandroid.kai.mcp.McpServerManager
 import com.inspiredandroid.kai.network.tools.Tool
 
@@ -22,6 +23,7 @@ fun buildAgentToolSet(
     mcpServerManager: McpServerManager,
     // Web has no email support and injects no store.
     emailStore: EmailStore? = null,
+    fileReviewController: FileReviewController? = null,
     platformExtras: MutableList<Tool>.() -> Unit = {},
 ): List<Tool> = buildList {
     addAll(CommonTools.getCommonTools(appSettings))
@@ -39,6 +41,9 @@ fun buildAgentToolSet(
     if (emailStore != null && appSettings.isEmailEnabled()) {
         addAll(EmailTools.getEmailTools(emailStore))
     }
+
+    // File Review tools are exposed only when a platform supplies a real, configured controller.
+    fileReviewController?.let { addAll(FileReviewTools.getTools(it)) }
 
     platformExtras()
 

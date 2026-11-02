@@ -12,9 +12,12 @@ class AndroidProjectFileReviewFileSystem(
 ) : FileReviewFileSystem {
     override fun resolve(workspace: FileReviewWorkspace, guestPath: String): File? {
         if (workspace != FileReviewWorkspace.PROJECT) return null
-        if (guestPath.isBlank() || guestPath.startsWith("/") || guestPath.contains('\\')) return null
+        if (guestPath.isBlank() || guestPath.startsWith("/") || guestPath.contains('\\') || guestPath.contains('\u0000')) return null
         val parts = guestPath.split('/')
         if (parts.any { it.isBlank() || it == "." || it == ".." }) return null
+        // Check the configured root itself before canonicalization; canonicalFile would
+        // otherwise follow a symlink and make the later check ineffective.
+        if (Files.isSymbolicLink(workspaceRoot.toPath())) return null
         val root = runCatching { workspaceRoot.canonicalFile }.getOrNull() ?: return null
         if (!root.isDirectory || Files.isSymbolicLink(root.toPath())) return null
         var target = root
