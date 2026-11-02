@@ -20,11 +20,11 @@ import com.inspiredandroid.kai.ui.dashboard.DashboardScreenContent
 import com.inspiredandroid.kai.ui.dashboard.DashboardUiState
 import com.inspiredandroid.kai.ui.dashboard.ReadinessFact
 import com.inspiredandroid.kai.ui.dashboard.ServiceReadiness
+import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import kotlinx.collections.immutable.persistentListOf
 
 class PremiumScreenScreenshotTest {
 
