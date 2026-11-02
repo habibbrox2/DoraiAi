@@ -31,8 +31,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -41,12 +41,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.inspiredandroid.kai.linux.PackageEntry
-import com.inspiredandroid.kai.ui.AccentPrimary
+import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.TextPrimary
 import com.inspiredandroid.kai.ui.TextSecondary
 import com.inspiredandroid.kai.ui.components.KaiSearchField
-import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.theme.DesignTokens
 import kai.composeapp.generated.resources.Res
