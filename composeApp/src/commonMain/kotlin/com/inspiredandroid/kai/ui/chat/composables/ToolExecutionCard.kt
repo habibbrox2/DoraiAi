@@ -336,10 +336,11 @@ fun ToolExecutionCard(
     result: String? = null,
     isRunning: Boolean = false,
     isError: Boolean = false,
+    initiallyExpanded: Boolean = false,
 ) {
     val copyToClipboard = rememberCopyToClipboard()
     var isCopied by remember { mutableStateOf(false) }
-    var isExpanded by remember { mutableStateOf(false) }
+    var isExpanded by remember(initiallyExpanded) { mutableStateOf(initiallyExpanded) }
 
     LaunchedEffect(isCopied) {
         if (isCopied) {
