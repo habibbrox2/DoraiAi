@@ -1,12 +1,15 @@
 name: Auto Release
 
-# Brox Kai 2.0 — automatic release pipeline.
+# Brox Kai — automatic release pipeline.
 # On every push to main:
-#   1. Bump the next v2.0.x version (patch +1 over the latest v2.0.* tag),
+#   1. Bump the next semver-like version over the latest v*.*.* tag:
+#      - patch +1 while patch < 99  (e.g. 2.0.101 → 2.0.102)
+#      - patch == 99 → minor +1, patch 0  (e.g. 2.0.99 → 2.1.0, 2.1.99 → 2.2.0)
+#      - minor == 9 and patch == 99 → major +1, minor 0, patch 0  (e.g. 2.9.99 → 3.0.0)
 #      update gradle/libs.versions.toml (appVersion + versionCode), commit and tag.
 #   2. Build the Foss APK, Windows x64 MSI and Windows x64 zip from that tag.
-#   3. Publish a GitHub Release named "Brox Kai 2.0 v<version>" — "Brox Kai 2.0"
-#      is the fixed brand name, only the 2.0.x version changes per release.
+#   3. Publish a GitHub Release named "Brox Kai v<version>" — "Brox Kai" is the
+#      fixed brand name; only the version changes per release.
 # The bump commit is pushed with the workflow GITHUB_TOKEN, which does not
 # retrigger workflows, so there is no release loop.
 # Production APK releases require the configured production keystore. Missing or invalid signing secrets fail before version bump/tag creation.
@@ -63,14 +66,30 @@ jobs:
         id: bump
         run: |
           set -euo pipefail
-          LATEST=$(git tag --list 'v2.0.*' --sort=-v:refname | grep -E '^v2\.0\.[0-9]+$' | head -n1)
+          LATEST=$(git tag --list 'v*.*.*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
           if [ -z "$LATEST" ]; then
-            echo "::error::No v2.0.* tag found — cannot derive the next Brox Kai 2.0 version"
+            echo "::error::No version tag found — cannot derive the next Brox Kai version"
             exit 1
           fi
-          PATCH="${LATEST#v2.0.}"
+          # Parse vMAJOR.MINOR.PATCH
+          MAJOR="${LATEST#v}"
+          MAJOR="${MAJOR%%.*}"
+          REST="${LATEST#v$MAJOR.}"
+          MINOR="${REST%%.*}"
+          PATCH="${REST#*.}"
           PATCH="${PATCH%%[^0-9]*}"
-          VERSION="2.0.$((PATCH + 1))"
+
+          if [ "$PATCH" -ge 99 ] && [ "$MINOR" -ge 9 ]; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif [ "$PATCH" -ge 99 ]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+          VERSION="${MAJOR}.${MINOR}.${PATCH}"
           sed -i "s/^appVersion = .*/appVersion = \"${VERSION}\"/" gradle/libs.versions.toml
           CODE=$(grep -oP 'android-versionCode = "\K[0-9]+' gradle/libs.versions.toml)
           NEW_CODE=$((CODE + 1))
@@ -234,22 +253,22 @@ jobs:
       - name: Rename assets to Brox Kai branding
         run: |
           set -euo pipefail
-          # "Brox Kai 2.0" is the fixed brand name; only the version (2.0.x) changes per release
+          # "Brox Kai" is the fixed brand name; only the version changes per release
           VERSION="${{ needs.bump.outputs.version }}"
           cd dist
           if [ -f androidApp-foss-release.apk ]; then
-            mv androidApp-foss-release.apk "Brox-Kai-2.0-v${VERSION}-Android.apk"
+            mv androidApp-foss-release.apk "Brox-Kai-v${VERSION}-Android.apk"
           else
             echo "::error::Expected signed APK artifact androidApp-foss-release.apk is missing."
             exit 1
           fi
           test -s update.json
-          mv *.msi "Brox-Kai-2.0-v${VERSION}-Windows-x64.msi"
+          mv *.msi "Brox-Kai-v${VERSION}-Windows-x64.msi"
           ls -la
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: Brox Kai 2.0 v${{ needs.bump.outputs.version }}
+          name: Brox Kai v${{ needs.bump.outputs.version }}
           tag_name: v${{ needs.bump.outputs.version }}
           generate_release_notes: true
           files: |
