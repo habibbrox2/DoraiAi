@@ -1,2 +1,0 @@
-Record missing Paparazzi baselines on CI Linux.
-This marker is consumed by .github/workflows/test.yml and removed after bootstrapping.
