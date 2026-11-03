@@ -1,6 +1,7 @@
 package com.inspiredandroid.kai.ui.workspace
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,15 +14,21 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Comment
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.FileCopy
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,8 +50,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.inspiredandroid.kai.PlatformBackHandler
 import com.inspiredandroid.kai.WORKSPACE_FILES
@@ -52,6 +62,7 @@ import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.sandbox.EditorState
 import com.inspiredandroid.kai.ui.sandbox.SandboxFileBrowserViewModel
 import com.inspiredandroid.kai.ui.sandbox.SandboxFilesContent
+import com.inspiredandroid.kai.ui.theme.DesignTokens
 import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing
 import com.inspiredandroid.kai.workspace.WorkspaceAgents
@@ -59,6 +70,12 @@ import com.inspiredandroid.kai.workspace.terminal.TerminalKey
 import com.inspiredandroid.kai.workspace.terminal.TerminalModifiers
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.workspace_exit_content_description
+import kai.composeapp.generated.resources.workspace_git_changes_title
+import kai.composeapp.generated.resources.workspace_git_no_changes
+import kai.composeapp.generated.resources.workspace_git_no_project
+import kai.composeapp.generated.resources.workspace_git_status_added
+import kai.composeapp.generated.resources.workspace_git_status_deleted
+import kai.composeapp.generated.resources.workspace_git_status_modified
 import kai.composeapp.generated.resources.workspace_new_project_content_description
 import kai.composeapp.generated.resources.workspace_title
 import kotlinx.collections.immutable.toImmutableList
@@ -74,6 +91,14 @@ private const val WORKSPACE_FILES_KEY = "WorkspaceFiles"
 
 /** Separate browser instance for the projects drawer explorer. */
 private const val WORKSPACE_FILES_DRAWER_KEY = "WorkspaceDrawerFiles"
+
+/** One changed file shown in the Git tab's changes list. */
+@Immutable
+data class GitFileChange(
+    val path: String,
+    val status: GitStatus,
+    val touchedByAgent: Boolean = false,
+)
 
 @Immutable
 data class WorkspaceActions(
@@ -605,7 +630,7 @@ private fun WorkspaceTabContent(
     }
 }
 
-/** Git & Source Control tab content. */
+/** Git & Source Control tab content: lists changed files and opens them in the editor. */
 @Composable
 private fun WorkspaceGitContent(
     project: String?,
@@ -620,31 +645,136 @@ private fun WorkspaceGitContent(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "Open a project to view Git changes",
+                    text = stringResource(Res.string.workspace_git_no_project),
                     style = KaiTypography.bodyMedium,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
         } else {
             Text(
-                text = "Git changes for $project",
+                text = stringResource(Res.string.workspace_git_changes_title, project),
                 style = KaiTypography.titleMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
                 modifier = Modifier.padding(16.dp),
             )
-            // Placeholder: git changes list
-            Box(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                contentAlignment = Alignment.Center,
+            WorkspaceGitChangesList(
+                project = project,
+                changes = gitChangesFor(project),
+                onOpenFile = onOpenEditorFile,
+            )
+        }
+    }
+}
+
+/** Sample of changed files for the open project. In a real build this comes from
+ * the sandbox's git status; here it demonstrates the changes-list UI pattern. */
+private fun gitChangesFor(project: String): List<GitFileChange> = listOf(
+    GitFileChange(path = "${PROJECTS_GUEST_DIR}/$project/src/Main.kt", status = GitStatus.Modified, touchedByAgent = true),
+    GitFileChange(path = "${PROJECTS_GUEST_DIR}/$project/src/Utils.kt", status = GitStatus.Added),
+    GitFileChange(path = "${PROJECTS_GUEST_DIR}/$project/build.gradle.kts", status = GitStatus.Modified),
+    GitFileChange(path = "${PROJECTS_GUEST_DIR}/$project/old/Temp.kt", status = GitStatus.Deleted, touchedByAgent = true),
+)
+
+/** List of changed files with git status badges; each row opens the file in the Editor tab. */
+@Composable
+private fun WorkspaceGitChangesList(
+    project: String,
+    changes: List<GitFileChange>,
+    onOpenFile: (String) -> Unit,
+) {
+    val colorTokens = LocalDesignColorTokens.current
+
+    if (changes.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = stringResource(Res.string.workspace_git_no_changes),
+                style = KaiTypography.bodyMedium,
+                color = colorTokens.textSecondary,
+            )
+        }
+        return@WorkspaceGitChangesList
+    }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        items(items = changes, key = { it.path }) { change ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = WorkspaceSpacing.sm, vertical = WorkspaceSpacing.xs)
+                    .clickable(onClick = { onOpenFile(change.path) }),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                TextButton(onClick = { onOpenEditorFile("${PROJECTS_GUEST_DIR}/main.kt") }) {
+                Icon(
+                    imageVector = Icons.Default.FileCopy,
+                    contentDescription = null,
+                    tint = colorTokens.textMuted,
+                    modifier = Modifier.size(18.dp),
+                )
+
+                Column(
+                    modifier = Modifier.weight(1f).padding(start = WorkspaceSpacing.xs),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
                     Text(
-                        text = "Open main.kt",
+                        text = change.path.substringAfterLast("/"),
                         style = KaiTypography.bodyMedium,
-                        color = LocalDesignColorTokens.current.textPrimary,
+                        color = colorTokens.textPrimary,
+                        maxLines = 1,
+                    )
+                    Text(
+                        text = change.path,
+                        style = KaiTypography.labelSmall,
+                        color = colorTokens.textSecondary,
+                        maxLines = 1,
                     )
                 }
+
+                val (badgeColor, badgeText) = when (change.status) {
+                    GitStatus.Added -> Pair(DesignTokens.Success, stringResource(Res.string.workspace_git_status_added))
+                    GitStatus.Modified -> Pair(DesignTokens.Warning, stringResource(Res.string.workspace_git_status_modified))
+                    GitStatus.Deleted -> Pair(DesignTokens.Error, stringResource(Res.string.workspace_git_status_deleted))
+                    else -> Pair(colorTokens.textMuted, "?")
+                }
+                Box(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .background(badgeColor)
+                        .clip(RoundedCornerShape(4.dp)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = badgeText.take(1).uppercase(),
+                        style = KaiTypography.labelSmall.copy(fontSize = 9.sp),
+                        color = Color(0xFF0F1419),
+                    )
+                }
+
+                if (change.touchedByAgent) {
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = WorkspaceSpacing.xs)
+                            .background(Color(0xFF1B2A44))
+                            .clip(RoundedCornerShape(4.dp)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = "Agent",
+                            style = KaiTypography.labelSmall.copy(fontSize = 9.sp),
+                            color = DesignTokens.AccentPrimary,
+                        )
+                    }
+                }
             }
+
+            Divider(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = WorkspaceSpacing.sm),
+                color = colorTokens.borderSubtle,
+            )
         }
     }
 }

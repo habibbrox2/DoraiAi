@@ -55,6 +55,23 @@ import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.theme.DesignTokens
 import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing
+import kai.composeapp.generated.resources.Res
+import kai.composeapp.generated.resources.workspace_editor_accept
+import kai.composeapp.generated.resources.workspace_editor_agent_changes
+import kai.composeapp.generated.resources.workspace_editor_branch
+import kai.composeapp.generated.resources.workspace_editor_edit
+import kai.composeapp.generated.resources.workspace_editor_next
+import kai.composeapp.generated.resources.workspace_editor_preview
+import kai.composeapp.generated.resources.workspace_editor_previous
+import kai.composeapp.generated.resources.workspace_editor_reject
+import kai.composeapp.generated.resources.workspace_editor_run
+import kai.composeapp.generated.resources.workspace_editor_save
+import kai.composeapp.generated.resources.workspace_editor_search
+import kai.composeapp.generated.resources.workspace_editor_status_line
+import kai.composeapp.generated.resources.workspace_editor_toggle_diff
+import kai.composeapp.generated.resources.workspace_editor_undo
+import kotlinx.collections.immutable.toImmutableList
+import org.jetbrains.compose.resources.stringResource
 
 /** A single syntax-highlighted line of code. */
 @Immutable
@@ -173,21 +190,21 @@ fun WorkspaceCodeEditor(
             IconButton(onClick = onUndo) {
                 Icon(
                     imageVector = Icons.Filled.Undo,
-                    contentDescription = "Undo",
+                    contentDescription = stringResource(Res.string.workspace_editor_undo),
                     tint = colorTokens.textSecondary,
                 )
             }
             IconButton(onClick = onSearchToggle) {
                 Icon(
                     imageVector = Icons.Filled.Search,
-                    contentDescription = "Search",
+                    contentDescription = stringResource(Res.string.workspace_editor_search),
                     tint = if (showSearch) DesignTokens.AccentPrimary else colorTokens.textSecondary,
                 )
             }
             IconButton(onClick = { onDiffToggled(!isDiffMode) }) {
                 Icon(
                     imageVector = Icons.Filled.CompareArrows,
-                    contentDescription = "Toggle diff",
+                    contentDescription = stringResource(Res.string.workspace_editor_toggle_diff),
                     tint = if (isDiffMode) DesignTokens.AccentPrimary else colorTokens.textSecondary,
                 )
             }
@@ -195,7 +212,7 @@ fun WorkspaceCodeEditor(
                 IconButton(onClick = { onEditableChange(!editable) }) {
                     Icon(
                         imageVector = if (editable) Icons.Filled.Visibility else Icons.Filled.Edit,
-                        contentDescription = if (editable) "Preview" else "Edit",
+                        contentDescription = if (editable) stringResource(Res.string.workspace_editor_preview) else stringResource(Res.string.workspace_editor_edit),
                         tint = if (editable) DesignTokens.AccentPrimary else colorTokens.textSecondary,
                     )
                 }
@@ -204,7 +221,7 @@ fun WorkspaceCodeEditor(
                 IconButton(onClick = onSave) {
                     Icon(
                         imageVector = Icons.Filled.Save,
-                        contentDescription = "Save",
+                        contentDescription = stringResource(Res.string.workspace_editor_save),
                         tint = DesignTokens.Success,
                     )
                 }
@@ -212,7 +229,7 @@ fun WorkspaceCodeEditor(
             IconButton(onClick = onRun) {
                 Icon(
                     imageVector = Icons.Filled.PlayArrow,
-                    contentDescription = "Run",
+                    contentDescription = stringResource(Res.string.workspace_editor_run),
                     tint = DesignTokens.Success,
                 )
             }
@@ -289,12 +306,12 @@ fun WorkspaceCodeEditor(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Kotlin · UTF-8 · ${lines.size} L",
+                text = stringResource(Res.string.workspace_editor_status_line, "Kotlin", lines.size),
                 style = KaiTypography.labelSmall,
                 color = colorTokens.textSecondary,
             )
             Text(
-                text = "branch · L1 C1",
+                text = stringResource(Res.string.workspace_editor_branch),
                 style = KaiTypography.labelSmall,
                 color = colorTokens.textSecondary,
                 modifier = Modifier.weight(1f),
@@ -372,7 +389,7 @@ private fun SearchReplacePanel(
         TextField(
             value = query,
             onValueChange = onQueryChange,
-            placeholder = { Text(text = "Search", style = KaiTypography.bodyMedium) },
+            placeholder = { Text(text = stringResource(Res.string.workspace_editor_search), style = KaiTypography.bodyMedium) },
             modifier = Modifier.weight(1f),
             singleLine = true,
             keyboardOptions = KeyboardOptions(),
@@ -392,21 +409,21 @@ private fun AgentChangesBar() {
             .clip(RoundedCornerShape(12.dp)),
     ) {
         Text(
-            text = "3 agent changes",
+            text = stringResource(Res.string.workspace_editor_agent_changes, 3),
             style = KaiTypography.labelMedium,
             color = DesignTokens.AccentPrimary,
         )
         TextButton(onClick = { }) {
-            Text(text = "Previous", style = KaiTypography.labelMedium)
+            Text(text = stringResource(Res.string.workspace_editor_previous), style = KaiTypography.labelMedium)
         }
         TextButton(onClick = { }) {
-            Text(text = "Next", style = KaiTypography.labelMedium)
+            Text(text = stringResource(Res.string.workspace_editor_next), style = KaiTypography.labelMedium)
         }
         TextButton(onClick = { }) {
-            Text(text = "Reject", style = KaiTypography.labelMedium, color = DesignTokens.Error)
+            Text(text = stringResource(Res.string.workspace_editor_reject), style = KaiTypography.labelMedium, color = DesignTokens.Error)
         }
         TextButton(onClick = { }) {
-            Text(text = "Accept", style = KaiTypography.labelMedium, color = DesignTokens.Success)
+            Text(text = stringResource(Res.string.workspace_editor_accept), style = KaiTypography.labelMedium, color = DesignTokens.Success)
         }
     }
 }

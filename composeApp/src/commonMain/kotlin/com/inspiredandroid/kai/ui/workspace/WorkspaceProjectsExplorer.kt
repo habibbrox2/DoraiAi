@@ -47,6 +47,8 @@ import com.inspiredandroid.kai.ui.components.KaiChip
 import com.inspiredandroid.kai.ui.theme.DesignTokens
 import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
+import kai.composeapp.generated.resources.workspace_explorer_no_files
+import kai.composeapp.generated.resources.workspace_explorer_search_placeholder
 import kai.composeapp.generated.resources.workspace_projects_cancel_create
 import kai.composeapp.generated.resources.workspace_projects_create
 import kai.composeapp.generated.resources.workspace_projects_new_placeholder
@@ -150,7 +152,7 @@ fun WorkspaceProjectsExplorer(
         TextField(
             value = "",
             onValueChange = { },
-            placeholder = { Text(text = "Search files", style = KaiTypography.bodyMedium) },
+            placeholder = { Text(text = stringResource(Res.string.workspace_explorer_search_placeholder), style = KaiTypography.bodyMedium) },
             leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = null) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -204,7 +206,7 @@ fun WorkspaceProjectsExplorer(
                             modifier = Modifier.align(Alignment.CenterHorizontally),
                         )
                         Text(
-                            text = "No files yet",
+                            text = stringResource(Res.string.workspace_explorer_no_files),
                             style = KaiTypography.bodyMedium,
                             color = colorTokens.textMuted,
                             modifier = Modifier.align(Alignment.CenterHorizontally),
