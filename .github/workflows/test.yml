@@ -148,6 +148,7 @@ jobs:
           --tests com.inspiredandroid.kai.screenshots.PremiumScreenScreenshotTest.toolConfirmation_pending_dark
           --tests com.inspiredandroid.kai.screenshots.PremiumScreenScreenshotTest.dashboard_overview_dark
           --tests com.inspiredandroid.kai.screenshots.PremiumScreenScreenshotTest.Workspace_setup_dark
+          --tests com.inspiredandroid.kai.screenshots.TabletStoreScreenshotTest
           --no-daemon --stacktrace
 
       # Commit the complete baseline set before verification. This bootstrap marker
@@ -185,7 +186,8 @@ jobs:
           assert_count '*MathScreenshotTest_*.png' 5
           assert_count '*KaiUiScreenshotTest_*.png' 23
           assert_count 'com.inspiredandroid.kai.screenshots_ScreenshotTest_*.png' 36
-          assert_count '*PremiumScreenScreenshotTest_*.png' 7
+          assert_count '*PremiumScreenScreenshotTest_*.png' 5
+          assert_count '*TabletStoreScreenshotTest_*.png' 1
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
