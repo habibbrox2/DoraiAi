@@ -110,48 +110,6 @@ data class KaiColorPalette(
     val borderStrong: Color,
 )
 
-val LocalKaiColors = compositionLocalOf {
-    KaiColorPalette(
-        textPrimary = Color(0xFFFFFFFF),
-        textSecondary = Color(0xFFCBD5E1),
-        textTertiary = Color(0xFF94A3B8),
-        textMuted = Color(0xFF64748B),
-        surfaceElevated = Color(0xFF0A0F1C),
-        surfaceRaised = Color(0xFF111827),
-        cardFill = Color(0x99111B2E),
-        cardSurface = Color(0xFF0F172A),
-        borderSubtle = Color(0x1AFFFFFF),
-        borderSoft = Color(0x26FFFFFF),
-        borderStrong = Color(0x40FFFFFF),
-    )
-}
-
-object KaiThemeColors {
-    var textPrimary: Color = Color(0xFFFFFFFF)
-    var textSecondary: Color = Color(0xFFCBD5E1)
-    var textTertiary: Color = Color(0xFF94A3B8)
-    var textMuted: Color = Color(0xFF64748B)
-    var surfaceElevated: Color = Color(0xFF0A0F1C)
-    var surfaceRaised: Color = Color(0xFF111827)
-    var cardFill: Color = Color(0x99111B2E)
-    var cardSurface: Color = Color(0xFF0F172A)
-    var borderSubtle: Color = Color(0x1AFFFFFF)
-    var borderSoft: Color = Color(0x26FFFFFF)
-    var borderStrong: Color = Color(0x40FFFFFF)
-}
-
-val TextPrimary: Color = DesignTokens.PrimaryText
-val TextSecondary: Color get() = KaiThemeColors.textSecondary
-val TextTertiary: Color get() = KaiThemeColors.textTertiary
-val TextMuted: Color get() = KaiThemeColors.textMuted
-val SurfaceElevatedTheme: Color get() = KaiThemeColors.surfaceElevated
-val SurfaceRaisedTheme: Color get() = KaiThemeColors.surfaceRaised
-val CardFillTheme: Color get() = KaiThemeColors.cardFill
-val CardSurfaceTheme: Color get() = KaiThemeColors.cardSurface
-val BorderSubtleTheme: Color get() = KaiThemeColors.borderSubtle
-val BorderSoftTheme: Color get() = KaiThemeColors.borderSoft
-val BorderStrongTheme: Color get() = KaiThemeColors.borderStrong
-
 // KaiTypography - 2026 Modern Type Scale
 val KaiTypography = Typography(
     displayLarge = TextStyle(
@@ -457,15 +415,15 @@ val DarkColorScheme = darkColorScheme(
     primary = AccentPrimary,
     onPrimary = Color(0xFFFFFFFF),
     primaryContainer = broxNavy,
-    onPrimaryContainer = TextPrimary,
+    onPrimaryContainer = DesignTokens.PrimaryText,
     secondary = broxDeepNavy,
-    onSecondary = TextPrimary,
+    onSecondary = DesignTokens.PrimaryText,
     tertiary = broxCharcoal,
-    onTertiary = TextPrimary,
+    onTertiary = DesignTokens.PrimaryText,
     error = DangerAlert,
     onError = Color.White,
     errorContainer = DangerAlert.copy(alpha = 0.3f),
-    onErrorContainer = TextPrimary,
+    onErrorContainer = DesignTokens.PrimaryText,
     background = com.inspiredandroid.kai.ui.theme.DesignTokens.Background,
     onBackground = com.inspiredandroid.kai.ui.theme.DesignTokens.PrimaryText,
     surface = com.inspiredandroid.kai.ui.theme.DesignTokens.SurfaceDark,
@@ -679,9 +637,9 @@ fun glassmorphicCardBorder(): BorderStroke = BorderStroke(1.dp, BorderSoft)
 
 @Composable
 fun outlineTextFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedTextColor = TextPrimary,
-    unfocusedTextColor = TextPrimary,
-    disabledTextColor = TextSecondary.copy(alpha = 0.5f),
+    focusedTextColor = DesignTokens.PrimaryText,
+    unfocusedTextColor = DesignTokens.PrimaryText,
+    disabledTextColor = DesignTokens.SecondaryText.copy(alpha = 0.5f),
     errorTextColor = DangerAlert,
     focusedContainerColor = SurfaceRaised.copy(alpha = 0.8f),
     unfocusedContainerColor = SurfaceRaised.copy(alpha = 0.8f),
@@ -694,20 +652,20 @@ fun outlineTextFieldColors() = OutlinedTextFieldDefaults.colors(
     disabledBorderColor = BorderSoft.copy(alpha = 0.5f),
     errorBorderColor = DangerAlert,
     focusedLabelColor = AccentPrimary,
-    unfocusedLabelColor = TextSecondary,
-    disabledLabelColor = TextSecondary.copy(alpha = 0.5f),
+    unfocusedLabelColor = DesignTokens.SecondaryText,
+    disabledLabelColor = DesignTokens.SecondaryText.copy(alpha = 0.5f),
     errorLabelColor = DangerAlert,
-    focusedPlaceholderColor = TextSecondary,
-    unfocusedPlaceholderColor = TextSecondary,
-    disabledPlaceholderColor = TextSecondary.copy(alpha = 0.5f),
+    focusedPlaceholderColor = DesignTokens.SecondaryText,
+    unfocusedPlaceholderColor = DesignTokens.SecondaryText,
+    disabledPlaceholderColor = DesignTokens.SecondaryText.copy(alpha = 0.5f),
     errorPlaceholderColor = DangerAlert,
-    focusedLeadingIconColor = TextSecondary,
-    unfocusedLeadingIconColor = TextSecondary,
-    disabledLeadingIconColor = TextSecondary.copy(alpha = 0.5f),
+    focusedLeadingIconColor = DesignTokens.SecondaryText,
+    unfocusedLeadingIconColor = DesignTokens.SecondaryText,
+    disabledLeadingIconColor = DesignTokens.SecondaryText.copy(alpha = 0.5f),
     errorLeadingIconColor = DangerAlert,
-    focusedTrailingIconColor = TextSecondary,
-    unfocusedTrailingIconColor = TextSecondary,
-    disabledTrailingIconColor = TextSecondary.copy(alpha = 0.5f),
+    focusedTrailingIconColor = DesignTokens.SecondaryText,
+    unfocusedTrailingIconColor = DesignTokens.SecondaryText,
+    disabledTrailingIconColor = DesignTokens.SecondaryText.copy(alpha = 0.5f),
     errorTrailingIconColor = DangerAlert,
 )
 
@@ -779,7 +737,7 @@ fun KaiClearableTextField(
                 Icon(
                     imageVector = Icons.Default.Clear,
                     contentDescription = null,
-                    tint = TextSecondary,
+                    tint = DesignTokens.SecondaryText,
                 )
             }
         },
@@ -822,19 +780,7 @@ fun Theme(
             borderStrong = Color(0x40FFFFFF),
         )
     }
-    KaiThemeColors.textPrimary = kaiColors.textPrimary
-    KaiThemeColors.textSecondary = kaiColors.textSecondary
-    KaiThemeColors.textTertiary = kaiColors.textTertiary
-    KaiThemeColors.textMuted = kaiColors.textMuted
-    KaiThemeColors.surfaceElevated = kaiColors.surfaceElevated
-    KaiThemeColors.surfaceRaised = kaiColors.surfaceRaised
-    KaiThemeColors.cardFill = kaiColors.cardFill
-    KaiThemeColors.cardSurface = kaiColors.cardSurface
-    KaiThemeColors.borderSubtle = kaiColors.borderSubtle
-    KaiThemeColors.borderSoft = kaiColors.borderSoft
-    KaiThemeColors.borderStrong = kaiColors.borderStrong
     CompositionLocalProvider(
-        LocalKaiColors provides kaiColors,
         LocalDesignTokens provides DesignTokens,
         LocalDesignColorTokens provides DesignColorTokens.from(colorScheme),
     ) {
