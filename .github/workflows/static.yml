@@ -43,14 +43,11 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Install yarn 4 globally for WASM npm install
+        run: npm install -g yarn@4.0.0
+
       - name: Build WASM project
-        run: |
-          corepack enable
-          corepack prepare yarn@4 --activate
-          # Put Node.js bin first so corepack-shimmed yarn 4 takes precedence over system yarn 1.22.22
-          NODE_BIN=$(dirname "$(which node)")
-          export PATH="$NODE_BIN:$PATH"
-          ./gradlew :composeApp:wasmJsBrowserDistribution
+        run: ./gradlew :composeApp:wasmJsBrowserDistribution
 
       - name: Set up Python
         uses: actions/setup-python@v5
