@@ -43,8 +43,8 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Enable corepack
-        run: corepack enable
+      - name: Install yarn 4 for WASM npm install
+        run: npm install -g yarn@4
 
       - name: Build WASM project
         run: ./gradlew :composeApp:wasmJsBrowserDistribution
