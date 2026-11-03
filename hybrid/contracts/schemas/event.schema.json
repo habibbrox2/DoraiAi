@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://broxlab.online/schemas/brox-kai-hybrid/event-1.0.schema.json",
+  "title": "Brox Kai Hybrid Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "messageType",
+    "eventId",
+    "sessionId",
+    "sequence",
+    "type",
+    "payload"
+  ],
+  "properties": {
+    "protocolVersion": { "const": "1.0" },
+    "messageType": { "const": "event" },
+    "eventId": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "sessionId": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "sequence": { "type": "integer", "minimum": 0 },
+    "type": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9_-]*)+$",
+      "maxLength": 128
+    },
+    "payload": { "type": "object" },
+    "occurredAt": { "type": "string", "format": "date-time", "maxLength": 64 }
+  }
+}

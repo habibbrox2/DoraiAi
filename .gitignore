@@ -43,3 +43,8 @@ Brox-Kai-*.exe
 
 # Snapshot backups taken before risky operations
 /backup-pre-*/
+# TypeScript workspace
+node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/.vite/

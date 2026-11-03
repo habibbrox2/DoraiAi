@@ -1,0 +1,25 @@
+{
+  "name": "@brox-kai/frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.15.0 <27",
+    "pnpm": ">=12.0.0 <13"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit --project tsconfig.json",
+    "contracts:check": "node --input-type=module -e \"import Ajv2020 from 'ajv/dist/2020.js'; import fs from 'node:fs'; const ajv = new Ajv2020({strict:true,strictRequired:false,validateFormats:false}); const names=['request','response','event']; const fixtures={request:{protocolVersion:'1.0',messageType:'request',requestId:'req-1',type:'agent.run',payload:{}},response:{protocolVersion:'1.0',messageType:'response',requestId:'req-1',ok:true,data:{}},event:{protocolVersion:'1.0',messageType:'event',eventId:'evt-1',sessionId:'session-1',sequence:0,type:'agent.status',payload:{}}}; const validators={}; for (const name of names) { const schema=JSON.parse(fs.readFileSync('../hybrid/contracts/schemas/'+name+'.schema.json','utf8')); validators[name]=ajv.compile(schema); if(!validators[name](fixtures[name])) throw new Error(name+' valid fixture rejected'); if(validators[name]({...fixtures[name],protocolVersion:'99.0'})) throw new Error(name+' accepted unsupported protocol version'); } const invalidResponse={...fixtures.response,error:{code:'ERR',message:'failure'}}; if(validators.response(invalidResponse)) throw new Error('response accepted both data and error'); const failedResponse={protocolVersion:'1.0',messageType:'response',requestId:'req-2',ok:false,error:{code:'ERR',message:'failure'}}; if(!validators.response(failedResponse)) throw new Error('response rejected valid error fixture'); console.log('Hybrid JSON Schema validation and compatibility fixtures passed');\"",
+    "test": "vitest run --passWithNoTests",
+    "format:check": "prettier --check \"**/*.{json,md,yml,yaml}\" \"../hybrid/contracts/**/*.json\"",
+    "format": "prettier --write \"**/*.{json,md,yml,yaml}\" \"../hybrid/contracts/**/*.json\"",
+    "check": "pnpm typecheck && pnpm contracts:check && pnpm test && pnpm format:check"
+  },
+  "devDependencies": {
+    "ajv": "8.17.1",
+    "prettier": "^3.9.10",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.1.0"
+  }
+}

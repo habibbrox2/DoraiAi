@@ -1,0 +1,13 @@
+{
+  "name": "brox-kai-hybrid-workspace",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@12.11.2",
+  "engines": { "node": ">=22.15.0 <27", "pnpm": ">=12.0.0 <13" },
+  "scripts": {
+    "frontend:check": "pnpm --filter @brox-kai/frontend check",
+    "frontend:typecheck": "pnpm --filter @brox-kai/frontend typecheck",
+    "frontend:test": "pnpm --filter @brox-kai/frontend test",
+    "frontend:format:check": "pnpm --filter @brox-kai/frontend format:check"
+  }
+}

@@ -151,6 +151,20 @@ Plus a built-in **Free** tier that requires no API key.
 - **[Settings Export & Import](features/settings-export-import.md)** — JSON backup and restore
 - **[Splinterlands](features/splinterlands.md)** — Auto-battle integration
 
+## Hybrid Development
+
+Brox Kai keeps Kotlin Multiplatform as its primary application platform and provides a separate TypeScript workspace for future browser-facing modules and integrations. The workspace does not replace Compose or the existing Kotlin/Wasm target.
+
+- [System Architecture](architecture/system-architecture.md)
+- [Hybrid Architecture](architecture/hybrid-architecture.md)
+- [Kotlin Architecture](architecture/kotlin-architecture.md)
+- [TypeScript Architecture](architecture/typescript-architecture.md)
+- [Communication Contract](architecture/communication-contract.md)
+- [Technology Boundaries](architecture/technology-boundaries.md)
+- [TypeScript Setup](development/typescript-setup.md)
+- [Hybrid Development Guide](development/hybrid-development-guide.md)
+- [ADR-001: Kotlin-first hybrid strategy](architecture/architecture-decisions/ADR-001-hybrid-language-strategy.md)
+
 ## Links
 
 - [GitHub Repository](https://github.com/SimonSchubert/Kai)

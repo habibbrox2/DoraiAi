@@ -80,6 +80,17 @@ java -version
 ./gradlew :composeApp:wasmJsBrowserDistribution  # Web
 ```
 
+## Hybrid Development Foundation
+
+Brox Kai uses Kotlin Multiplatform + Compose Multiplatform as its primary application platform. A separate pnpm-managed TypeScript workspace is available for future web-facing modules and integrations. The two build systems remain independent; the existing Kotlin/Wasm target is not a TypeScript runtime.
+
+- [System Architecture](docs/architecture/system-architecture.md)
+- [Hybrid Architecture](docs/architecture/hybrid-architecture.md)
+- [TypeScript Workspace Setup](docs/development/typescript-setup.md)
+- [Hybrid Development Guide](docs/development/hybrid-development-guide.md)
+
+Run TypeScript checks from the repository root with pnpm frontend:check. No existing Kotlin feature or TypeScript/JavaScript product source is migrated by this foundation.
+
 ## Upstream (Kai 9000)
 
 Brox Kai v2.0 is forked from [Kai 9000](https://github.com/SimonSchubert/Kai) by [Simon Schubert](https://github.com/SimonSchubert).

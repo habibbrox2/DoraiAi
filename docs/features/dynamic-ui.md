@@ -209,7 +209,11 @@ Do not introduce a generic plugin loader or runtime code generation system for t
 | `composeApp/src/commonMain/.../ui/chat/ChatActions.kt` | UI callbacks and interactive-mode actions |
 | `composeApp/src/commonMain/.../data/AppSettings.kt` | Dynamic UI preference |
 
-## 12. Rollout plan
+## 12. TypeScript boundary
+
+The existing kai-ui renderer remains Kotlin Compose Multiplatform. The new TypeScript workspace does not execute model-provided JavaScript and does not replace the current JSON component-tree protocol. If a future browser-side renderer is introduced, it must consume an explicitly versioned contract, preserve the closed component/action allowlist, and delegate privileged operations to Kotlin-owned capability APIs. No TypeScript renderer or bridge is implemented by the hybrid foundation.
+
+## 13. Rollout plan
 
 1. Audit the current node model, parser, renderer, and persisted message fixtures.
 2. Add parser limits and security tests before expanding the node vocabulary.

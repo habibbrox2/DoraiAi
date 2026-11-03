@@ -1,0 +1,11 @@
+{
+  "protocol": "brox-kai-hybrid",
+  "major": 1,
+  "minor": 0,
+  "version": "1.0",
+  "status": "foundation-only",
+  "compatibility": {
+    "unknownMajor": "reject",
+    "unknownMinorFields": "ignore-only-when-optional"
+  }
+}

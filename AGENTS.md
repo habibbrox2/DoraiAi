@@ -9,6 +9,7 @@ Brox Kai v2.0 is a Kotlin Multiplatform (KMP) app built with Compose Multiplatfo
 - **Language:** Kotlin Multiplatform
 - **UI:** Compose Multiplatform
 - **Targets:** Android, iOS (arm64, simulator arm64), Desktop JVM, Web (`wasmJs`)
+- **Future web/integration workspace:** TypeScript + pnpm under frontend/ (independent from Gradle)
 - **Modules:** `:composeApp`, `:androidApp`, `:screenshotTests`
 
 ## Project Structure
@@ -21,6 +22,8 @@ Brox Kai v2.0 is a Kotlin Multiplatform (KMP) app built with Compose Multiplatfo
 ├── docs/
 │   ├── features/      # Product/behavior feature specs (no Kotlin code blocks)
 │   └── knowledge/     # OKF knowledge bundles (YAML frontmatter + body)
+├── frontend/          # Isolated TypeScript workspace (future features)
+├── hybrid/            # Language-neutral protocol schemas
 └── gradle/            # Version catalog and build config
 ```
 
@@ -48,6 +51,15 @@ Brox Kai v2.0 is a Kotlin Multiplatform (KMP) app built with Compose Multiplatfo
 | `./gradlew :composeApp:wasmJsBrowserDistribution` | Web/Wasm distribution build |
 
 Run the narrowest relevant command first. Only claim a target passes if it returns `BUILD SUCCESSFUL` in this environment.
+
+## Kotlin + TypeScript Boundary
+
+- Kotlin remains authoritative for application lifecycle, Compose UI, agent orchestration, provider credentials, tools, shell, filesystem, sandbox, and privileged capabilities.
+- TypeScript work belongs in the independent frontend/ pnpm workspace. Do not add it to Gradle settings or Android runtime dependencies.
+- Existing Kotlin/Wasm is a Kotlin target; it is not the TypeScript workspace.
+- Cross-language messages use versioned JSON Schema under hybrid/contracts/. Schema validation does not grant authorization; Kotlin must authorize every capability.
+- Do not migrate or edit existing Kotlin/JavaScript/TypeScript feature implementation as part of workspace setup.
+- Use pnpm frontend:check for isolated workspace checks. Keep Gradle and pnpm dependency graphs independent.
 
 ## Coding Conventions
 
