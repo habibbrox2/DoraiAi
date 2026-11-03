@@ -1,4 +1,4 @@
-package com.inspiredandroid.kai.build
+package com.inspiredandroid.kai.workspace
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -8,8 +8,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import com.inspiredandroid.kai.build.terminal.TerminalKey
-import com.inspiredandroid.kai.build.terminal.TerminalModifiers
+import com.inspiredandroid.kai.workspace.terminal.TerminalKey
+import com.inspiredandroid.kai.workspace.terminal.TerminalModifiers
 
 actual val supportsRawTerminalInput: Boolean = true
 

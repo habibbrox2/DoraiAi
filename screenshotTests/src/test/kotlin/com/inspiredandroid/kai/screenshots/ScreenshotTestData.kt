@@ -3,9 +3,9 @@ package com.inspiredandroid.kai.screenshots
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.inspiredandroid.kai.TerminalLine
-import com.inspiredandroid.kai.build.BuildEnvironmentState
-import com.inspiredandroid.kai.build.BuildStep
-import com.inspiredandroid.kai.build.BuildTerminalSession
+import com.inspiredandroid.kai.workspace.BuildEnvironmentState
+import com.inspiredandroid.kai.workspace.BuildStep
+import com.inspiredandroid.kai.workspace.BuildTerminalSession
 import com.inspiredandroid.kai.workspace.WorkspaceState
 import com.inspiredandroid.kai.data.MemoryEntry
 import com.inspiredandroid.kai.data.Service

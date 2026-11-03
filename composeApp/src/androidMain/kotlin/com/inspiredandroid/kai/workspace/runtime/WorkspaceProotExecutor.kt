@@ -1,4 +1,4 @@
-package com.inspiredandroid.kai.build.runtime
+package com.inspiredandroid.kai.workspace.runtime
 
 import com.inspiredandroid.kai.linux.ProotHandle
 import com.inspiredandroid.kai.linux.ProotLauncher

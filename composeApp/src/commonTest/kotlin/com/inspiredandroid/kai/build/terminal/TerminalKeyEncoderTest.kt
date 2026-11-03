@@ -1,4 +1,4 @@
-package com.inspiredandroid.kai.build.terminal
+package com.inspiredandroid.kai.workspace.terminal
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

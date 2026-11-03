@@ -1,7 +1,7 @@
 package com.inspiredandroid.kai.ui.workspace
 
-import com.inspiredandroid.kai.build.terminal.TerminalScreen
-import com.inspiredandroid.kai.build.terminal.TerminalSnapshot
+import com.inspiredandroid.kai.workspace.terminal.TerminalScreen
+import com.inspiredandroid.kai.workspace.terminal.TerminalSnapshot
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

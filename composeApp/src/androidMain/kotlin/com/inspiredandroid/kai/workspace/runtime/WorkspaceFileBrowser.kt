@@ -1,4 +1,4 @@
-package com.inspiredandroid.kai.build.runtime
+package com.inspiredandroid.kai.workspace.runtime
 
 import android.content.Context
 import com.inspiredandroid.kai.FileBrowserSource

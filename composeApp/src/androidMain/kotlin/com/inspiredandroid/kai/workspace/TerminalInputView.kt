@@ -1,4 +1,4 @@
-package com.inspiredandroid.kai.build
+package com.inspiredandroid.kai.workspace
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -11,8 +11,8 @@ import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
-import com.inspiredandroid.kai.build.terminal.TerminalKey
-import com.inspiredandroid.kai.build.terminal.TerminalModifiers
+import com.inspiredandroid.kai.workspace.terminal.TerminalKey
+import com.inspiredandroid.kai.workspace.terminal.TerminalModifiers
 
 /**
  * Invisible, focusable view over the terminal grid whose only job is IME

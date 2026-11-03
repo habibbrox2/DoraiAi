@@ -2,8 +2,8 @@ package com.inspiredandroid.kai
 
 import android.content.Context
 import com.inspiredandroid.kai.workspace.WorkspaceState
-import com.inspiredandroid.kai.build.runtime.WorkspaceEnvironmentManager
-import com.inspiredandroid.kai.build.runtime.WorkspaceFileBrowser
+import com.inspiredandroid.kai.workspace.runtime.WorkspaceEnvironmentManager
+import com.inspiredandroid.kai.workspace.runtime.WorkspaceFileBrowser
 import com.inspiredandroid.kai.linux.LinuxDistro
 import com.inspiredandroid.kai.linux.LinuxInstalls
 import com.inspiredandroid.kai.linux.LinuxPaths
