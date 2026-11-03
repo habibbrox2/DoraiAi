@@ -320,3 +320,25 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java).conf
         dependsOn("generateVersionFile")
     }
 }
+
+// The Kotlin/Wasm Gradle plugin generates package.json with a malformed
+// "packageManager": "yarn@pnpm@12.11.2" field. Yarn 1.x (pre-installed on
+// GitHub Actions ubuntu-latest runners) doesn't understand the packageManager
+// field at all and fails with "However the current global version of Yarn is 1.22.22".
+// Strip the field before npm install so it can proceed with system yarn.
+tasks.named("kotlinWasmNpmInstall") {
+    doFirst {
+        val buildDir = layout.buildDirectory.asFile
+        buildDir.walkTopDown()
+            .filter { it.name == "package.json" && it.absolutePath.contains("wasmJsNpm") }
+            .firstOrNull()
+            ?.let { pkg ->
+                val content = pkg.readText()
+                val modified = content.replace('''"packageManager": "[^"]*",\s*\n''', "")
+                if (modified != content) {
+                    pkg.writeText(modified)
+                    logger.lifecycle("Stripped malformed packageManager from ${pkg.path}")
+                }
+            }
+    }
+}
