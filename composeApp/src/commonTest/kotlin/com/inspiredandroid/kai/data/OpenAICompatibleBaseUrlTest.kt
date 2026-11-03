@@ -26,3 +26,7 @@ class OpenAICompatibleBaseUrlTest {
         assertEquals(Service.DEFAULT_OPENAI_COMPATIBLE_BASE_URL, normalize(""))
     }
 }
+
+
+
+

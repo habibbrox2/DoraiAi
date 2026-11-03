@@ -12,3 +12,7 @@ data class FallbackStatus(
     val errorReason: UiError,
     val nextServiceName: String? = null,
 )
+
+
+
+

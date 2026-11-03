@@ -99,3 +99,7 @@ private fun SkillRow(skill: SkillManifest, onClick: () -> Unit) {
         }
     }
 }
+
+
+
+

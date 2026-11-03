@@ -226,7 +226,7 @@ private fun PathBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = com.inspiredandroid.kai.ui.build.BuildSpacing.sm)
+            .padding(horizontal = com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing.sm)
             .clip(com.inspiredandroid.kai.ui.KaiShapes.input)
             .background(com.inspiredandroid.kai.ui.theme.DesignTokens.SurfaceElevated)
             .border(androidx.compose.foundation.BorderStroke(1.dp, com.inspiredandroid.kai.ui.theme.DesignTokens.BorderSubtle), com.inspiredandroid.kai.ui.KaiShapes.input),
@@ -347,9 +347,9 @@ private fun FileList(
         return
     }
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(horizontal = com.inspiredandroid.kai.ui.build.BuildSpacing.sm),
-        verticalArrangement = Arrangement.spacedBy(com.inspiredandroid.kai.ui.build.BuildSpacing.sm),
-        contentPadding = PaddingValues(vertical = com.inspiredandroid.kai.ui.build.BuildSpacing.sm),
+        modifier = Modifier.fillMaxSize().padding(horizontal = com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing.sm),
+        verticalArrangement = Arrangement.spacedBy(com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing.sm),
+        contentPadding = PaddingValues(vertical = com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing.sm),
     ) {
         items(state.entries, key = { it.path }) { entry ->
             FileRow(
@@ -709,3 +709,7 @@ private fun RenameDialog(
         },
     )
 }
+
+
+
+

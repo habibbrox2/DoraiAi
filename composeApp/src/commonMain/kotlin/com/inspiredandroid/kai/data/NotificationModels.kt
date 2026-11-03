@@ -28,3 +28,7 @@ data class NotificationSyncState(
     val lastBoundEpochMs: Long = 0L,
     val lastError: String? = null,
 )
+
+
+
+

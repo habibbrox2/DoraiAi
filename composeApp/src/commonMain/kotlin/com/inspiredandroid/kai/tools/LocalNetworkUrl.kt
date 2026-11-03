@@ -41,3 +41,7 @@ fun isLocalNetworkUrl(url: String): Boolean {
     // mDNS names and bare hostnames resolve on the local network.
     return host.endsWith(".local") || !host.contains(".")
 }
+
+
+
+

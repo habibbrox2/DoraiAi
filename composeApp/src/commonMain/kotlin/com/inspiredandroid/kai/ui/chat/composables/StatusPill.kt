@@ -78,3 +78,7 @@ object StatusPillDefaults {
     @Composable
     fun retry(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null) = StatusPill(text = text, color = ChatStatusColors.retry, modifier = modifier, icon = icon)
 }
+
+
+
+

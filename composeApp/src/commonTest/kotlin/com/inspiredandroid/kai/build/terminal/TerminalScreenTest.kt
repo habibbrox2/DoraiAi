@@ -189,3 +189,7 @@ class TerminalScreenTest {
         assertEquals('o', snap.cellAt(4, 0).char)
     }
 }
+
+
+
+

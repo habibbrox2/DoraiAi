@@ -14,3 +14,7 @@ actual fun deleteLegacyConversationFile() {
     val file = File(getAppFilesDirectory(), LEGACY_FILE_NAME)
     if (file.exists()) file.delete()
 }
+
+
+
+

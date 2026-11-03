@@ -434,3 +434,7 @@ fun History.toGeminiMessageDto(): GeminiChatRequestDto.Content {
         role = geminiRole,
     )
 }
+
+
+
+

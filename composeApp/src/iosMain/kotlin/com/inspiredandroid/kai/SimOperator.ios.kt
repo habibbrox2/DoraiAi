@@ -12,3 +12,7 @@ actual fun getSimOperatorCode(): String? = try {
 } catch (_: Exception) {
     null
 }
+
+
+
+

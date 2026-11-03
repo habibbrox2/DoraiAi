@@ -503,12 +503,12 @@ class FakeDataRepository : DataRepository {
         storedSandboxDistro = distro
     }
 
-    var storedKaiBuildLaunchAgent: String? = null
+    var storedWorkspaceLaunchAgent: String? = null
 
-    override fun getKaiBuildLaunchAgent(): String? = storedKaiBuildLaunchAgent
+    override fun getWorkspaceLaunchAgent(): String? = storedWorkspaceLaunchAgent
 
-    override fun setKaiBuildLaunchAgent(agentId: String?) {
-        storedKaiBuildLaunchAgent = agentId
+    override fun setWorkspaceLaunchAgent(agentId: String?) {
+        storedWorkspaceLaunchAgent = agentId
     }
 
     override fun getHeartbeatConfig(): HeartbeatConfig = HeartbeatConfig()
@@ -694,3 +694,7 @@ class FakeDataRepository : DataRepository {
     override fun cancelLocalModelImport() {}
     override suspend fun deleteLocalModel(modelId: String) {}
 }
+
+
+
+

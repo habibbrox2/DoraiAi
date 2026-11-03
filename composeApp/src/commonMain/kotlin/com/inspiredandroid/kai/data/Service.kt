@@ -675,3 +675,7 @@ sealed class Service(
     val modelIdKey: String get() = "service_${settingsKeyPrefix}_model_id"
     val baseUrlKey: String get() = "service_${settingsKeyPrefix}_base_url"
 }
+
+
+
+

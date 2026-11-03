@@ -112,7 +112,7 @@ internal fun SandboxTabsContent(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = com.inspiredandroid.kai.ui.build.BuildSpacing.md, vertical = com.inspiredandroid.kai.ui.build.BuildSpacing.sm),
+                        .padding(horizontal = com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing.md, vertical = com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing.sm),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
@@ -135,7 +135,7 @@ internal fun SandboxTabsContent(
                         }
                         Box(
                             modifier = Modifier.fillMaxWidth()
-                                .padding(bottom = com.inspiredandroid.kai.ui.build.BuildSpacing.xs)
+                                .padding(bottom = com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing.xs)
                                 .weight(1f)
                                 .clip(com.inspiredandroid.kai.ui.KaiShapes.card)
                                 .background(TerminalDarkBg)
@@ -458,3 +458,7 @@ internal fun SandboxProgressRow(progress: Float?, statusText: String, onCancel: 
         }
     }
 }
+
+
+
+

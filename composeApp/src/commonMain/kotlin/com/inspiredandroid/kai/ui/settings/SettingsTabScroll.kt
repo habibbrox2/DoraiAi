@@ -24,3 +24,7 @@ internal fun settingsTabScrollTarget(
 
     return target.coerceIn(0, maxScroll).takeIf { it != currentScroll }
 }
+
+
+
+

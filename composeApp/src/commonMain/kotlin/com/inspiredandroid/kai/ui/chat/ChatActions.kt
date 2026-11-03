@@ -42,3 +42,7 @@ data class ChatActions(
     val rejectFileChange: (proposalId: String) -> Unit = {},
     val rollbackFileChange: (proposalId: String) -> Unit = {},
 )
+
+
+
+

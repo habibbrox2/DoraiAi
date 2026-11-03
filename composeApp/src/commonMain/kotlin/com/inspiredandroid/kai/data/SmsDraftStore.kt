@@ -49,3 +49,7 @@ class SmsDraftStore(appSettings: AppSettings) {
         private const val MAX_DRAFTS = 20
     }
 }
+
+
+
+

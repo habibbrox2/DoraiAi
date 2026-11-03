@@ -208,3 +208,7 @@ object ActivityMapper {
         details.copy(stdout = result)
     }
 }
+
+
+
+

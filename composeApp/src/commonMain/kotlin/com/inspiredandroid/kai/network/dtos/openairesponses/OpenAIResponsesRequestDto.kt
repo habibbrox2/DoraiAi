@@ -47,3 +47,7 @@ data class OpenAIResponsesRequestDto(
         val strict: Boolean = false,
     )
 }
+
+
+
+

@@ -10,3 +10,7 @@ object AppContextHolder {
     lateinit var context: Context
     val isInitialized: Boolean get() = ::context.isInitialized
 }
+
+
+
+

@@ -1,4 +1,4 @@
-﻿package com.inspiredandroid.kai.ui.components
+package com.inspiredandroid.kai.ui.components
 
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -45,3 +45,7 @@ fun KaiLoadingSpinner(
         )
     }
 }
+
+
+
+

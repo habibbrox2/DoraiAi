@@ -71,3 +71,7 @@ data class OpenAICompatibleChatRequestDto(
         val arguments: String, // JSON string of the args → parse it in your code
     )
 }
+
+
+
+

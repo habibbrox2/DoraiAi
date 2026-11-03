@@ -64,3 +64,7 @@ class TerminalMouseEncoderTest {
         assertNull(TerminalMouseEncoder.wheel(up = true, col = 1, row = 1, state = off))
     }
 }
+
+
+
+

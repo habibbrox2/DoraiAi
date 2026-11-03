@@ -555,3 +555,7 @@ private fun pruneOutput(outputLines: MutableList<TerminalLine>) {
         outputLines.subList(0, excess).clear()
     }
 }
+
+
+
+

@@ -1,4 +1,4 @@
-﻿package com.inspiredandroid.kai.ui.settings
+package com.inspiredandroid.kai.ui.settings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -301,13 +301,13 @@ private fun TtsSettingsSection() {
             color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
-            text = "কণ্ঠের স্বরভঙ্গি, গতি ও আবেগ আরও স্বাভাবিক করুন",
+            text = "?????? ?????????, ??? ? ???? ??? ????????? ????",
             style = KaiTypography.bodyMedium,
             color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
         )
 
-        Text(text = "গতি (Speed): ${(rate * 100).roundToInt()}%", style = KaiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        Text(text = "??? (Speed): ${(rate * 100).roundToInt()}%", style = KaiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         Slider(
             value = rate,
             onValueChange = { rate = it },
@@ -316,7 +316,7 @@ private fun TtsSettingsSection() {
         )
 
         Spacer(Modifier.height(8.dp))
-        Text(text = "স্বরভঙ্গি (Pitch): ${(pitch * 100).roundToInt()}%", style = KaiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        Text(text = "????????? (Pitch): ${(pitch * 100).roundToInt()}%", style = KaiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         Slider(
             value = pitch,
             onValueChange = { pitch = it },
@@ -325,7 +325,7 @@ private fun TtsSettingsSection() {
         )
 
         Spacer(Modifier.height(8.dp))
-        Text(text = "ভলিউম (Volume): ${(volume * 100).roundToInt()}%", style = KaiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        Text(text = "????? (Volume): ${(volume * 100).roundToInt()}%", style = KaiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         Slider(
             value = volume,
             onValueChange = { volume = it },
@@ -335,9 +335,13 @@ private fun TtsSettingsSection() {
 
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "নোট: প্রাকৃতিক কণ্ঠের জন্য গতি ০.৯৫-১.০৫, স্বরভঙ্গি ০.৯৫-১.০৫ রাখলে বেশি স্বাভাবিক শোনাবে।",
+            text = "???: ????????? ?????? ???? ??? ?.??-?.??, ????????? ?.??-?.?? ????? ???? ????????? ???????",
             style = KaiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
         )
     }
 }
+
+
+
+

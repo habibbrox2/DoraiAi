@@ -14,3 +14,7 @@ actual fun getDeviceInfo(): Map<String, Any> {
         "name" to (device.name ?: "unknown"),
     )
 }
+
+
+
+

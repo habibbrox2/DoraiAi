@@ -6,3 +6,7 @@ import java.awt.datatransfer.StringSelection
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal actual fun clipEntryOfPlainText(text: String): ClipEntry = ClipEntry(StringSelection(text))
+
+
+
+

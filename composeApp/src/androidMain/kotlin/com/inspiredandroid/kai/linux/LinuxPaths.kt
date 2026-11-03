@@ -6,10 +6,10 @@ import java.io.File
 /** Directory under `filesDir` holding the chat sandbox's Linux. */
 const val SANDBOX_DIR_NAME = "linux-sandbox"
 
-/** Directory under `filesDir` holding Kai Build's own Linux, when it needs one. */
-const val BUILD_DIR_NAME = "kai-build"
+/** Directory under `filesDir` holding Workspace's own Linux, when it needs one. */
+const val BUILD_DIR_NAME = "workspace"
 
-/** Pre-marker Kai Build installs recorded completion in this file. */
+/** Pre-marker Workspace installs recorded completion in this file. */
 const val LEGACY_READY_FILE = "ready"
 
 /**
@@ -40,9 +40,9 @@ data class InstallMarker(
 )
 
 /**
- * Storage layout for one Linux install. The chat sandbox and Kai Build each
+ * Storage layout for one Linux install. The chat sandbox and Workspace each
  * point one of these at their own directory — or at the *same* directory, which
- * is how a Debian chat sandbox and Kai Build end up sharing a single rootfs.
+ * is how a Debian chat sandbox and Workspace end up sharing a single rootfs.
  *
  * Directory names are deliberately unchanged from before the two stacks merged,
  * so existing installs are found rather than orphaned and `file_paths.xml` keeps
@@ -99,7 +99,7 @@ class LinuxPaths(
      */
     val projectsDir: File by lazy {
         val external = appContext.getExternalFilesDir(null) ?: root
-        File(external, "kai-build-home/projects")
+        File(external, "workspace-home/projects")
     }
 
     /** Host directory backing `/root` for this install. */
@@ -184,7 +184,7 @@ class LinuxPaths(
             legacyEvidence = ALPINE_RELEASE_FILE,
         )
 
-        /** Kai Build's own install, used only when the chat sandbox is not Debian. */
+        /** Workspace's own install, used only when the chat sandbox is not Debian. */
         fun forBuild(context: Context) = LinuxPaths(
             context = context,
             dirName = BUILD_DIR_NAME,
@@ -193,3 +193,7 @@ class LinuxPaths(
         )
     }
 }
+
+
+
+

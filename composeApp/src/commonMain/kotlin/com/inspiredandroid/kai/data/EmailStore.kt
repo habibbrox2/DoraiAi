@@ -73,3 +73,7 @@ class EmailStore(private val appSettings: AppSettings) {
 
     suspend fun removePending(emails: List<EmailMessage>) = pendingQueue.remove(emails)
 }
+
+
+
+

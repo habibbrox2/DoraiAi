@@ -259,3 +259,7 @@ actual fun sendHeartbeatNotification(title: String, body: String) {
         // notify-send missing, AWT headless, sandboxed osascript, etc. — fall back silently.
     }
 }
+
+
+
+

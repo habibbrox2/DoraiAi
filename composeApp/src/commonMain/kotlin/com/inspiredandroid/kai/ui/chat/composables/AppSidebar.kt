@@ -96,7 +96,7 @@ fun AppSidebar(
     /** Interactive UI mode is on: the link below reads as an active toggle. */
     isInteractiveMode: Boolean = false,
     onToggleInteractiveMode: (() -> Unit)?,
-    onOpenKaiBuild: (() -> Unit)?,
+    onOpenWorkspace: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     val tokens = LocalDesignTokens.current
@@ -235,8 +235,8 @@ fun AppSidebar(
                 isActive = isInteractiveMode,
             )
         }
-        onOpenKaiBuild?.let {
-            SidebarLink(icon = Icons.Default.Terminal, label = "Kai Build", onClick = it)
+        onOpenWorkspace?.let {
+            SidebarLink(icon = Icons.Default.Terminal, label = "Workspace", onClick = it)
         }
         SidebarLink(
             icon = vectorResource(Res.drawable.ic_settings),
@@ -590,3 +590,7 @@ private fun groupConversations(
     if (olderList.isNotEmpty()) result.add("Older" to olderList)
     return result
 }
+
+
+
+

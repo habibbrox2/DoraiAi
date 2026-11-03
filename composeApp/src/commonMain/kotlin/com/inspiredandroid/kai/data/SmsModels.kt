@@ -46,3 +46,7 @@ data class SmsDraft(
     val status: SmsDraftStatus = SmsDraftStatus.PENDING,
     val lastError: String? = null,
 )
+
+
+
+

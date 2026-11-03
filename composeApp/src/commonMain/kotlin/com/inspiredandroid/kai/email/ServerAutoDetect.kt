@@ -93,3 +93,7 @@ object ServerAutoDetect {
         return knownProviders[domain]
     }
 }
+
+
+
+

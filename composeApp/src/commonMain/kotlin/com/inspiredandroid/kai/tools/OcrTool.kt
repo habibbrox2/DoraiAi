@@ -91,3 +91,7 @@ data class OcrElementResult(
     val boundingBox: Map<String, Int> = emptyMap(),
     val confidence: Float = 0f,
 )
+
+
+
+

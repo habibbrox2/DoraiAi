@@ -13,9 +13,9 @@ import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.inspiredandroid.kai.ui.DarkColorScheme
 import com.inspiredandroid.kai.ui.Theme
-import com.inspiredandroid.kai.ui.build.KaiBuildActions
-import com.inspiredandroid.kai.ui.build.KaiBuildScreenContent
-import com.inspiredandroid.kai.ui.build.KaiBuildUiState
+import com.inspiredandroid.kai.ui.workspace.WorkspaceActions
+import com.inspiredandroid.kai.ui.workspace.WorkspaceScreenContent
+import com.inspiredandroid.kai.ui.workspace.WorkspaceUiState
 import com.inspiredandroid.kai.ui.chat.composables.ToolConfirmationCard
 import com.inspiredandroid.kai.ui.chat.composables.ToolExecutionCard
 import com.inspiredandroid.kai.ui.components.OperationalStatus
@@ -85,7 +85,7 @@ class PremiumScreenScreenshotTest {
                         isSharedKey = false,
                     ),
                     facts = persistentListOf(
-                        ReadinessFact("Kai Build", "Ready", OperationalStatus.Ready),
+                        ReadinessFact("Workspace", "Ready", OperationalStatus.Ready),
                         ReadinessFact("Sandbox", "Ready", OperationalStatus.Ready),
                     ),
                     recentProjects = persistentListOf("brox-kai-2.0"),
@@ -103,11 +103,11 @@ class PremiumScreenScreenshotTest {
     }
 
     @Test
-    fun kaiBuild_setup_dark() {
+    fun Workspace_setup_dark() {
         paparazzi.snap {
-            KaiBuildScreenContent(
-                state = KaiBuildUiState(),
-                actions = KaiBuildActions(
+            WorkspaceScreenContent(
+                state = WorkspaceUiState(),
+                actions = WorkspaceActions(
                     toggleAgent = {},
                     install = {},
                     installAgent = {},
@@ -174,3 +174,7 @@ class PremiumScreenScreenshotTest {
         }
     }
 }
+
+
+
+

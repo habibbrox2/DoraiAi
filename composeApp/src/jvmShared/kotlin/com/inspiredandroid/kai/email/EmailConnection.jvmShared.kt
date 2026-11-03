@@ -73,3 +73,7 @@ private class JvmEmailConnection(
 private fun SSLSocket.verifyingHostname(): SSLSocket = apply {
     sslParameters = sslParameters.apply { endpointIdentificationAlgorithm = "HTTPS" }
 }
+
+
+
+

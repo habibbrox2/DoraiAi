@@ -139,3 +139,7 @@ class TerminalKeyEncoderTest {
         assertEquals(TerminalModifiers.None, TerminalModifiers.None + TerminalModifiers.None)
     }
 }
+
+
+
+

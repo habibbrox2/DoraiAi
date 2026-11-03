@@ -50,3 +50,7 @@ sealed interface ManifestValidation {
     data object Valid : ManifestValidation
     data class Invalid(val reason: String) : ManifestValidation
 }
+
+
+
+

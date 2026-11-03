@@ -582,3 +582,7 @@ class SandboxFileBrowserViewModelTest {
         assertTrue(vm.state.value.editor is EditorState.Unreadable)
     }
 }
+
+
+
+

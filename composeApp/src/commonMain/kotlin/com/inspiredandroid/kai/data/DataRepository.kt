@@ -139,11 +139,11 @@ interface DataRepository {
     fun getSandboxDistro(): LinuxDistro
     fun setSandboxDistro(distro: LinuxDistro)
 
-    // Kai Build
+    // Workspace
 
-    /** Agent a freshly opened Kai Build project starts with; null is a plain shell. */
-    fun getKaiBuildLaunchAgent(): String?
-    fun setKaiBuildLaunchAgent(agentId: String?)
+    /** Agent a freshly opened Workspace project starts with; null is a plain shell. */
+    fun getWorkspaceLaunchAgent(): String?
+    fun setWorkspaceLaunchAgent(agentId: String?)
 
     // Heartbeat
     fun getHeartbeatConfig(): HeartbeatConfig
@@ -287,3 +287,7 @@ interface DataRepository {
     fun cancelLocalModelImport()
     suspend fun deleteLocalModel(modelId: String)
 }
+
+
+
+

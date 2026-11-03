@@ -23,3 +23,7 @@ internal actual suspend fun httpGet(url: String, headers: Map<String, String>): 
  * Auto-update is not applicable on web.
  */
 internal actual fun currentPlatformKey(): String = "none"
+
+
+
+

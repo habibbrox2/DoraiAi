@@ -8,3 +8,7 @@ import kotlinx.browser.window
 // or 'false' for safer production. Let's default to true for now, assuming it's for development.
 // Alternatively, could use: actual val isDebugBuild: Boolean = true
 actual val isDebugBuild: Boolean = window.location.hostname == "localhost" || window.location.hostname == "127.0.0.1"
+
+
+
+

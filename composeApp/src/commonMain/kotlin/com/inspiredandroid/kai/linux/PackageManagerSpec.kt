@@ -11,7 +11,7 @@ data class PackageEntry(
 
 /**
  * Everything that differs between `apk` and `apt` when the Packages tab, the
- * sandbox installer and the Kai Build installer drive a package manager: the
+ * sandbox installer and the Workspace installer drive a package manager: the
  * commands to run and how to read what they printed.
  *
  * Exit codes are deliberately not part of this contract — under proot both
@@ -63,3 +63,7 @@ internal fun shellQuote(s: String): String = "'" + s.replace("'", "'\\''") + "'"
  * can only fail to locate.
  */
 internal fun shellQuoteAll(names: List<String>): String = names.joinToString(" ") { shellQuote(it) }
+
+
+
+

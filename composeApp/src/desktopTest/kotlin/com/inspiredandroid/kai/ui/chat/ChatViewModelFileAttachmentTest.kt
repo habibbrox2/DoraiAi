@@ -179,3 +179,7 @@ class ChatViewModelFileAttachmentTest {
         assertEquals(10, result.length)
     }
 }
+
+
+
+

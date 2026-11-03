@@ -66,3 +66,7 @@ data class GallerySearchResult(
     val message: String = "",
     val messageBengali: String = "",
 )
+
+
+
+

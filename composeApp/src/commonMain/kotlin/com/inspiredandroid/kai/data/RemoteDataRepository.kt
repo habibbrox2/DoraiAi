@@ -2242,10 +2242,10 @@ class RemoteDataRepository(
         appSettings.setSandboxDistro(distro)
     }
 
-    override fun getKaiBuildLaunchAgent(): String? = appSettings.getKaiBuildLaunchAgent()
+    override fun getWorkspaceLaunchAgent(): String? = appSettings.getWorkspaceLaunchAgent()
 
-    override fun setKaiBuildLaunchAgent(agentId: String?) {
-        appSettings.setKaiBuildLaunchAgent(agentId)
+    override fun setWorkspaceLaunchAgent(agentId: String?) {
+        appSettings.setWorkspaceLaunchAgent(agentId)
     }
 
     override fun getHeartbeatConfig(): HeartbeatConfig = heartbeatManager.getConfig()
@@ -2655,3 +2655,7 @@ class RemoteDataRepository(
         localInferenceEngine?.deleteModel(modelId)
     }
 }
+
+
+
+

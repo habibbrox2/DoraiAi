@@ -227,3 +227,7 @@ data class SettingsModel(
      */
     val isManualEntry: Boolean = false,
 )
+
+
+
+

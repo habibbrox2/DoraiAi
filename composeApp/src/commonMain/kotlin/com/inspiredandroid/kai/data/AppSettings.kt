@@ -429,14 +429,14 @@ class AppSettings(internal val settings: Settings) {
     }
 
     /**
-     * Kai Build's "Open with" choice — the agent a freshly opened project starts,
+     * Workspace's "Open with" choice — the agent a freshly opened project starts,
      * or null for a plain shell. Stored as an empty string so "never picked" and
      * "picked the shell" both come back as null.
      */
-    fun getKaiBuildLaunchAgent(): String? = settings.getStringOrNull(KEY_KAI_BUILD_LAUNCH_AGENT)?.takeIf { it.isNotEmpty() }
+    fun getWorkspaceLaunchAgent(): String? = settings.getStringOrNull(KEY_WORKSPACE_LAUNCH_AGENT)?.takeIf { it.isNotEmpty() }
 
-    fun setKaiBuildLaunchAgent(agentId: String?) {
-        settings.putString(KEY_KAI_BUILD_LAUNCH_AGENT, agentId.orEmpty())
+    fun setWorkspaceLaunchAgent(agentId: String?) {
+        settings.putString(KEY_WORKSPACE_LAUNCH_AGENT, agentId.orEmpty())
     }
 
     fun getScheduledTasksJson(): String = settings.getString(KEY_SCHEDULED_TASKS, "[]")
@@ -710,7 +710,7 @@ class AppSettings(internal val settings: Settings) {
 
         const val KEY_SANDBOX_ENABLED = "sandbox_enabled"
         const val KEY_SANDBOX_DISTRO = "sandbox_distro"
-        const val KEY_KAI_BUILD_LAUNCH_AGENT = "kai_build_launch_agent"
+        const val KEY_WORKSPACE_LAUNCH_AGENT = "workspace_launch_agent"
         const val KEY_TOOL_PERMISSIONS = "tool_permissions"
 
         // Basic memory guidance shared by every chat variant. The advanced `## Structured
@@ -725,3 +725,7 @@ class AppSettings(internal val settings: Settings) {
                 "Do not store trivial or transient information."
     }
 }
+
+
+
+

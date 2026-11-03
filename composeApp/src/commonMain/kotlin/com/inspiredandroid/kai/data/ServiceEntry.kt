@@ -11,3 +11,7 @@ data class ServiceEntry(
     val modelId: String,
     val icon: DrawableResource,
 )
+
+
+
+

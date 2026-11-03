@@ -93,3 +93,7 @@ fun computeSideBySideDiff(before: String, after: String, maxLines: Int = 250): S
     }
     return SideBySideDiff(aligned, allOld.size > maxLines || allNew.size > maxLines)
 }
+
+
+
+

@@ -209,3 +209,7 @@ private fun mcpHost(normalizedUrl: String): String? {
     val host = withoutScheme.substringBefore('/').substringBefore('?').substringBefore('#')
     return host.ifBlank { null }
 }
+
+
+
+

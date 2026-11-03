@@ -176,3 +176,7 @@ val SPLINTER_COLORS = mapOf(
 val COLOR_TO_SPLINTER = SPLINTER_COLORS.entries.associate { (k, v) -> v to k }
 
 val RARITY_INT_TO_NAME = mapOf(1 to "Common", 2 to "Rare", 3 to "Epic", 4 to "Legendary")
+
+
+
+

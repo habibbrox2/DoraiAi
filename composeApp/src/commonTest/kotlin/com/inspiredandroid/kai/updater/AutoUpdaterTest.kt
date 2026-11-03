@@ -241,3 +241,7 @@ class AutoUpdaterTest {
         assertFalse(manifest.isUpgradeFrom(191L))
     }
 }
+
+
+
+

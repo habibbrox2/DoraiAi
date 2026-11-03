@@ -23,3 +23,7 @@ data class OpenAICompatibleModelResponseDto(
         val type: String? = null,
     )
 }
+
+
+
+

@@ -20,3 +20,7 @@ data class SponsorsResponseDto(
         val avatar: String = "",
     )
 }
+
+
+
+

@@ -495,3 +495,7 @@ private fun RegistrySkillRow(
         }
     }
 }
+
+
+
+

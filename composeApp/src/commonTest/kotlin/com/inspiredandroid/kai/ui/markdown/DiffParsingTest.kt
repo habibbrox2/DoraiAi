@@ -112,3 +112,7 @@ class DiffParsingTest {
         assertTrue(entries.single().lines.all { it.kind == DiffLineKind.Context })
     }
 }
+
+
+
+

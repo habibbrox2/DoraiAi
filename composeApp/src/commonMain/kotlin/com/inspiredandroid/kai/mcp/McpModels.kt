@@ -59,3 +59,7 @@ data class McpToolMetadata(
     val description: String,
     val inputSchema: JsonObject?,
 )
+
+
+
+

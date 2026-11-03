@@ -20,3 +20,7 @@ actual fun readLegacyConversationFile(): ByteArray? {
 actual fun deleteLegacyConversationFile() {
     localStorage.removeItem(LEGACY_STORAGE_KEY)
 }
+
+
+
+

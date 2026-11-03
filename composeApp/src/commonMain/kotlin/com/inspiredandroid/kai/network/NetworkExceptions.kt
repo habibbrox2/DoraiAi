@@ -174,3 +174,7 @@ fun Exception.toUiError(): UiError = when (this) {
 
     else -> if (!message.isNullOrBlank()) UiError.Text(message!!) else UiError.Resource(Res.string.error_unknown)
 }
+
+
+
+

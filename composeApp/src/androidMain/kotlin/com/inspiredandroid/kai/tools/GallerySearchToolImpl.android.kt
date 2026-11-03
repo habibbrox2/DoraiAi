@@ -111,3 +111,7 @@ private fun GalleryMediaItem.toMap(): Map<String, Any?> = mapOf(
     "isVideo" to isVideo,
     "resolution" to resolutionString,
 )
+
+
+
+

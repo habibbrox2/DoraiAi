@@ -84,3 +84,7 @@ class AndroidApkIdentityValidationTest {
         assertEquals(fingerprint, result.signerSha256)
     }
 }
+
+
+
+

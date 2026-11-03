@@ -92,3 +92,7 @@ sealed class NotificationResult {
     data class Success(val notificationId: Int, val message: String) : NotificationResult()
     data class Error(val message: String) : NotificationResult()
 }
+
+
+
+

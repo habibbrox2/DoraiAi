@@ -49,3 +49,7 @@ class SettingsRouteTest {
         assertNull(Settings.tabOf(Settings("NotATab")))
     }
 }
+
+
+
+

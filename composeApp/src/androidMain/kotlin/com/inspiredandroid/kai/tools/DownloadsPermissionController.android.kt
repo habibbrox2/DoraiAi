@@ -199,3 +199,7 @@ data class DownloadsAccessState(
     val overallCoverage: DownloadsCoverage,
     val hasLegacyPermission: Boolean,
 )
+
+
+
+

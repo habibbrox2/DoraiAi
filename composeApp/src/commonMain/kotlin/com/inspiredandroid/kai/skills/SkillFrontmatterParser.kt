@@ -58,3 +58,7 @@ object SkillFrontmatterParser {
         part.replaceFirstChar { it.titlecase() }
     }
 }
+
+
+
+

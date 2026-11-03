@@ -10,3 +10,7 @@ actual fun createConversationSqlDriver(): SqlDriver? {
     val context: Context by inject(Context::class.java)
     return AndroidSqliteDriver(KaiDatabase.Schema, context, "conversations.db")
 }
+
+
+
+

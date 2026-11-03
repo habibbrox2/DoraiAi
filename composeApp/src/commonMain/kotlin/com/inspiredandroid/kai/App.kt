@@ -40,7 +40,7 @@ import com.inspiredandroid.kai.ui.DuskColorScheme
 import com.inspiredandroid.kai.ui.GraphiteColorScheme
 import com.inspiredandroid.kai.ui.LightColorScheme
 import com.inspiredandroid.kai.ui.Theme
-import com.inspiredandroid.kai.ui.build.KaiBuildScreen
+import com.inspiredandroid.kai.ui.workspace.WorkspaceScreen
 import com.inspiredandroid.kai.ui.chat.ChatScreen
 import com.inspiredandroid.kai.ui.chat.ChatViewModel
 import com.inspiredandroid.kai.ui.components.FullScreenImageHost
@@ -85,7 +85,7 @@ data class Settings(val tab: String? = null) {
     }
 }
 
-/** Kai Build as a real destination (Plan 6), resumed into [project] when set. */
+/** Workspace as a real destination (Plan 6), resumed into [project] when set. */
 @Serializable
 @SerialName("build")
 data class Build(val project: String = "")
@@ -266,7 +266,7 @@ private fun AppContent(
                                 }
                             },
                             isSandboxAvailable = currentPlatform is Platform.Mobile.Android,
-                            isKaiBuildAvailable = currentPlatform is Platform.Mobile.Android,
+                            isWorkspaceAvailable = currentPlatform is Platform.Mobile.Android,
                         )
                     }
                     composable<Settings> { entry ->
@@ -294,7 +294,7 @@ private fun AppContent(
                             navController.navigateUp()
                         }
                         val project = entry.toRoute<Build>().project
-                        KaiBuildScreen(
+                        WorkspaceScreen(
                             initialProject = project,
                             onExit = {
                                 navController.navigateUp()
@@ -306,3 +306,7 @@ private fun AppContent(
         }
     }
 }
+
+
+
+

@@ -29,3 +29,7 @@ actual fun deleteLegacyConversationFile() {
     val path = "${getAppFilesDirectory()}/$LEGACY_FILE_NAME"
     NSFileManager.defaultManager.removeItemAtPath(path, null)
 }
+
+
+
+

@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.inspiredandroid.kai.BackIcon
-import com.inspiredandroid.kai.KaiBuildController
+import com.inspiredandroid.kai.WorkspaceController
 import com.inspiredandroid.kai.SandboxController
 import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.BorderSoft
@@ -104,7 +104,7 @@ fun DashboardScreen(
     modifier: Modifier = Modifier,
 ) {
     val sandboxController = koinInject<SandboxController>()
-    val buildController = koinInject<KaiBuildController>()
+    val buildController = koinInject<WorkspaceController>()
     val sandboxStatus by sandboxController.status.collectAsStateWithLifecycle()
     val buildState by buildController.state.collectAsStateWithLifecycle()
 
@@ -372,12 +372,12 @@ private fun DashboardActionGrid(
             onClick = onNavigateToChat,
         ),
         DashboardAction(
-            title = "Kai Build",
+            title = "Workspace",
             subtitle = "Create apps in a Linux workspace on this device",
             icon = Icons.Filled.Build,
             isPrimary = false,
             isEnabled = state.isBuildAvailable,
-            disabledNote = "Kai Build runs on Android devices",
+            disabledNote = "Workspace runs on Android devices",
             onClick = { onOpenBuild("") },
         ),
         DashboardAction(
@@ -801,3 +801,7 @@ private fun ProjectRow(
         }
     }
 }
+
+
+
+

@@ -4,7 +4,7 @@ import java.io.File
 import java.nio.file.Files
 
 /**
- * Single Android project workspace shared by Chat Sandbox and Kai Build.
+ * Single Android project workspace shared by Chat Sandbox and Workspace.
  * Both environments mount LinuxPaths.projectsDir at /root/projects.
  */
 class AndroidProjectFileReviewFileSystem(
@@ -34,3 +34,7 @@ class AndroidProjectFileReviewFileSystem(
         return target
     }
 }
+
+
+
+

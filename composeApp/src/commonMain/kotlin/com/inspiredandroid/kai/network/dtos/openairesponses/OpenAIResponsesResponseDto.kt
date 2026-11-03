@@ -68,3 +68,7 @@ data class OpenAIResponsesResponseDto(
     val functionCalls: List<OutputItem>
         get() = output.filter { it.type == "function_call" && it.name != null }
 }
+
+
+
+

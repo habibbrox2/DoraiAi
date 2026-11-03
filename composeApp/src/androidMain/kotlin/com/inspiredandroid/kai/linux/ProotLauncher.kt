@@ -112,7 +112,7 @@ class ProotHandle internal constructor(
 
 /**
  * Builds the proot command line and environment and starts the process. Both the
- * chat sandbox's pipe-based executor and Kai Build's PTY executor go through
+ * chat sandbox's pipe-based executor and Workspace's PTY executor go through
  * this; they differ only in how they read what comes back.
  */
 class ProotLauncher(
@@ -239,3 +239,7 @@ class ProotLauncher(
         return sb.toString()
     }
 }
+
+
+
+

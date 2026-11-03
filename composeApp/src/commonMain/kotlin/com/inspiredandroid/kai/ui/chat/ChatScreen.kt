@@ -89,7 +89,7 @@ import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SurfaceRaised
-import com.inspiredandroid.kai.ui.build.KaiBuildScreen
+import com.inspiredandroid.kai.ui.workspace.WorkspaceScreen
 import com.inspiredandroid.kai.ui.chat.composables.AppSidebar
 import com.inspiredandroid.kai.ui.chat.composables.BotMessage
 import com.inspiredandroid.kai.ui.chat.composables.ChatComposer
@@ -138,7 +138,7 @@ fun ChatScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToDashboard: (() -> Unit)? = null,
     isSandboxAvailable: Boolean = false,
-    isKaiBuildAvailable: Boolean = false,
+    isWorkspaceAvailable: Boolean = false,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -148,7 +148,7 @@ fun ChatScreen(
         onNavigateToSettings = onNavigateToSettings,
         onNavigateToDashboard = onNavigateToDashboard,
         isSandboxAvailable = isSandboxAvailable,
-        isKaiBuildAvailable = isKaiBuildAvailable,
+        isWorkspaceAvailable = isWorkspaceAvailable,
     )
 }
 
@@ -159,26 +159,26 @@ fun ChatScreenContent(
     onNavigateToSettings: () -> Unit = {},
     onNavigateToDashboard: (() -> Unit)? = null,
     isSandboxAvailable: Boolean = false,
-    isKaiBuildAvailable: Boolean = false,
+    isWorkspaceAvailable: Boolean = false,
     initialSandboxOpen: Boolean = false,
     previewSandboxState: SandboxUiState? = null,
     previewSandboxLines: ImmutableList<TerminalLine> = persistentListOf(),
 ) {
-    // Kai Build is a transient surface, not a conversation — unlike interactive
+    // Workspace is a transient surface, not a conversation — unlike interactive
     // mode it needs no persistence beyond surviving configuration changes.
-    var isKaiBuildOpen by rememberSaveable { mutableStateOf(false) }
+    var isWorkspaceOpen by rememberSaveable { mutableStateOf(false) }
 
-    // Shared text opens a new chat; leave Kai Build so the composer is visible.
+    // Shared text opens a new chat; leave Workspace so the composer is visible.
     LaunchedEffect(uiState.composerPrefill) {
-        if (uiState.composerPrefill != null && isKaiBuildOpen) {
-            isKaiBuildOpen = false
+        if (uiState.composerPrefill != null && isWorkspaceOpen) {
+            isWorkspaceOpen = false
         }
     }
 
     when {
-        isKaiBuildOpen -> {
-            com.inspiredandroid.kai.PlatformBackHandler(true) { isKaiBuildOpen = false }
-            KaiBuildScreen(onExit = { isKaiBuildOpen = false })
+        isWorkspaceOpen -> {
+            com.inspiredandroid.kai.PlatformBackHandler(true) { isWorkspaceOpen = false }
+            WorkspaceScreen(onExit = { isWorkspaceOpen = false })
         }
 
         else -> ChatModeScreen(
@@ -187,7 +187,7 @@ fun ChatScreenContent(
             onNavigateToSettings = onNavigateToSettings,
             onNavigateToDashboard = onNavigateToDashboard,
             isSandboxAvailable = isSandboxAvailable,
-            onOpenKaiBuild = { isKaiBuildOpen = true }.takeIf { isKaiBuildAvailable },
+            onOpenWorkspace = { isWorkspaceOpen = true }.takeIf { isWorkspaceAvailable },
             initialSandboxOpen = initialSandboxOpen,
             previewSandboxState = previewSandboxState,
             previewSandboxLines = previewSandboxLines,
@@ -204,7 +204,7 @@ private fun ChatModeScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToDashboard: (() -> Unit)?,
     isSandboxAvailable: Boolean,
-    onOpenKaiBuild: (() -> Unit)?,
+    onOpenWorkspace: (() -> Unit)?,
     initialSandboxOpen: Boolean = false,
     previewSandboxState: SandboxUiState? = null,
     previewSandboxLines: ImmutableList<TerminalLine> = persistentListOf(),
@@ -346,7 +346,7 @@ private fun ChatModeScreen(
             onToggleInteractiveMode = {
                 uiState.actions.setInteractiveMode(!uiState.isInteractiveMode)
             }.takeUnless { primaryIsOnDevice },
-            onOpenKaiBuild = onOpenKaiBuild,
+            onOpenWorkspace = onOpenWorkspace,
         )
     }
 
@@ -619,3 +619,7 @@ private fun rememberExecutingTools(history: ImmutableList<History>): ExecutingTo
     }
     return state
 }
+
+
+
+

@@ -56,3 +56,7 @@ data class GalleryStatusResult(
     val messageBengali: String, // Bengali description
     val details: Map<String, Any> = emptyMap(),
 )
+
+
+
+

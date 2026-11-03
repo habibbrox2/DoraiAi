@@ -214,3 +214,7 @@ class SettingsJsonTest {
         assertEquals(emptyList(), TaskStore(appSettings).getAllTasks())
     }
 }
+
+
+
+

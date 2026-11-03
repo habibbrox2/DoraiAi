@@ -117,7 +117,7 @@ class LinuxSandboxManager(
 
     val prootPath: String get() = paths.prootPath
 
-    /** Called on reset so Kai Build can drop sessions holding a deleted rootfs. */
+    /** Called on reset so Workspace can drop sessions holding a deleted rootfs. */
     @Volatile
     var onBeforeReset: (() -> Unit)? = null
 
@@ -128,7 +128,7 @@ class LinuxSandboxManager(
     }
 
     /**
-     * Re-reads what is on disk. Kai Build calls this after it installs or removes
+     * Re-reads what is on disk. Workspace calls this after it installs or removes
      * a shared Debian — that is the same rootfs this manager reports on, and
      * nothing else would tell it the answer changed.
      */
@@ -279,7 +279,7 @@ class LinuxSandboxManager(
                 add(paths.homeDir(current).absolutePath to "/root")
             }
             // Only a shared Debian has projects to expose; an Alpine sandbox has
-            // no Kai Build behind it and the mount point would be a stray folder.
+            // no Workspace behind it and the mount point would be a stray folder.
             if (current.distro == LinuxDistro.DEBIAN) {
                 paths.ensureMountPoints()
                 add(paths.projectsDir.absolutePath to "/root/projects")
@@ -413,7 +413,7 @@ class LinuxSandboxManager(
         val current = marker ?: return
         val manager = current.distro.packageManager
         val executor = createProotExecutor()
-        // A shared rootfs means Kai Build could be installing an agent right now.
+        // A shared rootfs means Workspace could be installing an agent right now.
         LinuxInstaller.packageLock.withLock {
             for (pkg in current.distro.optionalPackages) {
                 currentCoroutineContext().ensureActive()
@@ -445,7 +445,7 @@ class LinuxSandboxManager(
             onBeforeReset?.invoke()
             closeAllShells()
             // Wipes the rootfs, the marker and the libtalloc copy. Project folders
-            // live in external files and survive, as they do for a Kai Build uninstall.
+            // live in external files and survive, as they do for a Workspace uninstall.
             paths.root.deleteRecursively()
             marker = null
             // The directory just freed is not necessarily the one this
@@ -499,3 +499,7 @@ class LinuxSandboxManager(
             File(rootfsPath, "usr/bin/ssh").exists()
     }
 }
+
+
+
+

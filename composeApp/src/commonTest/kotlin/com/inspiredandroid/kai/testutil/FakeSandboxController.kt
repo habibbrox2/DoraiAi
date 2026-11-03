@@ -75,3 +75,7 @@ class FakeSandboxController(installed: Boolean = true) : SandboxController {
 
     override suspend fun importFile(directoryPath: String, source: PlatformFile): Result<String> = Result.failure(UnsupportedOperationException("Not needed by tests"))
 }
+
+
+
+

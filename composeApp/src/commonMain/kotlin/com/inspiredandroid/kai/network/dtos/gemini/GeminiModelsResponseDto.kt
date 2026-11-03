@@ -17,3 +17,7 @@ data class GeminiModelsResponseDto(
         val supportedGenerationMethods: List<String>? = null,
     )
 }
+
+
+
+

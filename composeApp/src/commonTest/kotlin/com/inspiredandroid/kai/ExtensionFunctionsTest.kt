@@ -93,3 +93,7 @@ class ExtensionFunctionsTest {
         assertEquals("A".repeat(5) + "\n[... 90 characters truncated ...]\n" + "B".repeat(5), truncated)
     }
 }
+
+
+
+

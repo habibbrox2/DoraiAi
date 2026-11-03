@@ -110,3 +110,7 @@ sealed class ActivityDetails {
         val persistent: Boolean = false,
     ) : ActivityDetails()
 }
+
+
+
+

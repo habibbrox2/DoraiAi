@@ -24,3 +24,7 @@ class McpToolNameTest {
         assertTrue(name.all { it.isLetterOrDigit() || it == '_' || it == '-' }, name)
     }
 }
+
+
+
+

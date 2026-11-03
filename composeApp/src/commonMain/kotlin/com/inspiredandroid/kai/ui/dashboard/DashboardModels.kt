@@ -2,7 +2,7 @@ package com.inspiredandroid.kai.ui.dashboard
 
 import androidx.compose.runtime.Immutable
 import com.inspiredandroid.kai.SandboxStatus
-import com.inspiredandroid.kai.build.KaiBuildState
+import com.inspiredandroid.kai.workspace.WorkspaceState
 import com.inspiredandroid.kai.data.Service
 import com.inspiredandroid.kai.ui.chat.ChatUiState
 import com.inspiredandroid.kai.ui.chat.ConversationSummary
@@ -28,7 +28,7 @@ data class ServiceReadiness(
     val isSharedKey: Boolean,
 )
 
-/** One operational fact about sandbox or Kai Build readiness. */
+/** One operational fact about sandbox or Workspace readiness. */
 @Immutable
 data class ReadinessFact(
     val label: String,
@@ -58,12 +58,12 @@ data class DashboardUiState(
 /**
  * Pure mapper from existing feature state into dashboard summaries. No I/O and
  * no business logic — chat history stays in ChatViewModel, project lifecycle in
- * KaiBuildController, and sandbox state in SandboxController.
+ * WorkspaceController, and sandbox state in SandboxController.
  */
 fun buildDashboardUiState(
     chatUiState: ChatUiState,
     sandboxStatus: SandboxStatus,
-    buildState: KaiBuildState,
+    buildState: WorkspaceState,
     isBuildAvailable: Boolean,
     isSandboxAvailable: Boolean,
     isDesignAvailable: Boolean,
@@ -104,10 +104,14 @@ private fun SandboxStatus.toReadinessFact(): ReadinessFact = when {
     else -> ReadinessFact("Sandbox", "Not set up", OperationalStatus.NeedsSetup)
 }
 
-private fun KaiBuildState.toReadinessFact(): ReadinessFact = when {
-    isReady && projects.isEmpty() -> ReadinessFact("Kai Build", "Ready", OperationalStatus.Ready)
-    isReady -> ReadinessFact("Kai Build", "${projects.size} project(s)", OperationalStatus.Ready)
-    isInstalling -> ReadinessFact("Kai Build", "Installing", OperationalStatus.Installing)
-    lastError != null -> ReadinessFact("Kai Build", "Needs attention", OperationalStatus.Error)
-    else -> ReadinessFact("Kai Build", "Not set up", OperationalStatus.NeedsSetup)
+private fun WorkspaceState.toReadinessFact(): ReadinessFact = when {
+    isReady && projects.isEmpty() -> ReadinessFact("Workspace", "Ready", OperationalStatus.Ready)
+    isReady -> ReadinessFact("Workspace", "${projects.size} project(s)", OperationalStatus.Ready)
+    isInstalling -> ReadinessFact("Workspace", "Installing", OperationalStatus.Installing)
+    lastError != null -> ReadinessFact("Workspace", "Needs attention", OperationalStatus.Error)
+    else -> ReadinessFact("Workspace", "Not set up", OperationalStatus.NeedsSetup)
 }
+
+
+
+

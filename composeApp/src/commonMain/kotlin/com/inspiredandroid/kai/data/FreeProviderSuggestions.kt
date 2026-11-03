@@ -21,3 +21,7 @@ val freeProviderSuggestions: List<FreeProviderSuggestion> = listOf(
     FreeProviderSuggestion(Service.OpenRouter),
     FreeProviderSuggestion(Service.OllamaCloud),
 )
+
+
+
+

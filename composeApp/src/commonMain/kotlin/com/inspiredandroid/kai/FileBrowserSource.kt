@@ -30,7 +30,7 @@ sealed interface TextFileResult {
 
 /**
  * A browsable file tree behind an absolute-path API. Both Linux environments
- * expose one — the chat Alpine sandbox and Kai Build's Debian — so the file
+ * expose one — the chat Alpine sandbox and Workspace's Debian — so the file
  * browser UI can be pointed at either without knowing whose files it shows.
  *
  * Paths are the ones the user sees in that environment (guest paths); the
@@ -78,3 +78,7 @@ object NoOpFileBrowserSource : FileBrowserSource {
     override suspend fun renameEntry(path: String, newName: String): Result<String> = Result.failure(UnsupportedOperationException("File browsing is Android-only"))
     override suspend fun importFile(directoryPath: String, source: PlatformFile): Result<String> = Result.failure(UnsupportedOperationException("File browsing is Android-only"))
 }
+
+
+
+

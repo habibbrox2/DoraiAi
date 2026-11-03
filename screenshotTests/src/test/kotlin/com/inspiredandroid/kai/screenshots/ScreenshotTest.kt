@@ -21,10 +21,10 @@ import app.cash.paparazzi.Paparazzi
 import com.inspiredandroid.kai.ui.DarkColorScheme
 import com.inspiredandroid.kai.ui.LightColorScheme
 import com.inspiredandroid.kai.ui.Theme
-import com.inspiredandroid.kai.ui.build.BuildStatusKind
-import com.inspiredandroid.kai.ui.build.BuildStatusPill
-import com.inspiredandroid.kai.ui.build.KaiBuildActions
-import com.inspiredandroid.kai.ui.build.KaiBuildScreenContent
+import com.inspiredandroid.kai.ui.workspace.BuildStatusKind
+import com.inspiredandroid.kai.ui.workspace.BuildStatusPill
+import com.inspiredandroid.kai.ui.workspace.WorkspaceActions
+import com.inspiredandroid.kai.ui.workspace.WorkspaceScreenContent
 import com.inspiredandroid.kai.ui.chat.ChatScreenContent
 import com.inspiredandroid.kai.ui.chat.composables.AgentActivityTimeline
 import com.inspiredandroid.kai.ui.chat.composables.ChatComposer
@@ -59,7 +59,7 @@ class ScreenshotTest {
         loadPreviewImage("resource://cacio_e_pepe.png", "/cacio_e_pepe.png")
     }
 
-    private val noOpBuildActions = KaiBuildActions(
+    private val noOpBuildActions = WorkspaceActions(
         toggleAgent = {},
         install = {},
         installAgent = {},
@@ -391,7 +391,7 @@ class ScreenshotTest {
     @Test
     fun buildSetupNotInstalled_dark() {
         paparazzi.snap(DarkColorScheme) {
-            KaiBuildScreenContent(
+            WorkspaceScreenContent(
                 state = ScreenshotTestData.buildStateNotInstalled,
                 actions = noOpBuildActions,
                 onExit = {},
@@ -402,7 +402,7 @@ class ScreenshotTest {
     @Test
     fun buildSetupInstalling_dark() {
         paparazzi.snap(DarkColorScheme) {
-            KaiBuildScreenContent(
+            WorkspaceScreenContent(
                 state = ScreenshotTestData.buildStateInstalling,
                 actions = noOpBuildActions,
                 onExit = {},
@@ -413,7 +413,7 @@ class ScreenshotTest {
     @Test
     fun buildProjectsReady_dark() {
         paparazzi.snap(DarkColorScheme) {
-            KaiBuildScreenContent(
+            WorkspaceScreenContent(
                 state = ScreenshotTestData.buildStateReadyWithProjects,
                 actions = noOpBuildActions,
                 onExit = {},
@@ -424,7 +424,7 @@ class ScreenshotTest {
     @Test
     fun buildWithActiveProject_dark() {
         paparazzi.snap(DarkColorScheme) {
-            KaiBuildScreenContent(
+            WorkspaceScreenContent(
                 state = ScreenshotTestData.buildStateWithActiveProject,
                 actions = noOpBuildActions,
                 onExit = {},
@@ -536,3 +536,7 @@ class ScreenshotTest {
         }
     }
 }
+
+
+
+

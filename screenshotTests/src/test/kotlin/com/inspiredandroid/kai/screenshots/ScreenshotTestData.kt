@@ -6,12 +6,12 @@ import com.inspiredandroid.kai.TerminalLine
 import com.inspiredandroid.kai.build.BuildEnvironmentState
 import com.inspiredandroid.kai.build.BuildStep
 import com.inspiredandroid.kai.build.BuildTerminalSession
-import com.inspiredandroid.kai.build.KaiBuildState
+import com.inspiredandroid.kai.workspace.WorkspaceState
 import com.inspiredandroid.kai.data.MemoryEntry
 import com.inspiredandroid.kai.data.Service
 import com.inspiredandroid.kai.getPlatformToolDefinitions
 import com.inspiredandroid.kai.linux.LinuxDistro
-import com.inspiredandroid.kai.ui.build.KaiBuildUiState
+import com.inspiredandroid.kai.ui.workspace.WorkspaceUiState
 import com.inspiredandroid.kai.ui.chat.ChatActions
 import com.inspiredandroid.kai.ui.chat.ChatUiState
 import com.inspiredandroid.kai.ui.chat.History
@@ -396,29 +396,29 @@ object ScreenshotTestData {
 
     // --- Build Workspace states ---
 
-    val buildStateNotInstalled = KaiBuildUiState(
-        build = KaiBuildState(
+    val buildStateNotInstalled = WorkspaceUiState(
+        build = WorkspaceState(
             environment = BuildEnvironmentState.NotInstalled,
             projects = persistentListOf(),
         ),
     )
 
-    val buildStateInstalling = KaiBuildUiState(
-        build = KaiBuildState(
+    val buildStateInstalling = WorkspaceUiState(
+        build = WorkspaceState(
             environment = BuildEnvironmentState.Installing(BuildStep.Download, 0.45f),
             projects = persistentListOf(),
         ),
     )
 
-    val buildStateReadyEmpty = KaiBuildUiState(
-        build = KaiBuildState(
+    val buildStateReadyEmpty = WorkspaceUiState(
+        build = WorkspaceState(
             environment = BuildEnvironmentState.Ready,
             projects = persistentListOf(),
         ),
     )
 
-    val buildStateReadyWithProjects = KaiBuildUiState(
-        build = KaiBuildState(
+    val buildStateReadyWithProjects = WorkspaceUiState(
+        build = WorkspaceState(
             environment = BuildEnvironmentState.Ready,
             projects = persistentListOf("kai-project", "research-bot"),
             sessions = persistentListOf(
@@ -429,8 +429,8 @@ object ScreenshotTestData {
         ),
     )
 
-    val buildStateWithActiveProject = KaiBuildUiState(
-        build = KaiBuildState(
+    val buildStateWithActiveProject = WorkspaceUiState(
+        build = WorkspaceState(
             environment = BuildEnvironmentState.Ready,
             projects = persistentListOf("kai-project"),
             sessions = persistentListOf(),
@@ -658,3 +658,7 @@ object ScreenshotTestData {
         )
     }
 }
+
+
+
+

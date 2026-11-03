@@ -60,3 +60,7 @@ data class RegistrySkillEntry(
     val requiresSandbox: Boolean,
     val sourceName: String,
 )
+
+
+
+
