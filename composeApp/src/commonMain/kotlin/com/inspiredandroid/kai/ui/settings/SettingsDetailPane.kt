@@ -229,6 +229,11 @@ fun AccountPlanContent(
                 color = LocalDesignColorTokens.current.textPrimary,
             )
             Text(
+                text = "Version " + com.inspiredandroid.kai.Version.appVersion,
+                style = KaiTypography.bodySmall,
+                color = LocalDesignColorTokens.current.textSecondary,
+            )
+            Text(
                 text = uiState.configuredServices.size.toString() + " configured services",
                 style = KaiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,

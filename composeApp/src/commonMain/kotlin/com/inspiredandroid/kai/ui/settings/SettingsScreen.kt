@@ -88,6 +88,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.inspiredandroid.kai.BackIcon
+import com.inspiredandroid.kai.Version
 import com.inspiredandroid.kai.data.EmailAccount
 import com.inspiredandroid.kai.data.Service
 import com.inspiredandroid.kai.linux.LinuxDistro
@@ -609,6 +610,13 @@ internal fun BottomInfo() {
         horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        Text(
+            stringResource(Res.string.settings_version, Version.appVersion),
+            modifier = Modifier.align(Alignment.CenterVertically),
+            style = KaiTypography.bodyMedium,
+            color = LocalDesignColorTokens.current.textPrimary,
+        )
+
         IconButton(
             onClick = { uriHandler.openUri("https://github.com/habibbrox2/brox-kai-2.0") },
             modifier = Modifier
