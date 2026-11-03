@@ -43,13 +43,11 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Enable corepack and install yarn 4
+      - name: Build WASM project
         run: |
           corepack enable
           corepack prepare yarn@4 --activate
-
-      - name: Build WASM project
-        run: ./gradlew :composeApp:wasmJsBrowserDistribution
+          ./gradlew :composeApp:wasmJsBrowserDistribution
 
       - name: Set up Python
         uses: actions/setup-python@v5
