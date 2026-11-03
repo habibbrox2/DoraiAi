@@ -23,9 +23,10 @@ No merge, release or deploy is performed in this phase.
 
 | API | References | Status |
 |---|---|---|
-| `KaiThemeColors` | 23 (all in `Theme.kt` definitions/usages) | Still required (default + wiring) |
-| `LocalKaiColors` | 2 | Still required (compatibility API) |
-| `TextPrimary` (global getter) | 225 total (incl. tests/strings) | Migrating — 18 feature component files migrated |
+| `KaiThemeColors` | 0 | Removed from `Theme.kt` |
+| `LocalKaiColors` | 0 | Removed from `Theme.kt` |
+| `TextPrimary` (global getter) | 0 | Removed — replaced with `DesignTokens.PrimaryText` |
+| `TextSecondary` (global getter) | 0 | Removed — replaced with `DesignTokens.SecondaryText` |
 | `LocalDesignColorTokens` | 18+ | Migrated across Chat, Settings, Sandbox, Shared components |
 | `DesignColorTokens` | (in DesignTokens.kt) | Stable |
 
@@ -116,4 +117,4 @@ Run these before any removal:
 
 ## 8. Phase C status
 
-**Status: Chat, Settings, Sandbox, Shared component, Build Workspace, Agent Activity, Composer, and Dynamic UI batches migrated to `LocalDesignColorTokens.current`.** Phase C screenshot coverage complete across all four pending categories (Build Workspace, Agent Activity, Composer, Dynamic UI). `:screenshotTests:recordPaparazziDebug` and `:screenshotTests:verifyPaparazziDebug` green; `spotlessCheck` green. Remaining Phase B2 batches (Dashboard, DynamicUI/Markdown) still pending before cleanup/removal can begin. This document will be updated with reference counts and verification results as work progresses.
+**Status: Chat, Settings, Sandbox, Shared component, Build Workspace, Agent Activity, Composer, and Dynamic UI batches migrated to `LocalDesignColorTokens.current`.** Dead compatibility APIs removed (`KaiThemeColors`, `LocalKaiColors`, `TextPrimary`/`TextSecondary` global getters) — zero references across all source sets. Phase C screenshot coverage complete across all four pending categories (Build Workspace, Agent Activity, Composer, Dynamic UI). `:screenshotTests:recordPaparazziDebug`, `:screenshotTests:verifyPaparazziDebug`, and `spotlessCheck` all green. Remaining Phase B2 batches (Dashboard, DynamicUI/Markdown) still pending before final cleanup/removal can begin. This document will be updated with reference counts and verification results as work progresses.
