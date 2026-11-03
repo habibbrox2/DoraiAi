@@ -47,6 +47,9 @@ jobs:
         run: |
           corepack enable
           corepack prepare yarn@4 --activate
+          # Put Node.js bin first so corepack-shimmed yarn 4 takes precedence over system yarn 1.22.22
+          NODE_BIN=$(dirname "$(which node)")
+          export PATH="$NODE_BIN:$PATH"
           ./gradlew :composeApp:wasmJsBrowserDistribution
 
       - name: Set up Python
