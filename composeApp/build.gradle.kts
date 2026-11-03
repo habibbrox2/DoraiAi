@@ -333,9 +333,10 @@ tasks.named("kotlinWasmNpmInstall") {
             .filter { it.name == "package.json" && it.absolutePath.contains("wasmJsNpm") }
             .firstOrNull()
             ?.let { pkg ->
-                val content = pkg.readText()
-                val modified = content.replace('''"packageManager": "[^"]*",\s*\n''', "")
-                if (modified != content) {
+                val lines = pkg.readText().lines()
+                val filtered = lines.filter { !it.trimStart().startsWith("\"packageManager\"") }
+                val modified = filtered.joinToString("\n") + "\n"
+                if (modified != pkg.readText()) {
                     pkg.writeText(modified)
                     logger.lifecycle("Stripped malformed packageManager from ${pkg.path}")
                 }
