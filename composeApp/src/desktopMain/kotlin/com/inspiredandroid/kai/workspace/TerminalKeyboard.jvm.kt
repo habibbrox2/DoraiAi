@@ -1,9 +1,9 @@
-package com.inspiredandroid.kai.build
+package com.inspiredandroid.kai.workspace
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.inspiredandroid.kai.build.terminal.TerminalKey
-import com.inspiredandroid.kai.build.terminal.TerminalModifiers
+import com.inspiredandroid.kai.workspace.terminal.TerminalKey
+import com.inspiredandroid.kai.workspace.terminal.TerminalModifiers
 
 /** Workspace is Android-only; there is no environment to type into here. */
 actual val supportsRawTerminalInput: Boolean = false
@@ -15,7 +15,3 @@ actual fun PlatformTerminalKeyboard(
     onText: (String, TerminalModifiers) -> Unit,
     modifier: Modifier,
 ) = Unit
-
-
-
-

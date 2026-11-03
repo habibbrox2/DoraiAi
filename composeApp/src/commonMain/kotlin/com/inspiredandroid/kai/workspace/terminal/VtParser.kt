@@ -25,60 +25,77 @@ internal class VtParser(private val screen: TerminalScreen) {
                     '\u001b' -> state = State.Escape
                     else -> screen.putChar(ch)
                 }
+
                 State.Escape -> when (ch) {
                     '[' -> {
                         csiParams.clear()
                         state = State.Csi
                     }
+
                     ']' -> {
                         oscBuffer.clear()
                         state = State.Osc
                     }
+
                     'c' -> { // RIS — reset
                         screen.clear()
                         state = State.Ground
                     }
-                    '7', '8' -> state = State.Ground // save/restore cursor — ignore for base
+
+                    '7', '8' -> state = State.Ground
+
+                    // save/restore cursor — ignore for base
                     'D' -> {
                         screen.lineFeed()
                         state = State.Ground
                     }
+
                     'M' -> {
                         screen.reverseIndex()
                         state = State.Ground
                     }
+
                     'E' -> {
                         screen.setCursor(0, screen.cursorRow)
                         screen.lineFeed()
                         state = State.Ground
                     }
+
                     else -> state = State.Ground // drop unknown ESC sequences
                 }
+
                 State.Csi -> when {
                     ch in '@'..'~' -> {
                         dispatchCsi(ch, csiParams.toString())
                         csiParams.clear()
                         state = State.Ground
                     }
+
                     ch.code in 0x20..0x3F || ch == ';' || ch in '0'..'9' || ch == '?' || ch == '>' || ch == '=' || ch == ' ' || ch == '!' || ch == '"' || ch == '$' || ch == '\'' -> {
                         csiParams.append(ch)
                     }
+
                     else -> {
                         // malformed — abort
                         csiParams.clear()
                         state = State.Ground
                     }
                 }
+
                 State.Osc -> when (ch) {
                     '\u0007' -> finishOsc()
+
                     '\u001b' -> state = State.OscEsc
+
                     else -> {
                         // OAuth URLs can be long; keep a generous cap.
                         if (oscBuffer.length < 16_384) oscBuffer.append(ch)
                     }
                 }
+
                 State.OscEsc -> when (ch) {
                     '\\' -> finishOsc()
+
                     else -> {
                         oscBuffer.append('\u001b').append(ch)
                         state = State.Osc
@@ -111,6 +128,7 @@ internal class VtParser(private val screen: TerminalScreen) {
                 val uri = if (semi >= 0) rest.substring(semi + 1) else ""
                 if (uri.isNotEmpty()) screen.noteHyperlink(uri)
             }
+
             payload.startsWith("52;") -> {
                 // 52 ; <pc=c> ; <base64 payload>
                 val parts = payload.split(';', limit = 3)
@@ -149,7 +167,7 @@ internal class VtParser(private val screen: TerminalScreen) {
         for (i in chars.indices) table[chars[i].code] = i
         table['-'.code] = 62
         table['_'.code] = 63
-        val filtered = input.filter { it.code < 128 && table[it.code] >= 0 || it == '=' }
+        val filtered = input.filter { (it.code < 128 && table[it.code] >= 0) || it == '=' }
         if (filtered.isEmpty()) return null
         val out = ArrayList<Byte>(filtered.length * 3 / 4)
         var i = 0
@@ -185,32 +203,49 @@ internal class VtParser(private val screen: TerminalScreen) {
 
         when (final) {
             'A' -> screen.moveCursor(0, -params.default(1))
+
             'B' -> screen.moveCursor(0, params.default(1))
+
             'C' -> screen.moveCursor(params.default(1), 0)
+
             'D' -> screen.moveCursor(-params.default(1), 0)
+
             'E' -> {
                 screen.moveCursor(0, params.default(1))
                 screen.setCursor(0, screen.cursorRow)
             }
+
             'F' -> {
                 screen.moveCursor(0, -params.default(1))
                 screen.setCursor(0, screen.cursorRow)
             }
+
             'G' -> screen.setCursor(params.default(1) - 1, screen.cursorRow)
+
             'H', 'f' -> {
                 val row = params.getOrElse(0) { 1 }
                 val col = params.getOrElse(1) { 1 }
                 screen.setCursor(col - 1, row - 1)
             }
+
             'J' -> screen.eraseInDisplay(params.default(0))
+
             'K' -> screen.eraseInLine(params.default(0))
+
             'L' -> screen.insertLines(params.default(1))
+
             'M' -> screen.deleteLines(params.default(1))
+
             'P' -> screen.deleteChars(params.default(1))
+
             'X' -> screen.eraseChars(params.default(1))
+
             'd' -> screen.setCursor(screen.cursorCol, params.default(1) - 1)
+
             'm' -> screen.setSgr(if (params.isEmpty()) listOf(0) else params)
+
             'n' -> { /* DSR — no reply in base */ }
+
             's', 'u' -> { /* save/restore cursor — skip */ }
             // ignore modes, scrolls, etc. for base
         }
@@ -230,8 +265,7 @@ internal class VtParser(private val screen: TerminalScreen) {
         }
     }
 
-    private fun List<Int>.default(fallback: Int): Int =
-        firstOrNull()?.takeIf { it != 0 } ?: fallback
+    private fun List<Int>.default(fallback: Int): Int = firstOrNull()?.takeIf { it != 0 } ?: fallback
 
     /**
      * Private DECSET/DECRST. Without a second buffer we treat alt-screen enter
@@ -241,22 +275,22 @@ internal class VtParser(private val screen: TerminalScreen) {
         when (mode) {
             // DECCKM: decides whether arrow keys go back as CSI or SS3.
             1 -> screen.setApplicationCursorKeys(enable)
+
             25 -> screen.setCursorVisible(enable)
+
             // Alternate screen buffer (xterm): 47, 1047, 1049
             47, 1047, 1049 -> if (enable) {
                 screen.eraseInDisplay(2)
                 screen.setCursor(0, 0)
             }
+
             // Mouse reporting: apps turn this on to make cells clickable.
             1000, 1002, 1003 -> screen.setMouseTracking(mode, enable)
+
             1006 -> screen.setMouseSgrEncoding(enable)
+
             // Bracketed paste / focus — ignore for base
             else -> Unit
         }
     }
 }
-
-
-
-
-

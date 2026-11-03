@@ -20,41 +20,40 @@ import androidx.compose.ui.unit.dp
 // the app's other hand-drawn icons use, heavy enough to stay legible at arm's
 // length on a phone.
 
-private const val ArrowStrokeWidth = 3f
+private const val ARROW_STROKE_WIDTH = 3f
 
 /** Size the arrows are drawn at; the stroke scales with it. */
 internal val TerminalKeyIconSize = 22.dp
 
 /** Base glyph points left; every other direction is the same path rotated. */
-private fun arrowIcon(name: String, rotationDegrees: Float): ImageVector =
-    ImageVector.Builder(
-        name = name,
-        defaultWidth = 24.dp,
-        defaultHeight = 24.dp,
-        viewportWidth = 24f,
-        viewportHeight = 24f,
-    ).apply {
-        group(rotate = rotationDegrees, pivotX = 12f, pivotY = 12f) {
-            path(
-                stroke = SolidColor(Color.White),
-                strokeLineWidth = ArrowStrokeWidth,
-                strokeLineCap = StrokeCap.Round,
-                strokeLineJoin = StrokeJoin.Round,
-            ) {
-                moveTo(13.5f, 5.5f)
-                lineTo(7f, 12f)
-                lineTo(13.5f, 18.5f)
-            }
-            path(
-                stroke = SolidColor(Color.White),
-                strokeLineWidth = ArrowStrokeWidth,
-                strokeLineCap = StrokeCap.Round,
-            ) {
-                moveTo(7.5f, 12f)
-                lineTo(19f, 12f)
-            }
+private fun arrowIcon(name: String, rotationDegrees: Float): ImageVector = ImageVector.Builder(
+    name = name,
+    defaultWidth = 24.dp,
+    defaultHeight = 24.dp,
+    viewportWidth = 24f,
+    viewportHeight = 24f,
+).apply {
+    group(rotate = rotationDegrees, pivotX = 12f, pivotY = 12f) {
+        path(
+            stroke = SolidColor(Color.White),
+            strokeLineWidth = ARROW_STROKE_WIDTH,
+            strokeLineCap = StrokeCap.Round,
+            strokeLineJoin = StrokeJoin.Round,
+        ) {
+            moveTo(13.5f, 5.5f)
+            lineTo(7f, 12f)
+            lineTo(13.5f, 18.5f)
         }
-    }.build()
+        path(
+            stroke = SolidColor(Color.White),
+            strokeLineWidth = ARROW_STROKE_WIDTH,
+            strokeLineCap = StrokeCap.Round,
+        ) {
+            moveTo(7.5f, 12f)
+            lineTo(19f, 12f)
+        }
+    }
+}.build()
 
 internal val TerminalArrowLeft: ImageVector by lazy { arrowIcon("TerminalArrowLeft", 0f) }
 internal val TerminalArrowUp: ImageVector by lazy { arrowIcon("TerminalArrowUp", 90f) }
@@ -97,8 +96,3 @@ internal val TerminalEnter: ImageVector by lazy {
         }
     }.build()
 }
-
-
-
-
-
