@@ -1,3 +1,5 @@
+import java.io.File
+
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -329,17 +331,15 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java).conf
 tasks.named("kotlinWasmNpmInstall") {
     doFirst {
         val buildDir = layout.buildDirectory.asFile
-        buildDir.walkTopDown()
-            .filter { it.name == "package.json" && it.absolutePath.contains("wasmJsNpm") }
-            .firstOrNull()
-            ?.let { pkg ->
-                val lines = pkg.readText().lines()
-                val filtered = lines.filter { !it.trimStart().startsWith("\"packageManager\"") }
-                val modified = filtered.joinToString("\n") + "\n"
-                if (modified != pkg.readText()) {
-                    pkg.writeText(modified)
-                    logger.lifecycle("Stripped malformed packageManager from ${pkg.path}")
-                }
+        val pkgFile = File(buildDir, "wasmJsNpm/package.json")
+        if (pkgFile.exists()) {
+            val lines = pkgFile.readText().lines()
+            val filtered = lines.filter { !it.trimStart().startsWith("\"packageManager\"") }
+            val modified = filtered.joinToString("\n") + "\n"
+            if (modified != pkgFile.readText()) {
+                pkgFile.writeText(modified)
+                logger.lifecycle("Stripped malformed packageManager from $pkgFile")
             }
+        }
     }
 }
