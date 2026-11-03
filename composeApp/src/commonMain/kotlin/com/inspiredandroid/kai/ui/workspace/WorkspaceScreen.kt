@@ -1,11 +1,10 @@
 package com.inspiredandroid.kai.ui.workspace
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,54 +13,67 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Comment
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.inspiredandroid.kai.WORKSPACE_FILES
 import com.inspiredandroid.kai.PlatformBackHandler
+import com.inspiredandroid.kai.WORKSPACE_FILES
+import com.inspiredandroid.kai.ui.KaiTypography
+import com.inspiredandroid.kai.ui.sandbox.EditorState
+import com.inspiredandroid.kai.ui.sandbox.SandboxFileBrowserViewModel
+import com.inspiredandroid.kai.ui.sandbox.SandboxFilesContent
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
+import com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing
 import com.inspiredandroid.kai.workspace.WorkspaceAgents
 import com.inspiredandroid.kai.workspace.terminal.TerminalKey
 import com.inspiredandroid.kai.workspace.terminal.TerminalModifiers
-import com.inspiredandroid.kai.ui.handCursor
-import com.inspiredandroid.kai.ui.KaiTypography
-import com.inspiredandroid.kai.ui.sandbox.SandboxFilesContent
-import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.workspace_exit_content_description
 import kai.composeapp.generated.resources.workspace_new_project_content_description
 import kai.composeapp.generated.resources.workspace_title
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** Where Debian mounts the project folders — the browser's root inside a project. */
 private const val PROJECTS_GUEST_DIR = "/root/projects"
 
-/**
- * Keeps Workspace's browser out of the chat sandbox's ViewModel slot: same class,
- * same store owner, so without a distinct key they would share one instance.
- */
+/** Keeps Workspace's browser out of the chat sandbox's ViewModel slot. */
 private const val WORKSPACE_FILES_KEY = "WorkspaceFiles"
+
+/** Separate browser instance for the projects drawer explorer. */
+private const val WORKSPACE_FILES_DRAWER_KEY = "WorkspaceDrawerFiles"
 
 @Immutable
 data class WorkspaceActions(
@@ -84,14 +96,20 @@ data class WorkspaceActions(
     val sendText: (String, TerminalModifiers) -> Unit,
     val sendMouse: (String) -> Unit,
     val resizeTerminal: (columns: Int, rows: Int) -> Unit,
+    val openFile: (String) -> Unit,
 )
+
+/** The four bottom-navigation tabs of the Workspace. */
+enum class WorkspaceTab(val id: String, val label: String, val icon: ImageVector) {
+    Agent("agent", "Agent", Icons.Default.Comment),
+    Editor("editor", "Editor", Icons.Default.Code),
+    Terminal("terminal", "Terminal", Icons.Default.Terminal),
+    Git("git", "Git", Icons.Default.History),
+}
 
 /**
  * Full-screen Workspace surface. Entered from the empty chat state and left via
- * the top-bar close button or system back — same shape as Interactive UI mode,
- * so it never becomes a navigation destination of its own.
- *
- * One screen, three states: set up Linux, pick a project, work in its terminal.
+ * the top-bar close button or system back.
  */
 @Composable
 fun WorkspaceScreen(
@@ -122,13 +140,41 @@ fun WorkspaceScreen(
             sendText = viewModel::sendText,
             sendMouse = viewModel::sendMouse,
             resizeTerminal = viewModel::resizeTerminal,
+            openFile = { path -> },
         )
     }
 
-    // A dashboard resume link (Plan 6) opens the project once its environment
-    // is ready; a stale link (project or Debian gone) is dropped instead of
-    // showing a broken terminal.
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    var tab by rememberSaveable { mutableStateOf(WorkspaceTab.Agent) }
     var pendingProject by rememberSaveable(initialProject) { mutableStateOf(initialProject) }
+    var filesOpen by rememberSaveable { mutableStateOf(false) }
+    var selectedFile by rememberSaveable { mutableStateOf<String?>(null) }
+
+    // Drawer explorer keeps its own browser instance so paging through the tree
+    // never fights the Agent tab's file browser over the same directory.
+    val drawerFilesViewModel: SandboxFileBrowserViewModel = koinViewModel(
+        qualifier = WORKSPACE_FILES,
+        key = WORKSPACE_FILES_DRAWER_KEY,
+    )
+    val drawerFilesState by drawerFilesViewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(state.openProject) {
+        val project = state.openProject ?: return@LaunchedEffect
+        drawerFilesViewModel.start("$PROJECTS_GUEST_DIR/$project")
+    }
+
+    val drawerFiles = remember(drawerFilesState.entries, selectedFile) {
+        drawerFilesState.entries.map { entry ->
+            ProjectFile(
+                path = entry.path,
+                name = entry.name,
+                isDirectory = entry.isDirectory,
+                isCurrentFile = entry.path == selectedFile,
+            )
+        }
+    }
+
     LaunchedEffect(state.build) {
         val pending = pendingProject ?: return@LaunchedEffect
         if (state.build.isReady) {
@@ -139,239 +185,466 @@ fun WorkspaceScreen(
         }
     }
 
-    WorkspaceScreenContent(state = state, actions = actions, onExit = onExit, modifier = modifier)
-}
+    val editorLines = remember(drawerFilesState.editor) {
+        (drawerFilesState.editor as? EditorState.Loaded)?.let { highlightSource(it.current) }.orEmpty()
+    }
 
-@Composable
-fun WorkspaceScreenContent(
-    state: WorkspaceUiState,
-    actions: WorkspaceActions,
-    onExit: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val project = state.openProject
-    var showCreateProject by rememberSaveable { mutableStateOf(false) }
-    // Files is a view of the project, not a session — it resets when the project does.
-    var filesOpen by rememberSaveable(project) { mutableStateOf(false) }
     PlatformBackHandler(enabled = true) {
         when {
+            drawerState.isOpen -> scope.launch { drawerState.close() }
             filesOpen -> filesOpen = false
-            project != null -> actions.closeProject()
+            state.openProject != null -> actions.closeProject()
             else -> onExit()
         }
     }
 
-    val installedAgents = remember(state.build.installedAgents) {
-        WorkspaceAgents.all.filter { it.id in state.build.installedAgents }.toImmutableList()
+    // Drawer content: Projects & File Explorer
+    val drawerContent = @Composable {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            WorkspaceProjectsExplorer(
+                currentProject = state.openProject,
+                projects = state.build.projects,
+                files = drawerFiles,
+                onOpenProject = { name ->
+                    scope.launch { drawerState.close() }
+                    filesOpen = false
+                    actions.openProject(name)
+                },
+                onCreateProject = { name ->
+                    actions.createProject(name)
+                    scope.launch { drawerState.close() }
+                },
+                onOpenFile = { path ->
+                    val entry = drawerFilesState.entries.firstOrNull { it.path == path }
+                    if (entry?.isDirectory == true) {
+                        drawerFilesViewModel.navigateTo(path)
+                    } else {
+                        scope.launch { drawerState.close() }
+                        drawerFilesViewModel.openInEditor(path)
+                        selectedFile = path
+                        tab = WorkspaceTab.Editor
+                        filesOpen = false
+                    }
+                },
+                onFilterChanged = { },
+                selectedFilter = ProjectFilter.All,
+            )
+        }
     }
 
-    // Surface, not just a background modifier: it also provides the matching
-    // content color, which is what keeps the bare icons legible in dark mode.
     Box(
         modifier = modifier.fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .navigationBarsPadding()
-                .padding(horizontal = com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing.sm),
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = drawerContent,
+            modifier = Modifier.fillMaxHeight(),
         ) {
-            if (project != null) {
-                val sessions = remember(state.build.sessions, project) {
-                    state.build.sessions.filter { it.project == project }.toImmutableList()
-                }
-                WorkspaceSessionBar(
-                    sessions = sessions,
-                    activeSessionId = state.build.activeSessionId,
-                    installedAgents = installedAgents,
-                    filesSelected = filesOpen,
-                    project = project,
-                    onBack = actions.closeProject,
-                    onSelectSession = { id ->
-                        filesOpen = false
-                        actions.selectSession(id)
+            if (state.build.isReady) {
+                WorkspaceTabContent(
+                    tab = tab,
+                    onTabChanged = { tab = it },
+                    state = state,
+                    actions = actions,
+                    filesOpen = filesOpen,
+                    onFilesToggle = { filesOpen = it },
+                    selectedFile = selectedFile,
+                    editorState = drawerFilesState.editor,
+                    editorLines = editorLines,
+                    onOpenEditorFile = { path ->
+                        drawerFilesViewModel.openInEditor(path)
+                        selectedFile = path
+                        tab = WorkspaceTab.Editor
                     },
-                    onCloseSession = actions.closeSession,
-                    onSelectFiles = { filesOpen = true },
-                    onNewSession = { agentId ->
-                        filesOpen = false
-                        actions.startSession(agentId)
-                    },
+                    onDrawerToggle = { scope.launch { drawerState.open() } },
+                    onExit = onExit,
                 )
-                // Fall back to the project's first tab: the active id can briefly point
-                // elsewhere while a session is being closed.
-                val session = sessions.firstOrNull { it.id == state.build.activeSessionId }
-                    ?: sessions.firstOrNull()
-                when {
-                    filesOpen -> {
-                        SandboxFilesContent(
-                            // This surface is full-screen, so nothing else keeps the
-                            // soft keyboard off the editor's text field.
-                            modifier = Modifier.fillMaxSize().imePadding(),
-                            // Opens on the project, but browses the whole Debian tree
-                            // the way the chat sandbox does — agent config and /etc are
-                            // a breadcrumb away rather than shell-only.
-                            initialPath = "$PROJECTS_GUEST_DIR/$project",
-                            viewModel = koinViewModel(
-                                qualifier = WORKSPACE_FILES,
-                                key = WORKSPACE_FILES_KEY,
-                            ),
+            } else {
+                WorkspaceSetupContent(
+                    state = state.build,
+                    selectedAgents = state.selectedAgents,
+                    onToggleAgent = actions.toggleAgent,
+                    onInstall = actions.install,
+                    onCancel = actions.cancel,
+                )
+            }
+        }
+    }
+}
+
+/** Tabbed workspace content: top bar + tab body + bottom navigation. */
+@Composable
+private fun WorkspaceTabContent(
+    tab: WorkspaceTab,
+    onTabChanged: (WorkspaceTab) -> Unit,
+    state: com.inspiredandroid.kai.ui.workspace.WorkspaceUiState,
+    actions: WorkspaceActions,
+    filesOpen: Boolean,
+    onFilesToggle: (Boolean) -> Unit,
+    selectedFile: String?,
+    editorState: EditorState?,
+    editorLines: List<CodeLine>,
+    onOpenEditorFile: (String) -> Unit,
+    onDrawerToggle: () -> Unit,
+    onExit: () -> Unit,
+) {
+    val project = state.openProject
+    val installedAgents = remember(state.build.installedAgents) {
+        WorkspaceAgents.all.filter { it.id in state.build.installedAgents }.toImmutableList()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding(),
+    ) {
+        // ─── Top bar ───
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = WorkspaceSpacing.sm, vertical = WorkspaceSpacing.xs)
+                .background(MaterialTheme.colorScheme.surface),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(onClick = onDrawerToggle) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Open drawer",
+                        tint = LocalDesignColorTokens.current.textSecondary,
+                    )
+                }
+                Column(
+                    modifier = Modifier.weight(1f).padding(start = WorkspaceSpacing.sm),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    Text(
+                        text = project ?: "Workspace",
+                        style = KaiTypography.titleMedium,
+                        color = LocalDesignColorTokens.current.textPrimary,
+                        maxLines = 1,
+                    )
+                    Text(
+                        text = state.build.activeSessionId?.take(7) ?: "main",
+                        style = KaiTypography.labelSmall,
+                        color = LocalDesignColorTokens.current.textSecondary,
+                        maxLines = 1,
+                    )
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (project != null && !filesOpen) {
+                        IconButton(onClick = { onFilesToggle(true) }) {
+                            Icon(
+                                imageVector = Icons.Default.Folder,
+                                contentDescription = null,
+                                tint = LocalDesignColorTokens.current.textSecondary,
+                            )
+                        }
+                    }
+                    IconButton(onClick = onExit) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(Res.string.workspace_exit_content_description),
+                            tint = LocalDesignColorTokens.current.textSecondary,
+                        )
+                    }
+                }
+            }
+        }
+
+        // ─── Tab body ───
+        when (tab) {
+            WorkspaceTab.Agent -> {
+                if (project != null) {
+                    val sessions = remember(state.build.sessions, project) {
+                        state.build.sessions.filter { it.project == project }.toImmutableList()
+                    }
+                    WorkspaceSessionBar(
+                        sessions = sessions,
+                        activeSessionId = state.build.activeSessionId,
+                        installedAgents = installedAgents,
+                        filesSelected = filesOpen,
+                        project = project,
+                        onBack = actions.closeProject,
+                        onSelectSession = { id ->
+                            onFilesToggle(false)
+                            actions.selectSession(id)
+                        },
+                        onCloseSession = actions.closeSession,
+                        onSelectFiles = { onFilesToggle(true) },
+                        onNewSession = { agentId ->
+                            onFilesToggle(false)
+                            actions.startSession(agentId)
+                        },
+                    )
+                    val session = sessions.firstOrNull { it.id == state.build.activeSessionId }
+                        ?: sessions.firstOrNull()
+                    when {
+                        filesOpen -> {
+                            SandboxFilesContent(
+                                modifier = Modifier.fillMaxSize().imePadding(),
+                                initialPath = "$PROJECTS_GUEST_DIR/$project",
+                                viewModel = koinViewModel(
+                                    qualifier = WORKSPACE_FILES,
+                                    key = WORKSPACE_FILES_KEY,
+                                ),
+                            )
+                        }
+
+                        session != null -> WorkspaceTerminalContent(
+                            session = session,
+                            onSubmitLine = actions.submitLine,
+                            onKey = actions.sendKey,
+                            onText = actions.sendText,
+                            onMouse = actions.sendMouse,
+                            onResize = actions.resizeTerminal,
+                        )
+
+                        else -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(
+                                    text = "Starting session…",
+                                    style = KaiTypography.bodyMedium,
+                                    color = LocalDesignColorTokens.current.textSecondary,
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    // No project open - show projects picker
+                    WorkspaceProjectsContent(
+                        state = state.build,
+                        launchAgentId = state.launchAgentId,
+                        installedAgents = installedAgents,
+                        onSelectLaunchAgent = actions.setLaunchAgent,
+                        onOpenProject = actions.openProject,
+                        onDeleteProject = actions.deleteProject,
+                        onRenameProject = actions.renameProject,
+                        onInstallAgent = actions.installAgent,
+                        onUninstall = actions.uninstall,
+                    )
+                }
+            }
+
+            WorkspaceTab.Editor -> {
+                val editorPath = selectedFile ?: "${PROJECTS_GUEST_DIR}/main.kt"
+                when (val editor = editorState) {
+                    is EditorState.Loaded -> {
+                        WorkspaceCodeEditor(
+                            filePath = editor.path,
+                            lines = editorLines,
+                            content = editor.current,
+                            onContentChange = { },
+                            onDiffToggled = { },
+                            onRun = { },
+                            onUndo = { },
+                            onSearchChanged = { },
+                            editable = true,
+                            onEditableChange = { },
+                            isDirty = editor.dirty,
+                            onSave = { },
+                            onSearchToggle = { },
                         )
                     }
 
-                    session != null -> WorkspaceTerminalContent(
-                        session = session,
-                        onSubmitLine = actions.submitLine,
-                        onKey = actions.sendKey,
-                        onText = actions.sendText,
-                        onMouse = actions.sendMouse,
-                        onResize = actions.resizeTerminal,
-                    )
-
-                    else -> {
-                        // No live session yet (race during close / project opened without
-                        // a started session): kick one off instead of leaving the area blank.
-                        LaunchedEffect(project) {
-                            actions.startSession(null)
-                        }
+                    EditorState.Loading -> {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = "Starting session…",
+                                text = "Loading file…",
+                                style = KaiTypography.bodyMedium,
+                                color = LocalDesignColorTokens.current.textSecondary,
+                            )
+                        }
+                    }
+
+                    is EditorState.Binary -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "Binary file: ${editor.path}",
+                                style = KaiTypography.bodyMedium,
+                                color = LocalDesignColorTokens.current.textSecondary,
+                            )
+                        }
+                    }
+
+                    is EditorState.TooLarge -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "File too large (${editor.sizeBytes} bytes)",
+                                style = KaiTypography.bodyMedium,
+                                color = LocalDesignColorTokens.current.textSecondary,
+                            )
+                        }
+                    }
+
+                    is EditorState.Unreadable -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "Cannot read file: ${editor.path}",
+                                style = KaiTypography.bodyMedium,
+                                color = LocalDesignColorTokens.current.textSecondary,
+                            )
+                        }
+                    }
+
+                    null -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "Open a file to edit",
                                 style = KaiTypography.bodyMedium,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
                     }
                 }
-            } else {
-                // Centralized width policy (Plan 3, Phase 6): the hub centers with a
-                // readable max width on expanded windows and stays full-bleed below.
-                BoxWithConstraints(
-                    modifier = Modifier.fillMaxWidth().weight(1f),
-                ) {
-                    val tier = WorkspaceTier(maxWidth)
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .widthIn(max = tier.contentMaxWidth)
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
-                    ) {
-                        WorkspaceTopBar(
-                            title = stringResource(Res.string.workspace_title),
-                            onExit = onExit,
-                            actions = {
-                                if (state.build.isReady) {
-                                    IconButton(
-                                        onClick = { showCreateProject = true },
-                                        modifier = Modifier.handCursor(),
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Add,
-                                            contentDescription = stringResource(
-                                                Res.string.workspace_new_project_content_description,
-                                            ),
-                                        )
-                                    }
-                                }
-                            },
-                        )
+            }
 
-                        if (state.build.isReady) {
-                            WorkspaceProjectsContent(
-                                state = state.build,
-                                launchAgentId = state.launchAgentId,
-                                installedAgents = installedAgents,
-                                onSelectLaunchAgent = actions.setLaunchAgent,
-                                onOpenProject = actions.openProject,
-                                onDeleteProject = actions.deleteProject,
-                                onRenameProject = actions.renameProject,
-                                onInstallAgent = actions.installAgent,
-                                onUninstall = actions.uninstall,
-                            )
-                        } else {
-                            WorkspaceSetupContent(
-                                state = state.build,
-                                selectedAgents = state.selectedAgents,
-                                onToggleAgent = actions.toggleAgent,
-                                onInstall = actions.install,
-                                onCancel = actions.cancel,
+            WorkspaceTab.Terminal -> {
+                if (project != null) {
+                    val sessions = remember(state.build.sessions, project) {
+                        state.build.sessions.filter { it.project == project }.toImmutableList()
+                    }
+                    val session = sessions.firstOrNull { it.id == state.build.activeSessionId }
+                        ?: sessions.firstOrNull()
+                    if (session != null) {
+                        WorkspaceTerminalContent(
+                            session = session,
+                            onSubmitLine = actions.submitLine,
+                            onKey = actions.sendKey,
+                            onText = actions.sendText,
+                            onMouse = actions.sendMouse,
+                            onResize = actions.resizeTerminal,
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "No active session",
+                                style = KaiTypography.bodyMedium,
+                                color = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
                     }
+                } else {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = "Open a project to use Terminal",
+                            style = KaiTypography.bodyMedium,
+                            color = LocalDesignColorTokens.current.textSecondary,
+                        )
+                    }
+                }
+            }
+
+            WorkspaceTab.Git -> {
+                WorkspaceGitContent(
+                    project = project,
+                    onOpenEditorFile = onOpenEditorFile,
+                )
+            }
+        }
+
+        // ─── Bottom navigation ───
+        NavigationBar(
+            modifier = Modifier.fillMaxWidth(),
+            containerColor = MaterialTheme.colorScheme.surface,
+        ) {
+            WorkspaceTab.entries.forEach { t ->
+                NavigationBarItem(
+                    selected = tab == t,
+                    onClick = { onTabChanged(t) },
+                    icon = {
+                        Icon(
+                            imageVector = t.icon,
+                            contentDescription = null,
+                            tint = if (tab == t) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = t.label,
+                            style = KaiTypography.labelSmall,
+                            color = if (tab == t) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
+                )
+            }
+        }
+    }
+}
+
+/** Git & Source Control tab content. */
+@Composable
+private fun WorkspaceGitContent(
+    project: String?,
+    onOpenEditorFile: (String) -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        if (project == null) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "Open a project to view Git changes",
+                    style = KaiTypography.bodyMedium,
+                    color = LocalDesignColorTokens.current.textSecondary,
+                )
+            }
+        } else {
+            Text(
+                text = "Git changes for $project",
+                style = KaiTypography.titleMedium,
+                color = LocalDesignColorTokens.current.textPrimary,
+                modifier = Modifier.padding(16.dp),
+            )
+            // Placeholder: git changes list
+            Box(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                contentAlignment = Alignment.Center,
+            ) {
+                TextButton(onClick = { onOpenEditorFile("${PROJECTS_GUEST_DIR}/main.kt") }) {
+                    Text(
+                        text = "Open main.kt",
+                        style = KaiTypography.bodyMedium,
+                        color = LocalDesignColorTokens.current.textPrimary,
+                    )
                 }
             }
         }
     }
-
-    if (showCreateProject) {
-        CreateProjectDialog(
-            onDismiss = { showCreateProject = false },
-            onCreate = { name ->
-                showCreateProject = false
-                actions.createProject(name)
-            },
-        )
-    }
 }
-
-@Composable
-private fun WorkspaceTopBar(
-    title: String,
-    onExit: () -> Unit,
-    actions: @Composable RowScope.() -> Unit = {},
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(com.inspiredandroid.kai.ui.KaiShapes.card)
-            .background(MaterialTheme.colorScheme.surface, com.inspiredandroid.kai.ui.KaiShapes.card)
-            .border(com.inspiredandroid.kai.ui.KaiBorders.soft, com.inspiredandroid.kai.ui.KaiShapes.card),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing.sm, vertical = com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing.xs),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(onClick = onExit, modifier = Modifier.handCursor()) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = stringResource(Res.string.workspace_exit_content_description),
-                    tint = LocalDesignColorTokens.current.textSecondary,
-                )
-            }
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing.sm),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                Text(
-                    text = "WORKSPACE",
-                    style = KaiTypography.labelSmall,
-                    color = com.inspiredandroid.kai.ui.AccentPrimary,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                )
-                Text(
-                    text = title,
-                    style = KaiTypography.titleMedium,
-                    color = LocalDesignColorTokens.current.textPrimary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            actions()
-        }
-    }
-}
-
-
-
-
-
