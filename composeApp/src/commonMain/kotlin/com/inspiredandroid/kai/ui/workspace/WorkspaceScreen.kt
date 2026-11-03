@@ -133,6 +133,126 @@ enum class WorkspaceTab(val id: String, val label: String, val icon: ImageVector
 }
 
 /**
+ * Stateless Workspace surface content for screenshot tests. Takes [state] and
+ * [actions] directly so it can be rendered without a ViewModel or Koin.
+ */
+@Composable
+fun WorkspaceScreenContent(
+    state: WorkspaceUiState,
+    actions: WorkspaceActions,
+    onExit: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    var tab by remember { mutableStateOf(WorkspaceTab.Agent) }
+    var pendingProject by remember { mutableStateOf<String?>(null) }
+    var filesOpen by remember { mutableStateOf(false) }
+    var selectedFile by remember { mutableStateOf<String?>(null) }
+
+    val drawerFiles = remember(selectedFile) {
+        state.build.projects.map { name ->
+            ProjectFile(
+                path = "$PROJECTS_GUEST_DIR/$name",
+                name = name,
+                isDirectory = true,
+                isCurrentFile = false,
+            )
+        }
+    }
+
+    LaunchedEffect(state.build) {
+        val pending = pendingProject ?: return@LaunchedEffect
+        if (state.build.isReady) {
+            if (pending in state.build.projects) {
+                actions.openProject(pending)
+            }
+            pendingProject = null
+        }
+    }
+
+    val editorLines = emptyList<CodeLine>()
+
+    PlatformBackHandler(enabled = true) {
+        when {
+            drawerState.isOpen -> scope.launch { drawerState.close() }
+            filesOpen -> filesOpen = false
+            state.openProject != null -> actions.closeProject()
+            else -> onExit()
+        }
+    }
+
+    // Drawer content: Projects & File Explorer
+    val drawerContent = @Composable {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            WorkspaceProjectsExplorer(
+                currentProject = state.openProject,
+                projects = state.build.projects,
+                files = drawerFiles,
+                onOpenProject = { name ->
+                    scope.launch { drawerState.close() }
+                    filesOpen = false
+                    actions.openProject(name)
+                },
+                onCreateProject = { name ->
+                    actions.createProject(name)
+                    scope.launch { drawerState.close() }
+                },
+                onOpenFile = { path ->
+                    scope.launch { drawerState.close() }
+                    selectedFile = path
+                    tab = WorkspaceTab.Editor
+                    filesOpen = false
+                },
+                onFilterChanged = { },
+                selectedFilter = ProjectFilter.All,
+            )
+        }
+    }
+
+    Box(
+        modifier = modifier.fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+    ) {
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = drawerContent,
+            modifier = Modifier.fillMaxHeight(),
+        ) {
+            if (state.build.isReady) {
+                WorkspaceTabContent(
+                    tab = tab,
+                    onTabChanged = { tab = it },
+                    state = state,
+                    actions = actions,
+                    filesOpen = filesOpen,
+                    onFilesToggle = { filesOpen = it },
+                    selectedFile = selectedFile,
+                    editorState = null,
+                    editorLines = editorLines,
+                    onOpenEditorFile = { path ->
+                        selectedFile = path
+                        tab = WorkspaceTab.Editor
+                    },
+                    onDrawerToggle = { scope.launch { drawerState.open() } },
+                    onExit = onExit,
+                )
+            } else {
+                WorkspaceSetupContent(
+                    state = state.build,
+                    selectedAgents = state.selectedAgents,
+                    onToggleAgent = actions.toggleAgent,
+                    onInstall = actions.install,
+                    onCancel = actions.cancel,
+                )
+            }
+        }
+    }
+}
+
+/**
  * Full-screen Workspace surface. Entered from the empty chat state and left via
  * the top-bar close button or system back.
  */

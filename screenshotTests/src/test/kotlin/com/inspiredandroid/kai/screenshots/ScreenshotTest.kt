@@ -21,9 +21,9 @@ import app.cash.paparazzi.Paparazzi
 import com.inspiredandroid.kai.ui.DarkColorScheme
 import com.inspiredandroid.kai.ui.LightColorScheme
 import com.inspiredandroid.kai.ui.Theme
-import com.inspiredandroid.kai.ui.workspace.BuildStatusKind
-import com.inspiredandroid.kai.ui.workspace.BuildStatusPill
 import com.inspiredandroid.kai.ui.workspace.WorkspaceActions
+import com.inspiredandroid.kai.ui.workspace.WorkspaceStatusKind
+import com.inspiredandroid.kai.ui.workspace.WorkspaceStatusPill
 import com.inspiredandroid.kai.ui.workspace.WorkspaceScreenContent
 import com.inspiredandroid.kai.ui.chat.ChatScreenContent
 import com.inspiredandroid.kai.ui.chat.composables.AgentActivityTimeline
@@ -79,6 +79,7 @@ class ScreenshotTest {
         sendText = { _, _ -> },
         sendMouse = {},
         resizeTerminal = { _, _ -> },
+        openFile = {},
     )
 
     private fun loadPreviewImage(key: String, resourcePath: String) {
@@ -440,11 +441,11 @@ class ScreenshotTest {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 16.dp),
             ) {
-                BuildStatusPill(label = "Idle", kind = BuildStatusKind.Idle)
-                BuildStatusPill(label = "Running", kind = BuildStatusKind.Running)
-                BuildStatusPill(label = "Success", kind = BuildStatusKind.Success)
-                BuildStatusPill(label = "Warning", kind = BuildStatusKind.Warning)
-                BuildStatusPill(label = "Failed", kind = BuildStatusKind.Failed)
+                WorkspaceStatusPill(label = "Idle", kind = WorkspaceStatusKind.Idle)
+                WorkspaceStatusPill(label = "Running", kind = WorkspaceStatusKind.Running)
+                WorkspaceStatusPill(label = "Success", kind = WorkspaceStatusKind.Success)
+                WorkspaceStatusPill(label = "Warning", kind = WorkspaceStatusKind.Warning)
+                WorkspaceStatusPill(label = "Failed", kind = WorkspaceStatusKind.Failed)
             }
         }
     }

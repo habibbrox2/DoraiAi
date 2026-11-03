@@ -127,6 +127,7 @@ class PremiumScreenScreenshotTest {
                     sendText = { _, _ -> },
                     sendMouse = {},
                     resizeTerminal = { _, _ -> },
+                    openFile = {},
                 ),
                 onExit = {},
             )
