@@ -1151,18 +1151,23 @@
 <tbody>
 <tr>
 <td><code>KaiThemeColors</code></td>
-<td>23 (all in <code>Theme.kt</code> definitions/usages)</td>
-<td>Still required (default + wiring)</td>
+<td>0</td>
+<td>Removed from <code>Theme.kt</code></td>
 </tr>
 <tr>
 <td><code>LocalKaiColors</code></td>
-<td>2</td>
-<td>Still required (compatibility API)</td>
+<td>0</td>
+<td>Removed from <code>Theme.kt</code></td>
 </tr>
 <tr>
 <td><code>TextPrimary</code> (global getter)</td>
-<td>225 total (incl. tests/strings)</td>
-<td>Migrating — 18 feature component files migrated</td>
+<td>0</td>
+<td>Removed — replaced with <code>DesignTokens.PrimaryText</code></td>
+</tr>
+<tr>
+<td><code>TextSecondary</code> (global getter)</td>
+<td>0</td>
+<td>Removed — replaced with <code>DesignTokens.SecondaryText</code></td>
 </tr>
 <tr>
 <td><code>LocalDesignColorTokens</code></td>
@@ -1347,7 +1352,7 @@
 <li>PR #11 remains Draft/Open; no merge/release/deploy.</li>
 </ul>
 <h2 id="8-phase-c-status">8. Phase C status</h2>
-<p><strong>Status: Chat, Settings, Sandbox, Shared component, Build Workspace, Agent Activity, Composer, and Dynamic UI batches migrated to <code>LocalDesignColorTokens.current</code>.</strong> Phase C screenshot coverage complete across all four pending categories (Build Workspace, Agent Activity, Composer, Dynamic UI). <code>:screenshotTests:recordPaparazziDebug</code> and <code>:screenshotTests:verifyPaparazziDebug</code> green; <code>spotlessCheck</code> green. Remaining Phase B2 batches (Dashboard, DynamicUI/Markdown) still pending before cleanup/removal can begin. This document will be updated with reference counts and verification results as work progresses.</p>
+<p><strong>Status: Chat, Settings, Sandbox, Shared component, Build Workspace, Agent Activity, Composer, and Dynamic UI batches migrated to <code>LocalDesignColorTokens.current</code>.</strong> Dead compatibility APIs removed (<code>KaiThemeColors</code>, <code>LocalKaiColors</code>, <code>TextPrimary</code>/<code>TextSecondary</code> global getters) — zero references across all source sets. Phase C screenshot coverage complete across all four pending categories (Build Workspace, Agent Activity, Composer, Dynamic UI). <code>:screenshotTests:recordPaparazziDebug</code>, <code>:screenshotTests:verifyPaparazziDebug</code>, and <code>spotlessCheck</code> all green. Remaining Phase B2 batches (Dashboard, DynamicUI/Markdown) still pending before final cleanup/removal can begin. This document will be updated with reference counts and verification results as work progresses.</p>
 
 
 
