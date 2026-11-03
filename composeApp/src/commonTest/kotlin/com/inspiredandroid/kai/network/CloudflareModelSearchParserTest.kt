@@ -76,7 +76,3 @@ class CloudflareModelSearchParserTest {
         assertFalse(isValidCloudflareAccountId("0123456789abcdef0123456789abcdef/extra"))
     }
 }
-
-
-
-

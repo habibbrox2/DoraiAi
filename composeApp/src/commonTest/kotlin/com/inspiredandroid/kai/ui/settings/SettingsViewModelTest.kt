@@ -623,7 +623,3 @@ class SettingsViewModelTest {
         }
     }
 }
-
-
-
-

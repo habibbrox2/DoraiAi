@@ -34,7 +34,3 @@ class AndroidUpdateDownloadRequestValidationTest {
         assertFalse(AndroidUpdateDownloadRequestValidation.isValid(url, "not-a-sha256", asset))
     }
 }
-
-
-
-

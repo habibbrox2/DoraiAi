@@ -115,7 +115,3 @@ class OcrToolImpl : Tool {
         }
     }
 }
-
-
-
-

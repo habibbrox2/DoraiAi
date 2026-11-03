@@ -9,7 +9,3 @@ actual fun applyAppLanguage(languageCode: String) {
         // ignore
     }
 }
-
-
-
-

@@ -196,7 +196,3 @@ class AndroidUpdateDiscoveryTest {
         assertIs<AndroidUpdateDiscovery.Result.InvalidRelease>(result)
     }
 }
-
-
-
-

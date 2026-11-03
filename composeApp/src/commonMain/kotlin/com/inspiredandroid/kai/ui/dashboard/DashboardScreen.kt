@@ -51,8 +51,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.inspiredandroid.kai.BackIcon
-import com.inspiredandroid.kai.WorkspaceController
 import com.inspiredandroid.kai.SandboxController
+import com.inspiredandroid.kai.WorkspaceController
 import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.BorderSoft
 import com.inspiredandroid.kai.ui.CardFill
@@ -801,7 +801,3 @@ private fun ProjectRow(
         }
     }
 }
-
-
-
-

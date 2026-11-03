@@ -302,7 +302,3 @@ private fun alignTextFor(align: ColumnAlign?): TextAlign = when (align) {
     ColumnAlign.RIGHT -> TextAlign.End
     else -> TextAlign.Unspecified
 }
-
-
-
-

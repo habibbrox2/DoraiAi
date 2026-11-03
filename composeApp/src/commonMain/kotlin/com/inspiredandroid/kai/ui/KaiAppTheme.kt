@@ -31,7 +31,3 @@ fun KaiAppTheme(
         )
     }
 }
-
-
-
-

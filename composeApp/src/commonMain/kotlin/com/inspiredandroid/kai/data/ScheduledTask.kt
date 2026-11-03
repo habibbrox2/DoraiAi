@@ -58,7 +58,3 @@ enum class TaskStatus { PENDING, COMPLETED }
  */
 @Serializable
 enum class TaskTrigger { TIME, CRON, HEARTBEAT }
-
-
-
-

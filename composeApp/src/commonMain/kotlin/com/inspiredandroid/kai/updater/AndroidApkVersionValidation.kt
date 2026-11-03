@@ -24,7 +24,3 @@ object AndroidApkVersionValidation {
         return Result.Valid
     }
 }
-
-
-
-

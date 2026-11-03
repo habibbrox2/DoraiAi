@@ -43,7 +43,3 @@ interface LiteRTSwiftBridge {
 object LiteRTBridgeRegistry {
     var bridge: LiteRTSwiftBridge? = null
 }
-
-
-
-

@@ -16,7 +16,3 @@ class PercentEscapeTest {
         assertEquals("Downloading Debian… 42%", "Downloading Debian… 42%".collapsePercentEscape())
     }
 }
-
-
-
-

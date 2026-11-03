@@ -146,7 +146,3 @@ internal object MathSymbols {
 
     fun mapCalligraphic(ch: Char): String = CALLIGRAPHIC_UPPER[ch] ?: ch.toString()
 }
-
-
-
-

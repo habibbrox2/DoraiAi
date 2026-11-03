@@ -81,7 +81,3 @@ enum class LinuxDistro(
         fun fromId(id: String?): LinuxDistro = entries.firstOrNull { it.id == id } ?: DEFAULT
     }
 }
-
-
-
-

@@ -64,8 +64,3 @@ const val MIN_COLUMNS = 20
 const val MAX_COLUMNS = 300
 const val MIN_ROWS = 8
 const val MAX_ROWS = 120
-
-
-
-
-

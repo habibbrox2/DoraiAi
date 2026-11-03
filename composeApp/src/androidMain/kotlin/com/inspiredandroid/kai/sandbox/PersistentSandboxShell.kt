@@ -307,7 +307,3 @@ private fun appendBounded(buf: StringBuilder, line: String) {
 }
 
 private fun randomNonce(): String = (0 until 16).map { "0123456789abcdef".random() }.joinToString("")
-
-
-
-

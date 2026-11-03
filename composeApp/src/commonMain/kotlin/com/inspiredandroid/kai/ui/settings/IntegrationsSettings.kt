@@ -78,7 +78,3 @@ internal fun IntegrationsContent(
         }
     }
 }
-
-
-
-

@@ -42,10 +42,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.inspiredandroid.kai.workspace.WorkspaceAgent
-import com.inspiredandroid.kai.workspace.WorkspaceAgents
-import com.inspiredandroid.kai.workspace.WorkspaceSystemInfo
-import com.inspiredandroid.kai.workspace.WorkspaceState
 import com.inspiredandroid.kai.formatFileSize
 import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.BorderSoft
@@ -54,10 +50,25 @@ import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.components.KaiChip
-import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.settings.SettingsCard
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
+import com.inspiredandroid.kai.workspace.WorkspaceAgent
+import com.inspiredandroid.kai.workspace.WorkspaceAgents
+import com.inspiredandroid.kai.workspace.WorkspaceState
+import com.inspiredandroid.kai.workspace.WorkspaceSystemInfo
 import kai.composeapp.generated.resources.Res
+import kai.composeapp.generated.resources.sandbox_files_action_delete
+import kai.composeapp.generated.resources.sandbox_files_action_more
+import kai.composeapp.generated.resources.sandbox_files_action_rename
+import kai.composeapp.generated.resources.sandbox_files_delete_confirm
+import kai.composeapp.generated.resources.sandbox_files_delete_message_directory
+import kai.composeapp.generated.resources.sandbox_files_delete_title
+import kai.composeapp.generated.resources.sandbox_files_rename_confirm
+import kai.composeapp.generated.resources.sandbox_files_rename_error_collision
+import kai.composeapp.generated.resources.sandbox_files_rename_error_invalid
+import kai.composeapp.generated.resources.sandbox_files_rename_label
+import kai.composeapp.generated.resources.sandbox_files_rename_title
 import kai.composeapp.generated.resources.workspace_new_project_title
 import kai.composeapp.generated.resources.workspace_open_with
 import kai.composeapp.generated.resources.workspace_projects_cancel_create
@@ -78,17 +89,6 @@ import kai.composeapp.generated.resources.workspace_system_title
 import kai.composeapp.generated.resources.workspace_uninstall
 import kai.composeapp.generated.resources.workspace_uninstall_message
 import kai.composeapp.generated.resources.workspace_uninstall_title
-import kai.composeapp.generated.resources.sandbox_files_action_delete
-import kai.composeapp.generated.resources.sandbox_files_action_more
-import kai.composeapp.generated.resources.sandbox_files_action_rename
-import kai.composeapp.generated.resources.sandbox_files_delete_confirm
-import kai.composeapp.generated.resources.sandbox_files_delete_message_directory
-import kai.composeapp.generated.resources.sandbox_files_delete_title
-import kai.composeapp.generated.resources.sandbox_files_rename_confirm
-import kai.composeapp.generated.resources.sandbox_files_rename_error_collision
-import kai.composeapp.generated.resources.sandbox_files_rename_error_invalid
-import kai.composeapp.generated.resources.sandbox_files_rename_label
-import kai.composeapp.generated.resources.sandbox_files_rename_title
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
 
@@ -585,8 +585,3 @@ internal fun CreateProjectDialog(
         },
     )
 }
-
-
-
-
-

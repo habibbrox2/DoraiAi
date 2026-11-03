@@ -673,7 +673,3 @@ class ChatSystemPromptBuilderTest {
 
     // endregion
 }
-
-
-
-

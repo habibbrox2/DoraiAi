@@ -100,7 +100,3 @@ class ToolExecutorTest {
         assertEquals(mapOf("url" to "https://a", "opts" to mapOf("y" to 1)), received)
     }
 }
-
-
-
-

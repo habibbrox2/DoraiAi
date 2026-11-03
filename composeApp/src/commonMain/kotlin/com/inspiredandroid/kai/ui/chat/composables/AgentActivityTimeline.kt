@@ -385,7 +385,3 @@ private fun ActivityDetailsView(
         }
     }
 }
-
-
-
-

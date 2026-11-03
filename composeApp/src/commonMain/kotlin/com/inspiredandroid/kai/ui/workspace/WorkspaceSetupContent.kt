@@ -16,15 +16,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.inspiredandroid.kai.workspace.WorkspaceAgents
-import com.inspiredandroid.kai.workspace.WorkspaceEnvironmentState
-import com.inspiredandroid.kai.workspace.WorkspaceStep
-import com.inspiredandroid.kai.workspace.WorkspaceState
-import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.KaiTypography
+import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.sandbox.SandboxProgressRow
 import com.inspiredandroid.kai.ui.settings.SettingsCard
 import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
+import com.inspiredandroid.kai.workspace.WorkspaceAgents
+import com.inspiredandroid.kai.workspace.WorkspaceEnvironmentState
+import com.inspiredandroid.kai.workspace.WorkspaceState
+import com.inspiredandroid.kai.workspace.WorkspaceStep
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.workspace_setup_agents_description
 import kai.composeapp.generated.resources.workspace_setup_agents_title
@@ -196,16 +196,15 @@ private fun stepLabel(state: WorkspaceEnvironmentState.Installing): String = whe
         Res.string.workspace_step_download,
         ((state.progress ?: 0f) * 100).toInt(),
     ).collapsePercentEscape()
+
     WorkspaceStep.Extract -> stringResource(Res.string.workspace_step_extract)
+
     WorkspaceStep.Configure -> stringResource(Res.string.workspace_step_configure)
+
     WorkspaceStep.BasePackages -> stringResource(Res.string.workspace_step_base_packages)
+
     WorkspaceStep.Agent -> stringResource(
         Res.string.workspace_step_install_agent,
         WorkspaceAgents.get(state.agentId)?.title.orEmpty(),
     )
 }
-
-
-
-
-

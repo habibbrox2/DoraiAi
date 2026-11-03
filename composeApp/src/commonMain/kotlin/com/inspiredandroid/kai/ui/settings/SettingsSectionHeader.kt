@@ -55,7 +55,3 @@ fun SettingsSectionHeader(
         if (trailing != null) trailing()
     }
 }
-
-
-
-

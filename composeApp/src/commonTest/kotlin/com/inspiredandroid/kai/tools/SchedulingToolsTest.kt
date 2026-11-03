@@ -115,7 +115,3 @@ class SchedulingToolsTest {
         assertTrue("Local time" in schema.description, "top-level description should reference Local time: ${schema.description}")
     }
 }
-
-
-
-

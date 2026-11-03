@@ -508,7 +508,3 @@ internal object BlockScanner {
         return Paragraph(InlineTokenizer.tokenize(accum.toString())) to i
     }
 }
-
-
-
-

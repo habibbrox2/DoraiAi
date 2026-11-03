@@ -10,7 +10,3 @@ data class McpServerConfig(
     val headers: Map<String, String> = emptyMap(),
     val isEnabled: Boolean = true,
 )
-
-
-
-

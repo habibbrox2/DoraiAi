@@ -127,7 +127,3 @@ class KaiNotificationListenerService : NotificationListenerService() {
         )
     }
 }
-
-
-
-

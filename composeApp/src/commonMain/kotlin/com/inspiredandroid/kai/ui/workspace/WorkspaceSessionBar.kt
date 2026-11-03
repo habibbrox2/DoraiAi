@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,7 +27,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,6 +41,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -49,11 +50,11 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.inspiredandroid.kai.ui.handCursor
+import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import com.inspiredandroid.kai.workspace.WorkspaceAgent
 import com.inspiredandroid.kai.workspace.WorkspaceAgents
 import com.inspiredandroid.kai.workspace.WorkspaceTerminalSession
-import com.inspiredandroid.kai.ui.handCursor
-import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.workspace_back_content_description
 import kai.composeapp.generated.resources.workspace_files_tab
@@ -62,7 +63,6 @@ import kai.composeapp.generated.resources.workspace_session_new_content_descript
 import kai.composeapp.generated.resources.workspace_session_shell
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.input.key.key
 
 /**
  * The terminal screen's only chrome: back out of the project, switch between the
@@ -121,6 +121,7 @@ internal fun WorkspaceSessionBar(
                             }
                             true
                         }
+
                         Key.DirectionRight -> {
                             focusedTabIndex = (focusedTabIndex + 1).coerceIn(0, tabCount - 1)
                             if (focusedTabIndex < sessions.size) {
@@ -130,6 +131,7 @@ internal fun WorkspaceSessionBar(
                             }
                             true
                         }
+
                         Key.Enter, Key.NumPadEnter -> {
                             if (focusedTabIndex < sessions.size) {
                                 onSelectSession(sessions[focusedTabIndex].id)
@@ -138,101 +140,102 @@ internal fun WorkspaceSessionBar(
                             }
                             true
                         }
+
                         else -> false
                     }
                 },
             verticalAlignment = Alignment.CenterVertically,
         ) {
-        IconButton(onClick = onBack, modifier = Modifier.size(48.dp).handCursor()) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = stringResource(Res.string.workspace_back_content_description),
-                tint = LocalDesignColorTokens.current.textSecondary,
-            )
-        }
-
-        // Project-aware header: name the active project so the session strip reads
-        // as a workspace, not a bare list of shells (Plan 3, Phase 3).
-        Text(
-            text = project,
-            style = com.inspiredandroid.kai.ui.KaiTypography.titleSmall,
-            color = LocalDesignColorTokens.current.textPrimary,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            // Cap the header so a long project name can't squeeze the session tabs
-            // out of the strip on narrow windows (Plan 3, Phase 6).
-            modifier = Modifier.padding(end = com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing.sm).widthIn(max = 200.dp),
-        )
-
-        Row(
-            modifier = Modifier.weight(1f).horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            sessions.forEachIndexed { index, session ->
-                SessionTab(
-                    session = session,
-                    numbered = sessions.size > 1,
-                    selected = !filesSelected && session.id == activeSessionId,
-                    onSelect = { onSelectSession(session.id) },
-                    onClose = { onCloseSession(session.id) },
-                    focusRequester = tabFocusRequesters[index],
-                    isFocused = focusedTabIndex == index,
-                    onFocus = { focusedTabIndex = index },
-                )
-            }
-            // Pinned: the project's files are always there, unlike a session.
-            TabPill(
-                label = stringResource(Res.string.workspace_files_tab),
-                selected = filesSelected,
-                onSelect = onSelectFiles,
-                focusRequester = tabFocusRequesters[sessions.size],
-                isFocused = focusedTabIndex == sessions.size,
-                onFocus = { focusedTabIndex = sessions.size },
-            )
-        }
-
-        // Build/session status next to the title instead of only inside terminal
-        // text (Plan 3, Phase 3, item 6). Derived purely from the session's busy flag.
-        val activeSession = sessions.firstOrNull { it.id == activeSessionId }
-        if (activeSession != null) {
-            WorkspaceStatusPill(
-                label = if (activeSession.busy) "Running" else "Idle",
-                kind = if (activeSession.busy) WorkspaceStatusKind.Running else WorkspaceStatusKind.Idle,
-            )
-        }
-
-        Box {
-            IconButton(
-                onClick = { showNewMenu = true },
-                modifier = Modifier.size(48.dp).handCursor(),
-            ) {
+            IconButton(onClick = onBack, modifier = Modifier.size(48.dp).handCursor()) {
                 Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(Res.string.workspace_session_new_content_description),
-                    tint = com.inspiredandroid.kai.ui.AccentPrimary,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(Res.string.workspace_back_content_description),
+                    tint = LocalDesignColorTokens.current.textSecondary,
                 )
             }
-            DropdownMenu(expanded = showNewMenu, onDismissRequest = { showNewMenu = false }) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(Res.string.workspace_session_shell)) },
-                    onClick = {
-                        showNewMenu = false
-                        onNewSession(null)
-                    },
-                    modifier = Modifier.handCursor(),
+
+            // Project-aware header: name the active project so the session strip reads
+            // as a workspace, not a bare list of shells (Plan 3, Phase 3).
+            Text(
+                text = project,
+                style = com.inspiredandroid.kai.ui.KaiTypography.titleSmall,
+                color = LocalDesignColorTokens.current.textPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                // Cap the header so a long project name can't squeeze the session tabs
+                // out of the strip on narrow windows (Plan 3, Phase 6).
+                modifier = Modifier.padding(end = com.inspiredandroid.kai.ui.workspace.WorkspaceSpacing.sm).widthIn(max = 200.dp),
+            )
+
+            Row(
+                modifier = Modifier.weight(1f).horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                sessions.forEachIndexed { index, session ->
+                    SessionTab(
+                        session = session,
+                        numbered = sessions.size > 1,
+                        selected = !filesSelected && session.id == activeSessionId,
+                        onSelect = { onSelectSession(session.id) },
+                        onClose = { onCloseSession(session.id) },
+                        focusRequester = tabFocusRequesters[index],
+                        isFocused = focusedTabIndex == index,
+                        onFocus = { focusedTabIndex = index },
+                    )
+                }
+                // Pinned: the project's files are always there, unlike a session.
+                TabPill(
+                    label = stringResource(Res.string.workspace_files_tab),
+                    selected = filesSelected,
+                    onSelect = onSelectFiles,
+                    focusRequester = tabFocusRequesters[sessions.size],
+                    isFocused = focusedTabIndex == sessions.size,
+                    onFocus = { focusedTabIndex = sessions.size },
                 )
-                installedAgents.forEach { agent ->
+            }
+
+            // Build/session status next to the title instead of only inside terminal
+            // text (Plan 3, Phase 3, item 6). Derived purely from the session's busy flag.
+            val activeSession = sessions.firstOrNull { it.id == activeSessionId }
+            if (activeSession != null) {
+                WorkspaceStatusPill(
+                    label = if (activeSession.busy) "Running" else "Idle",
+                    kind = if (activeSession.busy) WorkspaceStatusKind.Running else WorkspaceStatusKind.Idle,
+                )
+            }
+
+            Box {
+                IconButton(
+                    onClick = { showNewMenu = true },
+                    modifier = Modifier.size(48.dp).handCursor(),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = stringResource(Res.string.workspace_session_new_content_description),
+                        tint = com.inspiredandroid.kai.ui.AccentPrimary,
+                    )
+                }
+                DropdownMenu(expanded = showNewMenu, onDismissRequest = { showNewMenu = false }) {
                     DropdownMenuItem(
-                        text = { Text(agent.title) },
+                        text = { Text(stringResource(Res.string.workspace_session_shell)) },
                         onClick = {
                             showNewMenu = false
-                            onNewSession(agent.id)
+                            onNewSession(null)
                         },
                         modifier = Modifier.handCursor(),
                     )
+                    installedAgents.forEach { agent ->
+                        DropdownMenuItem(
+                            text = { Text(agent.title) },
+                            onClick = {
+                                showNewMenu = false
+                                onNewSession(agent.id)
+                            },
+                            modifier = Modifier.handCursor(),
+                        )
+                    }
                 }
-            }
             }
         }
     }
@@ -254,7 +257,9 @@ private fun SessionTab(
     val contentColor = when {
         // A finished shell keeps its output readable but reads as inactive.
         !session.busy -> if (selected) com.inspiredandroid.kai.ui.theme.DesignTokens.Background.copy(alpha = 0.75f) else LocalDesignColorTokens.current.textTertiary.copy(alpha = 0.7f)
+
         selected -> com.inspiredandroid.kai.ui.theme.DesignTokens.Background
+
         else -> LocalDesignColorTokens.current.textSecondary
     }
     TabPill(
@@ -335,6 +340,7 @@ private fun TabPill(
                         onSelect()
                         true
                     }
+
                     else -> false
                 }
             }
@@ -368,8 +374,3 @@ private fun TabPill(
         }
     }
 }
-
-
-
-
-

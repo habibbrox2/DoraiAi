@@ -294,7 +294,3 @@ class HeartbeatPromptBuilderTest {
         }
     }
 }
-
-
-
-

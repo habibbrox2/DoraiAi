@@ -71,7 +71,3 @@ object OpenFileTool : Tool {
         descriptionRes = Res.string.tool_open_file_description,
     )
 }
-
-
-
-

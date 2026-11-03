@@ -94,7 +94,3 @@ object ChatSurfaces {
     @Composable
     fun composer(): Color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.9f)
 }
-
-
-
-

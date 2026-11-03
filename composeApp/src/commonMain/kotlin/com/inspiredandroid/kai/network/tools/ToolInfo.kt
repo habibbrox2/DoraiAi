@@ -26,7 +26,3 @@ data class ToolInfo(
      */
     val userToggleable: Boolean = true,
 )
-
-
-
-

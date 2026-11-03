@@ -270,7 +270,3 @@ private fun formatDuration(durationMs: Long): String = when {
     durationMs < 60_000 -> "${durationMs / 1_000}.${(durationMs % 1_000) / 100}s"
     else -> "${durationMs / 60_000}m ${(durationMs % 60_000) / 1_000}s"
 }
-
-
-
-

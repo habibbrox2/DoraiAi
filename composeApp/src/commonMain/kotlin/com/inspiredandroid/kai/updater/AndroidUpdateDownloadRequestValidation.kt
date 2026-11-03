@@ -18,7 +18,3 @@ object AndroidUpdateDownloadRequestValidation {
         return url == "$RELEASE_PREFIX$tag/$assetName"
     }
 }
-
-
-
-

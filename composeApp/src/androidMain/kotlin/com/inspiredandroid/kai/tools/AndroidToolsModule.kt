@@ -16,7 +16,3 @@ val androidToolsModule = module {
     single<GalleryRepository> { GalleryRepositoryImpl(androidContext(), get()) }
     single<DownloadsRepository> { DownloadsRepositoryImpl(androidContext(), get()) }
 }
-
-
-
-

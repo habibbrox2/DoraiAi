@@ -466,7 +466,3 @@ private fun ReasoningBlockquote(
         }
     }
 }
-
-
-
-

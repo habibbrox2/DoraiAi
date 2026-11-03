@@ -201,7 +201,3 @@ class SanitizeToolMessagesTest {
         assertEquals(listOf("call_1"), result[1].tool_calls?.map { it.id })
     }
 }
-
-
-
-

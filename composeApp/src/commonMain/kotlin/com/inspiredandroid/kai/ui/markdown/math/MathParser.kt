@@ -533,7 +533,3 @@ internal object MathParser {
         }
     }
 }
-
-
-
-

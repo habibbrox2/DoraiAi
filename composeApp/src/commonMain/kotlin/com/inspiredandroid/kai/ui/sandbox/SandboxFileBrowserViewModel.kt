@@ -430,7 +430,3 @@ class SandboxFileBrowserViewModel(
         return path
     }
 }
-
-
-
-

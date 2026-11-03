@@ -171,7 +171,3 @@ class OcrEngineFactory(private val context: Context) {
         engine = null
     }
 }
-
-
-
-

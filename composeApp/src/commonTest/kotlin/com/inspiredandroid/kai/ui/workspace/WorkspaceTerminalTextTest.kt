@@ -67,7 +67,3 @@ class WorkspaceTerminalTextTest {
         assertEquals(4, green.end)
     }
 }
-
-
-
-

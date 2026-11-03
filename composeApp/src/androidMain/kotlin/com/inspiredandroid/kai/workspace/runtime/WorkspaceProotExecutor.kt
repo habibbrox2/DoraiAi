@@ -175,7 +175,7 @@ class WorkspaceProotExecutor(
             |if os.WIFEXITED(status):
             |    raise SystemExit(os.WEXITSTATUS(status))
             |raise SystemExit(1)
-            """.trimMargin()
+        """.trimMargin()
         val scriptB64 = Base64.getEncoder().encodeToString(script.toByteArray(Charsets.UTF_8))
         // `$$` is this shell's pid and `exec` keeps it for python, so the file holds
         // the bridge's real pid — that is what cancelling a session has to kill.
@@ -205,7 +205,3 @@ class WorkspaceProotExecutor(
         }
     }
 }
-
-
-
-

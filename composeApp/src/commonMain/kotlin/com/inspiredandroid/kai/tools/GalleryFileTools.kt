@@ -67,7 +67,3 @@ object GalleryCopyTool {
         description = "Copy a file in the gallery/media library",
     )
 }
-
-
-
-

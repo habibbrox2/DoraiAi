@@ -181,7 +181,3 @@ private fun PendingSmsBanner(
         }
     }
 }
-
-
-
-

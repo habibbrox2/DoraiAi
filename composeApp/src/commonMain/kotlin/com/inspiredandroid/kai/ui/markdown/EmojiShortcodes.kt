@@ -115,7 +115,3 @@ internal val EMOJI_SHORTCODES: Map<String, String> = mapOf(
     "arrow_right" to "\u27A1\uFE0F",
     "arrows_counterclockwise" to "\uD83D\uDD04",
 )
-
-
-
-

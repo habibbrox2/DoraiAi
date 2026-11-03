@@ -878,7 +878,3 @@ fun Modifier.glassmorphicCard(
 ): Modifier = this
     .clip(androidx.compose.foundation.shape.RoundedCornerShape(cornerRadius))
     .background(backgroundColor)
-
-
-
-

@@ -710,7 +710,3 @@ class KaiUiValidationTest {
 
     // endregion
 }
-
-
-
-

@@ -14,7 +14,3 @@ interface EmailConnection {
  * Creates a TCP connection, optionally wrapped in TLS (for implicit TLS like IMAP port 993).
  */
 expect suspend fun createEmailConnection(host: String, port: Int, tls: Boolean): EmailConnection
-
-
-
-

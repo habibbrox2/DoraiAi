@@ -9,7 +9,3 @@ class ConversationIdElement(val conversationId: String) : AbstractCoroutineConte
 }
 
 suspend fun currentConversationIdOrNull(): String? = coroutineContext[ConversationIdElement]?.conversationId
-
-
-
-

@@ -13,9 +13,6 @@ import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.inspiredandroid.kai.ui.DarkColorScheme
 import com.inspiredandroid.kai.ui.Theme
-import com.inspiredandroid.kai.ui.workspace.WorkspaceActions
-import com.inspiredandroid.kai.ui.workspace.WorkspaceScreenContent
-import com.inspiredandroid.kai.ui.workspace.WorkspaceUiState
 import com.inspiredandroid.kai.ui.chat.composables.ToolConfirmationCard
 import com.inspiredandroid.kai.ui.chat.composables.ToolExecutionCard
 import com.inspiredandroid.kai.ui.components.OperationalStatus
@@ -24,6 +21,9 @@ import com.inspiredandroid.kai.ui.dashboard.DashboardUiState
 import com.inspiredandroid.kai.ui.dashboard.ReadinessFact
 import com.inspiredandroid.kai.ui.dashboard.ServiceReadiness
 import com.inspiredandroid.kai.ui.theme.DesignTokens
+import com.inspiredandroid.kai.ui.workspace.WorkspaceActions
+import com.inspiredandroid.kai.ui.workspace.WorkspaceScreenContent
+import com.inspiredandroid.kai.ui.workspace.WorkspaceUiState
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
 import org.junit.Before
@@ -175,7 +175,3 @@ class PremiumScreenScreenshotTest {
         }
     }
 }
-
-
-
-

@@ -188,7 +188,3 @@ class SshConfigManagerTest {
         assertFalse(text.contains("\n\n\n"), "should not accumulate blank lines: <<<$text>>>")
     }
 }
-
-
-
-

@@ -56,7 +56,3 @@ object ChatAdaptivePolicy {
     /** Whether history is presented as a bottom sheet (compact) vs. a side rail. */
     fun historyAsBottomSheet(sizeClass: ChatWindowSizeClass): Boolean = sizeClass != ChatWindowSizeClass.Expanded
 }
-
-
-
-

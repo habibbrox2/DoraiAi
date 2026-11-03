@@ -476,7 +476,3 @@ private fun agentStatusLabel(
     isSpeaking -> "Speaking"
     else -> "Idle"
 }
-
-
-
-

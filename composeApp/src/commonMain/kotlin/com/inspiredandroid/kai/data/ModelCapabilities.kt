@@ -149,7 +149,3 @@ internal fun requiresResponsesApi(service: Service, modelId: String, baseUrl: St
     if (!isOpenAiEndpoint) return false
     return isResponsesApiGptFamily(modelId)
 }
-
-
-
-

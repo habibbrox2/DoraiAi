@@ -65,7 +65,3 @@ data class GalleryMediaItem(
     val resolutionString: String?
         get() = if (width != null && height != null) "${width}x$height" else null
 }
-
-
-
-

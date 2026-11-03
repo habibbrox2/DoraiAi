@@ -105,7 +105,3 @@ internal fun FullScreenImageViewerOverlay(
         }
     }
 }
-
-
-
-

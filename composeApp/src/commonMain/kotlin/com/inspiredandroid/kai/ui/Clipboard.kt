@@ -21,7 +21,3 @@ internal fun rememberCopyToClipboard(): (String) -> Unit {
         }
     }
 }
-
-
-
-

@@ -29,7 +29,3 @@ val DownloadsItem.isFailed: Boolean
 /** ডাউনলোড চলছে কিনা */
 val DownloadsItem.isActive: Boolean
     get() = status == DownloadManager.STATUS_RUNNING || status == DownloadManager.STATUS_PENDING
-
-
-
-

@@ -2,11 +2,11 @@ package com.inspiredandroid.kai.ui.workspace
 
 import app.cash.turbine.test
 import com.inspiredandroid.kai.FileBrowserSource
-import com.inspiredandroid.kai.WorkspaceController
 import com.inspiredandroid.kai.NoOpFileBrowserSource
+import com.inspiredandroid.kai.WorkspaceController
+import com.inspiredandroid.kai.testutil.FakeDataRepository
 import com.inspiredandroid.kai.workspace.WorkspaceEnvironmentState
 import com.inspiredandroid.kai.workspace.WorkspaceState
-import com.inspiredandroid.kai.testutil.FakeDataRepository
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -153,7 +153,3 @@ class WorkspaceViewModelTest {
         assertEquals(listOf<String?>(null), fakeController.startedWith)
     }
 }
-
-
-
-

@@ -4,11 +4,11 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.inspiredandroid.kai.WorkspaceController
+import com.inspiredandroid.kai.data.DataRepository
 import com.inspiredandroid.kai.workspace.WorkspaceState
 import com.inspiredandroid.kai.workspace.terminal.TerminalKey
 import com.inspiredandroid.kai.workspace.terminal.TerminalKeyEncoder
 import com.inspiredandroid.kai.workspace.terminal.TerminalModifiers
-import com.inspiredandroid.kai.data.DataRepository
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableSet
@@ -52,8 +52,8 @@ class WorkspaceViewModel(
             launchAgentId = launchAgent.installedIn(build),
             openProject = project,
         )
-    // viewModelScope is Main.immediate, so without this the merge runs on the
-    // main thread once per terminal repaint.
+        // viewModelScope is Main.immediate, so without this the merge runs on the
+        // main thread once per terminal repaint.
     }.flowOn(Dispatchers.Default).stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -179,8 +179,3 @@ class WorkspaceViewModel(
 
     fun resizeTerminal(columns: Int, rows: Int) = controller.resizeTerminal(columns, rows)
 }
-
-
-
-
-

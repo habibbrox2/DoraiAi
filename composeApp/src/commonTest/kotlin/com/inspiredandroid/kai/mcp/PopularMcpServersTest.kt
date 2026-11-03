@@ -87,7 +87,3 @@ class PopularMcpServersTest {
         assertSame(servers, updated)
     }
 }
-
-
-
-

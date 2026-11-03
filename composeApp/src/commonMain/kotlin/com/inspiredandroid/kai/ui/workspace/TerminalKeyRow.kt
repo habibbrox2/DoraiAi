@@ -2,12 +2,16 @@ package com.inspiredandroid.kai.ui.workspace
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,9 +24,12 @@ import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,16 +39,18 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.inspiredandroid.kai.ui.KaiShapes
+import com.inspiredandroid.kai.ui.handCursor
+import com.inspiredandroid.kai.ui.settings.monoStyle
 import com.inspiredandroid.kai.workspace.terminal.TerminalKey
 import com.inspiredandroid.kai.workspace.terminal.TerminalModifiers
-import com.inspiredandroid.kai.ui.handCursor
-import com.inspiredandroid.kai.ui.KaiShapes
-import com.inspiredandroid.kai.ui.settings.monoStyle
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.workspace_terminal_input_mode_content_description
 import kai.composeapp.generated.resources.workspace_terminal_key_down_content_description
@@ -50,15 +59,6 @@ import kai.composeapp.generated.resources.workspace_terminal_key_left_content_de
 import kai.composeapp.generated.resources.workspace_terminal_key_right_content_description
 import kai.composeapp.generated.resources.workspace_terminal_key_up_content_description
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.foundation.border
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.semantics.contentDescription
 
 /** Navigation caps, in the order a keyboard lays them out. */
 private val ArrowCaps = listOf(
@@ -255,10 +255,13 @@ private fun KeyCapSurface(
 ) {
     val tint = when {
         !enabled -> AnsiPalette[8]
+
         // Enter is a filled key, so its glyph is the bright thing on the fill,
         // not a green line on grey — that read as decoration rather than a key.
         accent -> AnsiPalette[15]
+
         active -> AnsiPalette[10]
+
         else -> AnsiPalette[7]
     }
     val container = when {
@@ -302,6 +305,7 @@ private fun KeyCapSurface(
                         onClick()
                         true
                     }
+
                     else -> false
                 }
             }
@@ -327,8 +331,3 @@ private fun KeyCapSurface(
         }
     }
 }
-
-
-
-
-

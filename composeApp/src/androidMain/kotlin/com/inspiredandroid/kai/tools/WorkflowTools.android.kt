@@ -71,7 +71,3 @@ class ResultSummarizationToolImpl : Tool {
         )
     }
 }
-
-
-
-

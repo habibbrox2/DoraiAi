@@ -617,7 +617,3 @@ object EmailTools {
         searchEmailTool(emailStore),
     )
 }
-
-
-
-

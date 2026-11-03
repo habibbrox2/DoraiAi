@@ -68,7 +68,3 @@ class ToolDefinitionsTest {
         assertTrue(leaked.isEmpty(), "Master-toggle-controlled tools exposed as per-tool switches: $leaked")
     }
 }
-
-
-
-

@@ -81,7 +81,3 @@ class ChatViewModelSkillTest {
         assertNull(fakeRepository.lastActiveSkillId)
     }
 }
-
-
-
-

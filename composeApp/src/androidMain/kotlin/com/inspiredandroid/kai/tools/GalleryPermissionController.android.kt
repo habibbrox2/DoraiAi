@@ -121,7 +121,3 @@ class GalleryPermissionControllerFactory {
         return GalleryPermissionController(context)
     }
 }
-
-
-
-

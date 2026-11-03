@@ -163,7 +163,3 @@ class EncryptedFileSettings : Settings {
     override fun getBoolean(key: String, defaultValue: Boolean): Boolean = map[key]?.toBooleanStrictOrNull() ?: defaultValue
     override fun getBooleanOrNull(key: String): Boolean? = map[key]?.toBooleanStrictOrNull()
 }
-
-
-
-

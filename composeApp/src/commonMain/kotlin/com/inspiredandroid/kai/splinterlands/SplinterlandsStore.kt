@@ -123,7 +123,3 @@ class SplinterlandsStore(private val appSettings: AppSettings) {
         private const val MAX_BATTLE_LOG_ENTRIES = 500
     }
 }
-
-
-
-

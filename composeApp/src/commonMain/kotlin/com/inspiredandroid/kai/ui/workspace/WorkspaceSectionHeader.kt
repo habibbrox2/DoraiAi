@@ -12,10 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import com.inspiredandroid.kai.workspace.WorkspaceEnvironmentState
-import com.inspiredandroid.kai.workspace.WorkspaceState
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
+import com.inspiredandroid.kai.workspace.WorkspaceEnvironmentState
+import com.inspiredandroid.kai.workspace.WorkspaceState
 
 /**
  * Section heading for the Build workspace (Plan 3, Phase 2), marked as a semantic
@@ -87,8 +87,3 @@ fun BuildEnvironmentHeader(
         WorkspaceStatusPill(label = label, kind = kind)
     }
 }
-
-
-
-
-

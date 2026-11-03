@@ -25,7 +25,3 @@ interface Tool {
     val timeout: Duration get() = 30.seconds
     suspend fun execute(args: Map<String, Any>): Any // Return result as JSON-serializable
 }
-
-
-
-

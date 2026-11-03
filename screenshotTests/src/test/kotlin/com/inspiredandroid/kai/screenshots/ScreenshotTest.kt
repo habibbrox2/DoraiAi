@@ -21,10 +21,6 @@ import app.cash.paparazzi.Paparazzi
 import com.inspiredandroid.kai.ui.DarkColorScheme
 import com.inspiredandroid.kai.ui.LightColorScheme
 import com.inspiredandroid.kai.ui.Theme
-import com.inspiredandroid.kai.ui.workspace.WorkspaceActions
-import com.inspiredandroid.kai.ui.workspace.WorkspaceStatusKind
-import com.inspiredandroid.kai.ui.workspace.WorkspaceStatusPill
-import com.inspiredandroid.kai.ui.workspace.WorkspaceScreenContent
 import com.inspiredandroid.kai.ui.chat.ChatScreenContent
 import com.inspiredandroid.kai.ui.chat.composables.AgentActivityTimeline
 import com.inspiredandroid.kai.ui.chat.composables.ChatComposer
@@ -33,6 +29,10 @@ import com.inspiredandroid.kai.ui.chat.composables.ToolConfirmationCard
 import com.inspiredandroid.kai.ui.chat.composables.ToolExecutionCard
 import com.inspiredandroid.kai.ui.dynamicui.LocalPreviewImages
 import com.inspiredandroid.kai.ui.settings.SettingsScreenContent
+import com.inspiredandroid.kai.ui.workspace.WorkspaceActions
+import com.inspiredandroid.kai.ui.workspace.WorkspaceScreenContent
+import com.inspiredandroid.kai.ui.workspace.WorkspaceStatusKind
+import com.inspiredandroid.kai.ui.workspace.WorkspaceStatusPill
 import nl.marc_apps.tts.experimental.ExperimentalVoiceApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
@@ -537,7 +537,3 @@ class ScreenshotTest {
         }
     }
 }
-
-
-
-

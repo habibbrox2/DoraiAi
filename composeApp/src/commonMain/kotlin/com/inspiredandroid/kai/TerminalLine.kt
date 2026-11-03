@@ -46,7 +46,3 @@ sealed interface TerminalLine {
     @SerialName("error")
     data class Error(override val text: String, override val id: Long = nextTerminalLineId()) : TerminalLine
 }
-
-
-
-

@@ -193,7 +193,3 @@ data class ExpectedToolResult(
     val expectedOutputType: String,
     val requiredForNextSteps: Boolean = true,
 )
-
-
-
-

@@ -44,7 +44,3 @@ data class EmailSyncState(
     val lastAttemptEpochMs: Long = 0L,
     val lastError: String? = null,
 )
-
-
-
-

@@ -140,7 +140,3 @@ fun customLocalModel(fileName: String, sizeBytes: Long, modelId: String = CUSTOM
 }
 
 fun isCustomModelId(modelId: String): Boolean = modelId.startsWith(CUSTOM_MODEL_ID_PREFIX)
-
-
-
-

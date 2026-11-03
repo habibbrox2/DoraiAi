@@ -175,7 +175,3 @@ class StoreScreenshotTest(
         }
     }
 }
-
-
-
-

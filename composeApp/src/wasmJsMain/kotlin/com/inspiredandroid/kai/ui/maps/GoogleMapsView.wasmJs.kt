@@ -17,7 +17,3 @@ actual fun GoogleMapsView(
         Text("Open in browser: https://www.google.com/maps?q=$latitude,$longitude")
     }
 }
-
-
-
-

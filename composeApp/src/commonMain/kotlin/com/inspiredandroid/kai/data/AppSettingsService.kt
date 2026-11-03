@@ -149,7 +149,3 @@ fun AppSettings.seedDefaultServicesIfNeeded() {
     if (settings.getBoolean(KEY_DEFAULT_SERVICES_SEEDED, false)) return
     settings.putBoolean(KEY_DEFAULT_SERVICES_SEEDED, true)
 }
-
-
-
-

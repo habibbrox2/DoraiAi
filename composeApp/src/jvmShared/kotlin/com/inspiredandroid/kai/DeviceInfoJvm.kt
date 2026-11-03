@@ -17,7 +17,3 @@ actual fun getDeviceInfo(): Map<String, Any> {
         "maxMemoryBytes" to runtime.maxMemory(),
     )
 }
-
-
-
-

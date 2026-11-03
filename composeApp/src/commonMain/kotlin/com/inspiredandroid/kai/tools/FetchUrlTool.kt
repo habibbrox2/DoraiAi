@@ -218,7 +218,3 @@ internal fun resolveRedirect(current: Url, location: String): Url = URLBuilder(c
     parameters.clear()
     fragment = ""
 }.takeFrom(location).build()
-
-
-
-

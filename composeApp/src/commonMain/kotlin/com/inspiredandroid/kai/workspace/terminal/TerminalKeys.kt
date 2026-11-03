@@ -63,9 +63,12 @@ object TerminalKeyEncoder {
         applicationCursorKeys: Boolean = false,
     ): String = when (key) {
         TerminalKey.Enter -> withAlt("\r", modifiers)
+
         TerminalKey.Escape -> ESC
+
         // Shift+Tab is its own sequence (CBT), not a modified Tab.
         TerminalKey.Tab -> if (modifiers.shift) "$ESC[Z" else withAlt("\t", modifiers)
+
         // DEL, not BS — the terminal convention readline expects.
         TerminalKey.Backspace -> when {
             modifiers.ctrl -> "\b"
@@ -73,14 +76,21 @@ object TerminalKeyEncoder {
         }
 
         TerminalKey.Up -> cursor('A', modifiers, applicationCursorKeys)
+
         TerminalKey.Down -> cursor('B', modifiers, applicationCursorKeys)
+
         TerminalKey.Right -> cursor('C', modifiers, applicationCursorKeys)
+
         TerminalKey.Left -> cursor('D', modifiers, applicationCursorKeys)
+
         TerminalKey.Home -> cursor('H', modifiers, applicationCursorKeys)
+
         TerminalKey.End -> cursor('F', modifiers, applicationCursorKeys)
 
         TerminalKey.Delete -> tilde(3, modifiers)
+
         TerminalKey.PageUp -> tilde(5, modifiers)
+
         TerminalKey.PageDown -> tilde(6, modifiers)
     }
 
@@ -116,8 +126,7 @@ object TerminalKeyEncoder {
         else -> null
     }
 
-    private fun withAlt(sequence: String, modifiers: TerminalModifiers): String =
-        if (modifiers.alt) "$ESC$sequence" else sequence
+    private fun withAlt(sequence: String, modifiers: TerminalModifiers): String = if (modifiers.alt) "$ESC$sequence" else sequence
 
     /**
      * Cursor and Home/End keys. Modified presses always use the CSI form with a
@@ -144,8 +153,3 @@ object TerminalKeyEncoder {
         return param
     }
 }
-
-
-
-
-

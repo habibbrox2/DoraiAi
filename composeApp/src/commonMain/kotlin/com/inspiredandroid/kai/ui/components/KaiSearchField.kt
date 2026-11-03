@@ -78,7 +78,3 @@ fun KaiSearchField(
         keyboardOptions = keyboardOptions,
     )
 }
-
-
-
-

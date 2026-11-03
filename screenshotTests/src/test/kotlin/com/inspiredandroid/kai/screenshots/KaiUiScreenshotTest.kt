@@ -839,7 +839,3 @@ class KaiUiScreenshotTest {
         )
     }
 }
-
-
-
-

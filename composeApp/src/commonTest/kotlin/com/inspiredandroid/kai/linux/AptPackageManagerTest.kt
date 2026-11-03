@@ -119,7 +119,3 @@ class AptPackageManagerTest {
         assertTrue(AptPackageManager.listInstalledCommand.contains("\${Version}"))
     }
 }
-
-
-
-

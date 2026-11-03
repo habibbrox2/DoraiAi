@@ -77,7 +77,3 @@ fun SettingsListItem(
         }
     }
 }
-
-
-
-

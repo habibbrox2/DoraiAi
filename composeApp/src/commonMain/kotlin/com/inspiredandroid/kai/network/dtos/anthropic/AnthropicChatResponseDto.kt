@@ -19,7 +19,3 @@ data class AnthropicChatResponseDto(
 }
 
 fun AnthropicChatResponseDto.extractText(): String = content.filter { it.type == "text" }.mapNotNull { it.text }.joinToString("\n")
-
-
-
-

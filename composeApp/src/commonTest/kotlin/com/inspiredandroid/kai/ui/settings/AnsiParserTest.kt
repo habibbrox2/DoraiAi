@@ -338,7 +338,3 @@ class AnsiParserTest {
         assertContains(result.spanStyles.map { it.start to it.end }, 8 to 12)
     }
 }
-
-
-
-

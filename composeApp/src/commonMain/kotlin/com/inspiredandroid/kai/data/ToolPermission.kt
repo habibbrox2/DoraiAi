@@ -25,7 +25,3 @@ enum class ToolRiskLevel {
     SYSTEM_COMMAND,
     OTHER,
 }
-
-
-
-

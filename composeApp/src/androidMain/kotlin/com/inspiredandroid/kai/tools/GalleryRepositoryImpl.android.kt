@@ -394,7 +394,3 @@ class GalleryRepositoryImpl(
         }
     }
 }
-
-
-
-

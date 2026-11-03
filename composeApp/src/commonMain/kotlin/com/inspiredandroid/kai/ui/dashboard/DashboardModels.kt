@@ -2,11 +2,11 @@ package com.inspiredandroid.kai.ui.dashboard
 
 import androidx.compose.runtime.Immutable
 import com.inspiredandroid.kai.SandboxStatus
-import com.inspiredandroid.kai.workspace.WorkspaceState
 import com.inspiredandroid.kai.data.Service
 import com.inspiredandroid.kai.ui.chat.ChatUiState
 import com.inspiredandroid.kai.ui.chat.ConversationSummary
 import com.inspiredandroid.kai.ui.components.OperationalStatus
+import com.inspiredandroid.kai.workspace.WorkspaceState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -111,7 +111,3 @@ private fun WorkspaceState.toReadinessFact(): ReadinessFact = when {
     lastError != null -> ReadinessFact("Workspace", "Needs attention", OperationalStatus.Error)
     else -> ReadinessFact("Workspace", "Not set up", OperationalStatus.NeedsSetup)
 }
-
-
-
-

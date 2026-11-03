@@ -195,7 +195,3 @@ class SplinterlandsTeamPickerPromptTest {
         assertTrue("Melee Mayhem" in result.systemPrompt)
     }
 }
-
-
-
-

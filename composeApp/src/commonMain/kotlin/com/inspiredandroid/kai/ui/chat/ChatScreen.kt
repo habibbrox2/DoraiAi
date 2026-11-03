@@ -89,7 +89,6 @@ import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.KaiShapes
 import com.inspiredandroid.kai.ui.KaiTypography
 import com.inspiredandroid.kai.ui.SurfaceRaised
-import com.inspiredandroid.kai.ui.workspace.WorkspaceScreen
 import com.inspiredandroid.kai.ui.chat.composables.AppSidebar
 import com.inspiredandroid.kai.ui.chat.composables.BotMessage
 import com.inspiredandroid.kai.ui.chat.composables.ChatComposer
@@ -110,6 +109,7 @@ import com.inspiredandroid.kai.ui.sandbox.SandboxTabsContent
 import com.inspiredandroid.kai.ui.settings.SandboxUiState
 import com.inspiredandroid.kai.ui.settings.SandboxViewModel
 import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
+import com.inspiredandroid.kai.ui.workspace.WorkspaceScreen
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.fallback_answered_by
 import kai.composeapp.generated.resources.fallback_service_failed
@@ -619,7 +619,3 @@ private fun rememberExecutingTools(history: ImmutableList<History>): ExecutingTo
     }
     return state
 }
-
-
-
-

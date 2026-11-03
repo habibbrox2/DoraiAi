@@ -203,7 +203,3 @@ internal fun buildHeartbeatPrompt(
         }
     }
 }
-
-
-
-

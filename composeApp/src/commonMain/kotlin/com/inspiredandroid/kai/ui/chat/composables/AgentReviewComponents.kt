@@ -189,7 +189,3 @@ private fun DiffPane(lines: List<SideBySideDiffLine>, isOld: Boolean, modifier: 
         }
     }
 }
-
-
-
-

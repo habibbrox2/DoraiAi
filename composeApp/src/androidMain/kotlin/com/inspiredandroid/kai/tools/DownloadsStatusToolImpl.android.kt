@@ -47,7 +47,3 @@ class DownloadsStatusToolImpl : Tool {
         )
     }
 }
-
-
-
-

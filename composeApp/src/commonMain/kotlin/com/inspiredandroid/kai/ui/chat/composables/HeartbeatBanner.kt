@@ -83,7 +83,3 @@ internal fun HeartbeatBanner(
         }
     }
 }
-
-
-
-

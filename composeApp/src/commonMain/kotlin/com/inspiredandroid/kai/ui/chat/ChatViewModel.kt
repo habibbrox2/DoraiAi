@@ -790,7 +790,3 @@ class ChatViewModel(
         }
     }
 }
-
-
-
-

@@ -160,7 +160,3 @@ fun sanitizeForLiteRt(s: String?): String? {
     if (s.none { it.isSurrogate() }) return s
     return s.filter { !it.isSurrogate() }
 }
-
-
-
-

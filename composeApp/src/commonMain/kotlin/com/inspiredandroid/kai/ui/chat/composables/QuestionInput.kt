@@ -486,7 +486,3 @@ fun QuestionInput(
         }
     }
 }
-
-
-
-

@@ -41,7 +41,3 @@ sealed interface SplinterlandsAddStatus {
     data object Testing : SplinterlandsAddStatus
     data class Error(val message: String) : SplinterlandsAddStatus
 }
-
-
-
-

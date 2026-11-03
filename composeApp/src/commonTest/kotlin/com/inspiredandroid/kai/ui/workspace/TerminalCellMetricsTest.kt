@@ -51,7 +51,3 @@ class TerminalCellMetricsTest {
         assertEquals(1, metrics.columnAt(10.9f))
     }
 }
-
-
-
-

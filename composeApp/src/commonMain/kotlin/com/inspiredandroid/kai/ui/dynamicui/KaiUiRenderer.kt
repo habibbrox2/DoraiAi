@@ -1827,7 +1827,3 @@ private fun collectFormData(action: CallbackAction, formState: Map<String, Strin
     }
     return collected
 }
-
-
-
-

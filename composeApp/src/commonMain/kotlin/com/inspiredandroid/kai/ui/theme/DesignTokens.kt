@@ -130,7 +130,3 @@ val LocalDesignColorTokens = staticCompositionLocalOf {
         borderStrong = DesignTokens.BorderStrong,
     )
 }
-
-
-
-

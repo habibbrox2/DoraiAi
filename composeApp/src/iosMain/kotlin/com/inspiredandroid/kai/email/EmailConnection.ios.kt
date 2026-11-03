@@ -66,7 +66,3 @@ private class KtorEmailConnection(
         }
     }
 }
-
-
-
-

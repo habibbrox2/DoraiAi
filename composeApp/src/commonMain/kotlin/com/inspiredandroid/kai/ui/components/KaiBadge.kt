@@ -68,7 +68,3 @@ enum class BadgeVariant {
     Error,
     Accent,
 }
-
-
-
-

@@ -126,7 +126,3 @@ class MathParsingTest {
         assertTrue(doc.blocks.any { it is DisplayMath })
     }
 }
-
-
-
-

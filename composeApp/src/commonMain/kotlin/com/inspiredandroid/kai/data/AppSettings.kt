@@ -725,7 +725,3 @@ class AppSettings(internal val settings: Settings) {
                 "Do not store trivial or transient information."
     }
 }
-
-
-
-

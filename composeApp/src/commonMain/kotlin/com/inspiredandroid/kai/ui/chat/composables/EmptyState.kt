@@ -254,7 +254,3 @@ private fun QuickStartCard(
         }
     }
 }
-
-
-
-

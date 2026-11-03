@@ -136,7 +136,3 @@ class ImapClientSentFolderTest {
         return sb.toString()
     }
 }
-
-
-
-

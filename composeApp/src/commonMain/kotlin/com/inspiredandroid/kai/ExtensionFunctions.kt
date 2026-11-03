@@ -62,7 +62,3 @@ fun String.smartTruncate(maxLength: Int): String {
         "\n[... ${length - 2 * keep} characters truncated ...]\n" +
         takeLast(keep)
 }
-
-
-
-

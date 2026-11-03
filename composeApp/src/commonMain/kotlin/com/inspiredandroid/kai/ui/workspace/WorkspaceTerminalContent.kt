@@ -45,11 +45,11 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalUriHandler
@@ -66,8 +66,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.inspiredandroid.kai.workspace.WorkspaceTerminalSession
+import com.inspiredandroid.kai.ui.handCursor
+import com.inspiredandroid.kai.ui.settings.monoStyle
 import com.inspiredandroid.kai.workspace.PlatformTerminalKeyboard
+import com.inspiredandroid.kai.workspace.WorkspaceTerminalSession
 import com.inspiredandroid.kai.workspace.supportsRawTerminalInput
 import com.inspiredandroid.kai.workspace.terminal.MIN_COLUMNS
 import com.inspiredandroid.kai.workspace.terminal.MIN_ROWS
@@ -75,8 +77,6 @@ import com.inspiredandroid.kai.workspace.terminal.TerminalKey
 import com.inspiredandroid.kai.workspace.terminal.TerminalModifiers
 import com.inspiredandroid.kai.workspace.terminal.TerminalMouseEncoder
 import com.inspiredandroid.kai.workspace.terminal.TerminalSnapshot
-import com.inspiredandroid.kai.ui.handCursor
-import com.inspiredandroid.kai.ui.settings.monoStyle
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.workspace_terminal_placeholder
 import kai.composeapp.generated.resources.workspace_terminal_raw_hint
@@ -281,9 +281,11 @@ internal fun WorkspaceTerminalContent(
                                             cell = cell,
                                             onMouse = onMouse,
                                         )
+
                                         keyboardActive -> Modifier.pointerInput(Unit) {
                                             detectTapGestures { showKeyboardRequest++ }
                                         }
+
                                         else -> Modifier
                                     },
                                 ),
@@ -626,8 +628,3 @@ private fun TerminalGrid(
         maxLines = snapshot.rows.coerceAtLeast(1),
     )
 }
-
-
-
-
-

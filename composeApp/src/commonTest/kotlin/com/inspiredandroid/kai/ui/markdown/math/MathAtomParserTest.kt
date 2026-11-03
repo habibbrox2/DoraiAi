@@ -337,7 +337,3 @@ class MathAtomParserTest {
         assertEquals(2, atom.rows[0].size)
     }
 }
-
-
-
-

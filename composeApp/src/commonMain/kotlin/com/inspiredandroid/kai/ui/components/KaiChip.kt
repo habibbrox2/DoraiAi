@@ -89,7 +89,3 @@ fun KaiChip(
         }
     }
 }
-
-
-
-

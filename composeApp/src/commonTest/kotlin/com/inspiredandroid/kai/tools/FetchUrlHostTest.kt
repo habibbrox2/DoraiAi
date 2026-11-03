@@ -44,7 +44,3 @@ class FetchUrlHostTest {
         assertTrue(isBlockedFetchHost(resolveRedirect(from, "http://127.0.0.1/secret").host))
     }
 }
-
-
-
-

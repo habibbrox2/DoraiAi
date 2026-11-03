@@ -78,8 +78,3 @@ data class WorkspaceState(
     val isInstalling: Boolean get() = environment is WorkspaceEnvironmentState.Installing
     val activeSession: WorkspaceTerminalSession? get() = sessions.firstOrNull { it.id == activeSessionId }
 }
-
-
-
-
-

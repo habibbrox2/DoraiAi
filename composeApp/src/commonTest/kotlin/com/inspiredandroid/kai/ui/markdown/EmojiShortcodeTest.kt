@@ -27,7 +27,3 @@ class EmojiShortcodeTest {
         assertEquals("look: \uD83D\uDD25 hot", flat)
     }
 }
-
-
-
-

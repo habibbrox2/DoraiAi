@@ -146,7 +146,3 @@ class HomeMigrationTest {
         assertEquals(0, HomeMigration.copy(File(root, "nope"), target))
     }
 }
-
-
-
-

@@ -131,7 +131,3 @@ enum class DownloadsCoverage(
     USER_SELECTED("User-selected", "ব্যবহারকারী-নির্বাচিত"),
     MEDIA_PARTIAL("Media (partial)", "মিডিয়া (আংশিক)"),
 }
-
-
-
-

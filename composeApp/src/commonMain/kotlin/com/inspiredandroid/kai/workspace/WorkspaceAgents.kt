@@ -51,8 +51,3 @@ object WorkspaceAgents {
 
     fun get(id: String?): WorkspaceAgent? = all.firstOrNull { it.id == id }
 }
-
-
-
-
-

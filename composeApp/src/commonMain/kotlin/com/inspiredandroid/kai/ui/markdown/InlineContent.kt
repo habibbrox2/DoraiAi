@@ -116,7 +116,3 @@ private fun splitAroundMath(nodes: List<InlineNode>): List<InlineSegment> {
     if (current.isNotEmpty()) out += InlineSegment.TextRun(current.toList())
     return out
 }
-
-
-
-

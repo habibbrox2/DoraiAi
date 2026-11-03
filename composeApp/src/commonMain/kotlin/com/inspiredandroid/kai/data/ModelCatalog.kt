@@ -2068,7 +2068,3 @@ internal object ModelCatalog {
      */
     fun estimateContextWindow(modelId: String): Int = lookup(modelId)?.contextWindow?.toInt() ?: DEFAULT_CONTEXT_WINDOW_TOKENS
 }
-
-
-
-

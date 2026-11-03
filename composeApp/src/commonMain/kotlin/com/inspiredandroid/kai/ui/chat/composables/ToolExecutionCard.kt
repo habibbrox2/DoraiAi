@@ -539,7 +539,3 @@ fun ToolExecutionCard(
         }
     }
 }
-
-
-
-

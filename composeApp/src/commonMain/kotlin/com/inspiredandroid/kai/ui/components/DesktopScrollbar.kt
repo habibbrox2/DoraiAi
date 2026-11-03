@@ -23,7 +23,3 @@ expect fun VerticalScrollbarForGrid(
     gridState: LazyGridState,
     modifier: Modifier = Modifier,
 )
-
-
-
-

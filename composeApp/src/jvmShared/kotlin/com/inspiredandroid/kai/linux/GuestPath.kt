@@ -55,7 +55,3 @@ class GuestFileMap(
             canonical == projectsDir?.canonicalPath
     }
 }
-
-
-
-

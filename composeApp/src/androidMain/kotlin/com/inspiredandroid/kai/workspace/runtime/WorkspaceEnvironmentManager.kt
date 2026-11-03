@@ -2,21 +2,6 @@ package com.inspiredandroid.kai.workspace.runtime
 
 import android.os.StatFs
 import android.util.Log
-import com.inspiredandroid.kai.workspace.WorkspaceAgent
-import com.inspiredandroid.kai.workspace.WorkspaceAgents
-import com.inspiredandroid.kai.workspace.WorkspaceEnvironmentState
-import com.inspiredandroid.kai.workspace.WorkspaceStep
-import com.inspiredandroid.kai.workspace.WorkspaceSystemInfo
-import com.inspiredandroid.kai.workspace.WorkspaceTerminalSession
-import com.inspiredandroid.kai.workspace.WorkspaceState
-import com.inspiredandroid.kai.workspace.terminal.DEFAULT_COLUMNS
-import com.inspiredandroid.kai.workspace.terminal.DEFAULT_ROWS
-import com.inspiredandroid.kai.workspace.terminal.MAX_COLUMNS
-import com.inspiredandroid.kai.workspace.terminal.MAX_ROWS
-import com.inspiredandroid.kai.workspace.terminal.MIN_COLUMNS
-import com.inspiredandroid.kai.workspace.terminal.MIN_ROWS
-import com.inspiredandroid.kai.workspace.terminal.TerminalScreen
-import com.inspiredandroid.kai.workspace.terminal.TerminalSnapshot
 import com.inspiredandroid.kai.linux.DEFAULT_GUEST_PATH
 import com.inspiredandroid.kai.linux.DebianSpec
 import com.inspiredandroid.kai.linux.InstallStep
@@ -25,6 +10,21 @@ import com.inspiredandroid.kai.linux.LinuxInstaller
 import com.inspiredandroid.kai.linux.LinuxPaths
 import com.inspiredandroid.kai.linux.ProotHandle
 import com.inspiredandroid.kai.linux.ProotLauncher
+import com.inspiredandroid.kai.workspace.WorkspaceAgent
+import com.inspiredandroid.kai.workspace.WorkspaceAgents
+import com.inspiredandroid.kai.workspace.WorkspaceEnvironmentState
+import com.inspiredandroid.kai.workspace.WorkspaceState
+import com.inspiredandroid.kai.workspace.WorkspaceStep
+import com.inspiredandroid.kai.workspace.WorkspaceSystemInfo
+import com.inspiredandroid.kai.workspace.WorkspaceTerminalSession
+import com.inspiredandroid.kai.workspace.terminal.DEFAULT_COLUMNS
+import com.inspiredandroid.kai.workspace.terminal.DEFAULT_ROWS
+import com.inspiredandroid.kai.workspace.terminal.MAX_COLUMNS
+import com.inspiredandroid.kai.workspace.terminal.MAX_ROWS
+import com.inspiredandroid.kai.workspace.terminal.MIN_COLUMNS
+import com.inspiredandroid.kai.workspace.terminal.MIN_ROWS
+import com.inspiredandroid.kai.workspace.terminal.TerminalScreen
+import com.inspiredandroid.kai.workspace.terminal.TerminalSnapshot
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
@@ -160,34 +160,32 @@ private class BuildSession(
     )
 }
 
-private fun visibleText(snap: TerminalSnapshot): String =
-    buildString(snap.columns * snap.rows + snap.rows) {
-        for (row in 0 until snap.rows) {
-            for (col in 0 until snap.columns) {
-                append(snap.cellAt(col, row).char)
-            }
-            append('\n')
+private fun visibleText(snap: TerminalSnapshot): String = buildString(snap.columns * snap.rows + snap.rows) {
+    for (row in 0 until snap.rows) {
+        for (col in 0 until snap.columns) {
+            append(snap.cellAt(col, row).char)
         }
+        append('\n')
     }
+}
 
 /**
  * Like [visibleText] but trims trailing spaces on each row and joins without
  * newlines. Terminal wrap pads the rest of the line with spaces; keeping those
  * (or the newline) splits one long OAuth URL into many partial matches.
  */
-private fun visibleTextForUrlScan(snap: TerminalSnapshot): String =
-    buildString(snap.columns * snap.rows) {
-        for (row in 0 until snap.rows) {
-            val start = length
-            for (col in 0 until snap.columns) {
-                append(snap.cellAt(col, row).char)
-            }
-            // Trim trailing spaces from this row only.
-            var end = length
-            while (end > start && this[end - 1] == ' ') end--
-            if (end < length) deleteRange(end, length)
+private fun visibleTextForUrlScan(snap: TerminalSnapshot): String = buildString(snap.columns * snap.rows) {
+    for (row in 0 until snap.rows) {
+        val start = length
+        for (col in 0 until snap.columns) {
+            append(snap.cellAt(col, row).char)
         }
+        // Trim trailing spaces from this row only.
+        var end = length
+        while (end > start && this[end - 1] == ' ') end--
+        if (end < length) deleteRange(end, length)
     }
+}
 
 /**
  * Owns the Debian rootfs, agent installs, and the project terminal sessions for
@@ -357,8 +355,7 @@ class WorkspaceEnvironmentManager(
                         return FileVisitResult.CONTINUE
                     }
 
-                    override fun visitFileFailed(file: Path, exc: IOException): FileVisitResult =
-                        FileVisitResult.CONTINUE
+                    override fun visitFileFailed(file: Path, exc: IOException): FileVisitResult = FileVisitResult.CONTINUE
 
                     override fun postVisitDirectory(dir: Path, exc: IOException?): FileVisitResult {
                         runCatching { Files.deleteIfExists(dir) }
@@ -1012,8 +1009,7 @@ class WorkspaceEnvironmentManager(
     )
 }
 
-private fun WorkspaceProotExecutor.hasBinary(binary: String): Boolean =
-    execute("command -v $binary >/dev/null 2>&1", timeoutSeconds = 20).success
+private fun WorkspaceProotExecutor.hasBinary(binary: String): Boolean = execute("command -v $binary >/dev/null 2>&1", timeoutSeconds = 20).success
 
 /**
  * True when [binary] is reachable. Always tries to place a stable symlink in
@@ -1081,14 +1077,9 @@ private fun directorySize(dir: File): Long {
                     return FileVisitResult.CONTINUE
                 }
 
-                override fun visitFileFailed(file: Path, exc: IOException): FileVisitResult =
-                    FileVisitResult.CONTINUE
+                override fun visitFileFailed(file: Path, exc: IOException): FileVisitResult = FileVisitResult.CONTINUE
             },
         )
     }
     return total
 }
-
-
-
-

@@ -435,7 +435,3 @@ class ChatViewModelExtendedTest {
         }
     }
 }
-
-
-
-

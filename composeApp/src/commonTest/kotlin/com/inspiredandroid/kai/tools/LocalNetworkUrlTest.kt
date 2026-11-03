@@ -49,7 +49,3 @@ class LocalNetworkUrlTest {
         assertFalse(isLocalNetworkUrl(""))
     }
 }
-
-
-
-

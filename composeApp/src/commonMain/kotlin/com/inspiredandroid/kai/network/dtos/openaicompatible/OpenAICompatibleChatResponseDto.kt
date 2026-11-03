@@ -114,7 +114,3 @@ data class OpenAICompatibleChatResponseDto(
         val arguments: String,
     )
 }
-
-
-
-

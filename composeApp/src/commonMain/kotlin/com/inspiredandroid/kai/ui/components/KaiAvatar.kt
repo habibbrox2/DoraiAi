@@ -80,7 +80,3 @@ fun KaiAvatar(
         }
     }
 }
-
-
-
-

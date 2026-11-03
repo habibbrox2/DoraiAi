@@ -27,7 +27,3 @@ class RequestTooLargeTest {
         assertIs<OpenAICompatibleRequestTooLargeException>(requestTooLargeException(Service.Groq, "Image exceeds 4MB limit"))
     }
 }
-
-
-
-

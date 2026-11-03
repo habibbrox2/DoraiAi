@@ -203,7 +203,3 @@ class CalendarRepository(
         return dateTime.format(formatter)
     }
 }
-
-
-
-

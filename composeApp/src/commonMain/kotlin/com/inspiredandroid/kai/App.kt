@@ -40,7 +40,6 @@ import com.inspiredandroid.kai.ui.DuskColorScheme
 import com.inspiredandroid.kai.ui.GraphiteColorScheme
 import com.inspiredandroid.kai.ui.LightColorScheme
 import com.inspiredandroid.kai.ui.Theme
-import com.inspiredandroid.kai.ui.workspace.WorkspaceScreen
 import com.inspiredandroid.kai.ui.chat.ChatScreen
 import com.inspiredandroid.kai.ui.chat.ChatViewModel
 import com.inspiredandroid.kai.ui.components.FullScreenImageHost
@@ -48,6 +47,7 @@ import com.inspiredandroid.kai.ui.dashboard.DashboardScreen
 import com.inspiredandroid.kai.ui.rememberSandboxAwareUriHandler
 import com.inspiredandroid.kai.ui.settings.SettingsScreen
 import com.inspiredandroid.kai.ui.settings.SettingsTab
+import com.inspiredandroid.kai.ui.workspace.WorkspaceScreen
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.marc_apps.tts.TextToSpeechInstance
@@ -306,7 +306,3 @@ private fun AppContent(
         }
     }
 }
-
-
-
-

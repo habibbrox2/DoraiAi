@@ -590,7 +590,3 @@ private fun groupConversations(
     if (olderList.isNotEmpty()) result.add("Older" to olderList)
     return result
 }
-
-
-
-

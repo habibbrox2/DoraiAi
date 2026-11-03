@@ -30,7 +30,3 @@ actual fun stopDownloadNotificationService() {
 actual fun updateDownloadNotificationProgress(percent: Int) {
     // No notification on desktop
 }
-
-
-
-

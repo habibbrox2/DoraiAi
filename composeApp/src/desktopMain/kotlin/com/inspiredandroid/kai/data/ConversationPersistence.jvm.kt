@@ -11,7 +11,3 @@ actual fun createConversationSqlDriver(): SqlDriver? {
     file.parentFile?.mkdirs()
     return JdbcSqliteDriver(url = "jdbc:sqlite:${file.absolutePath}", schema = KaiDatabase.Schema)
 }
-
-
-
-

@@ -89,7 +89,3 @@ data object LineBreak : InlineNode
 
 @Immutable
 data class InlineMath(val latex: String) : InlineNode
-
-
-
-

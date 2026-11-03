@@ -130,7 +130,3 @@ enum class SnackbarVariant {
     Warning,
     Error,
 }
-
-
-
-

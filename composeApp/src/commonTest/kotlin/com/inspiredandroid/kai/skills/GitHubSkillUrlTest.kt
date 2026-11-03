@@ -43,7 +43,3 @@ class GitHubSkillUrlTest {
         assertNull(parseGitHubSkillUrl("   "))
     }
 }
-
-
-
-

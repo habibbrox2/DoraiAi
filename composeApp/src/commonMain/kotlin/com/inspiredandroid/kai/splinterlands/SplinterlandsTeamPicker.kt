@@ -1673,7 +1673,3 @@ fun applyFixes(
 
     return TeamSelection(summonerUid, fixed, allyColor)
 }
-
-
-
-

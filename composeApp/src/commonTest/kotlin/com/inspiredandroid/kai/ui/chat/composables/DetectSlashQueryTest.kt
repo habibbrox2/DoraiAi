@@ -43,7 +43,3 @@ class DetectSlashQueryTest {
         assertNull(detectSlashQuery("just a message", cursor = 4))
     }
 }
-
-
-
-

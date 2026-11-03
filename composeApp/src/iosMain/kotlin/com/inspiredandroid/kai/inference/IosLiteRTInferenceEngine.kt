@@ -652,7 +652,3 @@ private fun writeDigestMarker(path: String, digest: String) {
         fclose(fp)
     }
 }
-
-
-
-

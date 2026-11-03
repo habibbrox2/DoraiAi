@@ -64,7 +64,3 @@ actual fun VerticalScrollbarForGrid(
         style = scrollbarStyle(),
     )
 }
-
-
-
-

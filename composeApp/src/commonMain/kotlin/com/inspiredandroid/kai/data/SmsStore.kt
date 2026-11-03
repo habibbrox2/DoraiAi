@@ -29,7 +29,3 @@ class SmsStore(appSettings: AppSettings) {
 
     suspend fun removePending(messages: List<SmsMessage>) = pendingQueue.remove(messages)
 }
-
-
-
-

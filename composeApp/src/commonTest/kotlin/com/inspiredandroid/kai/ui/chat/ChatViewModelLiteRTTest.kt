@@ -141,7 +141,3 @@ class ChatViewModelLiteRTTest {
         }
     }
 }
-
-
-
-

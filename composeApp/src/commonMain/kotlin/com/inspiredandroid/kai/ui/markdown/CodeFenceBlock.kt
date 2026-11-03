@@ -218,7 +218,3 @@ internal fun CodeFenceBlock(
         }
     }
 }
-
-
-
-

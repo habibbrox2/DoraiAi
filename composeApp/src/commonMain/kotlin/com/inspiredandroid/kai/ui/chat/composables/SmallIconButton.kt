@@ -55,7 +55,3 @@ private fun SmallIconButtonBox(onClick: () -> Unit, content: @Composable () -> U
         contentAlignment = Alignment.Center,
     ) { content() }
 }
-
-
-
-

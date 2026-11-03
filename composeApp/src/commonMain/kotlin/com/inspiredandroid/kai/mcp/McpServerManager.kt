@@ -266,7 +266,3 @@ internal fun uniqueMcpToolName(serverId: String, toolName: String, taken: Set<St
         n++
     }
 }
-
-
-
-

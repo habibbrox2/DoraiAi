@@ -65,6 +65,7 @@ object TerminalMouseEncoder {
         return when (state.encoding) {
             TerminalMouseEncoding.Sgr ->
                 sgr(BUTTON_LEFT, col, row, press = true) + sgr(BUTTON_LEFT, col, row, press = false)
+
             TerminalMouseEncoding.X10 -> {
                 val press = x10(BUTTON_LEFT, col, row) ?: return null
                 val release = x10(BUTTON_RELEASE, col, row) ?: return null
@@ -84,8 +85,7 @@ object TerminalMouseEncoder {
     }
 
     /** `ESC [ < button ; col ; row M` for a press, lowercase `m` for a release. */
-    private fun sgr(button: Int, col: Int, row: Int, press: Boolean): String =
-        "$ESC[<$button;${col + 1};${row + 1}${if (press) 'M' else 'm'}"
+    private fun sgr(button: Int, col: Int, row: Int, press: Boolean): String = "$ESC[<$button;${col + 1};${row + 1}${if (press) 'M' else 'm'}"
 
     /** `ESC [ M` then button, column and row each offset by 32 (and 1-based). */
     private fun x10(button: Int, col: Int, row: Int): String? {
@@ -93,8 +93,3 @@ object TerminalMouseEncoder {
         return "$ESC[M${(button + 32).toChar()}${(col + 33).toChar()}${(row + 33).toChar()}"
     }
 }
-
-
-
-
-

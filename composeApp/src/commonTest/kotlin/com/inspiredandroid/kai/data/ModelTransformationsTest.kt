@@ -647,7 +647,3 @@ class ModelTransformationsTest {
         assertTrue(result[0].isManualEntry)
     }
 }
-
-
-
-

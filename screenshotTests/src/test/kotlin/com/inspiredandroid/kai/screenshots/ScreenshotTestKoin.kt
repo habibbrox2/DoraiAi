@@ -21,7 +21,3 @@ internal fun WithScreenshotTestKoin(content: @Composable () -> Unit) {
         content()
     }
 }
-
-
-
-

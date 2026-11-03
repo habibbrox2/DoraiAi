@@ -8,7 +8,3 @@ actual val isDebugBuild: Boolean by lazy {
     val context: Context by inject(Context::class.java)
     (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
 }
-
-
-
-

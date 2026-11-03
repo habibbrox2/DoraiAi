@@ -74,7 +74,3 @@ class ModelDownloadService : Service() {
             .build()
     }
 }
-
-
-
-

@@ -220,7 +220,3 @@ class ModelCatalogTest {
         assertEquals(204_800, ModelCatalog.estimateContextWindow("minimax-m2.7"))
     }
 }
-
-
-
-

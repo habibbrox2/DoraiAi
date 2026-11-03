@@ -75,7 +75,3 @@ object CreateCalendarEventTool {
         }
     }
 }
-
-
-
-

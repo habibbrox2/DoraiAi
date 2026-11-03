@@ -79,7 +79,3 @@ class NotificationStore(appSettings: AppSettings) {
         private const val MAX_AGE_MS = 24L * 60L * 60L * 1000L
     }
 }
-
-
-
-

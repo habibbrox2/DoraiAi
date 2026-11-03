@@ -63,7 +63,3 @@ internal fun shellQuote(s: String): String = "'" + s.replace("'", "'\\''") + "'"
  * can only fail to locate.
  */
 internal fun shellQuoteAll(names: List<String>): String = names.joinToString(" ") { shellQuote(it) }
-
-
-
-

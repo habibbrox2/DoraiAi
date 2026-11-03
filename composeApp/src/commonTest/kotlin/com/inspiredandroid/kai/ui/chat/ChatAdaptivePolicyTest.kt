@@ -26,7 +26,3 @@ class ChatAdaptivePolicyTest {
         assertEquals(1120.dp, ChatAdaptivePolicy.expandedSidePanelMinWidth)
     }
 }
-
-
-
-

@@ -69,7 +69,3 @@ class LocalModelCatalogTest {
         assertNotEquals(0, MODEL_CATALOG.count { it.isRecommended })
     }
 }
-
-
-
-

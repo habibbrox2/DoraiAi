@@ -8,7 +8,3 @@ actual suspend fun buildSignedCustomJson(
     opId: String,
     jsonPayload: String,
 ): String = throw UnsupportedOperationException("Splinterlands is not supported on iOS")
-
-
-
-

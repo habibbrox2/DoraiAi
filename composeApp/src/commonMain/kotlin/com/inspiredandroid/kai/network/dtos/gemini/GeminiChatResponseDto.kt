@@ -34,7 +34,3 @@ fun GeminiChatResponseDto.extractText(): String = candidates.firstOrNull()?.cont
     ?.filterNot { it.isThought }
     ?.joinToString("\n") { it.text ?: "" }
     ?: ""
-
-
-
-

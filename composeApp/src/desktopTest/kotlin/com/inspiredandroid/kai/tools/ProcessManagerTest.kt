@@ -149,7 +149,3 @@ class ProcessManagerTest {
         assertEquals("finished", log["status"])
     }
 }
-
-
-
-

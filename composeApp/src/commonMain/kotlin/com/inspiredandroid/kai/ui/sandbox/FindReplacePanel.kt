@@ -123,7 +123,3 @@ internal fun countMatches(text: String, query: String): Int {
     }
     return count
 }
-
-
-
-

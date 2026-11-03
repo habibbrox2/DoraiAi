@@ -159,7 +159,3 @@ class OpenAIResponsesInputTest {
         assertFalse(requiresResponsesApi(Service.OpenAICompatible, "gpt-5.6-luna", "http://localhost:11434/v1"))
     }
 }
-
-
-
-

@@ -12,7 +12,3 @@ actual fun getSimOperatorCode(): String? {
         null
     }
 }
-
-
-
-

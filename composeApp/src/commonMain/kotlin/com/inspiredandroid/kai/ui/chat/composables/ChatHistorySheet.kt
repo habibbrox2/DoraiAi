@@ -247,7 +247,3 @@ private fun formatDate(epochMillis: Long): String = try {
 } catch (_: Exception) {
     ""
 }
-
-
-
-

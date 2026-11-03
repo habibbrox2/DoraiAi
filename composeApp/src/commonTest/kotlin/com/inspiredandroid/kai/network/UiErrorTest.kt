@@ -100,7 +100,3 @@ class UiErrorTest {
         assertEquals("invalid model parameter", error.detail)
     }
 }
-
-
-
-

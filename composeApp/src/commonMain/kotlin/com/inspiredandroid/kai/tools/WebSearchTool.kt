@@ -173,7 +173,3 @@ object WebSearchTool : Tool {
         descriptionRes = Res.string.tool_web_search_description,
     )
 }
-
-
-
-

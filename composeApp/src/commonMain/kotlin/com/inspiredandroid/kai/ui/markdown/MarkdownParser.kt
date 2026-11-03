@@ -21,7 +21,3 @@ fun parseMarkdown(text: String): MarkdownDocument {
         MarkdownDocument(persistentListOf(Paragraph(persistentListOf(Text(text)))))
     }
 }
-
-
-
-

@@ -63,7 +63,3 @@ data class OcrElement(
     val boundingBox: Rect,
     val confidence: Float,
 )
-
-
-
-

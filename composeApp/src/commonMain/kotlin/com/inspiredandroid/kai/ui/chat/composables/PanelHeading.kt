@@ -53,7 +53,3 @@ fun PanelHeading(
         }
     }
 }
-
-
-
-

@@ -960,7 +960,3 @@ private fun SplinterlandsCountdown(deadlineMs: Long) {
         color = if (remaining <= 30) DangerAlert else LocalDesignColorTokens.current.textSecondary,
     )
 }
-
-
-
-

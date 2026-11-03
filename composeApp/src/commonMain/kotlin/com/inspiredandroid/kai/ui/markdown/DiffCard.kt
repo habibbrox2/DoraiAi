@@ -506,7 +506,3 @@ private fun DiffLineNumber(value: Int?, tokens: DesignColorTokens) {
         textAlign = TextAlign.End,
     )
 }
-
-
-
-

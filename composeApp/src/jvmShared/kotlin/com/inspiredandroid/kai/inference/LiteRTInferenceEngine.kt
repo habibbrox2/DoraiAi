@@ -709,7 +709,3 @@ class LiteRTInferenceEngine : LocalInferenceEngine {
         private const val COPY_BUFFER_SIZE_BYTES = 64L * 1024
     }
 }
-
-
-
-

@@ -74,11 +74,9 @@ internal class TerminalInputView(context: Context) : View(context) {
         return TerminalInputConnection()
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean =
-        handleKeyEvent(event) || super.onKeyDown(keyCode, event)
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean = handleKeyEvent(event) || super.onKeyDown(keyCode, event)
 
-    override fun onKeyMultiple(keyCode: Int, repeatCount: Int, event: KeyEvent): Boolean =
-        handleKeyEvent(event) || super.onKeyMultiple(keyCode, repeatCount, event)
+    override fun onKeyMultiple(keyCode: Int, repeatCount: Int, event: KeyEvent): Boolean = handleKeyEvent(event) || super.onKeyMultiple(keyCode, repeatCount, event)
 
     private fun handleKeyEvent(event: KeyEvent): Boolean {
         if (event.action != KeyEvent.ACTION_DOWN) return false
@@ -105,8 +103,7 @@ internal class TerminalInputView(context: Context) : View(context) {
         return true
     }
 
-    private inner class TerminalInputConnection :
-        BaseInputConnection(this@TerminalInputView, true) {
+    private inner class TerminalInputConnection : BaseInputConnection(this@TerminalInputView, true) {
 
         override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean {
             if (!text.isNullOrEmpty()) onText(text.toString(), TerminalModifiers.None)
@@ -166,7 +163,3 @@ internal class TerminalInputView(context: Context) : View(context) {
         }
     }
 }
-
-
-
-

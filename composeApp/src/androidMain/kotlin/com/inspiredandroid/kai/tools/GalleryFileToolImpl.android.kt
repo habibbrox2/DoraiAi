@@ -135,7 +135,3 @@ class GalleryCopyToolImpl : Tool {
         mapOf("success" to false, "error" to "Copy error: ${e.message}")
     }
 }
-
-
-
-

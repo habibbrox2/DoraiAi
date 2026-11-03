@@ -10,7 +10,3 @@ actual class SmsReader actual constructor() {
     actual suspend fun search(query: String, limit: Int): List<SmsMessage> = emptyList()
     actual suspend fun currentMaxInboxId(): Long = 0L
 }
-
-
-
-

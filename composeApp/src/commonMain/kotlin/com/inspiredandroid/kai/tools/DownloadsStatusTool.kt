@@ -57,7 +57,3 @@ data class DownloadsStatusResult(
     val messageBengali: String, // Bengali summary
     val details: Map<String, Any> = emptyMap(),
 )
-
-
-
-

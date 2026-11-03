@@ -228,7 +228,3 @@ object SchedulingTools {
         }
     }
 }
-
-
-
-

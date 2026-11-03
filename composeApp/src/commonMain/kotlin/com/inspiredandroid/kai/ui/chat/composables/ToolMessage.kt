@@ -353,7 +353,3 @@ internal fun PulsingStatusIndicator(
         }
     }
 }
-
-
-
-

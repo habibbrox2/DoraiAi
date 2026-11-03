@@ -60,7 +60,3 @@ class KaiUiTtsTest {
         assertEquals("", message.toSpeakableText())
     }
 }
-
-
-
-

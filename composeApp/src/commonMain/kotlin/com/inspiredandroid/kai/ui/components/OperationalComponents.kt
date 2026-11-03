@@ -234,7 +234,3 @@ fun CollectionEmptyState(
         )
     }
 }
-
-
-
-

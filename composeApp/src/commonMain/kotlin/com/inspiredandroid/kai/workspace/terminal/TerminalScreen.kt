@@ -253,19 +253,23 @@ class TerminalScreen(
                 lineFeed()
                 return
             }
+
             '\r' -> {
                 cursorCol = 0
                 return
             }
+
             '\b' -> {
                 if (cursorCol > 0) cursorCol--
                 return
             }
+
             '\t' -> {
                 val next = ((cursorCol / 8) + 1) * 8
                 cursorCol = next.coerceAtMost(columns - 1)
                 return
             }
+
             '\u0007' -> return
         }
         if (ch.code < 32 && ch != '\u001b') return
@@ -350,14 +354,23 @@ class TerminalScreen(
         while (i < params.size) {
             when (val p = params[i]) {
                 0 -> resetSgr()
+
                 1 -> currentBold = true
+
                 22 -> currentBold = false
+
                 39 -> currentFg = 7
+
                 49 -> currentBg = 0
+
                 in 30..37 -> currentFg = p - 30
+
                 in 90..97 -> currentFg = p - 90 + 8
+
                 in 40..47 -> currentBg = p - 40
+
                 in 100..107 -> currentBg = p - 100 + 8
+
                 38 -> {
                     if (i + 1 < params.size && params[i + 1] == 5 && i + 2 < params.size) {
                         currentFg = map256(params[i + 2])
@@ -367,6 +380,7 @@ class TerminalScreen(
                         i += 4
                     }
                 }
+
                 48 -> {
                     if (i + 1 < params.size && params[i + 1] == 5 && i + 2 < params.size) {
                         currentBg = map256(params[i + 2])
@@ -514,8 +528,3 @@ class TerminalScreen(
         return bright + ri + gi * 2 + bi * 4
     }
 }
-
-
-
-
-

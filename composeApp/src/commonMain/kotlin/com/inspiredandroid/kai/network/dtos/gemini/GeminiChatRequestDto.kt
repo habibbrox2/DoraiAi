@@ -71,7 +71,3 @@ data class PropertySchema(
     val properties: Map<String, PropertySchema>? = null,
     val required: List<String>? = null,
 )
-
-
-
-

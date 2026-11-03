@@ -3,19 +3,19 @@ package com.inspiredandroid.kai.ui.workspace
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.inspiredandroid.kai.workspace.WorkspaceEnvironmentState
-import com.inspiredandroid.kai.workspace.WorkspaceStep
 import com.inspiredandroid.kai.prefersReducedMotion
 import com.inspiredandroid.kai.ui.AccentPrimary
 import com.inspiredandroid.kai.ui.DangerAlert
 import com.inspiredandroid.kai.ui.SuccessGreen
 import com.inspiredandroid.kai.ui.WarningAmber
-import androidx.compose.runtime.remember
 import com.inspiredandroid.kai.ui.theme.DesignTokens
 import com.inspiredandroid.kai.ui.theme.LocalDesignColorTokens
+import com.inspiredandroid.kai.workspace.WorkspaceEnvironmentState
+import com.inspiredandroid.kai.workspace.WorkspaceStep
 
 /**
  * Build-specific design tokens for the Workspace workspace (Plan 3, Phase 1).
@@ -148,7 +148,9 @@ val WorkspaceTier.contentMaxWidth: Dp
         // Dp.Unbounded does not exist on every target; the platform-agnostic
         // infinity value keeps this common code compiling on wasm too.
         WorkspaceTier.Compact -> Dp(Float.POSITIVE_INFINITY)
+
         WorkspaceTier.Medium -> Dp(Float.POSITIVE_INFINITY)
+
         WorkspaceTier.Expanded -> 960.dp
     }
 
@@ -162,8 +164,3 @@ fun WorkspaceStep.label(): String = when (this) {
     WorkspaceStep.BasePackages -> "Base packages"
     WorkspaceStep.Agent -> "Agent"
 }
-
-
-
-
-

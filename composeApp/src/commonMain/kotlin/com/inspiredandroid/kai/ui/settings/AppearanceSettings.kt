@@ -22,7 +22,3 @@ internal fun AppearanceContent(
         )
     }
 }
-
-
-
-

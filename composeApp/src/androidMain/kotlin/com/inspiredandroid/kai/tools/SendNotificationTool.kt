@@ -50,7 +50,3 @@ object SendNotificationTool {
         }
     }
 }
-
-
-
-

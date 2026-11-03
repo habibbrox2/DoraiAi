@@ -116,7 +116,3 @@ private fun JsonElement.toResponsesContentPart(): JsonObject {
         }
     }
 }
-
-
-
-

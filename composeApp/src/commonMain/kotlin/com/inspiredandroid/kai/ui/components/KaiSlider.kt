@@ -99,7 +99,3 @@ private fun kaiSliderTrackColors() = SliderDefaults.colors(
     activeTrackColor = AccentPrimary,
     inactiveTrackColor = SurfaceRaised,
 )
-
-
-
-

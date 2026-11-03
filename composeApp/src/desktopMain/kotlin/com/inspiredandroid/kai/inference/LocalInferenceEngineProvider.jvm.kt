@@ -23,7 +23,3 @@ private fun isLiteRtSupported(): Boolean {
         }
     }.getOrElse { true }
 }
-
-
-
-

@@ -3,15 +3,10 @@ package com.inspiredandroid.kai.screenshots
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.inspiredandroid.kai.TerminalLine
-import com.inspiredandroid.kai.workspace.WorkspaceEnvironmentState
-import com.inspiredandroid.kai.workspace.WorkspaceStep
-import com.inspiredandroid.kai.workspace.WorkspaceTerminalSession
-import com.inspiredandroid.kai.workspace.WorkspaceState
 import com.inspiredandroid.kai.data.MemoryEntry
 import com.inspiredandroid.kai.data.Service
 import com.inspiredandroid.kai.getPlatformToolDefinitions
 import com.inspiredandroid.kai.linux.LinuxDistro
-import com.inspiredandroid.kai.ui.workspace.WorkspaceUiState
 import com.inspiredandroid.kai.ui.chat.ChatActions
 import com.inspiredandroid.kai.ui.chat.ChatUiState
 import com.inspiredandroid.kai.ui.chat.History
@@ -27,6 +22,11 @@ import com.inspiredandroid.kai.ui.settings.SandboxUiState
 import com.inspiredandroid.kai.ui.settings.SettingsModel
 import com.inspiredandroid.kai.ui.settings.SettingsTab
 import com.inspiredandroid.kai.ui.settings.SettingsUiState
+import com.inspiredandroid.kai.ui.workspace.WorkspaceUiState
+import com.inspiredandroid.kai.workspace.WorkspaceEnvironmentState
+import com.inspiredandroid.kai.workspace.WorkspaceState
+import com.inspiredandroid.kai.workspace.WorkspaceStep
+import com.inspiredandroid.kai.workspace.WorkspaceTerminalSession
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.serialization.json.Json
@@ -658,7 +658,3 @@ object ScreenshotTestData {
         )
     }
 }
-
-
-
-

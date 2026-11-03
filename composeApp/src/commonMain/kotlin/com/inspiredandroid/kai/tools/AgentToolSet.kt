@@ -53,7 +53,3 @@ fun buildAgentToolSet(
 
     addAll(mcpServerManager.getEnabledMcpTools(reservedNames = mapTo(HashSet()) { it.schema.name }))
 }
-
-
-
-
