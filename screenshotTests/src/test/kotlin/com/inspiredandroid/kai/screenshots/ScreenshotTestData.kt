@@ -3,9 +3,9 @@ package com.inspiredandroid.kai.screenshots
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.inspiredandroid.kai.TerminalLine
-import com.inspiredandroid.kai.workspace.BuildEnvironmentState
-import com.inspiredandroid.kai.workspace.BuildStep
-import com.inspiredandroid.kai.workspace.BuildTerminalSession
+import com.inspiredandroid.kai.workspace.WorkspaceEnvironmentState
+import com.inspiredandroid.kai.workspace.WorkspaceStep
+import com.inspiredandroid.kai.workspace.WorkspaceTerminalSession
 import com.inspiredandroid.kai.workspace.WorkspaceState
 import com.inspiredandroid.kai.data.MemoryEntry
 import com.inspiredandroid.kai.data.Service
@@ -398,32 +398,32 @@ object ScreenshotTestData {
 
     val buildStateNotInstalled = WorkspaceUiState(
         build = WorkspaceState(
-            environment = BuildEnvironmentState.NotInstalled,
+            environment = WorkspaceEnvironmentState.NotInstalled,
             projects = persistentListOf(),
         ),
     )
 
     val buildStateInstalling = WorkspaceUiState(
         build = WorkspaceState(
-            environment = BuildEnvironmentState.Installing(BuildStep.Download, 0.45f),
+            environment = WorkspaceEnvironmentState.Installing(WorkspaceStep.Download, 0.45f),
             projects = persistentListOf(),
         ),
     )
 
     val buildStateReadyEmpty = WorkspaceUiState(
         build = WorkspaceState(
-            environment = BuildEnvironmentState.Ready,
+            environment = WorkspaceEnvironmentState.Ready,
             projects = persistentListOf(),
         ),
     )
 
     val buildStateReadyWithProjects = WorkspaceUiState(
         build = WorkspaceState(
-            environment = BuildEnvironmentState.Ready,
+            environment = WorkspaceEnvironmentState.Ready,
             projects = persistentListOf("kai-project", "research-bot"),
             sessions = persistentListOf(
-                BuildTerminalSession(id = "sess-1", project = "kai-project", agentId = null, number = 1),
-                BuildTerminalSession(id = "sess-2", project = "kai-project", agentId = "claude-code", number = 2),
+                WorkspaceTerminalSession(id = "sess-1", project = "kai-project", agentId = null, number = 1),
+                WorkspaceTerminalSession(id = "sess-2", project = "kai-project", agentId = "claude-code", number = 2),
             ),
             activeSessionId = "sess-1",
         ),
@@ -431,7 +431,7 @@ object ScreenshotTestData {
 
     val buildStateWithActiveProject = WorkspaceUiState(
         build = WorkspaceState(
-            environment = BuildEnvironmentState.Ready,
+            environment = WorkspaceEnvironmentState.Ready,
             projects = persistentListOf("kai-project"),
             sessions = persistentListOf(),
             activeSessionId = null,

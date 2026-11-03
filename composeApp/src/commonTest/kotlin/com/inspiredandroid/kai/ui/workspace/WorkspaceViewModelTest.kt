@@ -4,7 +4,7 @@ import app.cash.turbine.test
 import com.inspiredandroid.kai.FileBrowserSource
 import com.inspiredandroid.kai.WorkspaceController
 import com.inspiredandroid.kai.NoOpFileBrowserSource
-import com.inspiredandroid.kai.workspace.BuildEnvironmentState
+import com.inspiredandroid.kai.workspace.WorkspaceEnvironmentState
 import com.inspiredandroid.kai.workspace.WorkspaceState
 import com.inspiredandroid.kai.testutil.FakeDataRepository
 import kotlinx.collections.immutable.persistentSetOf
@@ -31,7 +31,7 @@ class WorkspaceViewModelTest {
     private class FakeWorkspaceController : WorkspaceController {
         override val state = MutableStateFlow(
             WorkspaceState(
-                environment = BuildEnvironmentState.Ready,
+                environment = WorkspaceEnvironmentState.Ready,
                 installedAgents = persistentSetOf("claude-code", "grok"),
             ),
         )

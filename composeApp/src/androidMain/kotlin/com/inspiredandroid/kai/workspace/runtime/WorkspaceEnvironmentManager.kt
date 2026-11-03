@@ -2,12 +2,12 @@ package com.inspiredandroid.kai.workspace.runtime
 
 import android.os.StatFs
 import android.util.Log
-import com.inspiredandroid.kai.workspace.BuildAgent
-import com.inspiredandroid.kai.workspace.BuildAgents
-import com.inspiredandroid.kai.workspace.BuildEnvironmentState
-import com.inspiredandroid.kai.workspace.BuildStep
-import com.inspiredandroid.kai.workspace.BuildSystemInfo
-import com.inspiredandroid.kai.workspace.BuildTerminalSession
+import com.inspiredandroid.kai.workspace.WorkspaceAgent
+import com.inspiredandroid.kai.workspace.WorkspaceAgents
+import com.inspiredandroid.kai.workspace.WorkspaceEnvironmentState
+import com.inspiredandroid.kai.workspace.WorkspaceStep
+import com.inspiredandroid.kai.workspace.WorkspaceSystemInfo
+import com.inspiredandroid.kai.workspace.WorkspaceTerminalSession
 import com.inspiredandroid.kai.workspace.WorkspaceState
 import com.inspiredandroid.kai.workspace.terminal.DEFAULT_COLUMNS
 import com.inspiredandroid.kai.workspace.terminal.DEFAULT_ROWS
@@ -150,7 +150,7 @@ private class BuildSession(
         busy = false
     }
 
-    fun toUiSession() = BuildTerminalSession(
+    fun toUiSession() = WorkspaceTerminalSession(
         id = id,
         project = project,
         agentId = agentId,
@@ -384,7 +384,7 @@ class WorkspaceEnvironmentManager(
             BuildSession(
                 id = id,
                 project = project,
-                agentId = agentId?.takeIf { BuildAgents.get(it) != null },
+                agentId = agentId?.takeIf { WorkspaceAgents.get(it) != null },
                 number = number,
                 columns = lastColumns.get(),
                 rows = lastRows.get(),
@@ -553,7 +553,7 @@ class WorkspaceEnvironmentManager(
     }
 
     private fun publishSessions() {
-        val list: List<BuildTerminalSession>
+        val list: List<WorkspaceTerminalSession>
         val active: String?
         synchronized(sessionsLock) {
             list = sessions.values.map { it.toUiSession() }
@@ -574,7 +574,7 @@ class WorkspaceEnvironmentManager(
         }
 
         val failed = mutableListOf<String>()
-        for (agent in agentIds.mapNotNull { BuildAgents.get(it) }) {
+        for (agent in agentIds.mapNotNull { WorkspaceAgents.get(it) }) {
             if (!isActive()) throw CancellationException()
             if (!installAgent(agent)) failed += agent.title
         }
@@ -584,16 +584,16 @@ class WorkspaceEnvironmentManager(
     private suspend fun installDebian() {
         installer.install(LinuxDistro.DEBIAN) { step ->
             when (step) {
-                is InstallStep.Download -> setStep(BuildStep.Download, progress = step.fraction)
-                is InstallStep.Extract -> setStep(BuildStep.Extract)
-                is InstallStep.Configure -> setStep(BuildStep.Configure)
-                is InstallStep.Packages -> setStep(BuildStep.BasePackages)
+                is InstallStep.Download -> setStep(WorkspaceStep.Download, progress = step.fraction)
+                is InstallStep.Extract -> setStep(WorkspaceStep.Extract)
+                is InstallStep.Configure -> setStep(WorkspaceStep.Configure)
+                is InstallStep.Packages -> setStep(WorkspaceStep.BasePackages)
             }
         }
     }
 
-    private suspend fun installAgent(agent: BuildAgent): Boolean = LinuxInstaller.packageLock.withLock {
-        setStep(BuildStep.Agent, agentId = agent.id)
+    private suspend fun installAgent(agent: WorkspaceAgent): Boolean = LinuxInstaller.packageLock.withLock {
+        setStep(WorkspaceStep.Agent, agentId = agent.id)
         ensureAgentPathProfile()
         val executor = executor()
         executor.execute(
@@ -676,7 +676,7 @@ class WorkspaceEnvironmentManager(
             // (`bash -lc`) reset PATH via /etc/profile, and vendor installers often
             // skip writing rc PATH lines when our proot env already included their
             // bin dir — leaving only agents that force-wrote .bashrc (e.g. Grok).
-            val agentBinary = BuildAgents.get(session.agentId)?.binary
+            val agentBinary = WorkspaceAgents.get(session.agentId)?.binary
             val agentCmd = agentBinary?.let { resolveAgentCommand(it) }
             val launch = if (agentCmd != null) "$agentCmd; exec bash -l" else "exec bash -l"
             // Geometry is taken as late as possible, and from the newest measurement
@@ -884,7 +884,7 @@ class WorkspaceEnvironmentManager(
         val ready = paths.readMarker()?.distro == LinuxDistro.DEBIAN && File(paths.prootPath).canExecute()
         _state.update {
             it.copy(
-                environment = if (ready) BuildEnvironmentState.Ready else BuildEnvironmentState.NotInstalled,
+                environment = if (ready) WorkspaceEnvironmentState.Ready else WorkspaceEnvironmentState.NotInstalled,
                 installedAgents = if (ready) guessAgents() else persistentSetOf(),
                 projects = scanProjects(),
                 // Keep the card's numbers up while they are re-measured; an
@@ -906,7 +906,7 @@ class WorkspaceEnvironmentManager(
      * target is an absolute guest path that resolves only inside proot — so this
      * costs one stat per agent where the real probe costs a process.
      */
-    private fun guessAgents(): ImmutableSet<String> = BuildAgents.all
+    private fun guessAgents(): ImmutableSet<String> = WorkspaceAgents.all
         .filter {
             val link = File(paths.rootfsDir, "root/.local/bin/${it.binary}").toPath()
             Files.exists(link, LinkOption.NOFOLLOW_LINKS)
@@ -915,7 +915,7 @@ class WorkspaceEnvironmentManager(
         .toImmutableSet()
 
     /** Read straight off the rootfs — no proot round-trip, so it is cheap enough for every refresh. */
-    private fun readSystemInfo(): BuildSystemInfo {
+    private fun readSystemInfo(): WorkspaceSystemInfo {
         val pretty = runCatching {
             File(paths.rootfsDir, "etc/os-release").readLines()
                 .firstOrNull { it.startsWith("PRETTY_NAME=") }
@@ -932,7 +932,7 @@ class WorkspaceEnvironmentManager(
             }
         }.getOrDefault(0)
         val free = runCatching { StatFs(paths.root.absolutePath).availableBytes }.getOrDefault(0L)
-        return BuildSystemInfo(
+        return WorkspaceSystemInfo(
             distribution = pretty ?: version?.let { "Debian $it" } ?: "Debian",
             architecture = DebianSpec.arch(),
             packageCount = packages,
@@ -942,16 +942,16 @@ class WorkspaceEnvironmentManager(
         )
     }
 
-    private fun setStep(step: BuildStep, progress: Float? = null, agentId: String? = null) {
+    private fun setStep(step: WorkspaceStep, progress: Float? = null, agentId: String? = null) {
         _state.update {
-            it.copy(environment = BuildEnvironmentState.Installing(step, progress, agentId), lastError = null)
+            it.copy(environment = WorkspaceEnvironmentState.Installing(step, progress, agentId), lastError = null)
         }
     }
 
     private fun detectAgents(): ImmutableSet<String> {
         ensureAgentPathProfile()
         val executor = executor()
-        return BuildAgents.all
+        return WorkspaceAgents.all
             .filter { executor.ensureAgentBinary(it.binary) }
             .map { it.id }
             .toImmutableSet()
