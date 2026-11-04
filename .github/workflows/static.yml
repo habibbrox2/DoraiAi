@@ -16,83 +16,47 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Require a DORAI-owned site domain
-        env:
-          DORAI_SITE_DOMAIN: ${{ vars.DORAI_SITE_DOMAIN }}
-          DORAI_WEB_WASM_ENABLED: ${{ vars.DORAI_WEB_WASM_ENABLED }}
-        run: |
-          set -euo pipefail
-          if [[ -z "${DORAI_SITE_DOMAIN:-}" ]]; then
-            echo "::error::Set the DORAI_SITE_DOMAIN repository variable before deploying."
-            exit 1
-          fi
-          if [[ "${DORAI_WEB_WASM_ENABLED:-}" != "true" ]]; then
-            echo "::error::Web/Wasm deployment is disabled until the compatibility backlog is resolved."
-            exit 1
-          fi
-          test -f site/CNAME
-          ACTUAL_DOMAIN="$(tr -d '\r\n' < site/CNAME)"
-          if [[ "$ACTUAL_DOMAIN" != "$DORAI_SITE_DOMAIN" ]]; then
-            echo "::error::site/CNAME must match DORAI_SITE_DOMAIN before deployment."
-            exit 1
-          fi
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Set execution flag for gradlew
-        run: chmod +x gradlew
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Build WASM project
-        run: ./gradlew :composeApp:wasmJsBrowserDistribution
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Assemble site
+      - name: Assemble static site
         run: |
-          mkdir -p _site_build/app
-          cp -r site/* _site_build/
-          cp -r composeApp/build/dist/wasmJs/productionExecutable/* _site_build/app/
+          set -euo pipefail
+          mkdir -p _site_build
+          cp -R site/. _site_build/
 
       - name: Build documentation
         run: |
-          pip install mkdocs-material
-          mkdocs build -d _site_build/docs
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check mkdocs-material
+          python -m mkdocs build --strict --clean -d _site_build/docs
 
-      - name: Validate site before deploy
+      - name: Validate project-site output
         run: |
-          echo "Checking critical files..."
-          test -f _site_build/index.html || { echo "FATAL: Landing page missing"; exit 1; }
-          test -f _site_build/CNAME || { echo "FATAL: CNAME missing"; exit 1; }
-          test -f _site_build/app/index.html || { echo "FATAL: Web app missing"; exit 1; }
-          test -f _site_build/app/composeApp.js || { echo "FATAL: WASM bundle missing"; exit 1; }
-          test -d _site_build/docs || { echo "FATAL: Docs directory missing"; exit 1; }
-          echo "All checks passed"
+          set -euo pipefail
+          test -f _site_build/index.html
+          test -f _site_build/404.html
+          test -f _site_build/docs/index.html
+          test -f _site_build/docs/sitemap.xml
+          test ! -e _site_build/CNAME
+          for file in _site_build/index.html _site_build/404.html _site_build/robots.txt _site_build/sitemap.xml _site_build/docs/index.html _site_build/run-gemma-locally/index.html _site_build/latex-math/index.html; do
+            if grep -nF 'kai9000.com' "$file"; then
+              echo "::error::Legacy Kai website hostname found in $file."
+              exit 1
+            fi
+          done
+          if grep -R -nE 'href="/(docs|run-gemma-locally|latex-math|app)/' _site_build --include='*.html'; then
+            echo "::error::Root-relative links would break under the /DoraiAi/ project path."
+            exit 1
+          fi
+          echo "Static DORAI AI Project Pages output validated. Web/Wasm app remains unpublished until ready."
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: _site_build
+          publish_branch: gh-pages
           enable_jekyll: false
