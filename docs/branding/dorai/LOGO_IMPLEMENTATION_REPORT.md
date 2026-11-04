@@ -59,7 +59,7 @@ git checkout 94dbd8f -- docs/branding/dorai/_legacy-logo-backup
 
 ### Generated from pack (verbatim copies)
 
-`site/img/{icon,dorai-logo,logo_animation,dorai-wordmark}.svg`,
+`site/img/{icon,dorai-logo,dorai-wordmark}.svg`,
 `composeApp/src/wasmJsMain/resources/icon.svg`, `composeApp/icon.svg`,
 `site/img/apple-icon-180x180.png`, `composeApp/src/wasmJsMain/resources/apple-icon-180x180.png`,
 `composeApp/icon.png`, `iosApp/iosApp/Assets.xcassets/AppIcon.appiconset/icon2.png`,
@@ -176,3 +176,21 @@ Regenerated from the new numbers: 8 pack SVGs, both wordmarks, 65 theme PNGs,
 Play listing icon). Android adaptive foreground now uses `android:scaleX/Y="0.76"`
 with pivot (262, 256); the shared `logo.xml` carries the same paths with solid
 `#25E2F5` / `#377CFF` fills. `MARK_SIGNATURE` in the importer is now `M118 60 H244`.
+
+## Motion assets
+
+`site/img/logo_animation.svg` was named for animation but shipped as a static byte copy of the pack
+symbol. It is now a real animation, authored only from pack parts (mark path, core path, pack gradient):
+
+| Beat | Timing | What moves |
+|---|---|---|
+| Reveal | 0–0.9 s, ease-out | A mask sweeps the mark in from its left edge |
+| Core landing | 0.82–1.34 s, cubic-bezier(.34,1.56,.64,1) | The forward core pops from 42 % to 100 % with a small overshoot |
+| Halo | 0.8–1.95 s | A cyan radial glow blooms and fades behind the core |
+| Breathe | 1.6 s onward, 4.2 s loop | The core scales 1.00 → 1.045 and back |
+
+`prefers-reduced-motion: reduce` disables every animation and leaves the static mark. Canonical
+source: `docs/branding/dorai/assets/motion/logo-animation.svg` (copied to `site/img/logo_animation.svg`);
+`assets/motion/logo-animation.gif` is a 400², 64-frame, 18 fps raster built from the same layers for
+surfaces that cannot animate SVG. Verified in headless Chrome: 14.5 % canvas coverage at 150 ms versus
+33.7 % settled, and the settled frame matches the static pack symbol at IoU 0.9977.

@@ -14,7 +14,7 @@ pack for future use, nothing in the app or site consumes it.
 
 | Asset | Purpose | Where used |
 |---|---|---|
-| `d-shape-gradient.svg` | Transparent primary symbol, Aurora gradient | **source** for `logo.xml` body/core colours; **derived** → Android `ic_launcher_foreground.xml` (×2); **used** → `site/img/dorai-logo.svg`, `site/img/logo_animation.svg` |
+| `d-shape-gradient.svg` | Transparent primary symbol, Aurora gradient | **source** for `logo.xml` body/core colours; **derived** → Android `ic_launcher_foreground.xml` (×2); **used** → `site/img/dorai-logo.svg` (static copy); its paths also drive the animated mark in `motion/logo-animation.svg` |
 | `d-shape-black.svg` | Black monochrome symbol | unused (no dark-on-light print surface in repo) |
 | `d-shape-white.svg` | White monochrome symbol | unused |
 | `app-icon-dark.svg` | Navy tile + gradient D | **used** → `site/img/icon.svg`, `composeApp/src/wasmJsMain/resources/icon.svg`, `composeApp/icon.svg` |
@@ -74,3 +74,12 @@ path data, and refuses to run if the source looks tampered with. It never touche
 The five legacy `tools/{generate,sync}_dorai_*.py` scripts are retired behind a hard guard: they
 exit non-zero unless `DORAI_ALLOW_LEGACY_BRAND_GENERATORS=1` is set, because they would overwrite
 the approved assets with the previous mark.
+
+## Motion (`motion/`)
+
+Authored from pack parts; the pack itself ships no animation. Nothing here is a byte copy.
+
+| Asset | Purpose | Where used |
+|---|---|---|
+| `logo-animation.svg` | 512² animated mark: 0.9 s left-to-right reveal, core pop-in with halo at 0.82 s, 4.2 s breathe loop; `prefers-reduced-motion` shows the static mark | **used** → `site/img/logo_animation.svg` (hero mascot, `site/index.html:101`) |
+| `logo-animation.gif` | 400², 64 frames at 18 fps (3.6 s loop) on the `#050A1C` field, for surfaces that cannot animate SVG | available for README/store/social use |
