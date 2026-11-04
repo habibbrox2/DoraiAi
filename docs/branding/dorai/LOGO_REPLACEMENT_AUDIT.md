@@ -57,7 +57,7 @@ Manifest reference `androidApp/src/main/AndroidManifest.xml:36` → `@drawable/i
 |---|---|---|
 | Favicon (ICO) | `site/img/favicon.ico` | Old mark, multi-size |
 | Favicon (SVG) | `site/img/icon.svg` | Old D on `#08132B` tile |
-| Logo / README | `site/img/dorai-logo.svg` (used by `README.md:5`) | Old D, `aurora` gradient id |
+| Logo / README | `site/img/logo_animation.svg` (used by `README.md:5`) | Old D, `aurora` gradient id |
 | Hero mascot | `site/img/logo_animation.svg` (used by `site/index.html:101`) | Old D duplicate of the logo |
 | Wordmark | `site/img/dorai-wordmark.svg` | Old D + navy plate + tagline |
 | Apple touch icon | `site/img/apple-icon-180x180.png` / `.webp` | Old mark |
