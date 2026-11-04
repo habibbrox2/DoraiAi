@@ -108,7 +108,7 @@ internal fun SandboxTabsContent(
                     .fillMaxWidth()
                     .clip(com.dorai.ai.ui.DoraiShapes.card)
                     .background(com.dorai.ai.ui.CardFill)
-                    .border(com.dorai.ai.ui.DoraiBorders.soft),
+                    .border(com.dorai.ai.ui.DoraiBorders.soft()),
             ) {
                 Row(
                     modifier = Modifier
@@ -140,7 +140,7 @@ internal fun SandboxTabsContent(
                                 .weight(1f)
                                 .clip(com.dorai.ai.ui.DoraiShapes.card)
                                 .background(TerminalDarkBg)
-                                .border(com.dorai.ai.ui.DoraiBorders.soft),
+                                .border(com.dorai.ai.ui.DoraiBorders.soft()),
                         ) {
                             TerminalContent(
                                 sandboxController = sandboxController,
@@ -297,7 +297,7 @@ private fun SessionChipRow(viewModel: SandboxSessionViewModel) {
                     },
                 colors = buttonColors,
                 shape = com.dorai.ai.ui.DoraiShapes.pill,
-                border = if (isSelected) com.dorai.ai.ui.DoraiBorders.accent else com.dorai.ai.ui.DoraiBorders.soft,
+                border = if (isSelected) com.dorai.ai.ui.DoraiBorders.accent() else com.dorai.ai.ui.DoraiBorders.soft(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
             ) {
                 Text(
@@ -377,9 +377,9 @@ private fun SandboxSubTabSelector(
             )
 
             val border = when {
-                isSelected -> com.dorai.ai.ui.DoraiBorders.accent
-                isFocused -> com.dorai.ai.ui.DoraiBorders.focus
-                else -> com.dorai.ai.ui.DoraiBorders.soft
+                isSelected -> com.dorai.ai.ui.DoraiBorders.accent()
+                isFocused -> com.dorai.ai.ui.DoraiBorders.focus()
+                else -> com.dorai.ai.ui.DoraiBorders.soft()
             }
 
             Button(

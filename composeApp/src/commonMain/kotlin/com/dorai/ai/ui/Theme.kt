@@ -261,37 +261,37 @@ object DoraiShapes {
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ DoraiBorders Ã¢â‚¬â€ Centralized stroke definitions Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 object DoraiBorders {
     /** Subtle 0.5px hairline */
-    val hairline = BorderStroke(0.5.dp, BorderSoft)
+    @Composable fun hairline(): BorderStroke = BorderStroke(0.5.dp, BorderSoft)
 
     /** Standard 1px soft outline */
-    val soft = BorderStroke(1.dp, BorderSoft)
+    @Composable fun soft(): BorderStroke = BorderStroke(1.dp, BorderSoft)
 
     /** Neon cyan accent border */
-    val accent = BorderStroke(1.dp, AccentPrimary)
+    @Composable fun accent(): BorderStroke = BorderStroke(1.dp, AccentPrimary)
 
     /** Focused state border with glow */
-    val focus = BorderStroke(1.dp, AccentPrimary.copy(alpha = 0.6f))
+    @Composable fun focus(): BorderStroke = BorderStroke(1.dp, AccentPrimary.copy(alpha = 0.6f))
 
     /** Input focused border */
-    val inputFocused = BorderStroke(1.dp, AccentPrimary)
+    @Composable fun inputFocused(): BorderStroke = BorderStroke(1.dp, AccentPrimary)
 
     /** Disabled border */
-    val disabled = BorderStroke(1.dp, BorderSoft.copy(alpha = 0.3f))
+    @Composable fun disabled(): BorderStroke = BorderStroke(1.dp, BorderSoft.copy(alpha = 0.3f))
 }
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ DoraiElevation Ã¢â‚¬â€ Cross-platform elevation using borders + alpha overlays Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 object DoraiElevation {
     /** Subtle card elevation Ã¢â‚¬â€ soft border + faint overlay */
-    val level1 = BorderStroke(1.dp, BorderSoft.copy(alpha = 0.8f))
+    @Composable fun level1(): BorderStroke = BorderStroke(1.dp, BorderSoft.copy(alpha = 0.8f))
 
     /** Raised panel elevation Ã¢â‚¬â€ soft border + visible overlay */
-    val level2 = BorderStroke(1.dp, BorderSoft.copy(alpha = 1.0f))
+    @Composable fun level2(): BorderStroke = BorderStroke(1.dp, BorderSoft.copy(alpha = 1.0f))
 
     /** Interactive element elevation Ã¢â‚¬â€ accent border + glow overlay */
-    val level3 = BorderStroke(1.dp, AccentPrimary.copy(alpha = 0.4f))
+    @Composable fun level3(): BorderStroke = BorderStroke(1.dp, AccentPrimary.copy(alpha = 0.4f))
 
     /** Modal / dialog elevation Ã¢â‚¬â€ accent border + strong glow */
-    val level4 = BorderStroke(1.dp, AccentPrimary.copy(alpha = 0.6f))
+    @Composable fun level4(): BorderStroke = BorderStroke(1.dp, AccentPrimary.copy(alpha = 0.6f))
 }
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Animated border gradient colors (Brox brand palette) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
@@ -362,7 +362,7 @@ fun Modifier.glassmorphicCard(
 @Composable
 fun Modifier.cyanGlow(enabled: Boolean = true): Modifier = if (enabled) {
     this
-        .border(DoraiBorders.accent)
+        .border(DoraiBorders.accent())
         .background(AccentPrimary, shape = DoraiShapes.pill)
 } else {
     this
@@ -833,10 +833,11 @@ val GeminiColorScheme = darkColorScheme(
 /**
  * Glassmorphism effect modifier for cards and surfaces
  */
+@Composable
 fun Modifier.glassmorphicCard(
-    backgroundColor: Color = CardFill,
-    borderColor: Color = BorderSoft,
+    backgroundColor: Color? = null,
+    borderColor: Color? = null,
     cornerRadius: androidx.compose.ui.unit.Dp = 16.dp,
 ): Modifier = this
     .clip(androidx.compose.foundation.shape.RoundedCornerShape(cornerRadius))
-    .background(backgroundColor)
+    .background(backgroundColor ?: LocalDesignColorTokens.current.surfaceElevated)

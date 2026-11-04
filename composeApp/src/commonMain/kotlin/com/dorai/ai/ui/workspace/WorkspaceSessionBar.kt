@@ -104,7 +104,7 @@ internal fun WorkspaceSessionBar(
             .fillMaxWidth()
             .clip(com.dorai.ai.ui.DoraiShapes.card)
             .background(MaterialTheme.colorScheme.surface, com.dorai.ai.ui.DoraiShapes.card)
-            .border(com.dorai.ai.ui.DoraiBorders.soft, com.dorai.ai.ui.DoraiShapes.card),
+            .border(com.dorai.ai.ui.DoraiBorders.soft(), com.dorai.ai.ui.DoraiShapes.card),
     ) {
         Row(
             modifier = Modifier
@@ -320,8 +320,8 @@ private fun TabPill(
     )
 
     val border = when {
-        selected -> com.dorai.ai.ui.DoraiBorders.accent
-        isFocused -> com.dorai.ai.ui.DoraiBorders.focus
+        selected -> com.dorai.ai.ui.DoraiBorders.accent()
+        isFocused -> com.dorai.ai.ui.DoraiBorders.focus()
         else -> androidx.compose.foundation.BorderStroke(1.dp, com.dorai.ai.ui.BorderSubtle.copy(alpha = 0.5f))
     }
 

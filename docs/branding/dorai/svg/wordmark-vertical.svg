@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="650" viewBox="0 0 512 650">
+<defs><linearGradient id="g" x1="80" y1="50" x2="430" y2="450"><stop stop-color="#25E2F5"/><stop offset=".48" stop-color="#377CFF"/><stop offset="1" stop-color="#6F5BFF"/></linearGradient></defs>
+<path d="M112 56 H250 C365 56 438 136 438 256 C438 376 365 456 250 456 H112 C96 456 84 444 84 428 V84 C84 68 96 56 112 56 Z M164 132 V380 H250 C318 380 356 332 356 256 C356 180 318 132 250 132 Z" fill="url(#g)" fill-rule="evenodd"/><path d="M226 190 C226 178 239 171 250 178 L326 222 C342 231 342 281 326 290 L250 334 C239 341 226 334 226 322 Z" fill="#377CFF"/>
+<text x="256" y="590" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="64" font-weight="750" letter-spacing="-2" fill="#08132B">DORAI AI</text></svg>

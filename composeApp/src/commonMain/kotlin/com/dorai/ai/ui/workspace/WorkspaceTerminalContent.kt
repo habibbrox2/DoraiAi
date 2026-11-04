@@ -231,7 +231,7 @@ internal fun WorkspaceTerminalContent(
             modifier = Modifier.fillMaxWidth().padding(horizontal = com.dorai.ai.ui.workspace.WorkspaceSpacing.sm, vertical = com.dorai.ai.ui.workspace.WorkspaceSpacing.xs).weight(1f)
                 .clip(com.dorai.ai.ui.DoraiShapes.card)
                 .background(WorkspaceSurfaces.terminal)
-                .border(com.dorai.ai.ui.DoraiBorders.soft),
+                .border(com.dorai.ai.ui.DoraiBorders.soft()),
         ) {
             Column {
                 Column(modifier = Modifier.weight(1f).fillMaxWidth()) {
