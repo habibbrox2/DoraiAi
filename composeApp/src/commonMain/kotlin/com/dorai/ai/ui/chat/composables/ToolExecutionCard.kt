@@ -89,7 +89,7 @@ fun ShellExecutionCard(
     val borderColor = LocalDesignColorTokens.current.borderSubtle
     val textSlate = LocalDesignColorTokens.current.textPrimary
     val textMuted = LocalDesignColorTokens.current.textMuted
-    val accentCyan = Color(0xFF38BDF8)
+    val accentCyan = DesignTokens.PrimaryCyan
     val successGreen = DesignTokens.Success
     val errorRed = DesignTokens.Error
 

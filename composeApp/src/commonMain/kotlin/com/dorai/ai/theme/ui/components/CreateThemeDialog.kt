@@ -166,7 +166,7 @@ fun CreateThemeDialog(
             Button(
                 onClick = { onSave(name, backgroundHex, surfaceHex, primaryHex) },
                 enabled = canSave,
-                shape = RoundedCornerShape(999.dp),
+                shape = DoraiShapes.pill,
             ) {
                 Text(stringResource(Res.string.create_theme_save))
             }

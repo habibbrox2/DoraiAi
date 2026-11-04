@@ -35,6 +35,7 @@ import com.dorai.ai.ui.SurfaceRaised
 import com.dorai.ai.ui.doraiAdaptiveCardBorder
 import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.settings.SettingsSpacing
+import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 
 /**
@@ -102,8 +103,8 @@ fun rememberOperationalStatusColors(): OperationalStatusColors {
             installing = AccentPrimary,
             needsSetup = colors.textTertiary,
             error = DangerAlert,
-            active = Color(0xFFE2E8F0),
-            ready = Color(0xFFE2E8F0),
+            active = DesignTokens.SecondaryText,
+            ready = DesignTokens.SecondaryText,
         )
     }
 }
@@ -123,7 +124,7 @@ fun StatusBadge(
     val colors = rememberOperationalStatusColors()
     val color = colors.forStatus(status)
     // Use neutral text color for status dot
-    val dotColor = if (color == designColors.textSecondary) Color(0xFF6B7280) else color
+    val dotColor = if (color == designColors.textSecondary) DesignTokens.MutedText else color
     Row(
         modifier = modifier.semantics {
             contentDescription = "Status: $label"

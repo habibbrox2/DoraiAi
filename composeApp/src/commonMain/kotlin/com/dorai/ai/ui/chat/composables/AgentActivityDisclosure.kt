@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.filereview.FileReviewPreview
 import com.dorai.ai.filereview.FileReviewProposal
+import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.chat.ChatActions
 import com.dorai.ai.ui.chat.ChatSpacing
@@ -93,7 +94,7 @@ internal fun AgentActivityDisclosure(
 
     Surface(
         modifier = modifier.fillMaxWidth().padding(horizontal = ChatSpacing.lg, vertical = ChatSpacing.xs),
-        shape = RoundedCornerShape(14.dp),
+        shape = DoraiShapes.input,
         color = MaterialTheme.colorScheme.surface,
         border = BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle),
     ) {
@@ -148,7 +149,7 @@ private fun AgentActivityRow(
         mutableStateOf(activity.status == ActivityStatus.RUNNING || activity.status == ActivityStatus.FAILED)
     }
     val statusColor = activityStatusColor(activity.status)
-    Surface(color = LocalDesignColorTokens.current.surfaceElevated, shape = RoundedCornerShape(10.dp), border = BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle)) {
+    Surface(color = LocalDesignColorTokens.current.surfaceElevated, shape = DoraiShapes.sm, border = BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle)) {
         Column {
             Row(
                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)

@@ -236,6 +236,7 @@ import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.doraiAdaptiveCardBorder
 import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.rememberCopyToClipboard
+import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.bot_message_copy_content_description
@@ -1138,10 +1139,10 @@ private fun RenderCountdown(
 
 @Composable
 private fun RenderAlert(node: AlertNode) {
-    val successContainer = Color(0xFF1B3A1B)
-    val onSuccessContainer = Color(0xFFC8E6C9)
-    val warningContainer = Color(0xFF3D2600)
-    val onWarningContainer = Color(0xFFFF9100)
+    val successContainer = DesignTokens.Success.copy(alpha = 0.15f)
+    val onSuccessContainer = LocalDesignColorTokens.current.textPrimary
+    val warningContainer = DesignTokens.Warning.copy(alpha = 0.15f)
+    val onWarningContainer = LocalDesignColorTokens.current.textPrimary
     val containerColor = when (node.severity) {
         AlertSeverity.SUCCESS -> successContainer
         AlertSeverity.WARNING -> warningContainer

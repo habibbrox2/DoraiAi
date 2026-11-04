@@ -76,8 +76,15 @@ import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.settings.SettingsTab
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.dashboard_recent_conversations
+import dorai.composeapp.generated.resources.dashboard_recent_projects
+import dorai.composeapp.generated.resources.dashboard_setup_service
+import dorai.composeapp.generated.resources.dashboard_subtitle
+import dorai.composeapp.generated.resources.dashboard_title
+import dorai.composeapp.generated.resources.dashboard_view_all
 import dorai.composeapp.generated.resources.logo
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 private fun formatDashboardDate(epochMillis: Long): String = try {
@@ -218,13 +225,13 @@ private fun DashboardHeader(
             )
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
-                    text = "DORAI AI",
+                    text = stringResource(Res.string.dashboard_title),
                     style = DoraiTypography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Text(
-                    text = "What are you building today?",
+                    text = stringResource(Res.string.dashboard_subtitle),
                     style = DoraiTypography.bodyMedium,
                     color = LocalDesignColorTokens.current.textTertiary,
                 )
@@ -295,7 +302,7 @@ private fun ReadinessCard(
                             modifier = Modifier.handCursor(),
                         ) {
                             Text(
-                                text = "Set up a service",
+                                text = stringResource(Res.string.dashboard_setup_service),
                                 style = DoraiTypography.labelLarge,
                                 color = AccentPrimary,
                             )
@@ -615,7 +622,7 @@ private fun RecentWorkSection(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Recent conversations",
+                        text = stringResource(Res.string.dashboard_recent_conversations),
                         style = DoraiTypography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = LocalDesignColorTokens.current.textPrimary,
@@ -626,7 +633,7 @@ private fun RecentWorkSection(
                         modifier = Modifier.handCursor(),
                     ) {
                         Text(
-                            text = "View all",
+                            text = stringResource(Res.string.dashboard_view_all),
                             style = DoraiTypography.labelLarge,
                             color = AccentPrimary,
                         )
@@ -647,7 +654,7 @@ private fun RecentWorkSection(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Recent projects",
+                        text = stringResource(Res.string.dashboard_recent_projects),
                         style = DoraiTypography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = LocalDesignColorTokens.current.textPrimary,
@@ -658,7 +665,7 @@ private fun RecentWorkSection(
                         modifier = Modifier.handCursor(),
                     ) {
                         Text(
-                            text = "View all",
+                            text = stringResource(Res.string.dashboard_view_all),
                             style = DoraiTypography.labelLarge,
                             color = AccentPrimary,
                         )

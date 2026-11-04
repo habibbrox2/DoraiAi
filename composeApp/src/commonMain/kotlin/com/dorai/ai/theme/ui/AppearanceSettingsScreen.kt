@@ -40,6 +40,7 @@ import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.settings.SettingsCard
 import com.dorai.ai.ui.settings.SettingsSpacing
 import com.dorai.ai.ui.settings.ToggleableHeadline
+import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.appearance_create_theme
 import dorai.composeapp.generated.resources.appearance_delete_confirm_action
@@ -147,7 +148,7 @@ fun DoraiAppearanceSettings(
 
         Button(
             onClick = { showCreateDialog = true },
-            shape = RoundedCornerShape(999.dp),
+            shape = DoraiShapes.pill,
             modifier = Modifier.height(48.dp),
         ) {
             Icon(
@@ -205,7 +206,7 @@ private fun SurfaceStyleButton(
     onClick: () -> Unit,
 ) {
     val tokens = LocalDesignColorTokens.current
-    val shape = RoundedCornerShape(999.dp)
+    val shape = DoraiShapes.pill
     Box(
         modifier = Modifier
             .clip(shape)
