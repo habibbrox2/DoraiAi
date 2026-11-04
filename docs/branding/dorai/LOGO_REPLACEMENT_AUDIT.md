@@ -106,7 +106,7 @@ HTML wiring (unchanged; filenames preserved): `site/index.html:27-29,101`,
 | `composeApp/icon.ico` | `dorai-dark-1024.png` | 7-size ICO 16→256 |
 | `composeApp/icon.icns` | `dorai-dark-32…1024.png` | PNG-based ICNS (`ic07`–`ic14`) |
 | `composeApp/icon.pdf` | `dorai-symbol-transparent-1024.png` | PDF at 144 dpi |
-| `docs/branding/dorai/{favicon.ico,favicon.svg}` | pack root | Verified byte-identical; left untouched |
+| `docs/branding/dorai/{favicon.ico,favicon.svg}` | Root duplicates of the pack favicons | Removed in the 2026-11-05 cleanup; canonical copies live in `assets/hexacore/` |
 | fastlane store icon | `png/app-icons/dorai-dark-512.png` | Byte copy, 512² |
 
 Nothing was redrawn, recoloured, stretched, or given effects. Every raster is

@@ -49,8 +49,8 @@ for each of `dorai-dark-*`, `dorai-light-*`, `dorai-mono-dark-*`,
 |---|---|---|
 | `png/favicon/favicon-{16,32,48}.png` | Favicon raster sources | **derived** → `site/img/favicon.ico`, `composeApp/src/wasmJsMain/resources/favicon.ico` (each 16/32/48) |
 | `png/favicon/favicon-64.png` | Large favicon | unused |
-| `favicon.ico` (pack root, 16²) | Pack’s own mono-size ICO | **used** → `docs/branding/dorai/favicon.ico` (already byte-identical) |
-| `favicon.svg` | Scalable favicon | **used** → `docs/branding/dorai/favicon.svg` (already byte-identical) |
+| `favicon.ico` (pack root, 16²) | Pack’s own mono-size ICO | **canonical** → `docs/branding/dorai/assets/hexacore/favicon.ico` (root duplicate removed) |
+| `favicon.svg` | Scalable favicon | **canonical** → `docs/branding/dorai/assets/hexacore/favicon.svg` (root duplicate removed) |
 | `site.webmanifest` | PWA manifest (`#050A1C` theme, 192/512 icons) | unused — neither the site nor the Wasm shell links a manifest (pre-existing gap); sourcing it here would require shipping `png/app-icons/*` alongside, which was out of scope |
 
 ## Documentation

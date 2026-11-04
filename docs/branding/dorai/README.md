@@ -1,3 +1,6 @@
+> **Canonical pack:** `docs/branding/dorai/assets/hexacore/`. Platform assets are derived from
+> that directory by `tools/import_hexacore_assets.py`; loose copies at this level were removed.
+
 # DORAI AI — D-Shape Logo Pack
 
 The selected Hexa Core direction has been refined into a clearer capital-D silhouette with a forward/play core.
