@@ -85,6 +85,9 @@ Authored from pack parts; the pack itself ships no animation. Nothing here is a 
 | `logo-animation.gif` | 400², 18 fps on the `#050A1C` field, for surfaces that cannot animate SVG | available for README/store/social use |
 | `banner-animation.svg` | 1200×630 staged banner: glow, mark reveal, lockup, rule, taglines, description, chips, pill, footer | unused in code — available for social/store/docs |
 | `banner-animation.webp` | 1200×630, 10 fps raster of the banner, built by `tools/render_banner_animation.py` | available for places that need a raster |
+| `loader-animation.svg` | 128² seamless loop: rings expanding from the pulsing core | unused in code — available for loading states |
+| `wordmark-animation.svg` | 920×240 lockup animation, DORAI repainted `#F5F8FC` for dark surfaces | unused in code — available for docs/README |
+| `splash-animation.svg` | 512² one-shot splash on the icon tile; settles to an exact match with `svg/app-icon-dark.svg` | unused in code — available for app launch screens |
 
 ## Social card (`store/`)
 

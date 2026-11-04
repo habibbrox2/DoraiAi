@@ -235,3 +235,20 @@ captures a blank page) and why WebP replaced GIF for the banner.
 
 Known gap: nothing links the banner into the site yet, so its only consumers today are people who open
 the files directly.
+
+## Additional motion assets
+
+Three more animations complete the set, all built from pack parts and all guarded by
+`prefers-reduced-motion`:
+
+| Asset | Size | Behaviour |
+|---|---|---|
+| `loader-animation.svg` | 128² | Seamless 1.8 s loop — the core breathes while two rings expand outward and fade |
+| `wordmark-animation.svg` | 920×240 | Mark settles, DORAI and AI rise, underline draws, then holds |
+| `splash-animation.svg` | 512² | One-shot app splash: tile fade, mark draw, core landing with halo, then settle |
+
+The splash settles to an exact match with the static icon (`svg/app-icon-dark.svg`, mask IoU 1.0000),
+so a launch screen ends on precisely the shipped artwork. Two defects were found and fixed while
+building them: an animated group can lose its placement because a CSS `transform` overrides the SVG
+`transform` attribute (this bit the wordmark mark), and the pack wordmark's `#08132B` DORAI is
+invisible on dark surfaces, so the animated lockup uses `#F5F8FC`.
