@@ -1,14 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- DORAI AI Hexa Core mark (pack: svg/d-shape-gradient.svg), scaled into the
+     adaptive-icon safe zone (66dp of the 108dp canvas). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="512"
     android:viewportHeight="512">
-    <path
-        android:fillColor="#25E2F5"
-        android:fillType="evenOdd"
-        android:pathData="M104,72 H226 C374,72 440,147 440,256 C440,365 374,440 226,440 H104 Z M184,154 H225 C323,154 358,188 358,256 C358,324 323,358 225,358 H184 Z" />
-    <path
-        android:fillColor="#377CFF"
-        android:pathData="M222,194 L334,256 L222,318 Z" />
+    <group
+        android:pivotX="261"
+        android:pivotY="256"
+        android:scaleX="0.74"
+        android:scaleY="0.74"
+        android:translateX="-5">
+        <path
+            android:fillType="evenOdd"
+            android:pathData="M112,56 H250 C365,56 438,136 438,256 C438,376 365,456 250,456 H112 C96,456 84,444 84,428 V84 C84,68 96,56 112,56 Z M164,132 V380 H250 C318,380 356,332 356,256 C356,180 318,132 250,132 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="82"
+                    android:startY="70"
+                    android:endX="438"
+                    android:endY="450">
+                    <item android:offset="0" android:color="#FF25E2F5" />
+                    <item android:offset="0.48" android:color="#FF377CFF" />
+                    <item android:offset="1" android:color="#FF6F5BFF" />
+                </gradient>
+            </aapt:attr>
+        </path>
+        <path
+            android:pathData="M226,190 C226,178 239,171 250,178 L326,222 C342,231 342,281 326,290 L250,334 C239,341 226,334 226,322 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:type="linear"
+                    android:startX="220"
+                    android:startY="180"
+                    android:endX="340"
+                    android:endY="330">
+                    <item android:offset="0" android:color="#FF25E2F5" />
+                    <item android:offset="1" android:color="#FF377CFF" />
+                </gradient>
+            </aapt:attr>
+        </path>
+    </group>
 </vector>

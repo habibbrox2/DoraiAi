@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Dark navy surface #050A1C: matches the pack's app-icon tiles and the
+     app module's launcher background. -->
 <resources>
-    <color name="ic_launcher_background">#F5F8FC</color>
+    <color name="ic_launcher_background">#050A1C</color>
 </resources>

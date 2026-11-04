@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- DORAI AI Hexa Core monochrome layer (pack: svg/app-icon-monochrome-dark.svg). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="512"
     android:viewportHeight="512">
-  <!-- BK monogram -->
-  <path
-      android:fillColor="#000000"
-      android:pathData="M104,96 H240 C300,96 333,129 333,176 C333,207 317,230 291,244 C328,257 349,284 349,321 C349,377 309,416 246,416 H104 V96 Z M176,158 V222 H232 C252,222 264,210 264,190 C264,170 252,158 232,158 H176 Z M176,280 V354 H240 C263,354 276,340 276,317 C276,294 262,280 239,280 H176 Z" />
-  <!-- K letter -->
-  <path
-      android:fillColor="#000000"
-      android:pathData="M354,96 H422 L328,253 L425,416 H346 L270,287 L354,96 Z" />
+    <group
+        android:pivotX="261"
+        android:pivotY="256"
+        android:scaleX="0.74"
+        android:scaleY="0.74"
+        android:translateX="-5">
+        <path
+            android:fillColor="#000000"
+            android:fillType="evenOdd"
+            android:pathData="M112,56 H250 C365,56 438,136 438,256 C438,376 365,456 250,456 H112 C96,456 84,444 84,428 V84 C84,68 96,56 112,56 Z M164,132 V380 H250 C318,380 356,332 356,256 C356,180 318,132 250,132 Z" />
+        <path
+            android:fillColor="#000000"
+            android:pathData="M226,190 C226,178 239,171 250,178 L326,222 C342,231 342,281 326,290 L250,334 C239,341 226,334 226,322 Z" />
+    </group>
 </vector>
