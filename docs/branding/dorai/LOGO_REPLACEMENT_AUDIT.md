@@ -84,7 +84,7 @@ HTML wiring (unchanged; filenames preserved): `site/index.html:27-29,101`,
 | Surface | File | State found |
 |---|---|---|
 | Store icon | `fastlane/metadata/android/en-US/images/icon.png` (512²) | Old mark — **missed in the first audit pass**, found by tracing the legacy generator’s output paths |
-| Feature graphic | `fastlane/metadata/android/en-US/images/featureGraphic.png` (1024×500) | **Pre-existing placeholder** — two overlapping purple circles on white, no DORAI mark and no pack palette. Unrelated to this migration and not a superseded logo; preserved untouched. The pack supplies no feature graphic, so a compliant one must be authored separately. |
+| Feature graphic | `fastlane/metadata/android/en-US/images/featureGraphic.png` (1024×500, 24-bit RGB) | **Authored 2026-11-05** — replaced the pre-migration placeholder (two overlapping purple circles on white, no DORAI mark, no pack palette). The pack ships no banner, so it is built from pack parts only: the D-shaped mark, the `#050A1C` field, the pack gradient and the existing tagline. Vector source `assets/store/feature-graphic.svg`; regression recipe in `assets/store/README.md`. |
 | Store screenshots | `fastlane/metadata/android/*/images/**` | Contain the old in-app UI; out of scope for asset replacement (they are captured screen state, not logo files) |
 
 ## 3. Proposed and applied mapping

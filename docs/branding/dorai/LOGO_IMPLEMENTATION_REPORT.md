@@ -127,7 +127,7 @@ Visual artifact: `build/tmp/icon-contact-sheet.png` (gitignored build output).
 | Full `:composeApp:assembleDebug` | Not run — `processFossDebugResources` already compiles the changed drawables through `aapt2` |
 | Runtime screen inspection in the running app | Not performed; in-app mark verified by vector-resource compilation + source geometry, not by launching the UI |
 | Browser render of `site/index.html` | Not performed; favicon/logo assets validated as files only |
-| Google Play feature graphic | `fastlane/metadata/android/en-US/images/featureGraphic.png` is a pre-existing placeholder (1024×500, two purple circles, no DORAI mark). The pack supplies no feature graphic, so it was neither replaced nor invented; a compliant one must be authored. |
+| Google Play feature graphic | `fastlane/metadata/android/en-US/images/featureGraphic.png` — replaced in this migration: 1024×500, 24-bit RGB, D-shaped mark on the `#050A1C` field with the pack gradient and the tagline “Intelligence, in every direction.” Authored only from pack parts (no new shapes or colours); vector source `docs/branding/dorai/assets/store/feature-graphic.svg`, rasterised with headless Chrome per `assets/store/README.md`. |
 
 None of the above is reported as passing.
 
