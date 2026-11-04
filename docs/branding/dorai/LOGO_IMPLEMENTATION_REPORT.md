@@ -17,25 +17,32 @@ Scope: repository `G:\Web\DoraiAi-migration-worktree` (worktree; `git status` cl
 
 | Field | Value |
 |---|---|
-| Path | `docs/branding/dorai/DORAI_HexaCore_Full_LogoPack.zip` |
+| Path (archive) | `docs/branding/dorai/DORAI_HexaCore_Full_LogoPack.zip` — deleted after import; commit `94dbd8f` retains it |
 | Size | 664,894 bytes |
 | SHA-256 | `7821c5660df5b0221f08a418d1fb9839a4252f81efb3f5acd25251ee13d0462d` |
 | Entries | 82 — 9 SVG, 72 app-icon PNG, 4 favicon PNG, `favicon.ico`, `favicon.svg`, `site.webmanifest`, `README.md` |
 | Integrity | `zipfile.testzip()` clean; no absolute paths; no `..` traversal |
-| Copy | `docs/branding/dorai/assets/hexacore/` — **82/82 files byte-identical to the archive** (SHA-256 compared per entry) |
+| Canonical copy (now source of truth) | `docs/branding/dorai/assets/hexacore/` — **82/82 files byte-identical to the archive** (SHA-256 compared per entry) |
 
 The second archive, `DORAI_AI_Hexa_Core_Logo_Pack.zip` (5,587 bytes, 9 entries,
 SVG-only), is the earlier small pack and was **rejected as the source** and left
 untouched. No archive was overwritten.
 
-Staging: `build/tmp/hexacore-import/` (inside gitignored `build/`), never over live assets.
+The importer no longer reads an archive: it verifies 18 sentinel files inside
+`docs/branding/dorai/assets/hexacore/` and derives everything from there.
 
 ## 2. Backup
 
-`docs/branding/dorai/_legacy-logo-backup/20261105-030027/` — 26 files, original
-relative paths and timestamps preserved, 853 KB. Taken **before** the first edit.
+The 27 superseded files were backed up to
+`docs/branding/dorai/_legacy-logo-backup/20261105-030027/` before any edit, preserving relative
+paths, and committed in `94dbd8f`.
 
-Recovery: copy any file from that tree back to the same relative path.
+**The backup tree was deleted on 2026-11-05 at the maintainer’s request**, together with the two
+ZIP archives and the superseded design directions. Git history is now the recovery mechanism:
+
+```
+git checkout 94dbd8f -- docs/branding/dorai/_legacy-logo-backup
+```
 
 ## 3. Changed files
 

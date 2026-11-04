@@ -8,7 +8,7 @@ Tagline: “Your AI. Your World.”
 
 | Field | Value |
 |---|---|
-| File | `docs/branding/dorai/DORAI_HexaCore_Full_LogoPack.zip` |
+| Original archive | `docs/branding/dorai/DORAI_HexaCore_Full_LogoPack.zip` — **deleted 2026-11-05** on the maintainer’s request after import; recoverable from commit `94dbd8f` |
 | Size | 664,894 bytes |
 | SHA-256 | `7821c5660df5b0221f08a418d1fb9839a4252f81efb3f5acd25251ee13d0462d` |
 | Entries | 82 (SVG, PNG app icons 32–1024, favicon PNG/ICO/SVG, `site.webmanifest`, README) |
@@ -17,8 +17,7 @@ Tagline: “Your AI. Your World.”
 
 Rejected candidate: `docs/branding/dorai/DORAI_AI_Hexa_Core_Logo_Pack.zip`
 (5,587 bytes, 9 entries, 7 SVGs + favicon + README). This is the earlier
-small SVG-only pack, not the full pack. Kept in place as a source archive;
-nothing was overwritten.
+small SVG-only pack, not the full pack. Deleted in the same cleanup; commit `94dbd8f` retains it.
 
 Validated pack copy: `docs/branding/dorai/assets/hexacore/`.
 Extraction staging: `build/tmp/hexacore-import/` (never over live assets).
@@ -128,11 +127,14 @@ either a pack file verbatim or a re-encode of one at a required format/size.
 
 ## 5. Backup
 
-All 26 superseded files were copied **before** any edit, preserving relative paths:
+**Retired at the maintainer’s request on 2026-11-05.** The 27 superseded files were backed up
+to `docs/branding/dorai/_legacy-logo-backup/20261105-030027/` before any edit and committed in
+`94dbd8f`; that tree and the superseded design directions were then deleted to declutter the
+repository.
 
-`docs/branding/dorai/_legacy-logo-backup/20261105-030027/`
-
-Recovery: copy any file back from that tree to the same relative path.
+Recovery: `git checkout 94dbd8f -- docs/branding/dorai/_legacy-logo-backup` (and the same trick
+for `docs/branding/dorai/{aurora,neo-cyber,png}`). The canonical Hexa Core pack itself is kept
+in the working tree at `docs/branding/dorai/assets/hexacore/`.
 
 ## 6. Verification plan
 

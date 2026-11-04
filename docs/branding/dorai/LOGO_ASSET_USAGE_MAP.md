@@ -1,6 +1,7 @@
 # DORAI AI — Logo Asset Usage Map
 
-Every asset supplied by `DORAI_HexaCore_Full_LogoPack.zip` and where (if
+Every asset in the Hexa Core pack — now version-controlled at
+`docs/branding/dorai/assets/hexacore/` — and where (if
 anywhere) it is consumed in this repository. Canonical copy of the pack lives at
 `docs/branding/dorai/assets/hexacore/`; the tables below use paths relative to
 that directory.
@@ -60,13 +61,16 @@ for each of `dorai-dark-*`, `dorai-light-*`, `dorai-mono-dark-*`,
 
 ## Regenerating
 
-`python tools/import_hexacore_assets.py`
+```
+python tools/import_hexacore_assets.py          # rewrite every derived asset
+python tools/import_hexacore_assets.py --check  # verify the source pack only
+```
 
-Note: the five legacy `tools/{generate,sync}_dorai_*.py` scripts are retired behind a
-hard guard — they exit non-zero unless `DORAI_ALLOW_LEGACY_BRAND_GENERATORS=1` is
-set, because they would overwrite the approved assets with the previous mark.
+The source of truth is the version-controlled pack directory
+`docs/branding/dorai/assets/hexacore/`. The importer checks 18 sentinel files, confirms the D-mark
+path data, and refuses to run if the source looks tampered with. It never touches source XML in
+`composeApp`/`androidApp`, because those carry the adaptive-icon safe-zone group.
 
-Re-runs the whole mapping above from the verified archive (SHA-256 checked),
-replaces `docs/branding/dorai/assets/hexacore/`, and rewrites every derived
-artifact. It never touches source XML in `composeApp`/`androidApp` — those are
-hand-maintained because they carry the adaptive-icon safe-zone group.
+The five legacy `tools/{generate,sync}_dorai_*.py` scripts are retired behind a hard guard: they
+exit non-zero unless `DORAI_ALLOW_LEGACY_BRAND_GENERATORS=1` is set, because they would overwrite
+the approved assets with the previous mark.
