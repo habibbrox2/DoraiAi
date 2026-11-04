@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Kai - AI Assistant App">
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/features/mcp/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/features/mcp/">
       
       
         <link rel="prev" href="../tools/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>MCP Servers - Kai Documentation</title>
+        <title>MCP Servers - DORAI AI Documentation</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -956,7 +956,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1327,7 +1327,7 @@
 
 <h1 id="mcp-servers">MCP Servers</h1>
 <p><strong>Last verified:</strong> 2026-10-21</p>
-<p>Kai supports external tool servers via the <a href="https://modelcontextprotocol.io/">Model Context Protocol</a> (MCP). Users can connect to remote MCP servers using Streamable HTTP transport and use their tools alongside native tools.</p>
+<p>DORAI AI supports external tool servers via the <a href="https://modelcontextprotocol.io/">Model Context Protocol</a> (MCP). Users can connect to remote MCP servers using Streamable HTTP transport and use their tools alongside native tools.</p>
 <h2 id="concepts">Concepts</h2>
 <h3 id="mcp-server">MCP Server</h3>
 <p>A remote service that exposes tools via the MCP JSON-RPC protocol. Each server has a name, URL, optional authentication headers, and an enabled state. Server configurations are persisted as JSON in app settings. If the saved list ever becomes unreadable, it is backed up to a separate settings entry before the next save replaces it, so a corrupt blob is never silently lost.</p>
@@ -1346,7 +1346,7 @@
 <h2 id="connection-flow">Connection Flow</h2>
 <p>When a server is added or enabled:</p>
 <ol>
-<li>Kai creates an MCP client for the server URL and headers</li>
+<li>DORAI AI creates an MCP client for the server URL and headers</li>
 <li>Sends an <code>initialize</code> JSON-RPC request with client capabilities</li>
 <li>Sends a <code>notifications/initialized</code> notification</li>
 <li>Calls <code>tools/list</code> to discover available tools</li>

@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/knowledge/litert/refresh-playbook/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/knowledge/litert/refresh-playbook/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>Refresh LiteRT pins - Kai Documentation</title>
+        <title>Refresh LiteRT pins - DORAI AI Documentation</title>
       
     
     
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../../.." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -104,7 +104,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -214,13 +214,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../../.." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -767,7 +767,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1005,7 +1005,7 @@
 </ul>
 <h1 id="steps">Steps</h1>
 <h2 id="1-read-the-current-catalog">1. Read the current catalog</h2>
-<p>Read <code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/inference/LocalModelCatalog.kt</code> (<code>MODEL_CATALOG</code>).</p>
+<p>Read <code>composeApp/src/commonMain/kotlin/com/dorai/ai/inference/LocalModelCatalog.kt</code> (<code>MODEL_CATALOG</code>).</p>
 <p>For each row parse <code>downloadUrl</code> into <code>repo</code>, <code>commit</code>, <code>fileName</code>. Fail the refresh if any URL uses <code>main</code> or another non-hex ref.</p>
 <h2 id="2-fetch-huggingface">2. Fetch HuggingFace</h2>
 <p>For each model:</p>
@@ -1026,7 +1026,7 @@
 <p><strong>Verify-only (default):</strong> do not change Kotlin URLs, SHA-256, or sizes. Update this bundle’s snapshot table, <code>generated</code>, <code>stale_after</code>, and <a href="../log/">log.md</a>.</p>
 <p><strong>Bump (only if asked):</strong> for each named model, set commit + SHA-256 + <code>sizeBytes</code> together from the tree API of the target commit (usually current <code>main</code>). Leave GPU baseline, context defaults, and <code>isRecommended</code> alone unless product said otherwise. Never write <code>/resolve/main/</code>.</p>
 <p>Update:</p>
-<p><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/inference/LocalModelCatalog.kt</code></p>
+<p><code>composeApp/src/commonMain/kotlin/com/dorai/ai/inference/LocalModelCatalog.kt</code></p>
 <p>If sizes or display names used in <code>docs/features/on-device-inference.md</code> changed, update that table and <strong>Last verified</strong>.</p>
 <p>Update this bundle:</p>
 <ul>

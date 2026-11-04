@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Kai - AI Assistant App">
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/chat-ui-upgrade-plan/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/chat-ui-upgrade-plan/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>Brox Kai 2.0 — Chat UI Upgrade Plan - Kai Documentation</title>
+        <title>DORAI AI — Chat UI Upgrade Plan - DORAI AI Documentation</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#brox-kai-20-chat-ui-upgrade-plan" class="md-skip">
+        <a href="#dorai-ai-chat-ui-upgrade-plan" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href=".." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -104,13 +104,13 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Brox Kai 2.0 — Chat UI Upgrade Plan
+              DORAI AI — Chat UI Upgrade Plan
             
           </span>
         </div>
@@ -214,13 +214,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href=".." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -767,7 +767,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1291,17 +1291,17 @@
 
 
 
-<h1 id="brox-kai-20-chat-ui-upgrade-plan">Brox Kai 2.0 — Chat UI Upgrade Plan</h1>
+<h1 id="dorai-ai-chat-ui-upgrade-plan">DORAI AI — Chat UI Upgrade Plan</h1>
 <p><strong>Status:</strong> Core chat workspace migration is present; responsive HUD and accessibility regression work is in progress.<br />
 <strong>Design direction:</strong> 2027 AI Agent Workspace<br />
 <strong>Target platforms:</strong> Android, Desktop, Web (Compose Multiplatform)</p>
 <h2 id="1-objective">1. Objective</h2>
 <p>Evolve the existing chat-first interface into a responsive AI Agent Workspace with a compact agent HUD, a multimodal composer, readable execution activity, schema-driven generative UI, and a dockable coding workspace.</p>
-<p>The redesign must preserve existing provider integrations, conversation persistence, ChatViewModel/ChatActions ownership, MCP and native tool execution, sandbox boundaries, attachments, speech output, interactive mode, and Kai Build/editor workflows.</p>
+<p>The redesign must preserve existing provider integrations, conversation persistence, ChatViewModel/ChatActions ownership, MCP and native tool execution, sandbox boundaries, attachments, speech output, interactive mode, and DORAI Build/editor workflows.</p>
 <p>This is a presentation and interaction migration first. Backend capabilities must be integrated only where the corresponding runtime contract already exists or is separately implemented and tested. Never ship decorative controls that imply unavailable functionality.</p>
 <h2 id="2-existing-architecture-and-constraints">2. Existing architecture and constraints</h2>
 <p>The current UI is Kotlin Multiplatform + Compose, not a React application. The shared implementation lives under:</p>
-<p><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/</code></p>
+<p><code>composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/</code></p>
 <p>Known responsibilities:</p>
 <ul>
 <li><code>ChatScreen.kt</code>: connects chat state/actions and coordinates timeline, composer, overlays, interactive mode, and sandbox visibility.</li>
@@ -1396,7 +1396,7 @@
 <h3 id="51-agent-hud-header">5.1 Agent HUD header</h3>
 <p>Replace the oversized floating header and vertical “AI Agent” badge with a compact adaptive HUD.</p>
 <ul>
-<li><strong>Leading:</strong> history/sidebar toggle and compact Brox Kai brand.</li>
+<li><strong>Leading:</strong> history/sidebar toggle and compact DORAI AI brand.</li>
 <li><strong>Center:</strong> current agent state: Idle, Thinking, Running tool, Waiting, Connected, or Error.</li>
 <li><strong>Trailing:</strong> available workspace/terminal toggle and Settings.</li>
 <li>Use a small dot/orb plus concise status text; never use a tall vertical badge.</li>
@@ -1406,7 +1406,7 @@
 </ul>
 <h3 id="52-home-empty-conversation">5.2 Home / empty conversation</h3>
 <ul>
-<li>Keep the Brox Kai identity mark as the visual anchor.</li>
+<li>Keep the DORAI AI identity mark as the visual anchor.</li>
 <li>Use a concise welcome headline and a compact, horizontally scrollable row of contextual quick-action chips.</li>
 <li>Suggested chips: Resume RPG, Ask a question, Run sandbox check, Daily reminders. Render only actions backed by current state/capabilities.</li>
 <li>Avoid large fixed quick-action cards that push the composer below the fold.</li>

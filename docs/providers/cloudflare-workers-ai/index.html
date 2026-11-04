@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Kai - AI Assistant App">
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/providers/cloudflare-workers-ai/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/providers/cloudflare-workers-ai/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>Cloudflare Workers AI - Kai Documentation</title>
+        <title>Cloudflare Workers AI - DORAI AI Documentation</title>
       
     
     
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -104,7 +104,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -214,13 +214,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -767,7 +767,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1065,7 +1065,7 @@
 
 
 <h1 id="cloudflare-workers-ai">Cloudflare Workers AI</h1>
-<p>Brox Kai exposes Cloudflare Workers AI as a provider using Cloudflare's account-scoped API.</p>
+<p>DORAI AI exposes Cloudflare Workers AI as a provider using Cloudflare's account-scoped API.</p>
 <h2 id="provider-configuration">Provider configuration</h2>
 <ol>
 <li>Open <strong>Settings → Services → Cloudflare Workers AI</strong>.</li>
@@ -1089,7 +1089,7 @@
 - <code>skills/list</code> discovers published skill metadata and follows pagination cursors.
 - <code>skills/get</code> confirms the metadata and resource manifest for a skill URI.
 - <code>resources/read</code> retrieves the skill document.</p>
-<p>The extension conventionally uses <code>skill://</code> URIs but can advertise other URI schemes; the server's <code>skills/get</code> response is authoritative. Reading content does not approve or activate a skill. Brox Kai currently does not verify the returned resource digests, so remote metadata and content must remain untrusted and be reviewed before use; embedded scripts are never executed automatically.</p>
+<p>The extension conventionally uses <code>skill://</code> URIs but can advertise other URI schemes; the server's <code>skills/get</code> response is authoritative. Reading content does not approve or activate a skill. DORAI AI currently does not verify the returned resource digests, so remote metadata and content must remain untrusted and be reviewed before use; embedded scripts are never executed automatically.</p>
 <p>The MCP client does not implement Cloudflare's interactive OAuth login. Cloudflare supports API tokens as Bearer credentials for CI/CD and automation, so configure a scoped API token explicitly.</p>
 <h2 id="cloudflare-skills-marketplace">Cloudflare Skills marketplace</h2>
 <p>The Skills browser includes the official <code>cloudflare/skills</code> GitHub repository. Skills are fetched from its <code>skills/</code> root through the existing GitHub marketplace installer. Review skill contents and any bundled scripts before enabling them.</p>

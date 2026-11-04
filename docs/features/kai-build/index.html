@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Kai - AI Assistant App">
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/features/kai-build/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/features/kai-build/">
       
       
         <link rel="prev" href="../sandbox/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Kai Build - Kai Documentation</title>
+        <title>DORAI Build - DORAI AI Documentation</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#kai-build" class="md-skip">
+        <a href="#dorai-build" class="md-skip">
           Skip to content
         </a>
       
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,13 +108,13 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Kai Build
+              DORAI Build
             
           </span>
         </div>
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -780,7 +780,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -798,7 +798,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1369,31 +1369,31 @@
 
 
 
-<h1 id="kai-build">Kai Build</h1>
+<h1 id="dorai-build">DORAI Build</h1>
 <p><strong>Last verified:</strong> 2026-10-02</p>
-<p>Kai Build is an <strong>Android-only</strong> coding environment inside the Kai app. It is a separate <em>surface</em> from chat — no shared conversation store, no sandbox tools, no provider/settings coupling — but it is not necessarily a separate <em>Linux</em>: when the chat sandbox also runs Debian, both work in the same install.</p>
+<p>DORAI Build is an <strong>Android-only</strong> coding environment inside the DORAI AI app. It is a separate <em>surface</em> from chat — no shared conversation store, no sandbox tools, no provider/settings coupling — but it is not necessarily a separate <em>Linux</em>: when the chat sandbox also runs Debian, both work in the same install.</p>
 <p>It is a <strong>single screen with three states</strong> — set up Linux, pick a project, work in that project's terminal.</p>
 <h2 id="concepts">Concepts</h2>
 <h3 id="separate-product-surface">Separate product surface</h3>
-<p>Kai Build is opened from the <strong>empty chat state</strong> — an "Open Kai Build" button next to "Start Interactive UI", shown on Android only. It is the same pill and label style as the button above it, in the phosphor green of the terminal it opens, so what it leads to is readable before it is pressed. It then takes over the whole screen the same way Interactive UI mode does: no navigation destination, no second launcher icon, and no place in the back stack. A close button in its top bar and the system back gesture both return to the chat, leaving any drafted message intact. Inside a project, the same top-bar button and system back step back to the project list instead. The mode is not persisted across app restarts; it survives rotation only.</p>
+<p>DORAI Build is opened from the <strong>empty chat state</strong> — an "Open DORAI Build" button next to "Start Interactive UI", shown on Android only. It is the same pill and label style as the button above it, in the phosphor green of the terminal it opens, so what it leads to is readable before it is pressed. It then takes over the whole screen the same way Interactive UI mode does: no navigation destination, no second launcher icon, and no place in the back stack. A close button in its top bar and the system back gesture both return to the chat, leaving any drafted message intact. Inside a project, the same top-bar button and system back step back to the project list instead. The mode is not persisted across app restarts; it survives rotation only.</p>
 <h3 id="which-linux-it-runs-in">Which Linux it runs in</h3>
-<p>Kai Build is always Debian: its coding agents are vendor scripts that expect glibc and apt.</p>
-<p>Debian has exactly one install on the device, normally under app-private <code>kai-build/</code>. Kai Build works in it unconditionally, and never moves. What varies is whether the chat <a href="../sandbox/">Linux sandbox</a> is pointed at the same install:</p>
+<p>DORAI Build is always Debian: its coding agents are vendor scripts that expect glibc and apt.</p>
+<p>Debian has exactly one install on the device, normally under app-private <code>kai-build/</code>. DORAI Build works in it unconditionally, and never moves. What varies is whether the chat <a href="../sandbox/">Linux sandbox</a> is pointed at the same install:</p>
 <ul>
-<li><strong>Shell integration is Debian</strong> (the default) — both use the <em>same</em> install. Whichever surface installs it first, the other finds it already there: set Linux up in Settings and Kai Build opens straight on the project list; install from Kai Build's setup screen and the sandbox reports itself ready. Uninstalling from either removes it for both, and both dialogs say so.</li>
+<li><strong>Shell integration is Debian</strong> (the default) — both use the <em>same</em> install. Whichever surface installs it first, the other finds it already there: set Linux up in Settings and DORAI Build opens straight on the project list; install from DORAI Build's setup screen and the sandbox reports itself ready. Uninstalling from either removes it for both, and both dialogs say so.</li>
 <li><strong>Shell integration is Alpine</strong> — that runs in a separate Alpine under app-private <code>linux-sandbox/</code>, and the two coexist.</li>
 </ul>
-<p>The chat sandbox can be switched between the two at any time from Settings, and neither install is touched when it happens — so a Kai Build project terminal is never disturbed by that choice. The sandbox can also copy a home directory across when switching, but never the coding agents: their binaries are built for one distribution's libc, and Kai Build installs them per environment. (A Debian installed by an earlier build that put it under <code>linux-sandbox/</code> is found and used where it is, rather than downloaded again.)</p>
+<p>The chat sandbox can be switched between the two at any time from Settings, and neither install is touched when it happens — so a DORAI Build project terminal is never disturbed by that choice. The sandbox can also copy a home directory across when switching, but never the coding agents: their binaries are built for one distribution's libc, and DORAI Build installs them per environment. (A Debian installed by an earlier build that put it under <code>linux-sandbox/</code> is found and used where it is, rather than downloaded again.)</p>
 <p>Either way <code>/root</code> (agent binaries and config) is on the rootfs, and an external-files folder is bind-mounted only to <code>/root/projects</code>, so project code stays USB/MTP reachable without putting executables on storage that Android often mounts noexec. That projects folder is the same one in every arrangement, so projects are unaffected by the sandbox's distribution.</p>
 <h3 id="set-up-linux">Set up Linux</h3>
 <p>First run shows a single setup card: a beta notice, a short explanation, a checkbox per coding agent, and one <strong>Install Debian</strong> button. The setup title and description mark the feature as beta. Install downloads a Debian Bookworm rootfs from the Linux Containers image index (architecture-matched: arm64, armhf, amd64, i386), extracts it, configures DNS, then runs <code>apt-get update</code> and installs the essentials every project needs — bash, ca-certificates, curl, wget, git, nano, less, unzip, python3, tar and coreutils. Any agents ticked beforehand are installed straight after, so a fresh system arrives ready to use. If a Debian is already installed — because the chat sandbox put one there — this step is skipped entirely and only the ticked agents are installed.</p>
 <p>Progress replaces the install button (download percent, extract, configure, base packages, per-agent), with Cancel next to it. Cancelling or failing deletes the partial rootfs so the retry starts clean; a failure message stays on screen. A Debian install is only considered complete once its base packages are in, so an interrupted install can never present itself as ready.</p>
 <p>LXC images ship <code>etc/resolv.conf</code> as a symlink into systemd-resolved under <code>/run</code>, which does not exist under proot. Install replaces that link with a plain file pointing at public DNS (<code>8.8.8.8</code> / <code>8.8.4.4</code>) so apt and HTTPS work.</p>
-<p>Debian’s package manager relies on hardlinks when unpacking packages. On Android those often fail inside the app sandbox, so Kai Build starts proot with hardlink-to-symlink emulation (and the companion lstat fix) before any apt work. Without that, the base-packages step fails with a dpkg subprocess error even though <code>apt-get update</code> succeeded.</p>
-<p>Kai also tells apt to keep running as (proot's fake) root instead of dropping to its <code>_apt</code> user for downloads. Work profiles, Dual Space, Private Space and system clones block that user switch, which otherwise makes <code>apt-get update</code> fail and every package look missing. The setting lives in the rootfs, so apt run from the Terminal or by an agent picks it up too.</p>
+<p>Debian’s package manager relies on hardlinks when unpacking packages. On Android those often fail inside the app sandbox, so DORAI Build starts proot with hardlink-to-symlink emulation (and the companion lstat fix) before any apt work. Without that, the base-packages step fails with a dpkg subprocess error even though <code>apt-get update</code> succeeded.</p>
+<p>DORAI AI also tells apt to keep running as (proot's fake) root instead of dropping to its <code>_apt</code> user for downloads. Work profiles, Dual Space, Private Space and system clones block that user switch, which otherwise makes <code>apt-get update</code> fail and every package look missing. The setting lives in the rootfs, so apt run from the Terminal or by an agent picks it up too.</p>
 <h3 id="coding-agents">Coding agents</h3>
-<p>Three agents are offered — <strong>Claude Code</strong>, <strong>Grok</strong>, and <strong>OpenCode</strong> — each installed with its vendor script, which is why curl, certificates, tar, and coreutils ship with the base system. Installers write under <code>/root</code> on the rootfs (executable); only project folders live on the external bind. Vendor scripts put their binaries in different home folders (<code>~/.local/bin</code> for Claude, <code>~/.grok/bin</code> for Grok, <code>~/.opencode/bin</code> for OpenCode). Proot injects all three into <code>PATH</code> for install and detection. Login shells (every project terminal) rebuild <code>PATH</code> from system profile files and would otherwise drop those dirs — and vendor installers often skip writing shell-rc <code>PATH</code> lines when their bin dir is already present during install. Kai Build therefore writes a small system profile snippet that keeps every agent bin dir on <code>PATH</code> for login shells, links found binaries into <code>~/.local/bin</code>, and starts an agent session via the resolved absolute path so opening Claude or OpenCode does not depend on whichever installer rewrote <code>.bashrc</code>. An agent counts as installed only when its binary is actually reachable afterwards, regardless of what the installer's exit code claimed; agent state is probed from the live environment rather than remembered in a file.</p>
-<p>Vendor install pages often show both a Unix <code>curl | bash</code> line and a Windows PowerShell line. Only the Unix line is valid inside Kai Build — pasting both into the terminal will run the PowerShell tokens as shell commands and print <code>irm</code>/<code>iex: not found</code> after the real installer finishes.</p>
+<p>Three agents are offered — <strong>Claude Code</strong>, <strong>Grok</strong>, and <strong>OpenCode</strong> — each installed with its vendor script, which is why curl, certificates, tar, and coreutils ship with the base system. Installers write under <code>/root</code> on the rootfs (executable); only project folders live on the external bind. Vendor scripts put their binaries in different home folders (<code>~/.local/bin</code> for Claude, <code>~/.grok/bin</code> for Grok, <code>~/.opencode/bin</code> for OpenCode). Proot injects all three into <code>PATH</code> for install and detection. Login shells (every project terminal) rebuild <code>PATH</code> from system profile files and would otherwise drop those dirs — and vendor installers often skip writing shell-rc <code>PATH</code> lines when their bin dir is already present during install. DORAI Build therefore writes a small system profile snippet that keeps every agent bin dir on <code>PATH</code> for login shells, links found binaries into <code>~/.local/bin</code>, and starts an agent session via the resolved absolute path so opening Claude or OpenCode does not depend on whichever installer rewrote <code>.bashrc</code>. An agent counts as installed only when its binary is actually reachable afterwards, regardless of what the installer's exit code claimed; agent state is probed from the live environment rather than remembered in a file.</p>
+<p>Vendor install pages often show both a Unix <code>curl | bash</code> line and a Windows PowerShell line. Only the Unix line is valid inside DORAI Build — pasting both into the terminal will run the PowerShell tokens as shell commands and print <code>irm</code>/<code>iex: not found</code> after the real installer finishes.</p>
 <p>Agents can be added after setup from the Debian system card on the project list, which shows the install progress on the setup surface and returns to the projects when it finishes.</p>
 <h3 id="projects">Projects</h3>
 <p>Every project is a folder under the Linux home's <code>projects</code> directory (<code>/root/projects</code> inside Debian). The project list is that folder listing, so anything created in the shell shows up. A plus button in the top bar opens a small dialog for the name; creating the folder drops the user straight into its terminal — no other steps. Names are sanitized to a safe folder name. A project with shells still open says how many, because the list is the only place to find them from; opening it goes back to those rather than starting another.</p>
@@ -1402,7 +1402,7 @@
 <p>Both close the project's sessions, because both move the ground out from under them: the shells are rooted in that folder, and one whose working directory has been renamed or unlinked is no longer a session anybody can use. Deleting removes the folder and everything in it, following no symlinks on the way — an agent's project can hold a link into the rootfs, and a delete that followed one would take the Debian install with it. Projects created outside the app keep whatever name the shell gave them: the list addresses a folder by the name it shows rather than by a sanitized guess at it.</p>
 <p>Above the list, an optional <strong>Open with</strong> row picks what a <em>fresh</em> project opens with: a plain shell (the default) or one of the installed agents. The choice is a preference rather than a per-visit pick — it is remembered until it is changed, including across app restarts, so somebody who works in Claude Code finds Claude Code selected the next morning. It has no say over a project that still has shells open — that one is resumed as it was left, and the row's choice applies to the next session started from the plus button. A remembered agent that the environment no longer has (Linux was removed and put back without it) falls back to a plain shell rather than opening a session on a missing binary.</p>
 <p>A <strong>Debian system</strong> card below the list is the home for everything about the Linux install rather than the projects: which Debian it is and for which architecture, how many packages are in it, how much space the system and the project folders take, how much room is left on the device, chips to install the remaining agents, and the uninstall action. The facts are read straight off the rootfs, so the card is current every time the list is shown.</p>
-<p>Opening Kai Build answers "is Linux installed?" from a marker file and shows the project list straight away. Everything that costs real work — probing each agent by running it, and measuring how much disk the system and projects take — happens right after and fills the card in a moment later, so an installed system never shows the setup screen while it is being checked.</p>
+<p>Opening DORAI Build answers "is Linux installed?" from a marker file and shows the project list straight away. Everything that costs real work — probing each agent by running it, and measuring how much disk the system and projects take — happens right after and fills the card in a moment later, so an installed system never shows the setup screen while it is being checked.</p>
 <h3 id="terminal-sessions">Terminal sessions</h3>
 <p>A project can have <strong>several shells open at once</strong> — one running an agent, another for git — switched from a tab strip that replaces the title bar at the top of the terminal. Each tab is an independent session: its own PTY, its own screen contents, its own geometry, and its own draft input line. The plus button next to the tabs starts another session, either a plain shell or an installed agent.</p>
 <p>Tabs are labelled by what they run (an agent's product name, or "Shell"), numbered while more than one is open. The selected tab carries a close button. Closing a session ends its shell and everything running inside it; closing the last one steps back to the project list, as does the back button.</p>
@@ -1410,11 +1410,11 @@
 <p>A background session still reads and parses everything its program writes, but it does not repaint the app while nobody is looking at it — its screen is brought up to date the moment its project is opened again.</p>
 <p>An <strong>agent session</strong> runs that agent's CLI first and drops to an ordinary shell in the project folder when the agent exits, so a finished session is still usable rather than dead.</p>
 <h3 id="project-files">Project files</h3>
-<p>Next to the session tabs — pinned, so it is always there — sits <strong>Files</strong>: the same file browser the chat sandbox uses, pointed at Kai Build's Debian instead. It opens on the project's own folder, and navigates the same way it does in chat: the breadcrumbs run all the way up to the filesystem root, so an agent's config under the home folder, <code>/etc</code>, or anything else in Debian is a crumb away rather than shell-only. Where it starts is the only difference between the two.</p>
+<p>Next to the session tabs — pinned, so it is always there — sits <strong>Files</strong>: the same file browser the chat sandbox uses, pointed at DORAI Build's Debian instead. It opens on the project's own folder, and navigates the same way it does in chat: the breadcrumbs run all the way up to the filesystem root, so an agent's config under the home folder, <code>/etc</code>, or anything else in Debian is a crumb away rather than shell-only. Where it starts is the only difference between the two.</p>
 <p>It does everything it does in chat: open a file in the built-in editor and save it back — including the extension-less and unfamiliar-extension files a project is full of, since what counts as text is decided from the bytes rather than the name — hand a file to another app on the device, import a file from device storage into the directory on screen, rename, delete, and re-list itself silently whenever the tab becomes visible, so files an agent just wrote show up without a manual refresh. Files are read and written directly rather than through a shell, so none of it depends on a session running.</p>
 <p>Switching to Files leaves every session running — coming back finds the terminal exactly as it was, and Files finds the directory it was left in, wherever in Debian that was. The system back gesture steps Files → terminal → project list.</p>
 <h3 id="terminal">Terminal</h3>
-<p>A session shows a <strong>cell-grid terminal</strong> sized to the visible viewport: cursor, basic colors, and common ANSI/VT control sequences, backed by an interactive login shell (<code>bash -l</code>) in the project folder. When the panel is laid out or the window changes (rotation, IME, split), Kai recomputes columns×rows from the monospace cell size, resizes the buffer, and tells the live PTY the new geometry (<code>TIOCSWINSZ</code> + <code>SIGWINCH</code>) so fullscreen apps reflow like a desktop terminal. Cell size is taken from measured text rather than from the font settings, so the row count never buys a row that only half fits and the column count never gives away a column that does. There is no app-side clear button: <code>clear</code> and Ctrl-L do it from inside the shell, which keeps what is on screen and what the running program thinks is on screen the same thing.</p>
+<p>A session shows a <strong>cell-grid terminal</strong> sized to the visible viewport: cursor, basic colors, and common ANSI/VT control sequences, backed by an interactive login shell (<code>bash -l</code>) in the project folder. When the panel is laid out or the window changes (rotation, IME, split), DORAI AI recomputes columns×rows from the monospace cell size, resizes the buffer, and tells the live PTY the new geometry (<code>TIOCSWINSZ</code> + <code>SIGWINCH</code>) so fullscreen apps reflow like a desktop terminal. Cell size is taken from measured text rather than from the font settings, so the row count never buys a row that only half fits and the column count never gives away a column that does. There is no app-side clear button: <code>clear</code> and Ctrl-L do it from inside the shell, which keeps what is on screen and what the running program thinks is on screen the same thing.</p>
 <p>The grid and the PTY are held to <strong>one geometry</strong>, because the two disagreeing is not a cosmetic problem: an agent that paints its banner once paints it at whatever width it was told, and if that is wider than the grid, every line of it wraps and stays wrapped — nothing ever repaints it. So a session is launched with the geometry measured a moment earlier rather than the one it was created with (the viewport is measured while the agent binary is still being resolved), the first measurement of a tab is reported immediately while later ones wait out the keyboard and rotation animations, and nothing inside Debian is allowed to take the size back — the session's PTY is checked against the size the app asked for and corrected within a tick if a login script or an app moved it. A new session still inherits the last measured geometry, so it starts at the right size instead of a default 80×24.</p>
 <p>The grid is given as much of the screen as possible: the tab strip is the only chrome above it, and the panel runs edge to edge sideways — the grid keeps a small inset of its own, so a second margin around it would only cost columns.</p>
 <p>The session uses a <strong>pseudo-terminal (PTY)</strong> inside Debian (via Python’s <code>pty</code> module) so tools that open <code>/dev/tty</code> (Grok, Claude Code, fullscreen TUIs) can start. Output is parsed by a minimal VT emulator into a character grid and rendered in Compose.</p>
@@ -1431,13 +1431,13 @@
 <p>Handing taps to the app costs the shortcut that otherwise raises the keyboard by tapping the grid, so while an app is asking for mouse events the keyboard button in the input bar is the way to bring the keyboard up. Nothing changes at an ordinary shell prompt, which asks for none of this: a tap there still raises the keyboard. Whatever an app turned on is forgotten when the screen is fully reset, so a stale mode cannot outlive the program that wanted it.</p>
 <p>The input surface that does this is deliberately kept out of the way rather than laid over the grid — anything covering the grid would hide the terminal contents from screen readers, so the grid keeps its own tap handling and stays readable in both modes. Input written to the shell is queued onto a single background thread, so a keystroke never blocks the UI on a pipe write and the bytes still arrive in the order they were typed.</p>
 <h3 id="repaint-pacing">Repaint pacing</h3>
-<p>The PTY hands Kai a block of output as often as the program produces one — under heavy output that is far more often than the display refreshes. Parsing every block into the cell grid happens immediately, so nothing is ever missed, but <strong>painting is coalesced to at most one repaint per frame</strong>. A burst of output collapses into a single redraw instead of one redraw per block, and the last state is always painted, so the final screen a command leaves behind is never the stale one. Everything the repaint needs — snapshotting the grid, scanning it for login codes, handing it to the UI — happens off the main thread, as do geometry changes. That is what keeps the rest of the app responsive while a command floods the terminal, and what keeps raising the soft keyboard from stalling.</p>
+<p>The PTY hands DORAI AI a block of output as often as the program produces one — under heavy output that is far more often than the display refreshes. Parsing every block into the cell grid happens immediately, so nothing is ever missed, but <strong>painting is coalesced to at most one repaint per frame</strong>. A burst of output collapses into a single redraw instead of one redraw per block, and the last state is always painted, so the final screen a command leaves behind is never the stale one. Everything the repaint needs — snapshotting the grid, scanning it for login codes, handing it to the UI — happens off the main thread, as do geometry changes. That is what keeps the rest of the app responsive while a command floods the terminal, and what keeps raising the soft keyboard from stalling.</p>
 <h2 id="behavior">Behavior</h2>
 <ul>
 <li><strong>Android only</strong> — the entry button is hidden on iOS, desktop, and web, and the environment itself is a no-op there.</li>
 <li><strong>Network required</strong> — the rootfs download and every agent installer need HTTPS outbound access.</li>
 <li><strong>Disk</strong> — expect ~150 MB for the base system, more per agent; the project list reports the real figure once Debian is installed.</li>
-<li><strong>Shared or separate</strong> — Kai Build shares its rootfs with the chat sandbox when that sandbox is Debian, and has its own when it is Alpine. Project folders are the same either way.</li>
+<li><strong>Shared or separate</strong> — DORAI Build shares its rootfs with the chat sandbox when that sandbox is Debian, and has its own when it is Alpine. Project folders are the same either way.</li>
 <li><strong>Projects survive uninstall</strong> — removing Linux deletes the Debian system, not the user's project folders. When the system is shared, removing it from either surface removes it for both. Deleting a project is the other way round: it takes that folder only, and leaves the system alone.</li>
 <li><strong>Files are ordinary files</strong> — project folders live in app external storage, so the browser reads and writes them directly, and a file handed to another app opens as itself.</li>
 </ul>
@@ -1470,104 +1470,104 @@
 </thead>
 <tbody>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/KaiBuildController.kt</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/KaiBuildController.kt</code></td>
 <td>Environment interface plus the no-op used off Android.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/build/KaiBuildState.kt</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/build/KaiBuildState.kt</code></td>
 <td>The single state snapshot the screen renders.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/build/BuildAgents.kt</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/build/BuildAgents.kt</code></td>
 <td>The three installable coding agents.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/build/terminal/</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/build/terminal/</code></td>
 <td>Cell buffer, VT parser, immutable screen snapshot.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/build/terminal/TerminalKeys.kt</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/build/terminal/TerminalKeys.kt</code></td>
 <td>Key set, modifier latches, and the xterm key-to-bytes encoder.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/build/terminal/TerminalMouse.kt</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/build/terminal/TerminalMouse.kt</code></td>
 <td>Which mouse events an app asked for, and the touch-to-report encoder.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/androidMain/kotlin/com/inspiredandroid/kai/KaiBuildController.android.kt</code></td>
+<td><code>composeApp/src/androidMain/kotlin/com/dorai/ai/KaiBuildController.android.kt</code></td>
 <td>Android implementation. Resolves Debian's one install directory and wires the two-way notifications with the chat sandbox, checked at fire time because the sandbox can be pointed at that install and away from it while the app runs.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/androidMain/kotlin/com/inspiredandroid/kai/linux/LinuxInstalls.kt</code></td>
-<td>Which install directory a distribution lives in. Both surfaces resolve against it, which is what makes "Kai Build's Debian" and "a Debian shell integration" the same rootfs.</td>
+<td><code>composeApp/src/androidMain/kotlin/com/dorai/ai/linux/LinuxInstalls.kt</code></td>
+<td>Which install directory a distribution lives in. Both surfaces resolve against it, which is what makes "DORAI Build's Debian" and "a Debian shell integration" the same rootfs.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/androidMain/kotlin/com/inspiredandroid/kai/build/runtime/BuildEnvironmentManager.kt</code></td>
+<td><code>composeApp/src/androidMain/kotlin/com/dorai/ai/build/runtime/BuildEnvironmentManager.kt</code></td>
 <td>Agent installs, agent detection, projects, system facts, and the live sessions. Delegates the rootfs itself to the shared installer, and reports install/uninstall back so a shared sandbox notices.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/androidMain/kotlin/com/inspiredandroid/kai/linux/LinuxInstaller.kt</code></td>
+<td><code>composeApp/src/androidMain/kotlin/com/dorai/ai/linux/LinuxInstaller.kt</code></td>
 <td>Shared download → extract → configure → base packages, used by both surfaces.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/androidMain/kotlin/com/inspiredandroid/kai/linux/DistroSpec.kt</code></td>
+<td><code>composeApp/src/androidMain/kotlin/com/dorai/ai/linux/DistroSpec.kt</code></td>
 <td><code>DebianSpec</code>: LXC index resolve, architecture names, dpkg fixes, the apt setting that keeps it root, and the <code>--link2symlink</code>/<code>-L</code> flags apt needs on Android.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/androidMain/kotlin/com/inspiredandroid/kai/build/runtime/BuildProotExecutor.kt</code></td>
+<td><code>composeApp/src/androidMain/kotlin/com/dorai/ai/build/runtime/BuildProotExecutor.kt</code></td>
 <td>The python PTY bridge and raw byte streaming; the proot invocation itself comes from the shared <code>ProotLauncher</code>.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/build/BuildTerminalContent.kt</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/ui/build/BuildTerminalContent.kt</code></td>
 <td>Compose cell-grid terminal + input for the active session.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/build/BuildSessionBar.kt</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/ui/build/BuildSessionBar.kt</code></td>
 <td>Back, session tabs, and the new-session menu.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/build/BuildProjectsContent.kt</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/ui/build/BuildProjectsContent.kt</code></td>
 <td>Project list, launch-agent row, Debian system card, and the new-project, rename and delete dialogs.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/FileBrowserSource.kt</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/FileBrowserSource.kt</code></td>
 <td>The browsable-tree contract shared with the chat sandbox's file browser.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/androidMain/kotlin/com/inspiredandroid/kai/build/runtime/BuildFileBrowser.kt</code></td>
-<td>Kai Build's side of it: listing, read/write, rename, delete, open-with, over the shared <code>GuestFileMap</code>.</td>
+<td><code>composeApp/src/androidMain/kotlin/com/dorai/ai/build/runtime/BuildFileBrowser.kt</code></td>
+<td>DORAI Build's side of it: listing, read/write, rename, delete, open-with, over the shared <code>GuestFileMap</code>.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/sandbox/SandboxFileBrowserScreen.kt</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/ui/sandbox/SandboxFileBrowserScreen.kt</code></td>
 <td>The reused browser UI, rooted at the open project here.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/build/TerminalKeyRow.kt</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/ui/build/TerminalKeyRow.kt</code></td>
 <td>The Ctrl/Alt/Shift/Esc/Tab/arrow/Enter row and its latch behavior.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/build/TerminalKeyIcons.kt</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/ui/build/TerminalKeyIcons.kt</code></td>
 <td>The arrow and Enter glyphs the key row draws.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/build/TerminalKeyboard.kt</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/build/TerminalKeyboard.kt</code></td>
 <td>Platform input-surface declaration and whether keyboard mode is available.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/androidMain/kotlin/com/inspiredandroid/kai/build/TerminalInputView.kt</code></td>
+<td><code>composeApp/src/androidMain/kotlin/com/dorai/ai/build/TerminalInputView.kt</code></td>
 <td>The Android IME plumbing: null input type, key events, committed text.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/build/KaiBuildScreen.kt</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/ui/build/KaiBuildScreen.kt</code></td>
 <td>Screen shell and the setup / projects / terminal routing.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/build/KaiBuildViewModel.kt</code></td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/ui/build/KaiBuildViewModel.kt</code></td>
 <td>Screen state, and the remembered "Open with" agent — read back at startup and checked against what is installed.</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/EmptyState.kt</code></td>
-<td>Hosts the "Open Kai Build" entry button.</td>
+<td><code>composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/composables/EmptyState.kt</code></td>
+<td>Hosts the "Open DORAI Build" entry button.</td>
 </tr>
 </tbody>
 </table>

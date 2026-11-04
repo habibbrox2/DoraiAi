@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Kai - AI Assistant App">
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/features/notifications/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/features/notifications/">
       
       
         <link rel="prev" href="../kai-build/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Notifications - Kai Documentation</title>
+        <title>Notifications - DORAI AI Documentation</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -771,7 +771,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1338,9 +1338,9 @@
 <h1 id="notifications">Notifications</h1>
 <p><strong>Last verified:</strong> 2026-10-21</p>
 <blockquote>
-<p>Reading notifications is <strong>FOSS-only</strong> and <strong>Android-only</strong>. The Play Store variant of Kai does not declare <code>BIND_NOTIFICATION_LISTENER_SERVICE</code> and the feature is invisible there — no settings, no tools, no code path. Play Store's notification-access policies restrict the listener to a narrow set of approved use cases (accessibility, smartwatches, replacement notification UIs), which Kai is not.</p>
+<p>Reading notifications is <strong>FOSS-only</strong> and <strong>Android-only</strong>. The Play Store variant of DORAI AI does not declare <code>BIND_NOTIFICATION_LISTENER_SERVICE</code> and the feature is invisible there — no settings, no tools, no code path. Play Store's notification-access policies restrict the listener to a narrow set of approved use cases (accessibility, smartwatches, replacement notification UIs), which DORAI AI is not.</p>
 </blockquote>
-<p>Kai on the FOSS Android build can <strong>read</strong> notifications posted by other apps and surface them to the AI, mirroring the SMS feature: per-app opt-in, capped pending queue, heartbeat summary, plus on-demand <code>check_notifications</code> / <code>read_notification</code> / <code>search_notifications</code> tools.</p>
+<p>DORAI AI on the FOSS Android build can <strong>read</strong> notifications posted by other apps and surface them to the AI, mirroring the SMS feature: per-app opt-in, capped pending queue, heartbeat summary, plus on-demand <code>check_notifications</code> / <code>read_notification</code> / <code>search_notifications</code> tools.</p>
 <p>There is no "send" counterpart in v1. Acting on a notification (replying via <code>RemoteInput</code>, dismissing) is out of scope for the first cut and would follow the SMS-send draft pattern when added.</p>
 <h2 id="availability">Availability</h2>
 <ul>
@@ -1352,7 +1352,7 @@
 <h2 id="scope">Scope</h2>
 <ul>
 <li><strong>Read</strong>: list / read / search notifications posted to the system tray since the listener was bound.</li>
-<li><strong>Per-app filtering is delegated to the OS.</strong> System Notification Access already exposes an "Apps" picker per listener — if the user unchecks an app there, <code>onNotificationPosted</code> is never fired for that package. We don't duplicate that UI in Kai; the in-app toggle is just a master switch for the whole feature.</li>
+<li><strong>Per-app filtering is delegated to the OS.</strong> System Notification Access already exposes an "Apps" picker per listener — if the user unchecks an app there, <code>onNotificationPosted</code> is never fired for that package. We don't duplicate that UI in DORAI AI; the in-app toggle is just a master switch for the whole feature.</li>
 <li><strong>Master switch pauses capture.</strong> While the in-app toggle is off, posts are dropped even if system access is still granted.</li>
 <li><strong>Visible notifications only.</strong> Ongoing and foreground-service notifications (media controls, downloads, navigation) are filtered out via <code>FLAG_ONGOING_EVENT</code> and <code>FLAG_FOREGROUND_SERVICE</code> — they are sticky UI affordances, not events. Posts with a blank title and blank text are also dropped at capture.</li>
 <li><strong>No reply, no dismiss, no action invocation in v1.</strong> The listener is read-only.</li>
@@ -1362,15 +1362,15 @@
 <p>Notification access is granted via system settings, not a runtime permission dialog — there is no <code>requestPermissions</code> path for <code>BIND_NOTIFICATION_LISTENER_SERVICE</code>.</p>
 <ol>
 <li>In <strong>Settings → Agent → Notifications → "Read notifications"</strong>, the user flips the toggle on. The toggle records <strong>user intent</strong> and stays on even if access is not yet granted.</li>
-<li>If access is not yet granted, the app deep-links to the system notification-access screen — Kai's own detail page where supported, otherwise the global listener list — so the user can enable Kai.</li>
-<li>On return (and whenever the settings screen resumes), the app re-checks whether listener access is granted for Kai's component. On Android 8.1+ this asks the system directly; on Android 8.0 it falls back to reading the system's list of enabled notification listeners. Access state is shown separately ("Listener active" / inactive, plus an open-access control when intent is on but access is missing). The master toggle does <strong>not</strong> auto-reset when access is denied.</li>
-<li>Once granted, Android binds <code>KaiNotificationListenerService</code>. From then on every <code>onNotificationPosted</code> callback that passes the visibility filters writes a record into the pending queue. Until access is granted, posts are not delivered to the listener. The user can refine <em>which</em> apps Kai sees from the same system Notification Access screen — the "Apps" picker per listener is the source of truth.</li>
+<li>If access is not yet granted, the app deep-links to the system notification-access screen — DORAI AI's own detail page where supported, otherwise the global listener list — so the user can enable DORAI AI.</li>
+<li>On return (and whenever the settings screen resumes), the app re-checks whether listener access is granted for DORAI AI's component. On Android 8.1+ this asks the system directly; on Android 8.0 it falls back to reading the system's list of enabled notification listeners. Access state is shown separately ("Listener active" / inactive, plus an open-access control when intent is on but access is missing). The master toggle does <strong>not</strong> auto-reset when access is denied.</li>
+<li>Once granted, Android binds <code>KaiNotificationListenerService</code>. From then on every <code>onNotificationPosted</code> callback that passes the visibility filters writes a record into the pending queue. Until access is granted, posts are not delivered to the listener. The user can refine <em>which</em> apps DORAI AI sees from the same system Notification Access screen — the "Apps" picker per listener is the source of truth.</li>
 <li>On the next heartbeat, the queue snapshot is included in the prompt under <code>## New Notifications</code>. After the heartbeat run, exactly that snapshot is removed from the queue — notifications that arrived during the call survive to the next heartbeat.</li>
 </ol>
 <p>If the user later revokes notification access from system settings, <code>onListenerDisconnected</code> fires, access reads as false, and the read tools stop appearing in the AI's available-tools list until access is re-granted (the intent toggle can remain on).</p>
 <h2 id="per-app-filtering">Per-app filtering</h2>
-<p>Per-app filtering is <strong>the OS's job</strong>. Android's system Notification Access screen, when opened on a specific listener, exposes an "Apps" picker that lets the user toggle which apps the listener can read. Kai's settings card includes a "Manage apps" button that deep-links straight there.</p>
-<p>This was a deliberate simplification — earlier iterations of this feature shipped a Kai-side "Ignored apps" list, but the OS-level picker covers the same ground without duplicating UI or maintaining a parallel allowlist. A small set of packages is still <strong>hard-blocked</strong> at the listener callback (Kai itself, the Android system package, and System UI) to avoid feedback loops, but everything else flows through whatever the system has approved.</p>
+<p>Per-app filtering is <strong>the OS's job</strong>. Android's system Notification Access screen, when opened on a specific listener, exposes an "Apps" picker that lets the user toggle which apps the listener can read. DORAI AI's settings card includes a "Manage apps" button that deep-links straight there.</p>
+<p>This was a deliberate simplification — earlier iterations of this feature shipped a DORAI AI-side "Ignored apps" list, but the OS-level picker covers the same ground without duplicating UI or maintaining a parallel allowlist. A small set of packages is still <strong>hard-blocked</strong> at the listener callback (DORAI AI itself, the Android system package, and System UI) to avoid feedback loops, but everything else flows through whatever the system has approved.</p>
 <h2 id="no-polling-interval">No polling interval</h2>
 <p>Unlike SMS and email, there is <strong>no <code>pollIntervalMinutes</code></strong>. Notifications are push: the listener service receives <code>onNotificationPosted</code> callbacks the moment a notification fires, and writes synchronously to the store. The scheduler does not need a <code>checkNewNotifications</code> hook.</p>
 <p>The heartbeat still drives the AI summarisation cadence — the pending queue accumulates between heartbeats and gets flushed when the heartbeat runs.</p>
@@ -1480,14 +1480,14 @@ These notifications arrived since the last heartbeat. Summarise briefly; only fl
 </code></pre></div>
 <p>Same lifecycle as the SMS pending queue: the snapshot is taken before the heartbeat, only that snapshot is removed afterward, anything that arrived during the call survives. The whole snapshot is removed — including entries beyond the 20 rendered into the prompt, and even when the toggle is off and the section was omitted. Nothing is removed if the heartbeat call fails.</p>
 <h2 id="notifications_1">Notifications</h2>
-<p>No notifications-specific push notification. New notifications surface via the existing heartbeat notification path: if the heartbeat produces a non-<code>HEARTBEAT_OK</code> response while Kai is backgrounded, the standard heartbeat notification fires and deep-links into the heartbeat conversation.</p>
+<p>No notifications-specific push notification. New notifications surface via the existing heartbeat notification path: if the heartbeat produces a non-<code>HEARTBEAT_OK</code> response while DORAI AI is backgrounded, the standard heartbeat notification fires and deep-links into the heartbeat conversation.</p>
 <h2 id="settings-ui">Settings UI</h2>
 <p>The Notifications section appears in <strong>Settings → Agent</strong> only when <code>isNotificationsSupported</code> is true (FOSS build). One card with:</p>
 <ul>
 <li><strong>Read notifications</strong> toggle — records intent and deep-links to system notification-access settings when turned on; remains on even if access is still missing.</li>
 <li><strong>Access-required row with "Open notification access"</strong> — shown instead of the rows below when the toggle is on but access has not been granted (or was revoked).</li>
 <li><strong>Listener status</strong> — "Listener active" / "Listener inactive — check notification access" (shown once access is granted).</li>
-<li><strong>"Manage apps"</strong> button — next to the status; deep-links to the same system Notification Access screen so the user can adjust which apps Kai can read.</li>
+<li><strong>"Manage apps"</strong> button — next to the status; deep-links to the same system Notification Access screen so the user can adjust which apps DORAI AI can read.</li>
 <li><strong>Queued count + Clear queue</strong> — shown only when the pending queue is non-empty: the number of notifications waiting for the next heartbeat, with a button to flush them on demand.</li>
 </ul>
 <p>There is <strong>no poll interval slider</strong> — the listener is push-driven.</p>

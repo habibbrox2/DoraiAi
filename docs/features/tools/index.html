@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Kai - AI Assistant App">
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/features/tools/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/features/tools/">
       
       
         <link rel="prev" href="../multi-service/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Tools - Kai Documentation</title>
+        <title>Tools - DORAI AI Documentation</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -1283,7 +1283,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1981,7 +1981,7 @@
 
 <h1 id="tools">Tools</h1>
 <p><strong>Last verified:</strong> 2026-11-03</p>
-<p>Kai's tools feature allows the AI to execute external functions during conversations — web search, notifications, calendar events, shell commands, memory operations, and more. Tools are defined with a schema, executed with safety guards, and managed through per-tool toggles in settings.</p>
+<p>DORAI AI's tools feature allows the AI to execute external functions during conversations — web search, notifications, calendar events, shell commands, memory operations, and more. Tools are defined with a schema, executed with safety guards, and managed through per-tool toggles in settings.</p>
 <h2 id="concepts">Concepts</h2>
 <h3 id="tool">Tool</h3>
 <p>An executable function the AI can invoke during a conversation. Each tool declares a schema (name, description, parameters), a timeout (default 30 seconds), and an execute method that receives parsed arguments and returns a result.</p>
@@ -2111,7 +2111,7 @@
 </tr>
 <tr>
 <td><code>check_email</code></td>
-<td>List emails that arrived since Kai last surfaced new mail</td>
+<td>List emails that arrived since DORAI AI last surfaced new mail</td>
 </tr>
 <tr>
 <td><code>read_email</code></td>
@@ -2191,7 +2191,7 @@
 <li>Network access (shares the host network stack)</li>
 </ul>
 <p>The tool's description is composed per distribution, so the model is told the right package manager, the right distribution name and the right pre-installed set. Handing it "Alpine" and an <code>apk add</code> example while a Debian rootfs is mounted costs turns on commands that do not exist.</p>
-<p><strong>Setup flow:</strong> The sandbox requires a one-time setup that downloads a rootfs — Debian (~150 MB, the default and the one Kai Build shares) or Alpine (~4 MB). Proot is bundled in the APK as a native library. After setup, users can optionally install the extra package bundle. The distribution can be changed at any time afterwards; each keeps its own install, so switching re-points the tool rather than reinstalling anything, and the tool's description follows the newly selected system.</p>
+<p><strong>Setup flow:</strong> The sandbox requires a one-time setup that downloads a rootfs — Debian (~150 MB, the default and the one DORAI Build shares) or Alpine (~4 MB). Proot is bundled in the APK as a native library. After setup, users can optionally install the extra package bundle. The distribution can be changed at any time afterwards; each keeps its own install, so switching re-points the tool rather than reinstalling anything, and the tool's description follows the newly selected system.</p>
 <p><strong>Mirror fallback (Alpine):</strong> The downloader tries the primary Alpine CDN first, then falls back through a list of official mirrors (kernel.org, RWTH Aachen, ETH Zürich, Waterloo, Tsinghua) so setup succeeds in regions where the primary CDN is unreachable. The same mirror list is also used to pick <code>/etc/apk/repositories</code> during setup — <code>apk update</code> is retried against each mirror until one succeeds, so later <code>apk add</code> calls resolve through a reachable mirror. Debian resolves a single architecture-matched URL from the Linux Containers image index.</p>
 <p><strong>Architecture:</strong> Proot is a user-space chroot implementation that intercepts syscalls via ptrace. No root access is required. The rootfs and tmp directory live in the app's internal files directory — one directory per distribution, which is what lets both exist and be switched between — and <code>/root</code> is part of the rootfs so binaries installed into the home directory can actually be executed. <code>/root/projects</code> is bind-mounted from the externally-visible app directory. FileProvider is configured for both areas, so <code>open_file</code> works anywhere in the tree. Sandboxes installed before the Debian option existed keep their older layout, with the whole of <code>/root</code> bound in from external storage.</p>
 <p><strong>Settings:</strong> The sandbox section appears in Settings &gt; Linux Sandbox on Android and contains a single card — titled with the installed distribution, or the one about to be installed — with a distribution picker (before install only), the install / install-basic-packages / uninstall actions and the "use sandbox vs native shell" toggle. Day-to-day usage (terminal, file browser, packages) is <strong>not</strong> in Settings — it lives behind the chat-bar shortcut.</p>

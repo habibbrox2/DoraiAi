@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
-  <title id="title">Brox Kai app icon, cyan</title><desc id="desc">Navy and white BK monogram on a cyan tile.</desc>
-  <rect width="512" height="512" rx="112" fill="#00D1E8"/>
-  <path d="M104 96H240C300 96 333 129 333 176C333 207 317 230 291 244C328 257 349 284 349 321C349 377 309 416 246 416H104V96ZM176 158V222H232C252 222 264 210 264 190C264 170 252 158 232 158H176ZM176 280V354H240C263 354 276 340 276 317C276 294 262 280 239 280H176Z" fill="#0B2B5B" fill-rule="evenodd"/>
-  <path d="M354 96H422L328 253L425 416H346L270 287L354 96Z" fill="#F5F8FC"/>
-</svg>

@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Kai - AI Assistant App">
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/2027-premium-ui-phase-a1-composable-map/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/2027-premium-ui-phase-a1-composable-map/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>Phase A1 — Composable-to-Route and Feature Ownership Map - Kai Documentation</title>
+        <title>Phase A1 -> Composable-to-Route and Feature Ownership Map - DORAI AI Documentation</title>
       
     
     
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href=".." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -104,13 +104,13 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Phase A1 — Composable-to-Route and Feature Ownership Map
+              Phase A1 -&gt; Composable-to-Route and Feature Ownership Map
             
           </span>
         </div>
@@ -214,13 +214,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href=".." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -767,7 +767,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -996,12 +996,12 @@
   <a href="#2-route-parent-child-surface-map" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Route → parent → child surface map
+        2. Route -&gt; parent -&gt; child surface map
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. Route → parent → child surface map">
+    <nav class="md-nav" aria-label="2. Route -&gt; parent -&gt; child surface map">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1418,14 +1418,14 @@
 
 
 
-<h1 id="phase-a1-composable-to-route-and-feature-ownership-map">Phase A1 — Composable-to-Route and Feature Ownership Map</h1>
-<p><strong>Repository:</strong> <code>habibbrox2/brox-kai-2.0</code><br />
+<h1 id="phase-a1-composable-to-route-and-feature-ownership-map">Phase A1 -&gt; Composable-to-Route and Feature Ownership Map</h1>
+<p><strong>Repository:</strong> <code>habibbrox2/DoraiAi</code>
 <strong>Branch:</strong> <code>feature/2027-premium-agent-ui-migration</code><br />
 <strong>Audited head before this document:</strong> <code>6af4d4e77eece8bce749608896400edeb8c76235</code><br />
-<strong>Scope:</strong> 137 Kotlin files under <code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui</code><br />
+<strong>Scope:</strong> 137 Kotlin files under <code>composeApp/src/commonMain/kotlin/com/dorai/ai/ui</code>
 <strong>Method:</strong> Git tree inventory plus source inspection of App navigation and the major route/surface composables. This is a structural ownership map, not a claim that every private composable or runtime state has been visually tested.</p>
 <h2 id="1-verified-application-route-graph">1. Verified application route graph</h2>
-<p>Source of truth: <code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/App.kt</code>.</p>
+<p>Source of truth: <code>composeApp/src/commonMain/kotlin/com/dorai/ai/App.kt</code>.</p>
 <table>
 <thead>
 <tr>
@@ -1470,9 +1470,9 @@
 - Build receives an optional project identifier through its typed route.
 - Sandbox is not a top-level NavHost destination in <code>App.kt</code>; its UI is embedded in the supported Chat/workspace flow.
 - Full-screen image viewing is hosted above the NavHost by <code>FullScreenImageHost</code>.</p>
-<h2 id="2-route-parent-child-surface-map">2. Route → parent → child surface map</h2>
+<h2 id="2-route-parent-child-surface-map">2. Route -&gt; parent -&gt; child surface map</h2>
 <h3 id="home-chat">Home / Chat</h3>
-<p><code>App.Home → ChatScreen → ChatScreenContent → ChatModeScreen → ChatShell</code></p>
+<p><code>App.Home -&gt; ChatScreen -&gt; ChatScreenContent -&gt; ChatModeScreen -&gt; ChatShell</code></p>
 <table>
 <thead>
 <tr>
@@ -1509,7 +1509,7 @@
 </table>
 <p>Primary owner: <code>ChatViewModel</code> and <code>ChatActions</code>. Presentation components receive state and callbacks; they must not take ownership of provider, persistence, MCP, sandbox execution, or permission business logic.</p>
 <h3 id="dashboard">Dashboard</h3>
-<p><code>App.Dashboard → DashboardScreen → DashboardScreenContent</code></p>
+<p><code>App.Dashboard -&gt; DashboardScreen -&gt; DashboardScreenContent</code></p>
 <p>Children verified in source:
 - <code>DashboardHeader</code>
 - <code>ReadinessCard</code>
@@ -1518,7 +1518,7 @@
 - <code>ConversationRow</code> / <code>ProjectRow</code></p>
 <p>Models: <code>DashboardModels.kt</code>. Navigation callbacks return to Chat, open Build/Settings, start Design chat, or load a conversation.</p>
 <h3 id="settings">Settings</h3>
-<p><code>App.Settings(tab) → SettingsScreen → SettingsScreenContent → SettingsNavRail / SettingsOverview / SettingsDetailPane</code></p>
+<p><code>App.Settings(tab) -&gt; SettingsScreen -&gt; SettingsScreenContent -&gt; SettingsNavRail / SettingsOverview / SettingsDetailPane</code></p>
 <table>
 <thead>
 <tr>
@@ -1563,29 +1563,29 @@
 </table>
 <p>The Settings root also receives optional Android update content. Sandbox settings state is supplied separately from <code>SandboxViewModel</code>.</p>
 <h3 id="build-workspace">Build workspace</h3>
-<p><code>App.Build(project) → KaiBuildScreen → KaiBuildScreenContent</code></p>
+<p><code>App.Build(project) -&gt; KaiBuildScreen -&gt; KaiBuildScreenContent</code></p>
 <p>Children:
 - <code>BuildSetupContent</code> (setup/install steps and setup errors)
 - <code>BuildProjectsContent</code> (project list, create/rename/delete dialogs, system/agent cards)
 - <code>BuildSessionBar</code>
 - <code>BuildStatusPill</code>
 - <code>BuildSectionHeader</code>
-- <code>BuildTerminalContent</code> → terminal hyperlink bar and terminal grid
+- <code>BuildTerminalContent</code> -&gt; terminal hyperlink bar and terminal grid
 - <code>TerminalKeyRow</code> / <code>TerminalKeyIcons</code></p>
 <p>State and actions: <code>KaiBuildViewModel</code>, <code>KaiBuildUiState</code>, <code>KaiBuildActions</code>, build session/terminal models. Terminal-specific ANSI and terminal canvas presentation are intentionally separate from generic app surfaces.</p>
 <h3 id="sandbox-embedded-chatworkspace-feature-not-a-top-level-app-route">Sandbox (embedded Chat/workspace feature, not a top-level App route)</h3>
-<p>Parent: Chat/workspace sandbox content → <code>SandboxTabsContent</code>.</p>
+<p>Parent: Chat/workspace sandbox content -&gt; <code>SandboxTabsContent</code>.</p>
 <p>Children:
-- <code>SandboxFileBrowserScreen.kt</code> → <code>SandboxFilesContent</code>, path bar, file list/row/menu, editor body, unopenable-file view, delete/rename dialogs.
-- <code>SandboxPackagesScreen.kt</code> → <code>SandboxPackagesContent</code>, packages list/row, upgrade row, uninstall confirmation.
+- <code>SandboxFileBrowserScreen.kt</code> -&gt; <code>SandboxFilesContent</code>, path bar, file list/row/menu, editor body, unopenable-file view, delete/rename dialogs.
+- <code>SandboxPackagesScreen.kt</code> -&gt; <code>SandboxPackagesContent</code>, packages list/row, upgrade row, uninstall confirmation.
 - <code>FindReplacePanel.kt</code>, <code>ReplaceAllConfirmDialog.kt</code>, <code>SandboxStatusText.kt</code>.
 - State owners: <code>SandboxFileBrowserViewModel</code>, <code>SandboxPackagesViewModel</code>, <code>SandboxSessionViewModel</code>, plus Settings sandbox state/view model.</p>
 <h3 id="dynamic-ui-interactive-response-renderer">Dynamic UI / interactive response renderer</h3>
-<p>Parent: Chat assistant message rendering → <code>KaiUiRenderer</code> → typed <code>KaiUiNode</code> tree.</p>
+<p>Parent: Chat assistant message rendering -&gt; <code>KaiUiRenderer</code> -&gt; typed <code>KaiUiNode</code> tree.</p>
 <p>Renderer children include column, row, card, text, button, text input, checkbox, select, image, table, list, switch, slider, radio group, progress, countdown, alert, chip group, icon, code, quote, badge, stat, avatar, box, tabs, and accordion renderers.</p>
 <p>Supporting files: <code>KaiUiNode.kt</code>, <code>KaiUiNodeBuilders.kt</code>, <code>KaiUiParser.kt</code>, <code>UiAction.kt</code>, <code>KaiUiTts.kt</code>. Renderer actions must remain typed/allowlisted and must not execute arbitrary model-provided code.</p>
 <h3 id="markdown-response-content">Markdown / response content</h3>
-<p>Parent: Chat message content → <code>MarkdownContent</code> / <code>MarkdownRenderer</code>.</p>
+<p>Parent: Chat message content -&gt; <code>MarkdownContent</code> / <code>MarkdownRenderer</code>.</p>
 <p>Supporting files:
 - Parsing: <code>BlockScanner.kt</code>, <code>MarkdownParser.kt</code>, <code>MarkdownNode.kt</code>, <code>InlineTokenizer.kt</code>, <code>EmojiShortcodes.kt</code>.
 - Rendering: <code>MarkdownRenderer.kt</code>, <code>MarkdownTextRenderer.kt</code>, <code>MarkdownInlineRenderer.kt</code>, <code>InlineContent.kt</code>.
@@ -1780,7 +1780,7 @@
 <h3 id="not-yet-fully-verified">Not yet fully verified</h3>
 <ul>
 <li>Exact call-site parent for every private Composable in all 137 files (especially shared utilities, settings subsections, Markdown leaf renderers, and dynamically selected sections).</li>
-<li>Every SettingsTab enum value → exact section Composable mapping.</li>
+<li>Every SettingsTab enum value -&gt; exact section Composable mapping.</li>
 <li>Every conditional branch and platform-specific visibility path.</li>
 <li>Full set of nested Dialog/Sheet/Popover ownership links.</li>
 <li>Runtime-only routes opened by platform-specific integrations outside the commonMain NavHost.</li>
@@ -1788,7 +1788,7 @@
 </ul>
 <h3 id="next-audit-actions">Next audit actions</h3>
 <ol>
-<li>Finish exact SettingsTab → section call-site mapping.</li>
+<li>Finish exact SettingsTab -&gt; section call-site mapping.</li>
 <li>Trace every ChatScreen conditional slot and the full ChatShell parent-child composition.</li>
 <li>Trace Build and Sandbox content switch branches to exact child composables.</li>
 <li>Complete shared-component consumer map and dynamic Markdown/Dynamic UI embedding map.</li>
@@ -1802,58 +1802,58 @@
 <li><code>ChatScreen</code> delegates to <code>ChatScreenContent</code>, then <code>ChatModeScreen</code>. <code>ChatModeScreen</code> owns local presentation state (drawer, sandbox visibility, composer prefill, snackbar/scroll state) while actions remain on <code>ChatUiState.actions</code>.</li>
 <li><code>ChatModeScreen</code> supplies <code>ChatShell</code> slots: <code>TopBar</code> as header; <code>AppSidebar</code> as the expanded conversation rail and compact modal drawer content; timeline/empty-state plus <code>ChatComposer</code> as main content; <code>SandboxTabsContent</code> as compact main content or expanded side panel; snackbar/error/free-provider UI in overlays.</li>
 <li><code>ChatShell</code> places header above content. Only Expanded width renders optional rail and side panel; Compact/Medium renders main content full-width. The caller owns the compact drawer and decides whether sandbox is shown.</li>
-<li>Main-content branches verified: empty history → <code>EmptyState</code>; non-empty history → <code>ChatTimeline</code>; compact sandbox-open → <code>SandboxTabsContent</code> replaces timeline/composer; composer is omitted while sandbox is open.</li>
+<li>Main-content branches verified: empty history -&gt; <code>EmptyState</code>; non-empty history -&gt; <code>ChatTimeline</code>; compact sandbox-open -&gt; <code>SandboxTabsContent</code> replaces timeline/composer; composer is omitted while sandbox is open.</li>
 </ul>
 <h3 id="settings-route-and-all-tab-branches">Settings route and all tab branches</h3>
 <ul>
-<li><code>SettingsScreen</code> → adaptive settings shell/navigation → <code>SettingsDetailPane</code>.</li>
+<li><code>SettingsScreen</code> -&gt; adaptive settings shell/navigation -&gt; <code>SettingsDetailPane</code>.</li>
 <li>Exact <code>SettingsTab</code> dispatch in <code>SettingsDetailPane</code>:</li>
-<li>General → <code>SettingsOverview</code> + <code>GeneralContent</code> (Android update slot is passed here).</li>
-<li>Appearance → <code>AppearanceContent</code>.</li>
-<li>Agent → <code>AgentContent</code>.</li>
-<li>Services → <code>ServicesContent</code>.</li>
-<li>Tools → <code>ToolsTabContent</code> (receives sandbox state).</li>
-<li>Integrations → <code>IntegrationsContent</code>.</li>
-<li>Sandbox → <code>SandboxSettingsCard</code> when sandbox UI is available; otherwise <code>SandboxUnavailableContent</code>.</li>
-<li>Data → <code>DataControlContent</code>.</li>
-<li>Account → <code>AccountPlanContent</code>.</li>
+<li>General -&gt; <code>SettingsOverview</code> + <code>GeneralContent</code> (Android update slot is passed here).</li>
+<li>Appearance -&gt; <code>AppearanceContent</code>.</li>
+<li>Agent -&gt; <code>AgentContent</code>.</li>
+<li>Services -&gt; <code>ServicesContent</code>.</li>
+<li>Tools -&gt; <code>ToolsTabContent</code> (receives sandbox state).</li>
+<li>Integrations -&gt; <code>IntegrationsContent</code>.</li>
+<li>Sandbox -&gt; <code>SandboxSettingsCard</code> when sandbox UI is available; otherwise <code>SandboxUnavailableContent</code>.</li>
+<li>Data -&gt; <code>DataControlContent</code>.</li>
+<li>Account -&gt; <code>AccountPlanContent</code>.</li>
 <li>Navigation rail labels/icons and grouping were checked against the same nine enum values in <code>SettingsNavigation.kt</code>. Groups: Assistant (General/Appearance/Agent), Models &amp; services (Services), Connections (Tools/Integrations), Workspace (Sandbox), Account (Data/Account).</li>
 </ul>
 <h3 id="dashboard-route">Dashboard route</h3>
 <ul>
 <li><code>DashboardScreen</code> collects SandboxController and KaiBuildController state, builds <code>DashboardUiState</code>, then calls <code>DashboardScreenContent</code>.</li>
-<li><code>DashboardScreenContent</code> composes exactly: <code>DashboardHeader</code> → <code>ReadinessCard</code> → <code>DashboardActionGrid</code> → <code>RecentWorkSection</code>.</li>
+<li><code>DashboardScreenContent</code> composes exactly: <code>DashboardHeader</code> -&gt; <code>ReadinessCard</code> -&gt; <code>DashboardActionGrid</code> -&gt; <code>RecentWorkSection</code>.</li>
 <li><code>RecentWorkSection</code> conditionally shows conversation rows when conversations exist and project rows only when projects exist and Build is available. Grid columns are 1 below 600dp, 2 below 1000dp, and 4 otherwise.</li>
 </ul>
 <h3 id="build-route">Build route</h3>
 <ul>
 <li><code>KaiBuildScreen</code> owns ViewModel collection/actions and delegates presentation to <code>KaiBuildScreenContent</code>.</li>
-<li>With an open project: <code>BuildSessionBar</code> is shown; then Files → <code>SandboxFilesContent</code>; else a matching/fallback session → <code>BuildTerminalContent</code>; else a starting-session placeholder is shown and a session is requested.</li>
-<li>Without an open project: <code>KaiBuildTopBar</code> is shown; ready state → <code>BuildProjectsContent</code>; not-ready state → <code>BuildSetupContent</code>. Create-project dialog is an overlay controlled by the screen.</li>
+<li>With an open project: <code>BuildSessionBar</code> is shown; then Files -&gt; <code>SandboxFilesContent</code>; else a matching/fallback session -&gt; <code>BuildTerminalContent</code>; else a starting-session placeholder is shown and a session is requested.</li>
+<li>Without an open project: <code>KaiBuildTopBar</code> is shown; ready state -&gt; <code>BuildProjectsContent</code>; not-ready state -&gt; <code>BuildSetupContent</code>. Create-project dialog is an overlay controlled by the screen.</li>
 </ul>
 <h3 id="sandbox-embedded-workspace">Sandbox embedded workspace</h3>
 <ul>
 <li><code>ChatModeScreen</code> is the verified call site for <code>SandboxTabsContent</code> in both compact and expanded layouts. Build also reuses <code>SandboxFilesContent</code> as its project file view.</li>
-<li>Ready state: Terminal → optional <code>SessionChipRow</code> + <code>TerminalContent</code>; Files → <code>SandboxFilesContent</code>; Packages → <code>SandboxPackagesContent</code>.</li>
+<li>Ready state: Terminal -&gt; optional <code>SessionChipRow</code> + <code>TerminalContent</code>; Files -&gt; <code>SandboxFilesContent</code>; Packages -&gt; <code>SandboxPackagesContent</code>.</li>
 <li>Not-ready state: setup card reports Needs setup / Installing / Failed, optionally shows progress/cancel or error, and offers setup/retry when not working.</li>
 <li>The tab selection is session-backed when <code>SandboxSessionViewModel</code> exists, otherwise local state is used (e.g. preview).</li>
 </ul>
 <h3 id="markdown-and-dynamic-ui-embedding">Markdown and Dynamic UI embedding</h3>
 <ul>
 <li><code>MarkdownContent</code> converts source text to a parsed <code>MarkdownDocument</code> (with a safe plain-text fallback) and delegates each block to <code>BlockRenderer</code>.</li>
-<li><code>BlockRenderer</code> dispatches headings/paragraphs/lists/quotes/tables/math/code/diff to their leaf renderers. A <code>KaiUiBlock</code> is the direct embedding point for <code>KaiUiRenderer</code>; malformed Kai-UI JSON is rendered as a JSON code fence.</li>
+<li><code>BlockRenderer</code> dispatches headings/paragraphs/lists/quotes/tables/math/code/diff to their leaf renderers. A <code>KaiUiBlock</code> is the direct embedding point for <code>KaiUiRenderer</code>; malformed DORAI AI-UI JSON is rendered as a JSON code fence.</li>
 <li><code>KaiUiRenderer</code> recursively renders the typed <code>KaiUiNode</code> tree and passes callback data through its typed callback contract. Historical/read-only messages set <code>isInteractive = false</code> at the Markdown boundary.</li>
 </ul>
 <h3 id="platform-and-overlay-ownership">Platform and overlay ownership</h3>
 <ul>
-<li>Top-level route set is commonMain NavHost; Android-only capability flags are passed from <code>AppContent</code> for Sandbox and Kai Build. Android update UI is an optional slot passed through Settings → General.</li>
+<li>Top-level route set is commonMain NavHost; Android-only capability flags are passed from <code>AppContent</code> for Sandbox and DORAI Build. Android update UI is an optional slot passed through Settings -&gt; General.</li>
 <li>Full-screen image hosting is above NavHost. Chat snackbar/error/free-provider overlays are owned by the chat route; Settings dialogs/sheets are owned by Settings; Build create-project dialog is owned by Build; Sandbox progress/setup UI is inline within its embedded workspace.</li>
 <li>Platform back handlers are attached to Dashboard, Settings, and Build route boundaries; Chat handles its own back/drawer/sandbox state.</li>
 </ul>
 <h3 id="a1-coverage-boundary">A1 coverage boundary</h3>
 <p>This closes the route/feature-level composition map for all top-level routes and the cross-feature surfaces that materially affect the premium UI migration. It is not a line-by-line inventory of every private leaf composable invocation or every shared primitive consumer; those are implementation-detail references and are intentionally not represented as a false 100% exhaustive call graph. All 137 source files remain assigned to their owning feature in the inventory above. Visual/accessibility state coverage remains Phase C verification.</p>
 <h2 id="7-phase-a1-status">7. Phase A1 status</h2>
-<p><strong>Status: Complete — all top-level route roots, route ownership, responsive Chat slots, nine Settings tab branches, Dashboard composition, Build state branches, Sandbox tabs/readiness branches, Markdown → Dynamic UI embedding, and major overlay/platform boundaries are source-verified.</strong></p>
+<p><strong>Status: Complete -&gt; all top-level route roots, route ownership, responsive Chat slots, nine Settings tab branches, Dashboard composition, Build state branches, Sandbox tabs/readiness branches, Markdown -&gt; Dynamic UI embedding, and major overlay/platform boundaries are source-verified.</strong></p>
 <p>The closure is scoped to route and feature-level composition; it does not claim a complete private-composable call graph or runtime visual verification. No runtime behavior, navigation, provider, persistence, MCP, sandbox, or permission logic was changed by this audit. No merge, release, or deployment is included.</p>
 
 

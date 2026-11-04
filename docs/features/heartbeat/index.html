@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Kai - AI Assistant App">
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/features/heartbeat/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/features/heartbeat/">
       
       
         <link rel="prev" href="../memories/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Heartbeat - Kai Documentation</title>
+        <title>Heartbeat - DORAI AI Documentation</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -967,7 +967,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1352,7 +1352,7 @@
 <blockquote>
 <p>Heartbeat is user-controlled (on/off toggle, interval, active hours live in the settings UI). The AI cannot enable, disable, or reschedule it. To customise <em>what happens on each heartbeat</em>, the AI creates heartbeat-triggered scheduled tasks via <code>schedule_task</code> with <code>on_heartbeat: true</code> — these are <code>HEARTBEAT</code>-trigger tasks (see <a href="../tasks/">tasks.md</a>) and their prompts are appended to every heartbeat run under <code>## Heartbeat Additions</code>. Each addition is a first-class task the user can see, edit, and cancel.</p>
 </blockquote>
-<p>Kai's heartbeat feature enables periodic automatic self-checks. The AI reviews pending tasks, email status, newly arrived emails, and learned memories on a configurable interval, surfacing anything that needs attention without requiring user interaction.</p>
+<p>DORAI AI's heartbeat feature enables periodic automatic self-checks. The AI reviews pending tasks, email status, newly arrived emails, and learned memories on a configurable interval, surfacing anything that needs attention without requiring user interaction.</p>
 <h2 id="concepts">Concepts</h2>
 <h3 id="heartbeat_1">Heartbeat</h3>
 <p>A silent, scheduled prompt sent to the AI during active hours. If nothing needs attention, the AI responds with "HEARTBEAT_OK" and the user sees nothing. If something requires follow-up, the response appears as an assistant message in the chat.</p>
@@ -1388,7 +1388,7 @@
 <li>If the AI response contains "HEARTBEAT_OK", nothing is shown to the user</li>
 <li>Any other non-blank response is appended to a dedicated heartbeat conversation, which keeps its 50 most recent messages, and the unread-heartbeat indicator is set</li>
 <li>A dismissable banner appears at the top of the chat when the heartbeat has something to report</li>
-<li><strong>Android push notification</strong>: when the heartbeat produces a non-OK report <em>and</em> the app is not currently in the foreground (tracked at the process level, so any visible activity counts), a push notification titled "Kai heartbeat" fires. Tapping it launches/foregrounds the app and opens the heartbeat conversation. The notification uses a fixed id so a fresh report replaces the previous unread one instead of stacking. The body is the heartbeat response with markdown and dynamic-UI blocks stripped, capped at 240 characters with an ellipsis; the cut lands on a word boundary when one falls within the last 40 characters, otherwise it is a hard cut. Desktop/iOS/web no-op (banner-only).</li>
+<li><strong>Android push notification</strong>: when the heartbeat produces a non-OK report <em>and</em> the app is not currently in the foreground (tracked at the process level, so any visible activity counts), a push notification titled "DORAI AI heartbeat" fires. Tapping it launches/foregrounds the app and opens the heartbeat conversation. The notification uses a fixed id so a fresh report replaces the previous unread one instead of stacking. The body is the heartbeat response with markdown and dynamic-UI blocks stripped, capped at 240 characters with an ellipsis; the cut lands on a word boundary when one falls within the last 40 characters, otherwise it is a hard cut. Desktop/iOS/web no-op (banner-only).</li>
 <li>Tapping the banner loads the heartbeat conversation so the user can read the report and reply</li>
 <li>The X button dismisses the banner without navigating</li>
 <li>Heartbeat conversations are included in the chat history list with a "Heartbeat" label badge, and can also be accessed via the banner</li>
@@ -1403,12 +1403,12 @@
 <li><strong>Previous heartbeat results</strong> — the last 3 messages in the heartbeat conversation (which can include scheduled-task output), so the AI can track trends, avoid repeating notifications, and detect persistent issues (e.g. "email still unread since last check")</li>
 <li><strong>Pending tasks</strong> — pending time- and cron-triggered tasks are listed with their description, id, scheduled time, and cron expression (if recurring). Heartbeat-triggered tasks appear under Heartbeat Additions instead</li>
 <li><strong>Email status</strong> — if email is enabled and accounts exist, each account's email address, unread count, and last sync time are included</li>
-<li><strong>New emails</strong> — headers (subject, from, preview) for emails polled since the last heartbeat pickup. Emails are fetched in the background by the email poll loop and buffered in a pending queue (capped at 100, FIFO). The heartbeat consumes the queue: everything the heartbeat saw is removed from the queue after a successful run, while emails that arrive during the heartbeat call remain for the next run. After consumption the heartbeat also advances each account's delivery watermark, so a follow-up <code>check_email</code> call from the user won't re-surface the same messages — Kai tracks read/unread internally and ignores the provider's <code>\Seen</code> flag</li>
+<li><strong>New emails</strong> — headers (subject, from, preview) for emails polled since the last heartbeat pickup. Emails are fetched in the background by the email poll loop and buffered in a pending queue (capped at 100, FIFO). The heartbeat consumes the queue: everything the heartbeat saw is removed from the queue after a successful run, while emails that arrive during the heartbeat call remain for the next run. After consumption the heartbeat also advances each account's delivery watermark, so a follow-up <code>check_email</code> call from the user won't re-surface the same messages — DORAI AI tracks read/unread internally and ignores the provider's <code>\Seen</code> flag</li>
 <li><strong>New SMS</strong> — SMS messages received since the last heartbeat (only while SMS is enabled). Consumed analogously to emails: buffered as they arrive, surfaced once under <code>## New SMS</code>, and cleared from the pending queue after a successful run so the next heartbeat only sees newer arrivals</li>
 <li><strong>New notifications</strong> — Android notifications captured since the last heartbeat (only while notification access is enabled), capped at 20 newest-first; any beyond the cap stay queued for later heartbeats. Consumed analogously to emails: buffered as they arrive, surfaced once under <code>## New Notifications</code>, and cleared from the pending queue after a successful run so the next heartbeat only sees newer arrivals</li>
 <li><strong>Promotion candidates</strong> — memories with 5 or more hits are listed with their key, hit count, category, and content, along with a suggestion to use the <code>promote_learning</code> tool</li>
 </ol>
-<p>For the full contract of every prompt variation in Kai (chat remote/local, heartbeat, Splinterlands) see <a href="../system-prompts/">system-prompts.md</a>.</p>
+<p>For the full contract of every prompt variation in DORAI AI (chat remote/local, heartbeat, Splinterlands) see <a href="../system-prompts/">system-prompts.md</a>.</p>
 <h2 id="heartbeat-log">Heartbeat Log</h2>
 <ul>
 <li>Stores up to 5 most recent heartbeat entries</li>
@@ -1533,7 +1533,7 @@
 <td>Reads the deep-link extra on launch/new intent and requests opening the heartbeat conversation</td>
 </tr>
 <tr>
-<td><code>androidApp/src/main/kotlin/.../KaiApplication.kt</code></td>
+<td><code>androidApp/src/main/kotlin/.../DoraiApplication.kt</code></td>
 <td>Tracks process foreground state for the scheduler</td>
 </tr>
 </tbody>

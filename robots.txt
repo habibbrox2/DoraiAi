@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kai9000.com/sitemap.xml
-Sitemap: https://kai9000.com/docs/sitemap.xml
+Sitemap: https://habibbrox2.github.io/DoraiAi/sitemap.xml
+Sitemap: https://habibbrox2.github.io/DoraiAi/docs/sitemap.xml

@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Kai - AI Assistant App">
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/features/dynamic-ui/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/features/dynamic-ui/">
       
       
         <link rel="prev" href="../mcp/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Dynamic UI - Kai Documentation</title>
+        <title>Dynamic UI - DORAI AI Documentation</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -693,10 +693,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#12-rollout-plan" class="md-nav__link">
+  <a href="#12-typescript-boundary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        12. Rollout plan
+        12. TypeScript boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-rollout-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Rollout plan
       
     </span>
   </a>
@@ -1006,7 +1017,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1398,10 +1409,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#12-rollout-plan" class="md-nav__link">
+  <a href="#12-typescript-boundary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        12. Rollout plan
+        12. TypeScript boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-rollout-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Rollout plan
       
     </span>
   </a>
@@ -1430,7 +1452,7 @@
 <strong>Rendering:</strong> Kotlin Compose Multiplatform<br />
 <strong>Transport format:</strong> JSON component trees inside assistant-message code fences</p>
 <h2 id="1-purpose">1. Purpose</h2>
-<p>kai-ui lets an assistant response contain interactive, native UI rather than only prose. The model emits a declarative JSON description; Kai parses it into a typed component tree and renders supported components using Compose.</p>
+<p>kai-ui lets an assistant response contain interactive, native UI rather than only prose. The model emits a declarative JSON description; DORAI AI parses it into a typed component tree and renders supported components using Compose.</p>
 <p>The model output is untrusted input. kai-ui is a constrained presentation protocol, not an executable-code format.</p>
 <h2 id="2-existing-implementation">2. Existing implementation</h2>
 <p>The current feature supports:</p>
@@ -1681,7 +1703,9 @@ ChatActions / approved platform capability
 </tr>
 </tbody>
 </table>
-<h2 id="12-rollout-plan">12. Rollout plan</h2>
+<h2 id="12-typescript-boundary">12. TypeScript boundary</h2>
+<p>The existing kai-ui renderer remains Kotlin Compose Multiplatform. The new TypeScript workspace does not execute model-provided JavaScript and does not replace the current JSON component-tree protocol. If a future browser-side renderer is introduced, it must consume an explicitly versioned contract, preserve the closed component/action allowlist, and delegate privileged operations to Kotlin-owned capability APIs. No TypeScript renderer or bridge is implemented by the hybrid foundation.</p>
+<h2 id="13-rollout-plan">13. Rollout plan</h2>
 <ol>
 <li>Audit the current node model, parser, renderer, and persisted message fixtures.</li>
 <li>Add parser limits and security tests before expanding the node vocabulary.</li>

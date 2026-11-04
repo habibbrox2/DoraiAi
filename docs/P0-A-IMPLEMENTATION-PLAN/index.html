@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Kai - AI Assistant App">
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/P0-A-IMPLEMENTATION-PLAN/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/P0-A-IMPLEMENTATION-PLAN/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>P0-A Implementation Plan — Brox Kai v2.0 - Kai Documentation</title>
+        <title>P0-A Implementation Plan — DORAI AI - DORAI AI Documentation</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#p0-a-implementation-plan-brox-kai-v20" class="md-skip">
+        <a href="#p0-a-implementation-plan-dorai-ai" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href=".." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -104,13 +104,13 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              P0-A Implementation Plan — Brox Kai v2.0
+              P0-A Implementation Plan — DORAI AI
             
           </span>
         </div>
@@ -214,13 +214,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href=".." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -767,7 +767,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1186,7 +1186,7 @@
 
 
 
-<h1 id="p0-a-implementation-plan-brox-kai-v20">P0-A Implementation Plan — Brox Kai v2.0</h1>
+<h1 id="p0-a-implementation-plan-dorai-ai">P0-A Implementation Plan — DORAI AI</h1>
 <h2 id="overview">Overview</h2>
 <p>P0-A addresses critical security findings identified in the read-only audit.
 All changes are security hardening — no feature changes, no branding changes.</p>
@@ -1255,19 +1255,19 @@ All changes are security hardening — no feature changes, no branding changes.<
 <li><code>androidApp/src/main/AndroidManifest.xml</code></li>
 <li><code>androidApp/src/main/res/xml/backup_rules.xml</code></li>
 <li><code>androidApp/src/main/res/xml/data_extraction_rules.xml</code></li>
-<li><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/mcp/McpClient.kt</code></li>
-<li><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/mcp/McpServerManager.kt</code></li>
-<li><code>composeApp/src/androidMain/kotlin/com/inspiredandroid/kai/Platform.android.kt</code></li>
-<li><code>composeApp/src/desktopMain/kotlin/com/inspiredandroid/kai/Platform.jvm.kt</code></li>
-<li><code>composeApp/src/iosMain/kotlin/com/inspiredandroid/kai/Platform.ios.kt</code></li>
-<li><code>composeApp/src/wasmJsMain/kotlin/com/inspiredandroid/kai/Platform.wasmJs.kt</code></li>
+<li><code>composeApp/src/commonMain/kotlin/com/dorai/ai/mcp/McpClient.kt</code></li>
+<li><code>composeApp/src/commonMain/kotlin/com/dorai/ai/mcp/McpServerManager.kt</code></li>
+<li><code>composeApp/src/androidMain/kotlin/com/dorai/ai/Platform.android.kt</code></li>
+<li><code>composeApp/src/desktopMain/kotlin/com/dorai/ai/Platform.jvm.kt</code></li>
+<li><code>composeApp/src/iosMain/kotlin/com/dorai/ai/Platform.ios.kt</code></li>
+<li><code>composeApp/src/wasmJsMain/kotlin/com/dorai/ai/Platform.wasmJs.kt</code></li>
 <li><code>.github/workflows/release.yml</code></li>
 <li><code>SECURITY.md</code></li>
 </ol>
 <h3 id="created">Created</h3>
 <ol>
-<li><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/mcp/McpUrlValidator.kt</code></li>
-<li><code>composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/mcp/McpUrlValidatorTest.kt</code></li>
+<li><code>composeApp/src/commonMain/kotlin/com/dorai/ai/mcp/McpUrlValidator.kt</code></li>
+<li><code>composeApp/src/commonTest/kotlin/com/dorai/ai/mcp/McpUrlValidatorTest.kt</code></li>
 </ol>
 <h2 id="not-in-scope-p0-b-separate-approval">Not In Scope (P0-B, Separate Approval)</h2>
 <ul>

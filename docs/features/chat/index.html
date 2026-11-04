@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Kai - AI Assistant App">
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/features/chat/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/features/chat/">
       
       
         <link rel="prev" href="../../getting-started/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Chat & Conversations - Kai Documentation</title>
+        <title>Chat & Conversations - DORAI AI Documentation</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -1028,7 +1028,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1471,7 +1471,7 @@
 
 <h1 id="chat-conversations">Chat &amp; Conversations</h1>
 <p><strong>Last verified:</strong> 2026-11-03</p>
-<p>Kai's chat system manages the message history, conversation persistence, file attachments, and speech output. Conversations are service-independent — switching providers does not affect which conversation is loaded or restored. Multiple conversations are persisted and browsable via a history sheet.</p>
+<p>DORAI AI's chat system manages the message history, conversation persistence, file attachments, and speech output. Conversations are service-independent — switching providers does not affect which conversation is loaded or restored. Multiple conversations are persisted and browsable via a history sheet.</p>
 <h2 id="concepts">Concepts</h2>
 <h3 id="conversation">Conversation</h3>
 <p>A persisted chat session containing an id (UUID), message list, timestamps (<code>createdAt</code>, <code>updatedAt</code>), a title, and a type (<code>chat</code>, <code>heartbeat</code>, or <code>interactive</code>). Conversations are stored in a local database (browser builds use the settings store) and restored across app launches.</p>
@@ -1491,7 +1491,7 @@
 <li>Conversations are service-independent — switching services does not affect which conversation is loaded</li>
 <li>Interactive vs normal chat mode is persisted alongside the current pointer, so an empty interactive chat also survives a restart</li>
 <li>On the first launch after upgrading from a build that did not persist the current-conversation pointer, a one-time migration pins the most recently updated conversation as the current pointer so the user resumes where they left off</li>
-<li>On Android, sharing plain text into Kai from another app (the system share sheet) starts a new conversation and puts the shared text in the input field, unsent. The previous conversation stays in history. The user can edit the text or add an instruction, then send as usual. Opening Kai from the launcher or the assist gesture is unchanged; assist still starts an empty new chat</li>
+<li>On Android, sharing plain text into DORAI AI from another app (the system share sheet) starts a new conversation and puts the shared text in the input field, unsent. The previous conversation stays in history. The user can edit the text or add an instruction, then send as usual. Opening DORAI AI from the launcher or the assist gesture is unchanged; assist still starts an empty new chat</li>
 </ul>
 <h2 id="chat-history">Chat History</h2>
 <ul>
@@ -1566,7 +1566,7 @@
 <li>Per-message play button on assistant messages</li>
 <li>Markdown is stripped before speaking</li>
 <li>Speech uses the engine the user selected in the platform's system speech settings, so third-party engines are honoured; on Android, Google's engine is only used as a fallback when the system default cannot start</li>
-<li>The engine's own default voice is kept as-is. Kai only picks a different voice when the default one does not speak the system language, in which case the first voice matching that language is selected</li>
+<li>The engine's own default voice is kept as-is. DORAI AI only picks a different voice when the default one does not speak the system language, in which case the first voice matching that language is selected</li>
 </ul>
 <h2 id="conversation-storage">Conversation Storage</h2>
 <ul>
@@ -1612,7 +1612,7 @@
 <td>SQL and settings-blob persistence backends, staged-import handling</td>
 </tr>
 <tr>
-<td><code>composeApp/src/commonMain/sqldelight/com/inspiredandroid/kai/db/conversation.sq</code></td>
+<td><code>composeApp/src/commonMain/sqldelight/com/dorai/ai/db/conversation.sq</code></td>
 <td>Conversation and message table schema and queries</td>
 </tr>
 <tr>

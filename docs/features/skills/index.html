@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Kai - AI Assistant App">
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/features/skills/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/features/skills/">
       
       
         <link rel="prev" href="../system-prompts/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Skills - Kai Documentation</title>
+        <title>Skills - DORAI AI Documentation</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -934,7 +934,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1283,12 +1283,12 @@
 
 <h1 id="skills">Skills</h1>
 <p><strong>Last verified:</strong> 2026-11-03</p>
-<p>Kai supports installable <strong>skills</strong>: reusable instruction bundles, modeled on Anthropic's <a href="https://github.com/anthropics/skills">SKILL.md</a> format (now an open standard at <a href="https://agentskills.io">agentskills.io</a>). A skill packages a name, a description, a body of instructions, and optional bundled files.</p>
+<p>DORAI AI supports installable <strong>skills</strong>: reusable instruction bundles, modeled on Anthropic's <a href="https://github.com/anthropics/skills">SKILL.md</a> format (now an open standard at <a href="https://agentskills.io">agentskills.io</a>). A skill packages a name, a description, a body of instructions, and optional bundled files.</p>
 <p>User-installed skills live <strong>in the Linux sandbox</strong>: each is a folder at <code>~/skills/&lt;id&gt;/</code> (its <code>SKILL.md</code> plus any files). There is no separate copy of those folders in app settings. Because of this, the Skills UI is <strong>Android-only</strong> (the only platform with a sandbox) and requires the sandbox to be installed first. The user browses a curated set of skill marketplaces (or installs from any GitHub repo) and triggers a skill in chat by starting a message with its slash command.</p>
-<p>In addition, Kai ships a small set of <strong>built-in skills</strong> (currently <code>create-skill</code>) loaded from app compose resources. Built-ins appear in the Skills list once the sandbox is installed, are labeled as built-in, and are not removable through the UI. If a user installs a sandbox skill with the same id, the sandbox copy takes precedence over the built-in. <code>create-skill</code> guides the model through writing a new <code>~/skills/&lt;id&gt;/SKILL.md</code> via the shell; after a turn that used it, the skill list is rescanned so the new skill shows up in the slash menu and Settings without a restart.</p>
+<p>In addition, DORAI AI ships a small set of <strong>built-in skills</strong> (currently <code>create-skill</code>) loaded from app compose resources. Built-ins appear in the Skills list once the sandbox is installed, are labeled as built-in, and are not removable through the UI. If a user installs a sandbox skill with the same id, the sandbox copy takes precedence over the built-in. <code>create-skill</code> guides the model through writing a new <code>~/skills/&lt;id&gt;/SKILL.md</code> via the shell; after a turn that used it, the skill list is rescanned so the new skill shows up in the slash menu and Settings without a restart.</p>
 <h2 id="concepts">Concepts</h2>
 <h3 id="skill">Skill</h3>
-<p>Most skills are a folder <code>~/skills/&lt;id&gt;/</code> in the sandbox containing a <code>SKILL.md</code> (and any other files). The <code>SKILL.md</code> frontmatter provides a <code>name</code> (the slash-command id) and a <code>description</code>; the markdown after the frontmatter is the instruction body. Kai keeps an in-memory cache of installed sandbox skills plus any built-ins that are not overridden by a same-id sandbox folder; the cache is reloaded after every install/uninstall and once the sandbox becomes installed. On platforms without a sandbox the file ops are no-ops, so the cache is simply always empty — skills never appear off-Android.</p>
+<p>Most skills are a folder <code>~/skills/&lt;id&gt;/</code> in the sandbox containing a <code>SKILL.md</code> (and any other files). The <code>SKILL.md</code> frontmatter provides a <code>name</code> (the slash-command id) and a <code>description</code>; the markdown after the frontmatter is the instruction body. DORAI AI keeps an in-memory cache of installed sandbox skills plus any built-ins that are not overridden by a same-id sandbox folder; the cache is reloaded after every install/uninstall and once the sandbox becomes installed. On platforms without a sandbox the file ops are no-ops, so the cache is simply always empty — skills never appear off-Android.</p>
 <p>A skill has an id (lowercase letters, digits, and hyphens; ≤ 64 chars), a display name derived from the id, the instruction body, and the list of its other top-level file names (surfaced in the prompt). There is no enable/disable state: an installed skill is active. Uninstall deletes the sandbox folder for user-installed skills; built-ins have no remove action.</p>
 <h3 id="slash-command">Slash command</h3>
 <p>In chat, a message whose first token is <code>/&lt;skill-id&gt;</code> activates that skill for that single turn. The id must match an installed skill (case-insensitive). The user's message text is sent <strong>verbatim</strong> — it is not rewritten or stripped — so the conversation visibly reflects what was typed. The skill's instructions in the system prompt tell the model how to interpret any arguments after the slash command. Slash commands are opt-in: a message that doesn't match a skill behaves like any normal message.</p>
@@ -1297,7 +1297,7 @@
 <h3 id="marketplace">Marketplace</h3>
 <p>A marketplace is a public GitHub repo of skills. The browse list aggregates a small <strong>curated, vetted</strong> set of marketplaces — skills bundle scripts that run in the sandbox, so the suggested set favors trusted sources over breadth. Current sources:</p>
 <ul>
-<li><strong>Anthropic</strong> (<a href="https://github.com/anthropics/skills">anthropics/skills</a>) — a curated subset of the official repo that works well in Kai: document/data (pdf, docx, xlsx, pptx) and creative (algorithmic-art, slack-gif-creator). The Claude.ai/Claude-Code-oriented ones that don't translate to a mobile assistant (mcp-builder, skill-creator, theme-factory, web-artifacts-builder, webapp-testing, internal-comms, frontend-design, doc-coauthoring, canvas-design, brand-guidelines, claude-api) are excluded via the marketplace's <code>exclude</code> set.</li>
+<li><strong>Anthropic</strong> (<a href="https://github.com/anthropics/skills">anthropics/skills</a>) — a curated subset of the official repo that works well in DORAI AI: document/data (pdf, docx, xlsx, pptx) and creative (algorithmic-art, slack-gif-creator). The Claude.ai/Claude-Code-oriented ones that don't translate to a mobile assistant (mcp-builder, skill-creator, theme-factory, web-artifacts-builder, webapp-testing, internal-comms, frontend-design, doc-coauthoring, canvas-design, brand-guidelines, claude-api) are excluded via the marketplace's <code>exclude</code> set.</li>
 <li><strong>Superpowers</strong> (<a href="https://github.com/obra/superpowers">obra/superpowers</a>) — the most popular Claude-skills repo, but a software-dev methodology, so only its broadly-useful "how to work" skills are surfaced via an allowlist (brainstorming, writing-plans); the Claude-Code-internal or coding-flow ones (git worktrees, code review, subagent dispatch, debugging, verification) are excluded.</li>
 </ul>
 <p>A marketplace is read via the <a href="https://github.com/anthropics/skills">Claude Code plugin-marketplace standard</a>: an explicit per-source skill <strong>allowlist</strong> wins when set; otherwise a <code>.claude-plugin/marketplace.json</code>, when present, provides the authoritative skill list (and grouping); otherwise the registry falls back to scanning skill folders under the marketplace's <code>root</code> (default <code>skills/</code>). Any folder named in the source's <strong>exclude</strong> set is then dropped. In all cases a single recursive git-tree call per repo enumerates paths, and each <code>SKILL.md</code> is then fetched from <code>raw.githubusercontent.com</code> to keep within GitHub's unauthenticated API rate limit.</p>

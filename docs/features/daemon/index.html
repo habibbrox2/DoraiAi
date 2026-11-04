@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Kai - AI Assistant App">
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/features/daemon/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/features/daemon/">
       
       
         <link rel="prev" href="../tasks/">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Daemon - Kai Documentation</title>
+        <title>Daemon - DORAI AI Documentation</title>
       
     
     
@@ -94,7 +94,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -108,7 +108,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,13 +218,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../.." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -951,7 +951,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1317,12 +1317,12 @@
 
 <h1 id="daemon-mode">Daemon Mode</h1>
 <p><strong>Last verified:</strong> 2026-10-02</p>
-<p>Kai's daemon mode keeps the app running in the background on Android so that scheduled tasks, heartbeat checks, and email polling continue to execute even when the app is not in the foreground. On other platforms (desktop, iOS, web), daemon mode is a no-op.</p>
+<p>DORAI AI's daemon mode keeps the app running in the background on Android so that scheduled tasks, heartbeat checks, and email polling continue to execute even when the app is not in the foreground. On other platforms (desktop, iOS, web), daemon mode is a no-op.</p>
 <h2 id="concepts">Concepts</h2>
 <h3 id="daemon-controller">Daemon Controller</h3>
 <p>A platform-abstracted start/stop switch. On Android, it starts and stops an Android foreground service. On all other platforms, it does nothing.</p>
 <h3 id="foreground-service">Foreground Service</h3>
-<p>An Android service that runs with a persistent notification, preventing the system from killing the process. Kai's service uses the data-sync foreground service type and a low-importance notification channel to minimize user disruption.</p>
+<p>An Android service that runs with a persistent notification, preventing the system from killing the process. DORAI AI's service uses the data-sync foreground service type and a low-importance notification channel to minimize user disruption.</p>
 <h2 id="service-lifecycle">Service Lifecycle</h2>
 <ol>
 <li>When daemon mode is enabled in settings, the foreground service is started</li>
@@ -1349,7 +1349,7 @@
 <p>The scheduler only runs this work while the overall scheduled-tasks toggle is on, and skips a cycle's work while a foreground chat request is in flight.</p>
 <h2 id="notification">Notification</h2>
 <ul>
-<li><strong>Channel</strong>: "Kai 9000 Background Service" with low importance</li>
+<li><strong>Channel</strong>: "DORAI AI Background Service" with low importance</li>
 <li><strong>Content</strong>: "Daemon is running" with a sync icon</li>
 <li><strong>Tap action</strong>: Opens the app's main screen</li>
 <li>The notification is required by Android for foreground services and cannot be hidden</li>
@@ -1363,7 +1363,7 @@
 <p>The notification permission (<code>POST_NOTIFICATIONS</code>) is also declared and is requested when daemon mode is switched on (see below).</p>
 <p>No wake locks or battery optimization exemptions are requested. The service relies on Android's standard process management and sticky restart behavior.</p>
 <h2 id="settings-ui">Settings UI</h2>
-<p>A toggle labeled "Daemon Mode" appears in the General tab of settings, only on Android. The description reads: "Keep Kai 9000 running in the background so scheduled tasks execute even when the app is not in the foreground." Toggling it starts or stops the foreground service and persists the preference. On Android 13+, turning the toggle on also requests the notification permission, since the foreground service's persistent notification cannot be displayed without it.</p>
+<p>A toggle labeled "Daemon Mode" appears in the General tab of settings, only on Android. The description reads: "Keep DORAI AI running in the background so scheduled tasks execute even when the app is not in the foreground." Toggling it starts or stops the foreground service and persists the preference. On Android 13+, turning the toggle on also requests the notification permission, since the foreground service's persistent notification cannot be displayed without it.</p>
 <h2 id="key-files">Key Files</h2>
 <table>
 <thead>

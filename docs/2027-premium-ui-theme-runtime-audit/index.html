@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Kai - AI Assistant App">
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/2027-premium-ui-theme-runtime-audit/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/2027-premium-ui-theme-runtime-audit/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>2027 Premium UI — Theme Runtime Audit Addendum - Kai Documentation</title>
+        <title>2027 Premium UI — Theme Runtime Audit Addendum - DORAI AI Documentation</title>
       
     
     
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href=".." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -104,7 +104,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -214,13 +214,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href=".." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -767,7 +767,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1072,11 +1072,11 @@
 <h2 id="1-verified-runtime-contract-source-takes-precedence-over-stale-docs">1. Verified runtime contract (source takes precedence over stale docs)</h2>
 <p>The current implementation exposes exactly three persisted modes:</p>
 <ul>
-<li><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/AppSettings.kt</code>: <code>ThemeMode = System, Light, Dark</code>.</li>
+<li><code>composeApp/src/commonMain/kotlin/com/dorai/ai/data/AppSettings.kt</code>: <code>ThemeMode = System, Light, Dark</code>.</li>
 <li>Persistence key is <code>theme_mode</code>; <code>setThemeMode</code> stores <code>mode.name</code> and updates <code>_themeModeFlow</code>.</li>
 <li><code>loadInitialThemeMode()</code> parses the stored enum name and falls back to <code>System</code> for missing or invalid values.</li>
-<li><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/App.kt</code>: <code>AppContent</code> observes <code>themeModeFlow</code>; System resolves against <code>isSystemInDarkTheme()</code>, Light selects the supplied light scheme, Dark selects the supplied dark scheme. The resulting scheme is passed to <code>Theme(colorScheme = effectiveColorScheme)</code>.</li>
-<li><code>androidApp/src/main/kotlin/com/inspiredandroid/kai/MainActivity.kt</code>: system-bar icon/style calculation currently maps System and Light through system appearance, and Dark to dark UI. This is a separate platform edge-to-edge calculation and must be kept consistent with the actual selected scheme.</li>
+<li><code>composeApp/src/commonMain/kotlin/com/dorai/ai/App.kt</code>: <code>AppContent</code> observes <code>themeModeFlow</code>; System resolves against <code>isSystemInDarkTheme()</code>, Light selects the supplied light scheme, Dark selects the supplied dark scheme. The resulting scheme is passed to <code>Theme(colorScheme = effectiveColorScheme)</code>.</li>
+<li><code>androidApp/src/main/kotlin/com/dorai/ai/MainActivity.kt</code>: system-bar icon/style calculation currently maps System and Light through system appearance, and Dark to dark UI. This is a separate platform edge-to-edge calculation and must be kept consistent with the actual selected scheme.</li>
 <li><code>GeneralSettings.kt</code>: picker currently presents only System, Light and Dark.</li>
 <li><code>SettingsUiState.kt</code>, <code>SettingsActions.kt</code>, <code>SettingsViewModel.kt</code>, <code>DataRepository.kt</code>, <code>RemoteDataRepository.kt</code>, and <code>FakeDataRepository.kt</code> carry the same enum through settings state and persistence.</li>
 </ul>

@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/knowledge/popular-mcp/refresh-playbook/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/knowledge/popular-mcp/refresh-playbook/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>Refresh popular MCP servers - Kai Documentation</title>
+        <title>Refresh popular MCP servers - DORAI AI Documentation</title>
       
     
     
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../../.." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -104,7 +104,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -214,13 +214,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../../.." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -767,7 +767,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1005,11 +1005,11 @@
 </ul>
 <h1 id="steps">Steps</h1>
 <h2 id="1-read-the-current-list">1. Read the current list</h2>
-<p>Read <code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/mcp/PopularMcpServers.kt</code> (<code>popularMcpServers</code>) and the <strong>Current set</strong> in <a href="../servers/">servers.md</a>.</p>
+<p>Read <code>composeApp/src/commonMain/kotlin/com/dorai/ai/mcp/PopularMcpServers.kt</code> (<code>popularMcpServers</code>) and the <strong>Current set</strong> in <a href="../servers/">servers.md</a>.</p>
 <h2 id="2-probe-each-url">2. Probe each URL</h2>
 <p>For every current row, POST Streamable HTTP like the app client (<code>McpClient</code>):</p>
 <ol>
-<li><code>initialize</code> — protocol <code>2024-11-05</code>, empty capabilities, <code>clientInfo</code> name <code>Kai 9000</code>.</li>
+<li><code>initialize</code> — protocol <code>2024-11-05</code>, empty capabilities, <code>clientInfo</code> name <code>DORAI AI</code>.</li>
 <li><code>notifications/initialized</code>.</li>
 <li><code>tools/list</code>.</li>
 </ol>
@@ -1023,7 +1023,7 @@
 <li>Do <strong>not</strong> add new hosts unless product explicitly expands the list.</li>
 <li>Update runtime list in:</li>
 </ol>
-<p><code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/mcp/PopularMcpServers.kt</code></p>
+<p><code>composeApp/src/commonMain/kotlin/com/dorai/ai/mcp/PopularMcpServers.kt</code></p>
 <p>Preserve <code>PopularMcpServer</code> field order, comments, and helper functions. Update descriptions only when the probe shows they are wrong.
 5. If the one-tap list changed, update the server table in <code>README.md</code> and the Popular Servers paragraph in <code>docs/features/mcp.md</code>.
 6. Update this bundle:

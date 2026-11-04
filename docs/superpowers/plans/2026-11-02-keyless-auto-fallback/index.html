@@ -6,11 +6,11 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation for Kai - AI Assistant App">
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
       
       
       
-        <link rel="canonical" href="https://kai9000.com/docs/superpowers/plans/2026-11-02-keyless-auto-fallback/">
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/superpowers/plans/2026-11-02-keyless-auto-fallback/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>Keyless Auto Fallback Implementation Plan - Kai Documentation</title>
+        <title>Keyless Auto Fallback Implementation Plan - DORAI AI Documentation</title>
       
     
     
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Kai Documentation" class="md-header__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../../.." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -104,7 +104,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Kai Documentation
+            DORAI AI Documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -214,13 +214,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Kai Documentation" class="md-nav__button md-logo" aria-label="Kai Documentation" data-md-component="logo">
+    <a href="../../.." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Kai Documentation
+    DORAI AI Documentation
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -767,7 +767,7 @@
   <span class="md-ellipsis">
     
   
-    Kai Build
+    DORAI Build
   
 
     
@@ -1088,8 +1088,8 @@
 <hr />
 <h3 id="task-1-define-the-hidden-keyless-auto-router">Task 1: Define the hidden keyless Auto router</h3>
 <p><strong>Files:</strong>
-- Create: <code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/KeylessFreeTierFallback.kt</code>
-- Test: <code>composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/data/KeylessFreeTierFallbackTest.kt</code></p>
+- Create: <code>composeApp/src/commonMain/kotlin/com/dorai/ai/data/KeylessFreeTierFallback.kt</code>
+- Test: <code>composeApp/src/commonTest/kotlin/com/dorai/ai/data/KeylessFreeTierFallbackTest.kt</code></p>
 <p><strong>Interfaces:</strong>
 - Produces <code>internal const val AUTO_MODEL_ID = "auto"</code> and an ordered, typed list of internal targets, each containing a <code>Service</code> and its actual upstream free model ID.
 - The first target uses Kilo's <code>kilo-auto/free</code>; OpenCode targets use only the free model IDs already declared for OpenCode in <code>Service.kt</code>.
@@ -1101,7 +1101,7 @@
 <ul>
 <li>[ ] <strong>Step 2: Run the focused test and verify it fails</strong></li>
 </ul>
-<p>Run: <code>.\gradlew.bat :composeApp:desktopTest --tests "com.inspiredandroid.kai.data.KeylessFreeTierFallbackTest"</code>
+<p>Run: <code>.\gradlew.bat :composeApp:desktopTest --tests "com.dorai.ai.data.KeylessFreeTierFallbackTest"</code>
 Expected: FAIL because the router and target list do not exist yet.</p>
 <ul>
 <li>[ ] <strong>Step 3: Implement the internal target list</strong></li>
@@ -1110,15 +1110,15 @@ Expected: FAIL because the router and target list do not exist yet.</p>
 <ul>
 <li>[ ] <strong>Step 4: Run the focused test and verify it passes</strong></li>
 </ul>
-<p>Run: <code>.\gradlew.bat :composeApp:desktopTest --tests "com.inspiredandroid.kai.data.KeylessFreeTierFallbackTest"</code>
+<p>Run: <code>.\gradlew.bat :composeApp:desktopTest --tests "com.dorai.ai.data.KeylessFreeTierFallbackTest"</code>
 Expected: <code>BUILD SUCCESSFUL</code>.</p>
 <h3 id="task-2-route-free-chat-through-auto-and-fallback-on-provider-failure">Task 2: Route Free chat through Auto and fallback on provider failure</h3>
 <p><strong>Files:</strong>
-- Modify: <code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/RemoteDataRepository.kt</code>
-- Modify: <code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/ChatViewModel.kt</code>
-- Modify: <code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/settings/ServicesSettings.kt</code>
-- Test: <code>composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/data/KeylessFreeTierFallbackTest.kt</code>
-- Test: <code>composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/ui/chat/ChatViewModelExtendedTest.kt</code></p>
+- Modify: <code>composeApp/src/commonMain/kotlin/com/dorai/ai/data/RemoteDataRepository.kt</code>
+- Modify: <code>composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/ChatViewModel.kt</code>
+- Modify: <code>composeApp/src/commonMain/kotlin/com/dorai/ai/ui/settings/ServicesSettings.kt</code>
+- Test: <code>composeApp/src/commonTest/kotlin/com/dorai/ai/data/KeylessFreeTierFallbackTest.kt</code>
+- Test: <code>composeApp/src/commonTest/kotlin/com/dorai/ai/ui/chat/ChatViewModelExtendedTest.kt</code></p>
 <p><strong>Interfaces:</strong>
 - Consumes the ordered targets and <code>AUTO_MODEL_ID</code> from Task 1.
 - Keep provider dispatch on the existing <code>askWithService</code>/<code>plainChat</code> path; allow the internal target's upstream model ID to override settings-derived credentials without changing saved user settings.
@@ -1130,7 +1130,7 @@ Expected: <code>BUILD SUCCESSFUL</code>.</p>
 <ul>
 <li>[ ] <strong>Step 2: Run the focused test and verify it fails</strong></li>
 </ul>
-<p>Run: <code>.\gradlew.bat :composeApp:desktopTest --tests "com.inspiredandroid.kai.data.KeylessFreeTierFallbackTest"</code>
+<p>Run: <code>.\gradlew.bat :composeApp:desktopTest --tests "com.dorai.ai.data.KeylessFreeTierFallbackTest"</code>
 Expected: FAIL because chat does not dispatch through the hidden router.</p>
 <ul>
 <li>[ ] <strong>Step 3: Wire the router into normal chat</strong></li>
@@ -1139,15 +1139,15 @@ Expected: FAIL because chat does not dispatch through the hidden router.</p>
 <ul>
 <li>[ ] <strong>Step 4: Run focused fallback and existing chat/data tests</strong></li>
 </ul>
-<p>Run: <code>.\gradlew.bat :composeApp:desktopTest --tests "com.inspiredandroid.kai.data.KeylessFreeTierFallbackTest"</code>
+<p>Run: <code>.\gradlew.bat :composeApp:desktopTest --tests "com.dorai.ai.data.KeylessFreeTierFallbackTest"</code>
 Expected: <code>BUILD SUCCESSFUL</code>; all routing and failure assertions pass.</p>
 <h3 id="task-3-hide-internal-providers-and-document-behavior">Task 3: Hide internal providers and document behavior</h3>
 <p><strong>Files:</strong>
-- Modify: <code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/settings/SettingsViewModel.kt</code>
-- Modify: <code>composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/RemoteDataRepository.kt</code>
-- Modify: <code>composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/ui/settings/SettingsViewModelTest.kt</code>
+- Modify: <code>composeApp/src/commonMain/kotlin/com/dorai/ai/ui/settings/SettingsViewModel.kt</code>
+- Modify: <code>composeApp/src/commonMain/kotlin/com/dorai/ai/data/RemoteDataRepository.kt</code>
+- Modify: <code>composeApp/src/commonTest/kotlin/com/dorai/ai/ui/settings/SettingsViewModelTest.kt</code>
 - Modify: <code>docs/features/multi-service.md</code>
-- Test: <code>composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/data/KeylessFreeTierFallbackTest.kt</code></p>
+- Test: <code>composeApp/src/commonTest/kotlin/com/dorai/ai/data/KeylessFreeTierFallbackTest.kt</code></p>
 <p><strong>Interfaces:</strong>
 - Preserve <code>Service.fromId</code> and internal provider metadata for request dispatch.
 - Exclude <code>Service.Kilo</code> and <code>Service.OpenCode</code> from available/configured user-facing services, including legacy saved entries, without deleting their persisted settings.</p>
@@ -1158,7 +1158,7 @@ Expected: <code>BUILD SUCCESSFUL</code>; all routing and failure assertions pass
 <ul>
 <li>[ ] <strong>Step 2: Run the focused test and verify it fails</strong></li>
 </ul>
-<p>Run: <code>.\gradlew.bat :composeApp:desktopTest --tests "com.inspiredandroid.kai.data.KeylessFreeTierFallbackTest"</code>
+<p>Run: <code>.\gradlew.bat :composeApp:desktopTest --tests "com.dorai.ai.data.KeylessFreeTierFallbackTest"</code>
 Expected: FAIL because both providers are currently included in user-facing service choices.</p>
 <ul>
 <li>[ ] <strong>Step 3: Hide internal entries and update the feature spec</strong></li>
@@ -1167,7 +1167,7 @@ Expected: FAIL because both providers are currently included in user-facing serv
 <ul>
 <li>[ ] <strong>Step 4: Run focused tests and formatting validation</strong></li>
 </ul>
-<p>Run: <code>.\gradlew.bat :composeApp:desktopTest --tests "com.inspiredandroid.kai.data.KeylessFreeTierFallbackTest"</code>
+<p>Run: <code>.\gradlew.bat :composeApp:desktopTest --tests "com.dorai.ai.data.KeylessFreeTierFallbackTest"</code>
 Expected: <code>BUILD SUCCESSFUL</code>.</p>
 <p>Run: <code>.\gradlew.bat spotlessCheck</code>
 Expected: <code>BUILD SUCCESSFUL</code>.</p>
