@@ -46,7 +46,7 @@ jobs:
           for png in site/img/*.png; do
             name="${png##*/}"
             case "$name" in
-              og-preview.png|preview.png) ;;
+              apple-icon-180x180.png|og-preview.png|preview.png) ;;
               *) unexpected+=("$png") ;;
             esac
           done
