@@ -1,15 +1,15 @@
-# Brox Kai v2.0 — UI Upgrade Plan 5: Services and Sponsors
+# DORAI AI — UI Upgrade Plan 5: Services and Sponsors
 
 ## Objective
 
-Turn the Services tab into a clear place to connect, manage, prioritise, and inspect AI services. Rework the sponsor area as a responsive expand/collapse grid where the Brox Kai profile is always the first card.
+Turn the Services tab into a clear place to connect, manage, prioritise, and inspect AI services. Rework the sponsor area as a responsive expand/collapse grid where the DORAI AI profile is always the first card.
 
 ## Current scope
 
 - `ServicesContent` shows configured services in a reorderable list, an Add Service bottom sheet, and the Free tier card.
 - `FreeSettings` merges fallback settings, sponsorship calls to action, current/past sponsors, and partnership copy in one card.
 - `SponsorList` displays every remote sponsor immediately in a fixed-width `FlowRow`.
-- Sponsor data is fetched separately as current and past GitHub sponsors. The project README identifies the Brox Kai fork profile as `habibbrox2`; it should be the initial owner-profile data source until the final public profile copy, avatar, and destination URL are approved.
+- Sponsor data is fetched separately as current and past GitHub sponsors. The project README identifies the DORAI AI fork profile as `habibbrox2`; it should be the initial owner-profile data source until the final public profile copy, avatar, and destination URL are approved.
 
 ## Target experience
 
@@ -17,7 +17,7 @@ Turn the Services tab into a clear place to connect, manage, prioritise, and ins
 - Configured services remain reorderable, while their important details stay readable at a glance.
 - Adding a provider is a guided choice with provider identity, required credentials, supported capabilities, and any local-network requirement.
 - The Free tier and sponsor content are visually distinct from service configuration.
-- The sponsor section starts with the Brox Kai profile card. It stays visible in both collapsed and expanded states.
+- The sponsor section starts with the DORAI AI profile card. It stays visible in both collapsed and expanded states.
 - The sponsor grid shows a useful first set of cards, then reveals the remaining sponsors with a clear Show all / Collapse action only when more cards exist.
 
 ## Information architecture
@@ -30,8 +30,8 @@ Services
 │   └── Expanded configuration
 ├── Add service
 ├── Free tier and fallback
-└── Support Brox Kai
-    ├── Brox Kai profile (first)
+└── Support DORAI AI
+    ├── DORAI AI profile (first)
     ├── Sponsor grid
     └── Show all / Collapse sponsors
 ```
@@ -53,7 +53,7 @@ ServicesContent
 
 ## Sponsor profile and ordering
 
-Create a presentation model that can combine the static Brox Kai profile with remote sponsor entries without changing the sponsor API contract.
+Create a presentation model that can combine the static DORAI AI profile with remote sponsor entries without changing the sponsor API contract.
 
 ```kotlin
 @Immutable
@@ -70,7 +70,7 @@ data class SupportProfile(
 
 1. Build the profile list in the view-model or a dedicated mapper: owner profile first, current sponsors next, then past sponsors not already listed.
 2. Give the owner profile a stable ID such as `brox-kai-owner`; do not treat it as a remote GitHub sponsor.
-3. Start its content from the repository identity (`habibbrox2` / Brox Kai maintainer) and replace its public title, portrait, support link, and profile link with approved values before release.
+3. Start its content from the repository identity (`habibbrox2` / DORAI AI maintainer) and replace its public title, portrait, support link, and profile link with approved values before release.
 4. Use a local branded avatar fallback when a network avatar is unavailable. Show a neutral initial/avatar fallback if no approved profile image exists.
 5. Keep every destination optional in the model. A card with no approved link remains informational and must not appear tappable.
 
@@ -91,8 +91,8 @@ data class SupportProfile(
 
 ## Visual direction
 
-- Use Midnight Navy surfaces with restrained Cyan and Electric Blue accents from the Brox Kai v2.0 theme.
-- Give the owner profile a modest featured treatment: avatar, `Brox Kai` name, maintainer subtitle, and one clear external-link action when a URL is approved.
+- Use Midnight Navy surfaces with restrained Cyan and Electric Blue accents from the DORAI AI theme.
+- Give the owner profile a modest featured treatment: avatar, `DORAI AI` name, maintainer subtitle, and one clear external-link action when a URL is approved.
 - Render sponsor cards with equal visual weight. Avoid oversized logos, multiple competing buttons, or dense text.
 - Keep connected/error service status text visible alongside the icon; color alone cannot carry status.
 - Keep cards, fields, and buttons aligned to the existing adaptive card styling so the tab feels part of Settings.
@@ -138,7 +138,7 @@ data class SupportProfile(
 
 - No configured services, one configured service, and multiple reordered services.
 - Connected, checking, invalid key, quota exhausted, and local-network-permission service statuses.
-- No remote sponsors: the Brox Kai profile card still renders first.
+- No remote sponsors: the DORAI AI profile card still renders first.
 - Sponsor counts at, below, and above each collapsed threshold.
 - Collapse after expansion returns focus to the toggle and never hides the owner profile.
 - Compact, medium, and desktop width screenshots with default and large font scales.
@@ -154,7 +154,7 @@ data class SupportProfile(
 
 ## Risks and controls
 
-- The existing feed is tied to the upstream sponsor account. Keep remote sponsor fetch failures non-blocking and preserve the static Brox Kai profile when the feed is unavailable.
+- The existing feed is tied to the upstream sponsor account. Keep remote sponsor fetch failures non-blocking and preserve the static DORAI AI profile when the feed is unavailable.
 - Profile image, wording, and public destination must be approved before release. Use a branded fallback asset until those values are available.
 - A large remote sponsor list can make reflow expensive. Render only the collapsed subset until expanded and keep card content lightweight.
 - External links are user-visible destinations. Keep them in configuration and do not hardcode unverified personal URLs in the composable.

@@ -14,7 +14,7 @@
 - Existing CI uses JDK 21. The office machine reported Java 8 during this audit, so local Gradle builds need a verified JDK 21 setup before their result is meaningful. Do not change machine configuration without approval.
 
 ## Product and feature documentation
-- Product name shown to users: Brox Kai v2.0; navy and cyan are the current brand colors.
+- Product name shown to users: DORAI AI; navy and cyan are the current brand colors.
 - Read root `CLAUDE.md` and the matching `docs/features/` spec before feature changes.
 - `docs/knowledge/` contains maintained data/policy bundles. Follow each bundle's refresh playbook; never silently regenerate or bump curated snapshots.
 - Keep SQLDelight schema/migration rules in mind: `composeApp/build.gradle.kts` enables `verifyMigrations`; schema changes need numbered `.sqm` migration files as specified in the SQL source headers.

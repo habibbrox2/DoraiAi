@@ -1,19 +1,19 @@
-# Kai
+# DORAI AI
 
-An **open-source AI assistant with persistent memory** that runs on **Android, iOS, Windows, Mac, Linux, and Web**.
+An **open-source AI assistant with persistent memory** that runs on **Android, iOS, Windows, macOS, and Linux**.
 
 [:material-download: Get Started](getting-started.md){ .md-button .md-button--primary }
-[:material-github: GitHub](https://github.com/SimonSchubert/Kai){ .md-button }
+[:material-github: GitHub](https://github.com/habibbrox2/DoraiAi){ .md-button }
 
 ## Overview
 
-Kai is built with Kotlin Multiplatform and Compose Multiplatform. It connects to 30 LLM providers (plus a keyless Free tier and on-device models) with automatic fallback, remembers important details across conversations, and can act autonomously via scheduled heartbeats and tool execution.
+DORAI AI is built with Kotlin Multiplatform and Compose Multiplatform. It connects to 30 LLM providers (plus a keyless Free tier and on-device models) with automatic fallback, remembers important details across conversations, and can act autonomously via scheduled heartbeats and tool execution.
 
 ## Key Features
 
-- **Persistent memory** — Kai remembers important details across conversations and uses them automatically
+- **Persistent memory** — DORAI AI remembers important details across conversations and uses them automatically
 - **Customizable soul** — Define the AI's personality and behavior with an editable system prompt
-- **Multi-service fallback** — Configure multiple providers; Kai automatically tries the next one on failure
+- **Multi-service fallback** — Configure multiple providers; DORAI AI automatically tries the next one on failure
 - **On-device inference** — Run models locally with LiteRT on Android, iOS and desktop, no internet needed
 - **Tool execution** — Web search, notifications, calendar events, shell commands, and more
 - **MCP server support** — Connect to remote tool servers via the Model Context Protocol
@@ -21,7 +21,7 @@ Kai is built with Kotlin Multiplatform and Compose Multiplatform. It connects to
 - **Skills** — Install reusable instruction bundles in the SKILL.md format (Android)
 - **Autonomous heartbeat & scheduled tasks** — Periodic self-checks plus one-time or recurring tasks the AI schedules
 - **Linux sandbox** — On Android, the AI can run shell commands, scripts and packages in a Debian or Alpine environment
-- **Kai Build** — An Android coding environment with terminals and coding agents (Claude Code, Grok, OpenCode)
+- **DORAI Build** — An Android coding environment with terminals and coding agents (Claude Code, Grok, OpenCode)
 - **Encrypted storage** — Conversations are stored locally with encryption
 - **Settings export/import** — Back up and restore all settings as a JSON file
 - **Text to speech** — Listen to AI responses
@@ -83,7 +83,7 @@ Kai is built with Kotlin Multiplatform and Compose Multiplatform. It connects to
 
 | Service | API Type |
 |---|---|
-| **[Atlas Cloud](https://www.atlascloud.ai?utm_source=github&utm_medium=link&utm_campaign=Kai)** | OpenAI-compatible |
+| **[Atlas Cloud](https://www.atlascloud.ai?utm_source=github&utm_medium=link&utm_campaign=DORAI)** | OpenAI-compatible |
 | [Anthropic](https://console.anthropic.com) | Anthropic native |
 | [OpenAI](https://openai.com) | OpenAI-compatible (Responses API for models that require it) |
 | [Gemini](https://aistudio.google.com) | Gemini native |
@@ -120,12 +120,12 @@ Plus a built-in **Free** tier that requires no API key.
 
 | Platform | Distribution |
 |---|---|
-| Android | Google Play, F-Droid, APK |
-| iOS | App Store |
-| macOS | Homebrew, DMG |
-| Windows | Winget, MSI |
-| Linux | DEB, RPM, AppImage, Flatpak, tarball, AUR |
-| Web | Browser |
+| Android | First DORAI APK release pending; store listings pending |
+| iOS | App Store listing pending |
+| macOS | DMG release pending; Homebrew package pending |
+| Windows | MSI release pending; Winget package pending |
+| Linux | Package releases pending; AUR package pending |
+| Web | Planned; not published |
 
 ## Feature Documentation
 
@@ -143,7 +143,7 @@ Plus a built-in **Free** tier that requires no API key.
 - **[System Prompts](features/system-prompts.md)** — How each prompt variant is composed
 - **[Skills](features/skills.md)** — Installable SKILL.md instruction bundles
 - **[Linux Sandbox](features/sandbox.md)** — On-device Debian/Alpine shell for the AI and the user (Android)
-- **[Kai Build](features/kai-build.md)** — Coding environment with terminals and coding agents (Android)
+- **[DORAI Build](features/kai-build.md)** — Coding environment with terminals and coding agents (Android)
 - **[Notifications](features/notifications.md)** — Reading other apps' notifications (Android, FOSS build)
 - **[SMS](features/sms.md)** — Reading SMS and drafting replies for the user to send (Android, FOSS build)
 - **[Appearance](features/appearance.md)** — Theme picker
@@ -153,7 +153,7 @@ Plus a built-in **Free** tier that requires no API key.
 
 ## Hybrid Development
 
-Brox Kai keeps Kotlin Multiplatform as its primary application platform and provides a separate TypeScript workspace for future browser-facing modules and integrations. The workspace does not replace Compose or the existing Kotlin/Wasm target.
+DORAI AI keeps Kotlin Multiplatform as its primary application platform and provides a separate TypeScript workspace for future browser-facing modules and integrations. The workspace does not replace Compose or the existing Kotlin/Wasm target.
 
 - [System Architecture](architecture/system-architecture.md)
 - [Hybrid Architecture](architecture/hybrid-architecture.md)
@@ -167,7 +167,7 @@ Brox Kai keeps Kotlin Multiplatform as its primary application platform and prov
 
 ## Links
 
-- [GitHub Repository](https://github.com/SimonSchubert/Kai)
-- [Issue Tracker](https://github.com/SimonSchubert/Kai/issues)
-- [Releases](https://github.com/SimonSchubert/Kai/releases)
-- [Web App](https://kai9000.com/app/)
+- [GitHub Repository](https://github.com/habibbrox2/DoraiAi)
+- [Issue Tracker](https://github.com/habibbrox2/DoraiAi/issues)
+- DORAI releases: pending; the repository currently retains legacy Kai releases.
+- Web App: planned; not published yet

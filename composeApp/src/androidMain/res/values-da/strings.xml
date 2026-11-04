@@ -1,6 +1,6 @@
 <resources>
-    <string name="daemon_channel_name">Brox Kai 2.0 dæmontjeneste</string>
-    <string name="daemon_channel_description">Holder Brox Kai 2.0 kørende til udførelse af planlagte opgaver</string>
+    <string name="daemon_channel_name">DORAI AI dæmontjeneste</string>
+    <string name="daemon_channel_description">Holder DORAI AI kørende til udførelse af planlagte opgaver</string>
     <string name="daemon_notification_text">Dæmonen kører</string>
     <string name="download_channel_name">Modeldownloads</string>
     <string name="download_channel_description">Viser fremskridt under download af AI-modeller</string>

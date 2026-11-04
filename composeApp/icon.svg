@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Brox Kai BK monogram">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="DORAI AI symbol">
   <rect width="512" height="512" rx="112" fill="#0B2B5B"/>
   <defs>
-    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="dorai-cyan" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#00D1E8"/>
       <stop offset="1" stop-color="#168BDB"/>
     </linearGradient>
   </defs>
-  <path d="M104 96H240C300 96 333 129 333 176C333 207 317 230 291 244C328 257 349 284 349 321C349 377 309 416 246 416H104V96ZM176 158V222H232C252 222 264 210 264 190C264 170 252 158 232 158H176ZM176 280V354H240C263 354 276 340 276 317C276 294 262 280 239 280H176Z" fill="url(#cyan)"/>
-  <path d="M354 96H422L328 253L425 416H346L270 287L354 96Z" fill="#FFFFFF"/>
+  <path d="M112 84h142c112 0 178 65 178 172s-66 172-178 172H112V84zm78 74v196h58c65 0 105-37 105-98s-40-98-105-98h-58z" fill="url(#dorai-cyan)" fill-rule="evenodd"/>
+  <circle cx="384" cy="110" r="22" fill="#FFFFFF"/>
 </svg>

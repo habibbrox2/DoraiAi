@@ -4,7 +4,7 @@ The canonical `update.json` is published at the repository root on `main` and at
 
 ## Canonical location and compatibility
 
-- Primary discovery URL: `https://raw.githubusercontent.com/habibbrox2/brox-kai-2.0/main/update.json`.
+- Primary discovery URL: `https://raw.githubusercontent.com/habibbrox2/DoraiAi/main/update.json`.
 - The release workflow publishes the manifest only after the corresponding GitHub Release and APK asset are created.
 - For older releases created before the canonical file existed, the Android client falls back to the matching stable GitHub Release's `update.json` asset only when the canonical URL returns HTTP 404.
 - Other HTTP failures, malformed JSON, and invalid manifests fail closed; they must not silently fall back to stale metadata.
@@ -15,7 +15,7 @@ The canonical `update.json` is published at the repository root on `main` and at
 | Field | Meaning |
 |---|---|
 | `schemaVersion` | Manifest format version; currently `1`. |
-| `packageName` | Must equal `com.inspiredandroid.kai`. |
+| `packageName` | Must equal `com.dorai.ai`. |
 | `versionName` | Human-readable release version, e.g. `2.0.75`. |
 | `versionCode` | Authoritative Android upgrade ordering value. |
 | `assetName` | Exact universal APK filename attached to this release. |

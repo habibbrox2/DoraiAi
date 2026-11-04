@@ -24,13 +24,13 @@ generated: { by: human:simon, at: 2026-08-12T21:30:00Z }
 
 ## 1. Read the current list
 
-Read `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/mcp/PopularMcpServers.kt` (`popularMcpServers`) and the **Current set** in [servers.md](servers.md).
+Read `composeApp/src/commonMain/kotlin/com/dorai/ai/mcp/PopularMcpServers.kt` (`popularMcpServers`) and the **Current set** in [servers.md](servers.md).
 
 ## 2. Probe each URL
 
 For every current row, POST Streamable HTTP like the app client (`McpClient`):
 
-1. `initialize` — protocol `2024-11-05`, empty capabilities, `clientInfo` name `Kai 9000`.
+1. `initialize` — protocol `2024-11-05`, empty capabilities, `clientInfo` name `DORAI AI`.
 2. `notifications/initialized`.
 3. `tools/list`.
 
@@ -47,7 +47,7 @@ Auth-optional rows (Jina AI): probe **without** a key. Initialize success is eno
 3. Do **not** add new hosts unless product explicitly expands the list.
 4. Update runtime list in:
 
-   `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/mcp/PopularMcpServers.kt`
+   `composeApp/src/commonMain/kotlin/com/dorai/ai/mcp/PopularMcpServers.kt`
 
    Preserve `PopularMcpServer` field order, comments, and helper functions. Update descriptions only when the probe shows they are wrong.
 5. If the one-tap list changed, update the server table in `README.md` and the Popular Servers paragraph in `docs/features/mcp.md`.

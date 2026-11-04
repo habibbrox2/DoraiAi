@@ -1,11 +1,11 @@
-# Brox Kai System Architecture
+# DORAI AI System Architecture
 
 **Status:** Foundation architecture
 **Scope:** Kotlin-first hybrid platform
 
 ## Architectural direction
 
-Brox Kai remains a Kotlin Multiplatform application with Compose Multiplatform as its native/shared UI foundation. TypeScript is introduced as an independent workspace for future web-facing, extension, SDK, and integration capabilities. It is not a replacement for the existing Kotlin application.
+DORAI AI remains a Kotlin Multiplatform application with Compose Multiplatform as its native/shared UI foundation. TypeScript is introduced as an independent workspace for future web-facing, extension, SDK, and integration capabilities. It is not a replacement for the existing Kotlin application.
 
 ```tex
 Android / Desktop / iOS / Web

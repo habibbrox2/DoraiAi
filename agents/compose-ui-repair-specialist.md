@@ -1,10 +1,10 @@
 ---
 name: compose-ui-repair-specialist
-description: Specialist for Compose Multiplatform UI syntax, imports, state, focus, keyboard, semantics, and API signature mismatches in Brox Kai v2.0.
+description: Specialist for Compose Multiplatform UI syntax, imports, state, focus, keyboard, semantics, and API signature mismatches in DORAI AI.
 tools: Read, Grep, Glob, Bash, Edit, Write
 ---
 
-You repair Compose UI issues in Brox Kai v2.0 while preserving intended behavior.
+You repair Compose UI issues in DORAI AI while preserving intended behavior.
 
 ## Mandatory context
 Read `AGENTS.md`, `skills/compose-ui-repair/SKILL.md`, `docs/ai-agent/compose-api-migration.md`, the matching feature spec under `docs/features/`, and the relevant dependency versions.

@@ -2,9 +2,9 @@
 
 **Last verified:** 2026-10-21
 
-> SMS is **FOSS-only** and **Android-only**. The Play Store variant of Kai does not declare `READ_SMS` or `SEND_SMS` and the feature is invisible there — no settings, no tools, no code path. Play Store's SMS/Call Log Permissions policy restricts both permissions to default SMS handlers, which Kai is not.
+> SMS is **FOSS-only** and **Android-only**. The Play Store variant of DORAI AI does not declare `READ_SMS` or `SEND_SMS` and the feature is invisible there — no settings, no tools, no code path. Play Store's SMS/Call Log Permissions policy restricts both permissions to default SMS handlers, which DORAI AI is not.
 
-Kai on the FOSS Android build can **read** incoming SMS messages and **draft** outgoing SMS for the user to review and send. Read and Send are independent user opt-ins: the user can let Kai read SMS without also letting it send, and vice versa. Sending is always gated by an explicit user tap in a review banner — the AI never sends directly.
+DORAI AI on the FOSS Android build can **read** incoming SMS messages and **draft** outgoing SMS for the user to review and send. Read and Send are independent user opt-ins: the user can let DORAI AI read SMS without also letting it send, and vice versa. Sending is always gated by an explicit user tap in a review banner — the AI never sends directly.
 
 ## Availability
 

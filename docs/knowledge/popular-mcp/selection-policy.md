@@ -1,7 +1,7 @@
 ---
 type: Policy
 title: Popular MCP selection and probe policy
-description: Which remote MCP endpoints may appear in Kai’s one-tap list, and when a probe is attested.
+description: Which remote MCP endpoints may appear in DORAI AI’s one-tap list, and when a probe is attested.
 tags: [mcp, popular-servers, policy]
 status: stable
 generated: { by: human:simon, at: 2026-08-12T21:30:00Z }
@@ -22,7 +22,7 @@ The Settings → Tools add-server sheet should only one-tap endpoints that a use
 
 A server is **attested live** when a probe matching the app client succeeds:
 
-1. `initialize` with protocol `2024-11-05`, empty capabilities, `clientInfo.name = "Kai 9000"`.
+1. `initialize` with protocol `2024-11-05`, empty capabilities, `clientInfo.name = "DORAI AI"`.
 2. `notifications/initialized` (no response required).
 3. `tools/list` returns a JSON-RPC result (zero tools is unusual — treat as review, not an automatic drop).
 

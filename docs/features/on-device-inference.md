@@ -2,7 +2,7 @@
 
 **Last verified:** 2026-10-02
 
-Kai can run AI models directly on the user's device using Google's LiteRT LM SDK. This enables fully offline, private inference with no API key, no internet connection, and no cost. Available on **Android**, **Desktop** (macOS, Linux, Windows), and **iOS**.
+DORAI AI can run AI models directly on the user's device using Google's LiteRT LM SDK. This enables fully offline, private inference with no API key, no internet connection, and no cost. Available on **Android**, **Desktop** (macOS, Linux, Windows), and **iOS**.
 
 ## How It Works
 
@@ -16,7 +16,7 @@ The digest is computed while the download streams to disk, so verification costs
 
 Verification also runs at load time. Before a model is handed to the inference engine, its marker is compared against the pinned digest; when the marker is missing — which is the case for models downloaded by app versions that predate this check — the file is hashed once and the result recorded, making every later load a string comparison. A model whose bytes do not match is refused rather than loaded, and the user is told to delete it and download it again. Nothing is deleted automatically at load time: a rejected file stays on disk for the user to keep, replace, or remove from Settings. Because the observed digest is recorded either way, a file already known not to match is refused immediately instead of being re-read on every attempt.
 
-**Imported models are exempt from verification.** An import whose file name matches a catalog model takes over that catalog slot, so it would otherwise be measured against a digest it was never meant to match — a user's own copy of a model, or one from a different upstream revision, would be rejected. Such an import records that the file is user-supplied, and the load-time check skips it. Imports that land under their own name carry no digest at all and are likewise never checked. Only files Kai itself downloaded are held to the pinned digest.
+**Imported models are exempt from verification.** An import whose file name matches a catalog model takes over that catalog slot, so it would otherwise be measured against a digest it was never meant to match — a user's own copy of a model, or one from a different upstream revision, would be rejected. Such an import records that the file is user-supplied, and the load-time check skips it. Imports that land under their own name carry no digest at all and are likewise never checked. Only files DORAI AI itself downloaded are held to the pinned digest.
 
 Bumping a catalog model means updating its pinned revision, digest, and size together. Pin policy, last HuggingFace check, and the bump playbook live in the knowledge bundle under `docs/knowledge/litert/`. Runtime pins stay in the catalog in code; both are checked together with the `update-litert-models` skill. A unit test fails the build if any entry reverts to a mutable branch URL. A newer `main` on HuggingFace is not applied until product asks to bump.
 
@@ -38,11 +38,11 @@ Models are `.litertlm` files from the [litert-community](https://huggingface.co/
 
 ## Tool support
 
-The application uses **litert-lm's native function calling**: each exposed Kai tool is wrapped in an adapter, registered on the conversation, and the engine drives the tool loop internally. The model uses its trained tool format, and the engine returns the final assistant text after all tool round-trips complete. Automatic tool calling is switched on only when the conversation actually has tools. Tools are available **at any context size** — there's no threshold gating.
+The application uses **litert-lm's native function calling**: each exposed DORAI AI tool is wrapped in an adapter, registered on the conversation, and the engine drives the tool loop internally. The model uses its trained tool format, and the engine returns the final assistant text after all tool round-trips complete. Automatic tool calling is switched on only when the conversation actually has tools. Tools are available **at any context size** — there's no threshold gating.
 
 Two filters decide what the model actually receives.
 
-**The model file decides whether it gets tools at all.** Before building the tool list, Kai asks the `.litertlm` bundle what it declares about itself — a metadata read that needs no engine and no loaded weights. A bundle that declares no function-calling support carries no tool section in its chat template, and such a model does not politely ignore tools it was handed: it answers *instead* of calling them, inventing whatever the tool would have returned. Those models are given no tools and no tool guidance in the system prompt, which makes them plain chat models — which is what they are. A bundle that cannot answer (older metadata, or the iOS bridge, whose LiteRT-LM release predates the capability API) reports *unknown*, and unknown is treated as before: the allowlist is offered.
+**The model file decides whether it gets tools at all.** Before building the tool list, DORAI AI asks the `.litertlm` bundle what it declares about itself — a metadata read that needs no engine and no loaded weights. A bundle that declares no function-calling support carries no tool section in its chat template, and such a model does not politely ignore tools it was handed: it answers *instead* of calling them, inventing whatever the tool would have returned. Those models are given no tools and no tool guidance in the system prompt, which makes them plain chat models — which is what they are. A bundle that cannot answer (older metadata, or the iOS bridge, whose LiteRT-LM release predates the capability API) reports *unknown*, and unknown is treated as before: the allowlist is offered.
 
 **The allowlist then narrows what a tool-capable model sees**, because small Gemma models (2-4B params) struggle to emit valid function-call syntax for tools with many parameters or complex value types, and litert-lm's strict ANTLR parser crashes the call when the syntax is malformed.
 
@@ -58,7 +58,7 @@ See [system-prompts.md](system-prompts.md) for the full contract.
 
 ## Sampling
 
-Each conversation is configured with the sampling defaults the model's own bundle declares — top-k, top-p and temperature read from the same capability metadata as the tool declaration. Models converted from different upstream families want different values, so one hardcoded triple suits none of them exactly. A bundle that declares nothing reports zeroes, which mean *no opinion* rather than *decode greedily*; those fall back to Kai's previous fixed values (top-k 40, top-p 0.95, temperature 0.8).
+Each conversation is configured with the sampling defaults the model's own bundle declares — top-k, top-p and temperature read from the same capability metadata as the tool declaration. Models converted from different upstream families want different values, so one hardcoded triple suits none of them exactly. A bundle that declares nothing reports zeroes, which mean *no opinion* rather than *decode greedily*; those fall back to DORAI AI's previous fixed values (top-k 40, top-p 0.95, temperature 0.8).
 
 ## Tool-call failures
 
@@ -77,7 +77,7 @@ If the engine throws (e.g. the model does emit malformed tool-call syntax that t
 Users manage models through the LiteRT service card in Settings:
 
 - **Download** -- each model card shows a download button with size info; disk space is validated before starting
-- **Import** -- a file picker accepts any `.litertlm` already on the device (e.g. from Downloads, Files, or another app that can export the file). The file is **copied** into Kai's private model storage (streaming — never loaded fully into memory). If the file name matches a catalog model, it fills that catalog slot and is marked as user-supplied so it is exempt from the integrity check; otherwise it appears under an **Imported** section with synthetic context/performance defaults
+- **Import** -- a file picker accepts any `.litertlm` already on the device (e.g. from Downloads, Files, or another app that can export the file). The file is **copied** into DORAI AI's private model storage (streaming — never loaded fully into memory). If the file name matches a catalog model, it fills that catalog slot and is marked as user-supplied so it is exempt from the integrity check; otherwise it appears under an **Imported** section with synthetic context/performance defaults
 - **Select** -- radio button appears after download/import to set the active model; a successful import auto-selects the new model
 - **Delete** -- trash icon removes the downloaded or imported model file
 - **Cancel** -- active downloads and imports can be cancelled
@@ -86,7 +86,7 @@ Users manage models through the LiteRT service card in Settings:
 - **Performance indicator** -- each model shows a Good/OK/Poor label based on total device RAM vs estimated resident memory at the selected context size. The estimate sums the model file size (proxy for resident weights after mmap/PLE), a per-model baseline for GPU/KV working memory, and a per-token KV cache cost that scales with context. Thresholds: Good >= 2.5x, OK >= 1.85x, Poor < 1.85x of total device RAM -- the extra headroom over 1x accounts for OS reservation and GPU-driver overhead. Custom imports use a size-based heuristic for the GPU baseline
 - **Free space** -- available device storage is shown below the model list
 
-On Android, downloads run in a foreground service with a notification so they continue when the app is backgrounded. The service is only started once the HTTP connection is established, so a pre-connection failure (e.g. offline) surfaces as an inline error without leaving a promised-but-unfulfilled foreground service. On Desktop, downloads run in a background coroutine. Import always copies into app storage (same pattern as Gallery / PocketPal); Kai cannot silently scan other apps' private model directories.
+On Android, downloads run in a foreground service with a notification so they continue when the app is backgrounded. The service is only started once the HTTP connection is established, so a pre-connection failure (e.g. offline) surfaces as an inline error without leaving a promised-but-unfulfilled foreground service. On Desktop, downloads run in a background coroutine. Import always copies into app storage (same pattern as Gallery / PocketPal); DORAI AI cannot silently scan other apps' private model directories.
 
 When the last LiteRT service instance is removed, all downloaded and imported models are automatically deleted.
 

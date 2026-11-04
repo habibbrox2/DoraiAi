@@ -4,7 +4,7 @@
 
 ## Overview
 
-Kai can automatically play Wild Ranked Splinterlands battles. The feature uses one or more LLM services to pick teams based on match constraints (mana cap, rulesets, inactive splinters), submits them via the Hive blockchain, and plays continuously until the player hits Stop or runs out of energy. If every configured LLM service fails, a local scoring-based picker takes over (ruleset-aware monster scoring, top-3 tank trials per summoner, combined summoner + team scoring to choose the best overall lineup).
+DORAI AI can automatically play Wild Ranked Splinterlands battles. The feature uses one or more LLM services to pick teams based on match constraints (mana cap, rulesets, inactive splinters), submits them via the Hive blockchain, and plays continuously until the player hits Stop or runs out of energy. If every configured LLM service fails, a local scoring-based picker takes over (ruleset-aware monster scoring, top-3 tank trials per summoner, combined summoner + team scoring to choose the best overall lineup).
 
 The entire Splinterlands integration has a master enable/disable toggle in the settings section header; when disabled, accounts and services remain saved but the feature is hidden from the UI and no battles run.
 

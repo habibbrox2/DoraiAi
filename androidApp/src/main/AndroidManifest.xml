@@ -29,7 +29,7 @@
    <!-- SAF (Storage Access Framework) works without manifest permissions -->
 
     <application
-        android:name="com.inspiredandroid.kai.KaiApplication"
+        android:name="com.dorai.ai.DoraiApplication"
         android:allowBackup="false"
         android:fullBackupContent="@xml/backup_rules"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -42,7 +42,7 @@
         <activity
             android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|mnc|colorMode|density|fontScale|fontWeightAdjustment|keyboard|layoutDirection|locale|mcc|navigation|smallestScreenSize|touchscreen|uiMode"
-            android:name="com.inspiredandroid.kai.MainActivity"
+            android:name="com.dorai.ai.MainActivity"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -80,11 +80,11 @@
                 android:resource="@xml/update_file_paths" />
         </provider>
         <service
-            android:name="com.inspiredandroid.kai.DaemonService"
+            android:name="com.dorai.ai.DaemonService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
         <service
-            android:name="com.inspiredandroid.kai.inference.ModelDownloadService"
+            android:name="com.dorai.ai.inference.ModelDownloadService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
         <uses-native-library android:name="libvndksupport.so" android:required="false"/>

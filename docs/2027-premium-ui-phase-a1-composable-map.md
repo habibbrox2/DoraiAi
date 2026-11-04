@@ -1,14 +1,14 @@
-# Phase A1 — Composable-to-Route and Feature Ownership Map
+# Phase A1 -> Composable-to-Route and Feature Ownership Map
 
-**Repository:** `habibbrox2/brox-kai-2.0`  
+**Repository:** `habibbrox2/DoraiAi`
 **Branch:** `feature/2027-premium-agent-ui-migration`  
 **Audited head before this document:** `6af4d4e77eece8bce749608896400edeb8c76235`  
-**Scope:** 137 Kotlin files under `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui`  
+**Scope:** 137 Kotlin files under `composeApp/src/commonMain/kotlin/com/dorai/ai/ui`
 **Method:** Git tree inventory plus source inspection of App navigation and the major route/surface composables. This is a structural ownership map, not a claim that every private composable or runtime state has been visually tested.
 
 ## 1. Verified application route graph
 
-Source of truth: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/App.kt`.
+Source of truth: `composeApp/src/commonMain/kotlin/com/dorai/ai/App.kt`.
 
 | Route | Navigation destination | Root Composable | Owner / state boundary |
 |---|---|---|---|
@@ -26,11 +26,11 @@ Route facts verified in source:
 - Sandbox is not a top-level NavHost destination in `App.kt`; its UI is embedded in the supported Chat/workspace flow.
 - Full-screen image viewing is hosted above the NavHost by `FullScreenImageHost`.
 
-## 2. Route → parent → child surface map
+## 2. Route -> parent -> child surface map
 
 ### Home / Chat
 
-`App.Home → ChatScreen → ChatScreenContent → ChatModeScreen → ChatShell`
+`App.Home -> ChatScreen -> ChatScreenContent -> ChatModeScreen -> ChatShell`
 
 | Parent / feature owner | Child surfaces identified from source |
 |---|---|
@@ -45,7 +45,7 @@ Primary owner: `ChatViewModel` and `ChatActions`. Presentation components receiv
 
 ### Dashboard
 
-`App.Dashboard → DashboardScreen → DashboardScreenContent`
+`App.Dashboard -> DashboardScreen -> DashboardScreenContent`
 
 Children verified in source:
 - `DashboardHeader`
@@ -58,7 +58,7 @@ Models: `DashboardModels.kt`. Navigation callbacks return to Chat, open Build/Se
 
 ### Settings
 
-`App.Settings(tab) → SettingsScreen → SettingsScreenContent → SettingsNavRail / SettingsOverview / SettingsDetailPane`
+`App.Settings(tab) -> SettingsScreen -> SettingsScreenContent -> SettingsNavRail / SettingsOverview / SettingsDetailPane`
 
 | Settings owner | Child section / surface files |
 |---|---|
@@ -75,7 +75,7 @@ The Settings root also receives optional Android update content. Sandbox setting
 
 ### Build workspace
 
-`App.Build(project) → KaiBuildScreen → KaiBuildScreenContent`
+`App.Build(project) -> KaiBuildScreen -> KaiBuildScreenContent`
 
 Children:
 - `BuildSetupContent` (setup/install steps and setup errors)
@@ -83,24 +83,24 @@ Children:
 - `BuildSessionBar`
 - `BuildStatusPill`
 - `BuildSectionHeader`
-- `BuildTerminalContent` → terminal hyperlink bar and terminal grid
+- `BuildTerminalContent` -> terminal hyperlink bar and terminal grid
 - `TerminalKeyRow` / `TerminalKeyIcons`
 
 State and actions: `KaiBuildViewModel`, `KaiBuildUiState`, `KaiBuildActions`, build session/terminal models. Terminal-specific ANSI and terminal canvas presentation are intentionally separate from generic app surfaces.
 
 ### Sandbox (embedded Chat/workspace feature, not a top-level App route)
 
-Parent: Chat/workspace sandbox content → `SandboxTabsContent`.
+Parent: Chat/workspace sandbox content -> `SandboxTabsContent`.
 
 Children:
-- `SandboxFileBrowserScreen.kt` → `SandboxFilesContent`, path bar, file list/row/menu, editor body, unopenable-file view, delete/rename dialogs.
-- `SandboxPackagesScreen.kt` → `SandboxPackagesContent`, packages list/row, upgrade row, uninstall confirmation.
+- `SandboxFileBrowserScreen.kt` -> `SandboxFilesContent`, path bar, file list/row/menu, editor body, unopenable-file view, delete/rename dialogs.
+- `SandboxPackagesScreen.kt` -> `SandboxPackagesContent`, packages list/row, upgrade row, uninstall confirmation.
 - `FindReplacePanel.kt`, `ReplaceAllConfirmDialog.kt`, `SandboxStatusText.kt`.
 - State owners: `SandboxFileBrowserViewModel`, `SandboxPackagesViewModel`, `SandboxSessionViewModel`, plus Settings sandbox state/view model.
 
 ### Dynamic UI / interactive response renderer
 
-Parent: Chat assistant message rendering → `KaiUiRenderer` → typed `KaiUiNode` tree.
+Parent: Chat assistant message rendering -> `KaiUiRenderer` -> typed `KaiUiNode` tree.
 
 Renderer children include column, row, card, text, button, text input, checkbox, select, image, table, list, switch, slider, radio group, progress, countdown, alert, chip group, icon, code, quote, badge, stat, avatar, box, tabs, and accordion renderers.
 
@@ -108,7 +108,7 @@ Supporting files: `KaiUiNode.kt`, `KaiUiNodeBuilders.kt`, `KaiUiParser.kt`, `UiA
 
 ### Markdown / response content
 
-Parent: Chat message content → `MarkdownContent` / `MarkdownRenderer`.
+Parent: Chat message content -> `MarkdownContent` / `MarkdownRenderer`.
 
 Supporting files:
 - Parsing: `BlockScanner.kt`, `MarkdownParser.kt`, `MarkdownNode.kt`, `InlineTokenizer.kt`, `EmojiShortcodes.kt`.
@@ -297,14 +297,14 @@ This inventory is derived from the recursive Git tree at the audited branch head
 
 ### Not yet fully verified
 - Exact call-site parent for every private Composable in all 137 files (especially shared utilities, settings subsections, Markdown leaf renderers, and dynamically selected sections).
-- Every SettingsTab enum value → exact section Composable mapping.
+- Every SettingsTab enum value -> exact section Composable mapping.
 - Every conditional branch and platform-specific visibility path.
 - Full set of nested Dialog/Sheet/Popover ownership links.
 - Runtime-only routes opened by platform-specific integrations outside the commonMain NavHost.
 - Accessibility semantics and per-state coverage; these are Phase C work, not Phase A1 closure evidence.
 
 ### Next audit actions
-1. Finish exact SettingsTab → section call-site mapping.
+1. Finish exact SettingsTab -> section call-site mapping.
 2. Trace every ChatScreen conditional slot and the full ChatShell parent-child composition.
 3. Trace Build and Sandbox content switch branches to exact child composables.
 4. Complete shared-component consumer map and dynamic Markdown/Dynamic UI embedding map.
@@ -321,51 +321,51 @@ The following call-site trace was checked against the current branch source, not
 - `ChatScreen` delegates to `ChatScreenContent`, then `ChatModeScreen`. `ChatModeScreen` owns local presentation state (drawer, sandbox visibility, composer prefill, snackbar/scroll state) while actions remain on `ChatUiState.actions`.
 - `ChatModeScreen` supplies `ChatShell` slots: `TopBar` as header; `AppSidebar` as the expanded conversation rail and compact modal drawer content; timeline/empty-state plus `ChatComposer` as main content; `SandboxTabsContent` as compact main content or expanded side panel; snackbar/error/free-provider UI in overlays.
 - `ChatShell` places header above content. Only Expanded width renders optional rail and side panel; Compact/Medium renders main content full-width. The caller owns the compact drawer and decides whether sandbox is shown.
-- Main-content branches verified: empty history → `EmptyState`; non-empty history → `ChatTimeline`; compact sandbox-open → `SandboxTabsContent` replaces timeline/composer; composer is omitted while sandbox is open.
+- Main-content branches verified: empty history -> `EmptyState`; non-empty history -> `ChatTimeline`; compact sandbox-open -> `SandboxTabsContent` replaces timeline/composer; composer is omitted while sandbox is open.
 
 ### Settings route and all tab branches
 
-- `SettingsScreen` → adaptive settings shell/navigation → `SettingsDetailPane`.
+- `SettingsScreen` -> adaptive settings shell/navigation -> `SettingsDetailPane`.
 - Exact `SettingsTab` dispatch in `SettingsDetailPane`:
-  - General → `SettingsOverview` + `GeneralContent` (Android update slot is passed here).
-  - Appearance → `AppearanceContent`.
-  - Agent → `AgentContent`.
-  - Services → `ServicesContent`.
-  - Tools → `ToolsTabContent` (receives sandbox state).
-  - Integrations → `IntegrationsContent`.
-  - Sandbox → `SandboxSettingsCard` when sandbox UI is available; otherwise `SandboxUnavailableContent`.
-  - Data → `DataControlContent`.
-  - Account → `AccountPlanContent`.
+  - General -> `SettingsOverview` + `GeneralContent` (Android update slot is passed here).
+  - Appearance -> `AppearanceContent`.
+  - Agent -> `AgentContent`.
+  - Services -> `ServicesContent`.
+  - Tools -> `ToolsTabContent` (receives sandbox state).
+  - Integrations -> `IntegrationsContent`.
+  - Sandbox -> `SandboxSettingsCard` when sandbox UI is available; otherwise `SandboxUnavailableContent`.
+  - Data -> `DataControlContent`.
+  - Account -> `AccountPlanContent`.
 - Navigation rail labels/icons and grouping were checked against the same nine enum values in `SettingsNavigation.kt`. Groups: Assistant (General/Appearance/Agent), Models & services (Services), Connections (Tools/Integrations), Workspace (Sandbox), Account (Data/Account).
 
 ### Dashboard route
 
 - `DashboardScreen` collects SandboxController and KaiBuildController state, builds `DashboardUiState`, then calls `DashboardScreenContent`.
-- `DashboardScreenContent` composes exactly: `DashboardHeader` → `ReadinessCard` → `DashboardActionGrid` → `RecentWorkSection`.
+- `DashboardScreenContent` composes exactly: `DashboardHeader` -> `ReadinessCard` -> `DashboardActionGrid` -> `RecentWorkSection`.
 - `RecentWorkSection` conditionally shows conversation rows when conversations exist and project rows only when projects exist and Build is available. Grid columns are 1 below 600dp, 2 below 1000dp, and 4 otherwise.
 
 ### Build route
 
 - `KaiBuildScreen` owns ViewModel collection/actions and delegates presentation to `KaiBuildScreenContent`.
-- With an open project: `BuildSessionBar` is shown; then Files → `SandboxFilesContent`; else a matching/fallback session → `BuildTerminalContent`; else a starting-session placeholder is shown and a session is requested.
-- Without an open project: `KaiBuildTopBar` is shown; ready state → `BuildProjectsContent`; not-ready state → `BuildSetupContent`. Create-project dialog is an overlay controlled by the screen.
+- With an open project: `BuildSessionBar` is shown; then Files -> `SandboxFilesContent`; else a matching/fallback session -> `BuildTerminalContent`; else a starting-session placeholder is shown and a session is requested.
+- Without an open project: `KaiBuildTopBar` is shown; ready state -> `BuildProjectsContent`; not-ready state -> `BuildSetupContent`. Create-project dialog is an overlay controlled by the screen.
 
 ### Sandbox embedded workspace
 
 - `ChatModeScreen` is the verified call site for `SandboxTabsContent` in both compact and expanded layouts. Build also reuses `SandboxFilesContent` as its project file view.
-- Ready state: Terminal → optional `SessionChipRow` + `TerminalContent`; Files → `SandboxFilesContent`; Packages → `SandboxPackagesContent`.
+- Ready state: Terminal -> optional `SessionChipRow` + `TerminalContent`; Files -> `SandboxFilesContent`; Packages -> `SandboxPackagesContent`.
 - Not-ready state: setup card reports Needs setup / Installing / Failed, optionally shows progress/cancel or error, and offers setup/retry when not working.
 - The tab selection is session-backed when `SandboxSessionViewModel` exists, otherwise local state is used (e.g. preview).
 
 ### Markdown and Dynamic UI embedding
 
 - `MarkdownContent` converts source text to a parsed `MarkdownDocument` (with a safe plain-text fallback) and delegates each block to `BlockRenderer`.
-- `BlockRenderer` dispatches headings/paragraphs/lists/quotes/tables/math/code/diff to their leaf renderers. A `KaiUiBlock` is the direct embedding point for `KaiUiRenderer`; malformed Kai-UI JSON is rendered as a JSON code fence.
+- `BlockRenderer` dispatches headings/paragraphs/lists/quotes/tables/math/code/diff to their leaf renderers. A `KaiUiBlock` is the direct embedding point for `KaiUiRenderer`; malformed DORAI AI-UI JSON is rendered as a JSON code fence.
 - `KaiUiRenderer` recursively renders the typed `KaiUiNode` tree and passes callback data through its typed callback contract. Historical/read-only messages set `isInteractive = false` at the Markdown boundary.
 
 ### Platform and overlay ownership
 
-- Top-level route set is commonMain NavHost; Android-only capability flags are passed from `AppContent` for Sandbox and Kai Build. Android update UI is an optional slot passed through Settings → General.
+- Top-level route set is commonMain NavHost; Android-only capability flags are passed from `AppContent` for Sandbox and DORAI Build. Android update UI is an optional slot passed through Settings -> General.
 - Full-screen image hosting is above NavHost. Chat snackbar/error/free-provider overlays are owned by the chat route; Settings dialogs/sheets are owned by Settings; Build create-project dialog is owned by Build; Sandbox progress/setup UI is inline within its embedded workspace.
 - Platform back handlers are attached to Dashboard, Settings, and Build route boundaries; Chat handles its own back/drawer/sandbox state.
 
@@ -375,6 +375,6 @@ This closes the route/feature-level composition map for all top-level routes and
 
 ## 7. Phase A1 status
 
-**Status: Complete — all top-level route roots, route ownership, responsive Chat slots, nine Settings tab branches, Dashboard composition, Build state branches, Sandbox tabs/readiness branches, Markdown → Dynamic UI embedding, and major overlay/platform boundaries are source-verified.**
+**Status: Complete -> all top-level route roots, route ownership, responsive Chat slots, nine Settings tab branches, Dashboard composition, Build state branches, Sandbox tabs/readiness branches, Markdown -> Dynamic UI embedding, and major overlay/platform boundaries are source-verified.**
 
 The closure is scoped to route and feature-level composition; it does not claim a complete private-composable call graph or runtime visual verification. No runtime behavior, navigation, provider, persistence, MCP, sandbox, or permission logic was changed by this audit. No merge, release, or deployment is included.

@@ -6,7 +6,7 @@
 
 ## 1. Purpose
 
-kai-ui lets an assistant response contain interactive, native UI rather than only prose. The model emits a declarative JSON description; Kai parses it into a typed component tree and renders supported components using Compose.
+kai-ui lets an assistant response contain interactive, native UI rather than only prose. The model emits a declarative JSON description; DORAI AI parses it into a typed component tree and renders supported components using Compose.
 
 The model output is untrusted input. kai-ui is a constrained presentation protocol, not an executable-code format.
 

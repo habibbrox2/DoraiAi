@@ -5,7 +5,7 @@
 
 ## 1. Terminology
 
-Kai may receive several kinds of information during an assistant turn. They must not be conflated:
+DORAI AI may receive several kinds of information during an assistant turn. They must not be conflated:
 
 | Data type | Meaning | User-facing policy |
 |---|---|---|

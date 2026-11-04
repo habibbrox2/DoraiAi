@@ -1,8 +1,8 @@
-# Brox Kai v2.0 — UI Upgrade Plan 2: Settings
+# DORAI AI — UI Upgrade Plan 2: Settings
 
 ## Objective
 
-Turn Settings into a clear control center for the Brox Kai workspace. The interface should make common actions quick, while keeping services, agent behavior, integrations, tools, skills, and sandbox configuration easy to find without overwhelming the user.
+Turn Settings into a clear control center for the DORAI AI workspace. The interface should make common actions quick, while keeping services, agent behavior, integrations, tools, skills, and sandbox configuration easy to find without overwhelming the user.
 
 ## Current scope
 

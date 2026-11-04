@@ -4,13 +4,13 @@ okf_version: "0.2"
 
 # Popular MCP server knowledge
 
-OKF v0.2 bundle for Kai’s **curated one-tap MCP endpoints**. Agents use this folder for selection policy, live-probe provenance, and freshness when refreshing the runtime list.
+OKF v0.2 bundle for DORAI AI’s **curated one-tap MCP endpoints**. Agents use this folder for selection policy, live-probe provenance, and freshness when refreshing the runtime list.
 
 ## Runtime vs knowledge
 
 | Layer | Path | Role |
 |---|---|---|
-| **Runtime** (shipped) | `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/mcp/PopularMcpServers.kt` | Source of truth for the Settings → Tools one-tap list |
+| **Runtime** (shipped) | `composeApp/src/commonMain/kotlin/com/dorai/ai/mcp/PopularMcpServers.kt` | Source of truth for the Settings → Tools one-tap list |
 | **Knowledge** (this bundle) | `docs/knowledge/popular-mcp/` | Selection policy, last probe snapshot, sources, stale dates |
 | **Refresh skill** | `.grok/skills/update-popular-mcp-servers/SKILL.md` | Probes endpoints, updates Kotlin + this bundle |
 

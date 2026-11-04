@@ -1,6 +1,6 @@
 # Cloudflare Workers AI
 
-Brox Kai exposes Cloudflare Workers AI as a provider using Cloudflare's account-scoped API.
+DORAI AI exposes Cloudflare Workers AI as a provider using Cloudflare's account-scoped API.
 
 ## Provider configuration
 
@@ -33,7 +33,7 @@ Skills discovery is attempted only when the server advertises the `io.modelconte
 - `skills/get` confirms the metadata and resource manifest for a skill URI.
 - `resources/read` retrieves the skill document.
 
-The extension conventionally uses `skill://` URIs but can advertise other URI schemes; the server's `skills/get` response is authoritative. Reading content does not approve or activate a skill. Brox Kai currently does not verify the returned resource digests, so remote metadata and content must remain untrusted and be reviewed before use; embedded scripts are never executed automatically.
+The extension conventionally uses `skill://` URIs but can advertise other URI schemes; the server's `skills/get` response is authoritative. Reading content does not approve or activate a skill. DORAI AI currently does not verify the returned resource digests, so remote metadata and content must remain untrusted and be reviewed before use; embedded scripts are never executed automatically.
 
 The MCP client does not implement Cloudflare's interactive OAuth login. Cloudflare supports API tokens as Bearer credentials for CI/CD and automation, so configure a scoped API token explicitly.
 

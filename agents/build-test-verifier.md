@@ -1,6 +1,6 @@
 ---
 name: build-test-verifier
-description: Build and test verification specialist for Brox Kai v2.0 Gradle modules and Android/Desktop/Wasm targets. Use after a patch or before reporting build readiness.
+description: Build and test verification specialist for DORAI AI Gradle modules and Android/Desktop/Wasm targets. Use after a patch or before reporting build readiness.
 tools: Read, Grep, Glob, Bash
 ---
 

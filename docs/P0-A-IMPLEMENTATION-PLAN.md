@@ -1,4 +1,4 @@
-# P0-A Implementation Plan — Brox Kai v2.0
+# P0-A Implementation Plan — DORAI AI
 
 ## Overview
 P0-A addresses critical security findings identified in the read-only audit.
@@ -77,18 +77,18 @@ All changes are security hardening — no feature changes, no branding changes.
 2. `androidApp/src/main/AndroidManifest.xml`
 3. `androidApp/src/main/res/xml/backup_rules.xml`
 4. `androidApp/src/main/res/xml/data_extraction_rules.xml`
-5. `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/mcp/McpClient.kt`
-6. `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/mcp/McpServerManager.kt`
-7. `composeApp/src/androidMain/kotlin/com/inspiredandroid/kai/Platform.android.kt`
-8. `composeApp/src/desktopMain/kotlin/com/inspiredandroid/kai/Platform.jvm.kt`
-9. `composeApp/src/iosMain/kotlin/com/inspiredandroid/kai/Platform.ios.kt`
-10. `composeApp/src/wasmJsMain/kotlin/com/inspiredandroid/kai/Platform.wasmJs.kt`
+5. `composeApp/src/commonMain/kotlin/com/dorai/ai/mcp/McpClient.kt`
+6. `composeApp/src/commonMain/kotlin/com/dorai/ai/mcp/McpServerManager.kt`
+7. `composeApp/src/androidMain/kotlin/com/dorai/ai/Platform.android.kt`
+8. `composeApp/src/desktopMain/kotlin/com/dorai/ai/Platform.jvm.kt`
+9. `composeApp/src/iosMain/kotlin/com/dorai/ai/Platform.ios.kt`
+10. `composeApp/src/wasmJsMain/kotlin/com/dorai/ai/Platform.wasmJs.kt`
 11. `.github/workflows/release.yml`
 12. `SECURITY.md`
 
 ### Created
-13. `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/mcp/McpUrlValidator.kt`
-14. `composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/mcp/McpUrlValidatorTest.kt`
+13. `composeApp/src/commonMain/kotlin/com/dorai/ai/mcp/McpUrlValidator.kt`
+14. `composeApp/src/commonTest/kotlin/com/dorai/ai/mcp/McpUrlValidatorTest.kt`
 
 ## Not In Scope (P0-B, Separate Approval)
 - `ShellCommandTool.kt` — shell hardening (fail-closed allowlist) deferred

@@ -1,7 +1,7 @@
 ---
 type: Policy
 title: Model catalog matching and estimate policy
-description: How Arena text-leaderboard names map onto Kai catalog ids, and when a score is attested vs estimated.
+description: How Arena text-leaderboard names map onto DORAI AI catalog ids, and when a score is attested vs estimated.
 tags: [models, arena, elo, policy]
 status: stable
 generated: { by: human:simon, at: 2026-08-12T19:56:19Z }
@@ -47,7 +47,7 @@ Mark estimates in the auto-fill section of `arenaScores`, never in the attested 
 
 # New board models
 
-Add a `baseEntries` row **only** for a newly seen **frontier / currently shipped** chat model that Kai users can select. Do **not** backfill historical arena rows (early Llama, Dolly, Vicuna, …).
+Add a `baseEntries` row **only** for a newly seen **frontier / currently shipped** chat model that DORAI AI users can select. Do **not** backfill historical arena rows (early Llama, Dolly, Vicuna, …).
 
 New rows need display name, context window (from the leaderboard when listed, else a documented family default), release month, and the attested Elo. Do not remove existing catalog entries.
 

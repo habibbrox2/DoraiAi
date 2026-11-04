@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Make the compact empty-chat screen visually match the supplied premium dark Brox Kai 2.0 reference while preserving the existing Kotlin Multiplatform chat runtime and capability gates.
+**Goal:** Make the compact empty-chat screen visually match the supplied premium dark DORAI AI reference while preserving the existing Kotlin Multiplatform chat runtime and capability gates.
 
 **Architecture:** Keep `ChatScreen` as the owner of UI state, navigation, draft persistence, and side-panel behavior. Build the premium dark presentation from Compose-native backdrop, semantic colors, and existing header/empty-state/composer composables; retain the existing `ChatActions`, `QuestionInput`, drawer, sandbox, and service/model selection integrations rather than creating duplicate state or mock workflows.
 
@@ -41,20 +41,20 @@
 
 ## File Structure
 
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/ChatDesignTokens.kt` — define premium-dark chat surface/color/shape accessors without changing unrelated theme contracts.
-- Create: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/PremiumChatBackdrop.kt` — reusable dark ambient background and motion-safe orb primitives.
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/AgentHud.kt` — reference-aligned HUD layout and actual status copy.
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/EmptyState.kt` — reference-aligned hero and capability-backed quick-action chips.
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/QuestionInput.kt` — premium-dark glass composer treatment only; preserve its existing event contract.
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/ChatScreen.kt` — host the backdrop and pass real presentation flags to child composables without changing action ownership.
-- Modify: `screenshotTests/src/test/kotlin/com/inspiredandroid/kai/screenshots/ScreenshotTest.kt` — cover compact dark empty state and the reduced-motion/static presentation path supported by the test harness.
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/ChatDesignTokens.kt` — define premium-dark chat surface/color/shape accessors without changing unrelated theme contracts.
+- Create: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/composables/PremiumChatBackdrop.kt` — reusable dark ambient background and motion-safe orb primitives.
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/composables/AgentHud.kt` — reference-aligned HUD layout and actual status copy.
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/composables/EmptyState.kt` — reference-aligned hero and capability-backed quick-action chips.
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/composables/QuestionInput.kt` — premium-dark glass composer treatment only; preserve its existing event contract.
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/ChatScreen.kt` — host the backdrop and pass real presentation flags to child composables without changing action ownership.
+- Modify: `screenshotTests/src/test/kotlin/com/dorai/ai/screenshots/ScreenshotTest.kt` — cover compact dark empty state and the reduced-motion/static presentation path supported by the test harness.
 - Modify if behavior documentation changes: `docs/ui-upgrade-plan-7-premium-chat.md` — correct visual theme guidance and update its verification metadata after visual validation.
 
 ### Task 1: Establish the Dark Reference Test Boundary
 
 **Files:**
-- Modify: `screenshotTests/src/test/kotlin/com/inspiredandroid/kai/screenshots/ScreenshotTest.kt`
-- Read: `screenshotTests/src/test/kotlin/com/inspiredandroid/kai/screenshots/ScreenshotTestData.kt`
+- Modify: `screenshotTests/src/test/kotlin/com/dorai/ai/screenshots/ScreenshotTest.kt`
+- Read: `screenshotTests/src/test/kotlin/com/dorai/ai/screenshots/ScreenshotTestData.kt`
 - Read: `screenshotTests/build.gradle.kts`
 
 **Interfaces:**
@@ -80,8 +80,8 @@ Expected: a controlled visual mismatch against the old snapshot, establishing th
 ### Task 2: Normalize Scoped Premium-Dark Presentation Tokens
 
 **Files:**
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/ChatDesignTokens.kt`
-- Test: `composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/ui/ThemeColorSchemeTest.kt` (extend only if public theme values change)
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/ChatDesignTokens.kt`
+- Test: `composeApp/src/commonTest/kotlin/com/dorai/ai/ui/ThemeColorSchemeTest.kt` (extend only if public theme values change)
 
 **Interfaces:**
 - Consumes: `MaterialTheme.colorScheme` and the existing `ChatSpacing`/`ChatShapes` API.
@@ -108,10 +108,10 @@ Expected: PASS in premium-dark screenshot and unit-test coverage.
 ### Task 3: Build the Motion-Safe Dark Backdrop and Agent Orb
 
 **Files:**
-- Create: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/PremiumChatBackdrop.kt`
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/ChatScreen.kt`
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/EmptyState.kt`
-- Test: `screenshotTests/src/test/kotlin/com/inspiredandroid/kai/screenshots/ScreenshotTest.kt`
+- Create: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/composables/PremiumChatBackdrop.kt`
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/ChatScreen.kt`
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/composables/EmptyState.kt`
+- Test: `screenshotTests/src/test/kotlin/com/dorai/ai/screenshots/ScreenshotTest.kt`
 
 **Interfaces:**
 - Consumes: actual `isLoading`, `isSpeaking`, and sandbox execution flags already available in the chat screen.
@@ -136,9 +136,9 @@ Expected: PASS; no content regression in dark or dynamic-UI screenshots.
 ### Task 4: Restyle the HUD Without Changing Its Behavior
 
 **Files:**
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/AgentHud.kt`
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/TopBar.kt` only if a display-only status argument is needed
-- Test: `screenshotTests/src/test/kotlin/com/inspiredandroid/kai/screenshots/ScreenshotTest.kt`
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/composables/AgentHud.kt`
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/composables/TopBar.kt` only if a display-only status argument is needed
+- Test: `screenshotTests/src/test/kotlin/com/dorai/ai/screenshots/ScreenshotTest.kt`
 
 **Interfaces:**
 - Consumes: the existing `AgentHud` callbacks, available service/model lists, `isGenerating`, `isShellExecuting`, and speech flags.
@@ -163,9 +163,9 @@ Expected: PASS; 600dp and 840dp policies are unchanged.
 ### Task 5: Align the Hero and Quick Actions to the Reference
 
 **Files:**
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/EmptyState.kt`
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/ChatScreen.kt` only to pass existing capability flags
-- Test: `screenshotTests/src/test/kotlin/com/inspiredandroid/kai/screenshots/ScreenshotTest.kt`
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/composables/EmptyState.kt`
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/ChatScreen.kt` only to pass existing capability flags
+- Test: `screenshotTests/src/test/kotlin/com/dorai/ai/screenshots/ScreenshotTest.kt`
 
 **Interfaces:**
 - Consumes: existing `onQuickStart(prompt)` and available runtime capability flags.
@@ -173,7 +173,7 @@ Expected: PASS; 600dp and 840dp policies are unchanged.
 
 - [ ] **Step 1: Update the focused screenshot to assert the centered title/subtitle hierarchy and at least one chip row at compact width**
 
-Use the product name exactly as `Brox Kai 2.0`; do not introduce hard-coded game state or tools.
+Use the product name exactly as `DORAI AI`; do not introduce hard-coded game state or tools.
 
 - [ ] **Step 2: Refactor the quick-action item model to accept a capability predicate and render only supported actions**
 
@@ -190,9 +190,9 @@ Expected: PASS with no fake capability displayed.
 ### Task 6: Re-skin the Existing Universal Composer
 
 **Files:**
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/composables/QuestionInput.kt`
-- Test: `composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/ui/chat/composables/DetectSlashQueryTest.kt`
-- Test: `screenshotTests/src/test/kotlin/com/inspiredandroid/kai/screenshots/ScreenshotTest.kt`
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/composables/QuestionInput.kt`
+- Test: `composeApp/src/commonTest/kotlin/com/dorai/ai/ui/chat/composables/DetectSlashQueryTest.kt`
+- Test: `screenshotTests/src/test/kotlin/com/dorai/ai/screenshots/ScreenshotTest.kt`
 
 **Interfaces:**
 - Consumes: existing `QuestionInput` parameters, draft `TextFieldValue`, attachment callbacks, slash-result provider, and send/cancel callbacks.

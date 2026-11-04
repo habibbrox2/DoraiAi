@@ -27,7 +27,7 @@ jobs:
               exit 1
             fi
           done
-          KEYSTORE_PATH="$RUNNER_TEMP/brox-kai-release.jks"
+          KEYSTORE_PATH="$RUNNER_TEMP/dorai-release.jks"
           printf '%s' "$KEYSTORE_B64" | base64 --decode > "$KEYSTORE_PATH"
           test -s "$KEYSTORE_PATH"
           keytool -list -keystore "$KEYSTORE_PATH" -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null
@@ -66,11 +66,31 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          KEYSTORE_PATH="$RUNNER_TEMP/brox-kai-release.jks"
+          KEYSTORE_PATH="$RUNNER_TEMP/dorai-release.jks"
           printf '%s' "$KEYSTORE_B64" | base64 --decode > "$KEYSTORE_PATH"
           test -s "$KEYSTORE_PATH"
           keytool -list -keystore "$KEYSTORE_PATH" -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null
           echo "KEYSTORE_FILE=$KEYSTORE_PATH" >> "$GITHUB_ENV"
+      - name: Validate release version matches app metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#v}"
+          APP_VERSION=$(sed -nE 's/^appVersion = "([^"]+)"/\1/p' gradle/libs.versions.toml)
+          if [[ ! "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "::error::Release tag must use strict semantic versioning (vMAJOR.MINOR.PATCH)."
+            exit 1
+          fi
+          if [[ "$APP_VERSION" != "$VERSION" ]]; then
+            echo "::error::Release tag v$VERSION does not match appVersion $APP_VERSION in gradle/libs.versions.toml."
+            exit 1
+          fi
+          git fetch origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" FETCH_HEAD; then
+            echo "::error::DORAI release tags must point to a commit already merged into main."
+            exit 1
+          fi
+
       - name: Build production-signed APK
         run: bash ./gradlew :androidApp:assembleFossRelease --stacktrace
       - name: Verify APK signature
@@ -85,17 +105,17 @@ jobs:
           APK_SHA256=$(sha256sum "$APK" | awk '{print $1}')
           VERSION="${GITHUB_REF_NAME#v}"
           VERSION_CODE=$(grep -oP 'android-versionCode = "\K[0-9]+' gradle/libs.versions.toml)
-          ASSET_NAME="Brox-Kai-2.0-v${VERSION}-Android.apk"
+          ASSET_NAME="DORAI-AI-v${VERSION}-Android.apk"
           python3 - "$VERSION" "$VERSION_CODE" "$ASSET_NAME" "$APK_SHA256" "$CERT_SHA256" <<'PY'
           import json, sys
           version, version_code, asset_name, sha256, cert_sha256 = sys.argv[1:]
           manifest = {
               "schemaVersion": 1,
-              "packageName": "com.inspiredandroid.kai",
+              "packageName": "com.dorai.ai",
               "versionName": version,
               "versionCode": int(version_code),
               "assetName": asset_name,
-              "downloadUrl": f"https://github.com/habibbrox2/brox-kai-2.0/releases/download/v{version}/{asset_name}",
+              "downloadUrl": f"https://github.com/habibbrox2/DoraiAi/releases/download/v{version}/{asset_name}",
               "sha256": sha256,
               "signerCertificateSha256": cert_sha256,
           }
@@ -109,9 +129,9 @@ jobs:
           version, version_code, asset_name = sys.argv[1:]
           with open("update.json", encoding="utf-8") as f:
               m = json.load(f)
-          expected_url = f"https://github.com/habibbrox2/brox-kai-2.0/releases/download/v{version}/{asset_name}"
+          expected_url = f"https://github.com/habibbrox2/DoraiAi/releases/download/v{version}/{asset_name}"
           assert m.get("schemaVersion") == 1, "Invalid manifest schemaVersion"
-          assert m.get("packageName") == "com.inspiredandroid.kai", "Invalid packageName"
+          assert m.get("packageName") == "com.dorai.ai", "Invalid packageName"
           assert m.get("versionName") == version, "Manifest versionName mismatch"
           assert m.get("versionCode") == int(version_code) and int(version_code) > 0, "Invalid versionCode"
           assert m.get("assetName") == asset_name, "Manifest assetName mismatch"
@@ -248,12 +268,12 @@ jobs:
       - name: Create tarball
         run: |
           cd composeApp/build/compose/binaries/main-release/app
-          tar czf "$GITHUB_WORKSPACE/Kai-linux-x86_64.tar.gz" Kai
+          tar czf "$GITHUB_WORKSPACE/DORAI-AI-linux-x86_64.tar.gz" DORAI
       - name: Upload Tarball Artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-tar-package
-          path: Kai-linux-x86_64.tar.gz
+          path: DORAI-AI-linux-x86_64.tar.gz
 
   appimage:
     name: Generate AppImage
@@ -287,24 +307,24 @@ jobs:
           mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
 
           # Copy distributable contents
-          cp -r composeApp/build/compose/binaries/main-release/app/Kai/* AppDir/usr/lib/
+          cp -r composeApp/build/compose/binaries/main-release/app/DORAI/* AppDir/usr/lib/
 
           # Copy icon
-          cp composeApp/icon.png AppDir/usr/share/icons/hicolor/256x256/apps/kai.png
-          cp composeApp/icon.png AppDir/kai.png
+          cp composeApp/icon.png AppDir/usr/share/icons/hicolor/256x256/apps/dorai.png
+          cp composeApp/icon.png AppDir/dorai.png
 
           # Create desktop file
-          cat > AppDir/kai.desktop << 'EOF'
+          cat > AppDir/dorai.desktop << 'EOF'
           [Desktop Entry]
-          Name=Kai
+          Name=DORAI AI
           Comment=AI Assistant Application
-          Exec=kai
-          Icon=kai
+          Exec=dorai
+          Icon=dorai
           Type=Application
           Categories=Utility;
           Terminal=false
           EOF
-          cp AppDir/kai.desktop AppDir/usr/share/applications/
+          cp AppDir/dorai.desktop AppDir/usr/share/applications/
 
           # Create AppRun
           cat > AppDir/AppRun << 'EOF'
@@ -313,17 +333,17 @@ jobs:
           HERE=${SELF%/*}
           export PATH="${HERE}/usr/lib/bin:${PATH}"
           export LD_LIBRARY_PATH="${HERE}/usr/lib/lib/runtime/lib:${LD_LIBRARY_PATH}"
-          exec "${HERE}/usr/lib/bin/Kai" "$@"
+          exec "${HERE}/usr/lib/bin/DORAI" "$@"
           EOF
           chmod +x AppDir/AppRun
       - name: Build AppImage
         run: |
-          ARCH=x86_64 ./appimagetool-x86_64.AppImage --appimage-extract-and-run AppDir Kai-x86_64.AppImage
+          ARCH=x86_64 ./appimagetool-x86_64.AppImage --appimage-extract-and-run AppDir DORAI-AI-x86_64.AppImage
       - name: Upload AppImage Artifact
         uses: actions/upload-artifact@v4
         with:
           name: appimage-package
-          path: Kai-*.AppImage
+          path: DORAI-AI-*.AppImage
 
   flatpak:
     name: Generate Flatpak
@@ -348,24 +368,25 @@ jobs:
       - name: Build Flatpak
         run: |
           # Copy tarball to flatpak dir and compute sha256
-          cp Kai-linux-x86_64.tar.gz flatpak/
-          SHA256=$(sha256sum Kai-linux-x86_64.tar.gz | cut -d' ' -f1)
+          cp DORAI-AI-linux-x86_64.tar.gz flatpak/
+          SHA256=$(sha256sum DORAI-AI-linux-x86_64.tar.gz | cut -d' ' -f1)
 
           # Patch manifest to use local tarball instead of URL
           cd flatpak
-          sed -i "s|url: https://github.com/SimonSchubert/Kai/releases/download/.*|path: Kai-linux-x86_64.tar.gz|" io.github.simonschubert.Kai.yaml
-          sed -i "s|sha256: .*|sha256: ${SHA256}|" io.github.simonschubert.Kai.yaml
+          sed -i "s|url: .*|path: DORAI-AI-linux-x86_64.tar.gz|" com.dorai.ai.yaml
+          sed -i "s|sha256: .*|sha256: ${SHA256}|" com.dorai.ai.yaml
 
           # Build and bundle
-          flatpak-builder --repo=repo --force-clean build-dir io.github.simonschubert.Kai.yaml
-          flatpak build-bundle repo ../Kai.flatpak io.github.simonschubert.Kai
+          flatpak-builder --repo=repo --force-clean build-dir com.dorai.ai.yaml
+          flatpak build-bundle repo ../DORAI-AI.flatpak com.dorai.ai
       - name: Upload Flatpak Artifact
         uses: actions/upload-artifact@v4
         with:
           name: flatpak-package
-          path: Kai.flatpak
+          path: DORAI-AI.flatpak
 
   play-store:
+    if: ${{ vars.DORAI_PLAY_STORE_ENABLED == 'true' }}
     name: Upload AAB to Play Store
     uses: ./.github/workflows/play-store.yml
     with:
@@ -435,15 +456,15 @@ jobs:
       - name: Rename assets
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          mv androidApp-foss-release.apk "Brox-Kai-2.0-v${VERSION}-Android.apk"
+          mv androidApp-foss-release.apk "DORAI-AI-v${VERSION}-Android.apk"
           test -s update.json
-          mv *.dmg "Kai-${VERSION}-macos.dmg"
-          mv *.msi "Kai-${VERSION}-windows.msi"
-          mv *.deb "Kai-${VERSION}-linux.deb"
-          mv *.rpm "Kai-${VERSION}-linux.rpm"
-          mv *.AppImage "Kai-${VERSION}-linux.AppImage"
-          mv Kai-linux-x86_64.tar.gz "Kai-${VERSION}-linux-x86_64.tar.gz"
-          if [ -f Kai.flatpak ]; then mv Kai.flatpak "Kai-${VERSION}-linux.flatpak"; fi
+          mv *.dmg "DORAI-AI-v${VERSION}-macos.dmg"
+          mv *.msi "DORAI-AI-v${VERSION}-windows.msi"
+          mv *.deb "DORAI-AI-v${VERSION}-linux.deb"
+          mv *.rpm "DORAI-AI-v${VERSION}-linux.rpm"
+          mv *.AppImage "DORAI-AI-v${VERSION}-linux.AppImage"
+          mv DORAI-AI-linux-x86_64.tar.gz "DORAI-AI-v${VERSION}-linux-x86_64.tar.gz"
+          if [ -f DORAI-AI.flatpak ]; then mv DORAI-AI.flatpak "DORAI-AI-v${VERSION}-linux.flatpak"; fi
 
       - name: Extract changelog
         run: |
@@ -464,11 +485,11 @@ jobs:
       - name: Generate SHA-256 checksums
         run: |
           set -euo pipefail
-          if ! ls Kai-* 1>/dev/null 2>&1; then
-            echo "::error::No release artifacts found matching Kai-*"
+          if ! ls DORAI-AI-* 1>/dev/null 2>&1; then
+            echo "::error::No release artifacts found matching DORAI-AI-*"
             exit 1
           fi
-          sha256sum Kai-* > SHA256SUMS
+          sha256sum DORAI-AI-* > SHA256SUMS
           echo "=== Generated checksums ==="
           cat SHA256SUMS
 
@@ -483,8 +504,8 @@ jobs:
           name: Release ${{ github.ref_name }}
           body_path: changelog.txt
           files: |
-            Kai-*
-            Brox-Kai-2.0-v*-Android.apk
+            DORAI-AI-*
+            DORAI-AI-v*-Android.apk
             update.json
             SHA256SUMS
 
@@ -494,7 +515,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          API_PATH="repos/habibbrox2/brox-kai-2.0/contents/update.json"
+          API_PATH="repos/habibbrox2/DoraiAi/contents/update.json"
           CURRENT=$(gh api "$API_PATH?ref=main" 2>/dev/null || true)
           if [ -n "$CURRENT" ]; then
             CURRENT_CODE=$(printf '%s' "$CURRENT" | jq -r '.content' | tr -d '\n' | base64 --decode | python3 -c 'import json,sys; print(int(json.load(sys.stdin)["versionCode"]))')
@@ -516,14 +537,4 @@ jobs:
           gh api "${ARGS[@]}"
           echo "Published canonical update.json for ${GITHUB_REF_NAME}"
 
-      - name: Sync winget-pkgs fork
-        env:
-          GH_TOKEN: ${{ secrets.WINGET_TOKEN }}
-        run: gh repo sync SimonSchubert/winget-pkgs --source microsoft/winget-pkgs --branch master --force
-
-      - name: Publish to WinGet
-        uses: vedantmgoyal9/winget-releaser@v2
-        with:
-          identifier: SimonSchubert.Kai
-          installers-regex: '\.msi$'
-          token: ${{ secrets.WINGET_TOKEN }}
+      # WinGet publishing is disabled until a DORAI package ID is registered.

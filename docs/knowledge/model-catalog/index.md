@@ -4,13 +4,13 @@ okf_version: "0.2"
 
 # Model catalog knowledge
 
-OKF v0.2 bundle for Kai’s **curated model metadata and Arena Elo scores**. Agents use this folder for matching policy, provenance, and freshness when refreshing the runtime catalog.
+OKF v0.2 bundle for DORAI AI’s **curated model metadata and Arena Elo scores**. Agents use this folder for matching policy, provenance, and freshness when refreshing the runtime catalog.
 
 ## Runtime vs knowledge
 
 | Layer | Path | Role |
 |---|---|---|
-| **Runtime** (shipped) | `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/ModelCatalog.kt` | Source of truth for display name, context window, release date, params, and Elo shown in the app |
+| **Runtime** (shipped) | `composeApp/src/commonMain/kotlin/com/dorai/ai/data/ModelCatalog.kt` | Source of truth for display name, context window, release date, params, and Elo shown in the app |
 | **Knowledge** (this bundle) | `docs/knowledge/model-catalog/` | Matching policy, attested Arena snapshot, stale dates |
 | **Refresh skill** | `.grok/skills/update-model-catalog/SKILL.md` | Fetches the text leaderboard, updates Kotlin + this bundle |
 

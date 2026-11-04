@@ -1,6 +1,6 @@
 <resources>
-    <string name="daemon_channel_name">บริการเบื้องหลังของ Brox Kai 2.0</string>
-    <string name="daemon_channel_description">ทำให้ Brox Kai 2.0 ทำงานต่อเนื่องเพื่อดำเนินงานที่กำหนดไว้</string>
+    <string name="daemon_channel_name">บริการเบื้องหลังของ DORAI AI</string>
+    <string name="daemon_channel_description">ทำให้ DORAI AI ทำงานต่อเนื่องเพื่อดำเนินงานที่กำหนดไว้</string>
     <string name="daemon_notification_text">บริการเบื้องหลังกำลังทำงาน</string>
     <string name="download_channel_name">การดาวน์โหลดโมเดล</string>
     <string name="download_channel_description">แสดงความคืบหน้าขณะดาวน์โหลดโมเดล AI</string>

@@ -1,4 +1,4 @@
-# Brox Kai v2.0 — AI Assistant Frontend UI Audit & Polish Plan
+# DORAI AI — AI Assistant Frontend UI Audit & Polish Plan
 
 ## Overview
 This plan covers a comprehensive audit and polish of the AI Assistant frontend UI,
@@ -7,13 +7,13 @@ focusing on visual consistency, UX improvements, accessibility, performance, and
 ## 1. Branding & Visual Identity
 
 ### 1.1 Logo & App Identity
-- [ ] Ensure Brox Kai logo is used consistently across all screens (TopBar, EmptyState, Settings, About)
-- [ ] Update app name references from "Kai" to "Brox Kai" in UI strings
+- [ ] Ensure DORAI AI logo is used consistently across all screens (TopBar, EmptyState, Settings, About)
+- [ ] Update app name references from "DORAI AI" to "DORAI AI" in UI strings
 - [ ] Verify logo animation (LogoAnimation.kt) uses new brand assets
 - [ ] Check splash screen / launcher icon consistency
 
 ### 1.2 Color Scheme & Theme
-- [ ] Audit `Theme.kt` — ensure Brox Kai brand colors are applied
+- [ ] Audit `Theme.kt` — ensure DORAI AI brand colors are applied
 - [ ] Dark/light theme consistency across all screens
 - [ ] Accent color usage (buttons, links, active states)
 - [ ] Error/warning/success color semantics consistent
@@ -91,7 +91,7 @@ focusing on visual consistency, UX improvements, accessibility, performance, and
 - [ ] MathRenderer.kt — LaTeX rendering quality
 - [ ] InlineContent.kt — image, link, bold, italic, code
 
-### 4.2 Dynamic UI (Kai UI)
+### 4.2 Dynamic UI (DORAI AI UI)
 - [ ] KaiUiRenderer.kt — custom UI components from AI
 - [ ] KaiUiParser.kt — parsing accuracy
 - [ ] KaiUiNodeBuilders.kt — component builders
@@ -110,7 +110,7 @@ focusing on visual consistency, UX improvements, accessibility, performance, and
 - [ ] TerminalKeyRow.kt / TerminalKeyIcons.kt — virtual keyboard
 - [ ] AnsiParser.kt — ANSI color rendering
 
-## 6. Build Screen (Kai Build)
+## 6. Build Screen (DORAI Build)
 
 ### 6.1 Build UI
 - [ ] KaiBuildScreen.kt — project list, build status

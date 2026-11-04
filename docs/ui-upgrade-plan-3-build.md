@@ -1,8 +1,8 @@
-# Brox Kai v2.0 — UI Upgrade Plan 3: Build Workspace
+# DORAI AI — UI Upgrade Plan 3: Build Workspace
 
 ## Objective
 
-Evolve Kai Build from a terminal-focused flow into a focused project workspace for creating, opening, editing, running, monitoring, and exporting projects.
+Evolve DORAI Build from a terminal-focused flow into a focused project workspace for creating, opening, editing, running, monitoring, and exporting projects.
 
 ## Current scope
 
@@ -68,7 +68,7 @@ KaiBuildScreen
 
 ### Phase 1 — Workspace design system
 
-1. Create Build-specific tokens for terminal surface, success, warning, running, and failed states that work with the Brox Kai palette.
+1. Create Build-specific tokens for terminal surface, success, warning, running, and failed states that work with the DORAI AI palette.
 2. Build reusable project cards, agent badges, progress blocks, terminal status pills, and split-pane headers.
 3. Add preview/screenshot fixtures for setup, project hub, active build, terminal error, and no-project states.
 

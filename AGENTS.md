@@ -2,7 +2,7 @@
 
 ## Overview
 
-Brox Kai v2.0 is a Kotlin Multiplatform (KMP) app built with Compose Multiplatform (CMP). Keep the Gradle root project name `Kai`, root packages, bundle IDs, namespace identifiers, and release names unchanged unless explicitly approved.
+DORAI AI is a Kotlin Multiplatform (KMP) app built with Compose Multiplatform (CMP). Keep the Gradle root project name `Kai`, root packages, bundle IDs, namespace identifiers, and release names unchanged unless explicitly approved.
 
 ## Tech Stack
 

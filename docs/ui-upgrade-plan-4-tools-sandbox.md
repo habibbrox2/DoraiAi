@@ -1,4 +1,4 @@
-# Brox Kai v2.0 — UI Upgrade Plan 4: Tools and Sandbox Workspace
+# DORAI AI — UI Upgrade Plan 4: Tools and Sandbox Workspace
 
 ## Objective
 

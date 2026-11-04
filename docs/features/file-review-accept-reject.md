@@ -66,7 +66,7 @@ The platform adapter owns path resolution and the atomic compare-and-swap operat
 - unsupported atomic move
 - I/O failure with recovery status
 
-The adapter must support the Android chat sandbox and Kai Build workspace separately. Desktop must use an explicitly configured project root; it must not infer an arbitrary writable root from a model-supplied absolute path. iOS/Web targets without a supported local workspace must report the capability as unavailable.
+The adapter must support the Android chat sandbox and DORAI Build workspace separately. Desktop must use an explicitly configured project root; it must not infer an arbitrary writable root from a model-supplied absolute path. iOS/Web targets without a supported local workspace must report the capability as unavailable.
 
 ### 3.3 Review UI
 
@@ -132,7 +132,7 @@ For rollback, compare the current target against the accepted SHA-256 before res
 - Keep arbitrary MCP/shell file operations explicitly unmanaged and non-reversible.
 
 ### Phase C — validation
-- Verify Android chat sandbox and Kai Build use the correct independent roots.
+- Verify Android chat sandbox and DORAI Build use the correct independent roots.
 - Verify desktop uses the configured project root and that unsupported platforms hide/disable transaction actions.
 - Run common tests, desktop tests, Android FOSS compile/unit tests, and focused filesystem integration tests.
 - Verify that no Accept/Reject action can bypass the user gesture or the hash/path checks.

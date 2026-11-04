@@ -1,0 +1,249 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
+package com.dorai.ai.ui.chat.composables
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterEnd
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import com.dorai.ai.ui.AccentPrimary
+import com.dorai.ai.ui.KaiShapes
+import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.SurfaceRaised
+import com.dorai.ai.ui.chat.ChatActions
+import com.dorai.ai.ui.chat.ConversationSummary
+import com.dorai.ai.ui.components.VerticalScrollbarForList
+import com.dorai.ai.ui.components.animatedGradientBorder
+import com.dorai.ai.ui.handCursor
+import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.chat_history_delete_content_description
+import dorai.composeapp.generated.resources.chat_history_empty
+import dorai.composeapp.generated.resources.chat_history_heartbeat_label
+import dorai.composeapp.generated.resources.chat_history_title
+import dorai.composeapp.generated.resources.ic_history
+import dorai.composeapp.generated.resources.snackbar_conversation_deleted
+import dorai.composeapp.generated.resources.snackbar_undo
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
+
+@Composable
+internal fun ChatHistorySheet(
+    conversations: ImmutableList<ConversationSummary>,
+    currentConversationId: String?,
+    pendingConversationDeletion: String?,
+    actions: ChatActions,
+    onDismiss: () -> Unit,
+    onConversationSelected: () -> Unit = {},
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    ) {
+        val snackbarHostState = remember { SnackbarHostState() }
+        val deletedMessage = stringResource(Res.string.snackbar_conversation_deleted)
+        val undoLabel = stringResource(Res.string.snackbar_undo)
+        val pendingDeletionState = rememberUpdatedState(pendingConversationDeletion)
+
+        LaunchedEffect(pendingConversationDeletion) {
+            if (pendingConversationDeletion == null) return@LaunchedEffect
+            snackbarHostState.currentSnackbarData?.dismiss()
+            val result = snackbarHostState.showSnackbar(
+                message = deletedMessage,
+                actionLabel = undoLabel,
+                duration = SnackbarDuration.Short,
+            )
+            // Only undo the deletion we actually showed; if a newer deletion is
+            // already pending, the snackbar action is stale and must be ignored.
+            if (result == SnackbarResult.ActionPerformed && pendingDeletionState.value == pendingConversationDeletion) {
+                actions.undoDeleteConversation()
+            }
+        }
+
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column {
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    text = stringResource(Res.string.chat_history_title),
+                    style = KaiTypography.titleLarge,
+                    color = LocalDesignColorTokens.current.textPrimary,
+                )
+                Spacer(Modifier.height(12.dp))
+
+                if (conversations.isEmpty()) {
+                    Text(
+                        text = stringResource(Res.string.chat_history_empty),
+                        style = KaiTypography.bodyMedium,
+                        color = LocalDesignColorTokens.current.textSecondary,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp),
+                    )
+                } else {
+                    val historyListState = rememberLazyListState()
+                    Box {
+                        LazyColumn(
+                            state = historyListState,
+                            contentPadding = PaddingValues(horizontal = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+
+                        ) {
+                            items(conversations, key = { it.id }) { conversation ->
+                                val isActive = conversation.id == currentConversationId
+                                val borderModifier = if (conversation.isInteractive) {
+                                    Modifier.animatedGradientBorder(
+                                        cornerRadius = 12.dp,
+                                        backgroundColor = SurfaceRaised,
+                                    )
+                                } else {
+                                    Modifier
+                                        .clip(KaiShapes.row)
+                                        .border(
+                                            1.dp,
+                                            AccentPrimary,
+                                            KaiShapes.row,
+                                        )
+                                }
+                                Row(
+                                    modifier = borderModifier
+                                        .fillMaxWidth()
+                                        .handCursor()
+                                        .clickable {
+                                            onConversationSelected()
+                                            actions.loadConversation(conversation.id)
+                                            onDismiss()
+                                        }
+                                        .padding(vertical = 8.dp, horizontal = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        if (conversation.isHeartbeat) {
+                                            Row(
+                                                modifier = Modifier
+                                                    .padding(bottom = 4.dp)
+                                                    .background(
+                                                        color = SurfaceRaised,
+                                                        shape = KaiShapes.xs,
+                                                    )
+                                                    .padding(horizontal = 6.dp, vertical = 2.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                            ) {
+                                                Icon(
+                                                    imageVector = vectorResource(Res.drawable.ic_history),
+                                                    contentDescription = null,
+                                                    tint = LocalDesignColorTokens.current.textPrimary,
+                                                    modifier = Modifier.size(12.dp),
+                                                )
+                                                Spacer(Modifier.width(4.dp))
+                                                Text(
+                                                    text = stringResource(Res.string.chat_history_heartbeat_label),
+                                                    style = KaiTypography.labelSmall,
+                                                    color = LocalDesignColorTokens.current.textPrimary,
+                                                )
+                                            }
+                                        }
+                                        if (conversation.title.isNotEmpty()) {
+                                            Text(
+                                                text = conversation.title,
+                                                style = KaiTypography.bodyLarge,
+                                                color = if (isActive) {
+                                                    AccentPrimary
+                                                } else {
+                                                    LocalDesignColorTokens.current.textPrimary
+                                                },
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis,
+                                            )
+                                        }
+                                        Text(
+                                            text = formatDate(conversation.updatedAt),
+                                            style = KaiTypography.bodySmall,
+                                            color = LocalDesignColorTokens.current.textSecondary,
+                                        )
+                                    }
+                                    IconButton(
+                                        modifier = Modifier.handCursor().defaultMinSize(minWidth = 48.dp, minHeight = 48.dp),
+                                        onClick = { actions.deleteConversation(conversation.id) },
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = stringResource(Res.string.chat_history_delete_content_description),
+                                            tint = LocalDesignColorTokens.current.textSecondary,
+                                        )
+                                    }
+                                }
+                            }
+                            item {
+                                Spacer(Modifier.height(16.dp))
+                            }
+                        }
+                        VerticalScrollbarForList(
+                            listState = historyListState,
+                            modifier = Modifier.align(CenterEnd).fillMaxHeight(),
+                        )
+                    }
+                }
+            }
+
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp),
+            ) { data ->
+                Snackbar(snackbarData = data)
+            }
+        }
+    }
+}
+
+private val historyMonthNames = listOf(
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+)
+
+private fun formatDate(epochMillis: Long): String = try {
+    val local = kotlinx.datetime.Instant.fromEpochMilliseconds(epochMillis)
+        .toLocalDateTime(TimeZone.currentSystemDefault())
+    "${local.day} ${historyMonthNames[local.monthNumber - 1]} ${local.year}"
+} catch (_: Exception) {
+    ""
+}

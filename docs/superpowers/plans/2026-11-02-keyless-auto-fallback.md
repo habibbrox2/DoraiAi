@@ -33,8 +33,8 @@
 ### Task 1: Define the hidden keyless Auto router
 
 **Files:**
-- Create: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/KeylessFreeTierFallback.kt`
-- Test: `composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/data/KeylessFreeTierFallbackTest.kt`
+- Create: `composeApp/src/commonMain/kotlin/com/dorai/ai/data/KeylessFreeTierFallback.kt`
+- Test: `composeApp/src/commonTest/kotlin/com/dorai/ai/data/KeylessFreeTierFallbackTest.kt`
 
 **Interfaces:**
 - Produces `internal const val AUTO_MODEL_ID = "auto"` and an ordered, typed list of internal targets, each containing a `Service` and its actual upstream free model ID.
@@ -47,7 +47,7 @@ Assert the alias is exactly `auto`, Kilo is first with model `kilo-auto/free`, e
 
 - [ ] **Step 2: Run the focused test and verify it fails**
 
-Run: `.\gradlew.bat :composeApp:desktopTest --tests "com.inspiredandroid.kai.data.KeylessFreeTierFallbackTest"`
+Run: `.\gradlew.bat :composeApp:desktopTest --tests "com.dorai.ai.data.KeylessFreeTierFallbackTest"`
 Expected: FAIL because the router and target list do not exist yet.
 
 - [ ] **Step 3: Implement the internal target list**
@@ -56,17 +56,17 @@ Create the focused common-code component and keep the provider/model mapping in 
 
 - [ ] **Step 4: Run the focused test and verify it passes**
 
-Run: `.\gradlew.bat :composeApp:desktopTest --tests "com.inspiredandroid.kai.data.KeylessFreeTierFallbackTest"`
+Run: `.\gradlew.bat :composeApp:desktopTest --tests "com.dorai.ai.data.KeylessFreeTierFallbackTest"`
 Expected: `BUILD SUCCESSFUL`.
 
 ### Task 2: Route Free chat through Auto and fallback on provider failure
 
 **Files:**
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/RemoteDataRepository.kt`
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/ChatViewModel.kt`
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/settings/ServicesSettings.kt`
-- Test: `composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/data/KeylessFreeTierFallbackTest.kt`
-- Test: `composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/ui/chat/ChatViewModelExtendedTest.kt`
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/data/RemoteDataRepository.kt`
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/ChatViewModel.kt`
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/settings/ServicesSettings.kt`
+- Test: `composeApp/src/commonTest/kotlin/com/dorai/ai/data/KeylessFreeTierFallbackTest.kt`
+- Test: `composeApp/src/commonTest/kotlin/com/dorai/ai/ui/chat/ChatViewModelExtendedTest.kt`
 
 **Interfaces:**
 - Consumes the ordered targets and `AUTO_MODEL_ID` from Task 1.
@@ -79,7 +79,7 @@ Cover: no configured provider invokes Kilo with `kilo-auto/free`; Kilo failure t
 
 - [ ] **Step 2: Run the focused test and verify it fails**
 
-Run: `.\gradlew.bat :composeApp:desktopTest --tests "com.inspiredandroid.kai.data.KeylessFreeTierFallbackTest"`
+Run: `.\gradlew.bat :composeApp:desktopTest --tests "com.dorai.ai.data.KeylessFreeTierFallbackTest"`
 Expected: FAIL because chat does not dispatch through the hidden router.
 
 - [ ] **Step 3: Wire the router into normal chat**
@@ -88,17 +88,17 @@ When there are no configured services, use the internal Auto fallback as the Fre
 
 - [ ] **Step 4: Run focused fallback and existing chat/data tests**
 
-Run: `.\gradlew.bat :composeApp:desktopTest --tests "com.inspiredandroid.kai.data.KeylessFreeTierFallbackTest"`
+Run: `.\gradlew.bat :composeApp:desktopTest --tests "com.dorai.ai.data.KeylessFreeTierFallbackTest"`
 Expected: `BUILD SUCCESSFUL`; all routing and failure assertions pass.
 
 ### Task 3: Hide internal providers and document behavior
 
 **Files:**
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/settings/SettingsViewModel.kt`
-- Modify: `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/RemoteDataRepository.kt`
-- Modify: `composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/ui/settings/SettingsViewModelTest.kt`
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/settings/SettingsViewModel.kt`
+- Modify: `composeApp/src/commonMain/kotlin/com/dorai/ai/data/RemoteDataRepository.kt`
+- Modify: `composeApp/src/commonTest/kotlin/com/dorai/ai/ui/settings/SettingsViewModelTest.kt`
 - Modify: `docs/features/multi-service.md`
-- Test: `composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/data/KeylessFreeTierFallbackTest.kt`
+- Test: `composeApp/src/commonTest/kotlin/com/dorai/ai/data/KeylessFreeTierFallbackTest.kt`
 
 **Interfaces:**
 - Preserve `Service.fromId` and internal provider metadata for request dispatch.
@@ -110,7 +110,7 @@ Assert Kilo and OpenCode are absent from services users can add or select, while
 
 - [ ] **Step 2: Run the focused test and verify it fails**
 
-Run: `.\gradlew.bat :composeApp:desktopTest --tests "com.inspiredandroid.kai.data.KeylessFreeTierFallbackTest"`
+Run: `.\gradlew.bat :composeApp:desktopTest --tests "com.dorai.ai.data.KeylessFreeTierFallbackTest"`
 Expected: FAIL because both providers are currently included in user-facing service choices.
 
 - [ ] **Step 3: Hide internal entries and update the feature spec**
@@ -119,7 +119,7 @@ Keep the provider objects available internally, filter legacy instances from act
 
 - [ ] **Step 4: Run focused tests and formatting validation**
 
-Run: `.\gradlew.bat :composeApp:desktopTest --tests "com.inspiredandroid.kai.data.KeylessFreeTierFallbackTest"`
+Run: `.\gradlew.bat :composeApp:desktopTest --tests "com.dorai.ai.data.KeylessFreeTierFallbackTest"`
 Expected: `BUILD SUCCESSFUL`.
 
 Run: `.\gradlew.bat spotlessCheck`

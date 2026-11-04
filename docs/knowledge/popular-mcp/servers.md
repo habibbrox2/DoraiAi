@@ -1,7 +1,7 @@
 ---
 type: Catalog
 title: Popular MCP servers
-description: Curated free Streamable HTTP MCP endpoints for Kai’s one-tap add sheet.
+description: Curated free Streamable HTTP MCP endpoints for DORAI AI’s one-tap add sheet.
 tags: [mcp, popular-servers]
 status: stable
 stale_after: 2026-08-26

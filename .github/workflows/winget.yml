@@ -4,12 +4,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish:
-    name: Publish to WinGet
-    runs-on: windows-latest
+  pending:
+    name: Await DORAI package registration
+    runs-on: ubuntu-latest
     steps:
-      - uses: vedantmgoyal9/winget-releaser@v2
-        with:
-          identifier: SimonSchubert.Kai
-          installers-regex: '\.msi$'
-          token: ${{ secrets.WINGET_TOKEN }}
+      - name: Explain pending registration
+        run: echo "WinGet publishing is disabled until the DORAI package identifier is registered and its manifest is verified."

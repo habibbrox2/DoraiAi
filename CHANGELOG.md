@@ -1,4 +1,25 @@
-## Brox Kai v2.0 — IDE-grade Agent Review Experience
+## DORAI AI v2.1.6 - First DORAI AI Release
+
+### Release identity
+- First independently branded DORAI AI release; legacy Kai release tags and binaries remain unchanged.
+- Android application ID and namespace: `com.dorai.ai`.
+- iOS bundle ID: `com.dorai.ai`.
+- Android version code: `217`.
+
+### Included
+- DORAI AI product identity, application icons, localized app names, and platform bundle identifiers.
+- DORAI-specific updater discovery and release artifact naming; legacy Kai APKs are excluded from DORAI update installation.
+- Release workflow validation for semantic version consistency, merged-tag requirements, signing safeguards, and gated distribution channels.
+- Website and documentation identify the first DORAI release as pending until the release workflow is explicitly run.
+
+### Distribution notes
+- Expected release tag: `v2.1.6`.
+- Expected Android artifact prefix: `DORAI-AI-v2.1.6-Android`.
+- This changelog entry prepares release notes only; it does not indicate that a GitHub release has been published.
+
+---
+
+## DORAI AI ? IDE-grade Agent Review Experience
 
 ### Added
 - Added a bounded, line-numbered side-by-side file diff when a tool supplies both before and after snapshots.
@@ -13,7 +34,7 @@
 
 ---
 
-## Brox Kai v2.0 — Premium Agent Conversation Experience
+## DORAI AI ? Premium Agent Conversation Experience
 
 ### Added
 - Added a turn-scoped Agent Activity disclosure for observable tool, MCP, terminal, and file-operation activity.
@@ -27,7 +48,7 @@
 
 ---
 
-## Brox Kai v2.0 — 2027 Premium AI Agent UI Migration refinements
+## DORAI AI ? 2027 Premium AI Agent UI Migration refinements
 
 ### Changed
 - Added a compact Agent HUD layout for narrow chat workspaces; secondary actions move into an overflow menu while provider/model selection remains reachable.
@@ -41,14 +62,14 @@
 
 ---
 
-## Brox Kai v2.0 — One Chat Interface (Interactive UI Merged)
+## DORAI AI ? One Chat Interface (Interactive UI Merged)
 
 ### Added
 - The chat header now carries an **interactive UI toggle** (a widgets icon, tinted while the mode is on), and the sidebar's "Interactive UI" entry doubles as the same toggle with its state shown
 - The back action (remove the last exchange) sits next to the toggle and appears only while interactive mode is on
 
 ### Changed
-- Interactive UI is no longer a separate full-screen interface — it is a mode of the one chat. The kai-ui screens render inline in the conversation, so the timeline, the composer and the rest of the chat stay available
+- Interactive UI is no longer a separate full-screen interface ? it is a mode of the one chat. The kai-ui screens render inline in the conversation, so the timeline, the composer and the rest of the chat stay available
 - Switching the mode no longer starts a new chat or clears the conversation; it changes how the next answer is produced and rendered
 - While interactive mode is on, the service picker only lists agentic-capable services and models (as the old interactive screen did)
 - The interactive system prompt now tells the model that its screen renders inside the chat and that text outside the kai-ui fence is shown as ordinary chat text
@@ -59,58 +80,58 @@
 
 ---
 
-## Brox Kai v2.0 — Chat Works Out of the Box (Kilo Gateway + OpenCode)
+## DORAI AI ? Chat Works Out of the Box (Kilo Gateway + OpenCode)
 
 ### Added
-- New **Kilo Gateway** provider (`https://api.kilo.ai/api/gateway`) — one OpenAI-compatible endpoint for every provider, with a free tier that needs no API key (`kilo-auto/free` rotates through the free models)
-- A bare install now starts with two keyless providers configured — **Kilo Gateway** and **OpenCode** — with their free models pre-selected, so the first message works without adding any service or provider
+- New **Kilo Gateway** provider (`https://api.kilo.ai/api/gateway`) ? one OpenAI-compatible endpoint for every provider, with a free tier that needs no API key (`kilo-auto/free` rotates through the free models)
+- A bare install now starts with two keyless providers configured ? **Kilo Gateway** and **OpenCode** ? with their free models pre-selected, so the first message works without adding any service or provider
 - The built-in Free tier (Free FAST / Free EXPERT) stays the last-resort fallback behind them
 
 ### Changed
-- The default provider seeding runs once per install: an install that already has services keeps exactly what it has, and a default provider the user deletes stays deleted (it can be re-added from Settings → Services)
+- The default provider seeding runs once per install: an install that already has services keeps exactly what it has, and a default provider the user deletes stays deleted (it can be re-added from Settings ? Services)
 
 ---
 
-## Brox Kai v2.0 — Midnight Theme + Theme Switch Buttons
+## DORAI AI ? Midnight Theme + Theme Switch Buttons
 
 ### Added
-- New **Midnight** theme: a deep-navy dark variant (background `#06152E`, surfaces `#0E2A4D`) that keeps the cyan brand accent without going pitch black — sitting between the neutral Dark theme and the pure-black OLED one
-- The theme picker is now a row of **switch buttons** (System · Light · Dark · OLED · Midnight) instead of a dropdown, so every theme is visible at a glance and switching takes a single tap
+- New **Midnight** theme: a deep-navy dark variant (background `#06152E`, surfaces `#0E2A4D`) that keeps the cyan brand accent without going pitch black ? sitting between the neutral Dark theme and the pure-black OLED one
+- The theme picker is now a row of **switch buttons** (System -> Light -> Dark -> OLED -> Midnight) instead of a dropdown, so every theme is visible at a glance and switching takes a single tap
 
 ### Changed
 - `ThemeMode` gains `Midnight`; the stored preference keeps working, and Android system bars use light icons for it like the other dark themes
 
 ---
 
-## Brox Kai v2.0 — Model Picker in the Chat
+## DORAI AI ? Model Picker in the Chat
 
 ### Added
 - The chat header shows the model that is loaded: the pill carries the provider icon, the active service and the model it is running
 - Tapping the pill opens the models the active service can run (the loaded one highlighted) above the service list, so the AI model can be switched at any time without leaving the chat
 - The provider's model list is fetched when the picker opens rather than on every chat start; if the fetch fails, the curated defaults stay selectable
-- Picking a model stores it for that service instance — the next message uses it and the choice survives a restart
+- Picking a model stores it for that service instance ? the next message uses it and the choice survives a restart
 
 ---
 
-## Brox Kai v2.0 — Settings Split Into Category Tabs
+## DORAI AI ? Settings Split Into Category Tabs
 
 ### Added
-- Settings is split per feature category again: the features that were stacked inside the General tab now have their own tab each — **Agent** (soul, memories, scheduled tasks, heartbeat, email, SMS, notifications), **Tools** (native tools, MCP servers, skills), **Integrations** (Splinterlands, integration requests) and **Sandbox** (Linux sandbox)
+- Settings is split per feature category again: the features that were stacked inside the General tab now have their own tab each ? **Agent** (soul, memories, scheduled tasks, heartbeat, email, SMS, notifications), **Tools** (native tools, MCP servers, skills), **Integrations** (Splinterlands, integration requests) and **Sandbox** (Linux sandbox)
 - The Sandbox tab appears only where the sandbox exists (Android); other platforms no longer show a tab that would open on an empty page
 - The Tools tab's "install the sandbox first" prompt now opens the Sandbox tab directly
 
 ### Changed
-- `SettingsTab` enum: `General, Model, Data, Account` → `General, Agent, Services, Tools, Integrations, Sandbox, Data, Account` (the former `Model` tab is now `Services`, matching its "Model & API Key" content and the already-translated tab strings)
+- `SettingsTab` enum: `General, Model, Data, Account` ? `General, Agent, Services, Tools, Integrations, Sandbox, Data, Account` (the former `Model` tab is now `Services`, matching its "Model & API Key" content and the already-translated tab strings)
 - General keeps the app-level preferences only: overview, theme, UI scale, dynamic UI, daemon mode, export/import
 - Dashboard deep links follow the new tabs: "Set up a service" opens Services, "Tools" opens Tools
 
 ---
 
-## Brox Kai v2.0 — Desktop Auto-Updater (GitHub Release Check)
+## DORAI AI ? Desktop Auto-Updater (GitHub Release Check)
 
 ### Added
-- Desktop auto-update check: on startup the desktop app queries GitHub Releases (`habibbrox2/brox-kai-2.0`, throttled to one check per 4 hours) and shows an "Update Available" dialog with release notes and a Download & Install button when the latest `v2.0.*` release is newer than the running version
-- New common updater module (`composeApp/src/*/kotlin/com/inspiredandroid/kai/updater/`): all release-checking logic is platform-independent; platform differences are isolated behind two expect/actual functions — `httpGet` (desktop/android use `java.net.HttpURLConnection`, wasmJs/iOS use ktor) and `currentPlatformKey` (JVM derives Windows / macOS x64+arm64 / Linux from `os.name`+`os.arch`; web and iOS report `none`)
+- Desktop auto-update check: on startup the desktop app queries GitHub Releases (`habibbrox2/DoraiAi`, throttled to one check per 4 hours) and shows an "Update Available" dialog with release notes and a Download & Install button when the latest `v2.0.*` release is newer than the running version
+- New common updater module (`composeApp/src/*/kotlin/com/inspiredandroid/kai/updater/`): all release-checking logic is platform-independent; platform differences are isolated behind two expect/actual functions ? `httpGet` (desktop/android use `java.net.HttpURLConnection`, wasmJs/iOS use ktor) and `currentPlatformKey` (JVM derives Windows / macOS x64+arm64 / Linux from `os.name`+`os.arch`; web and iOS report `none`)
 - Release-asset picker keys on the platform key: `.msi` for Windows, `.dmg` (aarch64-aware) for macOS, `.deb`/`.AppImage`/`.tar.gz` (aarch64-aware) for Linux
 
 ### Fixed
@@ -118,11 +139,11 @@
 
 ---
 
-## Brox Kai v2.0 - Premium Chat UI + Code Editor (Plan 7)
+## DORAI AI - Premium Chat UI + Code Editor (Plan 7)
 
 ### Added
 - Chat-first launch: Android and every other platform now open directly into the Chat UI; the Dashboard lives as a sidebar link (brand click)
-- New AppSidebar: New Chat button + live search, time-grouped conversation list (Pinned / Today / Yesterday / Previous 7 Days / Previous 30 Days / Older), rename / pin / delete via per-row menu, bottom destinations (Dashboard, Interactive UI, Kai Build on Android, Settings) plus the Brox Kai 2.0 brand
+- New AppSidebar: New Chat button + live search, time-grouped conversation list (Pinned / Today / Yesterday / Previous 7 Days / Previous 30 Days / Older), rename / pin / delete via per-row menu, bottom destinations (Dashboard, Interactive UI, Kai Build on Android, Settings) plus the DORAI AI brand
 - ModalNavigationDrawer sidebar on compact windows + permanent 280dp rail on expanded windows
 - Redesigned TopBar: drawer toggle, centered model-selector pill, right-side quick actions (sandbox, speech output, settings)
 - Redesigned EmptyState: small animated mark, "How can I help you today?" heading, 2x2 quick-start cards with title + subtext and hover glow
@@ -140,21 +161,21 @@
 
 ---
 
-## Brox Kai v2.0 — Auto-Release Pipeline (Auto Version Bump + GitHub Release)
+## DORAI AI ? Auto-Release Pipeline (Auto Version Bump + GitHub Release)
 
 ### Added
-- `.github/workflows/auto-release.yml`: on every push to `main`, automatically bumps the Brox Kai 2.0 version (patch +1 over the latest `v2.0.*` tag), updates `appVersion`/`versionCode` in `gradle/libs.versions.toml`, commits and tags `v2.0.x`, builds the Foss APK + Windows x64 MSI + Windows x64 zip from that tag, and publishes a GitHub Release named `Brox Kai 2.0 v2.0.x` — "Brox Kai 2.0" is the fixed brand name, only the version changes; assets are named `Brox-Kai-2.0-v2.0.x-<platform>.<ext>`
+- `.github/workflows/auto-release.yml`: on every push to `main`, automatically bumps the DORAI AI version (patch +1 over the latest `v2.0.*` tag), updates `appVersion`/`versionCode` in `gradle/libs.versions.toml`, commits and tags `v2.0.x`, builds the Foss APK + Windows x64 MSI + Windows x64 zip from that tag, and publishes a GitHub Release named `DORAI AI v2.0.x` ? "DORAI AI" is the fixed brand name, only the version changes; assets are named `DORAI-AI-v2.0.x-<platform>.<ext>`
 - `.github/workflows/apk.yml`: on-demand Foss APK build (`workflow_dispatch`) usable from the Actions tab without tag pushes or signing secrets
 
 ### Changed
-- Base `appVersion` in the version catalog realigned from upstream `3.3.0` to the Brox Kai `2.0.3` line; each auto-release increments it going forward
+- Base `appVersion` in the version catalog realigned from upstream `3.3.0` to the DORAI `2.0.3` line; each auto-release increments it going forward
 
 ---
 
-## Brox Kai v2.0 — Desktop Shell: `sleep` Allowed + Cancellation Test Fix
+## DORAI AI ? Desktop Shell: `sleep` Allowed + Cancellation Test Fix
 
 ### Added
-- Desktop `ShellCommandTool` allowlist now includes `sleep` — side-effect-free wait primitive, bounded by the existing per-call timeout (Android shell is unaffected: it runs inside the proot sandbox)
+- Desktop `ShellCommandTool` allowlist now includes `sleep` ? side-effect-free wait primitive, bounded by the existing per-call timeout (Android shell is unaffected: it runs inside the proot sandbox)
 
 ### Fixed
 - `ShellCommandToolTest > cancelling a running command kills it` failed on CI: the P0-B test rewrite used `sleep 3`, which the fail-closed allowlist rejects, so the command never started and nothing was ever cancelled (the test body skips on Windows, so it only surfaced on the Linux runner)
@@ -162,11 +183,11 @@
 
 ---
 
-## Brox Kai v2.0 — Home Dashboard UI Upgrade (Plan 6)
+## DORAI AI ? Home Dashboard UI Upgrade (Plan 6)
 
 ### Added
 - Dashboard launch route (`Dashboard`) with 3-tab navigation (Dashboard/Chat/Settings) and typed `Settings(tab)` / `Build(project)` destinations
-- `ui/dashboard/` — `DashboardModels.kt` (read-only aggregation + `buildDashboardUiState`, `DESIGN_STARTER_PROMPT`) and `DashboardScreen.kt` (header, readiness, responsive primary action grid 1/2/4 columns, recent conversations/projects with resume + View all)
+- `ui/dashboard/` ? `DashboardModels.kt` (read-only aggregation + `buildDashboardUiState`, `DESIGN_STARTER_PROMPT`) and `DashboardScreen.kt` (header, readiness, responsive primary action grid 1/2/4 columns, recent conversations/projects with resume + View all)
 - Dashboard cards: Chat (primary), Kai Build (Android-only, honest disabled note), Design (opens chat with guided design prefill), Tools (Settings/Tools)
 - `ChatViewModel.startDesignChat` + `loadConversation` made public for dashboard resume; `TopBar` gets mobile Home button; `SettingsScreen`/`KaiBuildScreen` accept initial tab/project
 
@@ -176,13 +197,13 @@
 
 ---
 
-## Brox Kai v2.0 - Services & Sponsors UI Upgrade (Plan 5)
+## DORAI AI - Services & Sponsors UI Upgrade (Plan 5)
 
 ### Added
 
 - Compact Services overview card: configured-service count with attention/checking/connected status badge; empty state when nothing is configured.
 - Grouped add-service sheet (Hosted providers / On-device / Custom endpoints) with a setup-requirement summary on every provider row.
-- `SupportProfile` model + mapper: Brox Kai owner profile first (stable id, repository identity, local branded avatar), then current and past sponsors with the previous deduplication.
+- `SupportProfile` model + mapper: DORAI owner profile first (stable id, repository identity, local branded avatar), then current and past sponsors with the previous deduplication.
 - `SupportSection` with `OwnerProfileCard`, `SponsorGrid`, and width-tiered collapse (2/4/6 tiles at 600/900dp) plus a `Show all sponsors` / `Collapse sponsors` toggle that announces the hidden count.
 - `SupportLinks` configuration block owning every support-area URL.
 - Drag handle now meets the 48dp touch-target minimum around its 24dp glyph.
@@ -192,7 +213,7 @@
 - Service card headers: color-only connection dot replaced with a text status badge covering every connection state; expand/reorder behavior unchanged.
 - Sponsor area rebuilt: owner card always first (never hidden by the collapsed limit), grid above the sponsorship/partnership CTAs, animated expand/collapse that preserves toggle focus, no redundant toggle for short lists, link cards carry accessible names and stay informational without a destination.
 
-## Brox Kai v2.0 — Tools & Sandbox Workspace UI Upgrade (Plan 4)
+## DORAI AI ? Tools & Sandbox Workspace UI Upgrade (Plan 4)
 
 ### Added
 
@@ -209,7 +230,7 @@
 - Sandbox subtab selector: only the selected tab is primary + semibold (previously all three tabs were primary, hiding the active tab); `Role.Tab`/selected semantics on tabs and session chips.
 - Session chips get a larger touch target; skills and native tools use dedicated empty-state cards instead of plain text.
 
-## Brox Kai v2.0 — Kai Build Workspace UI Upgrade (Plan 3)
+## DORAI AI ? Kai Build Workspace UI Upgrade (Plan 3)
 
 ### Added
 
@@ -217,7 +238,7 @@
 - Reusable `BuildStatusPill` and `BuildProgressBlock` components for session tabs, headers, and setup progress.
 - Project hub environment readiness header with next-action guidance and semantic section headings.
 - Dedicated Agent Manager card, split from the system info card.
-- Step-based setup surface (Choose agents → Install → Verify) derived from `KaiBuildUiState`, with an actionable Retry on failure.
+- Step-based setup surface (Choose agents ? Install ? Verify) derived from `KaiBuildUiState`, with an actionable Retry on failure.
 - File-scoped Find/Replace panel with live match count and Replace-all confirmation (flows through the existing save/dirty model).
 - Centralized `buildWorkspaceTier(width)` policy: hub content centers on expanded windows, full-bleed on compact/medium.
 
@@ -228,12 +249,12 @@
 - Project title capped at 180 dp so narrow windows keep the session strip usable.
 - Setup title/description folded into the environment header and step guide.
 
-## Brox Kai v2.0 — Settings UI Upgrade (Plan 2)
+## DORAI AI ? Settings UI Upgrade (Plan 2)
 
 ### Added
 
 - `SettingsDesignTokens` and `SettingsSectionHeader` with semantic heading semantics.
-- `SettingsNavigation` rail + `SettingsDetailPane` extraction; rail + detail pane on expanded (≥840dp), horizontal selector on compact.
+- `SettingsNavigation` rail + `SettingsDetailPane` extraction; rail + detail pane on expanded (<=840dp), horizontal selector on compact.
 - Overview card atop General tab: `SettingsStatusRow`, `SettingsKeyValueRow`, `SettingsOverview` (sandbox install status).
 - `SettingsConfirmDialog` (destructive confirmations) and `SettingsStatusBanner` (Info/Progress/Warning/Error) for skills and MCP errors.
 
@@ -243,37 +264,37 @@
 - MCP server removal now confirms first; skill install/browse failures surface as banners instead of bare text.
 - Delete-downloaded-model icon button gained a content description.
 
-## Brox Kai v2.0 — Chat UI Upgrade (Phase 1 & 2) + Follow-up Suggestions
+## DORAI AI ? Chat UI Upgrade (Phase 1 & 2) + Follow-up Suggestions
 
 ### Added
-- **Phase 1 — Foundations**: `ChatDesignTokens.kt` (spacing, shapes, surface/status colors), plus reusable `StatusPill`, `PanelHeading`, `ChatActionButton` components.
-- **Phase 2 — Responsive shell**: `ChatAdaptivePolicy` (compact/medium/expanded), `ChatShell` (adaptive rail/main/side-panel/overlays), `ChatTimeline`, `ChatComposer`, `ConversationRail` extractions; conversation column centered at 760dp.
+- **Phase 1 ? Foundations**: `ChatDesignTokens.kt` (spacing, shapes, surface/status colors), plus reusable `StatusPill`, `PanelHeading`, `ChatActionButton` components.
+- **Phase 2 ? Responsive shell**: `ChatAdaptivePolicy` (compact/medium/expanded), `ChatShell` (adaptive rail/main/side-panel/overlays), `ChatTimeline`, `ChatComposer`, `ConversationRail` extractions; conversation column centered at 760dp.
 - **Follow-up suggestions**: after a successful (non-interactive) reply, the app generates 3 short follow-up questions via a silent LLM call and shows them as chips below the last assistant message; tapping a chip sends it. State is cleared on new chat / conversation load / error.
 
 ### Changed
-- `ChatScreen.kt` — `ChatModeScreen` now composes through `ChatShell` (header/rail/main/overlays) instead of a monolithic Box/Column.
-- `ChatViewModel.kt` — follow-up generation + clearing wired into ask/clearHistory/startNewChat/loadConversation.
-- `ChatUiState.kt` — added `followUpSuggestions: ImmutableList<String>`.
+- `ChatScreen.kt` ? `ChatModeScreen` now composes through `ChatShell` (header/rail/main/overlays) instead of a monolithic Box/Column.
+- `ChatViewModel.kt` ? follow-up generation + clearing wired into ask/clearHistory/startNewChat/loadConversation.
+- `ChatUiState.kt` ? added `followUpSuggestions: ImmutableList<String>`.
 
 ---
 
-## Brox Kai v2.0 — Full Logo & Animation Replacement
+## DORAI AI ? Full Logo & Animation Replacement
 
 ### Changed
-- Replaced every remaining upstream Kai logo/animation with Brox Kai artwork:
-  - **In-app animated logo** (`LogoAnimation.kt`) — the old two purple orbs are now the Brox BK monogram easing apart and reuniting, theme-adaptive (cyan + navy on light, cyan + supporting blue on dark).
-  - **Android adaptive icon** — `composeApp` launcher foreground, background and a new `ic_launcher_monochrome.xml` now use the Brox BK monogram (matching `androidApp`).
-  - **Android notification icon** (`ic_notification.xml`) — purple rings replaced with a white BK alpha mask.
-  - **Web app icon** (`site/img/icon.svg`, `composeApp/.../wasmJsMain/resources/icon.svg`) — Brox navy/cyan app icon.
-  - **Favicons** (`site/img/favicon.ico`, wasm `favicon.ico`) — regenerated as multi-size Brox ICOs (16/32/48/64).
-  - **Apple touch icon** (`apple-icon-180x180.png`) — regenerated from the Brox 384px export.
-  - **Animated hero logo** (`site/img/logo_animation.svg`) — Brox BK symbol with a float + sparkle animation.
-  - **Animated logo GIF** (`site/img/logo_animation.gif`) — replaced with the Brox animation (`Brox_Kai_v2_logo_animation.gif`), used by the README; the loose root copy was removed.
-- `site/index.html` — hero mascot alt text updated to "Brox Kai animated logo".
+- Replaced every remaining upstream Kai logo/animation with DORAI artwork:
+  - **In-app animated logo** (`LogoAnimation.kt`) ? the old two purple orbs are now the Brox BK monogram easing apart and reuniting, theme-adaptive (cyan + navy on light, cyan + supporting blue on dark).
+  - **Android adaptive icon** ? `composeApp` launcher foreground, background and a new `ic_launcher_monochrome.xml` now use the Brox BK monogram (matching `androidApp`).
+  - **Android notification icon** (`ic_notification.xml`) ? purple rings replaced with a white BK alpha mask.
+  - **Web app icon** (`site/img/icon.svg`, `composeApp/.../wasmJsMain/resources/icon.svg`) ? Brox navy/cyan app icon.
+  - **Favicons** (`site/img/favicon.ico`, wasm `favicon.ico`) ? regenerated as multi-size Brox ICOs (16/32/48/64).
+  - **Apple touch icon** (`apple-icon-180x180.png`) ? regenerated from the Brox 384px export.
+  - **Animated hero logo** (`site/img/logo_animation.svg`) ? Brox BK symbol with a float + sparkle animation.
+  - **Animated logo GIF** (`site/img/logo_animation.gif`) ? replaced with the Brox animation (`Brox_Kai_v2_logo_animation.gif`), used by the README; the loose root copy was removed.
+- `site/index.html` ? hero mascot alt text updated to "DORAI animated logo".
 
 ---
 
-## Brox Kai v2.0 — OpenCode Console Integration
+## DORAI AI ? OpenCode Console Integration
 
 ### Added
 - Added OpenCode Console default models (20 curated coding models)
@@ -282,21 +303,21 @@
 - Default model set to `big-pickle` (free)
 - Updated API key URL to point to OpenCode Console dashboard (`opencode.ai/console`)
 - API key is now **optional** for OpenCode:
-  - **With key** → authenticated access to Console models (free + paid)
-  - **Without key** → requests carry no `Authorization` header; the public model catalog still loads, and a rejected chat request (OpenCode answers 403) is reported as an invalid-key error so the built-in **Free** service fallback takes over automatically.
+  - **With key** ? authenticated access to Console models (free + paid)
+  - **Without key** ? requests carry no `Authorization` header; the public model catalog still loads, and a rejected chat request (OpenCode answers 403) is reported as an invalid-key error so the built-in **Free** service fallback takes over automatically.
 - OpenCode 403 responses now map to "invalid API key" instead of a misleading "content moderation" error.
 
 ### Changed
-- `Service.kt` — OpenCode service enhanced with curated model list, Console links, and optional API key (`requiresApiKey = false`, `supportsOptionalApiKey = true`)
-- `Requests.kt` — OpenCode 403 → invalid-key error mapping
+- `Service.kt` ? OpenCode service enhanced with curated model list, Console links, and optional API key (`requiresApiKey = false`, `supportsOptionalApiKey = true`)
+- `Requests.kt` ? OpenCode 403 ? invalid-key error mapping
 
 ---
 
-## Brox Kai v2.0 — P0-B Shell Hardening
+## DORAI AI ? P0-B Shell Hardening
 
 ### Security
 - Replaced blocklist with allowlist (fail-closed) for shell command execution
-- Eliminated shell interpretation — commands run directly via ProcessBuilder (no `sh -c`/`cmd /c`)
+- Eliminated shell interpretation ? commands run directly via ProcessBuilder (no `sh -c`/`cmd /c`)
 - Added shell metacharacter rejection (`;`, `|`, `&`, `$`, backticks, etc.)
 - Added path traversal protection (`..` in arguments)
 - Added dangerous flag rejection (`-rf`, `-R`, `--force`, etc.)
@@ -305,7 +326,7 @@
 - Added environment variable value validation (reject metacharacters)
 
 ### Changed
-- `ShellCommandTool.kt` — complete rewrite: allowlist-based, no shell interpretation
+- `ShellCommandTool.kt` ? complete rewrite: allowlist-based, no shell interpretation
 - Tool description updated to reflect no pipes/redirections/chaining support
 
 ### Limitations
@@ -314,11 +335,11 @@
 
 ---
 
-## Brox Kai v2.0 — P0-A Security Hardening
+## DORAI AI ? P0-A Security Hardening
 
 ### Security
 - Restricted Android cleartext HTTP to localhost only (was globally permitted)
-- Disabled Android backup (`allowBackup=false`) — prevents ADB/cloud data exfiltration
+- Disabled Android backup (`allowBackup=false`) ? prevents ADB/cloud data exfiltration
 - Tightened backup/data-extraction rules to exclude conversation DB and encrypted settings
 - Added MCP SSRF protection: URL validation (scheme, IP range, credentials, encoding), connection-time re-validation, redirect validation, header sanitization
 - Disabled lenient JSON parsing in MCP client
@@ -326,14 +347,14 @@
 - Documented protection boundaries and limitations in SECURITY.md
 
 ### Added
-- `McpUrlValidator` — KMP-compatible URL validator (Android, Desktop, iOS, Web)
-- `McpUrlValidatorTest` — 28 unit test cases
-- `docs/P0-A-IMPLEMENTATION-PLAN.md` — detailed implementation plan
+- `McpUrlValidator` ? KMP-compatible URL validator (Android, Desktop, iOS, Web)
+- `McpUrlValidatorTest` ? 28 unit test cases
+- `docs/P0-A-IMPLEMENTATION-PLAN.md` ? detailed implementation plan
 
 ### Changed
-- `McpClient` — fail-fast URL validation, manual redirect handling (max 3 hops)
-- `McpServerManager` — validates URLs before adding/connecting servers
-- Platform files — `resolveHostAddresses` expect/actual (JVM: InetAddress, iOS/Web: fail closed)
+- `McpClient` ? fail-fast URL validation, manual redirect handling (max 3 hops)
+- `McpServerManager` ? validates URLs before adding/connecting servers
+- Platform files ? `resolveHostAddresses` expect/actual (JVM: InetAddress, iOS/Web: fail closed)
 
 ### Limitations (documented, not guarantees)
 - DNS rebinding TOCTOU window exists
@@ -343,7 +364,7 @@
 
 ---
 
-## v3.3.0 — 2026-10-02
+## v3.3.0 ? 2026-10-02
 
 ### Features
 - Add Requesty and 1min.AI as providers
@@ -373,7 +394,7 @@
 - Refresh model catalog Elo scores
 - Upgrade dependencies
 
-## v3.2.0 — 2026-09-07
+## v3.2.0 ? 2026-09-07
 
 ### Features
 - Support OpenAI's Responses API for GPT-5.6 models
@@ -390,7 +411,7 @@
 - Refresh model catalog Elo scores
 - Upgrade dependencies
 
-## v3.1.0 — 2026-08-30
+## v3.1.0 ? 2026-08-30
 
 ### Features
 - Receive shared text from the Android share sheet
@@ -414,7 +435,7 @@
 - Add missing localizations
 - Upgrade dependencies
 
-## v3.0.0 — 2026-08-02
+## v3.0.0 ? 2026-08-02
 
 ### Features
 - Add Claude Code, Grok, and OpenCode support via the Debian Linux terminal
@@ -425,7 +446,7 @@
 - Refresh open files when switching to a Linux system tab
 - Upgrade dependencies
 
-## v2.9.0 — 2026-07-25
+## v2.9.0 ? 2026-07-25
 
 ### Features
 - Add free-tier service suggestions when a rate limit is reached
@@ -436,7 +457,7 @@
 - Update model catalog Elo scores
 - Upgrade dependencies
 
-## v2.8.3 — 2026-07-21
+## v2.8.3 ? 2026-07-21
 
 ### Features
 - Add Perplexity as a service
@@ -451,7 +472,7 @@
 - Prefer requestScrollToItem for list scrolling
 - Update model catalog Elo scores
 
-## v2.8.2 — 2026-07-18
+## v2.8.2 ? 2026-07-18
 
 ### Features
 - Save copies of sent emails to the IMAP Sent folder
@@ -467,7 +488,7 @@
 - Update model catalog (Kimi K3, Inkling, Elo scores)
 - Upgrade dependencies
 
-## v2.8.1 — 2026-07-11
+## v2.8.1 ? 2026-07-11
 
 ### Features
 - Migrate conversations to SQL storage
@@ -482,7 +503,7 @@
 - Update model catalog
 - Upgrade dependencies
 
-## v2.8.0 — 2026-07-01
+## v2.8.0 ? 2026-07-01
 
 ### Features
 - Add per-model image-capability gating so text-only models no longer offer image input
@@ -499,16 +520,16 @@
 - Additional localizations
 - Upgrade dependencies
 
-## v2.7.1 — 2026-06-15
+## v2.7.1 ? 2026-06-15
 
 ### Improvements
 - Upgrade dependencies
 - Update model catalog
 
-## v2.7.0 — 2026-05-31
+## v2.7.0 ? 2026-05-31
 
 ### Features
-- Introduce Skills — packaged, reusable instructions the assistant can load on demand via the Linux sandbox, plus a built-in "create-skill" workflow to author your own
+- Introduce Skills ? packaged, reusable instructions the assistant can load on demand via the Linux sandbox, plus a built-in "create-skill" workflow to author your own
 - Add Atlas Cloud as a featured provider
 
 ### Fixes
@@ -524,7 +545,7 @@
 - Improve free endpoint DTO sanitization
 - Extend API error mapping
 
-## v2.6.3 — 2026-05-24
+## v2.6.3 ? 2026-05-24
 
 ### Fixes
 - Fixed quick service toggle not scaling properly with many services
@@ -535,7 +556,7 @@
 ### Improvements
 - Updated model catalog
 
-## v2.6.2 — 2026-05-21
+## v2.6.2 ? 2026-05-21
 
 ### Features
 - Parse inline tool calls
@@ -552,7 +573,7 @@
 - Compose performance improvements
 - Internal code cleanup
 
-## v2.6.1 — 2026-05-17
+## v2.6.1 ? 2026-05-17
 
 ### Features
 - Collapsable reasoning content UI with cleaned-up handling across services
@@ -563,7 +584,7 @@
 - Upgrade dependencies
 - Internal code cleanup
 
-## v2.6.0 — 2026-05-15
+## v2.6.0 ? 2026-05-15
 
 ### Features
 - Allow user-installed certificates
@@ -584,7 +605,7 @@
 - Update model catalog
 - Remove iOS x64 target and deprecated APIs
 
-## v2.5.1 — 2026-05-13
+## v2.5.1 ? 2026-05-13
 
 ### Fixes
 - Fix terminal auto-scroll crash
@@ -597,7 +618,7 @@
 - Show history delete undo inside modal
 - Upgrade dependencies (coroutines, datetime, and others)
 
-## v2.5.0 — 2026-05-06
+## v2.5.0 ? 2026-05-06
 
 ### Features
 - Theme switcher and native desktop UI scale settings
@@ -614,7 +635,7 @@
 - Upgrade LiteRT
 - Upgrade SDKs
 
-## v2.4.1 — 2026-05-02
+## v2.4.1 ? 2026-05-02
 
 ### Features
 - Persistent terminal sessions in conversations
@@ -631,7 +652,7 @@
 - Update model catalog and scores
 - Upgrade SDKs
 
-## v2.4.0 — 2026-04-28
+## v2.4.0 ? 2026-04-28
 
 ### Features
 - Linux sandbox file browser with file and folder actions
@@ -646,7 +667,7 @@
 ### Improvements
 - Persist Linux sandbox UI state during the session
 
-## v2.3.4 — 2026-04-26
+## v2.3.4 ? 2026-04-26
 
 ### Fixes
 - Fix calendar event time zone issue
@@ -661,7 +682,7 @@
 - Add missing model info
 - Migrate deprecated APIs
 
-## v2.3.3 — 2026-04-24
+## v2.3.3 ? 2026-04-24
 
 ### Features
 - Add SMS read and send support to FOSS build
@@ -679,7 +700,7 @@
 - Upgrade Kotlin
 - Add missing models
 
-## v2.3.2 — 2026-04-23
+## v2.3.2 ? 2026-04-23
 
 ### Fixes
 - Fix kai-ui rendering and restore issues
@@ -692,7 +713,7 @@
 - Align localizations
 - Upgrade dependencies
 
-## v2.3.1 — 2026-04-22
+## v2.3.1 ? 2026-04-22
 
 ### Features
 - Add LaTeX code block rendering
@@ -705,7 +726,7 @@
 - Update free API endpoint
 - Upgrade dependencies
 
-## v2.3.0 — 2026-04-20
+## v2.3.0 ? 2026-04-20
 
 ### Features
 - Custom math formula rendering
@@ -723,7 +744,7 @@
 - Replace ABI filter with runtime check
 - Remove unnecessary Android version checks
 
-## v2.2.1 — 2026-04-20
+## v2.2.1 ? 2026-04-20
 
 ### Features
 - Add local Qwen 3 0.6B model
@@ -732,7 +753,7 @@
 - Upgrade LiteRT
 - Defensive desktop ProGuard rules
 
-## v2.2.0 — 2026-04-16
+## v2.2.0 ? 2026-04-16
 
 ### Features
 - Add custom markdown parser
@@ -743,7 +764,7 @@
 - Add missing localizations
 - Add missing model info
 
-## v2.1.5 — 2026-04-15
+## v2.1.5 ? 2026-04-15
 
 ### Features
 - Add copy-to-clipboard button for code blocks
@@ -759,7 +780,7 @@
 - Upgrade BouncyCastle and remove version checker dependency
 - UI polish and alignment
 
-## v2.1.4 — 2026-04-12
+## v2.1.4 ? 2026-04-12
 
 ### Features
 - Add fast and expert mode toggles for free services
@@ -773,7 +794,7 @@
 - Improve conversation restore on app restart and settings navigation
 - Upgrade SDKs
 
-## v2.1.2 — 2026-04-09
+## v2.1.2 ? 2026-04-09
 
 ### Features
 - Add local model context configuration
@@ -784,12 +805,12 @@
 ### Improvements
 - Improve filetype checks for file attachments
 
-## v2.1.1 — 2026-04-09
+## v2.1.1 ? 2026-04-09
 
 ### Fixes
 - Fix crash when opening Settings on devices without downloaded local models
 
-## v2.1.0 — 2026-04-08
+## v2.1.0 ? 2026-04-08
 
 ### Features
 - Add support for local Gemma 4 via LiteRT
@@ -798,7 +819,7 @@
 ### Improvements
 - Add missing localizations
 
-## v2.0.3 — 2026-04-07
+## v2.0.3 ? 2026-04-07
 
 ### Fixes
 - Fix Bouncycastle and Coil proguard rules on desktop
@@ -808,7 +829,7 @@
 - Extract reusable UI components
 - Improve heartbeat error messages
 
-## v2.0.2 — 2026-04-06
+## v2.0.2 ? 2026-04-06
 
 ### Fixes
 - Fix toolbar vertical padding
@@ -820,7 +841,7 @@
 - Simplify UI spacing by handling padding definitions locally
 - General UI/UX improvements
 
-## v2.0.1 — 2026-04-04
+## v2.0.1 ? 2026-04-04
 
 ### Features
 - Add possibility to define service for heartbeat
@@ -833,7 +854,7 @@
 - Add missing localizations
 - Clean up implementations
 
-## v2.0.0 — 2026-04-03
+## v2.0.0 ? 2026-04-03
 
 ### Features
 - Add experimental interactive UI screen
@@ -845,15 +866,15 @@
 - Improve Kai UI parsing
 - Use Gemini header auth instead of URL parameter
 
-## v1.12.3 — 2026-04-02
+## v1.12.3 ? 2026-04-02
 
 ### Features
-- Add Dynamic UI — AI can create interactive buttons, forms, and cards inline in chat responses (opt-out in Settings)
+- Add Dynamic UI ? AI can create interactive buttons, forms, and cards inline in chat responses (opt-out in Settings)
 
 ### Fixes
 - Fix hover pointer not showing over text inside buttons on desktop and web
 
-## v1.12.2 — 2026-03-31
+## v1.12.2 ? 2026-03-31
 
 ### Fixes
 - Fix daemon start crash
@@ -865,13 +886,13 @@
 - Add uninstall linux sandbox confirmation dialog
 - Add NDK 29 requirement and reproducible build flags
 
-## v1.12.1 — 2026-03-29
+## v1.12.1 ? 2026-03-29
 
 ### Improvements
 - Replace standard tabs with custom piles
 - Build proot from source
 
-## v1.12.0 — 2026-03-29
+## v1.12.0 ? 2026-03-29
 
 ### Features
 - Add Linux sandbox for Android shell commands with ANSI terminal output
@@ -886,19 +907,19 @@
 - Migrate extended icons to custom icons
 - Upgrade Ktor and add slf4j-nop
 
-## v1.11.2 — 2026-03-25
+## v1.11.2 ? 2026-03-25
 
 ### Improvements
 - Improve heartbeat reliability with previous response context and failure logging
 - Add proper context compaction for conversations
 - Upgrade SDKs
 
-## v1.11.1 — 2026-03-24
+## v1.11.1 ? 2026-03-24
 
 ### Fixes
 - Fix crash when restoring encrypted backups
 
-## v1.11.0 — 2026-03-24
+## v1.11.0 ? 2026-03-24
 
 ### Features
 - Add skills feature
@@ -915,7 +936,7 @@
 - Add missing localizations and hover pointers
 - Upgrade Compose Multiplatform, Lifecycle, and Spotless SDKs
 
-## v1.10.0 — 2026-03-18
+## v1.10.0 ? 2026-03-18
 
 ### Features
 - Add Splinterlands LLM auto-battle integration
@@ -931,7 +952,7 @@
 - Upgrade Kotlin to 2.3.20
 - Upgrade Koin
 
-## v1.9.8 — 2026-03-15
+## v1.9.8 ? 2026-03-15
 
 ### Features
 - Add scroll to bottom button
@@ -944,7 +965,7 @@
 - Improve startup time and migrate deprecated APIs
 - Improve performance
 
-## v1.9.7 — 2026-03-14
+## v1.9.7 ? 2026-03-14
 
 ### Features
 - Add HuggingFace, LongCat, Moonshot, Together and Venice service support
@@ -953,7 +974,7 @@
 - Sort services in modal alphabetically
 - Clean up service quick select and history modal UI
 
-## v1.9.6 — 2026-03-14
+## v1.9.6 ? 2026-03-14
 
 ### Features
 - Add chat histories and separate heartbeat chat
@@ -961,7 +982,7 @@
 ### Improvements
 - Remove hard-coded /v1 path in OpenAI-compatible service setup
 
-## v1.9.5 — 2026-03-12
+## v1.9.5 ? 2026-03-12
 
 ### Features
 - Add quick service toggle
@@ -977,7 +998,7 @@
 - Migrate project structure for AGP 9 requirements
 - Upgrade SDKs
 
-## v1.9.4 — 2026-03-11
+## v1.9.4 ? 2026-03-11
 
 ### Features
 - Add option to reset modified heartbeat
@@ -989,7 +1010,7 @@
 - Fix MCP server tool definitions
 - Add missing UI pointer
 
-## v1.9.3 — 2026-03-11
+## v1.9.3 ? 2026-03-11
 
 ### Features
 - Add confirmation dialog for settings import
@@ -1000,7 +1021,7 @@
 ### Improvements
 - Replace tasks and email icons with trash can icon
 
-## v1.9.2 — 2026-03-10
+## v1.9.2 ? 2026-03-10
 
 ### Features
 - Add Anthropic service support
@@ -1008,7 +1029,7 @@
 ### Fixes
 - Fix duplicate model key crash in models modal
 
-## v1.9.1 — 2026-03-10
+## v1.9.1 ? 2026-03-10
 
 ### Features
 - Add settings import and export
@@ -1017,7 +1038,7 @@
 - Fix deprecated APIs and unused code
 - Gracefully catch daemon service exceptions
 
-## v1.9.0 — 2026-03-09
+## v1.9.0 ? 2026-03-09
 
 ### Features
 - Add MCP server support
@@ -1031,7 +1052,7 @@
 - Show tool usage in single row with minimum display duration
 - Remove unused strings
 
-## v1.8.2 — 2026-03-08
+## v1.8.2 ? 2026-03-08
 
 ### Features
 - Add file:// URL opening support
@@ -1045,7 +1066,7 @@
 - Remove unused code and simplify internals
 - Add docs link to app settings
 
-## v1.8.1 — 2026-03-07
+## v1.8.1 ? 2026-03-07
 
 ### Features
 - Add Ollama Cloud and Cerebras as AI services
@@ -1064,7 +1085,7 @@
 - Reorder tools list
 - Upgrade SDKs
 
-## v1.8.0 — 2026-03-05
+## v1.8.0 ? 2026-03-05
 
 ### Features
 - Add multi-service support with fallback logic
@@ -1076,7 +1097,7 @@
 - Normalize content for text-to-speech
 - Upgrade Ktor
 
-## v1.7.11 — 2026-03-04
+## v1.7.11 ? 2026-03-04
 
 ### Features
 - Add heartbeat monitoring
@@ -1094,7 +1115,7 @@
 - Migrate deprecated datetime APIs
 - Remove unused code and improve performance
 
-## v1.7.10 — 2026-03-03
+## v1.7.10 ? 2026-03-03
 
 ### Features
 - Add AUR and Snap packaging
@@ -1103,7 +1124,7 @@
 ### Improvements
 - Update SHA for Flathub
 
-## v1.7.9 — 2026-03-03
+## v1.7.9 ? 2026-03-03
 
 ### Features
 - Add search tool with support for more providers
@@ -1113,7 +1134,7 @@
 - Remove cancelled tasks from task list
 - Fix string formatting
 
-## v1.7.8 — 2026-03-02
+## v1.7.8 ? 2026-03-02
 
 ### Features
 - Add memory system for persistent context
@@ -1130,7 +1151,7 @@
 - Update localizations
 - Upgrade SDKs
 
-## v1.7.7 — 2026-02-26
+## v1.7.7 ? 2026-02-26
 
 ### Fixes
 - Fix RTL UI layout issues
@@ -1140,7 +1161,7 @@
 - Add new store localizations
 - Improve performance
 
-## v1.7.6 — 2026-02-25
+## v1.7.6 ? 2026-02-25
 
 ### Features
 - Add identity.md settings for customizable AI persona
@@ -1150,7 +1171,7 @@
 - Fix unit test
 - Fix minimum tablet screenshot size
 
-## v1.7.5 — 2026-02-24
+## v1.7.5 ? 2026-02-24
 
 ### Features
 - Add OpenClaw service support
@@ -1159,7 +1180,7 @@
 ### Fixes
 - Fix unit tests
 
-## v1.7.4 — 2026-02-24
+## v1.7.4 ? 2026-02-24
 
 ### Features
 - Add Android alarm tool
@@ -1169,7 +1190,7 @@
 - Disable tools for certain models
 - Permit cleartext traffic for local network access
 
-## v1.7.3 — 2026-02-21
+## v1.7.3 ? 2026-02-21
 
 ### Features
 - Make topics optional
@@ -1183,7 +1204,7 @@
 - Upgrade Compottie animation library
 - Unify and simplify service logic
 
-## v1.7.2 — 2026-02-19
+## v1.7.2 ? 2026-02-19
 
 ### Features
 - Add Flathub packaging and Linux tarball release asset
@@ -1191,7 +1212,7 @@
 ### Fixes
 - Fix race condition in service selection
 
-## v1.7.1 — 2026-02-19
+## v1.7.1 ? 2026-02-19
 
 ### Features
 - Add topic headers
@@ -1201,7 +1222,7 @@
 ### Improvements
 - Remove SMS permissions to pass Play Store review
 
-## v1.7.0 — 2026-02-16
+## v1.7.0 ? 2026-02-16
 
 ### Features
 - Add explore screen with curated topics
@@ -1218,13 +1239,13 @@
 - Adjust markdown header font sizes
 - Upgrade SDKs
 
-## v1.6.2 — 2026-02-11
+## v1.6.2 ? 2026-02-11
 
 ### Improvements
 - Add missing ProGuard rules
 - Separate FOSS and Play Store build flavors
 
-## v1.6.1 — 2026-02-11
+## v1.6.1 ? 2026-02-11
 
 ### Features
 - Add Nvidia as an AI service
@@ -1233,7 +1254,7 @@
 - Always show privacy info
 - Upgrade SDKs
 
-## v1.6.0 — 2026-02-03
+## v1.6.0 ? 2026-02-03
 
 ### Features
 - Add tools/skills support for AI-driven actions
@@ -1250,7 +1271,7 @@
 - Use multiplatform time for conversation history
 - Upgrade date dependency
 
-## v1.5.2 — 2026-01-31
+## v1.5.2 ? 2026-01-31
 
 ### Features
 - Add OpenRouter service support
@@ -1265,14 +1286,14 @@
 - Update Android JVM target to 21
 - Upgrade SDKs
 
-## v1.5.1 — 2026-01-28
+## v1.5.1 ? 2026-01-28
 
 ### Improvements
 - Improve Enter+Shift key handling for all platforms
 - Improve dropdown click handling
 - Upgrade SDKs
 
-## v1.5.0 — 2026-01-27
+## v1.5.0 ? 2026-01-27
 
 ### Features
 - Add Ollama / OpenAI-compatible service support with authentication
@@ -1283,7 +1304,7 @@
 - Clean up service separation
 - Upgrade SDKs
 
-## v1.4.1 — 2026-01-24
+## v1.4.1 ? 2026-01-24
 
 ### Features
 - Add iOS text-to-speech support
@@ -1293,35 +1314,35 @@
 - Fix cursor behavior
 - Fix proper edge-to-edge display on iOS
 
-## v1.4.0 — 2026-01-23
+## v1.4.0 ? 2026-01-23
 
 ### Features
 - Add free tier and iOS release
 
-## v1.3.5 — 2026-01-18
+## v1.3.5 ? 2026-01-18
 
 ### Features
 - Add in-app review SDK
 - Add localizations
 
-## v1.3.4 — 2026-01-18
+## v1.3.4 ? 2026-01-18
 
 ### Features
 - Add AppImage and RPM build targets
 
-## v1.3.3 — 2026-01-17
+## v1.3.3 ? 2026-01-17
 
 ### Features
 - Add Windows and Linux desktop builds
 
-## v1.3.2 — 2026-01-17
+## v1.3.2 ? 2026-01-17
 
 ### Improvements
 - Harden code
 - Add version codes to release files
 - Upgrade SDKs
 
-## v1.3.1 — 2025-12-29
+## v1.3.1 ? 2025-12-29
 
 ### Features
 - Add macOS DMG build
@@ -1332,25 +1353,25 @@
 - Separate state and actions for better Compose performance
 - Hoist LazyListState for improved scroll performance
 
-## v1.3.0 — 2025-12-21
+## v1.3.0 ? 2025-12-21
 
 ### Features
 - Add dynamic color scheme support
 - Add localizations
 - Move all user-facing strings to strings.xml
 
-## v1.2.14 — 2025-12-20
+## v1.2.14 ? 2025-12-20
 
 ### Improvements
 - Upgrade SDKs
 
-## v1.2.13 — 2025-12-13
+## v1.2.13 ? 2025-12-13
 
 ### Improvements
 - Add and sort Groq models by date
 - Upgrade SDKs
 
-## v1.2.12 — 2025-11-30
+## v1.2.12 ? 2025-11-30
 
 ### Fixes
 - Fix error mapping and UI styling
@@ -1358,56 +1379,56 @@
 ### Improvements
 - Improve empty API key fallback behavior
 
-## v1.2.11 — 2025-11-29
+## v1.2.11 ? 2025-11-29
 
 ### Improvements
 - Update SDKs and models
 
-## v1.2.10 — 2025-11-15
+## v1.2.10 ? 2025-11-15
 
 ### Improvements
 - Remove markdown formatting
 - Upgrade SDKs
 
-## v1.2.9 — 2025-10-26
+## v1.2.9 ? 2025-10-26
 
 ### Improvements
 - Upgrade SDKs
 
-## v1.2.8 — 2025-10-05
+## v1.2.8 ? 2025-10-05
 
 ### Improvements
 - Upgrade SDKs
 
-## v1.2.7 — 2025-09-27
+## v1.2.7 ? 2025-09-27
 
 ### Improvements
 - Upgrade SDKs
 
-## v1.2.5 — 2025-09-13
+## v1.2.5 ? 2025-09-13
 
 ### Improvements
 - Downgrade AGP for F-Droid compatibility
 
-## v1.2.4 — 2025-09-06
+## v1.2.4 ? 2025-09-06
 
 ### Improvements
 - Upgrade SDKs
 
-## v1.2.2 — 2025-08-03
+## v1.2.2 ? 2025-08-03
 
 ### Improvements
 - Migrate to new FileKit library
 - Upgrade SDKs
 
-## v1.2.1 — 2025-07-05
+## v1.2.1 ? 2025-07-05
 
 ### Improvements
 - Add new Gemini models
 - Refactor ChatScreen and apply Compose best practices
 - Upgrade SDKs
 
-## v1.1.4 — 2025-05-29
+## v1.1.4 ? 2025-05-29
 
 ### Features
 - Add Gemini 2.5 Flash and Pro preview models
@@ -1420,18 +1441,18 @@
 - Improve code quality and apply best practices
 - Upgrade SDKs
 
-## v1.1.3 — 2025-05-11
+## v1.1.3 ? 2025-05-11
 
 ### Improvements
 - Add web navigation binding
 - Upgrade SDKs
 
-## v1.1.2 — 2025-05-04
+## v1.1.2 ? 2025-05-04
 
 ### Improvements
 - Upgrade SDKs
 
-## v1.1.1 — 2025-04-18
+## v1.1.1 ? 2025-04-18
 
 ### Features
 - Add drag-and-drop support for attachments
@@ -1446,7 +1467,7 @@
 - Move appVersion to version catalog
 - Upgrade SDKs
 
-## v1.0.2 — 2025-01-03
+## v1.0.2 ? 2025-01-03
 
 ### Features
 - Add copy-to-clipboard, speak, and flag actions
@@ -1454,12 +1475,12 @@
 ### Improvements
 - Remove hard-coded API key and add proxy for Groq endpoint
 
-## v1.0.1 — 2024-12-30
+## v1.0.1 ? 2024-12-30
 
 ### Features
 - Add dark mode support
 
-## v1.0.0 — 2024-12-30
+## v1.0.0 ? 2024-12-30
 
 ### Features
 - Initial release

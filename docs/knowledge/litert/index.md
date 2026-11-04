@@ -4,13 +4,13 @@ okf_version: "0.2"
 
 # On-device LiteRT model knowledge
 
-OKF v0.2 bundle for Kai’s **pinned on-device model downloads**. Agents use this folder for pin policy, digest provenance, and freshness when checking or bumping the runtime catalog.
+OKF v0.2 bundle for DORAI AI’s **pinned on-device model downloads**. Agents use this folder for pin policy, digest provenance, and freshness when checking or bumping the runtime catalog.
 
 ## Runtime vs knowledge
 
 | Layer | Path | Role |
 |---|---|---|
-| **Runtime** (shipped) | `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/inference/LocalModelCatalog.kt` | Source of truth for download URL, SHA-256, size, and context defaults |
+| **Runtime** (shipped) | `composeApp/src/commonMain/kotlin/com/dorai/ai/inference/LocalModelCatalog.kt` | Source of truth for download URL, SHA-256, size, and context defaults |
 | **Knowledge** (this bundle) | `docs/knowledge/litert/` | Pin policy, attested digest snapshot, sources, stale dates |
 | **Refresh skill** | `.grok/skills/update-litert-models/SKILL.md` | Checks HuggingFace pins, updates Kotlin + this bundle only on an explicit bump |
 

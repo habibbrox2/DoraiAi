@@ -1,5 +1,5 @@
 <resources>
-    <string name="welcome_message">Maligayang pagdating sa Kai 9000</string>
+    <string name="welcome_message">Maligayang pagdating sa DORAI AI</string>
     <string name="prompt_ask_question">Magtanong</string>
     <string name="error_invalid_api_key">Hindi wastong API Key. Suriin ang iyong mga setting.</string>
     <string name="error_rate_limit_exceeded">Nalampasan na ang limitasyon ng request. Subukan muli mamaya.</string>
@@ -35,7 +35,7 @@
     <string name="settings_status_error_connection_failed">Nabigo ang koneksyon</string>
     <string name="settings_status_error_local_network">Tinanggihan ang access sa lokal na network. Payagan ito sa mga setting ng system para maabot ang mga server sa iyong network.</string>
     <string name="settings_open_app_settings">Buksan ang mga setting</string>
-    <string name="error_local_network_permission">Kailangan ng access sa lokal na network para maabot ang iyong server. Payagan ito sa mga setting ng system at subukang muli.</string>
+    <string name="error_local_network_permission">DORAI AIlangan ng access sa lokal na network para maabot ang iyong server. Payagan ito sa mga setting ng system at subukang muli.</string>
     <string name="error_openai_compatible_connection">Hindi makakonekta sa server. Siguraduhing tumatakbo ang server.</string>
     <string name="error_openai_compatible_model_not_found">Hindi nahanap ang modelo. Pumili ng ibang modelo.</string>
     <string name="settings_openai_compatible_setup_ollama">I-setup ang iyong lokal na Ollama instance:</string>
@@ -83,7 +83,7 @@
     <string name="bot_message_regenerate_content_description">Muling buuin</string>
     <string name="error_empty_response">Walang natanggap na sagot. Subukang magsimula ng bagong chat o paikliin ang iyong mensahe.</string>
     <string name="settings_daemon_mode">Daemon Mode</string>
-    <string name="settings_daemon_mode_description">Panatilihing tumatakbo ang Kai 9000 sa background para maisagawa ang mga naka-schedule na gawain kahit wala sa harapan ang app.</string>
+    <string name="settings_daemon_mode_description">Panatilihing tumatakbo ang DORAI AI sa background para maisagawa ang mga naka-schedule na gawain kahit wala sa harapan ang app.</string>
     <string name="settings_scheduled_tasks">Mga Naka-schedule na Gawain</string>
     <string name="settings_scheduled_tasks_description">Mga gawain na naka-schedule ng AI para sa hinaharap na pagsasagawa. Hilingin sa AI na ipaalala sa iyo o magpatakbo ng isang bagay sa ibang pagkakataon upang lumikha ng mga naka-schedule na gawain.</string>
     <string name="settings_scheduled_tasks_cancel">Kanselahin ang gawain</string>
@@ -235,7 +235,7 @@
     <string name="interactive_welcome_subtitle">Sabihin mo sa akin kung ano ang gusto mong gawin.</string>
     <string name="interactive_back_content_description">Bumalik</string>
     <string name="interactive_mode_content_description">I-toggle ang interactive na UI</string>
-    <string name="interactive_title">Kai 9000</string>
+    <string name="interactive_title">DORAI AI</string>
     <string name="interactive_exit_content_description">Lumabas sa interactive mode</string>
     <string name="interactive_ui_parsing_failed">Nabigo ang pag-parse ng UI, sinusubukan muli…</string>
     <string name="settings_sponsors">Mga sponsor</string>
@@ -360,8 +360,8 @@
     <string name="tool_search_notifications_name">Maghanap ng mga notification</string>
     <string name="tool_search_notifications_description">Maghanap ng mga notification ayon sa app o teksto</string>
     <string name="settings_notifications_label">Basahin ang mga notification</string>
-    <string name="settings_notifications_description">Ang mga papasok na notification ay nakukuha sa background at kinukuha ng heartbeat. Pumili sa system na Notification access settings kung aling mga app ang maaaring basahin ng Kai.</string>
-    <string name="settings_notifications_access_required">Hindi pa naipagkakaloob ang access sa notification. I-tap sa ibaba upang paganahin ang Kai sa system settings.</string>
+    <string name="settings_notifications_description">Ang mga papasok na notification ay nakukuha sa background at kinukuha ng heartbeat. Pumili sa system na Notification access settings kung aling mga app ang maaaring basahin ng DORAI AI.</string>
+    <string name="settings_notifications_access_required">Hindi pa naipagkakaloob ang access sa notification. I-tap sa ibaba upang paganahin ang DORAI AI sa system settings.</string>
     <string name="settings_notifications_access_button">Buksan ang notification access</string>
     <string name="settings_notifications_manage_apps">Pamahalaan ang mga app</string>
     <string name="settings_notifications_listener_bound">Aktibo ang listener</string>
@@ -481,7 +481,7 @@
     <string name="workspace_terminal_key_right_content_description">Arrow pakanan</string>
     <string name="workspace_terminal_key_enter_content_description">Enter</string>
     <string name="settings_mcp_api_key">API Key (opsyonal)</string>
-    <string name="settings_mcp_api_key_help">Opsyonal. Kailangan ng mga search tool ng libreng key mula sa jina.ai; gumagana ang ibang tool nang walang key.</string>
+    <string name="settings_mcp_api_key_help">Opsyonal. DORAI AIlangan ng mga search tool ng libreng key mula sa jina.ai; gumagana ang ibang tool nang walang key.</string>
     <string name="settings_sandbox_distro_title">Distribusyon</string>
     <string name="settings_sandbox_distro_debian">Debian 12</string>
     <string name="settings_sandbox_distro_debian_detail">Inirerekomenda · ~150 MB · shared sa Workspace</string>
