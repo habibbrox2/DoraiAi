@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="site/img/dorai-logo.svg" height="125" alt="DORAI AI logo">
+<img src="site/img/logo_animation.svg" height="125" alt="DORAI AI logo">
 
 **Your AI. Your World.**
 
