@@ -22,7 +22,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 PACK_DIR = ROOT / "docs/branding/dorai/assets/hexacore"
-MARK_SIGNATURE = "M112 56 H250"
+MARK_SIGNATURE = "M118 60 H244"
 
 REQUIRED = [
     "svg/d-shape-gradient.svg",

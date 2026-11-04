@@ -51,7 +51,7 @@ git checkout 94dbd8f -- docs/branding/dorai/_legacy-logo-backup
 | File | Change |
 |---|---|
 | `composeApp/src/commonMain/composeResources/drawable/logo.xml` | Old D paths → Hexa Core D paths; solid `#25E2F5` body + `#377CFF` forward core |
-| `androidApp/src/main/res/drawable/ic_launcher_foreground.xml` | New D + core paths, true linear gradient (`#25E2F5`→`#377CFF`→`#6F5BFF`), scaled 0.74 into the safe zone |
+| `androidApp/src/main/res/drawable/ic_launcher_foreground.xml` | New D + core paths, true linear gradient (`#25E2F5`→`#377CFF`→`#6F5BFF`), scaled 0.76 into the safe zone |
 | `androidApp/src/main/res/drawable/ic_launcher_monochrome.xml` | New D + core silhouette, single `#000000` fill, same safe-zone group |
 | `composeApp/src/androidMain/res/drawable/ic_launcher_foreground.xml` | Same as app-module foreground |
 | `composeApp/src/androidMain/res/drawable/ic_launcher_monochrome.xml` | Same as app-module monochrome |
@@ -101,12 +101,12 @@ git checkout 94dbd8f -- docs/branding/dorai/_legacy-logo-backup
 |---|---|---|
 | Pack integrity + path safety | `python` `zipfile.testzip` / entry scan | **PASS** — clean, no unsafe paths |
 | Pack copy parity | per-entry SHA-256 vs archive | **PASS** — 82/82, 0 mismatches |
-| SVG well-formedness (6 files) | `xml.etree.ElementTree` parse | **PASS** — all parse, all carry the new `M112 56 H250` geometry |
+| SVG well-formedness (6 files) | `xml.etree.ElementTree` parse | **PASS** — all parse, all carry the new `M118 60 H244` geometry |
 | Raster dimensions / modes | Pillow | **PASS** — 180², 180², 180², 1024² RGB (iOS, alpha flattened), 1024² RGBA |
 | ICO size matrices | Pillow `info['sizes']` | **PASS** — site/wasm `16/32/48`; desktop `16/24/32/48/64/128/256` |
 | ICNS structure | byte parse (magic, declared vs actual length, element walk) | **PASS** — `icns`, 166,947 B declared = actual, 8 elements, ends exactly |
 | PDF headers | first bytes | **PASS** — `%PDF-`, 128,738 B (iOS) / 128,714 B (desktop) |
-| Adaptive-icon safe zone | geometric transform check | **PASS** — 296 units max dimension vs 312.9 safe zone; centred at 256,256 |
+| Adaptive-icon safe zone | geometric transform check | **PASS** — 297.9 units max dimension vs 312.9 safe zone; centred at 256,256 |
 | Stale geometry sweep | `git grep -E 'M104[ ,](72|86)'` over sources | **PASS** — no matches in `composeApp`, `androidApp`, `site`, `iosApp` (matches exist only in gitignored `build/` output) |
 | Android resource processing (`aapt2`) | `./gradlew :androidApp:processFossDebugResources` | **BUILD SUCCESSFUL** (36 s, 13 tasks executed) |
 | Compose resource generation | `./gradlew :composeApp:generateComposeResClass` | **BUILD SUCCESSFUL**; generated `logo.xml` contains the new path data |
@@ -145,10 +145,34 @@ None of the above is reported as passing.
 | Surface | Before | After |
 |---|---|---|
 | In-app mark | D with flat triangle core, `M104,72 …` | Hexa Core D with forward-play core, `M112,56 …` |
-| Android launcher | Old D, ~70 % of canvas (outside safe zone) | New D + core, 296/313 units (inside safe zone), true gradient on `#050A1C` |
+| Android launcher | Old D, ~70 % of canvas (outside safe zone) | New D + core, 298/313 units (inside safe zone), true gradient on `#050A1C` |
 | Android monochrome | D ring only | D ring + forward core silhouette |
 | iOS app icon | Old mark, RGBA | New mark, opaque RGB 1024² |
 | iOS launch logo | Old mark PDF | New symbol PDF, same filename |
 | Site/Wasm favicon | Old ICO (site 4,154 B mono-size set) | New mark, 16/32/48 |
 | Site logo / hero / wordmark | Old D with `aurora` gradient id | Asymmetric new D + approved horizontal wordmark |
 | Desktop icons | Old mark (PNG/ICO/ICNS/SVG/PDF) | New mark, all five formats |
+
+## 8. Refinement after adoption (v2 squircle)
+
+After the pack was integrated and committed, a refinement was requested and applied.
+A four-variant render comparison (current / balanced core / squircle / chevron) was
+made with headless Chrome at 512 px, and the **squircle** variant was selected.
+
+What changed in the geometry:
+
+| Property | v1 (imported pack) | v2 (now) |
+|---|---|---|
+| Straight-edge stroke | 76 / 76 / 80 | **80 uniform** |
+| Bowl / counter radii | 124 / 48 (not concentric) | **196 / 116, concentric at x=244** |
+| Core | 100 wide, offset right, r=19 | **94 wide, optically centred, r=22** |
+| Outer left corners | R=24 | **R=34** |
+| Bounding box | x 84–438, y 56–456 (354 × 400) | x 84–440, y 60–452 (356 × 392) |
+| Safe-zone fit (scale 0.76) | 296 / 312.9 units | **297.9 / 312.9 units** |
+
+Regenerated from the new numbers: 8 pack SVGs, both wordmarks, 65 theme PNGs,
+9 transparent-symbol PNGs, 4 favicon PNGs, `favicon.ico`, plus every derived asset
+(iOS icon and launch PDF, desktop png/ico/icns/pdf, site and Wasm icons, touch icons,
+Play listing icon). Android adaptive foreground now uses `android:scaleX/Y="0.76"`
+with pivot (262, 256); the shared `logo.xml` carries the same paths with solid
+`#25E2F5` / `#377CFF` fills. `MARK_SIGNATURE` in the importer is now `M118 60 H244`.

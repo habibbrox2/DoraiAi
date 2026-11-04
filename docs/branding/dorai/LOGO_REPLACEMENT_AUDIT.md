@@ -92,7 +92,7 @@ HTML wiring (unchanged; filenames preserved): `site/index.html:27-29,101`,
 | Platform target | Pack source | Operation |
 |---|---|---|
 | `logo.xml` (commonMain) | `svg/d-shape-gradient.svg` | Path data → VectorDrawable; gradient → solid `#25E2F5` body + `#377CFF` core. JetBrains documents CMP XML vectors as “the same format as Android, except no external resource references” and says nothing about `aapt:attr` gradients, so the shared resource deliberately avoids them rather than risk a runtime parse failure. |
-| Android foreground ×2 | `svg/d-shape-gradient.svg` | Path data → VectorDrawable **with** true linear gradient, scaled 0.74 into the 66dp safe zone |
+| Android foreground ×2 | `svg/d-shape-gradient.svg` | Path data → VectorDrawable **with** true linear gradient, scaled 0.76 into the 66dp safe zone |
 | Android monochrome ×2 | `svg/app-icon-monochrome-dark.svg` | Silhouette (D + forward core) → `#000000`, same safe-zone group |
 | Android background ×2 | `site.webmanifest` / icon tiles | `#050A1C` |
 | iOS `icon2.png` | `png/app-icons/dorai-dark-1024.png` | Opaque RGB flatten (App Store forbids alpha), 1024² |
@@ -143,3 +143,18 @@ in the working tree at `docs/branding/dorai/assets/hexacore/`.
 3. Safe-zone geometry check for the adaptive icon.
 4. Sweep for residual old-mark path signatures in source paths.
 5. Android resource processing (`aapt2`) for the modified drawables.
+
+## 7. Refinement applied after import (2026-11-05)
+
+The pack geometry was superseded by a refined **v2 squircle** mark, adopted by the
+maintainer after a four-variant comparison:
+
+- uniform 80-unit stroke on all three straight edges (was 78/88, visibly uneven)
+- bowl and counter are concentric: outer R=196, inner R=116, both centred at x=244
+- core moved to the counter's optical centre, 94 units wide with a 22-unit corner radius
+- outer left corners opened to R=34
+
+Resulting bbox: x 84–440, y 60–452 (356 × 392), centre (262, 256). All pack SVGs,
+the PNG matrix, both wordmarks, the Android vector resources and every derived
+platform asset were regenerated from those numbers; `MARK_SIGNATURE` in the
+importer now tracks `M118 60 H244`.
