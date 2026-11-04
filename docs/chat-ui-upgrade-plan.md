@@ -1,4 +1,4 @@
-# Brox Kai 2.0 — Chat UI Upgrade Plan
+# DORAI AI — Chat UI Upgrade Plan
 
 **Status:** Core chat workspace migration is present; responsive HUD and accessibility regression work is in progress.  
 **Design direction:** 2027 AI Agent Workspace  
@@ -8,7 +8,7 @@
 
 Evolve the existing chat-first interface into a responsive AI Agent Workspace with a compact agent HUD, a multimodal composer, readable execution activity, schema-driven generative UI, and a dockable coding workspace.
 
-The redesign must preserve existing provider integrations, conversation persistence, ChatViewModel/ChatActions ownership, MCP and native tool execution, sandbox boundaries, attachments, speech output, interactive mode, and Kai Build/editor workflows.
+The redesign must preserve existing provider integrations, conversation persistence, ChatViewModel/ChatActions ownership, MCP and native tool execution, sandbox boundaries, attachments, speech output, interactive mode, and DORAI Build/editor workflows.
 
 This is a presentation and interaction migration first. Backend capabilities must be integrated only where the corresponding runtime contract already exists or is separately implemented and tested. Never ship decorative controls that imply unavailable functionality.
 
@@ -16,7 +16,7 @@ This is a presentation and interaction migration first. Backend capabilities mus
 
 The current UI is Kotlin Multiplatform + Compose, not a React application. The shared implementation lives under:
 
-`composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui/chat/`
+`composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/`
 
 Known responsibilities:
 
@@ -75,7 +75,7 @@ Use semantic theme tokens rather than scattering literal colors. Light theme rem
 
 Replace the oversized floating header and vertical “AI Agent” badge with a compact adaptive HUD.
 
-- **Leading:** history/sidebar toggle and compact Brox Kai brand.
+- **Leading:** history/sidebar toggle and compact DORAI AI brand.
 - **Center:** current agent state: Idle, Thinking, Running tool, Waiting, Connected, or Error.
 - **Trailing:** available workspace/terminal toggle and Settings.
 - Use a small dot/orb plus concise status text; never use a tall vertical badge.
@@ -85,7 +85,7 @@ Replace the oversized floating header and vertical “AI Agent” badge with a c
 
 ### 5.2 Home / empty conversation
 
-- Keep the Brox Kai identity mark as the visual anchor.
+- Keep the DORAI AI identity mark as the visual anchor.
 - Use a concise welcome headline and a compact, horizontally scrollable row of contextual quick-action chips.
 - Suggested chips: Resume RPG, Ask a question, Run sandbox check, Daily reminders. Render only actions backed by current state/capabilities.
 - Avoid large fixed quick-action cards that push the composer below the fold.

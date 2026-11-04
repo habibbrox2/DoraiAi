@@ -2,7 +2,7 @@
 
 - **Status:** Accepted for foundation
 - **Date:** 2026-11-03
-- **Decision owners:** Brox Kai maintainers
+- **Decision owners:** DORAI AI maintainers
 
 ## Context
 

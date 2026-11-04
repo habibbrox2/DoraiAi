@@ -1,7 +1,7 @@
 # 2027 Premium Agent UI — Migration Coverage Audit
 
 **Audit baseline:** `feature/2027-premium-agent-ui-migration`  
-**Audit scope:** `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/ui`  
+**Audit scope:** `composeApp/src/commonMain/kotlin/com/dorai/ai/ui`
 **Inventory size:** 137 Kotlin source files  
 **Method:** source inventory + navigation mapping + targeted legacy-style/state review. This is not a claim that every runtime state has been visually inspected.
 
@@ -14,7 +14,7 @@
 | Chat | 40 | Screen/shell, composer, timeline, HUD, tool activity, review, history, selectors |
 | Shared components | 15 | Dialogs, badges, chips, search, status, loading, settings rows |
 | Settings | 31 | General, Agent, Services, Tools, Integrations, MCP, Skills, Sandbox, Data/Account navigation, sheets |
-| Kai Build | 11 | Build shell, setup, projects, terminal, session and status components |
+| DORAI Build | 11 | Build shell, setup, projects, terminal, session and status components |
 | Sandbox | 9 | File browser, packages, find/replace, tabs and status |
 | Dynamic UI | 6 | Schema/node model, parser, renderer, actions and TTS |
 | Markdown | 16 | Parser, renderer, code, diff, inline and math |

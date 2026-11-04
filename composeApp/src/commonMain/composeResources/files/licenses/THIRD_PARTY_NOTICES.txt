@@ -1,11 +1,11 @@
-Third-party software in Kai
+Third-party software in DORAI AI
 ===========================
 
-Kai itself is licensed under the Apache License, Version 2.0.
+DORAI AI itself is licensed under the Apache License, Version 2.0.
 
 The Android app bundles the following programs, built from source by
-build-proot.sh in the Kai repository. They run as a separate process
-(PRoot) or are loaded by it (talloc); they are not linked into Kai's own code.
+build-proot.sh in the upstream Kai repository. They run as a separate process
+(PRoot) or are loaded by it (talloc); they are not linked into DORAI AI's own code.
 
 
 PRoot (Termux fork)
@@ -35,10 +35,10 @@ https://github.com/SimonSchubert/Kai/blob/main/build-proot.sh
 
 Written offer
 -------------
-For at least three years from the date you received this copy of Kai, the
+For at least three years from the date you received this copy of DORAI AI, the
 complete corresponding source code of PRoot and talloc as shipped in it is
 available to anyone, free of charge beyond the cost of providing it, on
-request by opening an issue at https://github.com/SimonSchubert/Kai/issues.
+request by opening an issue at https://github.com/habibbrox2/DoraiAi/issues.
 
 
 ================================================================================

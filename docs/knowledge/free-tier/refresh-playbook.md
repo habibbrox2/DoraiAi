@@ -43,7 +43,7 @@ generated: { by: human:simon, at: 2026-08-11T17:36:04Z }
 2. Show a short added/removed summary per service **before** writing.
 3. Update runtime sets in:
 
-   `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/FreeTierModels.kt`
+   `composeApp/src/commonMain/kotlin/com/dorai/ai/data/FreeTierModels.kt`
 
    Preserve file structure and comments; sets only.
 4. Update this bundle:

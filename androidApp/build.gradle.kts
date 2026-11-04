@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.inspiredandroid.kai"
+    namespace = "com.dorai.ai"
     compileSdk =
         libs.versions.android.compileSdk
             .get()
@@ -15,7 +15,7 @@ android {
     ndkVersion = "29.0.14206865"
 
     defaultConfig {
-        applicationId = "com.inspiredandroid.kai"
+        applicationId = "com.dorai.ai"
         minSdk =
             libs.versions.android.minSdk
                 .get()

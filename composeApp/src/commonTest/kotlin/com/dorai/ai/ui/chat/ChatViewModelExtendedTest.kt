@@ -1,0 +1,437 @@
+package com.dorai.ai.ui.chat
+
+import app.cash.turbine.test
+import com.dorai.ai.data.KeylessFreeTierFallback
+import com.dorai.ai.data.Service
+import com.dorai.ai.data.ServiceEntry
+import com.dorai.ai.data.TaskScheduler
+import com.dorai.ai.testutil.FakeDataRepository
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class ChatViewModelExtendedTest {
+
+    private val testDispatcher = StandardTestDispatcher()
+    private val unconfinedDispatcher = UnconfinedTestDispatcher()
+    private lateinit var fakeRepository: FakeDataRepository
+
+    @BeforeTest
+    fun setup() {
+        Dispatchers.setMain(testDispatcher)
+        fakeRepository = FakeDataRepository()
+    }
+
+    @AfterTest
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    private fun createViewModel(): ChatViewModel {
+        val noOpScheduler = TaskScheduler(fakeRepository, enabled = false)
+        return ChatViewModel(fakeRepository, noOpScheduler, unconfinedDispatcher)
+    }
+
+    private fun makeServiceEntry(instanceId: String, service: Service) = ServiceEntry(
+        instanceId = instanceId,
+        serviceId = service.id,
+        serviceName = service.displayName,
+        modelId = "test-model",
+        icon = service.icon,
+    )
+
+    // ---- Concurrent ask prevention ----
+
+    @Test
+    fun `concurrent ask is ignored while a previous ask is still loading`() = runTest {
+        // Gate the first ask so it stays in flight
+        val gate = CompletableDeferred<Unit>()
+        fakeRepository.askGate = gate
+        val viewModel = createViewModel()
+
+        viewModel.state.test {
+            val initialState = awaitItem()
+            initialState.actions.ask("first")
+            // First ask is now suspended at the gate, isLoading should be true
+            var loadingState: ChatUiState
+            do {
+                loadingState = awaitItem()
+            } while (!loadingState.isLoading)
+            assertTrue(loadingState.isLoading)
+            assertEquals(1, fakeRepository.askCalls.size)
+
+            // Second ask should be ignored entirely while loading
+            loadingState.actions.ask("second")
+            testDispatcher.scheduler.advanceUntilIdle()
+            // No new ask call recorded
+            assertEquals(1, fakeRepository.askCalls.size)
+
+            // Release the gate so the first ask completes
+            fakeRepository.askGate = null
+            gate.complete(Unit)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    // ---- selectService ----
+
+    @Test
+    fun `free tier is presented as the Auto model alias`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.state.test {
+            val state = awaitItem()
+            val autoEntry = state.availableServices.first()
+            assertEquals("free-auto", autoEntry.instanceId)
+            assertEquals(Service.Free.id, autoEntry.serviceId)
+            assertEquals(KeylessFreeTierFallback.DISPLAY_NAME, autoEntry.serviceName)
+            assertEquals(KeylessFreeTierFallback.AUTO_MODEL_ID, autoEntry.modelId)
+            assertEquals(1, state.availableServices.count { it.serviceId == Service.Free.id })
+        }
+    }
+
+    @Test
+    fun `selectService reorders configured services so the selected instance is first`() = runTest {
+        fakeRepository.setConfiguredServices(Service.Gemini, Service.OpenAI, Service.Anthropic)
+        fakeRepository.fakeServiceEntries = listOf(
+            makeServiceEntry("gemini", Service.Gemini),
+            makeServiceEntry("openai", Service.OpenAI),
+            makeServiceEntry("anthropic", Service.Anthropic),
+        )
+
+        val viewModel = createViewModel()
+        viewModel.state.test {
+            skipItems(1)
+            val initialState = awaitItem()
+            assertEquals("gemini", initialState.availableServices.first().instanceId)
+
+            // Update fakeServiceEntries to reflect the reorder happens via getServiceEntries
+            // The fake's reorderConfiguredServices changes configuredInstances, but
+            // fakeServiceEntries is independent — update it after reorder happens.
+            fakeRepository.fakeServiceEntries = listOf(
+                makeServiceEntry("openai", Service.OpenAI),
+                makeServiceEntry("gemini", Service.Gemini),
+                makeServiceEntry("anthropic", Service.Anthropic),
+            )
+
+            initialState.actions.selectService("openai")
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            val reordered = awaitItem()
+            assertEquals("openai", reordered.availableServices.first().instanceId)
+            // Repository should have been told to reorder
+            val configured = fakeRepository.getConfiguredServiceInstances()
+            assertEquals("openai", configured.first().instanceId)
+        }
+    }
+
+    @Test
+    fun `selectService is a no-op when instanceId is unknown`() = runTest {
+        fakeRepository.setConfiguredServices(Service.Gemini, Service.OpenAI)
+        fakeRepository.fakeServiceEntries = listOf(
+            makeServiceEntry("gemini", Service.Gemini),
+            makeServiceEntry("openai", Service.OpenAI),
+        )
+        val viewModel = createViewModel()
+
+        viewModel.state.test {
+            skipItems(1)
+            val initialState = awaitItem()
+            initialState.actions.selectService("nonexistent_id")
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Order should be unchanged
+            val configured = fakeRepository.getConfiguredServiceInstances()
+            assertEquals("gemini", configured[0].instanceId)
+            assertEquals("openai", configured[1].instanceId)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    // ---- selectModel ----
+
+    @Test
+    fun `the chat exposes the models of the active service`() = runTest {
+        fakeRepository.setConfiguredServices(Service.LongCat)
+        fakeRepository.fakeServiceEntries = listOf(makeServiceEntry("longcat", Service.LongCat))
+
+        val viewModel = createViewModel()
+
+        val models = viewModel.state.value.availableModels
+        assertTrue(models.isNotEmpty())
+        assertEquals(Service.LongCat.defaultModels.map { it.id }, models.map { it.id })
+    }
+
+    @Test
+    fun `selectModel stores the picked model for the active service`() = runTest {
+        fakeRepository.setConfiguredServices(Service.LongCat)
+        fakeRepository.fakeServiceEntries = listOf(makeServiceEntry("longcat", Service.LongCat))
+
+        val viewModel = createViewModel()
+        viewModel.state.test {
+            val initialState = awaitItem()
+            assertTrue(initialState.availableModels.isNotEmpty())
+
+            initialState.actions.selectModel("LongCat-Flash-Thinking")
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // The state is published through a shared flow, so the update arrives as its own
+            // emission after the service list was rebuilt.
+            var updatedState: ChatUiState
+            do {
+                updatedState = awaitItem()
+            } while (updatedState.availableModels.none { it.isSelected })
+            assertEquals(
+                listOf("LongCat-Flash-Thinking"),
+                updatedState.availableModels.filter { it.isSelected }.map { it.id },
+            )
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        val stored = fakeRepository.getInstanceModels("longcat", Service.LongCat).value
+        assertEquals(
+            listOf("LongCat-Flash-Thinking"),
+            stored.filter { it.isSelected }.map { it.id },
+            "stored=$stored",
+        )
+    }
+
+    @Test
+    fun `selectModel is a no-op when no service is active`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.state.test {
+            val initialState = awaitItem()
+            assertTrue(initialState.availableModels.isEmpty())
+
+            initialState.actions.selectModel("some-model")
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Nothing to attach the model to: the chat has no configured service.
+            assertTrue(viewModel.state.value.availableModels.isEmpty())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    // ---- startNewChat ----
+
+    @Test
+    fun `startNewChat clears history error and isLoading`() = runTest {
+        // Pre-populate some history
+        fakeRepository.chatHistory.value = listOf(
+            History(role = History.Role.USER, content = "Hi"),
+            History(role = History.Role.ASSISTANT, content = "Hello"),
+        )
+        val viewModel = createViewModel()
+
+        viewModel.state.test {
+            // Wait for initial state to surface the pre-populated history
+            var stateWithHistory: ChatUiState
+            do {
+                stateWithHistory = awaitItem()
+            } while (stateWithHistory.history.isEmpty())
+            assertEquals(2, stateWithHistory.history.size)
+
+            stateWithHistory.actions.startNewChat()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            var clearedState: ChatUiState
+            do {
+                clearedState = awaitItem()
+            } while (clearedState.history.isNotEmpty())
+            assertTrue(clearedState.history.isEmpty())
+            assertNull(clearedState.error)
+            assertFalse(clearedState.isLoading)
+            assertFalse(clearedState.isInteractiveMode)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    // ---- regenerate ----
+
+    @Test
+    fun `regenerate truncates to last user message and re-asks with null`() = runTest {
+        fakeRepository.chatHistory.value = listOf(
+            History(role = History.Role.USER, content = "First"),
+            History(role = History.Role.ASSISTANT, content = "Old answer"),
+        )
+        val viewModel = createViewModel()
+
+        viewModel.state.test {
+            // Wait for initial state to surface
+            var initialState: ChatUiState
+            do {
+                initialState = awaitItem()
+            } while (initialState.history.size < 2)
+
+            initialState.actions.regenerate()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // Repository.regenerate must have been called
+            assertEquals(1, fakeRepository.regenerateCalls)
+            // ask was invoked again with a null question (retry semantics)
+            assertTrue(fakeRepository.askCalls.any { it.first == null })
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    // ---- interactive mode toggle ----
+
+    @Test
+    fun `setInteractiveMode turns the mode on and clears error`() = runTest {
+        val viewModel = createViewModel()
+        viewModel.state.test {
+            val initialState = awaitItem()
+            assertFalse(initialState.isInteractiveMode)
+
+            initialState.actions.setInteractiveMode(true)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            var interactiveState: ChatUiState
+            do {
+                interactiveState = awaitItem()
+            } while (!interactiveState.isInteractiveMode)
+            assertTrue(interactiveState.isInteractiveMode)
+            assertNull(interactiveState.error)
+            assertTrue(fakeRepository.isInteractiveModeActive())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `setInteractiveMode turns the mode off again`() = runTest {
+        val viewModel = createViewModel()
+        viewModel.state.test {
+            val initial = awaitItem()
+            initial.actions.setInteractiveMode(true)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            var interactiveState: ChatUiState
+            do {
+                interactiveState = awaitItem()
+            } while (!interactiveState.isInteractiveMode)
+
+            interactiveState.actions.setInteractiveMode(false)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            var exitedState: ChatUiState
+            do {
+                exitedState = awaitItem()
+            } while (exitedState.isInteractiveMode)
+            assertFalse(exitedState.isInteractiveMode)
+            assertFalse(exitedState.isLoading)
+            assertNull(exitedState.error)
+            assertFalse(fakeRepository.isInteractiveModeActive())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `switching the interactive mode keeps the conversation`() = runTest {
+        fakeRepository.chatHistory.value = listOf(
+            History(role = History.Role.USER, content = "Hi"),
+            History(role = History.Role.ASSISTANT, content = "Hello"),
+        )
+        val viewModel = createViewModel()
+
+        viewModel.state.test {
+            val initialState = awaitItem()
+            initialState.actions.setInteractiveMode(true)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // One chat interface: the mode changes how the next answer is rendered, it does
+            // not throw the conversation away.
+            var interactiveState: ChatUiState
+            do {
+                interactiveState = awaitItem()
+            } while (!interactiveState.isInteractiveMode)
+            assertEquals(2, interactiveState.history.size)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    // ---- showPrivacyInfo ----
+
+    @Test
+    fun `showPrivacyInfo is false when current service is not Free`() = runTest {
+        fakeRepository.setCurrentService(Service.Gemini)
+        val viewModel = createViewModel()
+        viewModel.state.test {
+            val state = awaitItem()
+            assertFalse(state.showPrivacyInfo)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    // ---- files ----
+
+    @Test
+    fun `files list defaults to empty`() = runTest {
+        val viewModel = createViewModel()
+        viewModel.state.test {
+            val state = awaitItem()
+            assertTrue(state.files.isEmpty())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    // ---- clearSnackbar ----
+
+    @Test
+    fun `clearSnackbar clears the snackbar message`() = runTest {
+        val viewModel = createViewModel()
+        viewModel.state.test {
+            val initialState = awaitItem()
+            assertNull(initialState.snackbarMessage)
+            // Calling clearSnackbar when there's nothing to clear should be safe
+            initialState.actions.clearSnackbar()
+            testDispatcher.scheduler.advanceUntilIdle()
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    // ---- cancel ----
+
+    @Test
+    fun `cancel stops an in-flight ask and resets isLoading`() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        fakeRepository.askGate = gate
+        val viewModel = createViewModel()
+
+        viewModel.state.test {
+            val initialState = awaitItem()
+            initialState.actions.ask("hello")
+
+            var loadingState: ChatUiState
+            do {
+                loadingState = awaitItem()
+            } while (!loadingState.isLoading)
+            assertTrue(loadingState.isLoading)
+
+            loadingState.actions.cancel()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            var cancelledState: ChatUiState
+            do {
+                cancelledState = awaitItem()
+            } while (cancelledState.isLoading)
+            assertFalse(cancelledState.isLoading)
+            // Release gate so the cancelled coroutine can finish unwinding
+            gate.complete(Unit)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+}

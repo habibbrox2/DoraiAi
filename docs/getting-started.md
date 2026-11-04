@@ -4,52 +4,27 @@
 
 ### App Stores
 
-- [**App Store**](https://apps.apple.com/us/app/kai-ai/id6758148023) (iOS)
-- [**Google Play**](https://play.google.com/store/apps/details?id=com.inspiredandroid.kai) (Android)
-- [**F-Droid**](https://f-droid.org/en/packages/com.inspiredandroid.kai/) (Android)
+DORAI AI's official App Store, Google Play, and F-Droid listings have not been published yet. The legacy upstream listings install a different application and must not be used as DORAI downloads.
 
 ### Web
 
-Try Kai directly in your browser at [kai9000.com/app](https://kai9000.com/app/).
+The DORAI AI web app is not published yet. Web/Wasm support remains under development.
 
-### Homebrew (macOS)
+### Package Managers
 
-```bash
-brew install --cask habibbrox2/tap/brox-kai
-```
-
-### AUR (Arch Linux)
-
-```bash
-yay -S brox-kai-bin
-```
-
-### Winget (Windows)
-
-```bash
-winget install HabibBrox2.BroxKai
-```
+Homebrew, AUR, and Winget packages have not been registered for DORAI AI yet. Use the official [GitHub Releases](https://github.com/habibbrox2/DoraiAi/releases) page when the first release is published.
 
 ### Direct Downloads
 
-| Platform | Format | Download |
-|----------|--------|----------|
-| Android | APK | [GitHub Releases](https://github.com/habibbrox2/brox-kai-2.0/releases) |
-| macOS | DMG | [GitHub Releases](https://github.com/habibbrox2/brox-kai-2.0/releases) |
-| Windows | MSI | [GitHub Releases](https://github.com/habibbrox2/brox-kai-2.0/releases) |
-| Linux | DEB | [GitHub Releases](https://github.com/habibbrox2/brox-kai-2.0/releases) |
-| Linux | RPM | [GitHub Releases](https://github.com/habibbrox2/brox-kai-2.0/releases) |
-| Linux | AppImage | [GitHub Releases](https://github.com/habibbrox2/brox-kai-2.0/releases) |
-| Linux | Flatpak | [GitHub Releases](https://github.com/habibbrox2/brox-kai-2.0/releases) |
-| Linux | Tarball | [GitHub Releases](https://github.com/habibbrox2/brox-kai-2.0/releases) |
+The repository currently contains legacy Kai releases only. Those APKs and installers belong to a different application identity and must not be installed as DORAI AI. The first DORAI release will be published after production signing and update-manifest verification. Track the project at the [DORAI AI repository](https://github.com/habibbrox2/DoraiAi).
 
 ## First Steps
 
-1. Launch Kai — you'll see the chat screen with an animated welcome
+1. Launch DORAI AI - you'll see the chat screen with an animated welcome
 2. Start chatting immediately using the **Free** tier (no API key needed)
 3. For better models, open **Settings** and add a service (e.g. OpenAI, Gemini, DeepSeek)
-4. Enter your API key — Kai validates the connection and loads available models automatically
-5. Prefer to stay offline? On Android, iOS and desktop, add the **Local Model** service and download an on-device model — see [On-Device Inference](features/on-device-inference.md)
+4. Enter your API key - DORAI AI validates the connection and loads available models automatically
+5. Prefer to stay offline? On Android, iOS and desktop, add the **Local Model** service and download an on-device model - see [On-Device Inference](features/on-device-inference.md)
 
 ## Adding a Service
 
@@ -57,6 +32,6 @@ winget install HabibBrox2.BroxKai
 2. Tap **Add Service** and pick a provider
 3. Paste your API key
 4. Select a model from the dropdown
-5. Drag services to reorder — the first one is your primary, the rest are fallbacks
+5. Drag services to reorder - the first one is your primary, the rest are fallbacks
 
 See [Multi-Service](features/multi-service.md) for the full details on providers and fallback behavior.

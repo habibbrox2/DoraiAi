@@ -24,14 +24,14 @@ The following data is stored in secure settings:
 - **Size limit:** ~2 MB per value (SharedPreferences limit)
 - **File location:** App-private `kai_secure_prefs` SharedPreferences
 - **Restore recovery:** If the encrypted file cannot be opened (typically after Android Auto Backup restores it onto a device whose hardware-bound Keystore key did not transfer), the file is deleted and a fresh empty store is created — settings and keys must be re-entered.
-- **Legacy migration:** On first run, values from the old plaintext `com.inspiredandroid.kai_preferences` (selected service, model ids, API keys, base URL, app-open counter) are copied into the encrypted store once.
+- **Legacy migration:** On first run, values from the old plaintext `com.dorai.ai_preferences` (selected service, model ids, API keys, base URL, app-open counter) are copied into the encrypted store once.
 
 ### iOS
 - **Mechanism:** `KeychainSettings` (`com.russhwolf/multiplatform-settings`)
 - **Encryption:** Hardware-backed Keychain encryption (AES-256-GCM via Secure Enclave on supported devices)
 - **Key management:** Managed by iOS Keychain Services
 - **Size limit:** Effectively unlimited
-- **Service identifier:** `com.inspiredandroid.kai`
+- **Service identifier:** `com.dorai.ai`
 - **Legacy migration:** On first run, the same legacy keys are copied once from `NSUserDefaults`.
 
 ### Desktop (macOS, Windows, Linux)

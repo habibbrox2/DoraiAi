@@ -1,0 +1,67 @@
+app-id: com.dorai.ai
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: dorai-wrapper
+
+finish-args:
+  - --share=network
+  - --socket=x11
+  - --socket=wayland
+  - --share=ipc
+  - --device=dri
+  - --socket=pulseaudio
+  - --persist=.dorai
+  - --persist=.java
+
+modules:
+  - name: dorai
+    buildsystem: simple
+    build-commands:
+      # Extract and install the application
+      - tar xf DORAI-AI-linux-x86_64.tar.gz
+      - mkdir -p /app/lib/dorai
+      - cp -r DORAI/* /app/lib/dorai/
+
+      # Install wrapper script
+      - install -Dm755 dorai-wrapper.sh /app/bin/dorai-wrapper
+
+      # Install desktop file
+      - install -Dm644 com.dorai.ai.desktop /app/share/applications/com.dorai.ai.desktop
+
+      # Install metainfo
+      - install -Dm644 com.dorai.ai.metainfo.xml /app/share/metainfo/com.dorai.ai.metainfo.xml
+
+      # Install icons
+      - install -Dm644 icon.svg /app/share/icons/hicolor/scalable/apps/com.dorai.ai.svg
+      - install -Dm644 icon.png /app/share/icons/hicolor/512x512/apps/com.dorai.ai.png
+
+    sources:
+      - type: file
+        url: https://github.com/habibbrox2/DoraiAi/releases/download/v2.1.4/DORAI-AI-v2.1.4-linux-x86_64.tar.gz
+        sha256: aaf111532900f674a75c963721d027179d07faace520e6a02a23c33ead2d7330
+        dest-filename: DORAI-AI-linux-x86_64.tar.gz
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/habibbrox2/DoraiAi/releases/latest
+          version-query: .tag_name | sub("^v"; "")
+          url-query: .assets[] | select(.name | test("linux-x86_64\\.tar\\.gz$")) | .browser_download_url
+
+      - type: file
+        path: com.dorai.ai.desktop
+
+      - type: file
+        path: com.dorai.ai.metainfo.xml
+
+      - type: file
+        path: ../composeApp/icon.svg
+
+      - type: file
+        path: ../composeApp/icon.png
+
+      - type: script
+        dest-filename: dorai-wrapper.sh
+        commands:
+          - export PATH="/app/lib/dorai/bin:${PATH}"
+          - export LD_LIBRARY_PATH="/app/lib/dorai/lib/runtime/lib:${LD_LIBRARY_PATH}"
+          - exec /app/lib/dorai/bin/DORAI "$@"

@@ -33,13 +33,13 @@ fastlane/README.md
 /build-*.log
 
 # Local release artifacts (built manually, never committed)
-/Brox-Kai-*.apk
-/Brox-Kai-*.msi
-/Brox-Kai-*.zip
-Brox-Kai-*.deb
-Brox-Kai-*.dmg
-Brox-Kai-*.rpm
-Brox-Kai-*.exe
+/DORAI-*.apk
+/DORAI-*.msi
+/DORAI-*.zip
+DORAI-*.deb
+DORAI-*.dmg
+DORAI-*.rpm
+DORAI-*.exe
 
 # Snapshot backups taken before risky operations
 /backup-pre-*/

@@ -1,2 +1,2 @@
-package_name("com.inspiredandroid.kai")
+package_name("com.dorai.ai")
 json_key_file("fastlane/play-store-key.json")

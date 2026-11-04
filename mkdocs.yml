@@ -1,6 +1,6 @@
-site_name: Kai Documentation
+site_name: DORAI AI Documentation
 site_url: https://kai9000.com/docs/
-site_description: Documentation for Kai - AI Assistant App
+site_description: Documentation for DORAI AI - Open-Source AI Assistant
 
 theme:
   name: material
@@ -50,7 +50,7 @@ nav:
     - System Prompts: features/system-prompts.md
     - Skills: features/skills.md
     - Linux Sandbox: features/sandbox.md
-    - Kai Build: features/kai-build.md
+    - DORAI Build: features/kai-build.md
     - Notifications: features/notifications.md
     - SMS: features/sms.md
     - Appearance: features/appearance.md

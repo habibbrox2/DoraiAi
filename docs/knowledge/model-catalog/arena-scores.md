@@ -1,7 +1,7 @@
 ---
 type: Catalog
 title: Arena text Elo scores
-description: Attested LMArena / Arena.ai text-leaderboard Elo scores mapped onto Kai catalog ids.
+description: Attested LMArena / Arena.ai text-leaderboard Elo scores mapped onto DORAI AI catalog ids.
 tags: [models, arena, elo, lmarena]
 status: stable
 resource: https://arena.ai/leaderboard/text
@@ -471,7 +471,7 @@ Do not treat those numbers as Arena facts. See [matching-policy.md](matching-pol
 - New board models added to the runtime catalog on this refresh: `gpt-6.1-sol-max`, `claude-sonnet-5.5-xhigh` / `claude-sonnet-5-5-xhigh`. Their shipping base ids (`gpt-6.1-sol`, `claude-sonnet-5.5` / `claude-sonnet-5-5`) are **estimated** from the tier row, not attested. `gpt-6.1-sol*` context window uses the GPT-6 family default (1,050,000) because neither the board nor the announcement lists one.
 - `Step 5 Preview` (StepFun, board key `step-5-preview-agent`) has no API id, context window or pricing on the board and was **not** added to `baseEntries`.
 - Arena renamed `claude-fable-5` → `claude-fable-5-high` (same announcement link, vote history carried). The `-high` score was **not** copied onto `claude-fable-5` / `claude-fable-latest`; those keep their last attested value (1507) as an estimate in the auto-fill block.
-- Historical unmatched board rows (older chat models Kai does not ship metadata for) are listed above with `→ —` and were **not** added to `baseEntries`.
+- Historical unmatched board rows (older chat models DORAI AI does not ship metadata for) are listed above with `→ —` and were **not** added to `baseEntries`.
 - Claude Arena rows that renamed `thinking` → `high` were **not** copied onto existing `-thinking` catalog ids (quality-tier rule).
 - `muse-spark-1.2 (xHigh)` updates `muse-spark-1.2-xhigh` only; the base id stays estimated.
 - GPT-5.6 shipping ids (`gpt-5.6`, `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`) stay estimated from their `-xhigh` siblings; the board still lists only the xHigh tiers.

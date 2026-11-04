@@ -1,6 +1,6 @@
 # Security and Regression Guide
 
-Brox Kai v2.0 describes itself as a security-hardened fork. A successful compile is not permission to weaken security behavior.
+DORAI AI describes itself as a security-hardened fork. A successful compile is not permission to weaken security behavior.
 
 ## Security invariants to preserve
 - MCP URL validation protects against SSRF, unsafe schemes/addresses/credentials/encoding, revalidates connections and redirects, and sanitizes headers.

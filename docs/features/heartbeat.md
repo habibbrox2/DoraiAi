@@ -4,7 +4,7 @@
 
 > Heartbeat is user-controlled (on/off toggle, interval, active hours live in the settings UI). The AI cannot enable, disable, or reschedule it. To customise *what happens on each heartbeat*, the AI creates heartbeat-triggered scheduled tasks via `schedule_task` with `on_heartbeat: true` — these are `HEARTBEAT`-trigger tasks (see [tasks.md](tasks.md)) and their prompts are appended to every heartbeat run under `## Heartbeat Additions`. Each addition is a first-class task the user can see, edit, and cancel.
 
-Kai's heartbeat feature enables periodic automatic self-checks. The AI reviews pending tasks, email status, newly arrived emails, and learned memories on a configurable interval, surfacing anything that needs attention without requiring user interaction.
+DORAI AI's heartbeat feature enables periodic automatic self-checks. The AI reviews pending tasks, email status, newly arrived emails, and learned memories on a configurable interval, surfacing anything that needs attention without requiring user interaction.
 
 ## Concepts
 
@@ -50,7 +50,7 @@ When the overall scheduling-enabled toggle is off, heartbeats do not run regardl
 - If the AI response contains "HEARTBEAT_OK", nothing is shown to the user
 - Any other non-blank response is appended to a dedicated heartbeat conversation, which keeps its 50 most recent messages, and the unread-heartbeat indicator is set
 - A dismissable banner appears at the top of the chat when the heartbeat has something to report
-- **Android push notification**: when the heartbeat produces a non-OK report *and* the app is not currently in the foreground (tracked at the process level, so any visible activity counts), a push notification titled "Kai heartbeat" fires. Tapping it launches/foregrounds the app and opens the heartbeat conversation. The notification uses a fixed id so a fresh report replaces the previous unread one instead of stacking. The body is the heartbeat response with markdown and dynamic-UI blocks stripped, capped at 240 characters with an ellipsis; the cut lands on a word boundary when one falls within the last 40 characters, otherwise it is a hard cut. Desktop/iOS/web no-op (banner-only).
+- **Android push notification**: when the heartbeat produces a non-OK report *and* the app is not currently in the foreground (tracked at the process level, so any visible activity counts), a push notification titled "DORAI AI heartbeat" fires. Tapping it launches/foregrounds the app and opens the heartbeat conversation. The notification uses a fixed id so a fresh report replaces the previous unread one instead of stacking. The body is the heartbeat response with markdown and dynamic-UI blocks stripped, capped at 240 characters with an ellipsis; the cut lands on a word boundary when one falls within the last 40 characters, otherwise it is a hard cut. Desktop/iOS/web no-op (banner-only).
 - Tapping the banner loads the heartbeat conversation so the user can read the report and reply
 - The X button dismisses the banner without navigating
 - Heartbeat conversations are included in the chat history list with a "Heartbeat" label badge, and can also be accessed via the banner
@@ -66,12 +66,12 @@ The heartbeat prompt is assembled by a pure, unit-tested builder; every conditio
 3. **Previous heartbeat results** — the last 3 messages in the heartbeat conversation (which can include scheduled-task output), so the AI can track trends, avoid repeating notifications, and detect persistent issues (e.g. "email still unread since last check")
 4. **Pending tasks** — pending time- and cron-triggered tasks are listed with their description, id, scheduled time, and cron expression (if recurring). Heartbeat-triggered tasks appear under Heartbeat Additions instead
 5. **Email status** — if email is enabled and accounts exist, each account's email address, unread count, and last sync time are included
-6. **New emails** — headers (subject, from, preview) for emails polled since the last heartbeat pickup. Emails are fetched in the background by the email poll loop and buffered in a pending queue (capped at 100, FIFO). The heartbeat consumes the queue: everything the heartbeat saw is removed from the queue after a successful run, while emails that arrive during the heartbeat call remain for the next run. After consumption the heartbeat also advances each account's delivery watermark, so a follow-up `check_email` call from the user won't re-surface the same messages — Kai tracks read/unread internally and ignores the provider's `\Seen` flag
+6. **New emails** — headers (subject, from, preview) for emails polled since the last heartbeat pickup. Emails are fetched in the background by the email poll loop and buffered in a pending queue (capped at 100, FIFO). The heartbeat consumes the queue: everything the heartbeat saw is removed from the queue after a successful run, while emails that arrive during the heartbeat call remain for the next run. After consumption the heartbeat also advances each account's delivery watermark, so a follow-up `check_email` call from the user won't re-surface the same messages — DORAI AI tracks read/unread internally and ignores the provider's `\Seen` flag
 7. **New SMS** — SMS messages received since the last heartbeat (only while SMS is enabled). Consumed analogously to emails: buffered as they arrive, surfaced once under `## New SMS`, and cleared from the pending queue after a successful run so the next heartbeat only sees newer arrivals
 8. **New notifications** — Android notifications captured since the last heartbeat (only while notification access is enabled), capped at 20 newest-first; any beyond the cap stay queued for later heartbeats. Consumed analogously to emails: buffered as they arrive, surfaced once under `## New Notifications`, and cleared from the pending queue after a successful run so the next heartbeat only sees newer arrivals
 9. **Promotion candidates** — memories with 5 or more hits are listed with their key, hit count, category, and content, along with a suggestion to use the `promote_learning` tool
 
-For the full contract of every prompt variation in Kai (chat remote/local, heartbeat, Splinterlands) see [system-prompts.md](system-prompts.md).
+For the full contract of every prompt variation in DORAI AI (chat remote/local, heartbeat, Splinterlands) see [system-prompts.md](system-prompts.md).
 
 ## Heartbeat Log
 
@@ -135,4 +135,4 @@ Standing additions to heartbeat behaviour are created with `schedule_task(on_hea
 | `composeApp/src/commonMain/.../Platform.kt` | `expect fun sendHeartbeatNotification` — push notification for background heartbeat reports |
 | `composeApp/src/androidMain/.../HeartbeatNotifier.android.kt` | Android notification + deep-link intent extra |
 | `androidApp/src/main/kotlin/.../MainActivity.kt` | Reads the deep-link extra on launch/new intent and requests opening the heartbeat conversation |
-| `androidApp/src/main/kotlin/.../KaiApplication.kt` | Tracks process foreground state for the scheduler |
+| `androidApp/src/main/kotlin/.../DoraiApplication.kt` | Tracks process foreground state for the scheduler |

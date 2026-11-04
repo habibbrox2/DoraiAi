@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.dorai.ai</id>
+
+  <name>DORAI AI</name>
+  <summary>AI assistant powered by Ollama, Gemini, ChatGPT and more</summary>
+
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>Apache-2.0</project_license>
+
+  <developer id="com.dorai.ai">
+    <name>DORAI</name>
+  </developer>
+
+  <description>
+    <p>
+      DORAI AI is a versatile AI assistant that connects to multiple AI services including
+      Ollama, Google Gemini, OpenAI ChatGPT, Anthropic Claude, Mistral, Groq,
+      OpenRouter, and any OpenAI-compatible API.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Chat with multiple AI providers from a single app</li>
+      <li>Run local AI models via Ollama</li>
+      <li>Text-to-speech support</li>
+      <li>Image attachments and analysis</li>
+      <li>Customizable system prompts</li>
+      <li>Multiple conversation management</li>
+      <li>Available on Android, iOS, Desktop, and Web</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">com.dorai.ai.desktop</launchable>
+
+  <url type="homepage">https://github.com/habibbrox2/DoraiAi</url>
+  <url type="bugtracker">https://github.com/habibbrox2/DoraiAi/issues</url>
+  <url type="vcs-browser">https://github.com/habibbrox2/DoraiAi</url>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#f1f5f9</color>
+    <color type="primary" scheme_preference="dark">#0b1020</color>
+  </branding>
+
+  <content_rating type="oars-1.1">
+    <content_attribute id="social-chat">moderate</content_attribute>
+  </content_rating>
+
+  <requires>
+    <internet>always</internet>
+  </requires>
+
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+</component>

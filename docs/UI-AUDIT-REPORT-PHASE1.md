@@ -1,4 +1,4 @@
-# Brox Kai v2.0 — UI Audit Report (Phase 1: Read-Only)
+# DORAI AI — UI Audit Report (Phase 1: Read-Only)
 
 ## Audit Scope
 Comprehensive read-only audit of AI Assistant Frontend UI across all screens and components.
@@ -9,7 +9,7 @@ No code changes were made during this phase.
 ### Findings
 | # | Issue | Severity | File |
 |---|-------|----------|------|
-| 1 | Brox Kai brand colors defined (`broxNavy`, `broxCyan`) but **NOT used** in `DarkColorScheme`/`LightColorScheme` — still uses legacy purple (`darkPurple`/`lightPurple`) | 🔴 High | `Theme.kt` |
+| 1 | DORAI AI brand colors defined (`broxNavy`, `broxCyan`) but **NOT used** in `DarkColorScheme`/`LightColorScheme` — still uses legacy purple (`darkPurple`/`lightPurple`) | 🔴 High | `Theme.kt` |
 | 2 | `gradientBrush` uses purple gradient, not Brox brand colors | 🔴 High | `Theme.kt` |
 | 3 | `DarkColorScheme` primary = `#BB86FC` (Material purple), should be `broxCyan` | 🟡 Medium | `Theme.kt` |
 | 4 | `LightColorScheme` primary = `darkPurple` (`#6200EE`), should be `broxNavy` | 🟡 Medium | `Theme.kt` |
@@ -143,7 +143,7 @@ No code changes were made during this phase.
 | 10 | Cross-platform padding verification | Low | Low |
 
 ## Next Steps
-- Phase 2: Branding & Theme (apply Brox Kai colors)
+- Phase 2: Branding & Theme (apply DORAI AI colors)
 - Phase 3: Chat Screen Polish (message bubbles, input, empty state)
 - Phase 4: Settings & Components
 - Phase 5: Accessibility & Performance

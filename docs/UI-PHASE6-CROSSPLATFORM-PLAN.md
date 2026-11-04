@@ -1,4 +1,4 @@
-# Brox Kai v2.0 — UI Phase 6: Cross-Platform Polish Plan
+# DORAI AI — UI Phase 6: Cross-Platform Polish Plan
 
 ## Overview
 Cross-platform UI consistency and responsive design improvements.

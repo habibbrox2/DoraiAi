@@ -5,7 +5,7 @@ struct iOSApp: App {
     @State private var isLoaded = false
 
     init() {
-        KaiLiteRTBridgeInstaller.install()
+        DoraiLiteRTBridgeInstaller.install()
     }
 
     var body: some Scene {

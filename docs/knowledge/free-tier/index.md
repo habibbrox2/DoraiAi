@@ -4,13 +4,13 @@ okf_version: "0.2"
 
 # Free-tier model knowledge
 
-OKF v0.2 bundle for Kai’s **curated free-tier model lists**. Agents use this folder for policy, provenance, and freshness when refreshing the runtime catalog.
+OKF v0.2 bundle for DORAI AI’s **curated free-tier model lists**. Agents use this folder for policy, provenance, and freshness when refreshing the runtime catalog.
 
 ## Runtime vs knowledge
 
 | Layer | Path | Role |
 |---|---|---|
-| **Runtime** (shipped) | `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/FreeTierModels.kt` | Source of truth for Free badges in the app |
+| **Runtime** (shipped) | `composeApp/src/commonMain/kotlin/com/dorai/ai/data/FreeTierModels.kt` | Source of truth for Free badges in the app |
 | **Knowledge** (this bundle) | `docs/knowledge/free-tier/` | Curation policy, current snapshot, sources, stale dates |
 | **Refresh skill** | `.grok/skills/update-free-tier-models/SKILL.md` | Fetches external sources, updates Kotlin + this bundle |
 

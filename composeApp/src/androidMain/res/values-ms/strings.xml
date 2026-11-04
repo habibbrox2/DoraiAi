@@ -1,6 +1,6 @@
 <resources>
-    <string name="daemon_channel_name">Perkhidmatan Daemon Brox Kai 2.0</string>
-    <string name="daemon_channel_description">Mengekalkan Brox Kai 2.0 berjalan untuk pelaksanaan tugas berjadual</string>
+    <string name="daemon_channel_name">Perkhidmatan Daemon DORAI AI</string>
+    <string name="daemon_channel_description">Mengekalkan DORAI AI berjalan untuk pelaksanaan tugas berjadual</string>
     <string name="daemon_notification_text">Daemon sedang berjalan</string>
     <string name="download_channel_name">Muat Turun Model</string>
     <string name="download_channel_description">Menunjukkan kemajuan semasa memuat turun model AI</string>

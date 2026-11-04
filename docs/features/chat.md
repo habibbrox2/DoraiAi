@@ -2,7 +2,7 @@
 
 **Last verified:** 2026-11-03
 
-Kai's chat system manages the message history, conversation persistence, file attachments, and speech output. Conversations are service-independent — switching providers does not affect which conversation is loaded or restored. Multiple conversations are persisted and browsable via a history sheet.
+DORAI AI's chat system manages the message history, conversation persistence, file attachments, and speech output. Conversations are service-independent — switching providers does not affect which conversation is loaded or restored. Multiple conversations are persisted and browsable via a history sheet.
 
 ## Concepts
 
@@ -30,7 +30,7 @@ Auto-derived from the first user message when a conversation is saved for the fi
 - Conversations are service-independent — switching services does not affect which conversation is loaded
 - Interactive vs normal chat mode is persisted alongside the current pointer, so an empty interactive chat also survives a restart
 - On the first launch after upgrading from a build that did not persist the current-conversation pointer, a one-time migration pins the most recently updated conversation as the current pointer so the user resumes where they left off
-- On Android, sharing plain text into Kai from another app (the system share sheet) starts a new conversation and puts the shared text in the input field, unsent. The previous conversation stays in history. The user can edit the text or add an instruction, then send as usual. Opening Kai from the launcher or the assist gesture is unchanged; assist still starts an empty new chat
+- On Android, sharing plain text into DORAI AI from another app (the system share sheet) starts a new conversation and puts the shared text in the input field, unsent. The previous conversation stays in history. The user can edit the text or add an instruction, then send as usual. Opening DORAI AI from the launcher or the assist gesture is unchanged; assist still starts an empty new chat
 
 ## Chat History
 
@@ -103,7 +103,7 @@ Multiple files can be attached to a single prompt. Each file is added one at a t
 - Per-message play button on assistant messages
 - Markdown is stripped before speaking
 - Speech uses the engine the user selected in the platform's system speech settings, so third-party engines are honoured; on Android, Google's engine is only used as a fallback when the system default cannot start
-- The engine's own default voice is kept as-is. Kai only picks a different voice when the default one does not speak the system language, in which case the first voice matching that language is selected
+- The engine's own default voice is kept as-is. DORAI AI only picks a different voice when the default one does not speak the system language, in which case the first voice matching that language is selected
 
 ## Conversation Storage
 
@@ -134,7 +134,7 @@ Multiple files can be attached to a single prompt. Each file is added one at a t
 | `composeApp/src/commonMain/.../data/Conversation.kt` | Conversation and message data classes, type constants |
 | `composeApp/src/commonMain/.../data/ConversationStorage.kt` | In-memory conversation flow, transcript trimming, legacy migration |
 | `composeApp/src/commonMain/.../data/ConversationPersistence.kt` | SQL and settings-blob persistence backends, staged-import handling |
-| `composeApp/src/commonMain/sqldelight/com/inspiredandroid/kai/db/conversation.sq` | Conversation and message table schema and queries |
+| `composeApp/src/commonMain/sqldelight/com/dorai/ai/db/conversation.sq` | Conversation and message table schema and queries |
 | `composeApp/src/commonMain/.../data/FileClassification.kt` | File category enum, MIME/extension classifier, size constants, file exceptions |
 | `composeApp/src/commonMain/.../data/RemoteDataRepository.kt` | History management, conversation save/restore/delete, title derivation, message sending |
 | `composeApp/src/commonMain/.../ui/chat/ChatViewModel.kt` | Chat UI state, send/retry/regenerate/cancel/loadConversation/deleteConversation actions |

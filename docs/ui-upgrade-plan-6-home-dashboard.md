@@ -1,14 +1,14 @@
-# Brox Kai v2.0 — UI Upgrade Plan 6: Home Dashboard
+# DORAI AI — UI Upgrade Plan 6: Home Dashboard
 
 ## Objective
 
-Create a calm starting screen for Brox Kai that gives users immediate access to Chat, Build, Design, and Tools, plus recent work and service readiness. The dashboard should shorten the path to a useful action without replacing the focused chat workspace.
+Create a calm starting screen for DORAI AI that gives users immediate access to Chat, Build, Design, and Tools, plus recent work and service readiness. The dashboard should shorten the path to a useful action without replacing the focused chat workspace.
 
 ## Current scope
 
 - The `Home` navigation route currently opens `ChatScreen` directly.
 - Desktop navigation has only Chat and Settings. On mobile, settings is reached from the chat UI.
-- Kai Build opens as a transient surface from Chat on supported Android devices.
+- DORAI Build opens as a transient surface from Chat on supported Android devices.
 - Recent conversations, provider selection, service status, build projects, and tools already have separate state holders or screens.
 
 The dashboard is therefore a new presentation and navigation layer. It should compose existing capabilities rather than recreate their business logic.
@@ -123,7 +123,7 @@ HomeDashboardScreen
 
 ### Phase 2 — Dashboard shell
 
-1. Build the header, service-readiness pill, primary action cards, and empty state using Brox Kai v2.0 colors and typography.
+1. Build the header, service-readiness pill, primary action cards, and empty state using DORAI AI colors and typography.
 2. Add responsive spacing and grid policy for compact, medium, and expanded layouts.
 3. Connect Chat and Settings cards first, then gate platform-specific destinations from capability state.
 

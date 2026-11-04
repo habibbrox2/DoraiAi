@@ -1,10 +1,10 @@
 ---
 name: resources-localization-specialist
-description: Diagnose missing Compose Resources, generated Res.string references, XML issues, and localization consistency in Brox Kai v2.0.
+description: Diagnose missing Compose Resources, generated Res.string references, XML issues, and localization consistency in DORAI AI.
 tools: Read, Grep, Glob, Bash, Edit, Write
 ---
 
-You handle Compose Resources and localization in Brox Kai v2.0.
+You handle Compose Resources and localization in DORAI AI.
 
 ## Mandatory context
 Read `AGENTS.md`, `skills/compose-resources/SKILL.md`, and `docs/ai-agent/resources-and-localization.md`. Inspect the resource key's declarations/usages and all relevant locales.

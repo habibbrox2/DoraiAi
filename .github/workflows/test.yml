@@ -139,16 +139,16 @@ jobs:
           hashFiles('screenshotTests/RECORD_GOLDENS') != ''
         run: >-
           ./gradlew :screenshotTests:recordPaparazziDebug
-          --tests com.inspiredandroid.kai.screenshots.GemmaLocalScreenshotTest
-          --tests com.inspiredandroid.kai.screenshots.MathScreenshotTest
-          --tests com.inspiredandroid.kai.screenshots.KaiUiScreenshotTest
-          --tests com.inspiredandroid.kai.screenshots.ScreenshotTest
-          --tests com.inspiredandroid.kai.screenshots.PremiumScreenScreenshotTest.toolExecution_running_dark
-          --tests com.inspiredandroid.kai.screenshots.PremiumScreenScreenshotTest.toolExecution_failed_dark
-          --tests com.inspiredandroid.kai.screenshots.PremiumScreenScreenshotTest.toolConfirmation_pending_dark
-          --tests com.inspiredandroid.kai.screenshots.PremiumScreenScreenshotTest.dashboard_overview_dark
-          --tests com.inspiredandroid.kai.screenshots.PremiumScreenScreenshotTest.Workspace_setup_dark
-          --tests com.inspiredandroid.kai.screenshots.TabletStoreScreenshotTest
+          --tests com.dorai.ai.screenshots.GemmaLocalScreenshotTest
+          --tests com.dorai.ai.screenshots.MathScreenshotTest
+          --tests com.dorai.ai.screenshots.KaiUiScreenshotTest
+          --tests com.dorai.ai.screenshots.ScreenshotTest
+          --tests com.dorai.ai.screenshots.PremiumScreenScreenshotTest.toolExecution_running_dark
+          --tests com.dorai.ai.screenshots.PremiumScreenScreenshotTest.toolExecution_failed_dark
+          --tests com.dorai.ai.screenshots.PremiumScreenScreenshotTest.toolConfirmation_pending_dark
+          --tests com.dorai.ai.screenshots.PremiumScreenScreenshotTest.dashboard_overview_dark
+          --tests com.dorai.ai.screenshots.PremiumScreenScreenshotTest.Workspace_setup_dark
+          --tests com.dorai.ai.screenshots.TabletStoreScreenshotTest
           --no-daemon --stacktrace
 
       # Commit the complete baseline set before verification. This bootstrap marker
@@ -185,7 +185,7 @@ jobs:
           assert_count '*GemmaLocalScreenshotTest_*.png' 7
           assert_count '*MathScreenshotTest_*.png' 5
           assert_count '*KaiUiScreenshotTest_*.png' 23
-          assert_count 'com.inspiredandroid.kai.screenshots_ScreenshotTest_*.png' 36
+          assert_count 'com.dorai.ai.screenshots_ScreenshotTest_*.png' 36
           assert_count '*PremiumScreenScreenshotTest_*.png' 5
           assert_count '*TabletStoreScreenshotTest_*.png' 1
 

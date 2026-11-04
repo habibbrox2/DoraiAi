@@ -1,4 +1,4 @@
-# Brox Kai 2.0 Theme Contract
+# DORAI AI Theme Contract
 
 This document is the source-of-truth contract for the shared Compose Multiplatform color schemes.
 

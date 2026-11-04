@@ -1,4 +1,4 @@
-# Brox Kai 2.0 — Premium AI Agent Workspace UI (2027 Direction)
+# DORAI AI — Premium AI Agent Workspace UI (2027 Direction)
 
 **Document type:** Product/UI migration plan  
 **Status:** Core 2027 UI foundation is present in `main`; responsive, accessibility, reduced-motion, and visual-regression refinements are in progress.  
@@ -6,13 +6,13 @@
 
 ## 1. Product vision
 
-Brox Kai 2.0 should feel like a premium AI Agent Workspace: chat-first, calm, responsive, and capable of presenting interactive work products inline. The interface combines a compact Agent HUD, multimodal composer, safe generative micro-canvases, visible execution activity, and a dockable coding/terminal workspace.
+DORAI AI should feel like a premium AI Agent Workspace: chat-first, calm, responsive, and capable of presenting interactive work products inline. The interface combines a compact Agent HUD, multimodal composer, safe generative micro-canvases, visible execution activity, and a dockable coding/terminal workspace.
 
 The design borrows interaction patterns from modern AI products without copying their implementation. The app remains Compose Multiplatform and preserves its existing runtime and platform boundaries.
 
 ## 2. Non-negotiable product decisions
 
-- **Brand:** “Brox Kai 2.0” remains the product name.
+- **Brand:** “DORAI AI” remains the product name.
 - **Primary destination:** Chat remains the home experience.
 - **Navigation:** history/sidebar and Settings remain accessible without a crowded tab strip in the header.
 - **Dashboard:** preserve its existing route/entry point; do not remove features as part of the visual refresh.
@@ -68,7 +68,7 @@ These are starting tokens. Validate contrast and theme semantics before locking 
 
 ### Screen 1 — Home / empty chat
 
-- Centered Brox Kai identity/orb with a subtle ambient animation.
+- Centered DORAI AI identity/orb with a subtle ambient animation.
 - Clear welcome headline and concise helper text.
 - Horizontal quick-action chips instead of oversized fixed cards.
 - Chips are contextual and state-aware: Resume RPG, Ask a question, Run sandbox check, Daily reminders.

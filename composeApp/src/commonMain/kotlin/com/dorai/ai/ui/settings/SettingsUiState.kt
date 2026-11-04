@@ -1,0 +1,229 @@
+package com.dorai.ai.ui.settings
+
+import androidx.compose.runtime.Immutable
+import com.dorai.ai.data.AppLanguage
+import com.dorai.ai.data.EmailAccount
+import com.dorai.ai.data.EmailSyncState
+import com.dorai.ai.data.HeartbeatLogEntry
+import com.dorai.ai.data.MemoryEntry
+import com.dorai.ai.data.ScheduledTask
+import com.dorai.ai.data.Service
+import com.dorai.ai.data.ServiceEntry
+import com.dorai.ai.data.SmsSyncState
+import com.dorai.ai.data.ThemeMode
+import com.dorai.ai.inference.DownloadError
+import com.dorai.ai.inference.LocalModel
+import com.dorai.ai.inference.ModelImportError
+import com.dorai.ai.network.dtos.SponsorsResponseDto
+import com.dorai.ai.network.tools.ToolInfo
+import com.dorai.ai.skills.RegistrySkillEntry
+import com.dorai.ai.skills.SkillManifest
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.persistentSetOf
+import org.jetbrains.compose.resources.StringResource
+
+@Immutable
+data class ConfiguredServiceEntry(
+    val instanceId: String,
+    val service: Service,
+    val connectionStatus: ConnectionStatus = ConnectionStatus.Unknown,
+    val apiKey: String = "",
+    val baseUrl: String = "",
+    val selectedModel: SettingsModel? = null,
+    val models: ImmutableList<SettingsModel> = persistentListOf(),
+    val isFetchingModels: Boolean = false,
+    val modelFetchError: String? = null,
+    /** OpenAI-Compatible only: when true, [customModelId] is used for chat instead of [selectedModel]. */
+    val useCustomModel: Boolean = false,
+    val customModelId: String = "",
+)
+
+enum class ConnectionStatus {
+    Unknown,
+    Checking,
+    Connected,
+    ErrorInvalidKey,
+    ErrorQuotaExhausted,
+    ErrorRateLimited,
+    ErrorConnectionFailed,
+    ErrorLocalNetworkDenied,
+    Error,
+}
+
+/**
+ * The settings tabs, one per feature category.
+ *
+ * Every category owns its own tab: the app-level preferences stay in [General], while the agent
+ * behaviour, the tool surface, the third-party integrations and the Linux sandbox each live in
+ * their own tab instead of being folded into a single long page.
+ */
+enum class SettingsTab {
+    /** App-level preferences: UI scale, dynamic UI, daemon mode, export/import. */
+    General,
+
+    /** Visual appearance: theme, colors. */
+    Appearance,
+
+    /** The agent itself: soul, memories, scheduled tasks, heartbeat, email, SMS, notifications. */
+    Agent,
+
+    /** Model providers, API keys and model selection. */
+    Services,
+
+    /** What the agent can do: native tools, MCP servers and skills. */
+    Tools,
+
+    /** Third-party integrations and integration requests. */
+    Integrations,
+
+    /** The Linux sandbox. Android only; the tab is hidden where the sandbox does not exist. */
+    Sandbox,
+
+    /** Stored data management. */
+    Data,
+
+    /** Account and plan information. */
+    Account,
+}
+
+@Immutable
+data class SettingsUiState(
+    val currentTab: SettingsTab = SettingsTab.Services,
+    val configuredServices: ImmutableList<ConfiguredServiceEntry> = persistentListOf(),
+    val expandedServiceId: String? = null,
+    val availableServicesToAdd: ImmutableList<Service> = persistentListOf(),
+    val tools: ImmutableList<ToolInfo> = persistentListOf(),
+    val soulText: String = "",
+    val isDynamicUiEnabled: Boolean = true,
+    val themeMode: ThemeMode = ThemeMode.System,
+    val appLanguage: AppLanguage = AppLanguage.Bengali,
+    val isMemoryEnabled: Boolean = true,
+    val memories: ImmutableList<MemoryEntry> = persistentListOf(),
+    val isSchedulingEnabled: Boolean = true,
+    val scheduledTasks: ImmutableList<ScheduledTask> = persistentListOf(),
+    val isDaemonEnabled: Boolean = false,
+    val showDaemonToggle: Boolean = false,
+    val isHeartbeatEnabled: Boolean = true,
+    val heartbeatIntervalMinutes: Int = 30,
+    val heartbeatActiveHoursStart: Int = 8,
+    val heartbeatActiveHoursEnd: Int = 22,
+    val heartbeatPrompt: String = "",
+    val heartbeatLog: ImmutableList<HeartbeatLogEntry> = persistentListOf(),
+    val heartbeatServiceEntries: ImmutableList<ServiceEntry> = persistentListOf(),
+    val heartbeatSelectedInstanceId: String? = null,
+    val isRefreshingHeartbeat: Boolean = false,
+    val isEmailEnabled: Boolean = true,
+    val showEmailToggle: Boolean = false,
+    val emailAccounts: ImmutableList<EmailAccount> = persistentListOf(),
+    val emailPollIntervalMinutes: Int = 15,
+    val emailPendingCount: Int = 0,
+    val emailSyncStates: ImmutableMap<String, EmailSyncState> = persistentMapOf(),
+    val refreshingEmailAccountIds: ImmutableSet<String> = persistentSetOf(),
+    val showSmsSection: Boolean = false,
+    val isSmsEnabled: Boolean = false,
+    val smsPermissionGranted: Boolean = false,
+    val smsPollIntervalMinutes: Int = 15,
+    val smsPendingCount: Int = 0,
+    val smsSyncState: SmsSyncState = SmsSyncState(),
+    val isRefreshingSms: Boolean = false,
+    val isSmsSendEnabled: Boolean = false,
+    val smsSendPermissionGranted: Boolean = false,
+    val showNotificationsSection: Boolean = false,
+    val isNotificationsEnabled: Boolean = false,
+    val notificationListenerAccessGranted: Boolean = false,
+    val notificationListenerBound: Boolean = false,
+    val notificationPendingCount: Int = 0,
+    val isFreeFallbackEnabled: Boolean = true,
+    val uiScale: Float = 1.0f,
+    val showUiScale: Boolean = false,
+    val mcpServers: ImmutableList<McpServerUiState> = persistentListOf(),
+    val showAddMcpServerDialog: Boolean = false,
+    val skills: ImmutableList<SkillManifest> = persistentListOf(),
+    val showAddSkillDialog: Boolean = false,
+    val isInstallingSkill: Boolean = false,
+    val skillInstallError: String? = null,
+    val browsableSkills: ImmutableList<RegistrySkillEntry> = persistentListOf(),
+    val isBrowsingSkills: Boolean = false,
+    val browseSkillsFailed: Boolean = false,
+    val localAvailableModels: ImmutableList<LocalModel> = persistentListOf(),
+    val localImportedModels: ImmutableList<LocalModel> = persistentListOf(),
+    val totalDeviceMemoryBytes: Long = Long.MAX_VALUE,
+    val localFreeSpaceBytes: Long = 0L,
+    val localDownloadingModelId: String? = null,
+    val localDownloadProgress: Float? = null,
+    val localDownloadError: DownloadError? = null,
+    val localImportingFileName: String? = null,
+    val localImportProgress: Float? = null,
+    val localImportError: ModelImportError? = null,
+    val modelContextTokens: ImmutableMap<String, Int> = persistentMapOf(),
+    val currentSponsors: ImmutableList<SponsorsResponseDto.Sponsor> = persistentListOf(),
+    val pastSponsors: ImmutableList<SponsorsResponseDto.Sponsor> = persistentListOf(),
+    val pendingDeletion: PendingDeletion? = null,
+)
+
+@Immutable
+data class McpServerUiState(
+    val id: String,
+    val name: String,
+    val url: String,
+    val isEnabled: Boolean,
+    val connectionStatus: McpConnectionStatus,
+    val tools: ImmutableList<ToolInfo>,
+)
+
+enum class McpConnectionStatus {
+    Unknown,
+    Connecting,
+    Connected,
+    Error,
+}
+
+sealed interface PendingDeletion {
+    data class Memory(val key: String) : PendingDeletion
+    data class Task(val id: String) : PendingDeletion
+    data class EmailAccount(val id: String) : PendingDeletion
+    data class Service(val instanceId: String) : PendingDeletion
+    data class McpServer(val serverId: String) : PendingDeletion
+    data class Skill(val id: String) : PendingDeletion
+}
+
+sealed interface ImportResult {
+    data object Success : ImportResult
+    data class PartialSuccess(val errorCount: Int) : ImportResult
+    data object Failure : ImportResult
+}
+
+@Immutable
+data class SettingsModel(
+    val id: String,
+    val subtitle: String,
+    val description: String? = null,
+    val descriptionRes: StringResource? = null,
+    val isSelected: Boolean = false,
+    /** Human-readable name to display in place of [id], when the provider exposes one. */
+    val displayName: String? = null,
+    /** Max context window in tokens, from the API or the curated catalog. */
+    val contextWindow: Long? = null,
+    /** Release date as "YYYY-MM" or "YYYY-MM-DD", from the API or the curated catalog. */
+    val releaseDate: String? = null,
+    /** Parameter count, pre-formatted for display (e.g. "70B", "8B", "3.3B"). */
+    val parameterCount: String? = null,
+    /** LMArena Elo score, or null when unknown. */
+    val arenaScore: Int? = null,
+    /**
+     * True when this model is on the provider's free tier according to the
+     * curated [com.dorai.ai.data.FreeTierModels] catalog
+     * (currently Ollama Cloud and OpenRouter only).
+     */
+    val isFreeTier: Boolean = false,
+    /**
+     * True when this entry was typed by the user and is not (yet) present in the
+     * provider's model list. At most one manual entry is kept; retyping replaces it
+     * instead of accumulating intermediate keystrokes in the picker.
+     */
+    val isManualEntry: Boolean = false,
+)

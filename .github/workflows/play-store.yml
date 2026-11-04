@@ -18,6 +18,7 @@ permissions:
 
 jobs:
   play-store:
+    if: ${{ vars.DORAI_PLAY_STORE_ENABLED == 'true' }}
     name: Upload AAB to Play Store
     runs-on: ubuntu-latest
     steps:

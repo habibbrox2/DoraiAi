@@ -16,8 +16,8 @@ plugins {
 
 sqldelight {
     databases {
-        create("KaiDatabase") {
-            packageName.set("com.inspiredandroid.kai.db")
+        create("DoraIDatabase") {
+            packageName.set("com.dorai.ai.db")
             // The schema lives on user devices — structural changes need a
             // numbered .sqm migration file (see conversation.sq header).
             // This makes the build verify that migrations reproduce the schema.
@@ -32,7 +32,7 @@ composeCompiler {
 
 kotlin {
     android {
-        namespace = "com.inspiredandroid.kai.shared"
+        namespace = "com.dorai.ai.shared"
         compileSdk =
             libs.versions.android.compileSdk
                 .get()
@@ -63,7 +63,7 @@ kotlin {
             // Must differ from the iosApp bundle identifier — iOS refuses to install a
             // .app whose embedded framework shares its parent's identifier (MIInstaller
             // error 57 / DuplicateIdentifier).
-            binaryOption("bundleId", "com.inspiredandroid.kai.composeapp")
+            binaryOption("bundleId", "com.dorai.ai.composeapp")
         }
     }
 
@@ -193,7 +193,7 @@ kotlin {
 
 compose.desktop {
     application {
-        mainClass = "com.inspiredandroid.kai.MainKt"
+        mainClass = "com.dorai.ai.MainKt"
 
         buildTypes.release.proguard {
             configurationFiles.from(
@@ -204,15 +204,16 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
-            packageName = "Kai"
+            packageName = "DORAI"
             packageVersion = libs.versions.appVersion.get()
 
             macOS {
+                bundleID = "com.dorai.ai"
                 iconFile.set(project.file("icon.icns"))
             }
             windows {
                 iconFile.set(project.file("icon.ico"))
-                menuGroup = "Kai"
+                menuGroup = "DORAI"
             }
             linux {
                 iconFile.set(project.file("icon.png"))
@@ -254,13 +255,13 @@ class VersionGeneratorPlugin : Plugin<Project> {
             // Generate Kotlin version file
             val versionFile =
                 project.layout.buildDirectory
-                    .file("generated/src/commonMain/kotlin/com/inspiredandroid/kai/Version.kt")
+                    .file("generated/src/commonMain/kotlin/com/dorai/ai/Version.kt")
                     .get()
                     .asFile
             versionFile.parentFile?.mkdirs()
             versionFile.writeText(
                 """
-                package com.inspiredandroid.kai
+                package com.dorai.ai
 
                 object Version {
                     const val appVersion = "$appVersion"
@@ -295,13 +296,13 @@ tasks.register("generateVersionFile") {
         val appVersion = libs.versions.appVersion.get()
         val versionFile =
             project.layout.buildDirectory
-                .file("generated/src/commonMain/kotlin/com/inspiredandroid/kai/Version.kt")
+                .file("generated/src/commonMain/kotlin/com/dorai/ai/Version.kt")
                 .get()
                 .asFile
         versionFile.parentFile?.mkdirs()
         versionFile.writeText(
             """
-            package com.inspiredandroid.kai
+            package com.dorai.ai
 
             object Version {
                 const val appVersion = "$appVersion"
@@ -328,9 +329,9 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java).conf
 // GitHub Actions ubuntu-latest runners) doesn't understand the packageManager
 // field at all and fails with "However the current global version of Yarn is 1.22.22".
 // Strip the field before npm install so it can proceed with system yarn.
-tasks.named("kotlinWasmNpmInstall") {
+tasks.matching { it.name == "kotlinWasmNpmInstall" }.configureEach {
     doFirst {
-        val buildDir = layout.buildDirectory.asFile
+        val buildDir = layout.buildDirectory.get().asFile
         val pkgFile = File(buildDir, "wasmJsNpm/package.json")
         if (pkgFile.exists()) {
             val lines = pkgFile.readText().lines()

@@ -1,6 +1,6 @@
 <resources>
-    <string name="daemon_channel_name">Служба дэмана Brox Kai 2.0</string>
-    <string name="daemon_channel_description">Трымае Brox Kai 2.0 запушчаным для выканання запланаваных задач</string>
+    <string name="daemon_channel_name">Служба дэмана DORAI AI</string>
+    <string name="daemon_channel_description">Трымае DORAI AI запушчаным для выканання запланаваных задач</string>
     <string name="daemon_notification_text">Дэман працуе</string>
     <string name="download_channel_name">Спампоўкі мадэляў</string>
     <string name="download_channel_description">Паказвае прагрэс падчас спампоўкі мадэляў AI</string>

@@ -2,7 +2,7 @@
 
 **Last verified:** 2026-10-02
 
-Kai's daemon mode keeps the app running in the background on Android so that scheduled tasks, heartbeat checks, and email polling continue to execute even when the app is not in the foreground. On other platforms (desktop, iOS, web), daemon mode is a no-op.
+DORAI AI's daemon mode keeps the app running in the background on Android so that scheduled tasks, heartbeat checks, and email polling continue to execute even when the app is not in the foreground. On other platforms (desktop, iOS, web), daemon mode is a no-op.
 
 ## Concepts
 
@@ -12,7 +12,7 @@ A platform-abstracted start/stop switch. On Android, it starts and stops an Andr
 
 ### Foreground Service
 
-An Android service that runs with a persistent notification, preventing the system from killing the process. Kai's service uses the data-sync foreground service type and a low-importance notification channel to minimize user disruption.
+An Android service that runs with a persistent notification, preventing the system from killing the process. DORAI AI's service uses the data-sync foreground service type and a low-importance notification channel to minimize user disruption.
 
 ## Service Lifecycle
 
@@ -46,7 +46,7 @@ The scheduler only runs this work while the overall scheduled-tasks toggle is on
 
 ## Notification
 
-- **Channel**: "Kai 9000 Background Service" with low importance
+- **Channel**: "DORAI AI Background Service" with low importance
 - **Content**: "Daemon is running" with a sync icon
 - **Tap action**: Opens the app's main screen
 - The notification is required by Android for foreground services and cannot be hidden
@@ -64,7 +64,7 @@ No wake locks or battery optimization exemptions are requested. The service reli
 
 ## Settings UI
 
-A toggle labeled "Daemon Mode" appears in the General tab of settings, only on Android. The description reads: "Keep Kai 9000 running in the background so scheduled tasks execute even when the app is not in the foreground." Toggling it starts or stops the foreground service and persists the preference. On Android 13+, turning the toggle on also requests the notification permission, since the foreground service's persistent notification cannot be displayed without it.
+A toggle labeled "Daemon Mode" appears in the General tab of settings, only on Android. The description reads: "Keep DORAI AI running in the background so scheduled tasks execute even when the app is not in the foreground." Toggling it starts or stops the foreground service and persists the preference. On Android 13+, turning the toggle on also requests the notification permission, since the foreground service's persistent notification cannot be displayed without it.
 
 ## Key Files
 

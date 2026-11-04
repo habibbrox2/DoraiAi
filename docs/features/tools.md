@@ -2,7 +2,7 @@
 
 **Last verified:** 2026-11-03
 
-Kai's tools feature allows the AI to execute external functions during conversations — web search, notifications, calendar events, shell commands, memory operations, and more. Tools are defined with a schema, executed with safety guards, and managed through per-tool toggles in settings.
+DORAI AI's tools feature allows the AI to execute external functions during conversations — web search, notifications, calendar events, shell commands, memory operations, and more. Tools are defined with a schema, executed with safety guards, and managed through per-tool toggles in settings.
 
 ## Concepts
 
@@ -76,7 +76,7 @@ Email tools are available whenever the email feature is enabled (the default) on
 | Tool | Description |
 |---|---|
 | `setup_email` | Connect an email account (auto-detects server settings for common providers) |
-| `check_email` | List emails that arrived since Kai last surfaced new mail |
+| `check_email` | List emails that arrived since DORAI AI last surfaced new mail |
 | `read_email` | Read the full body of an email |
 | `search_email` | Search the whole inbox by sender, subject, or date |
 | `reply_email` | Reply to an email with proper threading |
@@ -113,7 +113,7 @@ When the Linux Sandbox is set up and enabled, `execute_shell_command` routes com
 
 The tool's description is composed per distribution, so the model is told the right package manager, the right distribution name and the right pre-installed set. Handing it "Alpine" and an `apk add` example while a Debian rootfs is mounted costs turns on commands that do not exist.
 
-**Setup flow:** The sandbox requires a one-time setup that downloads a rootfs — Debian (~150 MB, the default and the one Kai Build shares) or Alpine (~4 MB). Proot is bundled in the APK as a native library. After setup, users can optionally install the extra package bundle. The distribution can be changed at any time afterwards; each keeps its own install, so switching re-points the tool rather than reinstalling anything, and the tool's description follows the newly selected system.
+**Setup flow:** The sandbox requires a one-time setup that downloads a rootfs — Debian (~150 MB, the default and the one DORAI Build shares) or Alpine (~4 MB). Proot is bundled in the APK as a native library. After setup, users can optionally install the extra package bundle. The distribution can be changed at any time afterwards; each keeps its own install, so switching re-points the tool rather than reinstalling anything, and the tool's description follows the newly selected system.
 
 **Mirror fallback (Alpine):** The downloader tries the primary Alpine CDN first, then falls back through a list of official mirrors (kernel.org, RWTH Aachen, ETH Zürich, Waterloo, Tsinghua) so setup succeeds in regions where the primary CDN is unreachable. The same mirror list is also used to pick `/etc/apk/repositories` during setup — `apk update` is retried against each mirror until one succeeds, so later `apk add` calls resolve through a reachable mirror. Debian resolves a single architecture-matched URL from the Linux Containers image index.
 

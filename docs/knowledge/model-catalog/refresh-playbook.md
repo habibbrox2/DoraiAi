@@ -33,7 +33,7 @@ If the page is truncated or unparsable, stop and do not write.
 
 ## 2. Read the current catalog
 
-Read `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/ModelCatalog.kt`:
+Read `composeApp/src/commonMain/kotlin/com/dorai/ai/data/ModelCatalog.kt`:
 
 - `baseEntries` — do not rewrite metadata unless correcting an error or adding a new model
 - `arenaScores` — attested block (provider comments) + auto-fill block

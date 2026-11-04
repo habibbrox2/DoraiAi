@@ -1,9 +1,6 @@
 name: Pages Build and Deployment
 
 on:
-  push:
-    branches:
-      - main  # Adjust to your default branch
   workflow_dispatch:
 
 permissions:
@@ -18,6 +15,27 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Require a DORAI-owned site domain
+        env:
+          DORAI_SITE_DOMAIN: ${{ vars.DORAI_SITE_DOMAIN }}
+          DORAI_WEB_WASM_ENABLED: ${{ vars.DORAI_WEB_WASM_ENABLED }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${DORAI_SITE_DOMAIN:-}" ]]; then
+            echo "::error::Set the DORAI_SITE_DOMAIN repository variable before deploying."
+            exit 1
+          fi
+          if [[ "${DORAI_WEB_WASM_ENABLED:-}" != "true" ]]; then
+            echo "::error::Web/Wasm deployment is disabled until the compatibility backlog is resolved."
+            exit 1
+          fi
+          test -f site/CNAME
+          ACTUAL_DOMAIN="$(tr -d '\r\n' < site/CNAME)"
+          if [[ "$ACTUAL_DOMAIN" != "$DORAI_SITE_DOMAIN" ]]; then
+            echo "::error::site/CNAME must match DORAI_SITE_DOMAIN before deployment."
+            exit 1
+          fi
 
       - name: Set up Java
         uses: actions/setup-java@v4

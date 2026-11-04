@@ -2,7 +2,7 @@
 
 **Last verified:** 2026-10-02
 
-Users can back up and restore their Kai configuration and data (services, soul, memory, tasks, heartbeat, email, SMS, Splinterlands, tools, MCP servers, conversations) via a human-readable JSON file. Some device-local preferences are deliberately left out — see **Excluded**. The feature is available under **Settings > General** at the bottom of the page.
+Users can back up and restore their DORAI AI configuration and data (services, soul, memory, tasks, heartbeat, email, SMS, Splinterlands, tools, MCP servers, conversations) via a human-readable JSON file. Some device-local preferences are deliberately left out — see **Excluded**. The feature is available under **Settings > General** at the bottom of the page.
 
 ## Behavior
 
@@ -79,7 +79,7 @@ Users can back up and restore their Kai configuration and data (services, soul, 
 - Free-tier preferences: `free_mode`, `free_service_primary`
 - Notification reading (`notifications_enabled`, pending queue, store, sync state) — Android FOSS only
 - Email pending queue (`email_pending`)
-- Linux sandbox and Kai Build settings: `sandbox_enabled`, `sandbox_distro`, `kai_build_launch_agent`
+- Linux sandbox and DORAI Build settings: `sandbox_enabled`, `sandbox_distro`, `kai_build_launch_agent`
 - Cached per-model context sizes (`model_context_*`)
 - Session state: current conversation id and interactive mode
 - On-device (LiteRT) model files and installed skills (stored as files, not settings)

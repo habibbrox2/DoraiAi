@@ -24,7 +24,7 @@ generated: { by: human:simon, at: 2026-08-12T20:52:00Z }
 
 ## 1. Read the current catalog
 
-Read `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/inference/LocalModelCatalog.kt` (`MODEL_CATALOG`).
+Read `composeApp/src/commonMain/kotlin/com/dorai/ai/inference/LocalModelCatalog.kt` (`MODEL_CATALOG`).
 
 For each row parse `downloadUrl` into `repo`, `commit`, `fileName`. Fail the refresh if any URL uses `main` or another non-hex ref.
 
@@ -53,7 +53,7 @@ Show **before** writing:
 
 Update:
 
-`composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/inference/LocalModelCatalog.kt`
+`composeApp/src/commonMain/kotlin/com/dorai/ai/inference/LocalModelCatalog.kt`
 
 If sizes or display names used in `docs/features/on-device-inference.md` changed, update that table and **Last verified**.
 

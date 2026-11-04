@@ -9,11 +9,11 @@
 
 The current implementation exposes exactly three persisted modes:
 
-- `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/data/AppSettings.kt`: `ThemeMode = System, Light, Dark`.
+- `composeApp/src/commonMain/kotlin/com/dorai/ai/data/AppSettings.kt`: `ThemeMode = System, Light, Dark`.
 - Persistence key is `theme_mode`; `setThemeMode` stores `mode.name` and updates `_themeModeFlow`.
 - `loadInitialThemeMode()` parses the stored enum name and falls back to `System` for missing or invalid values.
-- `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/App.kt`: `AppContent` observes `themeModeFlow`; System resolves against `isSystemInDarkTheme()`, Light selects the supplied light scheme, Dark selects the supplied dark scheme. The resulting scheme is passed to `Theme(colorScheme = effectiveColorScheme)`.
-- `androidApp/src/main/kotlin/com/inspiredandroid/kai/MainActivity.kt`: system-bar icon/style calculation currently maps System and Light through system appearance, and Dark to dark UI. This is a separate platform edge-to-edge calculation and must be kept consistent with the actual selected scheme.
+- `composeApp/src/commonMain/kotlin/com/dorai/ai/App.kt`: `AppContent` observes `themeModeFlow`; System resolves against `isSystemInDarkTheme()`, Light selects the supplied light scheme, Dark selects the supplied dark scheme. The resulting scheme is passed to `Theme(colorScheme = effectiveColorScheme)`.
+- `androidApp/src/main/kotlin/com/dorai/ai/MainActivity.kt`: system-bar icon/style calculation currently maps System and Light through system appearance, and Dark to dark UI. This is a separate platform edge-to-edge calculation and must be kept consistent with the actual selected scheme.
 - `GeneralSettings.kt`: picker currently presents only System, Light and Dark.
 - `SettingsUiState.kt`, `SettingsActions.kt`, `SettingsViewModel.kt`, `DataRepository.kt`, `RemoteDataRepository.kt`, and `FakeDataRepository.kt` carry the same enum through settings state and persistence.
 

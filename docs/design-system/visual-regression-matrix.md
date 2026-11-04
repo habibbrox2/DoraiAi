@@ -1,6 +1,6 @@
 # Visual Regression Matrix
 
-This matrix defines the required visual regression coverage for Brox Kai 2.0. Paparazzi screenshot tests are the baseline for deterministic Compose rendering; manual/runtime accessibility checks remain separate verification items.
+This matrix defines the required visual regression coverage for DORAI AI. Paparazzi screenshot tests are the baseline for deterministic Compose rendering; manual/runtime accessibility checks remain separate verification items.
 
 ## Theme and surface coverage
 

@@ -1,4 +1,4 @@
-# Brox Kai v2.0 — Project Agent Catalog
+# DORAI AI — Project Agent Catalog
 
 These are project-specific subagent definitions. Canonical, Git-trackable copies live in `agents/`; matching local Claude Code copies live in `.claude/agents/` because this checkout's `.gitignore` intentionally ignores `.claude/`.
 
@@ -25,7 +25,7 @@ These are project-specific subagent definitions. Canonical, Git-trackable copies
 All agents must follow root `AGENTS.md` and read the relevant project skills under `skills/`. No agent may overwrite unrelated user changes, silently change dependency versions, weaken security, or commit/push/release/deploy without explicit authorization. Read-only diagnosis is the default unless the task clearly authorizes implementation.
 
 
-# AI Agent Guide Index — Brox Kai v2.0
+# AI Agent Guide Index — DORAI AI
 
 These guides were written after inspecting the current checkout at `G:\Web\broxkai2.0`. They describe this repository, not a generic Compose template.
 
