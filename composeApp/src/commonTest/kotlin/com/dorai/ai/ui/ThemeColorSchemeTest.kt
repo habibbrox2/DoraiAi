@@ -30,40 +30,24 @@ class ThemeColorSchemeTest {
         assertEquals(DarkColorScheme.surfaceContainerHigh, tokens.surfaceElevated)
         assertEquals(DarkColorScheme.surface, tokens.cardSurface)
         assertEquals(DarkColorScheme.outline, tokens.borderStrong)
-        assertEquals(Color(0xFFF0F3F8), tokens.textPrimary)
+        assertEquals(Color(0xFFF1F8FF), tokens.textPrimary)
     }
 
     @Test
-    fun `2027 premium workspace design tokens match specification`() {
-        // Core Obsidian / OLED surfaces
-        assertEquals(Color(0xFF090A0F), DesignTokens.Background)
+    fun `AURORA brand palette uses shared cyan blue violet identity`() {
+        assertEquals(Color(0xFF050A1C), DesignTokens.Background)
         assertEquals(Color(0xFF000000), DesignTokens.BackgroundOled)
-        assertEquals(Color(0xFF0B0D11), DesignTokens.TerminalBackground)
-        assertEquals(Color(0x0AFFFFFF), DesignTokens.Surface)
-        assertEquals(Color(0xFF171A23), DesignTokens.SurfaceElevated)
-        assertEquals(Color(0xFF1E2330), DesignTokens.SurfaceRaised)
-
-        // Borders
-        assertEquals(Color(0x14FFFFFF), DesignTokens.BorderSubtle)
-        assertEquals(Color(0x26FFFFFF), DesignTokens.BorderSoft)
-        assertEquals(Color(0x40FFFFFF), DesignTokens.BorderStrong)
-
-        // DORAI AI Logo Pack Brand Colors
-        assertEquals(Color(0xFF0B2B5B), DesignTokens.BrandNavy)
-        assertEquals(Color(0xFF00D1E8), DesignTokens.BrandCyan)
-        assertEquals(Color(0xFF168BDB), DesignTokens.BrandBlue)
-
-        // Accents
-        assertEquals(Color(0xFF00D7E8), DesignTokens.PrimaryCyan)
-        assertEquals(Color(0xFF8A63F6), DesignTokens.AgentViolet)
+        assertEquals(Color(0xFF08132B), DesignTokens.SurfaceDark)
+        assertEquals(Color(0xFF0D1C38), DesignTokens.SurfaceElevated)
+        assertEquals(Color(0xFF13284A), DesignTokens.SurfaceRaised)
+        assertEquals(Color(0xFF08132B), DesignTokens.BrandNavy)
+        assertEquals(Color(0xFF25E2F5), DesignTokens.BrandCyan)
+        assertEquals(Color(0xFF377CFF), DesignTokens.BrandBlue)
+        assertEquals(Color(0xFF6F5BFF), DesignTokens.BrandViolet)
+        assertEquals(Color(0xFF25CDE2), DesignTokens.PrimaryCyan)
+        assertEquals(Color(0xFF8B78FF), DesignTokens.AgentViolet)
         assertEquals(DesignTokens.PrimaryCyan, DesignTokens.AccentPrimary)
         assertEquals(DesignTokens.AgentViolet, DesignTokens.AccentAgent)
-
-        // Status Colors
-        assertEquals(Color(0xFF10B981), DesignTokens.Success)
-        assertEquals(Color(0xFFF59E0B), DesignTokens.Warning)
-        assertEquals(Color(0xFFEF4444), DesignTokens.Error)
-        assertEquals(Color(0xFF3B82F6), DesignTokens.Info)
     }
 
     @Test

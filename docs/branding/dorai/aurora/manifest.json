@@ -1,0 +1,38 @@
+{
+  "brand": "DORAI AI",
+  "direction": "AURORA — Final",
+  "tagline": "Your AI. Your World.",
+  "integrated_into_app": true,
+  "files": [
+    "README.md",
+    "app-icon-1024.png",
+    "app-icon-512.png",
+    "app-icon.png",
+    "brand-board.png",
+    "circle-badge.png",
+    "dark-lockup.png",
+    "hero-banner.png",
+    "light-print-lockup.png",
+    "manifest.json",
+    "promo-features.png",
+    "promo-portal.png",
+    "promo-signature.png",
+    "symbol-light.svg",
+    "symbol.svg",
+    "wordmark-dark.svg",
+    "wordmark-light.svg",
+    "wordmark.svg"
+  ],
+  "theme_support": {
+    "app": "Existing System / Light / Dark preference",
+    "website": "System prefers-color-scheme",
+    "mark": "Transparent cyan-blue-violet D glyph; dark and light wordmark variants"
+  },
+  "integrated_surfaces": [
+    "Compose Multiplatform logo and theme tokens",
+    "Android adaptive launcher icon",
+    "iOS app icon export",
+    "Desktop and WASM icons",
+    "GitHub Pages website theme and brand mark"
+  ]
+}

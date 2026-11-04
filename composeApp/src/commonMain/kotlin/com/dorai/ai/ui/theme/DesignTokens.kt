@@ -8,52 +8,52 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * DORAI AI — 2027 Premium AI Agent Workspace Design Tokens.
- *
- * Implements the design specifications defined in docs/ui-upgrade-plan-7-premium-chat.md
- * and aligns with the DORAI AI Brand & Logo Pack.
+ * DORAI AI AURORA design tokens.
+ * Brand hues remain consistent; surface and semantic roles adapt to the active theme.
  */
 object DesignTokens {
-    // ─── Core Surfaces (Deep Obsidian / OLED) ───
-    val Background: Color = Color(0xFF090A0F)
+    // AURORA surfaces
+    val Background: Color = Color(0xFF050A1C)
     val BackgroundOled: Color = Color(0xFF000000)
-    val TerminalBackground: Color = Color(0xFF0B0D11)
-    val Surface: Color = Color(0x0AFFFFFF) // rgba(255, 255, 255, 0.04)
-    val SurfaceDark: Color = Color(0xFF0F1117)
-    val SurfaceElevated: Color = Color(0xFF171A23)
-    val SurfaceRaised: Color = Color(0xFF1E2330)
+    val TerminalBackground: Color = Color(0xFF070D20)
+    val Surface: Color = Color(0x0AFFFFFF)
+    val SurfaceDark: Color = Color(0xFF08132B)
+    val SurfaceElevated: Color = Color(0xFF0D1C38)
+    val SurfaceRaised: Color = Color(0xFF13284A)
 
-    // ─── Borders ───
-    val BorderSubtle: Color = Color(0x14FFFFFF) // rgba(255, 255, 255, 0.08)
-    val BorderSoft: Color = Color(0x26FFFFFF) // rgba(255, 255, 255, 0.15)
-    val BorderStrong: Color = Color(0x40FFFFFF) // rgba(255, 255, 255, 0.25)
-    val BorderFocus: Color = Color(0x6600D7E8)
+    // Theme-aware borders
+    val BorderSubtle: Color = Color(0x1AFFFFFF)
+    val BorderSoft: Color = Color(0x2BFFFFFF)
+    val BorderStrong: Color = Color(0x4DFFFFFF)
+    val BorderFocus: Color = Color(0x9925E2F5)
 
-    // ─── Brand Colors (DORAI AI Official Logo Pack) ───
-    val BrandNavy: Color = Color(0xFF0B2B5B)
-    val BrandCyan: Color = Color(0xFF00D1E8)
-    val BrandBlue: Color = Color(0xFF168BDB)
-    val BrandWhite: Color = Color(0xFFFFFFFF)
+    // AURORA brand palette
+    val BrandNavy: Color = Color(0xFF08132B)
+    val BrandCyan: Color = Color(0xFF25E2F5)
+    val BrandBlue: Color = Color(0xFF377CFF)
+    val BrandViolet: Color = Color(0xFF6F5BFF)
+    val BrandWhite: Color = Color(0xFFF1F8FF)
+    val BrandInk: Color = Color(0xFF10213D)
 
-    // ─── Accents ───
-    val PrimaryCyan: Color = Color(0xFF00D7E8)
-    val AgentViolet: Color = Color(0xFF8A63F6)
+    // Accents
+    val PrimaryCyan: Color = Color(0xFF25CDE2)
+    val AgentViolet: Color = Color(0xFF8B78FF)
     val AccentPrimary: Color = PrimaryCyan
     val AccentAgent: Color = AgentViolet
 
-    // ─── Semantic Typography Colors ───
-    val PrimaryText: Color = Color(0xFFF0F3F8)
-    val SecondaryText: Color = Color(0xFFCBD5E1)
-    val TertiaryText: Color = Color(0xFF94A3B8)
-    val MutedText: Color = Color(0xFF64748B)
+    // Semantic typography colors (dark defaults)
+    val PrimaryText: Color = Color(0xFFF1F8FF)
+    val SecondaryText: Color = Color(0xFFC4D3E8)
+    val TertiaryText: Color = Color(0xFF91ABCD)
+    val MutedText: Color = Color(0xFF7186A5)
 
-    // ─── Status Colors ───
+    // Status colors
     val Success: Color = Color(0xFF10B981)
     val Warning: Color = Color(0xFFF59E0B)
     val Error: Color = Color(0xFFEF4444)
-    val Info: Color = Color(0xFF3B82F6)
+    val Info: Color = Color(0xFF377CFF)
 
-    // ─── Spacing Dimensions ───
+    // Spacing
     val SpacingXxs: Dp = 2.dp
     val SpacingXs: Dp = 4.dp
     val SpacingSm: Dp = 8.dp
@@ -63,24 +63,15 @@ object DesignTokens {
     val SpacingXxl: Dp = 24.dp
     val SpacingXxxl: Dp = 32.dp
 
-    // ─── Corner Radii ───
+    // Radii
     val RadiusCard: Dp = 16.dp
     val RadiusHud: Dp = 24.dp
     val RadiusPill: Dp = 999.dp
     val RadiusSheet: Dp = 20.dp
 }
 
-/**
- * CompositionLocal providing access to [DesignTokens] throughout the composable tree.
- */
 val LocalDesignTokens = staticCompositionLocalOf { DesignTokens }
 
-/**
- * Immutable color roles derived from the active Material color scheme.
- *
- * Layout metrics and brand/status constants remain in [DesignTokens]; this palette
- * represents only theme-dependent foreground, surface, and border roles.
- */
 data class DesignColorTokens(
     val textPrimary: Color,
     val textSecondary: Color,
@@ -100,8 +91,8 @@ data class DesignColorTokens(
             return DesignColorTokens(
                 textPrimary = colorScheme.onSurface,
                 textSecondary = colorScheme.onSurfaceVariant,
-                textTertiary = if (isLight) Color(0xFF64748B) else Color(0xFF94A3B8),
-                textMuted = if (isLight) Color(0xFF94A3B8) else Color(0xFF64748B),
+                textTertiary = if (isLight) Color(0xFF52647D) else Color(0xFF91ABCD),
+                textMuted = if (isLight) Color(0xFF718096) else Color(0xFF7186A5),
                 surfaceElevated = colorScheme.surfaceContainerHigh,
                 surfaceRaised = colorScheme.surfaceContainerHighest,
                 cardFill = colorScheme.surfaceContainerHigh,
@@ -114,7 +105,6 @@ data class DesignColorTokens(
     }
 }
 
-/** Theme-scoped color roles; unlike [LocalDesignTokens], this follows the active scheme. */
 val LocalDesignColorTokens = staticCompositionLocalOf {
     DesignColorTokens(
         textPrimary = DesignTokens.PrimaryText,

@@ -53,21 +53,21 @@ import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import com.dorai.ai.ui.theme.LocalDesignTokens
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-// ═══════════════════════════════════════════════════════════════
-// BROX KAI 2.0 — 2027 MINIMAL DESIGN SYSTEM
-// ═══════════════════════════════════════════════════════════════
+// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// BROX KAI 2.0 Ã¢â‚¬â€ 2027 MINIMAL DESIGN SYSTEM
+// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
 
-// ─── Core Brand Colors ───
-val broxNavy = Color(0xFF0B1026)
-val broxDeepNavy = Color(0xFF050810)
-val broxCharcoal = Color(0xFF151B2B)
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Core Brand Colors Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+val broxNavy = Color(0xFF08132B)
+val broxDeepNavy = Color(0xFF050A1C)
+val broxCharcoal = Color(0xFF13284A)
 val BackgroundPrimary = Color(0xFF0E0F12)
 val AccentPrimary = com.dorai.ai.ui.theme.DesignTokens.PrimaryCyan
 val broxCyan = AccentPrimary
 val broxLightSurface = Color(0xFFFFFFFF)
 val broxMutedText = Color(0xFF64748B)
 
-// ─── 2027 Design Tokens (Aligned with DesignTokens.kt) ───
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ 2027 Design Tokens (Aligned with DesignTokens.kt) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 val SurfaceElevated = com.dorai.ai.ui.theme.DesignTokens.SurfaceElevated
 val SurfaceRaised = com.dorai.ai.ui.theme.DesignTokens.SurfaceRaised
@@ -82,12 +82,12 @@ val BorderSoft = com.dorai.ai.ui.theme.DesignTokens.BorderSoft
 val BorderStrong = com.dorai.ai.ui.theme.DesignTokens.BorderStrong
 
 /** Primary accent - vibrant cyan/teal */
-val AccentPrimaryHover = Color(0xFF06B6D4)
-val AccentPrimaryActive = Color(0xFF0891B2)
+val AccentPrimaryHover = Color(0xFF19B8D0)
+val AccentPrimaryActive = Color(0xFF0B8FA8)
 
 /** Accent gradient colors */
 val AccentGradientStart = AccentPrimary
-val AccentGradientEnd = Color(0xFF3B82F6)
+val AccentGradientEnd = Color(0xFF377CFF)
 
 /** Status colors */
 val DangerAlert = Color(0xFFEF4444)
@@ -95,7 +95,7 @@ val SuccessGreen = Color(0xFF10B981)
 val WarningAmber = Color(0xFFF59E0B)
 val InfoBlue = Color(0xFF3B82F6)
 
-// ─── Theme-aware color system ───
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Theme-aware color system Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 data class KaiColorPalette(
     val textPrimary: Color,
     val textSecondary: Color,
@@ -204,7 +204,7 @@ val KaiTypography = Typography(
     ),
 )
 
-// ─── KaiShapes — 2026 Modern Shape System ───
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ KaiShapes Ã¢â‚¬â€ 2026 Modern Shape System Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 object KaiShapes {
     /** Extra small elements */
     val xs = RoundedCornerShape(8.dp)
@@ -266,7 +266,7 @@ object KaiShapes {
     val dialog = RoundedCornerShape(28.dp)
 }
 
-// ─── KaiBorders — Centralized stroke definitions ───
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ KaiBorders Ã¢â‚¬â€ Centralized stroke definitions Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 object KaiBorders {
     /** Subtle 0.5px hairline */
     val hairline = BorderStroke(0.5.dp, BorderSoft)
@@ -287,26 +287,26 @@ object KaiBorders {
     val disabled = BorderStroke(1.dp, BorderSoft.copy(alpha = 0.3f))
 }
 
-// ─── KaiElevation — Cross-platform elevation using borders + alpha overlays ───
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ KaiElevation Ã¢â‚¬â€ Cross-platform elevation using borders + alpha overlays Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 object KaiElevation {
-    /** Subtle card elevation — soft border + faint overlay */
+    /** Subtle card elevation Ã¢â‚¬â€ soft border + faint overlay */
     val level1 = BorderStroke(1.dp, BorderSoft.copy(alpha = 0.8f))
 
-    /** Raised panel elevation — soft border + visible overlay */
+    /** Raised panel elevation Ã¢â‚¬â€ soft border + visible overlay */
     val level2 = BorderStroke(1.dp, BorderSoft.copy(alpha = 1.0f))
 
-    /** Interactive element elevation — accent border + glow overlay */
+    /** Interactive element elevation Ã¢â‚¬â€ accent border + glow overlay */
     val level3 = BorderStroke(1.dp, AccentPrimary.copy(alpha = 0.4f))
 
-    /** Modal / dialog elevation — accent border + strong glow */
+    /** Modal / dialog elevation Ã¢â‚¬â€ accent border + strong glow */
     val level4 = BorderStroke(1.dp, AccentPrimary.copy(alpha = 0.6f))
 }
 
-// ─── Animated border gradient colors (Brox brand palette) ───
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Animated border gradient colors (Brox brand palette) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 // gradientPurple = broxNavy, gradientViolet = broxCyan, gradientMagenta = broxDeepNavy
 // (now referenced directly in AnimatedGradientBorder.kt)
 
-// ─── Utility Modifiers ───
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Utility Modifiers Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 fun Modifier.handCursor() = pointerHoverIcon(PointerIcon.Hand, overrideDescendants = true)
 
 /** 2026 Modern card surface */
@@ -376,13 +376,13 @@ fun Modifier.cyanGlow(enabled: Boolean = true): Modifier = if (enabled) {
     this
 }
 
-// ─── Color Schemes ───
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Color Schemes Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 /** Light theme */
 val LightColorScheme = lightColorScheme(
-    primary = broxNavy,
+    primary = Color(0xFF245FD8),
     onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFD6E4F0),
+    primaryContainer = Color(0xFFDCEBFF),
     onPrimaryContainer = broxNavy,
     secondary = Color(0xFFE8F0F8),
     onSecondary = broxNavy,
@@ -402,7 +402,7 @@ val LightColorScheme = lightColorScheme(
     outlineVariant = Color(0xFFCBD5E1),
     inverseSurface = Color(0xFF1E1E1E),
     inverseOnSurface = Color(0xFFFFFFFF),
-    inversePrimary = Color(0xFF93C5FD),
+    inversePrimary = Color(0xFF377CFF),
     surfaceContainerHighest = Color(0xFFE2E8F0),
     surfaceContainerHigh = Color(0xFFEBF1F7),
     surfaceContainer = Color(0xFFF1F5F9),
@@ -602,7 +602,7 @@ val CarbonColorScheme = darkColorScheme(
     outlineVariant = Color(0xFF1E3A8A),
 )
 
-// ─── Card Colors & Borders ───
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Card Colors & Borders Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 @Composable
 fun kaiAdaptiveCardColors(): CardColors = CardDefaults.cardColors(
@@ -633,7 +633,7 @@ fun glassmorphicCardColors(): CardColors = CardDefaults.cardColors(
 @Composable
 fun glassmorphicCardBorder(): BorderStroke = BorderStroke(1.dp, BorderSoft)
 
-// ─── Text Field Colors ───
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Text Field Colors Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 @Composable
 fun outlineTextFieldColors() = OutlinedTextFieldDefaults.colors(
