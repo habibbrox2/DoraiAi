@@ -11,7 +11,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-EXCLUDE=("og-preview.png" "preview.png")
+EXCLUDE=("og-preview.png" "preview-banner.png" "preview.png")
 
 is_excluded() {
     local name="$1"
