@@ -211,3 +211,27 @@ concentric rings and a soft radial glow.
 Verified after rendering at 1200×630: the mark and the outer ring stay inside the canvas (right edge
 1198), every chip label fits its box with at least 8 px of padding, the navy field has no white
 pixels, and both output files are 24-bit RGB and byte-identical.
+
+## Animated banner
+
+`assets/motion/banner-animation.svg` is a 1200×630 staged animation of the social card: the field and
+rings fade up, the mark sweeps in, the lockup and rule follow, then both taglines, the description, the
+five chips (80 ms apart), the platform pill and the footer rise into place while the core pops and
+starts breathing. `prefers-reduced-motion` shows the finished composition immediately.
+
+| Beat | Start | Beat | Start |
+|---|---|---|---|
+| Field + rings | 0.00 s | Core pop + halo | 1.00 s |
+| Mark reveal | 0.25 s | Chips (staggered) | 1.50 s |
+| Lockup | 0.50 s | Pill | 1.95 s |
+| Rule | 0.85 s | Footer | 2.08 s |
+| Taglines | 1.00 / 1.12 s | Loop length | 3.20 s |
+
+The settled frame was compared against the static social card: mean channel difference 0.94, with the
+remaining delta coming from the breathing core and halo. `tools/render_banner_animation.py` rebuilds the
+WebP from per-element layers; the motion README records why frame-stepping with `--virtual-time-budget`
+does not work (Chrome's animation clock lags the budget by an inconsistent 0.3–0.8 s and occasionally
+captures a blank page) and why WebP replaced GIF for the banner.
+
+Known gap: nothing links the banner into the site yet, so its only consumers today are people who open
+the files directly.

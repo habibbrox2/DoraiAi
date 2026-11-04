@@ -81,8 +81,10 @@ Authored from pack parts; the pack itself ships no animation. Nothing here is a 
 
 | Asset | Purpose | Where used |
 |---|---|---|
-| `logo-animation.svg` | 512² animated mark: 0.9 s left-to-right reveal, core pop-in with halo at 0.82 s, 4.2 s breathe loop; `prefers-reduced-motion` shows the static mark | **used** → `site/img/logo_animation.svg` (hero mascot, `site/index.html:101`) |
-| `logo-animation.gif` | 400², 64 frames at 18 fps (3.6 s loop) on the `#050A1C` field, for surfaces that cannot animate SVG | available for README/store/social use |
+| `logo-animation.svg` | 512² animated mark: 0.9 s left-to-right reveal, core pop-in with halo at 0.82 s, 4.2 s breathe loop; `prefers-reduced-motion` shows the static mark | **used** → `site/img/logo_animation.svg` (hero mascot, `site/index.html:101`, `README.md:5`) |
+| `logo-animation.gif` | 400², 18 fps on the `#050A1C` field, for surfaces that cannot animate SVG | available for README/store/social use |
+| `banner-animation.svg` | 1200×630 staged banner: glow, mark reveal, lockup, rule, taglines, description, chips, pill, footer | unused in code — available for social/store/docs |
+| `banner-animation.webp` | 1200×630, 10 fps raster of the banner, built by `tools/render_banner_animation.py` | available for places that need a raster |
 
 ## Social card (`store/`)
 
