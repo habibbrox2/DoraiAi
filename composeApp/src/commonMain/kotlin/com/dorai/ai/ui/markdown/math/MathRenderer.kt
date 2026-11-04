@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.markdown.math
+﻿package com.dorai.ai.ui.markdown.math
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -187,7 +187,7 @@ private fun isScriptContentInlineRenderable(atom: MathAtom): Boolean = when (ato
 
 @Composable
 private fun InlineRun(atoms: ImmutableList<MathAtom>, baseSize: TextUnit, color: Color) {
-    val style = KaiTypography.bodyLarge
+    val style = DoraiTypography.bodyLarge
     val annotated = buildAnnotatedString {
         for (a in atoms) appendAtomInline(a, color)
     }
@@ -313,7 +313,7 @@ private fun styleSpan(style: MathStyle): SpanStyle = when (style) {
 @Composable
 private fun SymText(sym: Sym, baseSize: TextUnit, color: Color) {
     val text = symSpan(sym)
-    Text(text = text, style = KaiTypography.bodyLarge.copy(fontSize = baseSize, color = color))
+    Text(text = text, style = DoraiTypography.bodyLarge.copy(fontSize = baseSize, color = color))
 }
 
 @Composable
@@ -397,7 +397,7 @@ private fun RadicalRenderer(
         }
         Text(
             text = "√",
-            style = KaiTypography.bodyLarge.copy(fontSize = (baseSize.value * RADICAL_SYMBOL_SCALE).sp, color = color),
+            style = DoraiTypography.bodyLarge.copy(fontSize = (baseSize.value * RADICAL_SYMBOL_SCALE).sp, color = color),
         )
         Box(
             Modifier
@@ -425,7 +425,7 @@ private fun AccentRenderer(
     color: Color,
 ) {
     val glyphSize = (baseSize.value * ACCENT_GLYPH_SCALE).sp
-    val glyphStyle = KaiTypography.bodyLarge.copy(fontSize = glyphSize, color = color)
+    val glyphStyle = DoraiTypography.bodyLarge.copy(fontSize = glyphSize, color = color)
     // BAR visually matches OVERLINE — both draw a horizontal line and need explicit width.
     // A narrower traditional \bar glyph would also work but requires a font with that metric.
     val widening = accent.kind == AccentKind.OVERLINE ||
@@ -517,7 +517,7 @@ private fun LargeOpRenderer(
         }
         Text(
             text = opText,
-            style = KaiTypography.bodyLarge.copy(fontSize = opSize, color = color),
+            style = DoraiTypography.bodyLarge.copy(fontSize = opSize, color = color),
         )
         if (op.sub != null) {
             AtomRenderer(op.sub, display = false, baseSize = limitSize, color = color)
@@ -551,7 +551,7 @@ private fun MatrixDelimiter(text: String, baseSize: TextUnit, color: Color, rowC
         .coerceAtMost(MATRIX_DELIM_MAX_SCALE)
     Text(
         text = text,
-        style = KaiTypography.bodyLarge.copy(
+        style = DoraiTypography.bodyLarge.copy(
             fontSize = (baseSize.value * scale).sp,
             color = color,
         ),
@@ -630,14 +630,14 @@ private fun DelimRenderer(
         if (delim.left.isNotEmpty()) {
             Text(
                 text = delim.left,
-                style = KaiTypography.bodyLarge.copy(fontSize = delimSize, color = color),
+                style = DoraiTypography.bodyLarge.copy(fontSize = delimSize, color = color),
             )
         }
         AtomRenderer(delim.content, display, baseSize, color)
         if (delim.right.isNotEmpty()) {
             Text(
                 text = delim.right,
-                style = KaiTypography.bodyLarge.copy(fontSize = delimSize, color = color),
+                style = DoraiTypography.bodyLarge.copy(fontSize = delimSize, color = color),
             )
         }
     }
@@ -655,7 +655,7 @@ private fun StyledRenderer(
         val text = styled.atoms.joinToString("") { (it as? Sym)?.text ?: "" }
         Text(
             text = text,
-            style = KaiTypography.bodyLarge.copy(fontSize = baseSize, color = color),
+            style = DoraiTypography.bodyLarge.copy(fontSize = baseSize, color = color),
         )
         return
     }
@@ -665,7 +665,7 @@ private fun StyledRenderer(
     }
     Text(
         text = annotated,
-        style = KaiTypography.bodyLarge.copy(fontSize = baseSize, color = color),
+        style = DoraiTypography.bodyLarge.copy(fontSize = baseSize, color = color),
     )
 }
 

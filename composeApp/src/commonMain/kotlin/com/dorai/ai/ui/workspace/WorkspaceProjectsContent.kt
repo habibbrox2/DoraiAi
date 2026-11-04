@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.workspace
+﻿package com.dorai.ai.ui.workspace
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
@@ -47,9 +47,9 @@ import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.BorderSoft
 import com.dorai.ai.ui.CardFill
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
-import com.dorai.ai.ui.components.KaiChip
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
+import com.dorai.ai.ui.components.DoraiChip
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.settings.SettingsCard
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -139,24 +139,24 @@ internal fun WorkspaceProjectsContent(
                 ) {
                     Text(
                         text = stringResource(Res.string.workspace_open_with),
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
-                    KaiChip(
+                    DoraiChip(
                         selected = launchAgentId == null,
                         onClick = { onSelectLaunchAgent(null) },
                     ) {
                         Text(
                             text = stringResource(Res.string.workspace_session_shell),
-                            style = KaiTypography.labelMedium,
+                            style = DoraiTypography.labelMedium,
                         )
                     }
                     installedAgents.forEach { agent ->
-                        KaiChip(
+                        DoraiChip(
                             selected = launchAgentId == agent.id,
                             onClick = { onSelectLaunchAgent(agent.id) },
                         ) {
-                            Text(text = agent.title, style = KaiTypography.labelMedium)
+                            Text(text = agent.title, style = DoraiTypography.labelMedium)
                         }
                     }
                 }
@@ -178,16 +178,16 @@ internal fun WorkspaceProjectsContent(
 
         items(state.projects, key = { it }) { project ->
             val cardColors = CardDefaults.cardColors(
-                containerColor = com.dorai.ai.ui.theme.DesignTokens.SurfaceElevated,
+                containerColor = LocalDesignColorTokens.current.surfaceElevated,
             )
-            val cardBorder = androidx.compose.foundation.BorderStroke(1.dp, com.dorai.ai.ui.theme.DesignTokens.BorderSubtle)
+            val cardBorder = androidx.compose.foundation.BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle)
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { onOpenProject(project) },
                 colors = cardColors,
                 border = cardBorder,
-                shape = KaiShapes.card,
+                shape = DoraiShapes.card,
             ) {
                 Row(
                     modifier = Modifier
@@ -203,7 +203,7 @@ internal fun WorkspaceProjectsContent(
                     )
                     Text(
                         text = project,
-                        style = KaiTypography.titleMedium,
+                        style = DoraiTypography.titleMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
@@ -213,7 +213,7 @@ internal fun WorkspaceProjectsContent(
                     if (open > 0) {
                         Text(
                             text = openSessionsLabel(open),
-                            style = KaiTypography.labelMedium,
+                            style = DoraiTypography.labelMedium,
                             color = AccentPrimary,
                         )
                     }
@@ -229,7 +229,7 @@ internal fun WorkspaceProjectsContent(
             item {
                 Text(
                     text = error,
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = DangerAlert,
                 )
             }
@@ -332,7 +332,7 @@ private fun ProjectRowMenu(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            shape = KaiShapes.card,
+            shape = DoraiShapes.card,
         ) {
             DropdownMenuItem(
                 text = { Text(stringResource(Res.string.sandbox_files_action_rename)) },
@@ -423,7 +423,7 @@ private fun DeleteProjectDialog(
                 if (openSessions > 0) {
                     Text(
                         text = openSessionsLabel(openSessions),
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = DangerAlert,
                     )
                 }
@@ -456,13 +456,13 @@ private fun BuildSystemCard(
         if (info != null) {
             Text(
                 text = "${info.distribution} · ${info.architecture}",
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
             if (info.packageCount > 0) {
                 Text(
                     text = stringResource(Res.string.workspace_system_packages, info.packageCount),
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
@@ -517,8 +517,8 @@ private fun WorkspaceAgentManagerCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             missingAgents.forEach { agent ->
-                KaiChip(onClick = { onInstallAgent(agent.id) }) {
-                    Text(text = agent.title, style = KaiTypography.labelMedium)
+                DoraiChip(onClick = { onInstallAgent(agent.id) }) {
+                    Text(text = agent.title, style = DoraiTypography.labelMedium)
                 }
             }
         }
@@ -535,13 +535,13 @@ private fun SystemInfoRow(label: String, value: String) {
         Text(
             text = label,
             modifier = Modifier.weight(1f),
-            style = KaiTypography.bodyMedium,
+            style = DoraiTypography.bodyMedium,
             color = LocalDesignColorTokens.current.textSecondary,
         )
         Spacer(Modifier.width(8.dp))
         Text(
             text = value,
-            style = KaiTypography.bodyMedium,
+            style = DoraiTypography.bodyMedium,
             color = LocalDesignColorTokens.current.textPrimary,
             textAlign = TextAlign.End,
         )

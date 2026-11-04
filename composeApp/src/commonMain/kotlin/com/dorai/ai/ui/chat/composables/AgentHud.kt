@@ -31,6 +31,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import com.dorai.ai.BackIcon
 import com.dorai.ai.data.ServiceEntry
 import com.dorai.ai.prefersReducedMotion
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.chat.ChatActions
 import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.handCursor
@@ -70,7 +71,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 
 /**
- * DORAI AI — 2027 Premium AI Agent Workspace HUD (Heads-Up Display).
+ * DORAI AI � 2027 Premium AI Agent Workspace HUD (Heads-Up Display).
  *
  * Implements the floating top bar specification from docs/ui-upgrade-plan-7-premium-chat.md.
  * Provides left cluster (drawer + BK monogram + brand), center cluster (pulsing agent orb + model picker),
@@ -104,7 +105,7 @@ internal fun AgentHud(
             .padding(top = 12.dp, bottom = 4.dp),
     ) {
         val compact = isCompactAgentHud(maxWidth)
-        val hudBackground = DesignTokens.SurfaceDark.copy(alpha = 0.94f)
+        val hudBackground = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f)
         val hudBorder = BorderStroke(1.dp, DesignTokens.PrimaryCyan.copy(alpha = 0.38f))
         val hudShape = RoundedCornerShape(DesignTokens.RadiusHud)
 
@@ -170,7 +171,7 @@ internal fun AgentHud(
                         )
                         Text(
                             text = "DORAI AI",
-                            style = KaiTypography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                            style = DoraiTypography.titleSmall.copy(fontWeight = FontWeight.Bold),
                             color = LocalDesignColorTokens.current.textPrimary,
                             maxLines = 1,
                         )
@@ -207,7 +208,7 @@ internal fun AgentHud(
                                 isShellExecuting = isShellExecuting,
                                 isSpeaking = isSpeaking,
                             ),
-                            style = KaiTypography.titleSmall,
+                            style = DoraiTypography.titleSmall,
                             color = LocalDesignColorTokens.current.textPrimary,
                             maxLines = 1,
                         )

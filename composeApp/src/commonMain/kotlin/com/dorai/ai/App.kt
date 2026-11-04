@@ -1,9 +1,8 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+﻿@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.dorai.ai
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -29,17 +28,10 @@ import coil3.compose.setSingletonImageLoaderFactory
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.svg.SvgDecoder
 import com.dorai.ai.data.AppSettings
-import com.dorai.ai.data.ThemeMode
 import com.dorai.ai.tools.AppPermission
 import com.dorai.ai.tools.PermissionController
 import com.dorai.ai.tools.SetupPermissionHandler
-import com.dorai.ai.ui.CarbonColorScheme
-import com.dorai.ai.ui.DarkColorScheme
-import com.dorai.ai.ui.DaybreakColorScheme
-import com.dorai.ai.ui.DuskColorScheme
-import com.dorai.ai.ui.GraphiteColorScheme
-import com.dorai.ai.ui.LightColorScheme
-import com.dorai.ai.ui.Theme
+import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.ui.chat.ChatScreen
 import com.dorai.ai.ui.chat.ChatViewModel
 import com.dorai.ai.ui.components.FullScreenImageHost
@@ -90,11 +82,18 @@ data class Settings(val tab: String? = null) {
 @SerialName("build")
 data class Build(val project: String = "")
 
+/**
+ * Shared app entry.
+ *
+ * [lightColorScheme] / [darkColorScheme] are accepted for source compatibility with existing
+ * call sites but are no longer applied at the root — the 2027 premium theme engine
+ * ([DoraiTheme]) resolves the active palette from the persisted preset/custom selection.
+ */
 @Composable
 fun App(
     navController: NavHostController,
-    lightColorScheme: ColorScheme = LightColorScheme,
-    darkColorScheme: ColorScheme = DarkColorScheme,
+    lightColorScheme: ColorScheme = com.dorai.ai.ui.LightColorScheme,
+    darkColorScheme: ColorScheme = com.dorai.ai.ui.DarkColorScheme,
     textToSpeech: TextToSpeechInstance? = null,
     isKoinStarted: Boolean = false,
     onAppOpens: ((Int) -> Unit)? = null,
@@ -112,14 +111,14 @@ fun App(
     // Reuse global Koin if already started (Android Application class),
     // otherwise create a new instance (iOS, Desktop, Wasm).
     if (isKoinStarted) {
-        AppContent(navController, lightColorScheme, darkColorScheme, textToSpeech, onAppOpens, androidUpdateContent)
+        AppContent(navController, textToSpeech, onAppOpens, androidUpdateContent)
     } else {
         KoinApplication(
             configuration = koinConfiguration {
                 modules(appModule)
             },
         ) {
-            AppContent(navController, lightColorScheme, darkColorScheme, textToSpeech, onAppOpens, androidUpdateContent)
+            AppContent(navController, textToSpeech, onAppOpens, androidUpdateContent)
         }
     }
 }
@@ -127,8 +126,6 @@ fun App(
 @Composable
 private fun AppContent(
     navController: NavHostController,
-    lightColorScheme: ColorScheme,
-    darkColorScheme: ColorScheme,
     textToSpeech: TextToSpeechInstance?,
     onAppOpens: ((Int) -> Unit)?,
     androidUpdateContent: (@Composable () -> Unit)?,
@@ -168,7 +165,6 @@ private fun AppContent(
         Density(defaultDensity.density * uiScale, defaultDensity.fontScale)
     }
 
-    val themeMode by appSettings.themeModeFlow.collectAsStateWithLifecycle()
     val appLanguage by appSettings.appLanguageFlow.collectAsStateWithLifecycle()
 
     LaunchedEffect(appLanguage) {
@@ -178,12 +174,6 @@ private fun AppContent(
             // best-effort; ignore on platforms without Locale support
         }
     }
-    val systemInDark = isSystemInDarkTheme()
-    val effectiveColorScheme = when (themeMode) {
-        ThemeMode.System -> if (systemInDark) darkColorScheme else lightColorScheme
-        ThemeMode.Light -> lightColorScheme
-        ThemeMode.Dark -> darkColorScheme
-    }
 
     val sandboxController = koinInject<SandboxController>()
     val sandboxAwareUriHandler = rememberSandboxAwareUriHandler(sandboxController)
@@ -192,7 +182,7 @@ private fun AppContent(
         LocalDensity provides scaledDensity,
         LocalUriHandler provides sandboxAwareUriHandler,
     ) {
-        Theme(colorScheme = effectiveColorScheme) {
+        DoraiTheme {
             FullScreenImageHost {
                 val chatViewModel: ChatViewModel = koinViewModel()
                 val chatUiState by chatViewModel.state.collectAsStateWithLifecycle()

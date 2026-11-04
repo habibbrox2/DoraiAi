@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">DORAI AI-க்கு வரவேற்கிறோம்</string>
     <string name="prompt_ask_question">கேள்வி கேளுங்கள்</string>
     <string name="error_invalid_api_key">தவறான API விசை. உங்கள் அமைப்புகளைச் சரிபார்க்கவும்.</string>
@@ -383,8 +383,8 @@
     <string name="sandbox_files_editor_binary_warning">பைனரி அல்லது உரையாக முன்னோட்டம் காண்பிக்க மிகப்பெரியது.</string>
     <string name="sandbox_files_editor_force_open_as_text">உரையாக கட்டாயமாக திற</string>
     <string name="sandbox_files_editor_save">சேமி</string>
-    <string name="kai_ui_render_failed">இடைமுகத்தை வரைய முடியவில்லை</string>
-    <string name="kai_ui_code_copy">நகலெடு</string>
+    <string name="dorai_ui_render_failed">இடைமுகத்தை வரைய முடியவில்லை</string>
+    <string name="dorai_ui_code_copy">நகலெடு</string>
     <string name="image_viewer_close">மூடு</string>
     <string name="bot_message_thinking_label">சிந்தித்தல்</string>
     <string name="bot_message_thinking_expand_content_description">சிந்தனையை விரிவாக்கு அல்லது சுருக்கு</string>

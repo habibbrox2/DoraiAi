@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.workspace
+﻿package com.dorai.ai.ui.workspace
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import com.dorai.ai.workspace.WorkspaceEnvironmentState
 import com.dorai.ai.workspace.WorkspaceState
@@ -39,7 +39,7 @@ fun WorkspaceSectionHeader(
         ) {
             Text(
                 text = title,
-                style = KaiTypography.titleMedium,
+                style = DoraiTypography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = LocalDesignColorTokens.current.textPrimary,
                 modifier = Modifier.semantics { heading() },
@@ -47,7 +47,7 @@ fun WorkspaceSectionHeader(
             if (subtitle != null) {
                 Text(
                     text = subtitle,
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
@@ -80,7 +80,7 @@ fun BuildEnvironmentHeader(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = guidance,
-                style = KaiTypography.bodyMedium,
+                style = DoraiTypography.bodyMedium,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
         }

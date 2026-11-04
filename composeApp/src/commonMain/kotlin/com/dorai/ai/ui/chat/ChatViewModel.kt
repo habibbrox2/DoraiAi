@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat
+﻿package com.dorai.ai.ui.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,8 +19,8 @@ import com.dorai.ai.network.toUiError
 import com.dorai.ai.tools.AppPermission
 import com.dorai.ai.tools.PermissionController
 import com.dorai.ai.tools.isLocalNetworkUrl
-import com.dorai.ai.ui.markdown.KaiUiBlock
-import com.dorai.ai.ui.markdown.KaiUiError
+import com.dorai.ai.ui.markdown.DoraiUiBlock
+import com.dorai.ai.ui.markdown.DoraiUiError
 import com.dorai.ai.ui.markdown.parseMarkdown
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.conversation_untitled
@@ -280,7 +280,7 @@ class ChatViewModel(
 
                 // Auto-retry in interactive mode if the response has no valid kai-ui
                 if (_state.value.isInteractiveMode) {
-                    retryIfNoValidKaiUi()
+                    doraiRyIfNoValidKaiUi()
                 }
 
                 _state.update {
@@ -353,24 +353,24 @@ class ChatViewModel(
         return localNetworkPermissionController.requestPermission()
     }
 
-    private suspend fun retryIfNoValidKaiUi(maxRetries: Int = 2) {
+    private suspend fun doraiRyIfNoValidKaiUi(maxRetries: Int = 2) {
         repeat(maxRetries) {
             currentCoroutineContext().ensureActive()
             val lastAssistant = dataRepository.chatHistory.value.lastRenderedAssistant() ?: return
 
             val blocks = parseMarkdown(lastAssistant.content).blocks
-            val hasValidUi = blocks.any { it is KaiUiBlock }
+            val hasValidUi = blocks.any { it is DoraiUiBlock }
             if (hasValidUi) return
 
             // Build error feedback for the AI
-            val errorBlock = blocks.filterIsInstance<KaiUiError>().firstOrNull()
+            val errorBlock = blocks.filterIsInstance<DoraiUiError>().firstOrNull()
             val errorDetail = if (errorBlock != null) {
                 "JSON parse error in: ${errorBlock.rawJson.take(200)}"
             } else {
                 "No kai-ui code fence found in your response."
             }
             val retryMessage = "[SYSTEM] Your previous response failed to render as interactive UI. $errorDetail " +
-                "Remember: respond with ONLY a single ```kai-ui code fence containing valid JSON. No text outside the fence."
+                "Remember: respond with ONLY a single ```dorai-ui code fence containing valid JSON. No text outside the fence."
 
             dataRepository.ask(retryMessage, emptyList())
         }

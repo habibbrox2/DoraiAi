@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.dashboard
+﻿package com.dorai.ai.ui.dashboard
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -56,10 +56,10 @@ import com.dorai.ai.WorkspaceController
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.BorderSoft
 import com.dorai.ai.ui.CardFill
-import com.dorai.ai.ui.KaiBorders
-import com.dorai.ai.ui.KaiElevation
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiBorders
+import com.dorai.ai.ui.DoraiElevation
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
 import com.dorai.ai.ui.chat.ChatUiState
 import com.dorai.ai.ui.chat.ConversationSummary
@@ -71,8 +71,8 @@ import com.dorai.ai.ui.glassmorphicCard
 import com.dorai.ai.ui.glassmorphicCardBorder
 import com.dorai.ai.ui.glassmorphicCardColors
 import com.dorai.ai.ui.handCursor
-import com.dorai.ai.ui.kaiAdaptiveCardBorder
-import com.dorai.ai.ui.kaiAdaptiveCardColors
+import com.dorai.ai.ui.doraiAdaptiveCardBorder
+import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.settings.SettingsTab
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
@@ -214,18 +214,18 @@ private fun DashboardHeader(
                 contentDescription = null,
                 modifier = Modifier
                     .size(44.dp)
-                    .clip(KaiShapes.sm),
+                    .clip(DoraiShapes.sm),
             )
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
                     text = "DORAI AI",
-                    style = KaiTypography.headlineSmall,
+                    style = DoraiTypography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Text(
                     text = "What are you building today?",
-                    style = KaiTypography.bodyMedium,
+                    style = DoraiTypography.bodyMedium,
                     color = LocalDesignColorTokens.current.textTertiary,
                 )
             }
@@ -258,10 +258,10 @@ private fun ReadinessCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .glassmorphicCard(shape = KaiShapes.card),
+            .glassmorphicCard(shape = DoraiShapes.card),
         colors = glassmorphicCardColors(),
         border = glassmorphicCardBorder(),
-        shape = KaiShapes.card,
+        shape = DoraiShapes.card,
     ) {
         Column(
             modifier = Modifier
@@ -296,7 +296,7 @@ private fun ReadinessCard(
                         ) {
                             Text(
                                 text = "Set up a service",
-                                style = KaiTypography.labelLarge,
+                                style = DoraiTypography.labelLarge,
                                 color = AccentPrimary,
                             )
                         }
@@ -307,7 +307,7 @@ private fun ReadinessCard(
                             } else {
                                 "${service.serviceName} · ${service.modelId}"
                             },
-                            style = KaiTypography.bodyMedium,
+                            style = DoraiTypography.bodyMedium,
                             color = LocalDesignColorTokens.current.textSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -329,7 +329,7 @@ private fun ReadinessCard(
                     ) {
                         Text(
                             text = fact.label,
-                            style = KaiTypography.bodyMedium,
+                            style = DoraiTypography.bodyMedium,
                             color = LocalDesignColorTokens.current.textSecondary,
                             modifier = Modifier.weight(1f),
                         )
@@ -444,7 +444,7 @@ private fun DashboardActionCard(
         BorderStroke(1.dp, BorderSoft)
     }
 
-    val cardShape = KaiShapes.card
+    val cardShape = DoraiShapes.card
 
     if (action.isEnabled) {
         Button(
@@ -470,11 +470,11 @@ private fun DashboardActionCard(
                 Box(
                     modifier = Modifier
                         .size(48.dp)
-                        .clip(KaiShapes.sm)
+                        .clip(DoraiShapes.sm)
                         .background(iconBg)
                         .border(
                             BorderStroke(1.dp, if (action.isPrimary) AccentPrimary.copy(alpha = 0.4f) else BorderSoft),
-                            KaiShapes.sm,
+                            DoraiShapes.sm,
                         ),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -491,13 +491,13 @@ private fun DashboardActionCard(
                 ) {
                     Text(
                         text = action.title,
-                        style = KaiTypography.titleMedium,
+                        style = DoraiTypography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = LocalDesignColorTokens.current.textPrimary,
                     )
                     Text(
                         text = action.subtitle,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textTertiary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
@@ -530,7 +530,7 @@ private fun DashboardActionCard(
                 Box(
                     modifier = Modifier
                         .size(48.dp)
-                        .clip(KaiShapes.sm)
+                        .clip(DoraiShapes.sm)
                         .background(SurfaceRaised.copy(alpha = 0.6f)),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -547,13 +547,13 @@ private fun DashboardActionCard(
                 ) {
                     Text(
                         text = action.title,
-                        style = KaiTypography.titleMedium,
+                        style = DoraiTypography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = LocalDesignColorTokens.current.textPrimary.copy(alpha = 0.7f),
                     )
                     Text(
                         text = action.subtitle,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textTertiary.copy(alpha = 0.8f),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
@@ -561,7 +561,7 @@ private fun DashboardActionCard(
                     if (action.disabledNote != null) {
                         Text(
                             text = action.disabledNote,
-                            style = KaiTypography.labelSmall,
+                            style = DoraiTypography.labelSmall,
                             color = statusColors.needsSetup,
                         )
                     }
@@ -588,7 +588,7 @@ private fun RecentWorkSection(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = CardFill),
             border = BorderStroke(1.dp, BorderSoft),
-            shape = KaiShapes.card,
+            shape = DoraiShapes.card,
         ) {
             Box(
                 modifier = Modifier
@@ -616,7 +616,7 @@ private fun RecentWorkSection(
                 ) {
                     Text(
                         text = "Recent conversations",
-                        style = KaiTypography.titleLarge,
+                        style = DoraiTypography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f),
@@ -627,7 +627,7 @@ private fun RecentWorkSection(
                     ) {
                         Text(
                             text = "View all",
-                            style = KaiTypography.labelLarge,
+                            style = DoraiTypography.labelLarge,
                             color = AccentPrimary,
                         )
                     }
@@ -648,7 +648,7 @@ private fun RecentWorkSection(
                 ) {
                     Text(
                         text = "Recent projects",
-                        style = KaiTypography.titleLarge,
+                        style = DoraiTypography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f),
@@ -659,7 +659,7 @@ private fun RecentWorkSection(
                     ) {
                         Text(
                             text = "View all",
-                            style = KaiTypography.labelLarge,
+                            style = DoraiTypography.labelLarge,
                             color = AccentPrimary,
                         )
                     }
@@ -681,7 +681,7 @@ private fun ConversationRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val cardShape = KaiShapes.row
+    val cardShape = DoraiShapes.row
 
     Button(
         onClick = onClick,
@@ -704,9 +704,9 @@ private fun ConversationRow(
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .clip(KaiShapes.sm)
+                    .clip(DoraiShapes.sm)
                     .background(AccentPrimary.copy(alpha = 0.14f))
-                    .border(BorderStroke(1.dp, AccentPrimary.copy(alpha = 0.4f)), KaiShapes.sm),
+                    .border(BorderStroke(1.dp, AccentPrimary.copy(alpha = 0.4f)), DoraiShapes.sm),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -722,14 +722,14 @@ private fun ConversationRow(
             ) {
                 Text(
                     text = conversation.title,
-                    style = KaiTypography.bodyLarge,
+                    style = DoraiTypography.bodyLarge,
                     color = LocalDesignColorTokens.current.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = formatDashboardDate(conversation.updatedAt),
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textTertiary,
                 )
             }
@@ -749,7 +749,7 @@ private fun ProjectRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val cardShape = KaiShapes.row
+    val cardShape = DoraiShapes.row
 
     Button(
         onClick = onClick,
@@ -772,9 +772,9 @@ private fun ProjectRow(
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .clip(KaiShapes.sm)
+                    .clip(DoraiShapes.sm)
                     .background(SurfaceRaised.copy(alpha = 0.8f))
-                    .border(BorderStroke(1.dp, BorderSoft), KaiShapes.sm),
+                    .border(BorderStroke(1.dp, BorderSoft), DoraiShapes.sm),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -786,7 +786,7 @@ private fun ProjectRow(
             }
             Text(
                 text = project,
-                style = KaiTypography.bodyLarge,
+                style = DoraiTypography.bodyLarge,
                 color = LocalDesignColorTokens.current.textPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

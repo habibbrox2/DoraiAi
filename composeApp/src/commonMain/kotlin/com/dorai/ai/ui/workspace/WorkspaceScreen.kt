@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.workspace
+﻿package com.dorai.ai.ui.workspace
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -58,7 +58,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.PlatformBackHandler
 import com.dorai.ai.WORKSPACE_FILES
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.sandbox.EditorState
 import com.dorai.ai.ui.sandbox.SandboxFileBrowserViewModel
 import com.dorai.ai.ui.sandbox.SandboxFilesContent
@@ -471,13 +471,13 @@ private fun WorkspaceTabContent(
                 ) {
                     Text(
                         text = project ?: "Workspace",
-                        style = KaiTypography.titleMedium,
+                        style = DoraiTypography.titleMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                         maxLines = 1,
                     )
                     Text(
                         text = state.build.activeSessionId?.take(7) ?: "main",
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 1,
                     )
@@ -561,7 +561,7 @@ private fun WorkspaceTabContent(
                             ) {
                                 Text(
                                     text = "Starting session…",
-                                    style = KaiTypography.bodyMedium,
+                                    style = DoraiTypography.bodyMedium,
                                     color = LocalDesignColorTokens.current.textSecondary,
                                 )
                             }
@@ -611,7 +611,7 @@ private fun WorkspaceTabContent(
                         ) {
                             Text(
                                 text = "Loading file…",
-                                style = KaiTypography.bodyMedium,
+                                style = DoraiTypography.bodyMedium,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
@@ -624,7 +624,7 @@ private fun WorkspaceTabContent(
                         ) {
                             Text(
                                 text = "Binary file: ${editor.path}",
-                                style = KaiTypography.bodyMedium,
+                                style = DoraiTypography.bodyMedium,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
@@ -637,7 +637,7 @@ private fun WorkspaceTabContent(
                         ) {
                             Text(
                                 text = "File too large (${editor.sizeBytes} bytes)",
-                                style = KaiTypography.bodyMedium,
+                                style = DoraiTypography.bodyMedium,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
@@ -650,7 +650,7 @@ private fun WorkspaceTabContent(
                         ) {
                             Text(
                                 text = "Cannot read file: ${editor.path}",
-                                style = KaiTypography.bodyMedium,
+                                style = DoraiTypography.bodyMedium,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
@@ -663,7 +663,7 @@ private fun WorkspaceTabContent(
                         ) {
                             Text(
                                 text = "Open a file to edit",
-                                style = KaiTypography.bodyMedium,
+                                style = DoraiTypography.bodyMedium,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
@@ -694,7 +694,7 @@ private fun WorkspaceTabContent(
                         ) {
                             Text(
                                 text = "No active session",
-                                style = KaiTypography.bodyMedium,
+                                style = DoraiTypography.bodyMedium,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
@@ -706,7 +706,7 @@ private fun WorkspaceTabContent(
                     ) {
                         Text(
                             text = "Open a project to use Terminal",
-                            style = KaiTypography.bodyMedium,
+                            style = DoraiTypography.bodyMedium,
                             color = LocalDesignColorTokens.current.textSecondary,
                         )
                     }
@@ -740,7 +740,7 @@ private fun WorkspaceTabContent(
                     label = {
                         Text(
                             text = t.label,
-                            style = KaiTypography.labelSmall,
+                            style = DoraiTypography.labelSmall,
                             color = if (tab == t) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     },
@@ -766,14 +766,14 @@ private fun WorkspaceGitContent(
             ) {
                 Text(
                     text = stringResource(Res.string.workspace_git_no_project),
-                    style = KaiTypography.bodyMedium,
+                    style = DoraiTypography.bodyMedium,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
         } else {
             Text(
                 text = stringResource(Res.string.workspace_git_changes_title, project),
-                style = KaiTypography.titleMedium,
+                style = DoraiTypography.titleMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
                 modifier = Modifier.padding(16.dp),
             )
@@ -811,7 +811,7 @@ private fun WorkspaceGitChangesList(
         ) {
             Text(
                 text = stringResource(Res.string.workspace_git_no_changes),
-                style = KaiTypography.bodyMedium,
+                style = DoraiTypography.bodyMedium,
                 color = colorTokens.textSecondary,
             )
         }
@@ -842,13 +842,13 @@ private fun WorkspaceGitChangesList(
                 ) {
                     Text(
                         text = change.path.substringAfterLast("/"),
-                        style = KaiTypography.bodyMedium,
+                        style = DoraiTypography.bodyMedium,
                         color = colorTokens.textPrimary,
                         maxLines = 1,
                     )
                     Text(
                         text = change.path,
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         color = colorTokens.textSecondary,
                         maxLines = 1,
                     )
@@ -868,7 +868,7 @@ private fun WorkspaceGitChangesList(
                 ) {
                     Text(
                         text = badgeText.take(1).uppercase(),
-                        style = KaiTypography.labelSmall.copy(fontSize = 9.sp),
+                        style = DoraiTypography.labelSmall.copy(fontSize = 9.sp),
                         color = Color(0xFF0F1419),
                     )
                 }
@@ -883,7 +883,7 @@ private fun WorkspaceGitChangesList(
                     ) {
                         Text(
                             text = "Agent",
-                            style = KaiTypography.labelSmall.copy(fontSize = 9.sp),
+                            style = DoraiTypography.labelSmall.copy(fontSize = 9.sp),
                             color = DesignTokens.AccentPrimary,
                         )
                     }

@@ -134,11 +134,17 @@ actual suspend fun compressImageBytes(bytes: ByteArray, mimeType: String): ByteA
 
 actual fun getAppFilesDirectory(): String {
     val userHome = System.getProperty("user.home")
-    val kaiDir = File("$userHome/.kai")
-    if (!kaiDir.exists()) {
-        kaiDir.mkdirs()
+    val doraiDir = File("$userHome/.dorai")
+    val legacyKaiDir = File("$userHome/.kai")
+    // One-time data migration: copy the legacy ~/.kai tree into ~/.dorai so existing
+    // installs keep their data while new writes land under the new name.
+    if (!doraiDir.exists() && legacyKaiDir.exists()) {
+        runCatching { legacyKaiDir.copyRecursively(doraiDir, overwrite = false) }
     }
-    return kaiDir.absolutePath
+    if (!doraiDir.exists()) {
+        doraiDir.mkdirs()
+    }
+    return doraiDir.absolutePath
 }
 
 actual fun createFileReviewController(): FileReviewController {

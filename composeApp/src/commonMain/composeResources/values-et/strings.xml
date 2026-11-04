@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Tere tulemast DORAI AI'sse</string>
     <string name="prompt_ask_question">Esita küsimus</string>
     <string name="error_invalid_api_key">Kehtetu API võti. Kontrollige oma seadeid.</string>
@@ -384,8 +384,8 @@
     <string name="sandbox_files_editor_binary_warning">Kahendfail või liiga suur tekstina eelvaateks.</string>
     <string name="sandbox_files_editor_force_open_as_text">Sundi avama tekstina</string>
     <string name="sandbox_files_editor_save">Salvesta</string>
-    <string name="kai_ui_render_failed">Liidese kuvamine ebaõnnestus</string>
-    <string name="kai_ui_code_copy">Kopeeri</string>
+    <string name="dorai_ui_render_failed">Liidese kuvamine ebaõnnestus</string>
+    <string name="dorai_ui_code_copy">Kopeeri</string>
     <string name="image_viewer_close">Sulge</string>
     <string name="bot_message_thinking_label">Mõtleb</string>
     <string name="bot_message_thinking_expand_content_description">Laienda või ahenda mõtlemist</string>

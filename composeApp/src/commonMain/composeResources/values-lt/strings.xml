@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Sveiki atvykę į DORAI AI</string>
     <string name="prompt_ask_question">Užduokite klausimą</string>
     <string name="error_invalid_api_key">Neteisingas API raktas. Patikrinkite nustatymus.</string>
@@ -383,8 +383,8 @@
     <string name="sandbox_files_editor_binary_warning">Dvejetainis arba per didelis, kad būtų peržiūrėtas kaip tekstas.</string>
     <string name="sandbox_files_editor_force_open_as_text">Priverstinai atidaryti kaip tekstą</string>
     <string name="sandbox_files_editor_save">Išsaugoti</string>
-    <string name="kai_ui_render_failed">Nepavyko atvaizduoti UI</string>
-    <string name="kai_ui_code_copy">Kopijuoti</string>
+    <string name="dorai_ui_render_failed">Nepavyko atvaizduoti UI</string>
+    <string name="dorai_ui_code_copy">Kopijuoti</string>
     <string name="image_viewer_close">Uždaryti</string>
     <string name="bot_message_thinking_label">Mąstymas</string>
     <string name="bot_message_thinking_expand_content_description">Išplėsti arba sutraukti mąstymą</string>

@@ -2,7 +2,7 @@ name: Flatpak Manifest
 
 on:
   workflow_run:
-    workflows: ["Build and Release"]
+    workflows: ["DORAI Production Release"]
     types: [completed]
 
 permissions:

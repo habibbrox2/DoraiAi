@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat.composables
+﻿package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -52,7 +53,7 @@ import androidx.compose.ui.unit.sp
 import com.dorai.ai.data.AppSettings
 import com.dorai.ai.getBackgroundDispatcher
 import com.dorai.ai.ui.CardFill
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SuccessGreen
 import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.dynamicui.FrozenSubmission
@@ -99,7 +100,7 @@ internal fun BotMessage(
     var isEditing by remember(frozen) { mutableStateOf(false) }
     val effectiveFrozen = if (isEditing && frozen != null) frozen.copy(pressedEvent = null) else frozen
     val effectiveInteractive = if (frozen != null) (onResubmit != null && isEditing) else isInteractive
-    val kaiUiCallback: (String, Map<String, String>) -> Unit = if (onResubmit != null) {
+    val doraiUiCallback: (String, Map<String, String>) -> Unit = if (onResubmit != null) {
         { event, data ->
             isEditing = false
             onResubmit(event, data)
@@ -115,8 +116,8 @@ internal fun BotMessage(
         bottomStart = 4.dp,
         bottomEnd = 18.dp,
     )
-    val botBubbleBg = DesignTokens.SurfaceElevated
-    val botBubbleBorder = DesignTokens.BorderSubtle
+    val botBubbleBg = LocalDesignColorTokens.current.surfaceElevated
+    val botBubbleBorder = LocalDesignColorTokens.current.borderSubtle
     val botTextColor = LocalDesignColorTokens.current.textPrimary
     val botMutedColor = LocalDesignColorTokens.current.textTertiary
 
@@ -154,7 +155,7 @@ internal fun BotMessage(
                         Spacer(Modifier.size(6.dp))
                         Text(
                             text = "DORAI AI",
-                            style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                            style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
                             color = botTextColor,
                         )
                     }
@@ -170,7 +171,7 @@ internal fun BotMessage(
                             MarkdownContent(
                                 document = document,
                                 isInteractive = effectiveInteractive,
-                                onUiCallback = kaiUiCallback,
+                                onUiCallback = doraiUiCallback,
                                 frozen = effectiveFrozen,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -217,8 +218,8 @@ internal fun BotMessage(
                         .padding(4.dp)
                         .size(48.dp)
                         .clip(CircleShape)
-                        .background(com.dorai.ai.ui.theme.DesignTokens.SurfaceRaised)
-                        .border(androidx.compose.foundation.BorderStroke(1.dp, com.dorai.ai.ui.theme.DesignTokens.BorderSubtle), CircleShape)
+                        .background(LocalDesignColorTokens.current.surfaceRaised)
+                        .border(androidx.compose.foundation.BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle), CircleShape)
                         .handCursor()
                         .clickable { isEditing = !isEditing },
                     contentAlignment = Alignment.Center,
@@ -302,7 +303,7 @@ internal fun BotMessage(
 /**
  * ChatGPT / DeepSeek / Claude style Thinking Process block.
  * Features:
- * - Glowing thought badge (🧠 Thought process)
+ * - Glowing thought badge (?? Thought process)
  * - Monospace styling with dark canvas (#0B0F17)
  * - Single-line preview when collapsed
  * - Smooth expand/collapse transition
@@ -323,8 +324,8 @@ private fun ReasoningBlockquote(
 
     val blockShape = RoundedCornerShape(10.dp)
     val accentCyan = com.dorai.ai.ui.theme.DesignTokens.PrimaryCyan
-    val containerBg = com.dorai.ai.ui.theme.DesignTokens.SurfaceDark
-    val borderColor = com.dorai.ai.ui.theme.DesignTokens.BorderSubtle
+    val containerBg = MaterialTheme.colorScheme.surface
+    val borderColor = LocalDesignColorTokens.current.borderSubtle
     val textSlate = LocalDesignColorTokens.current.textSecondary
     val textMuted = LocalDesignColorTokens.current.textMuted
 
@@ -362,7 +363,7 @@ private fun ReasoningBlockquote(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = stringResource(Res.string.bot_message_thinking_label),
-                        style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                        style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                         fontFamily = FontFamily.Monospace,
                         color = textSlate,
                         fontSize = 12.sp,
@@ -377,7 +378,7 @@ private fun ReasoningBlockquote(
                         ) {
                             Text(
                                 text = "${segments.size} steps",
-                                style = KaiTypography.labelSmall,
+                                style = DoraiTypography.labelSmall,
                                 fontFamily = FontFamily.Monospace,
                                 color = accentCyan,
                                 fontSize = 10.sp,
@@ -388,7 +389,7 @@ private fun ReasoningBlockquote(
                 if (!expanded && preview.isNotEmpty()) {
                     Text(
                         text = preview,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         fontFamily = FontFamily.Monospace,
                         color = textMuted,
                         maxLines = 1,
@@ -444,7 +445,7 @@ private fun ReasoningBlockquote(
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(
                             text = "STEP ${index + 1}",
-                            style = KaiTypography.labelSmall,
+                            style = DoraiTypography.labelSmall,
                             fontFamily = FontFamily.Monospace,
                             color = accentCyan.copy(alpha = 0.75f),
                             fontSize = 9.sp,
@@ -454,7 +455,7 @@ private fun ReasoningBlockquote(
                             Text(
                                 text = segment,
                                 color = textSlate,
-                                style = KaiTypography.bodySmall,
+                                style = DoraiTypography.bodySmall,
                                 fontFamily = FontFamily.Monospace,
                                 fontSize = 12.sp,
                                 lineHeight = 18.sp,

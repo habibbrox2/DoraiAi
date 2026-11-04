@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.dorai.ai.formatFileSize
 import com.dorai.ai.linux.LinuxDistro
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.sandbox.SandboxProgressRow
 import com.dorai.ai.ui.sandbox.sandboxStatusText
@@ -77,14 +77,14 @@ internal fun SandboxSettingsCard(
                 Text(
                     // Before install this names what would be installed; after, what is.
                     text = sandboxState.distro.displayName,
-                    style = KaiTypography.titleMedium,
+                    style = DoraiTypography.titleMedium,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 if (sandboxState.sandboxReady) {
                     if (sandboxState.sandboxDiskUsageMB > 0) {
                         Text(
                             text = stringResource(Res.string.settings_sandbox_disk_usage, sandboxState.sandboxDiskUsageMB),
-                            style = KaiTypography.bodySmall,
+                            style = DoraiTypography.bodySmall,
                             color = LocalDesignColorTokens.current.textSecondary,
                         )
                     }
@@ -92,7 +92,7 @@ internal fun SandboxSettingsCard(
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = stringResource(Res.string.settings_sandbox_description),
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
@@ -123,7 +123,7 @@ internal fun SandboxSettingsCard(
             Spacer(Modifier.height(8.dp))
             Text(
                 text = statusText,
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = DangerAlert,
             )
         }
@@ -139,7 +139,7 @@ internal fun SandboxSettingsCard(
                     Res.string.settings_sandbox_migrate_title,
                     migration.from.displayName,
                 ),
-                style = KaiTypography.bodyMedium,
+                style = DoraiTypography.bodyMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
             )
             Text(
@@ -148,7 +148,7 @@ internal fun SandboxSettingsCard(
                     migration.fileCount,
                     formatFileSize(migration.bytes),
                 ),
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
             Spacer(Modifier.height(8.dp))
@@ -227,7 +227,7 @@ private fun DistroPicker(
     Spacer(Modifier.height(12.dp))
     Text(
         text = stringResource(Res.string.settings_sandbox_distro_title),
-        style = KaiTypography.labelLarge,
+        style = DoraiTypography.labelLarge,
         color = LocalDesignColorTokens.current.textSecondary,
     )
     Column(Modifier.selectableGroup()) {
@@ -281,12 +281,12 @@ private fun DistroOption(
         Column(Modifier.weight(1f)) {
             Text(
                 text = title,
-                style = KaiTypography.bodyMedium,
+                style = DoraiTypography.bodyMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
             )
             Text(
                 text = detail,
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
         }

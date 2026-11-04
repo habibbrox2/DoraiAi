@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.components
+﻿package com.dorai.ai.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -16,10 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
-import com.dorai.ai.ui.kaiAdaptiveCardSurface
+import com.dorai.ai.ui.doraiAdaptiveCardSurface
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 
 @Composable
@@ -39,7 +39,7 @@ fun SettingsListItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .kaiAdaptiveCardSurface(KaiShapes.xs)
+            .doraiAdaptiveCardSurface(DoraiShapes.xs)
             .then(if (onClick != null) Modifier.clickable(onClick = onClick).handCursor() else Modifier)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -47,12 +47,12 @@ fun SettingsListItem(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
-                style = KaiTypography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                style = DoraiTypography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                 color = colors.textPrimary,
             )
             Text(
                 text = subtitle,
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = colors.textSecondary,
                 maxLines = subtitleMaxLines,
                 overflow = TextOverflow.Ellipsis,

@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.sandbox
+﻿package com.dorai.ai.ui.sandbox
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -19,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -50,7 +51,7 @@ import com.dorai.ai.SandboxController
 import com.dorai.ai.TerminalLine
 import com.dorai.ai.linux.LinuxDistro
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.components.StatusBadge
 import com.dorai.ai.ui.handCursor
@@ -105,9 +106,9 @@ internal fun SandboxTabsContent(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(com.dorai.ai.ui.KaiShapes.card)
+                    .clip(com.dorai.ai.ui.DoraiShapes.card)
                     .background(com.dorai.ai.ui.CardFill)
-                    .border(com.dorai.ai.ui.KaiBorders.soft),
+                    .border(com.dorai.ai.ui.DoraiBorders.soft),
             ) {
                 Row(
                     modifier = Modifier
@@ -117,7 +118,7 @@ internal fun SandboxTabsContent(
                 ) {
                     Text(
                         text = "Sandbox workspace",
-                        style = com.dorai.ai.ui.KaiTypography.titleMedium,
+                        style = com.dorai.ai.ui.DoraiTypography.titleMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f).semantics { heading() },
                     )
@@ -137,9 +138,9 @@ internal fun SandboxTabsContent(
                             modifier = Modifier.fillMaxWidth()
                                 .padding(bottom = com.dorai.ai.ui.workspace.WorkspaceSpacing.xs)
                                 .weight(1f)
-                                .clip(com.dorai.ai.ui.KaiShapes.card)
+                                .clip(com.dorai.ai.ui.DoraiShapes.card)
                                 .background(TerminalDarkBg)
-                                .border(com.dorai.ai.ui.KaiBorders.soft),
+                                .border(com.dorai.ai.ui.DoraiBorders.soft),
                         ) {
                             TerminalContent(
                                 sandboxController = sandboxController,
@@ -183,7 +184,7 @@ internal fun SandboxTabsContent(
                         // Distro comes from state — a hard-coded name goes stale the
                         // moment the user picks the other distribution.
                         text = sandboxState.distro.displayName,
-                        style = KaiTypography.titleMedium,
+                        style = DoraiTypography.titleMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
@@ -194,7 +195,7 @@ internal fun SandboxTabsContent(
 
                 Text(
                     text = stringResource(Res.string.settings_sandbox_description),
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
 
@@ -210,12 +211,12 @@ internal fun SandboxTabsContent(
                         LinuxDistro.ALPINE ->
                             stringResource(Res.string.settings_sandbox_distro_alpine_detail)
                     },
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
                 Text(
                     text = "Files, packages, and terminal sessions live inside the environment and are kept between launches.",
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
 
@@ -227,7 +228,7 @@ internal fun SandboxTabsContent(
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = statusText,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = DangerAlert,
                     )
                 }
@@ -277,10 +278,10 @@ private fun SessionChipRow(viewModel: SandboxSessionViewModel) {
                 containerColor = if (isSelected) {
                     com.dorai.ai.ui.theme.DesignTokens.PrimaryCyan
                 } else {
-                    com.dorai.ai.ui.theme.DesignTokens.SurfaceElevated
+                    LocalDesignColorTokens.current.surfaceElevated
                 },
                 contentColor = if (isSelected) {
-                    com.dorai.ai.ui.theme.DesignTokens.Background
+                    MaterialTheme.colorScheme.background
                 } else {
                     com.dorai.ai.ui.theme.LocalDesignColorTokens.current.textSecondary
                 },
@@ -295,13 +296,13 @@ private fun SessionChipRow(viewModel: SandboxSessionViewModel) {
                         selected = isSelected
                     },
                 colors = buttonColors,
-                shape = com.dorai.ai.ui.KaiShapes.pill,
-                border = if (isSelected) com.dorai.ai.ui.KaiBorders.accent else com.dorai.ai.ui.KaiBorders.soft,
+                shape = com.dorai.ai.ui.DoraiShapes.pill,
+                border = if (isSelected) com.dorai.ai.ui.DoraiBorders.accent else com.dorai.ai.ui.DoraiBorders.soft,
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
             ) {
                 Text(
                     text = label,
-                    style = com.dorai.ai.ui.KaiTypography.labelMedium,
+                    style = com.dorai.ai.ui.DoraiTypography.labelMedium,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                     maxLines = 1,
                 )
@@ -366,19 +367,19 @@ private fun SandboxSubTabSelector(
                 containerColor = when {
                     isSelected -> com.dorai.ai.ui.theme.DesignTokens.PrimaryCyan
                     isFocused -> com.dorai.ai.ui.theme.DesignTokens.PrimaryCyan.copy(alpha = 0.25f)
-                    else -> com.dorai.ai.ui.theme.DesignTokens.SurfaceElevated
+                    else -> LocalDesignColorTokens.current.surfaceElevated
                 },
                 contentColor = if (isSelected) {
-                    com.dorai.ai.ui.theme.DesignTokens.Background
+                    MaterialTheme.colorScheme.background
                 } else {
                     com.dorai.ai.ui.theme.LocalDesignColorTokens.current.textSecondary
                 },
             )
 
             val border = when {
-                isSelected -> com.dorai.ai.ui.KaiBorders.accent
-                isFocused -> com.dorai.ai.ui.KaiBorders.focus
-                else -> com.dorai.ai.ui.KaiBorders.soft
+                isSelected -> com.dorai.ai.ui.DoraiBorders.accent
+                isFocused -> com.dorai.ai.ui.DoraiBorders.focus
+                else -> com.dorai.ai.ui.DoraiBorders.soft
             }
 
             Button(
@@ -418,13 +419,13 @@ private fun SandboxSubTabSelector(
                         selected = isSelected
                     },
                 colors = buttonColors,
-                shape = com.dorai.ai.ui.KaiShapes.pill,
+                shape = com.dorai.ai.ui.DoraiShapes.pill,
                 border = border,
                 contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp),
             ) {
                 Text(
                     text = label,
-                    style = com.dorai.ai.ui.KaiTypography.labelLarge,
+                    style = com.dorai.ai.ui.DoraiTypography.labelLarge,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                     maxLines = 1,
                 )
@@ -450,7 +451,7 @@ internal fun SandboxProgressRow(progress: Float?, statusText: String, onCancel: 
         Text(
             text = statusText,
             modifier = Modifier.weight(1f),
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
         )
         TextButton(onClick = onCancel, modifier = Modifier.handCursor()) {

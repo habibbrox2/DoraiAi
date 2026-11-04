@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat.composables
+﻿package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
@@ -28,10 +28,10 @@ import com.dorai.ai.data.SmsDraft
 import com.dorai.ai.data.SmsDraftStatus
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
-import com.dorai.ai.ui.kaiAdaptiveCardBorder
-import com.dorai.ai.ui.kaiAdaptiveCardColors
+import com.dorai.ai.ui.doraiAdaptiveCardBorder
+import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.ic_close
@@ -90,8 +90,8 @@ private fun PendingSmsBanner(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 2.dp),
-        colors = kaiAdaptiveCardColors(),
-        border = kaiAdaptiveCardBorder(),
+        colors = doraiAdaptiveCardColors(),
+        border = doraiAdaptiveCardBorder(),
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -102,7 +102,7 @@ private fun PendingSmsBanner(
             ) {
                 Text(
                     text = stringResource(Res.string.sms_draft_banner_to, draft.address),
-                    style = KaiTypography.labelMedium,
+                    style = DoraiTypography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = LocalDesignColorTokens.current.textPrimary,
                     modifier = Modifier.weight(1f),
@@ -131,7 +131,7 @@ private fun PendingSmsBanner(
             Spacer(Modifier.height(4.dp))
             Text(
                 text = draft.body,
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textPrimary,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
@@ -160,7 +160,7 @@ private fun PendingSmsBanner(
                         Spacer(Modifier.size(8.dp))
                         Text(
                             text = stringResource(Res.string.sms_draft_banner_sending),
-                            style = KaiTypography.labelSmall,
+                            style = DoraiTypography.labelSmall,
                             color = LocalDesignColorTokens.current.textSecondary,
                         )
                     }
@@ -168,13 +168,13 @@ private fun PendingSmsBanner(
 
                 SmsDraftStatus.SENT -> Text(
                     text = stringResource(Res.string.sms_draft_banner_sent),
-                    style = KaiTypography.labelSmall,
+                    style = DoraiTypography.labelSmall,
                     color = AccentPrimary,
                 )
 
                 SmsDraftStatus.FAILED -> Text(
                     text = stringResource(Res.string.sms_draft_banner_failed, draft.lastError ?: "unknown error"),
-                    style = KaiTypography.labelSmall,
+                    style = DoraiTypography.labelSmall,
                     color = DangerAlert,
                 )
             }

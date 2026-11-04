@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat.composables
+﻿package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -50,7 +50,7 @@ import com.dorai.ai.getBackgroundDispatcher
 import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.CardFill
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.chat.ChatUiState
 import com.dorai.ai.ui.chat.History
@@ -62,7 +62,7 @@ import com.dorai.ai.ui.components.LogoAnimation
 import com.dorai.ai.ui.components.VerticalScrollbarForList
 import com.dorai.ai.ui.dynamicui.toSpeakableText
 import com.dorai.ai.ui.handCursor
-import com.dorai.ai.ui.markdown.KaiUiBlock
+import com.dorai.ai.ui.markdown.DoraiUiBlock
 import com.dorai.ai.ui.markdown.parseMarkdown
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
@@ -229,7 +229,7 @@ fun ChatTimeline(
                                 if (history.fallbackServiceName != null) {
                                     Text(
                                         text = stringResource(Res.string.fallback_answered_by, history.fallbackServiceName),
-                                        style = KaiTypography.labelSmall,
+                                        style = DoraiTypography.labelSmall,
                                         color = LocalDesignColorTokens.current.textSecondary,
                                         modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
                                     )

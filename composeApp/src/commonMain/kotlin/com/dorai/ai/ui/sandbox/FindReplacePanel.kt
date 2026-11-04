@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.sandbox
+﻿package com.dorai.ai.ui.sandbox
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,7 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 
@@ -81,7 +81,7 @@ internal fun FindReplacePanel(
                     matchCount == 1 -> "1 match"
                     else -> "$matchCount matches"
                 },
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
                 modifier = Modifier.weight(1f),
             )

@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.components
+﻿package com.dorai.ai.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -30,10 +30,10 @@ import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.BorderSoft
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
-import com.dorai.ai.ui.kaiAdaptiveCardBorder
-import com.dorai.ai.ui.kaiAdaptiveCardColors
+import com.dorai.ai.ui.doraiAdaptiveCardBorder
+import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.settings.SettingsSpacing
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 
@@ -139,7 +139,7 @@ fun StatusBadge(
         )
         Text(
             text = label,
-            style = KaiTypography.labelSmall,
+            style = DoraiTypography.labelSmall,
             color = color,
             fontWeight = FontWeight.Medium,
         )
@@ -175,13 +175,13 @@ fun CapabilityCountCard(
         ) {
             Text(
                 text = count,
-                style = KaiTypography.headlineSmall,
+                style = DoraiTypography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = colors.textPrimary,
             )
             Text(
                 text = label,
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = colors.textSecondary,
             )
             if (status != null) {
@@ -228,7 +228,7 @@ fun CollectionEmptyState(
     ) {
         Text(
             text = message,
-            style = KaiTypography.bodyMedium,
+            style = DoraiTypography.bodyMedium,
             color = colors.textSecondary,
             textAlign = TextAlign.Center,
         )

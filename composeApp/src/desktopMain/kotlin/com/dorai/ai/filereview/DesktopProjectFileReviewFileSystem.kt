@@ -4,7 +4,7 @@ import java.io.File
 import java.nio.file.Files
 
 /**
- * Desktop File Review is deliberately scoped to ~/.kai/projects.
+ * Desktop File Review is deliberately scoped to ~/.dorai/projects.
  * Arbitrary host paths are never accepted as agent-controlled workspace paths.
  */
 class DesktopProjectFileReviewFileSystem(

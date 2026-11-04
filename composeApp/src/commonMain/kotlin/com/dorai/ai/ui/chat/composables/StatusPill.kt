@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat.composables
+﻿package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.chat.ChatShapes
 import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.chat.ChatStatusColors
@@ -54,7 +54,7 @@ fun StatusPill(
         }
         Text(
             text = text,
-            style = KaiTypography.labelSmall,
+            style = DoraiTypography.labelSmall,
             color = color,
             fontWeight = FontWeight.Medium,
         )

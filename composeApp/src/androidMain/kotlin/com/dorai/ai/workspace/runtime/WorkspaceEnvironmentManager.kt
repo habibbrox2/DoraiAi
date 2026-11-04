@@ -93,9 +93,9 @@ private class BuildSession(
     val rows = AtomicInteger(rows)
 
     /** Host-side file names inside the bind-mounted tmp dir — one set per session. */
-    val winsizeFile: String get() = "kai-winsize-$id"
-    val openUrlFile: String get() = "kai-open-url-$id"
-    val pidFile: String get() = "kai-pid-$id"
+    val winsizeFile: String get() = "dorai-winsize-$id"
+    val openUrlFile: String get() = "dorai-open-url-$id"
+    val pidFile: String get() = "dorai-pid-$id"
 
     @Volatile
     var handle: ProotHandle? = null
@@ -768,25 +768,33 @@ class WorkspaceEnvironmentManager(
     }
 
     /**
-     * Installs `/usr/local/bin/kai-browser` into the rootfs so `$BROWSER` captures
+     * Installs `/usr/local/bin/dorai-browser` into the rootfs so `$BROWSER` captures
      * URLs Grok tries to open when no real display/browser exists under proot.
-     * The target file is per session, passed in as `KAI_OPEN_URL_FILE`.
+     * A `kai-browser` alias is kept for backward compatibility with older rootfs installs.
+     * The target file is per session, passed in as `DORAI_OPEN_URL_FILE` (with a
+     * `KAI_OPEN_URL_FILE` fallback for older guests).
      */
     private fun ensureBrowserCaptureHelpers() {
-        val script = File(paths.rootfsDir, "usr/local/bin/kai-browser")
+        val script = File(paths.rootfsDir, "usr/local/bin/dorai-browser")
         script.parentFile?.mkdirs()
         script.writeText(
             """
             |#!/bin/sh
             |# Workspace: capture browser-open URLs for the in-app link bar.
             |url="${'$'}1"
-            |target="${'$'}{KAI_OPEN_URL_FILE:-/tmp/kai-open-url}"
+            |target="${'$'}{DORAI_OPEN_URL_FILE:-${'$'}{KAI_OPEN_URL_FILE:-/tmp/dorai-open-url}}"
             |if [ -n "${'$'}url" ]; then
             |  printf '%s\n' "${'$'}url" >> "${'$'}target"
             |fi
             |exit 0
             """.trimMargin(),
         )
+        // Backward-compat alias for rootfs that still reference the old name.
+        runCatching {
+            val alias = File(paths.rootfsDir, "usr/local/bin/kai-browser")
+            alias.parentFile?.mkdirs()
+            alias.writeText(script.readText())
+        }
         script.setExecutable(true, false)
     }
 
@@ -987,7 +995,7 @@ class WorkspaceEnvironmentManager(
             columns = columns,
             rows = rows,
             winsizePath = "/tmp/${session?.winsizeFile ?: "kai-winsize"}",
-            pidFileName = session?.pidFile ?: "kai-pid",
+            pidFileName = session?.pidFile ?: "dorai-pid",
         )
     }
 
@@ -1002,10 +1010,11 @@ class WorkspaceEnvironmentManager(
         // Grok opens the login URL via webbrowser; under proot there is no real browser.
         // GROK_TEST_OPEN_URL_FILE is an official Grok hook that writes the URL to a file.
         "GROK_TEST_OPEN_URL_FILE" to openUrlPath,
-        // Same target for the kai-browser wrapper, so both hooks feed one session's link bar.
+        // Same target for the dorai-browser wrapper (and its kai-browser alias), so both hooks feed one session's link bar.
+        "DORAI_OPEN_URL_FILE" to openUrlPath,
         "KAI_OPEN_URL_FILE" to openUrlPath,
         // webbrowser crate falls back to ${'$'}BROWSER when xdg-open is missing.
-        "BROWSER" to "/usr/local/bin/kai-browser",
+        "BROWSER" to "/usr/local/bin/dorai-browser",
     )
 }
 

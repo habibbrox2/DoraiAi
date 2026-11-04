@@ -33,6 +33,7 @@ import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
@@ -67,7 +68,7 @@ import com.dorai.ai.data.ServiceEntry
 import com.dorai.ai.data.imageExtensions
 import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.skills.SkillManifest
-import com.dorai.ai.ui.KaiShapes
+import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.outlineTextFieldColors
@@ -106,7 +107,7 @@ internal fun detectSlashQuery(text: String, cursor: Int): String? {
 
 /**
  * Shortens a filename that is too long to display in a chip.
- * Returns the first [maxChars] characters of the base name followed by `…` and the original extension.
+ * Returns the first [maxChars] characters of the base name followed by `�` and the original extension.
  */
 fun truncateFileName(name: String, maxChars: Int = 16): String {
     if (name.length <= maxChars) return name
@@ -337,11 +338,11 @@ fun QuestionInput(
                                 }
                             },
                             colors = SuggestionChipDefaults.suggestionChipColors(
-                                containerColor = DesignTokens.SurfaceRaised,
+                                containerColor = LocalDesignColorTokens.current.surfaceRaised,
                             ),
                             border = SuggestionChipDefaults.suggestionChipBorder(
                                 enabled = true,
-                                borderColor = DesignTokens.BorderSubtle,
+                                borderColor = LocalDesignColorTokens.current.borderSubtle,
                             ),
                         )
                     }
@@ -389,7 +390,7 @@ fun QuestionInput(
                         spotColor = DesignTokens.AgentViolet.copy(alpha = 0.20f),
                     )
                     .clip(composerShape)
-                    .background(DesignTokens.SurfaceDark.copy(alpha = 0.94f), composerShape)
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.94f), composerShape)
                     .border(BorderStroke(1.dp, DesignTokens.PrimaryCyan.copy(alpha = 0.48f)), composerShape),
             ) {
                 TextField(

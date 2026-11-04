@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -6,7 +6,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 
 /**
  * Confirmation dialog for destructive settings actions (Plan 2, Phase 4).
@@ -35,8 +35,8 @@ fun SettingsConfirmDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = modifier,
-        title = { Text(title, style = KaiTypography.titleMedium) },
-        text = { Text(message, style = KaiTypography.bodyMedium) },
+        title = { Text(title, style = DoraiTypography.titleMedium) },
+        text = { Text(message, style = DoraiTypography.bodyMedium) },
         confirmButton = {
             TextButton(onClick = onConfirm) {
                 Text(confirmLabel, color = DangerAlert)

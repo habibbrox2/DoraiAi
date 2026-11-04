@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat.composables
+﻿package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -55,11 +55,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.chat.ChatUiState
 import com.dorai.ai.ui.chat.ConversationSummary
-import com.dorai.ai.ui.components.KaiSearchField
+import com.dorai.ai.ui.components.DoraiSearchField
 import com.dorai.ai.ui.components.LogoAnimation
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignTokens
@@ -165,7 +165,7 @@ fun AppSidebar(
                     }
                     Text(
                         text = "New chat",
-                        style = KaiTypography.labelLarge,
+                        style = DoraiTypography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = tokens.PrimaryText,
                     )
@@ -173,7 +173,7 @@ fun AppSidebar(
             }
         }
 
-        KaiSearchField(
+        DoraiSearchField(
             query = query,
             onQueryChange = { query = it },
             placeholder = "Search chats",
@@ -189,7 +189,7 @@ fun AppSidebar(
                 item(key = "header_$label") {
                     Text(
                         text = label.uppercase(),
-                        style = KaiTypography.labelSmall.copy(letterSpacing = 1.sp),
+                        style = DoraiTypography.labelSmall.copy(letterSpacing = 1.sp),
                         fontWeight = FontWeight.Bold,
                         color = tokens.MutedText.copy(alpha = 0.7f),
                         modifier = Modifier.padding(
@@ -214,7 +214,7 @@ fun AppSidebar(
                 item {
                     Text(
                         text = if (query.isBlank()) "No chats yet" else "No matches",
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = tokens.MutedText,
                         modifier = Modifier.padding(vertical = ChatSpacing.md, horizontal = ChatSpacing.xs),
                     )
@@ -259,7 +259,7 @@ fun AppSidebar(
                 LogoAnimation(size = 28.dp)
                 Text(
                     text = "DORAI AI",
-                    style = KaiTypography.titleSmall,
+                    style = DoraiTypography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = tokens.PrimaryText,
                 )
@@ -273,7 +273,7 @@ fun AppSidebar(
             ) {
                 Text(
                     text = "v2.0",
-                    style = KaiTypography.labelSmall,
+                    style = DoraiTypography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = tokens.PrimaryCyan,
                 )
@@ -362,14 +362,14 @@ private fun ConversationRow(
                         )
                         Text(
                             text = stringResource(Res.string.chat_history_heartbeat_label),
-                            style = KaiTypography.labelSmall,
+                            style = DoraiTypography.labelSmall,
                             color = tokens.AgentViolet,
                         )
                     }
                 }
                 Text(
                     text = conversation.title.ifBlank { "Untitled" },
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
                     color = if (isSelected) tokens.PrimaryText else tokens.SecondaryText,
                     maxLines = 1,
@@ -461,7 +461,7 @@ private fun RenameDialog(
         title = {
             Text(
                 text = "Rename chat",
-                style = KaiTypography.titleMedium,
+                style = DoraiTypography.titleMedium,
                 color = tokens.PrimaryText,
             )
         },
@@ -544,7 +544,7 @@ private fun SidebarLink(
             )
             Text(
                 text = label,
-                style = KaiTypography.bodyMedium,
+                style = DoraiTypography.bodyMedium,
                 color = if (isActive) tokens.PrimaryCyan else tokens.PrimaryText,
                 fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
             )

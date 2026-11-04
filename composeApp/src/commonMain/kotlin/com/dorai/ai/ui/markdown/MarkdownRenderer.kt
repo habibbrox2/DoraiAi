@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.markdown
+﻿package com.dorai.ai.ui.markdown
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -28,9 +28,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.dorai.ai.ui.BorderSoft
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.dynamicui.FrozenSubmission
-import com.dorai.ai.ui.dynamicui.KaiUiRenderer
+import com.dorai.ai.ui.dynamicui.DoraiUiRenderer
 import com.dorai.ai.ui.markdown.math.MathFormula
 import kotlinx.collections.immutable.persistentListOf
 
@@ -38,7 +38,7 @@ import kotlinx.collections.immutable.persistentListOf
  * Render a parsed [MarkdownDocument] as a Compose layout. Each block becomes one child of the
  * outer [Column]; inline content is rendered as [androidx.compose.ui.text.AnnotatedString].
  *
- * DORAI UI blocks dispatch to [KaiUiRenderer]; pass `isInteractive = false` to render them as
+ * DORAI UI blocks dispatch to [DoraiUiRenderer]; pass `isInteractive = false` to render them as
  * read-only (completed historical messages keep their layout but disable buttons/inputs).
  */
 @Composable
@@ -122,7 +122,7 @@ private fun BlockRenderer(
 
         is DisplayMath -> DisplayMathBlock(block)
 
-        is KaiUiBlock -> KaiUiRenderer(
+        is DoraiUiBlock -> DoraiUiRenderer(
             node = block.node,
             isInteractive = isInteractive,
             onCallback = onUiCallback,
@@ -130,7 +130,7 @@ private fun BlockRenderer(
             modifier = Modifier.padding(vertical = 8.dp),
         )
 
-        is KaiUiError -> CodeFenceBlock(
+        is DoraiUiError -> CodeFenceBlock(
             language = "json",
             code = block.rawJson,
             modifier = Modifier.padding(vertical = 4.dp),
@@ -141,12 +141,12 @@ private fun BlockRenderer(
 @Composable
 private fun HeadingBlock(block: Heading) {
     val style = when (block.level) {
-        1 -> KaiTypography.headlineSmall
-        2 -> KaiTypography.titleLarge
-        3 -> KaiTypography.titleMedium
-        4 -> KaiTypography.titleSmall
-        5 -> KaiTypography.bodyLarge.copy(fontWeight = FontWeight.Bold)
-        else -> KaiTypography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+        1 -> DoraiTypography.headlineSmall
+        2 -> DoraiTypography.titleLarge
+        3 -> DoraiTypography.titleMedium
+        4 -> DoraiTypography.titleSmall
+        5 -> DoraiTypography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+        else -> DoraiTypography.bodyMedium.copy(fontWeight = FontWeight.Bold)
     }
     InlineContent(
         inlines = block.inlines,
@@ -172,7 +172,7 @@ private fun ParagraphBlock(block: Paragraph) {
     }
     InlineContent(
         inlines = block.inlines,
-        style = KaiTypography.bodyLarge,
+        style = DoraiTypography.bodyLarge,
         modifier = Modifier.padding(vertical = 2.dp),
     )
 }
@@ -256,7 +256,7 @@ private fun ListItemRow(
     Row {
         Text(
             text = marker,
-            style = KaiTypography.bodyLarge,
+            style = DoraiTypography.bodyLarge,
             modifier = Modifier.widthIn(min = scaledMarkerWidth).padding(end = 4.dp),
         )
         Column(Modifier.fillMaxWidth()) {
@@ -273,7 +273,7 @@ private fun TableBlock(block: Table) {
                 block.headers.forEachIndexed { i, cell ->
                     InlineContent(
                         inlines = cell,
-                        style = KaiTypography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        style = DoraiTypography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                         textAlign = alignTextFor(block.alignments.getOrNull(i)),
                         modifier = Modifier.weight(1f).padding(4.dp),
                     )
@@ -286,7 +286,7 @@ private fun TableBlock(block: Table) {
                 row.forEachIndexed { i, cell ->
                     InlineContent(
                         inlines = cell,
-                        style = KaiTypography.bodyLarge,
+                        style = DoraiTypography.bodyLarge,
                         textAlign = alignTextFor(block.alignments.getOrNull(i)),
                         modifier = Modifier.weight(1f).padding(4.dp),
                     )

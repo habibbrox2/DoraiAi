@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="DORAI AI D Orbit social banner">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#050F22"/><stop offset="1" stop-color="#0A1F3E"/></linearGradient></defs><rect width="1200" height="630" fill="url(#bg)"/>
+<circle cx="970" cy="320" r="246" fill="none" stroke="#24E0E0" stroke-opacity=".35" stroke-width="3"/>
+<g transform="translate(766 116) scale(.8)"><rect width="512" height="512" rx="112" fill="#050F22"/><rect x="40" y="40" width="432" height="432" rx="104" fill="#0A1F3E" stroke="#18436F" stroke-width="5"/>
+<path d="M150 82 V430 Q150 470 198 470 H256 C380 470 448 375 448 256 C448 137 380 42 256 42 H198 Q150 42 150 82 Z" fill="none" stroke="#24E0E0" stroke-width="27" stroke-linecap="round" stroke-linejoin="round"/>
+<ellipse cx="286" cy="256" rx="112" ry="78" fill="none" stroke="#4684FF" stroke-width="10" transform="rotate(-22 286 256)"/>
+<path d="M286 194 L305 238 L349 256 L305 274 L286 318 L267 274 L223 256 L267 238 Z" fill="#24E0E0"/><circle cx="286" cy="256" r="18" fill="#EFF8FF"/></g>
+<text x="86" y="266" fill="#EFF8FF" font-family="Segoe UI,Arial,sans-serif" font-size="112" font-weight="700">DORAI AI</text><rect x="88" y="308" width="132" height="9" rx="4" fill="#24E0E0"/>
+<text x="86" y="403" fill="#24E0E0" font-family="Segoe UI,Arial,sans-serif" font-size="40" font-weight="700">YOUR AI. YOUR WORLD.</text><text x="86" y="468" fill="#96B1CF" font-family="Segoe UI,Arial,sans-serif" font-size="29">A hybrid AI assistant &amp; agent platform</text></svg>

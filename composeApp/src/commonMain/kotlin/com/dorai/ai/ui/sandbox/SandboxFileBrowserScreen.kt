@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.sandbox
+﻿package com.dorai.ai.ui.sandbox
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -60,10 +60,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.SandboxFileEntry
 import com.dorai.ai.formatFileSize
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
-import com.dorai.ai.ui.kaiAdaptiveCardBorder
-import com.dorai.ai.ui.kaiAdaptiveCardColors
+import com.dorai.ai.ui.doraiAdaptiveCardBorder
+import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.sandbox_files_action_delete
@@ -227,9 +227,9 @@ private fun PathBar(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = com.dorai.ai.ui.workspace.WorkspaceSpacing.sm)
-            .clip(com.dorai.ai.ui.KaiShapes.input)
-            .background(com.dorai.ai.ui.theme.DesignTokens.SurfaceElevated)
-            .border(androidx.compose.foundation.BorderStroke(1.dp, com.dorai.ai.ui.theme.DesignTokens.BorderSubtle), com.dorai.ai.ui.KaiShapes.input),
+            .clip(com.dorai.ai.ui.DoraiShapes.input)
+            .background(LocalDesignColorTokens.current.surfaceElevated)
+            .border(androidx.compose.foundation.BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle), com.dorai.ai.ui.DoraiShapes.input),
     ) {
         Row(
             modifier = Modifier
@@ -245,10 +245,10 @@ private fun PathBar(
                     if (index > 0) Separator()
                     Text(
                         text = label,
-                        style = com.dorai.ai.ui.KaiTypography.bodyMedium,
+                        style = com.dorai.ai.ui.DoraiTypography.bodyMedium,
                         color = com.dorai.ai.ui.AccentPrimary,
                         modifier = Modifier
-                            .clip(com.dorai.ai.ui.KaiShapes.sm)
+                            .clip(com.dorai.ai.ui.DoraiShapes.sm)
                             .clickable { onNavigateTo(target) }
                             .handCursor()
                             .padding(horizontal = 10.dp, vertical = 6.dp),
@@ -258,7 +258,7 @@ private fun PathBar(
                     Separator()
                     Text(
                         text = editorFileName,
-                        style = com.dorai.ai.ui.KaiTypography.bodyMedium,
+                        style = com.dorai.ai.ui.DoraiTypography.bodyMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                     )
@@ -308,7 +308,7 @@ internal fun breadcrumbs(currentPath: String, rootPath: String): List<Pair<Strin
 private fun Separator() {
     Text(
         text = "›",
-        style = KaiTypography.bodyMedium,
+        style = DoraiTypography.bodyMedium,
         color = LocalDesignColorTokens.current.textSecondary,
         modifier = Modifier.padding(horizontal = 4.dp),
     )
@@ -341,7 +341,7 @@ private fun FileList(
             Text(
                 stringResource(Res.string.sandbox_files_empty_directory),
                 color = LocalDesignColorTokens.current.textSecondary,
-                style = KaiTypography.bodyMedium,
+                style = DoraiTypography.bodyMedium,
             )
         }
         return
@@ -378,9 +378,9 @@ private fun FileRow(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(com.dorai.ai.ui.KaiShapes.card)
-            .background(com.dorai.ai.ui.theme.DesignTokens.SurfaceElevated)
-            .border(androidx.compose.foundation.BorderStroke(1.dp, com.dorai.ai.ui.theme.DesignTokens.BorderSubtle), com.dorai.ai.ui.KaiShapes.input),
+            .clip(com.dorai.ai.ui.DoraiShapes.card)
+            .background(LocalDesignColorTokens.current.surfaceElevated)
+            .border(androidx.compose.foundation.BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle), com.dorai.ai.ui.DoraiShapes.input),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -403,7 +403,7 @@ private fun FileRow(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = entry.name,
-                        style = com.dorai.ai.ui.KaiTypography.bodyLarge,
+                        style = com.dorai.ai.ui.DoraiTypography.bodyLarge,
                         color = LocalDesignColorTokens.current.textPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -411,7 +411,7 @@ private fun FileRow(
                     if (!entry.isDirectory) {
                         Text(
                             text = formatFileSize(entry.sizeBytes),
-                            style = com.dorai.ai.ui.KaiTypography.bodySmall,
+                            style = com.dorai.ai.ui.DoraiTypography.bodySmall,
                             color = LocalDesignColorTokens.current.textTertiary,
                         )
                     }
@@ -454,7 +454,7 @@ private fun FileRowMenu(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            shape = com.dorai.ai.ui.KaiShapes.card,
+            shape = com.dorai.ai.ui.DoraiShapes.card,
         ) {
             if (!isDirectory) {
                 DropdownMenuItem(
@@ -548,7 +548,7 @@ private fun EditorBody(
                 if (editor.readOnly) {
                     Text(
                         stringResource(Res.string.sandbox_files_editor_read_only),
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                         modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp),
                     )
@@ -572,7 +572,7 @@ private fun EditorBody(
                     readOnly = editor.readOnly,
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     textStyle = TextStyle(fontFamily = FontFamily.Monospace, color = LocalDesignColorTokens.current.textPrimary),
-                    shape = com.dorai.ai.ui.KaiShapes.card,
+                    shape = com.dorai.ai.ui.DoraiShapes.card,
                     colors = com.dorai.ai.ui.outlineTextFieldColors(),
                 )
                 Row(
@@ -627,7 +627,7 @@ private fun UnopenableFile(
         Spacer(Modifier.weight(1f))
         Text(
             message,
-            style = KaiTypography.bodyMedium,
+            style = DoraiTypography.bodyMedium,
             color = LocalDesignColorTokens.current.textSecondary,
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

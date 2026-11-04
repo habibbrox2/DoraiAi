@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat.composables
+﻿package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 
@@ -36,14 +36,14 @@ fun PanelHeading(
         ) {
             Text(
                 text = title,
-                style = KaiTypography.titleMedium,
+                style = DoraiTypography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = LocalDesignColorTokens.current.textPrimary,
             )
             if (subtitle != null) {
                 Text(
                     text = subtitle,
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
             }

@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -50,15 +50,15 @@ import com.dorai.ai.mcp.authorizationHeaderValue
 import com.dorai.ai.mcp.popularMcpServers
 import com.dorai.ai.ui.CardFill
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiOutlinedTextField
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiOutlinedTextField
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.components.CollectionEmptyState
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.components.StatusBadge
 import com.dorai.ai.ui.components.VerticalScrollbarForScroll
 import com.dorai.ai.ui.handCursor
-import com.dorai.ai.ui.kaiAdaptiveCardBorder
-import com.dorai.ai.ui.kaiAdaptiveCardColors
+import com.dorai.ai.ui.doraiAdaptiveCardBorder
+import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.ic_arrow_drop_down
@@ -102,13 +102,13 @@ internal fun McpServersSection(
 
         Text(
             text = stringResource(Res.string.settings_mcp_servers),
-            style = KaiTypography.titleMedium,
+            style = DoraiTypography.titleMedium,
             color = LocalDesignColorTokens.current.textPrimary,
         )
         Spacer(Modifier.height(4.dp))
         Text(
             text = stringResource(Res.string.settings_mcp_servers_description),
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
         )
 
@@ -179,8 +179,8 @@ private fun McpServerCard(
             .fillMaxWidth()
             .handCursor()
             .semantics { liveRegion = LiveRegionMode.Polite },
-        colors = kaiAdaptiveCardColors(),
-        border = kaiAdaptiveCardBorder(),
+        colors = doraiAdaptiveCardColors(),
+        border = doraiAdaptiveCardBorder(),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -216,12 +216,12 @@ private fun McpServerCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = server.name,
-                        style = KaiTypography.titleMedium,
+                        style = DoraiTypography.titleMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                     )
                     Text(
                         text = server.url,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -255,7 +255,7 @@ private fun McpServerCard(
                 if (statusText.isNotEmpty()) {
                     Text(
                         text = statusText,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = when (server.connectionStatus) {
                             McpConnectionStatus.Error -> DangerAlert
                             else -> LocalDesignColorTokens.current.textSecondary
@@ -274,13 +274,13 @@ private fun McpServerCard(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = tool.name,
-                                    style = KaiTypography.bodyMedium,
+                                    style = DoraiTypography.bodyMedium,
                                     color = LocalDesignColorTokens.current.textPrimary,
                                 )
                                 if (tool.description.isNotEmpty()) {
                                     Text(
                                         text = tool.description,
-                                        style = KaiTypography.bodySmall,
+                                        style = DoraiTypography.bodySmall,
                                         color = LocalDesignColorTokens.current.textSecondary,
                                     )
                                 }
@@ -294,7 +294,7 @@ private fun McpServerCard(
                 } else if (server.connectionStatus == McpConnectionStatus.Connected) {
                     Text(
                         text = stringResource(Res.string.settings_mcp_no_tools),
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
@@ -357,12 +357,12 @@ private fun AddMcpServerDialog(
             ) {
                 Text(
                     text = stringResource(Res.string.settings_mcp_add_server),
-                    style = KaiTypography.headlineSmall,
+                    style = DoraiTypography.headlineSmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
                 Spacer(Modifier.height(16.dp))
 
-                KaiOutlinedTextField(
+                DoraiOutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text(stringResource(Res.string.settings_mcp_server_name)) },
@@ -370,7 +370,7 @@ private fun AddMcpServerDialog(
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(8.dp))
-                KaiOutlinedTextField(
+                DoraiOutlinedTextField(
                     value = url,
                     onValueChange = { url = it },
                     label = { Text(stringResource(Res.string.settings_mcp_server_url)) },
@@ -380,7 +380,7 @@ private fun AddMcpServerDialog(
                 Spacer(Modifier.height(12.dp))
 
                 if (requiresAuth) {
-                    KaiOutlinedTextField(
+                    DoraiOutlinedTextField(
                         value = apiKey,
                         onValueChange = { apiKey = it },
                         label = { Text(stringResource(Res.string.settings_mcp_api_key)) },
@@ -390,7 +390,7 @@ private fun AddMcpServerDialog(
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = stringResource(Res.string.settings_mcp_api_key_help),
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                     Spacer(Modifier.height(12.dp))
@@ -403,7 +403,7 @@ private fun AddMcpServerDialog(
                             // The floating labels must stay on one line: at large font
                             // scales a wrapped label grows upward out of the field and
                             // lands on top of the URL field above it.
-                            KaiOutlinedTextField(
+                            DoraiOutlinedTextField(
                                 value = entry.key,
                                 onValueChange = { headers[index] = entry.copy(key = it) },
                                 label = {
@@ -417,7 +417,7 @@ private fun AddMcpServerDialog(
                                 modifier = Modifier.weight(0.5f),
                             )
                             Spacer(Modifier.width(8.dp))
-                            KaiOutlinedTextField(
+                            DoraiOutlinedTextField(
                                 value = entry.value,
                                 onValueChange = { headers[index] = entry.copy(value = it) },
                                 label = {
@@ -488,7 +488,7 @@ private fun AddMcpServerDialog(
                     Spacer(Modifier.height(16.dp))
                     Text(
                         text = stringResource(Res.string.settings_mcp_popular_servers),
-                        style = KaiTypography.titleSmall,
+                        style = DoraiTypography.titleSmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                     Spacer(Modifier.height(8.dp))
@@ -512,12 +512,12 @@ private fun AddMcpServerDialog(
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text(
                                     text = server.name,
-                                    style = KaiTypography.bodyMedium,
+                                    style = DoraiTypography.bodyMedium,
                                     color = LocalDesignColorTokens.current.textSecondary,
                                 )
                                 Text(
                                     text = server.description,
-                                    style = KaiTypography.bodySmall,
+                                    style = DoraiTypography.bodySmall,
                                     color = LocalDesignColorTokens.current.textSecondary,
                                 )
                             }

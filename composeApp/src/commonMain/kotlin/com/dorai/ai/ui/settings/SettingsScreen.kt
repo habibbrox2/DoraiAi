@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+﻿@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.dorai.ai.ui.settings
 
@@ -96,12 +96,12 @@ import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.BorderSoft
 import com.dorai.ai.ui.CardFill
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
 import com.dorai.ai.ui.components.VerticalScrollbarForScroll
 import com.dorai.ai.ui.handCursor
-import com.dorai.ai.ui.kaiAdaptiveCardBorder
-import com.dorai.ai.ui.kaiAdaptiveCardColors
+import com.dorai.ai.ui.doraiAdaptiveCardBorder
+import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.github_mark
@@ -359,7 +359,7 @@ fun SettingsScreenContent(
 
 @Composable
 private fun TopBar(onNavigateBack: () -> Unit) {
-    val barBg = com.dorai.ai.ui.theme.DesignTokens.SurfaceElevated
+    val barBg = LocalDesignColorTokens.current.surfaceElevated
 
     Box(
         modifier = Modifier
@@ -391,7 +391,7 @@ private fun TopBar(onNavigateBack: () -> Unit) {
             Spacer(Modifier.width(8.dp))
             Text(
                 text = "Settings",
-                style = KaiTypography.titleMedium,
+                style = DoraiTypography.titleMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -439,7 +439,7 @@ private fun SettingsTabSelector(
     }
 
     // Neural minimal tab bar container
-    val tabBarBg = com.dorai.ai.ui.theme.DesignTokens.SurfaceElevated
+    val tabBarBg = LocalDesignColorTokens.current.surfaceElevated
 
     Box(
         modifier = Modifier
@@ -505,7 +505,6 @@ private fun SettingsTabSelector(
                     SettingsTab.Tools -> stringResource(Res.string.settings_tab_tools)
                     SettingsTab.Integrations -> stringResource(Res.string.settings_tab_integrations)
                     SettingsTab.Sandbox -> stringResource(Res.string.settings_tab_sandbox)
-                    SettingsTab.Data -> stringResource(Res.string.settings_tab_data)
                     SettingsTab.Account -> stringResource(Res.string.settings_tab_account)
                 }
 
@@ -570,7 +569,6 @@ private fun SettingsTabSelector(
                             SettingsTab.Tools -> stringResource(Res.string.settings_tab_tools)
                             SettingsTab.Integrations -> stringResource(Res.string.settings_tab_integrations)
                             SettingsTab.Sandbox -> stringResource(Res.string.settings_tab_sandbox)
-                            SettingsTab.Data -> stringResource(Res.string.settings_tab_data)
                             SettingsTab.Account -> stringResource(Res.string.settings_tab_account)
                         },
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -579,7 +577,7 @@ private fun SettingsTabSelector(
                         } else {
                             LocalDesignColorTokens.current.textSecondary
                         },
-                        style = KaiTypography.labelLarge,
+                        style = DoraiTypography.labelLarge,
                         maxLines = 1,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                     )
@@ -593,7 +591,7 @@ private fun SettingsTabSelector(
 internal fun BottomInfo() {
     Text(
         text = stringResource(Res.string.settings_ai_mistakes_warning),
-        style = KaiTypography.bodySmall,
+        style = DoraiTypography.bodySmall,
         textAlign = TextAlign.Center,
         color = LocalDesignColorTokens.current.textPrimary,
     )
@@ -613,7 +611,7 @@ internal fun BottomInfo() {
         Text(
             stringResource(Res.string.settings_version, Version.appVersion),
             modifier = Modifier.align(Alignment.CenterVertically),
-            style = KaiTypography.bodyMedium,
+            style = DoraiTypography.bodyMedium,
             color = LocalDesignColorTokens.current.textPrimary,
         )
 
@@ -640,7 +638,7 @@ internal fun BottomInfo() {
         ) {
             Text(
                 text = stringResource(Res.string.settings_documentation),
-                style = KaiTypography.bodyMedium,
+                style = DoraiTypography.bodyMedium,
                 color = AccentPrimary,
             )
         }
@@ -654,7 +652,7 @@ internal fun BottomInfo() {
         ) {
             Text(
                 text = stringResource(Res.string.settings_licenses),
-                style = KaiTypography.bodyMedium,
+                style = DoraiTypography.bodyMedium,
                 color = AccentPrimary,
             )
         }
@@ -680,7 +678,7 @@ private fun LicensesDialog(onDismiss: () -> Unit) {
             Text(
                 text = notices.orEmpty(),
                 modifier = Modifier.verticalScroll(rememberScrollState()),
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 fontFamily = FontFamily.Monospace,
             )
         },
@@ -699,8 +697,8 @@ internal fun SettingsCard(
     onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
-    val cardBg = com.dorai.ai.ui.theme.DesignTokens.SurfaceElevated
-    val cardBorder = BorderStroke(1.dp, com.dorai.ai.ui.theme.DesignTokens.BorderSubtle)
+    val cardBg = LocalDesignColorTokens.current.surfaceElevated
+    val cardBorder = BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle)
     val cardShape = SettingsShapes.card
 
     Box(
@@ -788,14 +786,14 @@ internal fun ToggleableHeadline(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
-                style = KaiTypography.titleMedium,
+                style = DoraiTypography.titleMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(Modifier.size(4.dp))
             Text(
                 text = description,
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
         }

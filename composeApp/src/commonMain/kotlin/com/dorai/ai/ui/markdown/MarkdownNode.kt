@@ -1,7 +1,7 @@
-package com.dorai.ai.ui.markdown
+﻿package com.dorai.ai.ui.markdown
 
 import androidx.compose.runtime.Immutable
-import com.dorai.ai.ui.dynamicui.KaiUiNode
+import com.dorai.ai.ui.dynamicui.DoraiUiNode
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
@@ -55,10 +55,10 @@ data object HorizontalRule : BlockNode
 data class DisplayMath(val latex: String) : BlockNode
 
 @Immutable
-data class KaiUiBlock(val node: KaiUiNode, val rawJson: String) : BlockNode
+data class DoraiUiBlock(val node: DoraiUiNode, val rawJson: String) : BlockNode
 
 @Immutable
-data class KaiUiError(val rawJson: String) : BlockNode
+data class DoraiUiError(val rawJson: String) : BlockNode
 
 @Immutable
 sealed interface InlineNode

@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -30,9 +30,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.data.AppLanguage
 import com.dorai.ai.data.AppSettings
-import com.dorai.ai.data.ThemeMode
-import com.dorai.ai.ui.KaiTypography
-import com.dorai.ai.ui.components.KaiSlider
+import com.dorai.ai.ui.DoraiTypography
+import com.dorai.ai.ui.components.DoraiSlider
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -41,11 +40,6 @@ import dorai.composeapp.generated.resources.settings_daemon_mode
 import dorai.composeapp.generated.resources.settings_daemon_mode_description
 import dorai.composeapp.generated.resources.settings_dynamic_ui
 import dorai.composeapp.generated.resources.settings_dynamic_ui_description
-import dorai.composeapp.generated.resources.settings_theme
-import dorai.composeapp.generated.resources.settings_theme_dark
-import dorai.composeapp.generated.resources.settings_theme_description
-import dorai.composeapp.generated.resources.settings_theme_light
-import dorai.composeapp.generated.resources.settings_theme_system
 import dorai.composeapp.generated.resources.settings_ui_scale
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -143,12 +137,12 @@ internal fun LanguageSwitch(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "Language",
-            style = KaiTypography.titleMedium,
+            style = DoraiTypography.titleMedium,
             color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
             text = "App display language (default: Bengali)",
-            style = KaiTypography.bodyMedium,
+            style = DoraiTypography.bodyMedium,
             color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
         )
@@ -168,48 +162,6 @@ internal fun LanguageSwitch(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-internal fun ThemeModeSwitch(
-    themeMode: ThemeMode,
-    onChangeThemeMode: (ThemeMode) -> Unit,
-) {
-    val options = listOf(
-        ThemeMode.System to stringResource(Res.string.settings_theme_system),
-        ThemeMode.Light to stringResource(Res.string.settings_theme_light),
-        ThemeMode.Dark to stringResource(Res.string.settings_theme_dark),
-    )
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(Res.string.settings_theme),
-            style = KaiTypography.titleMedium,
-            color = LocalDesignColorTokens.current.textPrimary,
-        )
-        Text(
-            text = stringResource(Res.string.settings_theme_description),
-            style = KaiTypography.bodyMedium,
-            color = LocalDesignColorTokens.current.textSecondary,
-            modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
-        )
-        // One button per theme: the choice is visible at a glance and takes a single tap,
-        // instead of a dropdown that has to be opened first.
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            options.forEach { (mode, label) ->
-                ThemeModeButton(
-                    label = label,
-                    isSelected = mode == themeMode,
-                    onClick = { onChangeThemeMode(mode) },
-                )
-            }
-        }
-    }
-}
-
 @Composable
 private fun ThemeModeButton(
     label: String,
@@ -218,9 +170,9 @@ private fun ThemeModeButton(
 ) {
     val selectedBg = DesignTokens.PrimaryCyan
     val selectedText = DesignTokens.BrandNavy
-    val unselectedBg = DesignTokens.SurfaceRaised
+    val unselectedBg = LocalDesignColorTokens.current.surfaceRaised
     val unselectedText = LocalDesignColorTokens.current.textPrimary
-    val unselectedBorder = DesignTokens.BorderSubtle
+    val unselectedBorder = LocalDesignColorTokens.current.borderSubtle
 
     Box(
         modifier = Modifier
@@ -239,7 +191,7 @@ private fun ThemeModeButton(
     ) {
         Text(
             text = label,
-            style = KaiTypography.labelLarge,
+            style = DoraiTypography.labelLarge,
             fontWeight = if (isSelected) androidx.compose.ui.text.font.FontWeight.SemiBold else androidx.compose.ui.text.font.FontWeight.Normal,
             color = if (isSelected) selectedText else unselectedText,
             maxLines = 1,
@@ -264,16 +216,16 @@ private fun UiScaleSection(
         ) {
             Text(
                 text = stringResource(Res.string.settings_ui_scale),
-                style = KaiTypography.titleMedium,
+                style = DoraiTypography.titleMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
             )
             Text(
                 text = "${(sliderValue * 100).roundToInt()}%",
-                style = KaiTypography.labelLarge,
+                style = DoraiTypography.labelLarge,
                 color = LocalDesignColorTokens.current.textPrimary,
             )
         }
-        KaiSlider(
+        DoraiSlider(
             value = sliderValue,
             onValueChange = { sliderValue = it },
             onValueChangeFinished = { onChangeUiScale(sliderValue) },
@@ -297,17 +249,17 @@ private fun TtsSettingsSection() {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "Text-to-Speech (TTS)",
-            style = KaiTypography.titleMedium,
+            style = DoraiTypography.titleMedium,
             color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
             text = "?????? ?????????, ??? ? ???? ??? ????????? ????",
-            style = KaiTypography.bodyMedium,
+            style = DoraiTypography.bodyMedium,
             color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
         )
 
-        Text(text = "??? (Speed): ${(rate * 100).roundToInt()}%", style = KaiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        Text(text = "??? (Speed): ${(rate * 100).roundToInt()}%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         Slider(
             value = rate,
             onValueChange = { rate = it },
@@ -316,7 +268,7 @@ private fun TtsSettingsSection() {
         )
 
         Spacer(Modifier.height(8.dp))
-        Text(text = "????????? (Pitch): ${(pitch * 100).roundToInt()}%", style = KaiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        Text(text = "????????? (Pitch): ${(pitch * 100).roundToInt()}%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         Slider(
             value = pitch,
             onValueChange = { pitch = it },
@@ -325,7 +277,7 @@ private fun TtsSettingsSection() {
         )
 
         Spacer(Modifier.height(8.dp))
-        Text(text = "????? (Volume): ${(volume * 100).roundToInt()}%", style = KaiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        Text(text = "????? (Volume): ${(volume * 100).roundToInt()}%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         Slider(
             value = volume,
             onValueChange = { volume = it },
@@ -336,7 +288,7 @@ private fun TtsSettingsSection() {
         Spacer(Modifier.height(8.dp))
         Text(
             text = "???: ????????? ?????? ???? ??? ?.??-?.??, ????????? ?.??-?.?? ????? ???? ????????? ???????",
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
         )
     }

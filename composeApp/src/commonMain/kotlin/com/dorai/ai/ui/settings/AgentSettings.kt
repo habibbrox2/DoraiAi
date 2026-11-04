@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+﻿@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.dorai.ai.ui.settings
 
@@ -43,8 +43,8 @@ import com.dorai.ai.data.ScheduledTask
 import com.dorai.ai.data.TaskTrigger
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiOutlinedTextField
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiOutlinedTextField
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.components.SettingsListItem
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.icons.Replay
@@ -207,7 +207,7 @@ private fun SoulEditor(
         ) {
             Text(
                 text = stringResource(Res.string.settings_soul),
-                style = KaiTypography.titleMedium,
+                style = DoraiTypography.titleMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
                 modifier = Modifier.weight(1f),
             )
@@ -226,12 +226,12 @@ private fun SoulEditor(
         }
         Text(
             text = stringResource(Res.string.settings_soul_description),
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
         )
         Spacer(Modifier.height(12.dp))
 
-        KaiOutlinedTextField(
+        DoraiOutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = editedText,
             onValueChange = { if (it.length <= maxChars) editedText = it },
@@ -247,7 +247,7 @@ private fun SoulEditor(
 
         Text(
             text = "${editedText.length}/$maxChars",
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.End,
@@ -382,7 +382,7 @@ private fun AllMemoriesSheet(
         ) {
             Text(
                 text = stringResource(Res.string.settings_memories_all_title),
-                style = KaiTypography.titleMedium,
+                style = DoraiTypography.titleMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
             )
             Spacer(Modifier.height(12.dp))
@@ -423,17 +423,17 @@ private fun EditMemorySheet(
         ) {
             Text(
                 text = stringResource(Res.string.settings_memories_edit_title),
-                style = KaiTypography.titleMedium,
+                style = DoraiTypography.titleMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
             )
             Spacer(Modifier.height(12.dp))
             Text(
                 text = memory.key,
-                style = KaiTypography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                style = DoraiTypography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                 color = LocalDesignColorTokens.current.textPrimary,
             )
             Spacer(Modifier.height(8.dp))
-            KaiOutlinedTextField(
+            DoraiOutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = content,
                 onValueChange = { content = it },
@@ -537,7 +537,7 @@ private fun TaskDetailsSheet(
         ) {
             Text(
                 text = task.description,
-                style = KaiTypography.titleMedium,
+                style = DoraiTypography.titleMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
             )
             Spacer(Modifier.height(12.dp))
@@ -595,7 +595,7 @@ private fun TaskDetailsSheet(
             Spacer(Modifier.height(16.dp))
             Text(
                 text = stringResource(Res.string.settings_heartbeat_recent),
-                style = KaiTypography.labelMedium,
+                style = DoraiTypography.labelMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
             )
             Spacer(Modifier.height(4.dp))
@@ -641,13 +641,13 @@ private fun TaskDetailRow(label: String, value: String) {
         // track the font scale; the value needs a weight or it overflows the row.
         Text(
             text = label,
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.width(140.dp * LocalDensity.current.fontScale),
         )
         Text(
             text = value,
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textPrimary,
             modifier = Modifier.weight(1f),
         )
@@ -662,20 +662,20 @@ private fun ExecutionLogRow(success: Boolean, timestampEpochMs: Long, message: S
     ) {
         Text(
             text = if (success) stringResource(Res.string.execution_log_status_ok) else stringResource(Res.string.execution_log_status_fail),
-            style = KaiTypography.labelSmall,
+            style = DoraiTypography.labelSmall,
             color = if (success) AccentPrimary else DangerAlert,
             modifier = Modifier.widthIn(min = 36.dp * LocalDensity.current.fontScale),
         )
         Column {
             Text(
                 text = formatTaskInstant(timestampEpochMs),
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
             if (!message.isNullOrBlank()) {
                 Text(
                     text = message,
-                    style = KaiTypography.labelSmall,
+                    style = DoraiTypography.labelSmall,
                     color = if (success) LocalDesignColorTokens.current.textSecondary else DangerAlert,
                     maxLines = 4,
                     overflow = TextOverflow.Ellipsis,
@@ -689,7 +689,7 @@ private fun ExecutionLogRow(success: Boolean, timestampEpochMs: Long, message: S
 private fun EmptyLogText(text: String) {
     Text(
         text = text,
-        style = KaiTypography.bodySmall,
+        style = DoraiTypography.bodySmall,
         color = LocalDesignColorTokens.current.textSecondary,
     )
 }

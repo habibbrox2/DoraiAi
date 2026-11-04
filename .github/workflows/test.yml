@@ -46,7 +46,7 @@ jobs:
           for png in site/img/*.png; do
             name="${png##*/}"
             case "$name" in
-              apple-icon-180x180.png|og-preview.png|preview-banner.png|preview.png) ;;
+              apple-icon-180x180.png|og-preview.png|preview.png) ;;
               *) unexpected+=("$png") ;;
             esac
           done
@@ -130,9 +130,9 @@ jobs:
         with:
           packages: platform-tools
 
-      # Intentional full Paparazzi baseline refresh for the approved DORAI AURORA theme migration.
-      # The marker is added only on a dedicated PR branch after reviewing the expected theme diffs.
-      - name: Record Paparazzi baselines for approved theme refresh
+      # One-time bootstrap: record the missing legacy suites plus newly added Premium tool-state goldens.
+      # Existing Dashboard and Build Premium goldens are preserved by selecting only the three new tests.
+      - name: Record missing Paparazzi baselines
         if: >-
           github.event_name == 'pull_request' &&
           github.event.pull_request.head.repo.full_name == github.repository &&
@@ -151,7 +151,7 @@ jobs:
           --tests com.dorai.ai.screenshots.TabletStoreScreenshotTest
           --no-daemon --stacktrace
 
-      # Commit the complete refreshed baseline set before verification. The marker
+      # Commit the complete baseline set before verification. This bootstrap marker
       # is removed in the same commit, so future runs verify without silently recording goldens.
       # GITHUB_TOKEN-authored pushes do not recursively trigger another workflow run.
       - name: Commit bootstrapped Paparazzi goldens

@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat.composables
+﻿package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -32,7 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.chat.ChatUiState
 import com.dorai.ai.ui.chat.ConversationSummary
@@ -70,7 +70,7 @@ fun ConversationRail(
         ) {
             Text(
                 text = "Conversations",
-                style = KaiTypography.titleSmall,
+                style = DoraiTypography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = tokens.PrimaryText,
                 modifier = Modifier.weight(1f),
@@ -131,7 +131,7 @@ fun ConversationRail(
                         )
                         Text(
                             text = conversation.title.ifBlank { "Untitled" },
-                            style = KaiTypography.bodySmall,
+                            style = DoraiTypography.bodySmall,
                             fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal,
                             color = if (selected) tokens.PrimaryText else tokens.SecondaryText,
                             maxLines = 1,

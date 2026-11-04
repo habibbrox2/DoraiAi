@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Selamat datang di DORAI AI</string>
     <string name="prompt_ask_question">Ajukan pertanyaan</string>
     <string name="error_invalid_api_key">Kunci API tidak valid. Silakan periksa pengaturan Anda.</string>
@@ -383,8 +383,8 @@
     <string name="sandbox_files_editor_binary_warning">Biner atau terlalu besar untuk dipratinjau sebagai teks.</string>
     <string name="sandbox_files_editor_force_open_as_text">Paksa buka sebagai teks</string>
     <string name="sandbox_files_editor_save">Simpan</string>
-    <string name="kai_ui_render_failed">Gagal merender UI</string>
-    <string name="kai_ui_code_copy">Salin</string>
+    <string name="dorai_ui_render_failed">Gagal merender UI</string>
+    <string name="dorai_ui_code_copy">Salin</string>
     <string name="image_viewer_close">Tutup</string>
     <string name="bot_message_thinking_label">Berpikir</string>
     <string name="bot_message_thinking_expand_content_description">Perluas atau ciutkan pemikiran</string>

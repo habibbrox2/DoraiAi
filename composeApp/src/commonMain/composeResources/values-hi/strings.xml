@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">DORAI AI में आपका स्वागत है</string>
     <string name="prompt_ask_question">एक सवाल पूछें</string>
     <string name="error_invalid_api_key">अमान्य API कुंजी। कृपया अपनी सेटिंग्स जाँचें।</string>
@@ -384,8 +384,8 @@
     <string name="sandbox_files_editor_binary_warning">बाइनरी या टेक्स्ट के रूप में पूर्वावलोकन के लिए बहुत बड़ा।</string>
     <string name="sandbox_files_editor_force_open_as_text">टेक्स्ट के रूप में खोलने के लिए बाध्य करें</string>
     <string name="sandbox_files_editor_save">सहेजें</string>
-    <string name="kai_ui_render_failed">UI रेंडर करने में विफल</string>
-    <string name="kai_ui_code_copy">कॉपी करें</string>
+    <string name="dorai_ui_render_failed">UI रेंडर करने में विफल</string>
+    <string name="dorai_ui_code_copy">कॉपी करें</string>
     <string name="image_viewer_close">बंद करें</string>
     <string name="bot_message_thinking_label">सोच रहा है</string>
     <string name="bot_message_thinking_expand_content_description">सोच विस्तृत करें या संक्षिप्त करें</string>

@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Добродошли у DORAI AI</string>
     <string name="prompt_ask_question">Поставите питање</string>
     <string name="error_invalid_api_key">Неважећи API кључ. Проверите подешавања.</string>
@@ -383,8 +383,8 @@
     <string name="sandbox_files_editor_binary_warning">Бинарно или превелико за приказ као текст.</string>
     <string name="sandbox_files_editor_force_open_as_text">Принудно отвори као текст</string>
     <string name="sandbox_files_editor_save">Сачувај</string>
-    <string name="kai_ui_render_failed">Исцртавање интерфејса није успело</string>
-    <string name="kai_ui_code_copy">Копирај</string>
+    <string name="dorai_ui_render_failed">Исцртавање интерфејса није успело</string>
+    <string name="dorai_ui_code_copy">Копирај</string>
     <string name="image_viewer_close">Затвори</string>
     <string name="bot_message_thinking_label">Размишљање</string>
     <string name="bot_message_thinking_expand_content_description">Прошири или скупи размишљање</string>

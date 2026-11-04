@@ -65,10 +65,10 @@ import com.dorai.ai.data.ServiceEntry
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.BorderSoft
 import com.dorai.ai.ui.CardFill
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
-import com.dorai.ai.ui.components.KaiSearchField
+import com.dorai.ai.ui.components.DoraiSearchField
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.settings.SettingsModel
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -122,14 +122,14 @@ internal fun ServiceSelector(
     Box {
         if (showLabel) {
             // Pill variant used by the Plan 7 top bar: icon + name + chevron.
-            val pillBg = com.dorai.ai.ui.theme.DesignTokens.SurfaceElevated
-            val pillBorder = com.dorai.ai.ui.theme.DesignTokens.BorderSubtle
+            val pillBg = LocalDesignColorTokens.current.surfaceElevated
+            val pillBorder = LocalDesignColorTokens.current.borderSubtle
 
             Row(
                 modifier = Modifier
-                    .clip(KaiShapes.pill)
-                    .background(pillBg, KaiShapes.pill)
-                    .border(BorderStroke(1.dp, pillBorder), KaiShapes.pill)
+                    .clip(DoraiShapes.pill)
+                    .background(pillBg, DoraiShapes.pill)
+                    .border(BorderStroke(1.dp, pillBorder), DoraiShapes.pill)
                     .clickable { expanded = true }
                     .handCursor()
                     .padding(horizontal = 8.dp, vertical = 4.dp),
@@ -144,7 +144,7 @@ internal fun ServiceSelector(
                 Spacer(Modifier.width(6.dp))
                 Text(
                     text = current.serviceName,
-                    style = KaiTypography.labelSmall,
+                    style = DoraiTypography.labelSmall,
                     color = LocalDesignColorTokens.current.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -152,8 +152,8 @@ internal fun ServiceSelector(
                 )
                 if (currentModelLabel.isNotBlank()) {
                     Text(
-                        text = " · $currentModelLabel",
-                        style = KaiTypography.labelSmall,
+                        text = " � $currentModelLabel",
+                        style = DoraiTypography.labelSmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -235,8 +235,8 @@ internal fun ServiceSelector(
                             .heightIn(max = 540.dp)
                             .clickable(enabled = false) {}
                             .clip(RoundedCornerShape(16.dp))
-                            .background(com.dorai.ai.ui.theme.DesignTokens.SurfaceElevated, RoundedCornerShape(16.dp))
-                            .border(BorderStroke(1.dp, com.dorai.ai.ui.theme.DesignTokens.BorderSubtle), RoundedCornerShape(16.dp))
+                            .background(LocalDesignColorTokens.current.surfaceElevated, RoundedCornerShape(16.dp))
+                            .border(BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle), RoundedCornerShape(16.dp))
                             .padding(16.dp),
                     ) {
                         Column(modifier = Modifier.fillMaxWidth()) {
@@ -248,7 +248,7 @@ internal fun ServiceSelector(
                             ) {
                                 Text(
                                     text = "Select Model & Provider",
-                                    style = KaiTypography.titleMedium,
+                                    style = DoraiTypography.titleMedium,
                                     color = LocalDesignColorTokens.current.textPrimary,
                                 )
                                 androidx.compose.material3.IconButton(
@@ -265,7 +265,7 @@ internal fun ServiceSelector(
                             }
 
                             // Sticky Search / Filter Input
-                            KaiSearchField(
+                            DoraiSearchField(
                                 query = searchQuery,
                                 onQueryChange = { searchQuery = it },
                                 placeholder = "Search models...",
@@ -310,7 +310,7 @@ internal fun ServiceSelector(
                                         )
                                         Text(
                                             text = stringResource(Res.string.settings_model_loading),
-                                            style = KaiTypography.labelSmall,
+                                            style = DoraiTypography.labelSmall,
                                             color = LocalDesignColorTokens.current.textSecondary,
                                         )
                                     }
@@ -348,7 +348,7 @@ internal fun ServiceSelector(
 private fun PickerSectionLabel(text: String) {
     Text(
         text = text,
-        style = KaiTypography.labelSmall,
+        style = DoraiTypography.labelSmall,
         color = LocalDesignColorTokens.current.textSecondary,
         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
     )
@@ -378,7 +378,7 @@ private fun ModelMenuItem(
     Row(
         modifier = modifier
             .padding(horizontal = 4.dp)
-            .clip(KaiShapes.sm)
+            .clip(DoraiShapes.sm)
             .background(rowBackground)
             .clickable(onClick = onClick)
             .handCursor()
@@ -389,7 +389,7 @@ private fun ModelMenuItem(
     ) {
         Text(
             text = shortName,
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = textColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -422,7 +422,7 @@ private fun ServiceMenuItem(
     Row(
         modifier = Modifier
             .padding(horizontal = 4.dp)
-            .clip(KaiShapes.sm)
+            .clip(DoraiShapes.sm)
             .background(rowBackground)
             .clickable(onClick = onClick)
             .handCursor()
@@ -441,13 +441,13 @@ private fun ServiceMenuItem(
         Column {
             Text(
                 text = entry.serviceName,
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = textColor,
             )
             if (entry.modelId.isNotEmpty()) {
                 Text(
                     text = entry.modelId,
-                    style = KaiTypography.labelSmall,
+                    style = DoraiTypography.labelSmall,
                     color = subTextColor,
                 )
             }

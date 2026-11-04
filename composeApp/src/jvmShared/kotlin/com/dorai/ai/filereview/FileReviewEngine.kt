@@ -331,7 +331,7 @@ class FileReviewEngine(
     private fun writeTargetAtomically(target: File, bytes: ByteArray, replaceExisting: Boolean) {
         val parent = target.parentFile ?: error("Target has no parent")
         if (!parent.isDirectory || Files.isSymbolicLink(parent.toPath())) error("Target parent is unsafe")
-        val temp = File(parent, ".${target.name}.${UUID.randomUUID()}.kai-tmp")
+        val temp = File(parent, ".${target.name}.${UUID.randomUUID()}.dorai-tmp")
         val permissions = if (target.exists()) {
             runCatching {
                 Files.getPosixFilePermissions(target.toPath(), LinkOption.NOFOLLOW_LINKS)

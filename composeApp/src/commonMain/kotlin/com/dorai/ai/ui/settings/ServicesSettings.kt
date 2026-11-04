@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+﻿@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.dorai.ai.ui.settings
 
@@ -105,21 +105,21 @@ import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.BorderSoft
 import com.dorai.ai.ui.CardFill
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiClearableTextField
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiClearableTextField
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
 import com.dorai.ai.ui.WarningAmber
 import com.dorai.ai.ui.components.CollectionEmptyState
-import com.dorai.ai.ui.components.KaiSlider
+import com.dorai.ai.ui.components.DoraiSlider
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.components.StatusBadge
 import com.dorai.ai.ui.components.VerticalScrollbarForScroll
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.icons.DragIndicator
-import com.dorai.ai.ui.kaiAdaptiveCardBorder
-import com.dorai.ai.ui.kaiAdaptiveCardColors
-import com.dorai.ai.ui.kaiAdaptiveCardSurface
+import com.dorai.ai.ui.doraiAdaptiveCardBorder
+import com.dorai.ai.ui.doraiAdaptiveCardColors
+import com.dorai.ai.ui.doraiAdaptiveCardSurface
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.ic_arrow_drop_down
@@ -199,13 +199,13 @@ internal fun FreeSettings(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = kaiAdaptiveCardColors(),
-        border = kaiAdaptiveCardBorder(),
+        colors = doraiAdaptiveCardColors(),
+        border = doraiAdaptiveCardBorder(),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = stringResource(Res.string.settings_free_tier_title),
-                style = KaiTypography.titleMedium,
+                style = DoraiTypography.titleMedium,
                 color = AccentPrimary,
             )
 
@@ -213,14 +213,14 @@ internal fun FreeSettings(
                 Spacer(Modifier.height(6.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth()
-                        .clip(KaiShapes.xs)
+                        .clip(DoraiShapes.xs)
                         .clickable { onToggleFreeFallback(!isFreeFallbackEnabled) }
                         .handCursor(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = stringResource(Res.string.settings_free_fallback),
-                        style = KaiTypography.bodyMedium,
+                        style = DoraiTypography.bodyMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
@@ -236,7 +236,7 @@ internal fun FreeSettings(
 
             Text(
                 text = stringResource(Res.string.settings_free_tier_description),
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
 
@@ -273,13 +273,13 @@ internal fun FreeSettings(
 
             Text(
                 text = stringResource(Res.string.settings_business_partnerships),
-                style = KaiTypography.labelLarge,
+                style = DoraiTypography.labelLarge,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
             Spacer(Modifier.height(6.dp))
             Text(
                 text = stringResource(Res.string.settings_business_partnerships_description),
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
 
@@ -342,7 +342,7 @@ internal fun buildSupportProfiles(
     past: ImmutableList<SponsorsResponseDto.Sponsor>,
 ): List<SupportProfile> {
     val owner = SupportProfile(
-        id = "brox-kai-owner",
+        id = "brox-dorai-owner",
         name = "DORAI AI",
         subtitle = "habibbrox2 · project maintainer",
         avatarUrl = null,
@@ -412,8 +412,8 @@ private fun OwnerProfileCard(profile: SupportProfile) {
                     Modifier
                 },
             ),
-        colors = kaiAdaptiveCardColors(),
-        border = kaiAdaptiveCardBorder(),
+        colors = doraiAdaptiveCardColors(),
+        border = doraiAdaptiveCardBorder(),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -437,20 +437,20 @@ private fun OwnerProfileCard(profile: SupportProfile) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = profile.name,
-                    style = KaiTypography.titleMedium,
+                    style = DoraiTypography.titleMedium,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 profile.subtitle?.let {
                     Text(
                         text = it,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
             }
             Text(
                 text = SupportLinks.OWNER_PROFILE.removePrefix("https://"),
-                style = KaiTypography.labelSmall,
+                style = DoraiTypography.labelSmall,
                 color = LocalDesignColorTokens.current.textSecondary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -467,7 +467,7 @@ private fun SponsorTile(profile: SupportProfile, tileWidth: Dp) {
         horizontalAlignment = CenterHorizontally,
         modifier = Modifier
             .width(tileWidth)
-            .clip(KaiShapes.xs)
+            .clip(DoraiShapes.xs)
             .then(
                 if (destination != null) {
                     Modifier
@@ -504,7 +504,7 @@ private fun SponsorTile(profile: SupportProfile, tileWidth: Dp) {
                 // Neutral initial when no avatar image exists (Plan 5, Phase 3).
                 Text(
                     text = profile.name.take(1).uppercase(),
-                    style = KaiTypography.titleMedium,
+                    style = DoraiTypography.titleMedium,
                     color = AccentPrimary,
                 )
             }
@@ -512,7 +512,7 @@ private fun SponsorTile(profile: SupportProfile, tileWidth: Dp) {
         Spacer(Modifier.height(4.dp))
         Text(
             text = profile.name,
-            style = KaiTypography.labelSmall,
+            style = DoraiTypography.labelSmall,
             color = LocalDesignColorTokens.current.textSecondary,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
@@ -586,7 +586,7 @@ private fun SupportSection(
                     if (mainProfiles.isNotEmpty()) {
                         Text(
                             text = stringResource(Res.string.settings_sponsors),
-                            style = KaiTypography.labelLarge,
+                            style = DoraiTypography.labelLarge,
                             color = LocalDesignColorTokens.current.textSecondary,
                         )
                         Spacer(Modifier.height(8.dp))
@@ -596,7 +596,7 @@ private fun SupportSection(
                         Spacer(Modifier.height(12.dp))
                         Text(
                             text = "Past sponsors",
-                            style = KaiTypography.labelLarge,
+                            style = DoraiTypography.labelLarge,
                             color = LocalDesignColorTokens.current.textSecondary,
                         )
                         Spacer(Modifier.height(8.dp))
@@ -770,7 +770,7 @@ private fun setupRequirement(service: Service): String = when {
 private fun ProviderGroupHeader(title: String) {
     Text(
         text = title,
-        style = KaiTypography.labelLarge,
+        style = DoraiTypography.labelLarge,
         color = AccentPrimary,
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 6.dp),
     )
@@ -810,7 +810,7 @@ private fun ProviderRowItem(
                         if (isSpecial) {
                             Modifier.background(
                                 color = SurfaceRaised,
-                                shape = KaiShapes.xs,
+                                shape = DoraiShapes.xs,
                             )
                         } else {
                             Modifier
@@ -829,14 +829,14 @@ private fun ProviderRowItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = service.displayName,
-                    style = KaiTypography.bodyLarge,
+                    style = DoraiTypography.bodyLarge,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Text(
                     // Requirement summary so nobody adds a service and only then
                     // discovers it needs a key or a base URL (Plan 5, Phase 2).
                     text = setupRequirement(service),
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
@@ -864,8 +864,8 @@ private fun ServicesOverview(entries: ImmutableList<ConfiguredServiceEntry>) {
     val checking = entries.count { it.connectionStatus == ConnectionStatus.Checking }
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = kaiAdaptiveCardColors(),
-        border = kaiAdaptiveCardBorder(),
+        colors = doraiAdaptiveCardColors(),
+        border = doraiAdaptiveCardBorder(),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -873,7 +873,7 @@ private fun ServicesOverview(entries: ImmutableList<ConfiguredServiceEntry>) {
         ) {
             Text(
                 text = entries.size.toString(),
-                style = KaiTypography.headlineSmall,
+                style = DoraiTypography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = LocalDesignColorTokens.current.textPrimary,
             )
@@ -881,7 +881,7 @@ private fun ServicesOverview(entries: ImmutableList<ConfiguredServiceEntry>) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = if (entries.size == 1) "Configured service" else "Configured services",
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
                 Spacer(Modifier.height(2.dp))
@@ -952,7 +952,7 @@ private fun ConfiguredServiceCardContent(
     }
     Column(
         modifier = Modifier
-            .kaiAdaptiveCardSurface()
+            .doraiAdaptiveCardSurface()
             .fillMaxWidth()
             .clickable { onExpand() }
             .handCursor()
@@ -1004,7 +1004,7 @@ private fun ConfiguredServiceCardContent(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = entry.service.displayName,
-                        style = KaiTypography.titleMedium,
+                        style = DoraiTypography.titleMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                     )
                     val displayModelId = when {
@@ -1015,12 +1015,12 @@ private fun ConfiguredServiceCardContent(
                     if (displayModelId != null) {
                         TooltipBox(
                             positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                            tooltip = { Text(text = displayModelId, style = KaiTypography.bodyMedium) },
+                            tooltip = { Text(text = displayModelId, style = DoraiTypography.bodyMedium) },
                             state = rememberTooltipState(),
                         ) {
                             Text(
                                 text = displayModelId,
-                                style = KaiTypography.bodySmall,
+                                style = DoraiTypography.bodySmall,
                                 color = LocalDesignColorTokens.current.textSecondary,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
@@ -1219,7 +1219,7 @@ private fun ModelFetchFeedback(
                 )
                 Text(
                     text = "Fetching available models…",
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
@@ -1229,7 +1229,7 @@ private fun ModelFetchFeedback(
             Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
                 Text(
                     text = error,
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = DangerAlert,
                 )
                 TextButton(
@@ -1245,7 +1245,7 @@ private fun ModelFetchFeedback(
         showEmpty -> {
             Text(
                 text = "The provider is connected, but it returned no available models.",
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
             )
@@ -1273,7 +1273,7 @@ private fun OpenAICompatibleSettings(
     onRetryFetchModels: () -> Unit = {},
     onOpenAppPermissionSettings: () -> Unit = {},
 ) {
-    KaiClearableTextField(
+    DoraiClearableTextField(
         value = baseUrl,
         onValueChange = onChangeBaseUrl,
         label = {
@@ -1296,7 +1296,7 @@ private fun OpenAICompatibleSettings(
         }
         Text(
             text = endpointPreview,
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 4.dp),
         )
@@ -1385,14 +1385,14 @@ private fun OpenAICompatibleSettings(
         Spacer(Modifier.width(8.dp))
         Text(
             text = stringResource(Res.string.settings_custom_model_label),
-            style = KaiTypography.bodyMedium,
+            style = DoraiTypography.bodyMedium,
             color = LocalDesignColorTokens.current.textPrimary,
         )
     }
 
     if (useCustomModel) {
         Spacer(Modifier.height(8.dp))
-        KaiClearableTextField(
+        DoraiClearableTextField(
             value = customModelId,
             onValueChange = onChangeCustomModelId,
             label = {
@@ -1405,7 +1405,7 @@ private fun OpenAICompatibleSettings(
         )
         Text(
             text = stringResource(Res.string.settings_custom_model_hint),
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 4.dp),
         )
@@ -1451,7 +1451,7 @@ private fun LiteRTSettings(
 
     Text(
         text = stringResource(Res.string.litert_on_device_description),
-        style = KaiTypography.bodyMedium,
+        style = DoraiTypography.bodyMedium,
         color = LocalDesignColorTokens.current.textSecondary,
     )
 
@@ -1459,7 +1459,7 @@ private fun LiteRTSettings(
 
     Text(
         text = stringResource(Res.string.litert_tool_support),
-        style = KaiTypography.bodySmall,
+        style = DoraiTypography.bodySmall,
         color = LocalDesignColorTokens.current.textSecondary,
     )
 
@@ -1467,7 +1467,7 @@ private fun LiteRTSettings(
 
     Text(
         text = stringResource(Res.string.litert_import_description),
-        style = KaiTypography.bodySmall,
+        style = DoraiTypography.bodySmall,
         color = LocalDesignColorTokens.current.textSecondary,
     )
     Spacer(Modifier.height(8.dp))
@@ -1483,7 +1483,7 @@ private fun LiteRTSettings(
         Spacer(Modifier.height(8.dp))
         Text(
             text = stringResource(Res.string.litert_importing) + " $importingFileName",
-            style = KaiTypography.labelSmall,
+            style = DoraiTypography.labelSmall,
             color = LocalDesignColorTokens.current.textSecondary,
         )
         if (importProgress != null) {
@@ -1500,7 +1500,7 @@ private fun LiteRTSettings(
             ) {
                 Text(
                     text = "${(importProgress * 100).toInt()}%",
-                    style = KaiTypography.labelSmall,
+                    style = DoraiTypography.labelSmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
                 TextButton(
@@ -1509,7 +1509,7 @@ private fun LiteRTSettings(
                 ) {
                     Text(
                         text = stringResource(Res.string.litert_cancel),
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                     )
                 }
             }
@@ -1531,7 +1531,7 @@ private fun LiteRTSettings(
                     ModelImportError.CANCELLED -> Res.string.litert_error_import_failed
                 },
             ),
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = DangerAlert,
         )
     }
@@ -1561,7 +1561,7 @@ private fun LiteRTSettings(
         Spacer(Modifier.height(8.dp))
         Text(
             text = stringResource(Res.string.litert_imported),
-            style = KaiTypography.titleSmall,
+            style = DoraiTypography.titleSmall,
             color = LocalDesignColorTokens.current.textPrimary,
         )
         Spacer(Modifier.height(4.dp))
@@ -1596,7 +1596,7 @@ private fun LiteRTSettings(
                     DownloadError.CHECKSUM_MISMATCH -> Res.string.litert_error_checksum_mismatch
                 },
             ),
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = DangerAlert,
         )
     }
@@ -1605,7 +1605,7 @@ private fun LiteRTSettings(
 
     Text(
         text = stringResource(Res.string.litert_free_space, formatFileSize(freeSpaceBytes)),
-        style = KaiTypography.bodySmall,
+        style = DoraiTypography.bodySmall,
         color = LocalDesignColorTokens.current.textSecondary,
     )
 }
@@ -1640,9 +1640,9 @@ private fun LocalModelCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clip(KaiShapes.xs)
-            .background(SurfaceRaised, KaiShapes.xs)
-            .border(BorderStroke(1.dp, BorderSoft), KaiShapes.xs),
+            .clip(DoraiShapes.xs)
+            .background(SurfaceRaised, DoraiShapes.xs)
+            .border(BorderStroke(1.dp, BorderSoft), DoraiShapes.xs),
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Row(
@@ -1667,7 +1667,7 @@ private fun LocalModelCard(
 
                             else -> model.displayName
                         },
-                        style = KaiTypography.bodyLarge,
+                        style = DoraiTypography.bodyLarge,
                         color = LocalDesignColorTokens.current.textPrimary,
                     )
                     Row(
@@ -1675,7 +1675,7 @@ private fun LocalModelCard(
                     ) {
                         Text(
                             text = formatFileSize(model.sizeBytes),
-                            style = KaiTypography.bodySmall,
+                            style = DoraiTypography.bodySmall,
                             color = LocalDesignColorTokens.current.textSecondary,
                         )
                         Spacer(Modifier.width(8.dp))
@@ -1707,14 +1707,14 @@ private fun LocalModelCard(
             Spacer(Modifier.height(8.dp))
             Text(
                 text = stringResource(Res.string.litert_context_size, "${contextTokens / 1024}K"),
-                style = KaiTypography.labelSmall,
+                style = DoraiTypography.labelSmall,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
             // A model whose export tops out at its own default (LFM2.5) has nothing to
             // drag: a 0f..0f range divides by zero working out the thumb fraction. Show
             // the fixed size as a label and leave the slider out.
             if (steps > 0) {
-                KaiSlider(
+                DoraiSlider(
                     value = contextSliderValue,
                     onValueChange = { contextSliderValue = it },
                     onValueChangeFinished = {
@@ -1738,7 +1738,7 @@ private fun LocalModelCard(
                 ) {
                     Text(
                         text = "${(downloadProgress * 100).toInt()}%",
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                     TextButton(
@@ -1747,7 +1747,7 @@ private fun LocalModelCard(
                     ) {
                         Text(
                             text = stringResource(Res.string.litert_cancel),
-                            style = KaiTypography.labelSmall,
+                            style = DoraiTypography.labelSmall,
                         )
                     }
                 }
@@ -1761,19 +1761,19 @@ private fun DevicePerformanceLabel(performance: DevicePerformance) {
     when (performance) {
         DevicePerformance.GOOD -> Text(
             text = stringResource(Res.string.litert_performance_good),
-            style = KaiTypography.labelSmall,
+            style = DoraiTypography.labelSmall,
             color = StatusColorConnected,
         )
 
         DevicePerformance.OK -> Text(
             text = stringResource(Res.string.litert_performance_ok),
-            style = KaiTypography.labelSmall,
+            style = DoraiTypography.labelSmall,
             color = StatusColorChecking,
         )
 
         DevicePerformance.POOR -> Text(
             text = stringResource(Res.string.litert_performance_poor),
-            style = KaiTypography.labelSmall,
+            style = DoraiTypography.labelSmall,
             color = StatusColorError,
         )
     }
@@ -1797,7 +1797,7 @@ private fun ConnectionStatusIndicator(status: ConnectionStatus, onOpenAppPermiss
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = stringResource(Res.string.settings_status_checking),
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
@@ -1817,7 +1817,7 @@ private fun ConnectionStatusIndicator(status: ConnectionStatus, onOpenAppPermiss
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = stringResource(Res.string.settings_status_connected),
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = AccentPrimary,
                 )
             }
@@ -1838,7 +1838,7 @@ private fun ConnectionStatusIndicator(status: ConnectionStatus, onOpenAppPermiss
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = stringResource(Res.string.settings_status_error_quota_exhausted),
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = warningColor,
                 )
             }
@@ -1870,7 +1870,7 @@ private fun ConnectionStatusIndicator(status: ConnectionStatus, onOpenAppPermiss
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = errorMessage,
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = DangerAlert,
                 )
             }
@@ -1895,7 +1895,7 @@ private fun ApiKeyField(
     singleLine: Boolean = false,
     isPassword: Boolean = true,
 ) {
-    KaiClearableTextField(
+    DoraiClearableTextField(
         modifier = if (testTag != null) Modifier.testTag(testTag) else Modifier,
         value = apiKey,
         onValueChange = onChangeApiKey,

@@ -83,9 +83,6 @@ enum class SettingsTab {
     /** The Linux sandbox. Android only; the tab is hidden where the sandbox does not exist. */
     Sandbox,
 
-    /** Stored data management. */
-    Data,
-
     /** Account and plan information. */
     Account,
 }

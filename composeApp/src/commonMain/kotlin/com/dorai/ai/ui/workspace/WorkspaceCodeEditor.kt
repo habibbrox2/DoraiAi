@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.workspace
+﻿package com.dorai.ai.ui.workspace
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -51,7 +51,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import com.dorai.ai.ui.workspace.WorkspaceSpacing
@@ -176,13 +176,13 @@ fun WorkspaceCodeEditor(
             ) {
                 Text(
                     text = filePath.substringAfterLast("/"),
-                    style = KaiTypography.titleMedium,
+                    style = DoraiTypography.titleMedium,
                     color = colorTokens.textPrimary,
                     maxLines = 1,
                 )
                 Text(
                     text = filePath,
-                    style = KaiTypography.labelSmall,
+                    style = DoraiTypography.labelSmall,
                     color = colorTokens.textSecondary,
                     maxLines = 1,
                 )
@@ -267,7 +267,7 @@ fun WorkspaceCodeEditor(
                     items(lines, key = { it.number }) { line ->
                         Text(
                             text = line.number.toString(),
-                            style = KaiTypography.labelSmall,
+                            style = DoraiTypography.labelSmall,
                             color = CodeTheme.LineNumber,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -302,17 +302,17 @@ fun WorkspaceCodeEditor(
                 .fillMaxWidth()
                 .padding(horizontal = WorkspaceSpacing.sm)
                 .height(24.dp)
-                .background(DesignTokens.SurfaceDark),
+                .background(MaterialTheme.colorScheme.surface),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = stringResource(Res.string.workspace_editor_status_line, "Kotlin", lines.size),
-                style = KaiTypography.labelSmall,
+                style = DoraiTypography.labelSmall,
                 color = colorTokens.textSecondary,
             )
             Text(
                 text = stringResource(Res.string.workspace_editor_branch),
-                style = KaiTypography.labelSmall,
+                style = DoraiTypography.labelSmall,
                 color = colorTokens.textSecondary,
                 modifier = Modifier.weight(1f),
             )
@@ -389,7 +389,7 @@ private fun SearchReplacePanel(
         TextField(
             value = query,
             onValueChange = onQueryChange,
-            placeholder = { Text(text = stringResource(Res.string.workspace_editor_search), style = KaiTypography.bodyMedium) },
+            placeholder = { Text(text = stringResource(Res.string.workspace_editor_search), style = DoraiTypography.bodyMedium) },
             modifier = Modifier.weight(1f),
             singleLine = true,
             keyboardOptions = KeyboardOptions(),
@@ -405,25 +405,25 @@ private fun AgentChangesBar() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = WorkspaceSpacing.sm, vertical = WorkspaceSpacing.xs)
-            .background(DesignTokens.SurfaceElevated)
+            .background(LocalDesignColorTokens.current.surfaceElevated)
             .clip(RoundedCornerShape(12.dp)),
     ) {
         Text(
             text = stringResource(Res.string.workspace_editor_agent_changes, 3),
-            style = KaiTypography.labelMedium,
+            style = DoraiTypography.labelMedium,
             color = DesignTokens.AccentPrimary,
         )
         TextButton(onClick = { }) {
-            Text(text = stringResource(Res.string.workspace_editor_previous), style = KaiTypography.labelMedium)
+            Text(text = stringResource(Res.string.workspace_editor_previous), style = DoraiTypography.labelMedium)
         }
         TextButton(onClick = { }) {
-            Text(text = stringResource(Res.string.workspace_editor_next), style = KaiTypography.labelMedium)
+            Text(text = stringResource(Res.string.workspace_editor_next), style = DoraiTypography.labelMedium)
         }
         TextButton(onClick = { }) {
-            Text(text = stringResource(Res.string.workspace_editor_reject), style = KaiTypography.labelMedium, color = DesignTokens.Error)
+            Text(text = stringResource(Res.string.workspace_editor_reject), style = DoraiTypography.labelMedium, color = DesignTokens.Error)
         }
         TextButton(onClick = { }) {
-            Text(text = stringResource(Res.string.workspace_editor_accept), style = KaiTypography.labelMedium, color = DesignTokens.Success)
+            Text(text = stringResource(Res.string.workspace_editor_accept), style = DoraiTypography.labelMedium, color = DesignTokens.Success)
         }
     }
 }
@@ -457,13 +457,13 @@ private fun KeyCap(key: String) {
     Box(
         modifier = Modifier
             .size(34.dp)
-            .background(DesignTokens.SurfaceRaised)
+            .background(LocalDesignColorTokens.current.surfaceRaised)
             .clip(RoundedCornerShape(8.dp)),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = key,
-            style = KaiTypography.labelSmall,
+            style = DoraiTypography.labelSmall,
             color = colorTokens.textPrimary,
         )
     }
@@ -484,7 +484,7 @@ private fun EditableCodeArea(
         modifier = modifier
             .fillMaxHeight()
             .verticalScroll(scrollState)
-            .background(DesignTokens.SurfaceDark),
+            .background(MaterialTheme.colorScheme.surface),
         textStyle = TextStyle(
             fontFamily = FontFamily.Monospace,
             fontSize = 12.5.sp,

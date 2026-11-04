@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.markdown
+﻿package com.dorai.ai.ui.markdown
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,7 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.rememberCopyToClipboard
 import com.dorai.ai.ui.theme.DesignColorTokens
@@ -269,7 +269,7 @@ internal fun DiffCard(
             Text(
                 text = title,
                 modifier = Modifier.weight(1f),
-                style = KaiTypography.labelSmall,
+                style = DoraiTypography.labelSmall,
                 fontFamily = FontFamily.Monospace,
                 color = tokens.textMuted,
                 maxLines = 1,
@@ -291,7 +291,7 @@ internal fun DiffCard(
                     )
                     Text(
                         text = "Copied!",
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         fontFamily = FontFamily.Monospace,
                         color = DiffPalette.added,
                     )
@@ -356,7 +356,7 @@ private fun DiffStat(
     ) {
         Text(
             text = text,
-            style = KaiTypography.labelSmall,
+            style = DoraiTypography.labelSmall,
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Medium,
             color = color,
@@ -377,7 +377,7 @@ private fun FileStrip(entry: DiffEntry, tokens: DesignColorTokens) {
         Text(
             text = entry.file ?: "file",
             modifier = Modifier.weight(1f),
-            style = KaiTypography.labelSmall,
+            style = DoraiTypography.labelSmall,
             fontFamily = FontFamily.Monospace,
             color = tokens.textMuted,
             maxLines = 1,
@@ -386,14 +386,14 @@ private fun FileStrip(entry: DiffEntry, tokens: DesignColorTokens) {
         Text(
             text = "+${entry.added}",
             modifier = Modifier.padding(start = 8.dp),
-            style = KaiTypography.labelSmall,
+            style = DoraiTypography.labelSmall,
             fontFamily = FontFamily.Monospace,
             color = DiffPalette.added,
         )
         Text(
             text = "-${entry.removed}",
             modifier = Modifier.padding(start = 6.dp),
-            style = KaiTypography.labelSmall,
+            style = DoraiTypography.labelSmall,
             fontFamily = FontFamily.Monospace,
             color = DiffPalette.removed,
         )

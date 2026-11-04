@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -33,15 +33,15 @@ import com.dorai.ai.network.tools.ToolInfo
 import com.dorai.ai.skills.RegistrySkillEntry
 import com.dorai.ai.skills.SkillManifest
 import com.dorai.ai.ui.BorderSoft
-import com.dorai.ai.ui.KaiOutlinedTextField
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiOutlinedTextField
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
 import com.dorai.ai.ui.components.CapabilityCountCard
 import com.dorai.ai.ui.components.CollectionEmptyState
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.handCursor
-import com.dorai.ai.ui.kaiAdaptiveCardBorder
-import com.dorai.ai.ui.kaiAdaptiveCardColors
+import com.dorai.ai.ui.doraiAdaptiveCardBorder
+import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.settings_tools_description
@@ -128,7 +128,7 @@ internal fun ToolsContent(
         // Native tools section
         Text(
             text = stringResource(Res.string.settings_tools_description),
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
         )
 
@@ -150,7 +150,7 @@ internal fun ToolsContent(
                 )
             }
             if (tools.size >= 8) {
-                KaiOutlinedTextField(
+                DoraiOutlinedTextField(
                     value = toolFilter,
                     onValueChange = { toolFilter = it },
                     label = { Text("Search tools") },
@@ -364,12 +364,12 @@ private fun ToolItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = tool.nameRes?.let { stringResource(it) } ?: tool.name,
-                    style = KaiTypography.titleSmall,
+                    style = DoraiTypography.titleSmall,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Text(
                     text = tool.descriptionRes?.let { stringResource(it) } ?: tool.description,
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
             }

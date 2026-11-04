@@ -386,10 +386,6 @@ object ScreenshotTestData {
         currentTab = SettingsTab.Account,
     )
 
-    val settingsDataState = SettingsUiState(
-        currentTab = SettingsTab.Data,
-    )
-
     val settingsIntegrationsState = SettingsUiState(
         currentTab = SettingsTab.Integrations,
     )

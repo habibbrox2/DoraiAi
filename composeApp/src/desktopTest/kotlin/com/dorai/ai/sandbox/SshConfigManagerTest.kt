@@ -1,4 +1,4 @@
-package com.dorai.ai.sandbox
+﻿package com.dorai.ai.sandbox
 
 import java.io.File
 import java.nio.file.Files
@@ -34,11 +34,11 @@ class SshConfigManagerTest {
     fun ensureDefaultsCreatesBlockOnce() {
         mgr.ensureDefaults()
         val first = configText()
-        assertContains(first, "# kai:defaults:start")
+        assertContains(first, "# dorai:defaults:start")
         assertContains(first, "ServerAliveInterval 30")
         assertContains(first, "ServerAliveCountMax 3")
         assertContains(first, "StrictHostKeyChecking accept-new")
-        assertContains(first, "# kai:defaults:end")
+        assertContains(first, "# dorai:defaults:end")
         // ControlMaster was intentionally removed — Android blocks the link()
         // syscall openssh uses to create its mux socket, so multiplexing
         // produces an error and zero benefit.
@@ -55,11 +55,11 @@ class SshConfigManagerTest {
         val changed = mgr.upsertHost(alias = "prod", hostname = "1.2.3.4")
         assertTrue(changed)
         val text = configText()
-        assertContains(text, "# kai:defaults:start")
-        assertContains(text, "# kai:host:prod:start")
+        assertContains(text, "# dorai:defaults:start")
+        assertContains(text, "# dorai:host:prod:start")
         assertContains(text, "Host prod")
         assertContains(text, "HostName 1.2.3.4")
-        assertContains(text, "# kai:host:prod:end")
+        assertContains(text, "# dorai:host:prod:end")
     }
 
     @Test
@@ -77,8 +77,8 @@ class SshConfigManagerTest {
         mgr.upsertHost("prod", "new.example.com", user = "deploy", port = 2222)
         val text = configText()
         // Only one host block for the alias.
-        val startCount = "# kai:host:prod:start".toRegex().findAll(text).count()
-        val endCount = "# kai:host:prod:end".toRegex().findAll(text).count()
+        val startCount = "# dorai:host:prod:start".toRegex().findAll(text).count()
+        val endCount = "# dorai:host:prod:end".toRegex().findAll(text).count()
         assertEquals(1, startCount)
         assertEquals(1, endCount)
         // New values present, old gone.

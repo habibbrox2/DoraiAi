@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">歡迎使用 DORAI AI</string>
     <string name="prompt_ask_question">提問</string>
     <string name="error_invalid_api_key">API 金鑰無效。請檢查您的設定。</string>
@@ -384,8 +384,8 @@
     <string name="sandbox_files_editor_binary_warning">二進位檔案或太大，無法以文字形式預覽。</string>
     <string name="sandbox_files_editor_force_open_as_text">強制以文字開啟</string>
     <string name="sandbox_files_editor_save">儲存</string>
-    <string name="kai_ui_render_failed">無法呈現介面</string>
-    <string name="kai_ui_code_copy">複製</string>
+    <string name="dorai_ui_render_failed">無法呈現介面</string>
+    <string name="dorai_ui_code_copy">複製</string>
     <string name="image_viewer_close">關閉</string>
     <string name="bot_message_thinking_label">思考</string>
     <string name="bot_message_thinking_expand_content_description">展開或收合思考</string>

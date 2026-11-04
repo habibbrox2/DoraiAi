@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,7 +38,7 @@ import com.dorai.ai.data.detectImportSections
 import com.dorai.ai.saveFileToDevice
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.components.VerticalScrollbarForScroll
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -128,7 +128,7 @@ internal fun ExportImportSection(
                 scope.launch {
                     saveFileToDevice(
                         bytes = json.encodeToByteArray(),
-                        baseName = "kai-settings",
+                        baseName = "dorai-settings",
                         extension = "json",
                     )
                 }
@@ -139,13 +139,13 @@ internal fun ExportImportSection(
 
     Text(
         text = stringResource(Res.string.settings_export_import_title),
-        style = KaiTypography.titleMedium,
+        style = DoraiTypography.titleMedium,
         color = LocalDesignColorTokens.current.textPrimary,
     )
     Spacer(Modifier.height(4.dp))
     Text(
         text = stringResource(Res.string.settings_export_import_description),
-        style = KaiTypography.bodySmall,
+        style = DoraiTypography.bodySmall,
         color = LocalDesignColorTokens.current.textSecondary,
     )
     Spacer(Modifier.height(12.dp))
@@ -180,7 +180,7 @@ internal fun ExportImportSection(
         }
         Text(
             text = text,
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = color,
         )
     }
@@ -215,12 +215,12 @@ private fun ImportPreviewDialog(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = stringResource(Res.string.settings_import_replace_all),
-                                style = KaiTypography.bodyMedium,
+                                style = DoraiTypography.bodyMedium,
                             )
                             if (replace) {
                                 Text(
                                     text = stringResource(Res.string.settings_import_replace_all_description),
-                                    style = KaiTypography.bodySmall,
+                                    style = DoraiTypography.bodySmall,
                                     color = LocalDesignColorTokens.current.textSecondary,
                                 )
                             }
@@ -257,13 +257,13 @@ private fun ImportPreviewDialog(
                             Spacer(Modifier.width(8.dp))
                             Text(
                                 text = sectionDisplayName(section),
-                                style = KaiTypography.bodyMedium,
+                                style = DoraiTypography.bodyMedium,
                             )
                             if (count != null) {
                                 Spacer(Modifier.width(4.dp))
                                 Text(
                                     text = "($count)",
-                                    style = KaiTypography.bodySmall,
+                                    style = DoraiTypography.bodySmall,
                                     color = LocalDesignColorTokens.current.textSecondary,
                                 )
                             }
@@ -338,13 +338,13 @@ private fun ExportPreviewDialog(
                             Spacer(Modifier.width(8.dp))
                             Text(
                                 text = sectionDisplayName(section),
-                                style = KaiTypography.bodyMedium,
+                                style = DoraiTypography.bodyMedium,
                             )
                             if (count != null) {
                                 Spacer(Modifier.width(4.dp))
                                 Text(
                                     text = "($count)",
-                                    style = KaiTypography.bodySmall,
+                                    style = DoraiTypography.bodySmall,
                                     color = LocalDesignColorTokens.current.textSecondary,
                                 )
                             }

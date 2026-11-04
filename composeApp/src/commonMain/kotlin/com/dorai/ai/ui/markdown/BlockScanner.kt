@@ -1,6 +1,6 @@
-package com.dorai.ai.ui.markdown
+﻿package com.dorai.ai.ui.markdown
 
-import com.dorai.ai.ui.dynamicui.KaiUiParser
+import com.dorai.ai.ui.dynamicui.DoraiUiParser
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -95,8 +95,8 @@ internal object BlockScanner {
                 continue
             }
 
-            if (line.trim() == "kai-ui") {
-                val splitResult = tryParseKaiUiSplit(lines, i, end)
+            if (line.trim() == "kai-ui" || line.trim() == "dorai-ui") {
+                val splitResult = doraiParseKaiUiSplit(lines, i, end)
                 if (splitResult != null) {
                     blocks += splitResult.first
                     i = splitResult.second
@@ -186,8 +186,8 @@ internal object BlockScanner {
         val info = openerMatch.groupValues[3].trim()
         val (body, closed, next) = readFenceBody(lines, start + 1, end, fenceChar, fenceLen, indent)
 
-        if (info.equals("kai-ui", ignoreCase = true)) {
-            return decodeKaiUi(body) to next
+        if (info.equals("kai-ui", ignoreCase = true) || info.equals("dorai-ui", ignoreCase = true)) {
+            return doraiOdeKaiUi(body) to next
         }
 
         if (info.equals("latex", ignoreCase = true) ||
@@ -235,10 +235,10 @@ internal object BlockScanner {
         return line.substring(strip)
     }
 
-    private fun decodeKaiUi(body: String): BlockNode = when (val result = KaiUiParser.parseUiBlockBody(body)) {
-        is KaiUiParser.UiBlockResult.Ui -> KaiUiBlock(result.node, result.rawJson)
-        is KaiUiParser.UiBlockResult.Error -> KaiUiError(result.rawJson)
-        null -> KaiUiError(body)
+    private fun doraiOdeKaiUi(body: String): BlockNode = when (val result = DoraiUiParser.parseUiBlockBody(body)) {
+        is DoraiUiParser.UiBlockResult.Ui -> DoraiUiBlock(result.node, result.rawJson)
+        is DoraiUiParser.UiBlockResult.Error -> DoraiUiError(result.rawJson)
+        null -> DoraiUiError(body)
     }
 
     private fun parseDisplayMath(
@@ -264,7 +264,7 @@ internal object BlockScanner {
         return DisplayMath(bodyLines.joinToString("\n").trim()) to i
     }
 
-    private fun tryParseKaiUiSplit(
+    private fun doraiParseKaiUiSplit(
         lines: List<String>,
         start: Int,
         end: Int,
@@ -279,7 +279,7 @@ internal object BlockScanner {
         val fenceLen = fence.groupValues[2].length
         val indent = fence.groupValues[1].length
         val (body, _, next) = readFenceBody(lines, j + 1, end, fenceChar, fenceLen, indent)
-        return decodeKaiUi(body) to next
+        return doraiOdeKaiUi(body) to next
     }
 
     // =========================================================================================
@@ -495,7 +495,7 @@ internal object BlockScanner {
                 if (HR_REGEX.matchEntire(line) != null) break
                 if (BLOCKQUOTE_REGEX.matchEntire(line) != null) break
                 if (isListOpener(line)) break
-                if (line.trim() == "kai-ui") break
+                if (line.trim() == "kai-ui" || line.trim() == "dorai-ui") break
                 if (MATH_DISPLAY_DOLLAR_FENCE_REGEX.matchEntire(line) != null) break
                 if (MATH_DISPLAY_BRACKET_OPEN_REGEX.matchEntire(line) != null) break
                 if (MATH_DISPLAY_INLINE_REGEX.matchEntire(line) != null) break

@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">DORAI AI'ye Hoş Geldiniz</string>
     <string name="prompt_ask_question">Soru sorun</string>
     <string name="error_invalid_api_key">Geçersiz API Anahtarı. Lütfen ayarlarınızı kontrol edin.</string>
@@ -384,8 +384,8 @@ Bir şey dikkat gerektiriyorsa (eski anılar, vadesi geçmiş görevler, kullan�
     <string name="sandbox_files_editor_binary_warning">İkili dosya veya metin olarak önizlenemeyecek kadar büyük.</string>
     <string name="sandbox_files_editor_force_open_as_text">Metin olarak açmaya zorla</string>
     <string name="sandbox_files_editor_save">Kaydet</string>
-    <string name="kai_ui_render_failed">Arayüz oluşturulamadı</string>
-    <string name="kai_ui_code_copy">Kopyala</string>
+    <string name="dorai_ui_render_failed">Arayüz oluşturulamadı</string>
+    <string name="dorai_ui_code_copy">Kopyala</string>
     <string name="image_viewer_close">Kapat</string>
     <string name="bot_message_thinking_label">Düşünme</string>
     <string name="bot_message_thinking_expand_content_description">Düşünmeyi genişlet veya daralt</string>

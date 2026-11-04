@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat.composables
+﻿package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -29,7 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.AccentPrimary
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
@@ -64,7 +64,7 @@ fun ToolConfirmationCard(
                 ambientColor = DesignTokens.Warning.copy(alpha = 0.18f),
                 spotColor = DesignTokens.Warning.copy(alpha = 0.3f),
             )
-            .background(DesignTokens.SurfaceElevated)
+            .background(LocalDesignColorTokens.current.surfaceElevated)
             .border(
                 BorderStroke(1.dp, DesignTokens.Warning.copy(alpha = 0.45f)),
                 RoundedCornerShape(12.dp),
@@ -86,13 +86,13 @@ fun ToolConfirmationCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "Tool Request: $displayName",
-                    style = KaiTypography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    style = DoraiTypography.labelMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 if (targetInfo.isNotEmpty()) {
                     Text(
                         text = targetInfo,
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
@@ -118,7 +118,7 @@ fun ToolConfirmationCard(
                     ),
                     border = BorderStroke(1.dp, DesignTokens.Error.copy(alpha = 0.5f)),
                 ) {
-                    Text("Deny", style = KaiTypography.labelMedium)
+                    Text("Deny", style = DoraiTypography.labelMedium)
                 }
                 Button(
                     onClick = onAllowOnce,
@@ -128,7 +128,7 @@ fun ToolConfirmationCard(
                         containerColor = AccentPrimary.copy(alpha = 0.88f),
                     ),
                 ) {
-                    Text("Allow once", style = KaiTypography.labelMedium)
+                    Text("Allow once", style = DoraiTypography.labelMedium)
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -140,7 +140,7 @@ fun ToolConfirmationCard(
                         containerColor = DesignTokens.AgentViolet,
                     ),
                 ) {
-                    Text("Allow session", style = KaiTypography.labelMedium)
+                    Text("Allow session", style = DoraiTypography.labelMedium)
                 }
                 Button(
                     onClick = onAlwaysAllow,
@@ -150,7 +150,7 @@ fun ToolConfirmationCard(
                         containerColor = DesignTokens.Success,
                     ),
                 ) {
-                    Text("Always allow", style = KaiTypography.labelMedium)
+                    Text("Always allow", style = DoraiTypography.labelMedium)
                 }
             }
         }

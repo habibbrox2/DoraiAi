@@ -3,6 +3,8 @@ package com.dorai.ai
 import com.dorai.ai.data.AppSettings
 import com.dorai.ai.data.ConversationStorage
 import com.dorai.ai.data.DataRepository
+import com.dorai.ai.theme.ThemeViewModel
+import com.dorai.ai.theme.data.ThemeSettingsRepository
 import com.dorai.ai.data.EmailStore
 import com.dorai.ai.data.HeartbeatManager
 import com.dorai.ai.data.MemoryStore
@@ -64,6 +66,9 @@ val appModule = module {
             it.runMigrations(createLegacySettings())
         }
     }
+    // Shares the same Settings instance as AppSettings so engine state is one source of
+    // truth across the app root and the Appearance screen.
+    single<ThemeSettingsRepository> { ThemeSettingsRepository(get<AppSettings>().settings) }
     single<Requests> {
         Requests()
     }
@@ -167,5 +172,6 @@ val appModule = module {
     // Same browser, second environment: Workspace's Debian instead of the chat sandbox.
     viewModel(WORKSPACE_FILES) { SandboxFileBrowserViewModel(get<WorkspaceController>().files) }
     viewModel { SplinterlandsViewModel(get<DataRepository>(), get(), get(), get<SplinterlandsApi>()) }
+    viewModel { ThemeViewModel(get<ThemeSettingsRepository>()) }
     viewModel { ChatViewModel(get<DataRepository>(), get<TaskScheduler>(), localNetworkPermissionController = get(permissionQualifier(AppPermission.LOCAL_NETWORK)), fileReviewController = getOrNull<FileReviewController>() ?: NoOpFileReviewController()) }
 }

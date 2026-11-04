@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat.composables
+﻿package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -32,8 +32,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.chat.activities.ActivityDetails
 import com.dorai.ai.ui.chat.activities.ActivityStatus
 import com.dorai.ai.ui.chat.activities.ActivityType
@@ -63,11 +63,11 @@ fun AgentActivityTimeline(
             Text(
                 text = buildString {
                     append("Agent activity")
-                    if (running > 0) append(" • $running running")
-                    if (completed > 0) append(" • $completed done")
-                    if (failed > 0) append(" • $failed failed")
+                    if (running > 0) append(" � $running running")
+                    if (completed > 0) append(" � $completed done")
+                    if (failed > 0) append(" � $failed failed")
                 },
-                style = KaiTypography.labelMedium,
+                style = DoraiTypography.labelMedium,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
         }
@@ -88,9 +88,9 @@ private fun AgentActivityItem(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(KaiShapes.row)
-            .background(DesignTokens.SurfaceElevated, KaiShapes.row)
-            .border(1.dp, DesignTokens.BorderSubtle, KaiShapes.row)
+            .clip(DoraiShapes.row)
+            .background(LocalDesignColorTokens.current.surfaceElevated, DoraiShapes.row)
+            .border(1.dp, LocalDesignColorTokens.current.borderSubtle, DoraiShapes.row)
             .clickable(enabled = activity.isExpandable) {
                 if (activity.isExpandable) expanded = !expanded
             }
@@ -111,7 +111,7 @@ private fun AgentActivityItem(
             ) {
                 Text(
                     text = activity.title,
-                    style = KaiTypography.bodyMedium,
+                    style = DoraiTypography.bodyMedium,
                     color = LocalDesignColorTokens.current.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -119,7 +119,7 @@ private fun AgentActivityItem(
                 activity.description?.let { desc ->
                     Text(
                         text = desc,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
@@ -197,38 +197,38 @@ private fun ActivityDetailsView(
                 details.arguments?.let { args ->
                     Text(
                         text = "Arguments:",
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                     Text(
                         text = args,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         fontFamily = FontFamily.Monospace,
                         color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(KaiShapes.xs)
-                            .background(DesignTokens.SurfaceElevated, KaiShapes.row)
-                            .border(1.dp, DesignTokens.BorderSubtle, KaiShapes.row)
+                            .clip(DoraiShapes.xs)
+                            .background(LocalDesignColorTokens.current.surfaceElevated, DoraiShapes.row)
+                            .border(1.dp, LocalDesignColorTokens.current.borderSubtle, DoraiShapes.row)
                             .padding(8.dp),
                     )
                 }
                 details.result?.let { result ->
                     Text(
                         text = "Result:",
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                     Text(
                         text = result.take(500) + if (result.length > 500) "..." else "",
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         fontFamily = FontFamily.Monospace,
                         color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(KaiShapes.xs)
-                            .background(DesignTokens.SurfaceElevated, KaiShapes.row)
-                            .border(1.dp, DesignTokens.BorderSubtle, KaiShapes.row)
+                            .clip(DoraiShapes.xs)
+                            .background(LocalDesignColorTokens.current.surfaceElevated, DoraiShapes.row)
+                            .border(1.dp, LocalDesignColorTokens.current.borderSubtle, DoraiShapes.row)
                             .padding(8.dp),
                         maxLines = 10,
                         overflow = TextOverflow.Ellipsis,
@@ -237,7 +237,7 @@ private fun ActivityDetailsView(
                 details.error?.let { error ->
                     Text(
                         text = "Error: $error",
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = DangerAlert,
                     )
                 }
@@ -248,20 +248,20 @@ private fun ActivityDetailsView(
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     text = "$ ${details.command}",
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     fontFamily = FontFamily.Monospace,
                     color = LocalDesignColorTokens.current.textPrimary,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(KaiShapes.xs)
-                        .background(DesignTokens.SurfaceElevated, KaiShapes.row)
-                        .border(1.dp, DesignTokens.BorderSubtle, KaiShapes.row)
+                        .clip(DoraiShapes.xs)
+                        .background(LocalDesignColorTokens.current.surfaceElevated, DoraiShapes.row)
+                        .border(1.dp, LocalDesignColorTokens.current.borderSubtle, DoraiShapes.row)
                         .padding(8.dp),
                 )
                 details.workingDirectory?.let { cwd ->
                     Text(
                         text = "cwd: $cwd",
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
@@ -269,14 +269,14 @@ private fun ActivityDetailsView(
                     if (stdout.isNotEmpty()) {
                         Text(
                             text = stdout,
-                            style = KaiTypography.bodySmall,
+                            style = DoraiTypography.bodySmall,
                             fontFamily = FontFamily.Monospace,
                             color = LocalDesignColorTokens.current.textPrimary,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(KaiShapes.xs)
-                                .background(DesignTokens.SurfaceElevated, KaiShapes.row)
-                                .border(1.dp, DesignTokens.BorderSubtle, KaiShapes.row)
+                                .clip(DoraiShapes.xs)
+                                .background(LocalDesignColorTokens.current.surfaceElevated, DoraiShapes.row)
+                                .border(1.dp, LocalDesignColorTokens.current.borderSubtle, DoraiShapes.row)
                                 .padding(8.dp),
                             maxLines = 15,
                             overflow = TextOverflow.Ellipsis,
@@ -287,14 +287,14 @@ private fun ActivityDetailsView(
                     if (stderr.isNotEmpty()) {
                         Text(
                             text = stderr,
-                            style = KaiTypography.bodySmall,
+                            style = DoraiTypography.bodySmall,
                             fontFamily = FontFamily.Monospace,
                             color = DangerAlert,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(KaiShapes.xs)
-                                .background(DesignTokens.SurfaceElevated, KaiShapes.row)
-                                .border(1.dp, DesignTokens.BorderSubtle, KaiShapes.row)
+                                .clip(DoraiShapes.xs)
+                                .background(LocalDesignColorTokens.current.surfaceElevated, DoraiShapes.row)
+                                .border(1.dp, LocalDesignColorTokens.current.borderSubtle, DoraiShapes.row)
                                 .padding(8.dp),
                             maxLines = 10,
                             overflow = TextOverflow.Ellipsis,
@@ -304,7 +304,7 @@ private fun ActivityDetailsView(
                 details.exitCode?.let { code ->
                     Text(
                         text = "Exit code: $code",
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         color = if (code == 0) AccentPrimary else DangerAlert,
                     )
                 }
@@ -315,20 +315,20 @@ private fun ActivityDetailsView(
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     text = "Skill: ${details.skillName} (${details.skillId})",
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 details.description?.let { desc ->
                     Text(
                         text = desc,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
                 details.stage?.let { stage ->
                     Text(
                         text = "Stage: $stage",
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
@@ -339,13 +339,13 @@ private fun ActivityDetailsView(
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     text = "${details.operation}: ${details.path}",
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 details.changeSummary?.let { summary ->
                     Text(
                         text = summary,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
@@ -356,18 +356,18 @@ private fun ActivityDetailsView(
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     text = "Action: ${details.action}",
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Text(
                     text = "Target: ${details.target}",
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 details.scope?.let { scope ->
                     Text(
                         text = "Scope: $scope",
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
@@ -378,7 +378,7 @@ private fun ActivityDetailsView(
             details.content?.let { content ->
                 Text(
                     text = content,
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
             }

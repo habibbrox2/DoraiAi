@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">به DORAI AI خوش آمدید</string>
     <string name="prompt_ask_question">سوال بپرسید</string>
     <string name="error_invalid_api_key">کلید API نامعتبر است. لطفاً تنظیمات خود را بررسی کنید.</string>
@@ -384,8 +384,8 @@
     <string name="sandbox_files_editor_binary_warning">باینری یا بسیار بزرگ برای پیش‌نمایش به‌صورت متن.</string>
     <string name="sandbox_files_editor_force_open_as_text">باز کردن اجباری به‌صورت متن</string>
     <string name="sandbox_files_editor_save">ذخیره</string>
-    <string name="kai_ui_render_failed">نمایش رابط کاربری ناموفق بود</string>
-    <string name="kai_ui_code_copy">کپی</string>
+    <string name="dorai_ui_render_failed">نمایش رابط کاربری ناموفق بود</string>
+    <string name="dorai_ui_code_copy">کپی</string>
     <string name="image_viewer_close">بستن</string>
     <string name="bot_message_thinking_label">در حال فکر کردن</string>
     <string name="bot_message_thinking_expand_content_description">گسترش یا جمع کردن تفکر</string>

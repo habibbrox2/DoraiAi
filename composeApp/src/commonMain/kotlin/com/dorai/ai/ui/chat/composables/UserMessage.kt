@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat.composables
+﻿package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -33,8 +33,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.data.Attachment
 import com.dorai.ai.decodeToImageBitmap
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.components.LocalShowFullScreenImage
 import com.dorai.ai.ui.handCursor
@@ -86,10 +86,10 @@ internal fun UserMessage(
                         spotColor = Color(0x33000000),
                     )
                     .clip(userBubbleShape)
-                    .background(DesignTokens.SurfaceElevated, userBubbleShape)
+                    .background(LocalDesignColorTokens.current.surfaceElevated, userBubbleShape)
                     .border(
                         width = 1.dp,
-                        color = DesignTokens.BorderSubtle,
+                        color = LocalDesignColorTokens.current.borderSubtle,
                         shape = userBubbleShape,
                     )
                     .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -111,7 +111,7 @@ internal fun UserMessage(
                             contentDescription = "Image attachment",
                             modifier = Modifier
                                 .widthIn(max = 240.dp)
-                                .clip(KaiShapes.xs)
+                                .clip(DoraiShapes.xs)
                                 .handCursor()
                                 .clickable { showFullScreen(imageBitmap) },
                             contentScale = ContentScale.FillWidth,
@@ -127,7 +127,7 @@ internal fun UserMessage(
                         for (att in others) {
                             key("${att.fileName ?: att.mimeType}_${att.data.take(8)}") {
                                 val chipColors = SuggestionChipDefaults.suggestionChipColors(
-                                    containerColor = DesignTokens.SurfaceRaised,
+                                    containerColor = LocalDesignColorTokens.current.surfaceRaised,
                                     labelColor = LocalDesignColorTokens.current.textPrimary,
                                 )
                                 SuggestionChip(
@@ -135,7 +135,7 @@ internal fun UserMessage(
                                     colors = chipColors,
                                     border = SuggestionChipDefaults.suggestionChipBorder(
                                         enabled = true,
-                                        borderColor = DesignTokens.BorderSubtle,
+                                        borderColor = LocalDesignColorTokens.current.borderSubtle,
                                     ),
                                     icon = {
                                         Icon(
@@ -158,7 +158,7 @@ internal fun UserMessage(
                     Text(
                         text = message,
                         color = LocalDesignColorTokens.current.textPrimary,
-                        style = KaiTypography.bodyLarge.copy(color = LocalDesignColorTokens.current.textPrimary),
+                        style = DoraiTypography.bodyLarge.copy(color = LocalDesignColorTokens.current.textPrimary),
                     )
                 }
             }

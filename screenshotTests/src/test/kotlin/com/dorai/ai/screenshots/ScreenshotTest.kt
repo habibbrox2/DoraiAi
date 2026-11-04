@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalVoiceApi::class)
+﻿@file:OptIn(ExperimentalVoiceApi::class)
 
 package com.dorai.ai.screenshots
 
@@ -28,7 +28,11 @@ import com.dorai.ai.ui.chat.composables.ShellExecutionCard
 import com.dorai.ai.ui.chat.composables.ToolConfirmationCard
 import com.dorai.ai.ui.chat.composables.ToolExecutionCard
 import com.dorai.ai.ui.dynamicui.LocalPreviewImages
+import com.russhwolf.settings.MapSettings
+import com.dorai.ai.theme.ThemeViewModel
+import com.dorai.ai.theme.data.ThemeSettingsRepository
 import com.dorai.ai.ui.settings.SettingsScreenContent
+import com.dorai.ai.theme.ui.DoraiAppearanceSettings
 import com.dorai.ai.ui.workspace.WorkspaceActions
 import com.dorai.ai.ui.workspace.WorkspaceScreenContent
 import com.dorai.ai.ui.workspace.WorkspaceStatusKind
@@ -354,11 +358,19 @@ class ScreenshotTest {
     }
 
     @Test
-    fun settingsData_dark() {
+    fun appearancePresets_dark() {
         paparazzi.snap(DarkColorScheme) {
-            SettingsScreenContent(
-                uiState = ScreenshotTestData.settingsDataState,
-                sandboxState = ScreenshotTestData.sandboxState,
+            DoraiAppearanceSettings(
+                viewModel = ThemeViewModel(ThemeSettingsRepository(MapSettings())),
+            )
+        }
+    }
+
+    @Test
+    fun appearancePresets_light() {
+        paparazzi.snap(LightColorScheme) {
+            DoraiAppearanceSettings(
+                viewModel = ThemeViewModel(ThemeSettingsRepository(MapSettings())),
             )
         }
     }

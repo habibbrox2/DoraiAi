@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">مرحبًا بك في DORAI AI</string>
     <string name="prompt_ask_question">اطرح سؤالًا</string>
     <string name="error_invalid_api_key">مفتاح API غير صالح. يرجى التحقق من إعداداتك.</string>
@@ -385,8 +385,8 @@
     <string name="sandbox_files_editor_binary_warning">ثنائي أو كبير جدًا لمعاينته كنص.</string>
     <string name="sandbox_files_editor_force_open_as_text">إجبار الفتح كنص</string>
     <string name="sandbox_files_editor_save">حفظ</string>
-    <string name="kai_ui_render_failed">فشل عرض واجهة المستخدم</string>
-    <string name="kai_ui_code_copy">نسخ</string>
+    <string name="dorai_ui_render_failed">فشل عرض واجهة المستخدم</string>
+    <string name="dorai_ui_code_copy">نسخ</string>
     <string name="image_viewer_close">إغلاق</string>
     <string name="bot_message_thinking_label">يفكر</string>
     <string name="bot_message_thinking_expand_content_description">توسيع أو طي التفكير</string>

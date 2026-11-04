@@ -1,4 +1,4 @@
-@file:OptIn(
+﻿@file:OptIn(
     ExperimentalFoundationApi::class,
 )
 
@@ -86,8 +86,8 @@ import com.dorai.ai.getBackgroundDispatcher
 import com.dorai.ai.onDragAndDropEventDropped
 import com.dorai.ai.ui.CardFill
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
 import com.dorai.ai.ui.chat.composables.AppSidebar
 import com.dorai.ai.ui.chat.composables.BotMessage
@@ -164,7 +164,7 @@ fun ChatScreenContent(
     previewSandboxState: SandboxUiState? = null,
     previewSandboxLines: ImmutableList<TerminalLine> = persistentListOf(),
 ) {
-    // Workspace is a transient surface, not a conversation — unlike interactive
+    // Workspace is a transient surface, not a conversation � unlike interactive
     // mode it needs no persistence beyond surviving configuration changes.
     var isWorkspaceOpen by rememberSaveable { mutableStateOf(false) }
 
@@ -268,7 +268,7 @@ private fun ChatModeScreen(
     // When the active conversation changes (e.g. user starts a new chat from the
     // top bar or taps the heartbeat banner), collapse the sandbox view so the
     // user lands on the chat they just opened. Tracking the previous id avoids
-    // firing on the initial composition — important when returning from Settings,
+    // firing on the initial composition � important when returning from Settings,
     // where rememberSaveable has just restored isSandboxOpen.
     var lastConversationId by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(uiState.currentConversationId) {
@@ -434,7 +434,7 @@ private fun ChatModeScreen(
                     uiState.warning?.let { warning ->
                         Text(
                             text = stringResource(warning),
-                            style = KaiTypography.bodySmall,
+                            style = DoraiTypography.bodySmall,
                             color = DangerAlert,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -555,9 +555,9 @@ private fun ChatModeScreen(
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .clip(KaiShapes.row)
-                                        .background(com.dorai.ai.ui.theme.DesignTokens.SurfaceElevated, KaiShapes.row)
-                                        .border(BorderStroke(1.dp, com.dorai.ai.ui.theme.DesignTokens.BorderSubtle), KaiShapes.row),
+                                        .clip(DoraiShapes.row)
+                                        .background(LocalDesignColorTokens.current.surfaceElevated, DoraiShapes.row)
+                                        .border(BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle), DoraiShapes.row),
                                 ) {
                                     Row(
                                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -566,7 +566,7 @@ private fun ChatModeScreen(
                                     ) {
                                         Text(
                                             text = uiErrorText(error),
-                                            style = KaiTypography.bodySmall,
+                                            style = DoraiTypography.bodySmall,
                                             color = LocalDesignColorTokens.current.textPrimary,
                                             modifier = Modifier.widthIn(max = 260.dp),
                                         )

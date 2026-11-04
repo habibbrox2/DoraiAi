@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.workspace
+﻿package com.dorai.ai.ui.workspace
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -42,8 +42,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dorai.ai.ui.KaiTypography
-import com.dorai.ai.ui.components.KaiChip
+import com.dorai.ai.ui.DoraiTypography
+import com.dorai.ai.ui.components.DoraiChip
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
@@ -111,7 +111,7 @@ fun WorkspaceProjectsExplorer(
                 Box(
                     modifier = Modifier
                         .size(36.dp)
-                        .background(DesignTokens.SurfaceElevated)
+                        .background(LocalDesignColorTokens.current.surfaceElevated)
                         .clip(RoundedCornerShape(10.dp)),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -127,13 +127,13 @@ fun WorkspaceProjectsExplorer(
                 ) {
                     Text(
                         text = currentProject ?: "No project",
-                        style = KaiTypography.titleMedium,
+                        style = DoraiTypography.titleMedium,
                         color = colorTokens.textPrimary,
                         maxLines = 1,
                     )
                     Text(
                         text = if (projects.isEmpty()) "Create a project to get started" else "${projects.size} project${if (projects.size != 1) "s" else ""}",
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         color = colorTokens.textSecondary,
                         maxLines = 1,
                     )
@@ -152,7 +152,7 @@ fun WorkspaceProjectsExplorer(
         TextField(
             value = "",
             onValueChange = { },
-            placeholder = { Text(text = stringResource(Res.string.workspace_explorer_search_placeholder), style = KaiTypography.bodyMedium) },
+            placeholder = { Text(text = stringResource(Res.string.workspace_explorer_search_placeholder), style = DoraiTypography.bodyMedium) },
             leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = null) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -207,7 +207,7 @@ fun WorkspaceProjectsExplorer(
                         )
                         Text(
                             text = stringResource(Res.string.workspace_explorer_no_files),
-                            style = KaiTypography.bodyMedium,
+                            style = DoraiTypography.bodyMedium,
                             color = colorTokens.textMuted,
                             modifier = Modifier.align(Alignment.CenterHorizontally),
                         )
@@ -237,7 +237,7 @@ fun WorkspaceProjectsExplorer(
                 )
                 Text(
                     text = stringResource(Res.string.workspace_projects_create),
-                    style = KaiTypography.labelMedium,
+                    style = DoraiTypography.labelMedium,
                 )
             }
         }
@@ -283,13 +283,13 @@ private fun ProjectFilterChip(
     onClick: () -> Unit,
 ) {
     val colorTokens = LocalDesignColorTokens.current
-    KaiChip(
+    DoraiChip(
         selected = selected,
         onClick = onClick,
     ) {
         Text(
             text = label,
-            style = KaiTypography.labelMedium,
+            style = DoraiTypography.labelMedium,
             color = if (selected) Color(0xFF0B1A33) else colorTokens.textPrimary,
         )
     }
@@ -330,7 +330,7 @@ private fun ProjectFileRow(
         // Name
         Text(
             text = file.name,
-            style = KaiTypography.bodyMedium,
+            style = DoraiTypography.bodyMedium,
             color = colorTokens.textPrimary,
             modifier = Modifier.weight(1f).padding(start = WorkspaceSpacing.xs),
         )
@@ -351,7 +351,7 @@ private fun ProjectFileRow(
             ) {
                 Text(
                     text = badgeText,
-                    style = KaiTypography.labelSmall,
+                    style = DoraiTypography.labelSmall,
                     color = Color(0xFF0F1419),
                 )
             }
@@ -368,7 +368,7 @@ private fun ProjectFileRow(
             ) {
                 Text(
                     text = "Agent",
-                    style = KaiTypography.labelSmall.copy(fontSize = 9.sp),
+                    style = DoraiTypography.labelSmall.copy(fontSize = 9.sp),
                     color = DesignTokens.AccentPrimary,
                 )
             }

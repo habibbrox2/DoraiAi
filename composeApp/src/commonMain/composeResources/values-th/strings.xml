@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">ยินดีต้อนรับสู่ DORAI AI</string>
     <string name="prompt_ask_question">ถามคำถาม</string>
     <string name="error_invalid_api_key">คีย์ API ไม่ถูกต้อง กรุณาตรวจสอบการตั้งค่าของคุณ</string>
@@ -383,8 +383,8 @@
     <string name="sandbox_files_editor_binary_warning">ไบนารีหรือใหญ่เกินไปที่จะแสดงตัวอย่างเป็นข้อความ</string>
     <string name="sandbox_files_editor_force_open_as_text">บังคับเปิดเป็นข้อความ</string>
     <string name="sandbox_files_editor_save">บันทึก</string>
-    <string name="kai_ui_render_failed">ไม่สามารถแสดงผล UI ได้</string>
-    <string name="kai_ui_code_copy">คัดลอก</string>
+    <string name="dorai_ui_render_failed">ไม่สามารถแสดงผล UI ได้</string>
+    <string name="dorai_ui_code_copy">คัดลอก</string>
     <string name="image_viewer_close">ปิด</string>
     <string name="bot_message_thinking_label">กำลังคิด</string>
     <string name="bot_message_thinking_expand_content_description">ขยายหรือยุบการคิด</string>

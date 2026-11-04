@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.markdown
+﻿package com.dorai.ai.ui.markdown
 
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.test.Test
@@ -45,7 +45,7 @@ class StreamingToleranceTest {
         """.trimIndent()
         val doc = parseMarkdown(md)
         assertEquals(1, doc.blocks.size)
-        assertTrue(doc.blocks[0] is KaiUiBlock || doc.blocks[0] is KaiUiError)
+        assertTrue(doc.blocks[0] is DoraiUiBlock || doc.blocks[0] is DoraiUiError)
     }
 
     @Test

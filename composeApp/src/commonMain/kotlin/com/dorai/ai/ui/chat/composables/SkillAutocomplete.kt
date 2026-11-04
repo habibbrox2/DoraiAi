@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.skills.SkillManifest
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -55,10 +55,10 @@ internal fun SkillAutocomplete(
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .clip(shape)
-            .background(DesignTokens.SurfaceElevated, shape)
+            .background(LocalDesignColorTokens.current.surfaceElevated, shape)
             .border(
                 width = 1.dp,
-                color = DesignTokens.BorderSubtle,
+                color = LocalDesignColorTokens.current.borderSubtle,
                 shape = shape,
             )
             .heightIn(max = 220.dp)
@@ -84,14 +84,14 @@ private fun SkillRow(skill: SkillManifest, onClick: () -> Unit) {
     ) {
         Text(
             text = "/${skill.id}",
-            style = KaiTypography.bodyMedium,
+            style = DoraiTypography.bodyMedium,
             color = DesignTokens.PrimaryCyan,
             fontWeight = FontWeight.SemiBold,
         )
         if (skill.description.isNotEmpty()) {
             Text(
                 text = skill.description,
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,

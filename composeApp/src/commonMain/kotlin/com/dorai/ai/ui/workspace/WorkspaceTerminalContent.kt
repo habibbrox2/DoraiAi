@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.workspace
+﻿package com.dorai.ai.ui.workspace
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -229,9 +229,9 @@ internal fun WorkspaceTerminalContent(
     Column(modifier = modifier.fillMaxSize().imePadding()) {
         Box(
             modifier = Modifier.fillMaxWidth().padding(horizontal = com.dorai.ai.ui.workspace.WorkspaceSpacing.sm, vertical = com.dorai.ai.ui.workspace.WorkspaceSpacing.xs).weight(1f)
-                .clip(com.dorai.ai.ui.KaiShapes.card)
+                .clip(com.dorai.ai.ui.DoraiShapes.card)
                 .background(WorkspaceSurfaces.terminal)
-                .border(com.dorai.ai.ui.KaiBorders.soft),
+                .border(com.dorai.ai.ui.DoraiBorders.soft),
         ) {
             Column {
                 Column(modifier = Modifier.weight(1f).fillMaxWidth()) {

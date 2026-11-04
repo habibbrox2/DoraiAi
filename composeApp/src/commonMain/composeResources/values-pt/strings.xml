@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Bem-vindo ao DORAI AI</string>
     <string name="prompt_ask_question">Faça uma pergunta</string>
     <string name="error_invalid_api_key">Chave de API inválida. Por favor, verifique suas configurações.</string>
@@ -384,8 +384,8 @@ Se algo precisar de atenção (memórias desatualizadas, tarefas vencidas, acomp
     <string name="sandbox_files_editor_binary_warning">Binário ou muito grande para visualizar como texto.</string>
     <string name="sandbox_files_editor_force_open_as_text">Forçar abertura como texto</string>
     <string name="sandbox_files_editor_save">Salvar</string>
-    <string name="kai_ui_render_failed">Falha ao renderizar a interface</string>
-    <string name="kai_ui_code_copy">Copiar</string>
+    <string name="dorai_ui_render_failed">Falha ao renderizar a interface</string>
+    <string name="dorai_ui_code_copy">Copiar</string>
     <string name="image_viewer_close">Fechar</string>
     <string name="bot_message_thinking_label">Pensando</string>
     <string name="bot_message_thinking_expand_content_description">Expandir ou recolher pensamento</string>

@@ -1,4 +1,4 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
+﻿@file:OptIn(kotlin.time.ExperimentalTime::class)
 
 // Pure builders for the chat system prompt. Every input is passed explicitly — no DI,
 // no suspend, no resource loading, no Clock — so tests can call `buildChatSystemPrompt`
@@ -400,16 +400,16 @@ private fun StringBuilder.appendDynamicUiSection() {
     append("- Put buttons INSIDE cards, directly below related content — never group all buttons separately at the bottom\n")
     append("- Use rows for groups of buttons or chips — rows wrap automatically, so any number of items is fine\n")
     append("- Keep button labels short (1-3 words)\n\n")
-    append("Example:\n```kai-ui\n{\"type\":\"column\",\"children\":[{\"type\":\"text\",\"value\":\"Your name?\",\"style\":\"title\"},{\"type\":\"text_input\",\"id\":\"name\",\"placeholder\":\"Enter name\"},{\"type\":\"button\",\"label\":\"Submit\",\"action\":{\"type\":\"callback\",\"event\":\"submit\",\"collectFrom\":[\"name\"]}}]}\n```\n")
+    append("Example:\n```dorai-ui\n{\"type\":\"column\",\"children\":[{\"type\":\"text\",\"value\":\"Your name?\",\"style\":\"title\"},{\"type\":\"text_input\",\"id\":\"name\",\"placeholder\":\"Enter name\"},{\"type\":\"button\",\"label\":\"Submit\",\"action\":{\"type\":\"callback\",\"event\":\"submit\",\"collectFrom\":[\"name\"]}}]}\n```\n")
 }
 
 private fun StringBuilder.appendInteractiveUiSection() {
     append("\n## Interactive UI Mode (ACTIVE)\n")
     append("The user turned on interactive UI, so your answer is rendered as an interactive screen inside the chat. ")
-    append("Your ENTIRE response MUST be a single ```kai-ui code fence containing valid JSON. Absolutely NO text before or after the code fence. No conversational intro, no outro, no markdown outside the ```kai-ui fence. Just the single ```kai-ui block.\n\n")
+    append("Your ENTIRE response MUST be a single ```dorai-ui code fence containing valid JSON. Absolutely NO text before or after the code fence. No conversational intro, no outro, no markdown outside the ```dorai-ui fence. Just the single ```dorai-ui block.\n\n")
     append(KAI_UI_COMPONENT_CATALOG)
     append("Rules:\n")
-    append("- Output ONLY a single ```kai-ui code fence containing valid JSON. Absolutely NO text outside the code fence.\n")
+    append("- Output ONLY a single ```dorai-ui code fence containing valid JSON. Absolutely NO text outside the code fence.\n")
     append("- Each response is a COMPLETE screen layout. Include all content and actions in one kai-ui block.\n")
     append("- Always include clear primary action buttons so the user can proceed.\n")
     append("- Every screen MUST have at least one interactive element with a callback action (button, countdown with expiry action, etc.). A screen without any callback is a dead end the user cannot proceed from.\n")
@@ -429,7 +429,7 @@ private fun StringBuilder.appendInteractiveUiSection() {
     append("- Only use the exact components and properties defined above. Do not invent attributes, component types, or behaviors that are not listed. If a component doesn't support a feature, do not pretend it does.\n")
     append("- Start with simple, clean layouts. A well-structured screen with a few cards and clear actions is better than a complex layout that pushes the component set beyond its capabilities.\n")
     append("- When unsure whether something will work, use a simpler approach. A working simple screen is always better than a broken ambitious one.\n\n")
-    append("Example:\n```kai-ui\n{\"type\":\"column\",\"children\":[{\"type\":\"text\",\"value\":\"Welcome\",\"style\":\"headline\"},{\"type\":\"card\",\"children\":[{\"type\":\"text\",\"value\":\"What would you like to do?\",\"style\":\"title\"},{\"type\":\"button\",\"label\":\"Get Started\",\"action\":{\"type\":\"callback\",\"event\":\"get_started\"}}]}]}\n```\n")
+    append("Example:\n```dorai-ui\n{\"type\":\"column\",\"children\":[{\"type\":\"text\",\"value\":\"Welcome\",\"style\":\"headline\"},{\"type\":\"card\",\"children\":[{\"type\":\"text\",\"value\":\"What would you like to do?\",\"style\":\"title\"},{\"type\":\"button\",\"label\":\"Get Started\",\"action\":{\"type\":\"callback\",\"event\":\"get_started\"}}]}]}\n```\n")
 }
 
 /**
@@ -439,7 +439,7 @@ private fun StringBuilder.appendInteractiveUiSection() {
  * val rather than a helper function.
  */
 private val KAI_UI_COMPONENT_CATALOG: String = buildString {
-    append("Format: wrap a JSON object in ```kai-ui fences.\n\n")
+    append("Format: wrap a JSON object in ```dorai-ui fences.\n\n")
     append("Components: column, row, card, box, text, button, text_input, checkbox, switch, select, radio_group, slider, chip_group, table, list, divider, image, icon, code, progress, countdown, alert, tabs, accordion, quote, badge, stat, avatar.\n")
     append("- text: {\"type\":\"text\",\"value\":\"...\",\"style\":\"headline|title|body|caption\",\"bold\":true,\"color\":\"primary|secondary|error\"} — do NOT use markdown formatting (**, *, #, etc.) in text values; use the bold/italic/style properties instead\n")
     append("- button: {\"type\":\"button\",\"label\":\"...\",\"action\":{...},\"variant\":\"filled|outlined|text|tonal\"}\n")

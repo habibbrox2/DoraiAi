@@ -17,7 +17,7 @@ internal object HostFileSystem {
     /** True when a symlink can actually be created on this filesystem. */
     val canCreateSymlinks: Boolean by lazy {
         runCatching {
-            val dir = Files.createTempDirectory("kai-symlink-probe")
+            val dir = Files.createTempDirectory("dorai-symlink-probe")
             try {
                 Files.createSymbolicLink(dir.resolve("link"), dir)
                 true
@@ -30,7 +30,7 @@ internal object HostFileSystem {
     /** True when this filesystem has POSIX permission bits to read and write. */
     val hasPosixPermissions: Boolean by lazy {
         runCatching {
-            val file = Files.createTempFile("kai-posix-probe", ".txt")
+            val file = Files.createTempFile("dorai-posix-probe", ".txt")
             try {
                 Files.setPosixFilePermissions(file, setOf(PosixFilePermission.OWNER_READ))
                 Files.getPosixFilePermissions(file).contains(PosixFilePermission.OWNER_READ)

@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,7 +23,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.linux.LinuxDistro
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.components.VerticalScrollbarForList
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
@@ -135,11 +135,8 @@ fun SettingsDetailPane(
                                 }
                             }
 
-                            SettingsTab.Data -> {
-                                DataControlContent(uiState = uiState, actions = actions)
-                            }
-
                             SettingsTab.Account -> {
+                                DataControlContent(uiState = uiState, actions = actions)
                                 AccountPlanContent(uiState = uiState)
                             }
                         }
@@ -170,12 +167,12 @@ private fun SandboxUnavailableContent() {
     ) {
         Text(
             text = "Linux Sandbox",
-            style = KaiTypography.titleMedium,
+            style = DoraiTypography.titleMedium,
             color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
             text = "The Linux sandbox is only available on Android devices.",
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
         )
     }
@@ -193,7 +190,7 @@ fun DataControlContent(
     ) {
         Text(
             text = stringResource(Res.string.settings_tab_data),
-            style = KaiTypography.titleMedium,
+            style = DoraiTypography.titleMedium,
             color = LocalDesignColorTokens.current.textPrimary,
         )
         SettingsCard {
@@ -203,7 +200,7 @@ fun DataControlContent(
             ) {
                 Text(
                     text = "Manage your chat history and stored data.",
-                    style = KaiTypography.bodyMedium,
+                    style = DoraiTypography.bodyMedium,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
                 Button(onClick = { actions.onClearAllConversations() }) {
@@ -225,17 +222,17 @@ fun AccountPlanContent(
         ) {
             Text(
                 text = "DORAI AI",
-                style = KaiTypography.titleMedium,
+                style = DoraiTypography.titleMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
             )
             Text(
                 text = "Version " + com.dorai.ai.Version.appVersion,
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
             Text(
                 text = uiState.configuredServices.size.toString() + " configured services",
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
         }
@@ -255,8 +252,7 @@ private fun SettingsPageHeading(
         SettingsTab.Tools -> "Tools"
         SettingsTab.Integrations -> "Integrations"
         SettingsTab.Sandbox -> "Linux Sandbox"
-        SettingsTab.Data -> "Data & Privacy"
-        SettingsTab.Account -> "Account"
+        SettingsTab.Account -> "Account & Data"
     }
     val description = when (tab) {
         SettingsTab.General -> "Manage your workspace preferences and application behavior."
@@ -266,8 +262,7 @@ private fun SettingsPageHeading(
         SettingsTab.Tools -> "Control the tools and capabilities available to your agent."
         SettingsTab.Integrations -> "Manage MCP servers and external integrations."
         SettingsTab.Sandbox -> "Configure the isolated Linux workspace and its lifecycle."
-        SettingsTab.Data -> "Manage conversations, local data, and privacy controls."
-        SettingsTab.Account -> "Review your account and application information."
+        SettingsTab.Account -> "Review your account, application and data controls."
     }
     Column(
         modifier = modifier.semantics { heading() },
@@ -275,18 +270,18 @@ private fun SettingsPageHeading(
     ) {
         Text(
             text = "SETTINGS / " + title.uppercase(),
-            style = KaiTypography.labelSmall,
+            style = DoraiTypography.labelSmall,
             color = com.dorai.ai.ui.theme.DesignTokens.PrimaryCyan,
             fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
         )
         Text(
             text = title,
-            style = KaiTypography.headlineSmall,
+            style = DoraiTypography.headlineSmall,
             color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
             text = description,
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
         )
     }

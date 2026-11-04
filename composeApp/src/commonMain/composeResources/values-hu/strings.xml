@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">DORAI AI-ba</string>
     <string name="prompt_ask_question">Tegyel fel egy k\u00e9rd\u00e9st</string>
     <string name="error_invalid_api_key">Érvénytelen API kulcs. Kérlek, ellenőrizd a beállításaidat.</string>
@@ -383,8 +383,8 @@
     <string name="sandbox_files_editor_binary_warning">Bináris vagy túl nagy a szöveges előnézethez.</string>
     <string name="sandbox_files_editor_force_open_as_text">Megnyitás szövegként kényszerítve</string>
     <string name="sandbox_files_editor_save">Mentés</string>
-    <string name="kai_ui_render_failed">A felhasználói felület megjelenítése sikertelen</string>
-    <string name="kai_ui_code_copy">Másolás</string>
+    <string name="dorai_ui_render_failed">A felhasználói felület megjelenítése sikertelen</string>
+    <string name="dorai_ui_code_copy">Másolás</string>
     <string name="image_viewer_close">Bezárás</string>
     <string name="bot_message_thinking_label">Gondolkodás</string>
     <string name="bot_message_thinking_expand_content_description">Gondolkodás kibontása vagy összecsukása</string>

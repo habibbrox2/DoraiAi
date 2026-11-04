@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Siyakwamukela ku-DORAI AI</string>
     <string name="prompt_ask_question">Buza umbuzo</string>
     <string name="error_invalid_api_key">Ukhiye we-API ongavumelekile. Sicela uhlole izilungiselelo zakho.</string>
@@ -383,8 +383,8 @@
     <string name="sandbox_files_editor_binary_warning">Ifayela le-binary noma likhulu kakhulu ukulibukela njengombhalo.</string>
     <string name="sandbox_files_editor_force_open_as_text">Phoqelela ukuvula njengombhalo</string>
     <string name="sandbox_files_editor_save">Gcina</string>
-    <string name="kai_ui_render_failed">Yehlulekile ukukhipha i-UI</string>
-    <string name="kai_ui_code_copy">Kopisha</string>
+    <string name="dorai_ui_render_failed">Yehlulekile ukukhipha i-UI</string>
+    <string name="dorai_ui_code_copy">Kopisha</string>
     <string name="image_viewer_close">Vala</string>
     <string name="bot_message_thinking_label">Ukucabanga</string>
     <string name="bot_message_thinking_expand_content_description">Nweba noma goqa ukucabanga</string>

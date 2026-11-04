@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.workspace
+﻿package com.dorai.ai.ui.workspace
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -102,9 +102,9 @@ internal fun WorkspaceSessionBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(com.dorai.ai.ui.KaiShapes.card)
-            .background(MaterialTheme.colorScheme.surface, com.dorai.ai.ui.KaiShapes.card)
-            .border(com.dorai.ai.ui.KaiBorders.soft, com.dorai.ai.ui.KaiShapes.card),
+            .clip(com.dorai.ai.ui.DoraiShapes.card)
+            .background(MaterialTheme.colorScheme.surface, com.dorai.ai.ui.DoraiShapes.card)
+            .border(com.dorai.ai.ui.DoraiBorders.soft, com.dorai.ai.ui.DoraiShapes.card),
     ) {
         Row(
             modifier = Modifier
@@ -158,7 +158,7 @@ internal fun WorkspaceSessionBar(
             // as a workspace, not a bare list of shells (Plan 3, Phase 3).
             Text(
                 text = project,
-                style = com.dorai.ai.ui.KaiTypography.titleSmall,
+                style = com.dorai.ai.ui.DoraiTypography.titleSmall,
                 color = LocalDesignColorTokens.current.textPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -256,9 +256,9 @@ private fun SessionTab(
     val label = if (numbered) "$base ${session.number}" else base
     val contentColor = when {
         // A finished shell keeps its output readable but reads as inactive.
-        !session.busy -> if (selected) com.dorai.ai.ui.theme.DesignTokens.Background.copy(alpha = 0.75f) else LocalDesignColorTokens.current.textTertiary.copy(alpha = 0.7f)
+        !session.busy -> if (selected) MaterialTheme.colorScheme.background.copy(alpha = 0.75f) else LocalDesignColorTokens.current.textTertiary.copy(alpha = 0.7f)
 
-        selected -> com.dorai.ai.ui.theme.DesignTokens.Background
+        selected -> MaterialTheme.colorScheme.background
 
         else -> LocalDesignColorTokens.current.textSecondary
     }
@@ -295,7 +295,7 @@ private fun TabPill(
     selected: Boolean,
     onSelect: () -> Unit,
     contentColor: Color = if (selected) {
-        com.dorai.ai.ui.theme.DesignTokens.Background
+        MaterialTheme.colorScheme.background
     } else {
         LocalDesignColorTokens.current.textSecondary
     },
@@ -305,7 +305,7 @@ private fun TabPill(
     isFocused: Boolean = false,
     onFocus: () -> Unit = {},
 ) {
-    val shape = com.dorai.ai.ui.KaiShapes.pill
+    val shape = com.dorai.ai.ui.DoraiShapes.pill
     // `selected` the parameter shadows the semantics property of the same name,
     // so capture it first and assign through `this.selected`.
     val isSelected = selected
@@ -320,8 +320,8 @@ private fun TabPill(
     )
 
     val border = when {
-        selected -> com.dorai.ai.ui.KaiBorders.accent
-        isFocused -> com.dorai.ai.ui.KaiBorders.focus
+        selected -> com.dorai.ai.ui.DoraiBorders.accent
+        isFocused -> com.dorai.ai.ui.DoraiBorders.focus
         else -> androidx.compose.foundation.BorderStroke(1.dp, com.dorai.ai.ui.BorderSubtle.copy(alpha = 0.5f))
     }
 
@@ -364,7 +364,7 @@ private fun TabPill(
         ) {
             Text(
                 text = label,
-                style = com.dorai.ai.ui.KaiTypography.labelMedium,
+                style = com.dorai.ai.ui.DoraiTypography.labelMedium,
                 color = contentColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

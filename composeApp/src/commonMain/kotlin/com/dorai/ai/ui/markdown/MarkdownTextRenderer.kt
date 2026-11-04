@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.markdown
+﻿package com.dorai.ai.ui.markdown
 
 import com.dorai.ai.ui.dynamicui.collectSpeakableText
 
@@ -22,8 +22,8 @@ private fun blockToSpeakable(block: BlockNode): String = when (block) {
     is Table -> tableToSpeakable(block)
     HorizontalRule -> ""
     is DisplayMath -> block.latex
-    is KaiUiBlock -> block.node.collectSpeakableText()
-    is KaiUiError -> ""
+    is DoraiUiBlock -> block.node.collectSpeakableText()
+    is DoraiUiError -> ""
 }
 
 private fun itemToSpeakable(item: ListItem): String {

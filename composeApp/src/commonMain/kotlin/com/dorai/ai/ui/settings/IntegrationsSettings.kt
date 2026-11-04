@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
@@ -58,13 +58,13 @@ internal fun IntegrationsContent(
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = stringResource(Res.string.settings_request_integration_title),
-                    style = KaiTypography.titleMedium,
+                    style = DoraiTypography.titleMedium,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = stringResource(Res.string.settings_request_integration_description),
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
                 Spacer(Modifier.height(8.dp))

@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+﻿@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.dorai.ai.ui.chat.composables
 
@@ -45,8 +45,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.AccentPrimary
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
 import com.dorai.ai.ui.chat.ChatActions
 import com.dorai.ai.ui.chat.ConversationSummary
@@ -106,7 +106,7 @@ internal fun ChatHistorySheet(
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     text = stringResource(Res.string.chat_history_title),
-                    style = KaiTypography.titleLarge,
+                    style = DoraiTypography.titleLarge,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Spacer(Modifier.height(12.dp))
@@ -114,7 +114,7 @@ internal fun ChatHistorySheet(
                 if (conversations.isEmpty()) {
                     Text(
                         text = stringResource(Res.string.chat_history_empty),
-                        style = KaiTypography.bodyMedium,
+                        style = DoraiTypography.bodyMedium,
                         color = LocalDesignColorTokens.current.textSecondary,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp),
                     )
@@ -136,11 +136,11 @@ internal fun ChatHistorySheet(
                                     )
                                 } else {
                                     Modifier
-                                        .clip(KaiShapes.row)
+                                        .clip(DoraiShapes.row)
                                         .border(
                                             1.dp,
                                             AccentPrimary,
-                                            KaiShapes.row,
+                                            DoraiShapes.row,
                                         )
                                 }
                                 Row(
@@ -163,7 +163,7 @@ internal fun ChatHistorySheet(
                                                     .padding(bottom = 4.dp)
                                                     .background(
                                                         color = SurfaceRaised,
-                                                        shape = KaiShapes.xs,
+                                                        shape = DoraiShapes.xs,
                                                     )
                                                     .padding(horizontal = 6.dp, vertical = 2.dp),
                                                 verticalAlignment = Alignment.CenterVertically,
@@ -177,7 +177,7 @@ internal fun ChatHistorySheet(
                                                 Spacer(Modifier.width(4.dp))
                                                 Text(
                                                     text = stringResource(Res.string.chat_history_heartbeat_label),
-                                                    style = KaiTypography.labelSmall,
+                                                    style = DoraiTypography.labelSmall,
                                                     color = LocalDesignColorTokens.current.textPrimary,
                                                 )
                                             }
@@ -185,7 +185,7 @@ internal fun ChatHistorySheet(
                                         if (conversation.title.isNotEmpty()) {
                                             Text(
                                                 text = conversation.title,
-                                                style = KaiTypography.bodyLarge,
+                                                style = DoraiTypography.bodyLarge,
                                                 color = if (isActive) {
                                                     AccentPrimary
                                                 } else {
@@ -197,7 +197,7 @@ internal fun ChatHistorySheet(
                                         }
                                         Text(
                                             text = formatDate(conversation.updatedAt),
-                                            style = KaiTypography.bodySmall,
+                                            style = DoraiTypography.bodySmall,
                                             color = LocalDesignColorTokens.current.textSecondary,
                                         )
                                     }

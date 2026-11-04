@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Welkom bij DORAI AI</string>
     <string name="prompt_ask_question">Stel een vraag</string>
     <string name="error_invalid_api_key">Ongeldige API-sleutel. Controleer uw instellingen.</string>
@@ -384,8 +384,8 @@ Als iets aandacht nodig heeft (verouderde herinneringen, verlopen taken, gebruik
     <string name="sandbox_files_editor_binary_warning">Binair of te groot om als tekst te bekijken.</string>
     <string name="sandbox_files_editor_force_open_as_text">Geforceerd openen als tekst</string>
     <string name="sandbox_files_editor_save">Opslaan</string>
-    <string name="kai_ui_render_failed">Kan UI niet renderen</string>
-    <string name="kai_ui_code_copy">Kopiëren</string>
+    <string name="dorai_ui_render_failed">Kan UI niet renderen</string>
+    <string name="dorai_ui_code_copy">Kopiëren</string>
     <string name="image_viewer_close">Sluiten</string>
     <string name="bot_message_thinking_label">Denken</string>
     <string name="bot_message_thinking_expand_content_description">Denken uitvouwen of inklappen</string>

@@ -43,9 +43,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.rememberCopyToClipboard
+import androidx.compose.material3.MaterialTheme
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import kotlinx.coroutines.delay
@@ -84,8 +85,8 @@ fun ShellExecutionCard(
 
     val terminalShape = RoundedCornerShape(12.dp)
     val terminalBg = DesignTokens.TerminalBackground
-    val headerBg = DesignTokens.SurfaceElevated
-    val borderColor = DesignTokens.BorderSubtle
+    val headerBg = LocalDesignColorTokens.current.surfaceElevated
+    val borderColor = LocalDesignColorTokens.current.borderSubtle
     val textSlate = LocalDesignColorTokens.current.textPrimary
     val textMuted = LocalDesignColorTokens.current.textMuted
     val accentCyan = Color(0xFF38BDF8)
@@ -142,7 +143,7 @@ fun ShellExecutionCard(
                     )
                     Text(
                         text = "Terminal / Shell",
-                        style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                        style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
                         fontFamily = FontFamily.Monospace,
                         color = textSlate,
                     )
@@ -165,7 +166,7 @@ fun ShellExecutionCard(
                             AnimatedTypingDots(dotColor = accentCyan)
                             Text(
                                 text = "Running...",
-                                style = KaiTypography.labelSmall,
+                                style = DoraiTypography.labelSmall,
                                 fontFamily = FontFamily.Monospace,
                                 color = accentCyan,
                                 fontSize = 11.sp,
@@ -184,8 +185,8 @@ fun ShellExecutionCard(
                                 .padding(horizontal = 8.dp, vertical = 3.dp),
                         ) {
                             Text(
-                                text = if (isSuccess) "✓ Exit 0" else "✗ Exit $exitCode",
-                                style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                text = if (isSuccess) "? Exit 0" else "? Exit $exitCode",
+                                style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                                 fontFamily = FontFamily.Monospace,
                                 color = statusColor,
                                 fontSize = 11.sp,
@@ -201,7 +202,7 @@ fun ShellExecutionCard(
                             modifier = Modifier.padding(horizontal = 4.dp),
                         ) {
                             Icon(Icons.Default.Check, contentDescription = "Copied", tint = successGreen, modifier = Modifier.size(13.dp))
-                            Text("Copied", style = KaiTypography.labelSmall, fontFamily = FontFamily.Monospace, color = successGreen, fontSize = 11.sp)
+                            Text("Copied", style = DoraiTypography.labelSmall, fontFamily = FontFamily.Monospace, color = successGreen, fontSize = 11.sp)
                         }
                     } else {
                         IconButton(
@@ -233,8 +234,8 @@ fun ShellExecutionCard(
                 ) {
                     if (!workingDirectory.isNullOrBlank()) {
                         Text(
-                            text = "📁 cwd: $workingDirectory",
-                            style = KaiTypography.labelSmall,
+                            text = "?? cwd: $workingDirectory",
+                            style = DoraiTypography.labelSmall,
                             fontFamily = FontFamily.Monospace,
                             color = textMuted,
                             modifier = Modifier.padding(bottom = 3.dp),
@@ -246,13 +247,13 @@ fun ShellExecutionCard(
                     ) {
                         Text(
                             text = "$",
-                            style = KaiTypography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                            style = DoraiTypography.bodySmall.copy(fontWeight = FontWeight.Bold),
                             fontFamily = FontFamily.Monospace,
                             color = accentCyan,
                         )
                         Text(
                             text = command,
-                            style = KaiTypography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                            style = DoraiTypography.bodySmall.copy(fontWeight = FontWeight.Medium),
                             fontFamily = FontFamily.Monospace,
                             color = LocalDesignColorTokens.current.textPrimary,
                         )
@@ -269,7 +270,7 @@ fun ShellExecutionCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(DesignTokens.Background)
+                        .background(MaterialTheme.colorScheme.background)
                         .border(
                             width = 1.dp,
                             color = borderColor.copy(alpha = 0.5f),
@@ -286,7 +287,7 @@ fun ShellExecutionCard(
                             }
                             Text(
                                 text = displayedOutput,
-                                style = KaiTypography.bodySmall,
+                                style = DoraiTypography.bodySmall,
                                 fontFamily = FontFamily.Monospace,
                                 color = textSlate,
                                 lineHeight = 18.sp,
@@ -295,8 +296,8 @@ fun ShellExecutionCard(
 
                         if (hasLongOutput) {
                             Text(
-                                text = if (showAllLines) "▲ Show less" else "▼ Show all ${outputLines.size} lines",
-                                style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                text = if (showAllLines) "? Show less" else "? Show all ${outputLines.size} lines",
+                                style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
                                 fontFamily = FontFamily.Monospace,
                                 color = accentCyan,
                                 modifier = Modifier
@@ -312,7 +313,7 @@ fun ShellExecutionCard(
                         SelectionContainer {
                             Text(
                                 text = cleanError,
-                                style = KaiTypography.bodySmall,
+                                style = DoraiTypography.bodySmall,
                                 fontFamily = FontFamily.Monospace,
                                 color = errorRed,
                                 lineHeight = 18.sp,
@@ -351,8 +352,8 @@ fun ToolExecutionCard(
     }
 
     val cardShape = RoundedCornerShape(DesignTokens.RadiusCard)
-    val cardBg = DesignTokens.SurfaceElevated
-    val borderColor = DesignTokens.BorderSubtle
+    val cardBg = LocalDesignColorTokens.current.surfaceElevated
+    val borderColor = LocalDesignColorTokens.current.borderSubtle
     val textSlate = LocalDesignColorTokens.current.textPrimary
     val textMuted = LocalDesignColorTokens.current.textMuted
     val accentTeal = DesignTokens.PrimaryCyan
@@ -360,12 +361,12 @@ fun ToolExecutionCard(
     val errorRed = DesignTokens.Error
 
     val toolIcon = when {
-        toolName.contains("search", ignoreCase = true) -> "🔍"
-        toolName.contains("file", ignoreCase = true) -> "📁"
-        toolName.contains("weather", ignoreCase = true) -> "☀️"
-        toolName.contains("reminder", ignoreCase = true) || toolName.contains("clock", ignoreCase = true) -> "⏰"
-        toolName.contains("web", ignoreCase = true) || toolName.contains("url", ignoreCase = true) -> "🌐"
-        else -> "⚙️"
+        toolName.contains("search", ignoreCase = true) -> "??"
+        toolName.contains("file", ignoreCase = true) -> "??"
+        toolName.contains("weather", ignoreCase = true) -> "??"
+        toolName.contains("reminder", ignoreCase = true) || toolName.contains("clock", ignoreCase = true) -> "?"
+        toolName.contains("web", ignoreCase = true) || toolName.contains("url", ignoreCase = true) -> "??"
+        else -> "??"
     }
 
     Box(
@@ -395,10 +396,10 @@ fun ToolExecutionCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.weight(1f, fill = false),
                 ) {
-                    Text(text = toolIcon, style = KaiTypography.titleSmall)
+                    Text(text = toolIcon, style = DoraiTypography.titleSmall)
                     Text(
                         text = "Tool call",
-                        style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                        style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                         fontFamily = FontFamily.Monospace,
                         color = textSlate,
                         maxLines = 1,
@@ -422,7 +423,7 @@ fun ToolExecutionCard(
                             AnimatedTypingDots(dotColor = accentTeal)
                             Text(
                                 text = "Running",
-                                style = KaiTypography.labelSmall,
+                                style = DoraiTypography.labelSmall,
                                 fontFamily = FontFamily.Monospace,
                                 color = accentTeal,
                                 fontSize = 11.sp,
@@ -432,8 +433,8 @@ fun ToolExecutionCard(
                         val statusText = if (isError) "Failed" else "Done"
                         val statusColor = if (isError) errorRed else successGreen
                         Text(
-                            text = if (isError) "✗ $statusText" else "✓ $statusText",
-                            style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.Medium),
+                            text = if (isError) "? $statusText" else "? $statusText",
+                            style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Medium),
                             fontFamily = FontFamily.Monospace,
                             color = statusColor,
                             fontSize = 11.sp,
@@ -462,7 +463,7 @@ fun ToolExecutionCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(DesignTokens.SurfaceDark)
+                        .background(MaterialTheme.colorScheme.surface)
                         .padding(horizontal = 12.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
@@ -470,20 +471,20 @@ fun ToolExecutionCard(
                         Column {
                             Text(
                                 text = "Input:",
-                                style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
                                 fontFamily = FontFamily.Monospace,
                                 color = textMuted,
                             )
                             SelectionContainer {
                                 Text(
                                     text = arguments,
-                                    style = KaiTypography.bodySmall,
+                                    style = DoraiTypography.bodySmall,
                                     fontFamily = FontFamily.Monospace,
                                     color = LocalDesignColorTokens.current.textSecondary,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(6.dp))
-                                        .background(DesignTokens.SurfaceRaised)
+                                        .background(LocalDesignColorTokens.current.surfaceRaised)
                                         .padding(8.dp),
                                 )
                             }
@@ -499,12 +500,12 @@ fun ToolExecutionCard(
                             ) {
                                 Text(
                                     text = "Output:",
-                                    style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                    style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
                                     fontFamily = FontFamily.Monospace,
                                     color = textMuted,
                                 )
                                 if (isCopied) {
-                                    Text("Copied!", style = KaiTypography.labelSmall, color = successGreen, fontSize = 11.sp)
+                                    Text("Copied!", style = DoraiTypography.labelSmall, color = successGreen, fontSize = 11.sp)
                                 } else {
                                     IconButton(
                                         onClick = {
@@ -520,7 +521,7 @@ fun ToolExecutionCard(
                             SelectionContainer {
                                 Text(
                                     text = result,
-                                    style = KaiTypography.bodySmall,
+                                    style = DoraiTypography.bodySmall,
                                     fontFamily = FontFamily.Monospace,
                                     color = textSlate,
                                     maxLines = 15,
@@ -528,7 +529,7 @@ fun ToolExecutionCard(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(6.dp))
-                                        .background(DesignTokens.SurfaceRaised)
+                                        .background(LocalDesignColorTokens.current.surfaceRaised)
                                         .padding(8.dp),
                                 )
                             }

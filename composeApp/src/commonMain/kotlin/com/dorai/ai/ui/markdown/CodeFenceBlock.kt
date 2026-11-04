@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.markdown
+﻿package com.dorai.ai.ui.markdown
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -41,7 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.ui.AccentPrimary
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.rememberCopyToClipboard
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -104,7 +104,7 @@ internal fun CodeFenceBlock(
                     )
                     Text(
                         text = (language?.takeIf { it.isNotBlank() } ?: "code").lowercase(),
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         fontFamily = FontFamily.Monospace,
                         color = tokens.textMuted,
                     )
@@ -135,7 +135,7 @@ internal fun CodeFenceBlock(
                             Spacer(Modifier.width(4.dp))
                             Text(
                                 "Run",
-                                style = KaiTypography.labelSmall,
+                                style = DoraiTypography.labelSmall,
                                 fontFamily = FontFamily.Monospace,
                                 color = AccentPrimary,
                             )
@@ -156,7 +156,7 @@ internal fun CodeFenceBlock(
                             )
                             Text(
                                 text = "Copied!",
-                                style = KaiTypography.labelSmall,
+                                style = DoraiTypography.labelSmall,
                                 fontFamily = FontFamily.Monospace,
                                 color = AccentPrimary,
                             )

@@ -25,9 +25,9 @@ class WorkspaceProotExecutor(
     private val columns: Int = 80,
     private val rows: Int = 24,
     /** Guest path the host writes "rows cols" to — one file per live session. */
-    private val winsizePath: String = "/tmp/kai-winsize",
+    private val winsizePath: String = "/tmp/dorai-winsize",
     /** File name (inside the bind-mounted tmp dir) the PTY bridge records its pid in. */
-    private val pidFileName: String = "kai-pid",
+    private val pidFileName: String = "dorai-pid",
 ) {
 
     fun execute(

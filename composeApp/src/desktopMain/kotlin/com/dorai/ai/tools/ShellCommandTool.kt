@@ -78,7 +78,7 @@ private fun hasPathTraversal(args: List<String>): Boolean = args.any { it.contai
 private const val STREAM_DRAIN_GRACE_SECONDS = 2L
 
 private val streamReaders = Executors.newCachedThreadPool { runnable ->
-    Thread(runnable, "kai-shell-reader").apply { isDaemon = true }
+    Thread(runnable, "dorai-shell-reader").apply { isDaemon = true }
 }
 
 private class StreamCollector(stream: InputStream) {

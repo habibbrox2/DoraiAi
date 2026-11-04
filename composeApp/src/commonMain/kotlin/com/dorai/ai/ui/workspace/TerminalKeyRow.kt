@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.workspace
+﻿package com.dorai.ai.ui.workspace
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -46,7 +46,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dorai.ai.ui.KaiShapes
+import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.settings.monoStyle
 import com.dorai.ai.workspace.terminal.TerminalKey
@@ -77,7 +77,7 @@ private val IconKeyCapMinWidth = 48.dp
 /** Enter is the row's action key and gets the width to say so. */
 private val EnterKeyCapMinWidth = 52.dp
 private val KeyCapFontSize = 13.sp
-private val KeyCapShape = KaiShapes.xs
+private val KeyCapShape = DoraiShapes.xs
 
 /**
  * The keys no soft keyboard has. Ctrl/Alt/Shift latch for exactly one press —

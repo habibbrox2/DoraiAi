@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Bine ați venit în DORAI AI</string>
     <string name="prompt_ask_question">Pune o întrebare</string>
     <string name="error_invalid_api_key">Cheie API invalidă. Vă rugăm să verificați setările.</string>
@@ -383,8 +383,8 @@
     <string name="sandbox_files_editor_binary_warning">Binar sau prea mare pentru a fi previzualizat ca text.</string>
     <string name="sandbox_files_editor_force_open_as_text">Forțează deschiderea ca text</string>
     <string name="sandbox_files_editor_save">Salvează</string>
-    <string name="kai_ui_render_failed">Randarea interfeței a eșuat</string>
-    <string name="kai_ui_code_copy">Copiază</string>
+    <string name="dorai_ui_render_failed">Randarea interfeței a eșuat</string>
+    <string name="dorai_ui_code_copy">Copiază</string>
     <string name="image_viewer_close">Închide</string>
     <string name="bot_message_thinking_label">Gândire</string>
     <string name="bot_message_thinking_expand_content_description">Extinde sau restrânge gândirea</string>

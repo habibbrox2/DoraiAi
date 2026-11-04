@@ -67,4 +67,4 @@ On desktop, everything outside the Compose packages is kept wholesale by `compos
 | `composeApp/proguard-rules.pro` | Shared ProGuard/R8 rules for Android and Desktop |
 | `composeApp/proguard-desktop.pro` | Desktop-only policy: shrink Compose, keep the rest of the classpath, no method specialization |
 | `composeApp/build.gradle.kts` | `compose.desktop { application { buildTypes.release.proguard { ... } } }`, jlink modules, and the signed BouncyCastle jar restore |
-| `.github/workflows/release.yml` | Tag-time full release pipeline using `packageReleaseDmg`/`Msi`/`Deb`/`Rpm` and `createReleaseDistributable` (AppImage, Flatpak, tarball) |
+| `.github/workflows/release.yml` | Canonical production release workflow. Triggered manually via `workflow_dispatch` from `main` (patch/minor/major). Builds APK, MSI, ZIP, DMG, DEB, RPM, AppImage, Flatpak, and tarball. Normal pushes or merges never trigger a release. |

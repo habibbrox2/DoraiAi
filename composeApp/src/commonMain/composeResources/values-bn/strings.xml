@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">DORAI AI-তে স্বাগতম</string>
     <string name="prompt_ask_question">একটি প্রশ্ন করুন</string>
     <string name="error_invalid_api_key">অবৈধ API কী। অনুগ্রহ করে আপনার সেটিংস পরীক্ষা করুন।</string>
@@ -109,7 +109,7 @@
     <string name="tool_search_email_name">ইমেইল অনুসন্ধান করুন</string>
     <string name="tool_search_email_description">প্রেরক, বিষয় বা তারিখ অনুযায়ী ইমেইল অনুসন্ধান করুন</string>
     <string name="settings_email">ইমেইল</string>
-    <string name="settings_email_description">পড়া এবং উত্তর দেওয়ার জন্য ইমেল অ্যাকাউন্ট সংযুক্ত করুন। চ্যাটে বলুন "আমার ইমেল সংযুক্ত করুন"। ইমেলগুলি পটভূমিতে পরীক্ষা করা হয় এবং heartbeat দ্বারা প্রক্রিয়া করা হয়।</string>
+    <string name="settings_email_description">পড়া এবং উত্তর দেওয়ার জন্য ইমেল অ্যাকাউন্ট সংযুক্ত করুন। চ্যাটে বলুন "আমার ইমেল সংযুক্ত করুন"। ইমেলগুলি পটভূমিতে পরীক্ষা করা হয় এবং à¦¹à§ƒà§Žà¦¸à§à¦ªà¦¨à§à¦¦à¦¨ দ্বারা প্রক্রিয়া করা হয়।</string>
     <string name="settings_email_empty">কোনো ইমেইল অ্যাকাউন্ট সংযুক্ত নেই। শুরু করতে চ্যাটে "আমার ইমেইল সংযুক্ত করো" বলুন।</string>
     <string name="settings_email_remove">অ্যাকাউন্ট সরান</string>
     <string name="settings_email_poll_interval">প্রতি %1$d মিনিটে পোল করুন</string>
@@ -123,7 +123,7 @@
     <string name="service_free_fast">ফ্রি ফাস্ট</string>
     <string name="service_free_expert">ফ্রি এক্সপার্ট</string>
     <string name="settings_heartbeat">হৃৎস্পন্দন</string>
-    <string name="settings_heartbeat_default_prompt">[HEARTBEAT] এটি একটি স্বয়ংক্রিয় আত্ম-পরীক্ষা। তোমার স্মৃতি এবং মুলতুবি কাজগুলি পর্যালোচনা করো। যদি সবকিছু ঠিক থাকে এবং কোনো কিছুতে মনোযোগের প্রয়োজন না হয়, ঠিক এইভাবে উত্তর দাও: HEARTBEAT_OK\nযদি কিছুতে মনোযোগের প্রয়োজন হয় (পুরানো স্মৃতি, বকেয়া কাজ, ব্যবহারকারীর ফলো-আপ), সেটি সমাধান করো।</string>
+    <string name="settings_heartbeat_default_prompt">[à¦¹à§ƒà§Žà¦¸à§à¦ªà¦¨à§à¦¦à¦¨] এটি একটি স্বয়ংক্রিয় আত্ম-পরীক্ষা। তোমার স্মৃতি এবং মুলতুবি কাজগুলি পর্যালোচনা করো। যদি সবকিছু ঠিক থাকে এবং কোনো কিছুতে মনোযোগের প্রয়োজন না হয়, ঠিক এইভাবে উত্তর দাও: à¦¹à§ƒà§Žà¦¸à§à¦ªà¦¨à§à¦¦à¦¨_OK\nযদি কিছুতে মনোযোগের প্রয়োজন হয় (পুরানো স্মৃতি, বকেয়া কাজ, ব্যবহারকারীর ফলো-আপ), সেটি সমাধান করো।</string>
     <string name="settings_heartbeat_description">পর্যায়ক্রমিক আত্ম-পরীক্ষা যা AI-কে ব্যবহারকারীর ইনপুট ছাড়াই স্মৃতি এবং কাজ পর্যালোচনা করতে দেয়। সক্রিয় সময়ে প্রতি %1$d মিনিটে চলে।</string>
     <string name="settings_heartbeat_prompt_label">হৃৎস্পন্দন প্রম্পট</string>
     <string name="settings_heartbeat_recent">সাম্প্রতিক কার্যকলাপ</string>
@@ -361,13 +361,13 @@
     <string name="tool_search_notifications_name">বিজ্ঞপ্তি অনুসন্ধান করুন</string>
     <string name="tool_search_notifications_description">অ্যাপ বা লেখা অনুসারে বিজ্ঞপ্তি অনুসন্ধান করুন</string>
     <string name="settings_notifications_label">বিজ্ঞপ্তি পড়ুন</string>
-    <string name="settings_notifications_description">ইনকামিং বিজ্ঞপ্তি ব্যাকগ্রাউন্ডে সংগ্রহ করা হয় এবং heartbeat দ্বারা গ্রহণ করা হয়। সিস্টেমের বিজ্ঞপ্তি অ্যাক্সেস সেটিংসে DORAI AI কোন অ্যাপ পড়তে পারবে তা বেছে নিন।</string>
+    <string name="settings_notifications_description">ইনকামিং বিজ্ঞপ্তি ব্যাকগ্রাউন্ডে সংগ্রহ করা হয় এবং à¦¹à§ƒà§Žà¦¸à§à¦ªà¦¨à§à¦¦à¦¨ দ্বারা গ্রহণ করা হয়। সিস্টেমের বিজ্ঞপ্তি অ্যাক্সেস সেটিংসে DORAI AI কোন অ্যাপ পড়তে পারবে তা বেছে নিন।</string>
     <string name="settings_notifications_access_required">বিজ্ঞপ্তি অ্যাক্সেস দেওয়া হয়নি। সিস্টেম সেটিংসে DORAI AI সক্রিয় করতে নিচে ট্যাপ করুন।</string>
     <string name="settings_notifications_access_button">বিজ্ঞপ্তি অ্যাক্সেস খুলুন</string>
     <string name="settings_notifications_manage_apps">অ্যাপ পরিচালনা</string>
     <string name="settings_notifications_listener_bound">শ্রোতা সক্রিয়</string>
     <string name="settings_notifications_listener_disconnected">শ্রোতা নিষ্ক্রিয় — বিজ্ঞপ্তি অ্যাক্সেস পরীক্ষা করুন</string>
-    <string name="settings_notifications_queued">পরবর্তী heartbeat-এর জন্য %1$d বিজ্ঞপ্তি সারিতে</string>
+    <string name="settings_notifications_queued">পরবর্তী à¦¹à§ƒà§Žà¦¸à§à¦ªà¦¨à§à¦¦à¦¨-এর জন্য %1$d বিজ্ঞপ্তি সারিতে</string>
     <string name="settings_notifications_clear_queue">সারি পরিষ্কার করুন</string>
     <string name="settings_sandbox_subtab_terminal">টার্মিনাল</string>
     <string name="settings_sandbox_subtab_files">ফাইল</string>
@@ -384,8 +384,8 @@
     <string name="sandbox_files_editor_binary_warning">বাইনারি বা টেক্সট হিসেবে প্রিভিউ করার জন্য অনেক বড়।</string>
     <string name="sandbox_files_editor_force_open_as_text">টেক্সট হিসেবে খুলতে বাধ্য করুন</string>
     <string name="sandbox_files_editor_save">সংরক্ষণ করুন</string>
-    <string name="kai_ui_render_failed">UI রেন্ডার করা যায়নি</string>
-    <string name="kai_ui_code_copy">কপি</string>
+    <string name="dorai_ui_render_failed">UI রেন্ডার করা যায়নি</string>
+    <string name="dorai_ui_code_copy">কপি</string>
     <string name="image_viewer_close">বন্ধ করুন</string>
     <string name="bot_message_thinking_label">চিন্তা করছে</string>
     <string name="bot_message_thinking_expand_content_description">চিন্তা প্রসারিত বা সঙ্কুচিত করুন</string>
@@ -516,5 +516,26 @@
     <string name="chat_cancel_edit_content_description">সম্পাদনা বাতিল করুন</string>
     <string name="settings_tab_data">ডেটা নিয়ন্ত্রণ</string>
     <string name="settings_tab_account">অ্যাকাউন্ট ও প্ল্যান</string>
-</resources>
-
+    <!-- 2027 Premium theme engine (Appearance) -->
+    <string name="appearance_match_device">ডিভাইসের সাথে মেলান</string>
+    <string name="appearance_match_device_desc">এই ডিভাইসের হালকা বা গাঢ় চেহারা অনুসরণ করুন। আপনার অ্যাকসেন্ট রঙ একই থাকবে।</string>
+    <string name="appearance_surface_style">সার্ফেস স্টাইল</string>
+    <string name="appearance_surface_style_desc">ফ্ল্যাট সার্ফেসকে শান্ত ও বর্ডারযুক্ত রাখে; 3D নিউমর্ফিক গভীরতা এবং উপরের হাইলাইট যোগ করে।</string>
+    <string name="appearance_style_flat">ফ্ল্যাট</string>
+    <string name="appearance_style_3d">3D</string>
+    <string name="appearance_presets">থীম প্রিসেট</string>
+    <string name="appearance_create_theme">থীম তৈরি করুন</string>
+    <string name="appearance_delete_confirm_title">থীম মুছবেন?</string>
+    <string name="appearance_delete_confirm_body">এই কাস্টম থীমটি স্থায়ীভাবে মুছে ফেলা হবে। প্রিসেটগুলো প্রভাবিত হবে না।</string>
+    <string name="appearance_delete_confirm_action">মুছুন</string>
+    <string name="create_theme_title">থীম তৈরি করুন</string>
+    <string name="create_theme_name">থীমের নাম</string>
+    <string name="create_theme_name_hint">আমার থীম</string>
+    <string name="create_theme_background">পটভূমি</string>
+    <string name="create_theme_surface">সার্ফেস</string>
+    <string name="create_theme_primary">প্রধান অ্যাকসেন্ট</string>
+    <string name="create_theme_invalid_hex">সঠিক HEX রঙ লিখুন, যেমন #1E1E2E</string>
+    <string name="create_theme_save">থীম সংরক্ষণ করুন</string>
+    <string name="create_theme_cancel">বাতিল</string>
+    <string name="create_theme_remove">থীম মুছুন</string>
+    <string name="create_theme_preview">প্রিভিউ</string></resources>

@@ -77,7 +77,7 @@ class GuestFileMapTest {
 
     @Test
     fun `tmp maps to the bound tmp directory`() {
-        assertEquals(File(tmp, "kai-pid"), sharedMap().resolve("/tmp/kai-pid"))
+        assertEquals(File(tmp, "dorai-pid"), sharedMap().resolve("/tmp/dorai-pid"))
     }
 
     @Test

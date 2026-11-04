@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Tervetuloa DORAI AI-sovellukseen</string>
     <string name="prompt_ask_question">Kysy kysymys</string>
     <string name="error_invalid_api_key">Virheellinen API-avain. Tarkista asetuksesi.</string>
@@ -385,8 +385,8 @@ Jos jokin vaatii huomiota (vanhentuneet muistot, erääntyneet tehtävät, käyt
     <string name="sandbox_files_editor_binary_warning">Binaaritiedosto tai liian suuri esikatseltavaksi tekstinä.</string>
     <string name="sandbox_files_editor_force_open_as_text">Pakota avaaminen tekstinä</string>
     <string name="sandbox_files_editor_save">Tallenna</string>
-    <string name="kai_ui_render_failed">Käyttöliittymän renderöinti epäonnistui</string>
-    <string name="kai_ui_code_copy">Kopioi</string>
+    <string name="dorai_ui_render_failed">Käyttöliittymän renderöinti epäonnistui</string>
+    <string name="dorai_ui_code_copy">Kopioi</string>
     <string name="image_viewer_close">Sulje</string>
     <string name="bot_message_thinking_label">Ajattelee</string>
     <string name="bot_message_thinking_expand_content_description">Laajenna tai supista ajattelu</string>

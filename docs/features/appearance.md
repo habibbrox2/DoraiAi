@@ -1,39 +1,70 @@
 # Appearance
 
-**Last verified:** 2026-11-03
+**Last verified:** 2026-11-04
 
-DORAI AI has a five-way theme picker — **System**, **Light**, **Dark**, **OLED** and **Midnight** — exposed in Settings on every platform as a row of switch buttons, one per theme, so the choice is visible at a glance and takes a single tap. The default is System, which follows the operating system's dark/light preference. The other four force a specific theme regardless of system state. Dark uses a soft dark background (`#121212`) with slightly lighter surfaces (`#1E1E1E`); OLED flattens the background and the lowest surface tier to pure black (`#000000`) for users who want to save power on OLED panels; Midnight is a deep-navy dark theme (background `#06152E`, surfaces `#0E2A4D`) that keeps the cyan brand accent without going pitch black.
+DORAI AI ships a 2027 premium dynamic theme engine that runs identically on Android, iOS, Desktop (JVM) and Web (Wasm/JS). Appearance is configured from **Settings → Appearance** with a grid of live preview swatches; changes apply immediately — no restart, no Gradle rebuild.
 
-Cards, dialogs, bottom sheets, and menus stay visually lifted in either dark variant because only the lowest surface tiers are affected; container tiers keep their default Material 3 elevation.
+## Built-in presets
+
+The engine ships thirteen built-in presets, each defining `id`, `displayName`, `isDark`, `background`, `surface`, `primary`/`accent` and semantic text/outline tiers:
+
+- **Dark** — premium obsidian default: background `#050A1C`, surface `#08132B`, cyan primary `#25CDE2`.
+- **Light** — background `#FFFFFF`, blue primary `#245FD8`.
+- **OG Shine** (new) — deep plum `#14082B` with shine-magenta `#FF2E9A` and gold `#FFC24B`.
+- **Peach** (new) — warm off-white with peach `#FF7A45`.
+- **Midnight** — brand navy `#06152E` with cyan accent (per the former appearance contract).
+- **Lilac**, **Dusk**, **Seafoam**, **Graphite**, **Daybreak**, **Sherbet**, **Paper**, **Carbon** — promoted from the legacy `Theme.kt` schemes to full surface/text/outline tiers.
+
+User-created custom themes sit alongside the presets in the same grid and are marked with a remove badge.
+
+## Match Device (system sync)
+
+The **Match Device** switch synchronizes dark/light modes with the OS setting (`isSystemInDarkTheme()`) while retaining the selected accent. When the selected palette belongs to a different luminance class than the OS-chosen base, the base pair's own accent is used instead — a dark accent on a light canvas (or the reverse) is a contrast failure.
+
+## Surface style
+
+A **Flat / 3D** toggle controls premium surfaces via `Modifier.doraiSurfaceStyle(style, shape)`:
+
+- **Flat** — filled surface tier with a 1dp hairline outline.
+- **3D** — neumorphic depth: dual-toned outer shadow, vertical light gradient across the fill and a faint white top-edge highlight. Suitable for Web (Wasm), Desktop, Android and iOS.
+
+## User-created themes
+
+The **Create theme** builder takes a name plus three opaque HEX values (`background`, `surface`, `primary`). Each field shows a live RGB readout; Save stays disabled until all three parse. Custom palettes are stored locally under `custom_themes_json` and selected immediately (Match Device turns off).
+
+## Persistence
+
+Engine state lives in `multiplatform-settings` (same store as the rest of app settings):
+
+| Key | Meaning |
+|---|---|
+| `selected_theme_id` | Preset id (e.g. `dark`, `midnight`) or a `custom_*` id |
+| `is_system_theme` | Match Device switch |
+| `theme_style` | `Flat` / `ThreeD` |
+| `custom_themes_json` | JSON array of custom palettes |
+
+An existing legacy `theme_mode` (`System` / `Light` / `Dark`) migrates one-time into the new keys on first launch after the upgrade. The engine also writes `theme_mode` in tandem so Android system-bar icons keep their correct style — dark selection → dark bars, light selection → light bars, Match Device → system-driven.
 
 ## Behavior
 
-- **System**: `isSystemInDarkTheme()` decides between the light and dark schemes.
-- **Light**: forces the Material 3 light scheme.
-- **Dark**: forces the Material 3 dark scheme. `background` renders `#121212` and `surface` renders `#1E1E1E`. `surfaceContainer*` tiers use their default Material 3 dark values so elevated components remain visible. `onBackground` / `onSurface` stay white.
-- **OLED**: forces dark + pure-black override. `background`, `surface`, and `surfaceContainerLowest` render pure black. The elevated `surfaceContainer*` tiers are unchanged so cards and menus stay visible against black.
-- **Midnight**: forces the brand-navy dark scheme. `background` renders `#06152E` and `surface` renders `#0E2A4D`, with the same cyan accent as the dark theme. It is not the OLED variant, so the adaptive card style stays filled rather than outlined.
-- **Material You (Android 12+)**: the full wallpaper-derived light/dark schemes replace DORAI AI's built-in palettes, so on these devices Dark uses the dynamic dark background and surfaces rather than `#121212` / `#1E1E1E`. When OLED is selected, the black override is layered on top of the dynamic dark scheme so accents and buttons continue to track the wallpaper. Older Android versions and all other platforms use DORAI AI's built-in purple-accented palettes.
-- **System bars (Android)**: status and navigation bars are transparent (edge-to-edge); their icon style follows the resolved theme — Dark, OLED and Midnight always get light icons, Light always gets dark icons, System follows the OS.
-- **Reactivity**: changing the theme recomposes the theme immediately without an app restart.
-
-The picker exists on every platform because system theme detection is unreliable on some desktop window systems (notably Linux/Wayland), so users there need an explicit override.
-
-## Component guidance
-
-When adding new surfaces in dark mode, **do not** bind fills to `surface` if the element should stand out from the page background with OLED selected — in OLED `surface` becomes black and the element will be invisible against the background. Use `surfaceContainer` (or higher) for anything that represents a raised card, pill, or control.
-
-Many cards (settings list items, service/MCP/skill/tool cards, the heartbeat and pending-SMS banners in chat, sandbox file browser rows, dynamic UI cards) use a shared adaptive card style: normally a half-transparent `surfaceVariant` fill with no border; with OLED selected the fill becomes transparent and a thin `outlineVariant` border outlines the card instead, keeping the background pure black. New card-like surfaces should reuse this style rather than picking their own fill.
+- **Reactivity** — selections recompose the whole app immediately; no app restart.
+- **System bars (Android)** — edge-to-edge; icon style follows the resolved theme as before.
+- **Material You** — dynamic wallpaper colors are **no longer applied**. The selected preset or custom theme is the app's identity on every platform. This is a deliberate change; if wallpaper-derived colors are wanted in Match Device on Android 12+, that needs an explicit product decision.
+- **KaiAppTheme** — removed. The engine root is `DoraiTheme` (`DoraiThemeEngine.kt`).
 
 ## Key Files
 
 | File | Purpose |
 |------|---------|
-| `composeApp/.../ui/Theme.kt` | `DarkColorScheme` / `LightColorScheme` / `MidnightColorScheme` constants; `withBlackBackground()` extension that flattens a dark scheme to pure black; adaptive card colors/border/surface helpers that switch to outlined-transparent in OLED |
-| `composeApp/.../data/AppSettings.kt` | `ThemeMode` enum; `themeModeFlow` / `getThemeMode()` / `setThemeMode()` — the persistent setting, with one-time migration from the legacy OLED boolean |
-| `composeApp/.../App.kt` | Shared `AppContent` — observes `themeModeFlow`, picks `lightColorScheme` / `darkColorScheme` / `darkColorScheme.withBlackBackground()` / `MidnightColorScheme` based on the selected mode |
-| `composeApp/.../ui/settings/GeneralSettings.kt` | Theme mode switch buttons in the General tab |
-| `androidApp/.../MainActivity.kt` | Android entry — supplies dynamic-color light/dark schemes; the resolved `isDarkTheme` (from `themeMode` + system) drives the system-bar icon style |
-| `androidApp/.../res/values-night/styles.xml` | Pre-Compose window background set to `#FF121212` to match the default dark frame |
-| `composeApp/.../iosMain/.../MainViewController.kt` | iOS entry — uses common `App` defaults |
-| `composeApp/.../desktopMain/.../main.kt` | Desktop entry — uses common `App` defaults; also configures HiDPI hints and an initial 1280×800 `WindowState` so the window opens at a usable size on Linux/Wayland |
+| `composeApp/.../theme/data/ThemeModels.kt` | `ThemePalette`, `ThemeStyle`, `ThemeState`, `resolve()`, hex utilities |
+| `composeApp/.../theme/data/ThemePresets.kt` | The thirteen built-in presets |
+| `composeApp/.../theme/data/ThemeSettingsRepository.kt` | Persistence (`selected_theme_id`, `is_system_theme`, `theme_style`, `custom_themes_json`), legacy `theme_mode` migration + tandem sync |
+| `composeApp/.../theme/engine/DoraiThemeEngine.kt` | `DoraiTheme` root; maps palette → Material 3 `ColorScheme`, provides `LocalDoraiPalette`/`LocalDoraiThemeState`/`LocalDoraiThemeStyle` and `LocalDesignColorTokens` |
+| `composeApp/.../theme/engine/ElevationStyles.kt` | `Modifier.doraiSurfaceStyle(style, shape)` — Flat vs 3D surfaces |
+| `composeApp/.../theme/ThemeViewModel.kt` | `StateFlow<ThemeState>` holder for the Appearance UI |
+| `composeApp/.../theme/ui/AppearanceSettingsScreen.kt` | Match Device, Flat/3D, preset grid, Create theme entry |
+| `composeApp/.../theme/ui/components/ThemeSwatchCard.kt` | Preview swatch with mockup bars, accent dots, accent pill, spring selection ring |
+| `composeApp/.../theme/ui/components/CreateThemeDialog.kt` | Hex/RGB theme builder dialog |
+| `composeApp/.../App.kt` | Root `DoraiTheme` wrapper (was `Theme(colorScheme = ...)`) |
+| `composeApp/.../ui/settings/AppearanceSettings.kt` | Appearance tab adapter |
+| `composeApp/.../AppModule.kt` | Koin registrations (`ThemeSettingsRepository` singleton, `ThemeViewModel`) |

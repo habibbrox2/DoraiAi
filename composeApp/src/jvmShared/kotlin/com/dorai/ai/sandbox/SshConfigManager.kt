@@ -143,14 +143,16 @@ class SshConfigManager(private val homeDir: File) {
     private fun hostMarker(alias: String) = "host:$alias"
 
     private fun upsertBlock(text: String, marker: String, body: String): String {
-        val startTag = "# kai:$marker:start"
-        val endTag = "# kai:$marker:end"
+        val startTag = "# dorai:$marker:start"
+        val endTag = "# dorai:$marker:end"
+        // Backward compat: older builds wrote blocks under the `kai:` prefix. Recognise
+        // (and replace) those too so a migration upserts cleanly instead of duplicating.
+        val legacyStartTag = "# kai:$marker:start"
+        val legacyEndTag = "# kai:$marker:end"
         val newBlock = "$startTag\n$body\n$endTag"
 
-        // Match the block plus any whitespace immediately before/after so
-        // repeated upserts don't accumulate blank lines.
         val pattern = Regex(
-            """\n*${Regex.escape(startTag)}.*?${Regex.escape(endTag)}\n*""",
+            """\n*(?:${Regex.escape(startTag)}|${Regex.escape(legacyStartTag)}).*?(?:${Regex.escape(endTag)}|${Regex.escape(legacyEndTag)})\n*""",
             RegexOption.DOT_MATCHES_ALL,
         )
         return if (pattern.containsMatchIn(text)) {

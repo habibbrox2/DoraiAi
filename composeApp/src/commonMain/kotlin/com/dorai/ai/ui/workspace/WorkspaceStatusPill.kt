@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.workspace
+﻿package com.dorai.ai.ui.workspace
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,8 +24,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.CardFill
-import com.dorai.ai.ui.KaiBorders
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiBorders
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 
 /**
@@ -46,11 +46,11 @@ fun WorkspaceStatusPill(
             .semantics {
                 contentDescription = "Status: $label"
             }
-            .clip(com.dorai.ai.ui.KaiShapes.pill)
-            .background(color.copy(alpha = 0.16f), com.dorai.ai.ui.KaiShapes.pill)
+            .clip(com.dorai.ai.ui.DoraiShapes.pill)
+            .background(color.copy(alpha = 0.16f), com.dorai.ai.ui.DoraiShapes.pill)
             .border(
                 androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = 0.4f)),
-                com.dorai.ai.ui.KaiShapes.pill,
+                com.dorai.ai.ui.DoraiShapes.pill,
             ),
     ) {
         Row(
@@ -65,7 +65,7 @@ fun WorkspaceStatusPill(
             )
             Text(
                 text = label,
-                style = KaiTypography.labelSmall,
+                style = DoraiTypography.labelSmall,
                 color = color,
                 fontWeight = FontWeight.Medium,
             )
@@ -91,9 +91,9 @@ fun BuildProgressBlock(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(com.dorai.ai.ui.KaiShapes.card)
-            .background(com.dorai.ai.ui.theme.DesignTokens.SurfaceElevated, com.dorai.ai.ui.KaiShapes.card)
-            .border(androidx.compose.foundation.BorderStroke(1.dp, com.dorai.ai.ui.theme.DesignTokens.BorderSubtle), com.dorai.ai.ui.KaiShapes.card),
+            .clip(com.dorai.ai.ui.DoraiShapes.card)
+            .background(LocalDesignColorTokens.current.surfaceElevated, com.dorai.ai.ui.DoraiShapes.card)
+            .border(androidx.compose.foundation.BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle), com.dorai.ai.ui.DoraiShapes.card),
     ) {
         Column(
             modifier = Modifier.padding(WorkspaceSpacing.lg),
@@ -120,7 +120,7 @@ fun BuildProgressBlock(
                 }
                 Text(
                     text = title,
-                    style = KaiTypography.titleSmall,
+                    style = DoraiTypography.titleSmall,
                     color = LocalDesignColorTokens.current.textPrimary,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.weight(1f),
@@ -130,7 +130,7 @@ fun BuildProgressBlock(
             if (subtitle != null) {
                 Text(
                     text = subtitle,
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
             }

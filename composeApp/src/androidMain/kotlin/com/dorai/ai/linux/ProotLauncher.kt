@@ -1,4 +1,4 @@
-package com.dorai.ai.linux
+﻿package com.dorai.ai.linux
 
 import com.dorai.ai.smartTruncate
 import java.io.BufferedReader
@@ -53,7 +53,7 @@ class ProotHandle internal constructor(
     private val guestPidFile: File? = null,
 ) {
     private val writer = Executors.newSingleThreadExecutor { runnable ->
-        Thread(runnable, "kai-proot-write").apply { isDaemon = true }
+        Thread(runnable, "dorai-proot-write").apply { isDaemon = true }
     }
 
     fun isCancelled(): Boolean = cancelled.get()

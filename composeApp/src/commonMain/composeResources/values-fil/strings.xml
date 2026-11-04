@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Maligayang pagdating sa DORAI AI</string>
     <string name="prompt_ask_question">Magtanong</string>
     <string name="error_invalid_api_key">Hindi wastong API Key. Suriin ang iyong mga setting.</string>
@@ -383,8 +383,8 @@
     <string name="sandbox_files_editor_binary_warning">Binary o masyadong malaki para i-preview bilang teksto.</string>
     <string name="sandbox_files_editor_force_open_as_text">Pilitin buksan bilang teksto</string>
     <string name="sandbox_files_editor_save">I-save</string>
-    <string name="kai_ui_render_failed">Nabigong i-render ang UI</string>
-    <string name="kai_ui_code_copy">Kopyahin</string>
+    <string name="dorai_ui_render_failed">Nabigong i-render ang UI</string>
+    <string name="dorai_ui_code_copy">Kopyahin</string>
     <string name="image_viewer_close">Isara</string>
     <string name="bot_message_thinking_label">Nag-iisip</string>
     <string name="bot_message_thinking_expand_content_description">Palawakin o i-collapse ang pag-iisip</string>

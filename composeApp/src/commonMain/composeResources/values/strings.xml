@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Welcome to DORAI AI</string>
     <string name="prompt_ask_question">Ask a question</string>
     <string name="error_invalid_api_key">Invalid API Key. Please check your settings.</string>
@@ -429,8 +429,8 @@
     <string name="sandbox_files_action_import">Import file</string>
     <string name="sandbox_files_import_success">File imported</string>
     <string name="sandbox_files_import_failed">Import failed</string>
-    <string name="kai_ui_render_failed">Failed to render UI</string>
-    <string name="kai_ui_code_copy">Copy</string>
+    <string name="dorai_ui_render_failed">Failed to render UI</string>
+    <string name="dorai_ui_code_copy">Copy</string>
     <string name="image_viewer_close">Close</string>
     <string name="settings_sandbox_uninstall">Uninstall</string>
     <string name="settings_sandbox_uninstall_confirm">All data in the Linux sandbox will be lost. Are you sure you want to uninstall?</string>
@@ -607,5 +607,29 @@
     <string name="cron_day_saturday">Sat</string>
     <string name="settings_tab_data">Data Control</string>
     <string name="settings_tab_account">Account &amp; Plan</string>
+
+    <!-- 2027 Premium theme engine (Appearance) -->
+    <string name="appearance_match_device">Match Device</string>
+    <string name="appearance_match_device_desc">Follow this device's light or dark appearance. Your accent color stays the same.</string>
+    <string name="appearance_surface_style">Surface style</string>
+    <string name="appearance_surface_style_desc">Flat keeps surfaces calm and bordered; 3D adds neumorphic depth and a top highlight.</string>
+    <string name="appearance_style_flat">Flat</string>
+    <string name="appearance_style_3d">3D</string>
+    <string name="appearance_presets">Theme presets</string>
+    <string name="appearance_create_theme">Create theme</string>
+    <string name="appearance_delete_confirm_title">Remove theme?</string>
+    <string name="appearance_delete_confirm_body">This custom theme will be permanently deleted. Presets are not affected.</string>
+    <string name="appearance_delete_confirm_action">Remove</string>
+    <string name="create_theme_title">Create theme</string>
+    <string name="create_theme_name">Theme name</string>
+    <string name="create_theme_name_hint">My theme</string>
+    <string name="create_theme_background">Background</string>
+    <string name="create_theme_surface">Surface</string>
+    <string name="create_theme_primary">Primary accent</string>
+    <string name="create_theme_invalid_hex">Enter a valid HEX color, e.g. #1E1E2E</string>
+    <string name="create_theme_save">Save theme</string>
+    <string name="create_theme_cancel">Cancel</string>
+    <string name="create_theme_remove">Remove theme</string>
+    <string name="create_theme_preview">Preview</string>
 </resources>
 

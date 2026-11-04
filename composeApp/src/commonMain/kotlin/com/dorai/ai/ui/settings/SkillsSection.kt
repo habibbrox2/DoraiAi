@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,17 +48,17 @@ import com.dorai.ai.skills.RegistrySkillEntry
 import com.dorai.ai.skills.SkillManifest
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiOutlinedTextField
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiOutlinedTextField
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
 import com.dorai.ai.ui.components.CollectionEmptyState
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.components.StatusBadge
 import com.dorai.ai.ui.components.VerticalScrollbarForScroll
 import com.dorai.ai.ui.handCursor
-import com.dorai.ai.ui.kaiAdaptiveCardBorder
-import com.dorai.ai.ui.kaiAdaptiveCardColors
+import com.dorai.ai.ui.doraiAdaptiveCardBorder
+import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.settings_skills
@@ -102,13 +102,13 @@ internal fun SkillsSection(
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = stringResource(Res.string.settings_skills),
-            style = KaiTypography.titleMedium,
+            style = DoraiTypography.titleMedium,
             color = LocalDesignColorTokens.current.textPrimary,
         )
         Spacer(Modifier.height(4.dp))
         Text(
             text = stringResource(Res.string.settings_skills_description),
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
         )
 
@@ -120,7 +120,7 @@ internal fun SkillsSection(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = stringResource(Res.string.settings_skills_needs_sandbox),
-                    style = KaiTypography.bodyMedium,
+                    style = DoraiTypography.bodyMedium,
                     color = LocalDesignColorTokens.current.textSecondary,
                     modifier = Modifier.weight(1f),
                 )
@@ -186,15 +186,15 @@ private fun SkillCard(
     Card(
         onClick = { expanded = !expanded },
         modifier = Modifier.fillMaxWidth().handCursor(),
-        colors = kaiAdaptiveCardColors(),
-        border = kaiAdaptiveCardBorder(),
+        colors = doraiAdaptiveCardColors(),
+        border = doraiAdaptiveCardBorder(),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "/${skill.id}",
-                        style = KaiTypography.titleMedium,
+                        style = DoraiTypography.titleMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f, fill = false),
                     )
@@ -202,19 +202,19 @@ private fun SkillCard(
                         Spacer(Modifier.width(8.dp))
                         Text(
                             text = stringResource(Res.string.settings_skills_builtin),
-                            style = KaiTypography.labelSmall,
+                            style = DoraiTypography.labelSmall,
                             color = LocalDesignColorTokens.current.textSecondary,
                         )
                     }
                 }
                 TooltipBox(
                     positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                    tooltip = { Text(text = skill.description, style = KaiTypography.bodyMedium) },
+                    tooltip = { Text(text = skill.description, style = DoraiTypography.bodyMedium) },
                     state = rememberTooltipState(),
                 ) {
                     Text(
                         text = skill.description,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = if (expanded) Int.MAX_VALUE else 2,
                         overflow = TextOverflow.Ellipsis,
@@ -287,18 +287,18 @@ private fun AddSkillDialog(
             ) {
                 Text(
                     text = stringResource(Res.string.settings_skills_add),
-                    style = KaiTypography.headlineSmall,
+                    style = DoraiTypography.headlineSmall,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Spacer(Modifier.height(16.dp))
 
                 Text(
                     text = stringResource(Res.string.settings_skills_add_github),
-                    style = KaiTypography.titleSmall,
+                    style = DoraiTypography.titleSmall,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Spacer(Modifier.height(8.dp))
-                KaiOutlinedTextField(
+                DoraiOutlinedTextField(
                     value = url,
                     onValueChange = { url = it },
                     label = { Text(stringResource(Res.string.settings_skills_github_url)) },
@@ -309,7 +309,7 @@ private fun AddSkillDialog(
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = stringResource(Res.string.settings_skills_github_hint),
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
 
@@ -332,7 +332,7 @@ private fun AddSkillDialog(
                         Spacer(Modifier.width(8.dp))
                         Text(
                             text = stringResource(Res.string.settings_skills_installing),
-                            style = KaiTypography.bodySmall,
+                            style = DoraiTypography.bodySmall,
                             color = LocalDesignColorTokens.current.textSecondary,
                         )
                         Spacer(Modifier.width(8.dp))
@@ -352,7 +352,7 @@ private fun AddSkillDialog(
                 Spacer(Modifier.height(16.dp))
                 Text(
                     text = stringResource(Res.string.settings_skills_browse),
-                    style = KaiTypography.titleSmall,
+                    style = DoraiTypography.titleSmall,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Spacer(Modifier.height(8.dp))
@@ -364,7 +364,7 @@ private fun AddSkillDialog(
                             Spacer(Modifier.width(8.dp))
                             Text(
                                 text = stringResource(Res.string.settings_skills_browse_loading),
-                                style = KaiTypography.bodySmall,
+                                style = DoraiTypography.bodySmall,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
@@ -378,7 +378,7 @@ private fun AddSkillDialog(
                     }
 
                     else -> {
-                        KaiOutlinedTextField(
+                        DoraiOutlinedTextField(
                             value = search,
                             onValueChange = { search = it },
                             label = { Text(stringResource(Res.string.settings_skills_search)) },
@@ -403,7 +403,7 @@ private fun AddSkillDialog(
                         if (filtered.isEmpty()) {
                             Text(
                                 text = stringResource(Res.string.settings_skills_search_empty),
-                                style = KaiTypography.bodySmall,
+                                style = DoraiTypography.bodySmall,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
                         } else {
@@ -446,7 +446,7 @@ private fun RegistrySkillRow(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(KaiShapes.card)
+            .clip(DoraiShapes.card)
             .then(if (enabled && !alreadyInstalled) Modifier.clickable { onInstall() }.handCursor() else Modifier),
         colors = CardDefaults.cardColors(
             containerColor = SurfaceRaised.copy(alpha = 0.3f),
@@ -459,18 +459,18 @@ private fun RegistrySkillRow(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "/${entry.id}",
-                    style = KaiTypography.bodyMedium,
+                    style = DoraiTypography.bodyMedium,
                     color = LocalDesignColorTokens.current.textPrimary,
                     fontWeight = FontWeight.Medium,
                 )
                 TooltipBox(
                     positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                    tooltip = { Text(text = entry.description, style = KaiTypography.bodyMedium) },
+                    tooltip = { Text(text = entry.description, style = DoraiTypography.bodyMedium) },
                     state = rememberTooltipState(),
                 ) {
                     Text(
                         text = entry.description,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
@@ -478,7 +478,7 @@ private fun RegistrySkillRow(
                 }
                 Text(
                     text = entry.sourceName,
-                    style = KaiTypography.labelSmall,
+                    style = DoraiTypography.labelSmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
             }

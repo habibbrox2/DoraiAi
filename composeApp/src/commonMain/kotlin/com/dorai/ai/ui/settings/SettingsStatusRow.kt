@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -17,7 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 
 /**
@@ -38,13 +38,13 @@ fun SettingsKeyValueRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
-                style = KaiTypography.bodyMedium,
+                style = DoraiTypography.bodyMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
                 modifier = Modifier.weight(1f),
             )
             Text(
                 text = value,
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
         }
@@ -69,7 +69,7 @@ fun SettingsStatusRow(
     ) {
         Text(
             text = label,
-            style = KaiTypography.bodyMedium,
+            style = DoraiTypography.bodyMedium,
             color = LocalDesignColorTokens.current.textPrimary,
             modifier = Modifier.weight(1f),
         )
@@ -80,7 +80,7 @@ fun SettingsStatusRow(
         ) {
             Text(
                 text = status,
-                style = KaiTypography.labelSmall,
+                style = DoraiTypography.labelSmall,
                 color = color,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.padding(horizontal = SettingsSpacing.sm, vertical = SettingsSpacing.xxs),

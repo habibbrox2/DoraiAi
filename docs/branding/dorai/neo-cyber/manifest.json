@@ -1,0 +1,23 @@
+{
+  "brand": "DORAI AI",
+  "direction": "neo-cyber-forward-D",
+  "tagline": "Your AI. Your World.",
+  "integrated_into_app": false,
+  "files": [
+    "README.md",
+    "app-icon-1024.png",
+    "app-icon-512.png",
+    "app-icon.png",
+    "brand-board.png",
+    "circle-badge.png",
+    "dark-lockup.png",
+    "light-print-lockup.png",
+    "main-banner.png",
+    "manifest.json",
+    "promo-cyber-portal.png",
+    "promo-features.png",
+    "promo-signature.png",
+    "symbol.svg",
+    "wordmark.svg"
+  ]
+}

@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -49,7 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.prefersReducedMotion
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -101,7 +101,7 @@ fun SettingsNavRail(
                 if (group != previousGroup) {
                     Text(
                         text = group.uppercase(),
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         color = LocalDesignColorTokens.current.textTertiary,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.fillMaxWidth().padding(start = 10.dp, top = 10.dp, bottom = 4.dp),
@@ -116,7 +116,6 @@ fun SettingsNavRail(
                     SettingsTab.Tools -> Icons.Outlined.Build
                     SettingsTab.Integrations -> Icons.Outlined.Extension
                     SettingsTab.Sandbox -> Icons.Outlined.Computer
-                    SettingsTab.Data -> Icons.Outlined.Storage
                     SettingsTab.Account -> Icons.Outlined.AccountCircle
                 }
                 val label = when (tab) {
@@ -127,7 +126,6 @@ fun SettingsNavRail(
                     SettingsTab.Tools -> stringResource(Res.string.settings_tab_tools)
                     SettingsTab.Integrations -> stringResource(Res.string.settings_tab_integrations)
                     SettingsTab.Sandbox -> stringResource(Res.string.settings_tab_sandbox)
-                    SettingsTab.Data -> stringResource(Res.string.settings_tab_data)
                     SettingsTab.Account -> stringResource(Res.string.settings_tab_account)
                 }
 
@@ -182,7 +180,7 @@ fun SettingsNavRail(
                         Spacer(Modifier.width(12.dp))
                         Text(
                             text = label,
-                            style = KaiTypography.labelLarge,
+                            style = DoraiTypography.labelLarge,
                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                             color = textColor,
                             maxLines = 1,
@@ -208,5 +206,5 @@ private fun settingsTabGroup(tab: SettingsTab): String = when (tab) {
     SettingsTab.Services -> "Models & services"
     SettingsTab.Tools, SettingsTab.Integrations -> "Connections"
     SettingsTab.Sandbox -> "Workspace"
-    SettingsTab.Data, SettingsTab.Account -> "Account"
+    SettingsTab.Account -> "Account"
 }

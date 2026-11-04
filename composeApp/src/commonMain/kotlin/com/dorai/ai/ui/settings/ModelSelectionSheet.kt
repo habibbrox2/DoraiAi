@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -55,10 +55,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.formatContextWindow
 import com.dorai.ai.formatReleaseDate
-import com.dorai.ai.ui.KaiOutlinedTextField
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
-import com.dorai.ai.ui.components.KaiSearchField
+import com.dorai.ai.ui.DoraiOutlinedTextField
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
+import com.dorai.ai.ui.components.DoraiSearchField
 import com.dorai.ai.ui.components.VerticalScrollbarForGrid
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.DesignTokens
@@ -97,7 +97,7 @@ internal fun ModelSelection(
         Box(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            KaiOutlinedTextField(
+            DoraiOutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = currentSelectedModel?.let { it.displayName ?: it.id } ?: "",
                 onValueChange = {},
@@ -172,7 +172,7 @@ internal fun ModelSelection(
                         }
                     }
                     if (pickerModels.size > 6) {
-                        KaiSearchField(
+                        DoraiSearchField(
                             query = searchQuery,
                             onQueryChange = { searchQuery = it },
                             placeholder = stringResource(Res.string.settings_model_search),
@@ -222,7 +222,7 @@ internal fun ModelSelection(
                     if (sortedModels.isEmpty() && freeFilterOnly) {
                         Text(
                             text = stringResource(Res.string.model_free_empty),
-                            style = KaiTypography.bodyMedium,
+                            style = DoraiTypography.bodyMedium,
                             color = LocalDesignColorTokens.current.textSecondary,
                             modifier = Modifier.padding(24.dp),
                         )
@@ -262,18 +262,18 @@ internal fun ModelSelection(
         ) {
             Text(
                 text = stringResource(Res.string.settings_model_label),
-                style = KaiTypography.labelLarge,
+                style = DoraiTypography.labelLarge,
                 color = LocalDesignColorTokens.current.textPrimary,
             )
             if (isLoading) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     CircularProgressIndicator(modifier = Modifier.width(18.dp), strokeWidth = 2.dp)
-                    Text("Fetching models from provider…", style = KaiTypography.bodySmall, color = LocalDesignColorTokens.current.textSecondary)
+                    Text("Fetching models from provider…", style = DoraiTypography.bodySmall, color = LocalDesignColorTokens.current.textSecondary)
                 }
             } else {
                 Text(
                     text = errorMessage ?: "No models have been loaded yet. Retry model discovery.",
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = if (errorMessage != null) DesignTokens.Error else LocalDesignColorTokens.current.textSecondary,
                 )
                 OutlinedButton(onClick = onRetry, enabled = canRetry) {
@@ -321,10 +321,10 @@ private fun ModelCard(model: SettingsModel, isSelected: Boolean, onClick: () -> 
     Box(
         modifier = Modifier
             .handCursor()
-            .clip(KaiShapes.card)
+            .clip(DoraiShapes.card)
             .clickable { onClick() }
-            .background(if (isSelected) DesignTokens.SurfaceRaised else DesignTokens.SurfaceElevated, KaiShapes.card)
-            .border(BorderStroke(1.dp, DesignTokens.BorderSubtle), KaiShapes.card),
+            .background(if (isSelected) LocalDesignColorTokens.current.surfaceRaised else LocalDesignColorTokens.current.surfaceElevated, DoraiShapes.card)
+            .border(BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle), DoraiShapes.card),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -333,12 +333,12 @@ private fun ModelCard(model: SettingsModel, isSelected: Boolean, onClick: () -> 
                 TooltipBox(
                     modifier = Modifier.weight(1f),
                     positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                    tooltip = { Text(text = title, style = KaiTypography.bodyMedium) },
+                    tooltip = { Text(text = title, style = DoraiTypography.bodyMedium) },
                     state = rememberTooltipState(),
                 ) {
                     Text(
                         text = title,
-                        style = KaiTypography.titleMedium,
+                        style = DoraiTypography.titleMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         color = primaryColor,
@@ -353,7 +353,7 @@ private fun ModelCard(model: SettingsModel, isSelected: Boolean, onClick: () -> 
                     Spacer(Modifier.width(8.dp))
                     Text(
                         text = "$score",
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         color = arenaScoreColor(score),
                     )
                 }
@@ -361,14 +361,14 @@ private fun ModelCard(model: SettingsModel, isSelected: Boolean, onClick: () -> 
             secondary?.let {
                 TooltipBox(
                     positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                    tooltip = { Text(text = it, style = KaiTypography.bodyMedium) },
+                    tooltip = { Text(text = it, style = DoraiTypography.bodyMedium) },
                     state = rememberTooltipState(),
                 ) {
                     Text(
                         text = it,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = secondaryColor,
                     )
                 }
@@ -377,7 +377,7 @@ private fun ModelCard(model: SettingsModel, isSelected: Boolean, onClick: () -> 
                 Spacer(Modifier.height(6.dp))
                 Text(
                     text = it,
-                    style = KaiTypography.labelSmall,
+                    style = DoraiTypography.labelSmall,
                     color = secondaryColor,
                 )
             }
@@ -401,18 +401,18 @@ private fun FreeTierBadge(isSelected: Boolean) {
         DesignTokens.Success
     }
     val content = if (isSelected) {
-        DesignTokens.SurfaceRaised
+        LocalDesignColorTokens.current.surfaceRaised
     } else {
         LocalDesignColorTokens.current.textPrimary
     }
     Box(
         modifier = Modifier
-            .clip(KaiShapes.xs)
-            .background(background, KaiShapes.xs),
+            .clip(DoraiShapes.xs)
+            .background(background, DoraiShapes.xs),
     ) {
         Text(
             text = stringResource(Res.string.model_free_badge),
-            style = KaiTypography.labelMedium,
+            style = DoraiTypography.labelMedium,
             color = content,
             maxLines = 1,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),

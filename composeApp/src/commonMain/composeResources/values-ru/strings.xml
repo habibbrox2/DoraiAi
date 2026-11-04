@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Добро пожаловать в DORAI AI</string>
     <string name="prompt_ask_question">Задать вопрос</string>
     <string name="error_invalid_api_key">Недействительный ключ API. Пожалуйста, проверьте настройки.</string>
@@ -384,8 +384,8 @@
     <string name="sandbox_files_editor_binary_warning">Двоичный файл или слишком большой для предпросмотра в виде текста.</string>
     <string name="sandbox_files_editor_force_open_as_text">Принудительно открыть как текст</string>
     <string name="sandbox_files_editor_save">Сохранить</string>
-    <string name="kai_ui_render_failed">Не удалось отрисовать интерфейс</string>
-    <string name="kai_ui_code_copy">Копировать</string>
+    <string name="dorai_ui_render_failed">Не удалось отрисовать интерфейс</string>
+    <string name="dorai_ui_code_copy">Копировать</string>
     <string name="image_viewer_close">Закрыть</string>
     <string name="bot_message_thinking_label">Размышление</string>
     <string name="bot_message_thinking_expand_content_description">Развернуть или свернуть размышления</string>

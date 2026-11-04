@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Добре дошли в DORAI AI</string>
     <string name="prompt_ask_question">Задайте въпрос</string>
     <string name="error_invalid_api_key">Невалиден API ключ. Моля, проверете настройките си.</string>
@@ -384,8 +384,8 @@
     <string name="sandbox_files_editor_binary_warning">Двоичен или твърде голям за преглед като текст.</string>
     <string name="sandbox_files_editor_force_open_as_text">Принудително отвори като текст</string>
     <string name="sandbox_files_editor_save">Запази</string>
-    <string name="kai_ui_render_failed">Грешка при изобразяване на UI</string>
-    <string name="kai_ui_code_copy">Копирай</string>
+    <string name="dorai_ui_render_failed">Грешка при изобразяване на UI</string>
+    <string name="dorai_ui_code_copy">Копирай</string>
     <string name="image_viewer_close">Затвори</string>
     <string name="bot_message_thinking_label">Мисли</string>
     <string name="bot_message_thinking_expand_content_description">Разгърни или свий мисленето</string>

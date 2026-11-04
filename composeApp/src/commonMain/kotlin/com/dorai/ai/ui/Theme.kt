@@ -1,4 +1,4 @@
-@file:Suppress("DEPRECATION")
+﻿@file:Suppress("DEPRECATION")
 
 package com.dorai.ai.ui
 
@@ -37,7 +37,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.TextStyle
@@ -67,19 +66,26 @@ val broxCyan = AccentPrimary
 val broxLightSurface = Color(0xFFFFFFFF)
 val broxMutedText = Color(0xFF64748B)
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ 2027 Design Tokens (Aligned with DesignTokens.kt) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ 2027 Design Tokens (scheme-aware via LocalDesignColorTokens) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
-val SurfaceElevated = com.dorai.ai.ui.theme.DesignTokens.SurfaceElevated
-val SurfaceRaised = com.dorai.ai.ui.theme.DesignTokens.SurfaceRaised
+val SurfaceElevated: Color
+    @Composable get() = LocalDesignColorTokens.current.surfaceElevated
+val SurfaceRaised: Color
+    @Composable get() = LocalDesignColorTokens.current.surfaceRaised
 
 /** Card surfaces */
-val CardFill = com.dorai.ai.ui.theme.DesignTokens.SurfaceElevated
-val CardSurface = com.dorai.ai.ui.theme.DesignTokens.SurfaceDark
+val CardFill: Color
+    @Composable get() = LocalDesignColorTokens.current.surfaceElevated
+val CardSurface: Color
+    @Composable get() = MaterialTheme.colorScheme.surface
 
 /** Borders */
-val BorderSubtle = com.dorai.ai.ui.theme.DesignTokens.BorderSubtle
-val BorderSoft = com.dorai.ai.ui.theme.DesignTokens.BorderSoft
-val BorderStrong = com.dorai.ai.ui.theme.DesignTokens.BorderStrong
+val BorderSubtle: Color
+    @Composable get() = LocalDesignColorTokens.current.borderSubtle
+val BorderSoft: Color
+    @Composable get() = LocalDesignColorTokens.current.borderSoft
+val BorderStrong: Color
+    @Composable get() = LocalDesignColorTokens.current.borderStrong
 
 /** Primary accent - vibrant cyan/teal */
 val AccentPrimaryHover = Color(0xFF19B8D0)
@@ -95,23 +101,9 @@ val SuccessGreen = Color(0xFF10B981)
 val WarningAmber = Color(0xFFF59E0B)
 val InfoBlue = Color(0xFF3B82F6)
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Theme-aware color system Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-data class KaiColorPalette(
-    val textPrimary: Color,
-    val textSecondary: Color,
-    val textTertiary: Color,
-    val textMuted: Color,
-    val surfaceElevated: Color,
-    val surfaceRaised: Color,
-    val cardFill: Color,
-    val cardSurface: Color,
-    val borderSubtle: Color,
-    val borderSoft: Color,
-    val borderStrong: Color,
-)
 
-// KaiTypography - 2026 Modern Type Scale
-val KaiTypography = Typography(
+// DoraiTypography - 2026 Modern Type Scale
+val DoraiTypography = Typography(
     displayLarge = TextStyle(
         fontSize = 57.sp,
         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
@@ -204,8 +196,8 @@ val KaiTypography = Typography(
     ),
 )
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ KaiShapes Ã¢â‚¬â€ 2026 Modern Shape System Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-object KaiShapes {
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ DoraiShapes Ã¢â‚¬â€ 2026 Modern Shape System Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+object DoraiShapes {
     /** Extra small elements */
     val xs = RoundedCornerShape(8.dp)
 
@@ -266,8 +258,8 @@ object KaiShapes {
     val dialog = RoundedCornerShape(28.dp)
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ KaiBorders Ã¢â‚¬â€ Centralized stroke definitions Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-object KaiBorders {
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ DoraiBorders Ã¢â‚¬â€ Centralized stroke definitions Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+object DoraiBorders {
     /** Subtle 0.5px hairline */
     val hairline = BorderStroke(0.5.dp, BorderSoft)
 
@@ -287,8 +279,8 @@ object KaiBorders {
     val disabled = BorderStroke(1.dp, BorderSoft.copy(alpha = 0.3f))
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ KaiElevation Ã¢â‚¬â€ Cross-platform elevation using borders + alpha overlays Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-object KaiElevation {
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ DoraiElevation Ã¢â‚¬â€ Cross-platform elevation using borders + alpha overlays Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+object DoraiElevation {
     /** Subtle card elevation Ã¢â‚¬â€ soft border + faint overlay */
     val level1 = BorderStroke(1.dp, BorderSoft.copy(alpha = 0.8f))
 
@@ -312,7 +304,7 @@ fun Modifier.handCursor() = pointerHoverIcon(PointerIcon.Hand, overrideDescendan
 /** 2026 Modern card surface */
 @Composable
 fun Modifier.modernCardSurface(
-    shape: Shape = KaiShapes.card,
+    shape: Shape = DoraiShapes.card,
     elevation: Boolean = true,
 ): Modifier = this
     .clip(shape)
@@ -329,14 +321,14 @@ fun Modifier.modernCardSurface(
 /** Glassmorphic card surface with backdrop blur effect (legacy) */
 @Composable
 fun Modifier.glassmorphicSurface(
-    shape: Shape = KaiShapes.card,
+    shape: Shape = DoraiShapes.card,
     elevation: Boolean = true,
 ): Modifier = modernCardSurface(shape, elevation)
 
 /** Modern card with hover/focus glow */
 @Composable
 fun Modifier.modernCard(
-    shape: Shape = KaiShapes.card,
+    shape: Shape = DoraiShapes.card,
     isInteractive: Boolean = false,
     isFocused: Boolean = false,
     isHovered: Boolean = false,
@@ -358,7 +350,7 @@ fun Modifier.modernCard(
 /** Glassmorphic card with hover/focus glow (legacy) */
 @Composable
 fun Modifier.glassmorphicCard(
-    shape: Shape = KaiShapes.card,
+    shape: Shape = DoraiShapes.card,
     isInteractive: Boolean = false,
     isFocused: Boolean = false,
     isHovered: Boolean = false,
@@ -370,8 +362,8 @@ fun Modifier.glassmorphicCard(
 @Composable
 fun Modifier.cyanGlow(enabled: Boolean = true): Modifier = if (enabled) {
     this
-        .border(KaiBorders.accent)
-        .background(AccentPrimary, shape = KaiShapes.pill)
+        .border(DoraiBorders.accent)
+        .background(AccentPrimary, shape = DoraiShapes.pill)
 } else {
     this
 }
@@ -605,15 +597,15 @@ val CarbonColorScheme = darkColorScheme(
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Card Colors & Borders Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 @Composable
-fun kaiAdaptiveCardColors(): CardColors = CardDefaults.cardColors(
+fun doraiAdaptiveCardColors(): CardColors = CardDefaults.cardColors(
     containerColor = LocalDesignTokens.current.SurfaceElevated,
 )
 
 @Composable
-fun kaiAdaptiveCardBorder(): BorderStroke = BorderStroke(1.dp, LocalDesignTokens.current.BorderSubtle)
+fun doraiAdaptiveCardBorder(): BorderStroke = BorderStroke(1.dp, LocalDesignTokens.current.BorderSubtle)
 
 @Composable
-fun Modifier.kaiAdaptiveCardSurface(shape: Shape = CardDefaults.shape): Modifier = this
+fun Modifier.doraiAdaptiveCardSurface(shape: Shape = CardDefaults.shape): Modifier = this
     .clip(shape)
     .background(
         LocalDesignTokens.current.SurfaceElevated,
@@ -637,40 +629,40 @@ fun glassmorphicCardBorder(): BorderStroke = BorderStroke(1.dp, BorderSoft)
 
 @Composable
 fun outlineTextFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedTextColor = DesignTokens.PrimaryText,
-    unfocusedTextColor = DesignTokens.PrimaryText,
-    disabledTextColor = DesignTokens.SecondaryText.copy(alpha = 0.5f),
+    focusedTextColor = LocalDesignColorTokens.current.textPrimary,
+    unfocusedTextColor = LocalDesignColorTokens.current.textPrimary,
+    disabledTextColor = LocalDesignColorTokens.current.textSecondary.copy(alpha = 0.5f),
     errorTextColor = DangerAlert,
-    focusedContainerColor = SurfaceRaised.copy(alpha = 0.8f),
-    unfocusedContainerColor = SurfaceRaised.copy(alpha = 0.8f),
-    disabledContainerColor = SurfaceRaised.copy(alpha = 0.4f),
+    focusedContainerColor = LocalDesignColorTokens.current.surfaceRaised,
+    unfocusedContainerColor = LocalDesignColorTokens.current.surfaceRaised,
+    disabledContainerColor = LocalDesignColorTokens.current.surfaceRaised.copy(alpha = 0.4f),
     errorContainerColor = DangerAlert.copy(alpha = 0.2f),
     cursorColor = AccentPrimary,
     errorCursorColor = DangerAlert,
     focusedBorderColor = AccentPrimary,
-    unfocusedBorderColor = BorderSoft,
-    disabledBorderColor = BorderSoft.copy(alpha = 0.5f),
+    unfocusedBorderColor = LocalDesignColorTokens.current.borderSoft,
+    disabledBorderColor = LocalDesignColorTokens.current.borderSoft.copy(alpha = 0.5f),
     errorBorderColor = DangerAlert,
     focusedLabelColor = AccentPrimary,
-    unfocusedLabelColor = DesignTokens.SecondaryText,
-    disabledLabelColor = DesignTokens.SecondaryText.copy(alpha = 0.5f),
+    unfocusedLabelColor = LocalDesignColorTokens.current.textSecondary,
+    disabledLabelColor = LocalDesignColorTokens.current.textSecondary.copy(alpha = 0.5f),
     errorLabelColor = DangerAlert,
-    focusedPlaceholderColor = DesignTokens.SecondaryText,
-    unfocusedPlaceholderColor = DesignTokens.SecondaryText,
-    disabledPlaceholderColor = DesignTokens.SecondaryText.copy(alpha = 0.5f),
+    focusedPlaceholderColor = LocalDesignColorTokens.current.textSecondary,
+    unfocusedPlaceholderColor = LocalDesignColorTokens.current.textSecondary,
+    disabledPlaceholderColor = LocalDesignColorTokens.current.textSecondary.copy(alpha = 0.5f),
     errorPlaceholderColor = DangerAlert,
-    focusedLeadingIconColor = DesignTokens.SecondaryText,
-    unfocusedLeadingIconColor = DesignTokens.SecondaryText,
-    disabledLeadingIconColor = DesignTokens.SecondaryText.copy(alpha = 0.5f),
+    focusedLeadingIconColor = LocalDesignColorTokens.current.textSecondary,
+    unfocusedLeadingIconColor = LocalDesignColorTokens.current.textSecondary,
+    disabledLeadingIconColor = LocalDesignColorTokens.current.textSecondary.copy(alpha = 0.5f),
     errorLeadingIconColor = DangerAlert,
-    focusedTrailingIconColor = DesignTokens.SecondaryText,
-    unfocusedTrailingIconColor = DesignTokens.SecondaryText,
-    disabledTrailingIconColor = DesignTokens.SecondaryText.copy(alpha = 0.5f),
+    focusedTrailingIconColor = LocalDesignColorTokens.current.textSecondary,
+    unfocusedTrailingIconColor = LocalDesignColorTokens.current.textSecondary,
+    disabledTrailingIconColor = LocalDesignColorTokens.current.textSecondary.copy(alpha = 0.5f),
     errorTrailingIconColor = DangerAlert,
 )
 
 @Composable
-fun KaiOutlinedTextField(
+fun DoraiOutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -699,7 +691,7 @@ fun KaiOutlinedTextField(
         singleLine = singleLine,
         minLines = minLines,
         maxLines = maxLines,
-        shape = KaiShapes.row,
+        shape = DoraiShapes.row,
         colors = outlineTextFieldColors(),
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
@@ -707,7 +699,7 @@ fun KaiOutlinedTextField(
 }
 
 @Composable
-fun KaiClearableTextField(
+fun DoraiClearableTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -718,7 +710,7 @@ fun KaiClearableTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
     var focused by remember { mutableStateOf(false) }
-    KaiOutlinedTextField(
+    DoraiOutlinedTextField(
         modifier = modifier.fillMaxWidth().onFocusChanged { focused = it.isFocused },
         value = value,
         onValueChange = onValueChange,
@@ -737,7 +729,7 @@ fun KaiClearableTextField(
                 Icon(
                     imageVector = Icons.Default.Clear,
                     contentDescription = null,
-                    tint = DesignTokens.SecondaryText,
+                    tint = LocalDesignColorTokens.current.textSecondary,
                 )
             }
         },
@@ -750,49 +742,19 @@ fun Theme(
     colorScheme: ColorScheme,
     content: @Composable () -> Unit,
 ) {
-    val isLight = colorScheme.background.luminance() > 0.5f
-    val kaiColors = when {
-        isLight -> KaiColorPalette(
-            textPrimary = Color(0xFF0F172A),
-            textSecondary = Color(0xFF475569),
-            textTertiary = Color(0xFF64748B),
-            textMuted = Color(0xFF94A3B8),
-            surfaceElevated = Color(0xFFFFFFFF),
-            surfaceRaised = Color(0xFFF8FAFC),
-            cardFill = Color(0xFFFFFFFF),
-            cardSurface = Color(0xFFF1F5F9),
-            borderSubtle = Color(0x1A000000),
-            borderSoft = Color(0x33000000),
-            borderStrong = Color(0x4D000000),
-        )
-
-        else -> KaiColorPalette(
-            textPrimary = Color(0xFFFFFFFF),
-            textSecondary = Color(0xFFCBD5E1),
-            textTertiary = Color(0xFF94A3B8),
-            textMuted = Color(0xFF64748B),
-            surfaceElevated = Color(0xFF0A0F1C),
-            surfaceRaised = Color(0xFF111827),
-            cardFill = Color(0x99111B2E),
-            cardSurface = Color(0xFF0F172A),
-            borderSubtle = Color(0x1AFFFFFF),
-            borderSoft = Color(0x26FFFFFF),
-            borderStrong = Color(0x40FFFFFF),
-        )
-    }
     CompositionLocalProvider(
         LocalDesignTokens provides DesignTokens,
         LocalDesignColorTokens provides DesignColorTokens.from(colorScheme),
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
-            typography = KaiTypography,
+            typography = DoraiTypography,
             shapes = Shapes(
-                extraSmall = KaiShapes.input,
-                small = KaiShapes.row,
-                medium = KaiShapes.card,
-                large = KaiShapes.section,
-                extraLarge = KaiShapes.panel,
+                extraSmall = DoraiShapes.input,
+                small = DoraiShapes.row,
+                medium = DoraiShapes.card,
+                large = DoraiShapes.section,
+                extraLarge = DoraiShapes.panel,
             ),
         ) {
             content()

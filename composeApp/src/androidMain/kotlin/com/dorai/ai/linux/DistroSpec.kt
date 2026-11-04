@@ -165,7 +165,10 @@ object DebianSpec : DistroSpec {
         // fails and every package then looks missing. proot's root is fake anyway,
         // so staying root costs nothing; the file also covers shell-run apt-get.
         File(rootfsDir, "etc/apt/apt.conf.d").mkdirs()
-        File(rootfsDir, "etc/apt/apt.conf.d/99kai-nosandbox").writeText("APT::Sandbox::User \"root\";\n")
+        val newFile = File(rootfsDir, "etc/apt/apt.conf.d/99dorai-nosandbox")
+        newFile.writeText("APT::Sandbox::User \"root\";\n")
+        // Remove legacy file from older installs.
+        File(rootfsDir, "etc/apt/apt.conf.d/99kai-nosandbox").delete()
     }
 
     /**

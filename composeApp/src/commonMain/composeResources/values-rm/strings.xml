@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Bainvegni tar DORAI AI</string>
     <string name="prompt_ask_question">Fa ina dumonda</string>
     <string name="error_invalid_api_key">Clav API nunvalida. Controlai Voss parameters.</string>
@@ -383,8 +383,8 @@
     <string name="sandbox_files_editor_binary_warning">Binar u memia grond per la prevista sco text.</string>
     <string name="sandbox_files_editor_force_open_as_text">Sfurzar d'avrir sco text</string>
     <string name="sandbox_files_editor_save">Memorisar</string>
-    <string name="kai_ui_render_failed">L'interfatscha n'ha betg pudì vegnir rendida</string>
-    <string name="kai_ui_code_copy">Copiar</string>
+    <string name="dorai_ui_render_failed">L'interfatscha n'ha betg pudì vegnir rendida</string>
+    <string name="dorai_ui_code_copy">Copiar</string>
     <string name="image_viewer_close">Serrar</string>
     <string name="bot_message_thinking_label">Patratga</string>
     <string name="bot_message_thinking_expand_content_description">Expander u plegar il patratgar</string>

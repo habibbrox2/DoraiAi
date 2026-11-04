@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 
 /**
@@ -39,7 +39,7 @@ fun SettingsSectionHeader(
         ) {
             Text(
                 text = title,
-                style = KaiTypography.titleLarge,
+                style = DoraiTypography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = LocalDesignColorTokens.current.textPrimary,
                 modifier = Modifier.semantics { heading() },
@@ -47,7 +47,7 @@ fun SettingsSectionHeader(
             if (subtitle != null) {
                 Text(
                     text = subtitle,
-                    style = KaiTypography.bodyMedium,
+                    style = DoraiTypography.bodyMedium,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
             }

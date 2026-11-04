@@ -53,7 +53,7 @@ object DesignTokens {
     val Error: Color = Color(0xFFEF4444)
     val Info: Color = Color(0xFF377CFF)
 
-    // Spacing
+    // Spacing (single source of truth shared by chat, settings, and workspace)
     val SpacingXxs: Dp = 2.dp
     val SpacingXs: Dp = 4.dp
     val SpacingSm: Dp = 8.dp
@@ -62,6 +62,9 @@ object DesignTokens {
     val SpacingXl: Dp = 20.dp
     val SpacingXxl: Dp = 24.dp
     val SpacingXxxl: Dp = 32.dp
+
+    /** Minimum touch target enforced across chat, settings, and workspace surfaces. */
+    val MinTouchTarget: Dp = 48.dp
 
     // Radii
     val RadiusCard: Dp = 16.dp

@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat.composables
+﻿package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import com.dorai.ai.data.freeProviderSuggestions
 import com.dorai.ai.network.UiError
 import com.dorai.ai.ui.CardFill
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -59,21 +59,21 @@ internal fun FreeProviderSuggestionsPanel(
     ) {
         Text(
             text = stringResource(Res.string.error_free_limit_title),
-            style = KaiTypography.titleMedium,
+            style = DoraiTypography.titleMedium,
             color = LocalDesignColorTokens.current.textPrimary,
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(8.dp))
         Text(
             text = stringResource(Res.string.error_free_limit_body),
-            style = KaiTypography.bodyMedium,
+            style = DoraiTypography.bodyMedium,
             color = LocalDesignColorTokens.current.textSecondary,
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(6.dp))
         Text(
             text = uiErrorText(error),
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
             textAlign = TextAlign.Center,
         )
@@ -89,8 +89,8 @@ internal fun FreeProviderSuggestionsPanel(
                         modifier = Modifier
                             .handCursor()
                             .clickable(onClick = { uriHandler.openUri(suggestion.signupUrl) })
-                            .clip(KaiShapes.pill)
-                            .background(CardFill, KaiShapes.pill),
+                            .clip(DoraiShapes.pill)
+                            .background(CardFill, DoraiShapes.pill),
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -105,7 +105,7 @@ internal fun FreeProviderSuggestionsPanel(
                             Spacer(Modifier.width(6.dp))
                             Text(
                                 text = suggestion.service.displayName,
-                                style = KaiTypography.labelMedium,
+                                style = DoraiTypography.labelMedium,
                                 color = LocalDesignColorTokens.current.textPrimary,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,

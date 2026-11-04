@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Vitajte v DORAI AI</string>
     <string name="prompt_ask_question">Položte otázku</string>
     <string name="error_invalid_api_key">Neplatný API kľúč. Skontrolujte si nastavenia.</string>
@@ -383,8 +383,8 @@
     <string name="sandbox_files_editor_binary_warning">Binárny súbor alebo príliš veľký na zobrazenie ako text.</string>
     <string name="sandbox_files_editor_force_open_as_text">Vynútiť otvorenie ako text</string>
     <string name="sandbox_files_editor_save">Uložiť</string>
-    <string name="kai_ui_render_failed">Vykreslenie rozhrania zlyhalo</string>
-    <string name="kai_ui_code_copy">Kopírovať</string>
+    <string name="dorai_ui_render_failed">Vykreslenie rozhrania zlyhalo</string>
+    <string name="dorai_ui_code_copy">Kopírovať</string>
     <string name="image_viewer_close">Zavrieť</string>
     <string name="bot_message_thinking_label">Premýšľanie</string>
     <string name="bot_message_thinking_expand_content_description">Rozbaliť alebo zbaliť premýšľanie</string>

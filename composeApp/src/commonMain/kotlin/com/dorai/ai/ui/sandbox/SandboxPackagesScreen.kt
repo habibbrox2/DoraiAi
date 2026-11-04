@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.sandbox
+﻿package com.dorai.ai.ui.sandbox
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
@@ -41,9 +41,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.linux.PackageEntry
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
-import com.dorai.ai.ui.components.KaiSearchField
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
+import com.dorai.ai.ui.components.DoraiSearchField
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -93,7 +93,7 @@ fun SandboxPackagesContent(
 
     Box(modifier = modifier) {
         Column(Modifier.fillMaxSize()) {
-            KaiSearchField(
+            DoraiSearchField(
                 query = state.searchQuery,
                 onQueryChange = viewModel::updateSearchQuery,
                 placeholder = stringResource(Res.string.sandbox_packages_search_hint),
@@ -184,7 +184,7 @@ private fun PackagesList(
             Text(
                 text = stringResource(emptyRes),
                 color = LocalDesignColorTokens.current.textSecondary,
-                style = KaiTypography.bodyMedium,
+                style = DoraiTypography.bodyMedium,
             )
         }
         return
@@ -220,10 +220,10 @@ private fun PackageRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 4.dp)
-            .clip(KaiShapes.card)
-            .border(BorderStroke(1.dp, DesignTokens.BorderSubtle), KaiShapes.card),
+            .clip(DoraiShapes.card)
+            .border(BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle), DoraiShapes.card),
         colors = ListItemDefaults.colors(
-            containerColor = DesignTokens.SurfaceElevated,
+            containerColor = LocalDesignColorTokens.current.surfaceElevated,
             headlineColor = LocalDesignColorTokens.current.textPrimary,
             supportingColor = LocalDesignColorTokens.current.textSecondary,
             leadingIconColor = LocalDesignColorTokens.current.textSecondary,
@@ -241,7 +241,7 @@ private fun PackageRow(
                     Spacer(Modifier.width(8.dp))
                     Text(
                         text = entry.version,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,

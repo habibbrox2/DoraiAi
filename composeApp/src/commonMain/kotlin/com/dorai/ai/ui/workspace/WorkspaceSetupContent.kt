@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.workspace
+﻿package com.dorai.ai.ui.workspace
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.sandbox.SandboxProgressRow
 import com.dorai.ai.ui.settings.SettingsCard
@@ -94,7 +94,7 @@ internal fun WorkspaceSetupContent(
                     )
                     Text(
                         text = agent.title,
-                        style = KaiTypography.bodyLarge,
+                        style = DoraiTypography.bodyLarge,
                         color = LocalDesignColorTokens.current.textPrimary,
                     )
                 }

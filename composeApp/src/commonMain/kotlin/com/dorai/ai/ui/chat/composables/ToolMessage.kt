@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat.composables
+﻿package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
@@ -58,8 +58,8 @@ import androidx.compose.ui.unit.dp
 import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.CardFill
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.waiting_brewing
 import dorai.composeapp.generated.resources.waiting_content_description
@@ -223,7 +223,7 @@ internal fun WaitingResponseRow(
                 AnimatedTypingDots(dotColor = AccentPrimary)
                 Text(
                     text = "Thinking",
-                    style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
                     color = AccentPrimary,
                     fontFamily = FontFamily.Monospace,
                 )
@@ -231,7 +231,7 @@ internal fun WaitingResponseRow(
                     Text(
                         text = summary,
                         fontFamily = FontFamily.Monospace,
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         color = Color(0xFF94A3B8),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,

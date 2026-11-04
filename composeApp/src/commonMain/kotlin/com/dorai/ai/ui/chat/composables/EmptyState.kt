@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat.composables
+﻿package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -46,7 +46,7 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.DesignTokens
@@ -92,7 +92,7 @@ internal fun EmptyState(
         Text(
             text = "DORAI AI",
             modifier = Modifier.padding(horizontal = 16.dp),
-            style = KaiTypography.displaySmall,
+            style = DoraiTypography.displaySmall,
             textAlign = TextAlign.Center,
             color = LocalDesignColorTokens.current.textPrimary,
             fontWeight = FontWeight.Bold,
@@ -104,7 +104,7 @@ internal fun EmptyState(
         Text(
             text = "How can I help you today?",
             modifier = Modifier.padding(horizontal = 16.dp),
-            style = KaiTypography.titleMedium,
+            style = DoraiTypography.titleMedium,
             textAlign = TextAlign.Center,
             color = LocalDesignColorTokens.current.textSecondary,
         )
@@ -139,7 +139,7 @@ internal fun EmptyState(
             Text(
                 annotatedString,
                 modifier = Modifier.padding(horizontal = 16.dp),
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 textAlign = TextAlign.Center,
                 color = LocalDesignColorTokens.current.textTertiary,
             )
@@ -162,7 +162,7 @@ private fun QuickStartCards(
     val items = listOf(
         QuickStartItem(
             label = "New Chat",
-            prompt = "তুমি কে এবং তোমার মডেলের নাম কি?",
+            prompt = "???? ?? ??? ????? ?????? ??? ???",
             icon = Icons.Default.Edit,
             accentColor = DesignTokens.PrimaryCyan,
         ),
@@ -216,13 +216,13 @@ private fun QuickStartCard(
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
     val cardAccent = item.accentColor
-    val cardBg = DesignTokens.SurfaceRaised
+    val cardBg = LocalDesignColorTokens.current.surfaceRaised
     val cardShape = RoundedCornerShape(DesignTokens.RadiusPill)
 
     val cardBorder = if (isHovered) {
         BorderStroke(1.dp, cardAccent)
     } else {
-        BorderStroke(1.dp, DesignTokens.BorderSoft)
+        BorderStroke(1.dp, LocalDesignColorTokens.current.borderSoft)
     }
 
     Box(
@@ -248,7 +248,7 @@ private fun QuickStartCard(
             )
             Text(
                 text = item.label,
-                style = KaiTypography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                style = DoraiTypography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
                 color = LocalDesignColorTokens.current.textPrimary,
             )
         }

@@ -1,4 +1,4 @@
-<resources>
+﻿<resources>
     <string name="welcome_message">Velkommen til DORAI AI</string>
     <string name="prompt_ask_question">Stil et spørgsmål</string>
     <string name="error_invalid_api_key">Ugyldig API-nøgle. Tjek venligst dine indstillinger.</string>
@@ -385,8 +385,8 @@ Hvis noget kræver opmærksomhed (forældede erindringer, forfaldne opgaver, bru
     <string name="sandbox_files_editor_binary_warning">Binær eller for stor til at forhåndsvise som tekst.</string>
     <string name="sandbox_files_editor_force_open_as_text">Tving åbning som tekst</string>
     <string name="sandbox_files_editor_save">Gem</string>
-    <string name="kai_ui_render_failed">Kunne ikke gengive UI</string>
-    <string name="kai_ui_code_copy">Kopier</string>
+    <string name="dorai_ui_render_failed">Kunne ikke gengive UI</string>
+    <string name="dorai_ui_code_copy">Kopier</string>
     <string name="image_viewer_close">Luk</string>
     <string name="bot_message_thinking_label">Tænker</string>
     <string name="bot_message_thinking_expand_content_description">Udvid eller fold tænkning sammen</string>

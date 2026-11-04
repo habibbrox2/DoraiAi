@@ -1,4 +1,4 @@
-@file:OptIn(kotlin.time.ExperimentalTime::class)
+﻿@file:OptIn(kotlin.time.ExperimentalTime::class)
 
 package com.dorai.ai.ui.settings
 
@@ -44,12 +44,12 @@ import com.dorai.ai.data.ServiceEntry
 import com.dorai.ai.data.SmsSyncState
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiOutlinedTextField
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiOutlinedTextField
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
-import com.dorai.ai.ui.components.KaiRangeSlider
-import com.dorai.ai.ui.components.KaiSlider
+import com.dorai.ai.ui.components.DoraiRangeSlider
+import com.dorai.ai.ui.components.DoraiSlider
 import com.dorai.ai.ui.components.RefreshIconButton
 import com.dorai.ai.ui.components.SettingsListItem
 import com.dorai.ai.ui.handCursor
@@ -209,17 +209,17 @@ internal fun HeartbeatSection(
                 Text(
                     text = stringResource(Res.string.settings_heartbeat_active_hours),
                     modifier = Modifier.weight(1f),
-                    style = KaiTypography.labelMedium,
+                    style = DoraiTypography.labelMedium,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = "$startDisplay – $endDisplay",
-                    style = KaiTypography.labelLarge,
+                    style = DoraiTypography.labelLarge,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
             }
-            KaiRangeSlider(
+            DoraiRangeSlider(
                 value = activeStart..activeEnd,
                 onValueChange = { range ->
                     activeStart = range.start
@@ -237,7 +237,7 @@ internal fun HeartbeatSection(
 
                 Text(
                     text = stringResource(Res.string.settings_heartbeat_model),
-                    style = KaiTypography.labelMedium,
+                    style = DoraiTypography.labelMedium,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 Spacer(Modifier.height(4.dp))
@@ -270,13 +270,13 @@ internal fun HeartbeatSection(
                     DropdownMenu(
                         expanded = modelExpanded,
                         onDismissRequest = { modelExpanded = false },
-                        shape = KaiShapes.card,
+                        shape = DoraiShapes.card,
                     ) {
                         DropdownMenuItem(
                             text = {
                                 Text(
                                     text = stringResource(Res.string.settings_heartbeat_model_default),
-                                    style = KaiTypography.bodyMedium,
+                                    style = DoraiTypography.bodyMedium,
                                     color = if (heartbeatSelectedInstanceId == null) {
                                         LocalDesignColorTokens.current.textPrimary
                                     } else {
@@ -296,7 +296,7 @@ internal fun HeartbeatSection(
                                             .padding(horizontal = 4.dp)
                                             .background(
                                                 color = SurfaceRaised,
-                                                shape = KaiShapes.row,
+                                                shape = DoraiShapes.row,
                                             )
                                     } else {
                                         Modifier
@@ -322,7 +322,7 @@ internal fun HeartbeatSection(
                                     Column {
                                         Text(
                                             text = entry.serviceName,
-                                            style = KaiTypography.bodyMedium,
+                                            style = DoraiTypography.bodyMedium,
                                             color = if (isSelected) {
                                                 LocalDesignColorTokens.current.textPrimary
                                             } else {
@@ -331,7 +331,7 @@ internal fun HeartbeatSection(
                                         )
                                         Text(
                                             text = entry.modelId,
-                                            style = KaiTypography.bodySmall,
+                                            style = DoraiTypography.bodySmall,
                                             color = if (isSelected) {
                                                 LocalDesignColorTokens.current.textPrimary.copy(alpha = 0.7f)
                                             } else {
@@ -352,7 +352,7 @@ internal fun HeartbeatSection(
                                                 .padding(horizontal = 4.dp)
                                                 .background(
                                                     color = SurfaceRaised,
-                                                    shape = KaiShapes.row,
+                                                    shape = DoraiShapes.row,
                                                 )
                                         } else {
                                             Modifier
@@ -366,7 +366,7 @@ internal fun HeartbeatSection(
 
             Spacer(Modifier.height(12.dp))
 
-            KaiOutlinedTextField(
+            DoraiOutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = editedText,
                 onValueChange = { if (it.length <= maxChars) editedText = it },
@@ -382,7 +382,7 @@ internal fun HeartbeatSection(
 
             Text(
                 text = "${editedText.length}/$maxChars",
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.End,
@@ -406,7 +406,7 @@ internal fun HeartbeatSection(
             ) {
                 Text(
                     text = stringResource(Res.string.settings_heartbeat_recent),
-                    style = KaiTypography.labelMedium,
+                    style = DoraiTypography.labelMedium,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 RefreshIconButton(
@@ -428,7 +428,7 @@ internal fun HeartbeatSection(
                             } else {
                                 stringResource(Res.string.execution_log_status_fail)
                             },
-                            style = KaiTypography.labelSmall,
+                            style = DoraiTypography.labelSmall,
                             color = if (entry.success) {
                                 AccentPrimary
                             } else {
@@ -439,13 +439,13 @@ internal fun HeartbeatSection(
                         Column {
                             Text(
                                 text = formatHeartbeatTime(entry.timestampEpochMs),
-                                style = KaiTypography.bodySmall,
+                                style = DoraiTypography.bodySmall,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
                             if (!entry.success && entry.error != null) {
                                 Text(
                                     text = entry.error,
-                                    style = KaiTypography.labelSmall,
+                                    style = DoraiTypography.labelSmall,
                                     color = DangerAlert,
                                     maxLines = 3,
                                     overflow = TextOverflow.Ellipsis,
@@ -514,14 +514,14 @@ internal fun EmailSection(
             if (emailAccounts.isEmpty()) {
                 Text(
                     text = stringResource(Res.string.settings_email_empty),
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
             } else {
                 if (pendingCount > 0) {
                     Text(
                         text = stringResource(Res.string.settings_email_queued, pendingCount),
-                        style = KaiTypography.labelMedium,
+                        style = DoraiTypography.labelMedium,
                         color = AccentPrimary,
                     )
                     Spacer(Modifier.height(8.dp))
@@ -562,7 +562,7 @@ internal fun EmailSection(
                             }
                             Text(
                                 text = text,
-                                style = KaiTypography.labelSmall,
+                                style = DoraiTypography.labelSmall,
                                 color = if (failed) DangerAlert else LocalDesignColorTokens.current.textSecondary,
                                 modifier = Modifier.padding(start = 12.dp, top = 4.dp),
                             )
@@ -611,7 +611,7 @@ internal fun SmsSection(
                 if (pendingCount > 0) {
                     Text(
                         text = stringResource(Res.string.settings_sms_queued, pendingCount),
-                        style = KaiTypography.labelMedium,
+                        style = DoraiTypography.labelMedium,
                         color = AccentPrimary,
                     )
                     Spacer(Modifier.height(8.dp))
@@ -646,7 +646,7 @@ internal fun SmsSection(
                         }
                         Text(
                             text = text,
-                            style = KaiTypography.labelSmall,
+                            style = DoraiTypography.labelSmall,
                             color = if (failed) DangerAlert else LocalDesignColorTokens.current.textSecondary,
                         )
                     } else {
@@ -689,7 +689,7 @@ private fun PermissionRequiredRow(
 ) {
     Text(
         text = message,
-        style = KaiTypography.bodySmall,
+        style = DoraiTypography.bodySmall,
         color = LocalDesignColorTokens.current.textSecondary,
     )
     Spacer(Modifier.height(8.dp))
@@ -739,7 +739,7 @@ internal fun NotificationsSection(
                                 Res.string.settings_notifications_listener_disconnected
                             },
                         ),
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         color = if (listenerBound) {
                             LocalDesignColorTokens.current.textSecondary
                         } else {
@@ -760,7 +760,7 @@ internal fun NotificationsSection(
                     ) {
                         Text(
                             text = stringResource(Res.string.settings_notifications_queued, pendingCount),
-                            style = KaiTypography.labelMedium,
+                            style = DoraiTypography.labelMedium,
                             color = AccentPrimary,
                         )
                         TextButton(onClick = onClearPending) {
@@ -881,17 +881,17 @@ private fun PresetSlider(
         Text(
             text = label(currentPreset),
             modifier = Modifier.weight(1f),
-            style = KaiTypography.labelMedium,
+            style = DoraiTypography.labelMedium,
             color = LocalDesignColorTokens.current.textPrimary,
         )
         Spacer(Modifier.width(8.dp))
         Text(
             text = formatValue(currentPreset),
-            style = KaiTypography.labelLarge,
+            style = DoraiTypography.labelLarge,
             color = LocalDesignColorTokens.current.textPrimary,
         )
     }
-    KaiSlider(
+    DoraiSlider(
         value = sliderValue,
         onValueChange = { sliderValue = it },
         onValueChangeFinished = {

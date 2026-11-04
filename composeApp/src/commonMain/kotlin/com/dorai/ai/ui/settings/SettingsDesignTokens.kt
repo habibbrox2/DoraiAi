@@ -1,6 +1,7 @@
 package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
@@ -49,23 +50,23 @@ object SettingsStatusColors {
 object SettingsSurfaces {
     /** Page background - dark theme */
     @Composable
-    fun page(): Color = DesignTokens.Background
+    fun page(): Color = MaterialTheme.colorScheme.background
 
     /** Glassmorphic card background with blur effect */
     @Composable
-    fun card(): Color = DesignTokens.SurfaceElevated
+    fun card(): Color = LocalDesignColorTokens.current.surfaceElevated
 
     /** Card border - subtle neural border */
     @Composable
-    fun border(): Color = DesignTokens.BorderSubtle
+    fun border(): Color = LocalDesignColorTokens.current.borderSubtle
 
     /** Raised surface for floating elements */
     @Composable
-    fun raised(): Color = DesignTokens.SurfaceRaised
+    fun raised(): Color = LocalDesignColorTokens.current.surfaceRaised
 
     /** Elevated surface for panels */
     @Composable
-    fun elevated(): Color = DesignTokens.SurfaceElevated
+    fun elevated(): Color = LocalDesignColorTokens.current.surfaceElevated
 
     /** Primary accent color for interactive elements */
     @Composable

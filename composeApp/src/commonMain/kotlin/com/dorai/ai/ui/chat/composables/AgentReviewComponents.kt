@@ -29,12 +29,13 @@ import androidx.compose.ui.unit.dp
 import com.dorai.ai.filereview.FileReviewPreview
 import com.dorai.ai.filereview.FileReviewProposal
 import com.dorai.ai.filereview.FileReviewState
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.chat.activities.ActivityDetails
 import com.dorai.ai.ui.chat.activities.ActivityStatus
 import com.dorai.ai.ui.chat.activities.DiffLineKind
 import com.dorai.ai.ui.chat.activities.SideBySideDiffLine
 import com.dorai.ai.ui.chat.activities.computeSideBySideDiff
+import androidx.compose.material3.MaterialTheme
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 
@@ -51,11 +52,11 @@ internal fun FileChangeReviewCard(
     onRollback: (String) -> Unit = {},
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("${details.operation} · ${safeActivityPreview(details.path, 240)}", style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold), color = DesignTokens.BrandCyan)
+        Text("${details.operation} � ${safeActivityPreview(details.path, 240)}", style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold), color = DesignTokens.BrandCyan)
         if (proposal != null) {
             Text(
-                "Transaction · ${proposal.state.name.replace('_', ' ')}",
-                style = KaiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                "Transaction � ${proposal.state.name.replace('_', ' ')}",
+                style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                 color = when (proposal.state) {
                     FileReviewState.ACCEPTED, FileReviewState.ROLLED_BACK -> DesignTokens.Success
                     FileReviewState.CONFLICT, FileReviewState.FAILED, FileReviewState.RECOVERY_REQUIRED -> DesignTokens.Error
@@ -74,7 +75,7 @@ internal fun FileChangeReviewCard(
 
                 else -> Text(
                     "Staged preview unavailable. The target file has not been changed by this proposal.",
-                    style = KaiTypography.labelSmall,
+                    style = DoraiTypography.labelSmall,
                     color = LocalDesignColorTokens.current.textTertiary,
                 )
             }
@@ -99,7 +100,7 @@ internal fun FileChangeReviewCard(
         } else if (details.proposalId != null) {
             Text(
                 "Proposal record unavailable. This managed change has no session-only review controls.",
-                style = KaiTypography.labelSmall,
+                style = DoraiTypography.labelSmall,
                 color = DesignTokens.Warning,
             )
         } else {
@@ -112,20 +113,20 @@ internal fun FileChangeReviewCard(
                 !details.diff.isNullOrBlank() -> ActivityCodePreview("Patch supplied by tool", details.diff)
 
                 !details.newContent.isNullOrBlank() -> ActivityCodePreview(
-                    "New content · original snapshot unavailable",
+                    "New content � original snapshot unavailable",
                     details.newContent,
                     DesignTokens.Success,
                 )
 
                 !details.oldContent.isNullOrBlank() -> ActivityCodePreview(
-                    "Original content · updated snapshot unavailable",
+                    "Original content � updated snapshot unavailable",
                     details.oldContent,
                     DesignTokens.Error,
                 )
 
                 else -> Text(
                     "The tool did not provide before/after content. A source diff cannot be computed from this activity.",
-                    style = KaiTypography.labelSmall,
+                    style = DoraiTypography.labelSmall,
                     color = LocalDesignColorTokens.current.textTertiary,
                 )
             }
@@ -134,8 +135,8 @@ internal fun FileChangeReviewCard(
         if (details.proposalId == null && (status == ActivityStatus.COMPLETED || status == ActivityStatus.FAILED)) {
             var reviewState by rememberSaveable(activityId) { mutableStateOf("unreviewed") }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = { reviewState = "reviewed" }) { Text(if (reviewState == "reviewed") "Reviewed ✓" else "Mark reviewed") }
-                OutlinedButton(onClick = { reviewState = "needs_changes" }) { Text(if (reviewState == "needs_changes") "Flagged ✓" else "Needs changes") }
+                OutlinedButton(onClick = { reviewState = "reviewed" }) { Text(if (reviewState == "reviewed") "Reviewed ?" else "Mark reviewed") }
+                OutlinedButton(onClick = { reviewState = "needs_changes" }) { Text(if (reviewState == "needs_changes") "Flagged ?" else "Needs changes") }
             }
             Text(
                 when (reviewState) {
@@ -143,7 +144,7 @@ internal fun FileChangeReviewCard(
                     "needs_changes" -> "Flagged for follow-up. No file was changed."
                     else -> "Review status is local to this screen and does not modify the file."
                 },
-                style = KaiTypography.labelSmall,
+                style = DoraiTypography.labelSmall,
                 color = LocalDesignColorTokens.current.textTertiary,
             )
         }
@@ -153,18 +154,18 @@ internal fun FileChangeReviewCard(
 @Composable
 private fun SideBySideFileDiff(before: String, after: String) {
     val diff = remember(before, after) { computeSideBySideDiff(before, after) }
-    Surface(modifier = Modifier.fillMaxWidth(), color = DesignTokens.SurfaceDark, shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp), border = BorderStroke(1.dp, DesignTokens.BorderSubtle)) {
+    Surface(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface, shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp), border = BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle)) {
         Column {
-            Row(modifier = Modifier.fillMaxWidth().background(DesignTokens.SurfaceElevated).padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Before", modifier = Modifier.weight(1f), style = KaiTypography.labelSmall, color = DesignTokens.Error)
-                Text("After", modifier = Modifier.weight(1f), style = KaiTypography.labelSmall, color = DesignTokens.Success)
+            Row(modifier = Modifier.fillMaxWidth().background(LocalDesignColorTokens.current.surfaceElevated).padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Before", modifier = Modifier.weight(1f), style = DoraiTypography.labelSmall, color = DesignTokens.Error)
+                Text("After", modifier = Modifier.weight(1f), style = DoraiTypography.labelSmall, color = DesignTokens.Success)
             }
             Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(1.dp)) {
                 DiffPane(diff.lines, isOld = true, modifier = Modifier.weight(1f))
                 DiffPane(diff.lines, isOld = false, modifier = Modifier.weight(1f))
             }
-            if (diff.truncated) Text("Diff limited to first 250 lines per side.", modifier = Modifier.padding(8.dp), style = KaiTypography.labelSmall, color = DesignTokens.Warning)
-            if (diff.lines.none { it.kind != DiffLineKind.UNCHANGED }) Text("No textual changes detected.", modifier = Modifier.padding(8.dp), style = KaiTypography.labelSmall, color = LocalDesignColorTokens.current.textTertiary)
+            if (diff.truncated) Text("Diff limited to first 250 lines per side.", modifier = Modifier.padding(8.dp), style = DoraiTypography.labelSmall, color = DesignTokens.Warning)
+            if (diff.lines.none { it.kind != DiffLineKind.UNCHANGED }) Text("No textual changes detected.", modifier = Modifier.padding(8.dp), style = DoraiTypography.labelSmall, color = LocalDesignColorTokens.current.textTertiary)
         }
     }
 }
@@ -181,11 +182,11 @@ private fun DiffPane(lines: List<SideBySideDiffLine>, isOld: Boolean, modifier: 
                 else -> DesignTokens.Success
             }
             val annotated = buildAnnotatedString {
-                append((number?.toString() ?: "·").padStart(4))
-                append(" │ ")
+                append((number?.toString() ?: "�").padStart(4))
+                append(" � ")
                 withStyle(SpanStyle(color = tint)) { append(content.orEmpty()) }
             }
-            Text(annotated, style = KaiTypography.labelSmall.copy(fontFamily = FontFamily.Monospace), maxLines = 1, color = LocalDesignColorTokens.current.textSecondary)
+            Text(annotated, style = DoraiTypography.labelSmall.copy(fontFamily = FontFamily.Monospace), maxLines = 1, color = LocalDesignColorTokens.current.textSecondary)
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -21,7 +21,7 @@ import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.BorderSoft
 import com.dorai.ai.ui.DangerAlert
 import com.dorai.ai.ui.InfoBlue
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SuccessGreen
 import com.dorai.ai.ui.WarningAmber
 
@@ -81,7 +81,7 @@ fun SettingsStatusBanner(
             }
             Text(
                 text = message,
-                style = KaiTypography.bodyMedium,
+                style = DoraiTypography.bodyMedium,
                 color = content,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f),

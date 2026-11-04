@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -59,9 +59,9 @@ import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.BorderSoft
 import com.dorai.ai.ui.CardFill
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.KaiOutlinedTextField
-import com.dorai.ai.ui.KaiShapes
-import com.dorai.ai.ui.KaiTypography
+import com.dorai.ai.ui.DoraiOutlinedTextField
+import com.dorai.ai.ui.DoraiShapes
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
 import com.dorai.ai.ui.components.VerticalScrollbarForScroll
 import com.dorai.ai.ui.handCursor
@@ -144,7 +144,7 @@ internal fun SplinterlandsSection(
                 ) {
                     Text(
                         text = "Recent Battles",
-                        style = KaiTypography.labelMedium,
+                        style = DoraiTypography.labelMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
@@ -152,7 +152,7 @@ internal fun SplinterlandsSection(
                         onClick = onClearBattleLog,
                         modifier = Modifier.handCursor(),
                     ) {
-                        Text("Clear", style = KaiTypography.labelSmall)
+                        Text("Clear", style = DoraiTypography.labelSmall)
                     }
                 }
                 var showAll by remember { mutableStateOf(false) }
@@ -196,7 +196,7 @@ private fun SplinterlandsServiceList(
     if (instanceIds.isNotEmpty()) {
         Text(
             text = "LLM Services (priority order)",
-            style = KaiTypography.labelMedium,
+            style = DoraiTypography.labelMedium,
             color = LocalDesignColorTokens.current.textPrimary,
         )
         Spacer(Modifier.height(4.dp))
@@ -229,7 +229,7 @@ private fun SplinterlandsServiceList(
                         // Priority number
                         Text(
                             text = "${index + 1}.",
-                            style = KaiTypography.labelMedium,
+                            style = DoraiTypography.labelMedium,
                             color = LocalDesignColorTokens.current.textSecondary,
                             modifier = Modifier.width(20.dp),
                         )
@@ -246,7 +246,7 @@ private fun SplinterlandsServiceList(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = entry?.serviceName ?: id,
-                                style = KaiTypography.bodySmall,
+                                style = DoraiTypography.bodySmall,
                                 color = LocalDesignColorTokens.current.textPrimary,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
@@ -254,7 +254,7 @@ private fun SplinterlandsServiceList(
                             if (entry != null && entry.modelId.isNotBlank()) {
                                 Text(
                                     text = entry.modelId,
-                                    style = KaiTypography.bodySmall,
+                                    style = DoraiTypography.bodySmall,
                                     color = LocalDesignColorTokens.current.textSecondary,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
@@ -302,9 +302,9 @@ private fun SplinterlandsServiceList(
                     androidx.compose.material3.DropdownMenuItem(
                         text = {
                             Column {
-                                Text(service.serviceName, style = KaiTypography.bodyMedium)
+                                Text(service.serviceName, style = DoraiTypography.bodyMedium)
                                 if (service.modelId.isNotBlank()) {
-                                    Text(service.modelId, style = KaiTypography.bodySmall, color = LocalDesignColorTokens.current.textSecondary)
+                                    Text(service.modelId, style = DoraiTypography.bodySmall, color = LocalDesignColorTokens.current.textSecondary)
                                 }
                             }
                         },
@@ -332,13 +332,13 @@ private fun SplinterlandsServiceList(
 private fun SplinterlandsModelRankings(modelStats: ImmutableList<ModelStats>) {
     Text(
         text = "Model Rankings",
-        style = KaiTypography.labelMedium,
+        style = DoraiTypography.labelMedium,
         color = LocalDesignColorTokens.current.textPrimary,
     )
     Spacer(Modifier.height(6.dp))
     OutlinedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = KaiShapes.sm,
+        shape = DoraiShapes.sm,
         colors = CardDefaults.outlinedCardColors(
             containerColor = SurfaceRaised.copy(alpha = 0.3f),
         ),
@@ -368,12 +368,12 @@ private fun SplinterlandsModelRow(rank: Int, stats: ModelStats) {
         ) {
             Text(
                 text = "#$rank",
-                style = KaiTypography.labelSmall,
+                style = DoraiTypography.labelSmall,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
             Text(
                 text = stats.modelName,
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textPrimary,
                 modifier = Modifier.weight(1f),
                 maxLines = 1,
@@ -381,13 +381,13 @@ private fun SplinterlandsModelRow(rank: Int, stats: ModelStats) {
             )
             Text(
                 text = "${stats.wins}W ${stats.losses}L",
-                style = KaiTypography.labelSmall,
+                style = DoraiTypography.labelSmall,
                 color = LocalDesignColorTokens.current.textSecondary,
                 maxLines = 1,
             )
             Text(
                 text = "$winPct%",
-                style = KaiTypography.labelMedium,
+                style = DoraiTypography.labelMedium,
                 color = barColor,
                 maxLines = 1,
             )
@@ -408,8 +408,8 @@ private fun SplinterlandsBattleLogRow(entry: BattleLogEntry) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 3.dp)
-            .clip(KaiShapes.xs)
-            .background(bgColor, KaiShapes.xs)
+            .clip(DoraiShapes.xs)
+            .background(bgColor, DoraiShapes.xs)
             .then(
                 if (entry.activity.isNotEmpty()) {
                     Modifier.clickable { showActivity = true }.handCursor()
@@ -426,13 +426,13 @@ private fun SplinterlandsBattleLogRow(entry: BattleLogEntry) {
                 // W/L badge
                 Text(
                     text = if (entry.won) "Victory" else "Defeat",
-                    style = KaiTypography.labelMedium,
+                    style = DoraiTypography.labelMedium,
                     color = if (entry.won) Color(0xFF4CAF50) else DangerAlert,
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = "vs ${entry.opponent}",
-                    style = KaiTypography.bodyMedium,
+                    style = DoraiTypography.bodyMedium,
                     color = LocalDesignColorTokens.current.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -445,7 +445,7 @@ private fun SplinterlandsBattleLogRow(entry: BattleLogEntry) {
                     }
                     Text(
                         text = relTime,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
@@ -468,7 +468,7 @@ private fun SplinterlandsBattleLogRow(entry: BattleLogEntry) {
                     if (infoItems.isNotEmpty()) {
                         Text(
                             text = infoItems.joinToString(" · "),
-                            style = KaiTypography.bodySmall,
+                            style = DoraiTypography.bodySmall,
                             color = LocalDesignColorTokens.current.textSecondary,
                             modifier = Modifier.weight(1f),
                         )
@@ -479,7 +479,7 @@ private fun SplinterlandsBattleLogRow(entry: BattleLogEntry) {
                         val label = if (entry.llmPicked) entry.modelName.ifBlank { "LLM" } else "none"
                         Text(
                             text = label,
-                            style = KaiTypography.labelSmall,
+                            style = DoraiTypography.labelSmall,
                             color = LocalDesignColorTokens.current.textSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -510,7 +510,7 @@ private fun SplinterlandsActivityDialog(
                     for (line in entry.activity) {
                         Text(
                             text = line,
-                            style = KaiTypography.bodySmall,
+                            style = DoraiTypography.bodySmall,
                             color = LocalDesignColorTokens.current.textPrimary,
                             modifier = Modifier.padding(vertical = 1.dp),
                         )
@@ -587,11 +587,11 @@ private fun SplinterlandsAddAccountForm(
     } else {
         Text(
             text = "Your posting key is stored securely on this device and is never sent to the LLM. It is only used to sign battle transactions on the Hive blockchain.",
-            style = KaiTypography.bodySmall,
+            style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
         )
         Spacer(Modifier.height(8.dp))
-        KaiOutlinedTextField(
+        DoraiOutlinedTextField(
             value = username,
             onValueChange = { username = it },
             label = { Text("Hive Username") },
@@ -602,7 +602,7 @@ private fun SplinterlandsAddAccountForm(
 
         Spacer(Modifier.height(8.dp))
 
-        KaiOutlinedTextField(
+        DoraiOutlinedTextField(
             value = postingKey,
             onValueChange = { postingKey = it },
             label = { Text("Posting Key") },
@@ -664,7 +664,7 @@ private fun SplinterlandsAddAccountForm(
             Spacer(Modifier.height(4.dp))
             Text(
                 text = addStatus.message,
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = DangerAlert,
             )
         }
@@ -706,7 +706,7 @@ private fun SplinterlandsAccountRow(
                 ) {
                     Text(
                         text = account.username.take(1).uppercase(),
-                        style = KaiTypography.labelMedium,
+                        style = DoraiTypography.labelMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                     )
                 }
@@ -716,13 +716,13 @@ private fun SplinterlandsAccountRow(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = account.username,
-                    style = KaiTypography.bodyMedium,
+                    style = DoraiTypography.bodyMedium,
                     color = LocalDesignColorTokens.current.textPrimary,
                 )
                 if (account.energy >= 0) {
                     Text(
                         text = "\u26A1 ${account.energy}",
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
@@ -732,7 +732,7 @@ private fun SplinterlandsAccountRow(
             if (bs.wins > 0 || bs.losses > 0) {
                 Text(
                     text = "${bs.wins}W ${bs.losses}L",
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
             }
@@ -741,7 +741,7 @@ private fun SplinterlandsAccountRow(
             if (bs.phase == BattlePhase.Error) {
                 Text(
                     text = "Error",
-                    style = KaiTypography.bodySmall,
+                    style = DoraiTypography.bodySmall,
                     color = DangerAlert,
                 )
             }
@@ -755,7 +755,7 @@ private fun SplinterlandsAccountRow(
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = DangerAlert),
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                 ) {
-                    Text(if (bs.isStopping) "Stopping..." else "Stop", style = KaiTypography.bodySmall)
+                    Text(if (bs.isStopping) "Stopping..." else "Stop", style = DoraiTypography.bodySmall)
                 }
             } else {
                 Button(
@@ -764,7 +764,7 @@ private fun SplinterlandsAccountRow(
                     enabled = hasServices,
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                 ) {
-                    Text("Start", style = KaiTypography.bodySmall)
+                    Text("Start", style = DoraiTypography.bodySmall)
                 }
             }
 
@@ -833,21 +833,21 @@ private fun SplinterlandsAccountRow(
                     if (bs.currentOpponent.isNotBlank()) {
                         Text(
                             text = "vs ${bs.currentOpponent}",
-                            style = KaiTypography.bodySmall,
+                            style = DoraiTypography.bodySmall,
                             color = LocalDesignColorTokens.current.textPrimary,
                         )
                     }
                     if (bs.currentMana > 0) {
                         Text(
                             text = "${bs.currentMana} mana",
-                            style = KaiTypography.bodySmall,
+                            style = DoraiTypography.bodySmall,
                             color = LocalDesignColorTokens.current.textSecondary,
                         )
                     }
                     if (bs.currentRulesets.isNotBlank()) {
                         Text(
                             text = bs.currentRulesets,
-                            style = KaiTypography.bodySmall,
+                            style = DoraiTypography.bodySmall,
                             color = LocalDesignColorTokens.current.textSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -865,7 +865,7 @@ private fun SplinterlandsAccountRow(
                 if (phaseText.isNotBlank()) {
                     Text(
                         text = phaseText,
-                        style = KaiTypography.bodySmall,
+                        style = DoraiTypography.bodySmall,
                         color = AccentPrimary,
                     )
                 }
@@ -877,7 +877,7 @@ private fun SplinterlandsAccountRow(
                     val label = if (bs.llmPickedTeam == true) bs.winningServiceName.ifBlank { "LLM" } else "Auto"
                     Text(
                         text = label,
-                        style = KaiTypography.labelSmall,
+                        style = DoraiTypography.labelSmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -908,17 +908,17 @@ private fun SplinterlandsAccountRow(
                                 color = AccentPrimary,
                             )
 
-                            LlmServiceStatus.ValidResponse -> Text("\u2714", style = KaiTypography.labelSmall, color = Color(0xFF4CAF50))
+                            LlmServiceStatus.ValidResponse -> Text("\u2714", style = DoraiTypography.labelSmall, color = Color(0xFF4CAF50))
 
-                            LlmServiceStatus.InvalidResponse -> Text("\u2718", style = KaiTypography.labelSmall, color = DangerAlert)
+                            LlmServiceStatus.InvalidResponse -> Text("\u2718", style = DoraiTypography.labelSmall, color = DangerAlert)
 
-                            LlmServiceStatus.Failed -> Text("\u2718", style = KaiTypography.labelSmall, color = DangerAlert)
+                            LlmServiceStatus.Failed -> Text("\u2718", style = DoraiTypography.labelSmall, color = DangerAlert)
 
-                            LlmServiceStatus.Selected -> Text("\u2605", style = KaiTypography.labelSmall, color = LocalDesignColorTokens.current.textSecondary)
+                            LlmServiceStatus.Selected -> Text("\u2605", style = DoraiTypography.labelSmall, color = LocalDesignColorTokens.current.textSecondary)
                         }
                         Text(
                             text = serviceId,
-                            style = KaiTypography.bodySmall,
+                            style = DoraiTypography.bodySmall,
                             color = LocalDesignColorTokens.current.textSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -932,7 +932,7 @@ private fun SplinterlandsAccountRow(
         if (bs.errorMessage.isNotBlank() && bs.phase == BattlePhase.Error) {
             Text(
                 text = bs.errorMessage,
-                style = KaiTypography.bodySmall,
+                style = DoraiTypography.bodySmall,
                 color = DangerAlert,
                 modifier = Modifier.padding(start = 40.dp),
             )
@@ -956,7 +956,7 @@ private fun SplinterlandsCountdown(deadlineMs: Long) {
     val secs = remaining % 60
     Text(
         text = "$mins:${secs.toString().padStart(2, '0')}",
-        style = KaiTypography.labelMedium,
+        style = DoraiTypography.labelMedium,
         color = if (remaining <= 30) DangerAlert else LocalDesignColorTokens.current.textSecondary,
     )
 }

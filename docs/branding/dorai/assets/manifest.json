@@ -1,0 +1,21 @@
+{
+  "brand": "DORAI AI",
+  "tagline": "Your AI. Your World.",
+  "design_direction": "nexus-orbit",
+  "symbol": "orbital-network-intelligence-core",
+  "letterform_monogram": false,
+  "icon_sizes": [
+    16,
+    32,
+    48,
+    72,
+    96,
+    144,
+    180,
+    192,
+    256,
+    512,
+    1024
+  ],
+  "generated_locally": true
+}
