@@ -5,6 +5,9 @@ import com.dorai.ai.network.tools.ParameterSchema
 import com.dorai.ai.network.tools.Tool
 import com.dorai.ai.network.tools.ToolInfo
 import com.dorai.ai.network.tools.ToolSchema
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.tool_fetch_url_description
+import dorai.composeapp.generated.resources.tool_fetch_url_name
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.header
 import io.ktor.client.request.request
@@ -20,9 +23,6 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.http.takeFrom
 import io.ktor.utils.io.readRemaining
-import dorai.composeapp.generated.resources.Res
-import dorai.composeapp.generated.resources.tool_fetch_url_description
-import dorai.composeapp.generated.resources.tool_fetch_url_name
 import kotlinx.io.readByteArray
 
 private val ALLOWED_METHODS = setOf("GET", "POST", "HEAD")

@@ -74,11 +74,6 @@ import com.dorai.ai.ui.outlineTextFieldColors
 import com.dorai.ai.ui.settings.SettingsModel
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
-import io.github.vinceglb.filekit.PlatformFile
-import io.github.vinceglb.filekit.dialogs.FileKitType
-import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
-import io.github.vinceglb.filekit.extension
-import io.github.vinceglb.filekit.name
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.ic_attach
 import dorai.composeapp.generated.resources.ic_file
@@ -86,6 +81,11 @@ import dorai.composeapp.generated.resources.ic_image
 import dorai.composeapp.generated.resources.ic_stop
 import dorai.composeapp.generated.resources.ic_up
 import dorai.composeapp.generated.resources.prompt_ask_question
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.extension
+import io.github.vinceglb.filekit.name
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.painterResource

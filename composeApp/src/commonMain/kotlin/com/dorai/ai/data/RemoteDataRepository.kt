@@ -64,14 +64,14 @@ import com.dorai.ai.ui.chat.History
 import com.dorai.ai.ui.chat.ToolCallInfo
 import com.dorai.ai.ui.chat.toGeminiMessageDto
 import com.dorai.ai.ui.settings.SettingsModel
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.default_soul
+import dorai.composeapp.generated.resources.error_service_unavailable
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.mimeType
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.readBytes
 import io.github.vinceglb.filekit.size
-import dorai.composeapp.generated.resources.Res
-import dorai.composeapp.generated.resources.default_soul
-import dorai.composeapp.generated.resources.error_service_unavailable
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CompletableDeferred

@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.dorai.ai.FileBrowserSource
 import com.dorai.ai.SandboxFileEntry
 import com.dorai.ai.TextFileResult
-import io.github.vinceglb.filekit.PlatformFile
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.sandbox_files_delete_failed
 import dorai.composeapp.generated.resources.sandbox_files_delete_success
@@ -20,6 +19,7 @@ import dorai.composeapp.generated.resources.sandbox_files_rename_failed
 import dorai.composeapp.generated.resources.sandbox_files_rename_success
 import dorai.composeapp.generated.resources.sandbox_files_save_failed
 import dorai.composeapp.generated.resources.sandbox_files_save_success
+import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

@@ -22,13 +22,13 @@ import com.dorai.ai.tools.isLocalNetworkUrl
 import com.dorai.ai.ui.markdown.KaiUiBlock
 import com.dorai.ai.ui.markdown.KaiUiError
 import com.dorai.ai.ui.markdown.parseMarkdown
-import io.github.vinceglb.filekit.PlatformFile
-import io.github.vinceglb.filekit.extension
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.conversation_untitled
 import dorai.composeapp.generated.resources.error_local_network_permission
 import dorai.composeapp.generated.resources.error_unsupported_file_type
 import dorai.composeapp.generated.resources.litert_no_model_warning
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.extension
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
