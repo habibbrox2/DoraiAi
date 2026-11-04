@@ -194,3 +194,20 @@ source: `docs/branding/dorai/assets/motion/logo-animation.svg` (copied to `site/
 `assets/motion/logo-animation.gif` is a 400², 64-frame, 18 fps raster built from the same layers for
 surfaces that cannot animate SVG. Verified in headless Chrome: 14.5 % canvas coverage at 150 ms versus
 33.7 % settled, and the settled frame matches the static pack symbol at IoU 0.9977.
+
+## Social card
+
+`site/img/preview-banner.png` (and its byte-identical twin `site/img/og-preview.png`) still showed the
+pre-migration mark, the retired hero illustration and the old purple accents, while `site/index.html`
+advertises it as `og:image`, `twitter:image` and the JSON-LD `image`. Authoring it again from the new
+mark also removes the last old-logo artwork from the deployed site.
+
+The card keeps every string the site already publishes — the lockup, “Intelligence, in every
+direction.”, “Your AI. Your World.”, the two-line description, the 01–05 feature chips, the
+LOCAL / CLOUD / HYBRID pill and “ONE ASSISTANT. MANY POSSIBILITIES.” — and swaps only the artwork:
+the old hero illustration and hexagon mark are replaced by the D mark on `#050A1C` with two faint
+concentric rings and a soft radial glow.
+
+Verified after rendering at 1200×630: the mark and the outer ring stay inside the canvas (right edge
+1198), every chip label fits its box with at least 8 px of padding, the navy field has no white
+pixels, and both output files are 24-bit RGB and byte-identical.

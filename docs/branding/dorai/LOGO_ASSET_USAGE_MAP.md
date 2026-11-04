@@ -83,3 +83,14 @@ Authored from pack parts; the pack itself ships no animation. Nothing here is a 
 |---|---|---|
 | `logo-animation.svg` | 512² animated mark: 0.9 s left-to-right reveal, core pop-in with halo at 0.82 s, 4.2 s breathe loop; `prefers-reduced-motion` shows the static mark | **used** → `site/img/logo_animation.svg` (hero mascot, `site/index.html:101`) |
 | `logo-animation.gif` | 400², 64 frames at 18 fps (3.6 s loop) on the `#050A1C` field, for surfaces that cannot animate SVG | available for README/store/social use |
+
+## Social card (`store/`)
+
+`site/img/preview-banner.png` and its byte-identical copy `site/img/og-preview.png` are the 1200×630
+Open Graph and Twitter card images referenced by `site/index.html` (`og:image`, `twitter:image`,
+JSON-LD `image`). They were re-authored on 2026-11-05 from the new mark and the existing site copy.
+
+| Asset | Purpose | Where used |
+|---|---|---|
+| `social-card.svg` | 1200×630 card: D mark on `#050A1C`, the project lockup, both taglines, the platform story, the five feature chips and the local/cloud/hybrid pill | **source** for both PNGs |
+| (raster output) | Rendered with headless Chrome at 1× and flattened to 24-bit RGB | `site/img/preview-banner.png`, `site/img/og-preview.png` |
