@@ -41,7 +41,6 @@ concurrency:
 env:
   REPO_OWNER: habibbrox2
   REPO_NAME: DoraiAi
-  KEYSTORE_PATH: ${{ runner.temp }}/dorai-release.jks
 
 jobs:
   ###############################################################################
@@ -50,6 +49,8 @@ jobs:
   preflight:
     name: Preflight validation
     runs-on: ubuntu-latest
+    env:
+      KEYSTORE_PATH: ${{ runner.temp }}/dorai-release.jks
     outputs:
       version: ${{ steps.bump.outputs.version }}
       versionCode: ${{ steps.bump.outputs.versionCode }}
@@ -242,6 +243,7 @@ jobs:
       KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
       KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
       KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEYSTORE_PATH: ${{ runner.temp }}/dorai-release.jks
       ENFORCE_RELEASE_SIGNING: "true"
     steps:
       - name: Checkout release tag
