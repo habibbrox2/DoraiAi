@@ -1263,7 +1263,7 @@
 </tr>
 <tr>
 <td><code>.github/workflows/release.yml</code></td>
-<td>Tag-time full release pipeline using <code>packageReleaseDmg</code>/<code>Msi</code>/<code>Deb</code>/<code>Rpm</code> and <code>createReleaseDistributable</code> (AppImage, Flatpak, tarball)</td>
+<td>Canonical production release workflow. Triggered manually via <code>workflow_dispatch</code> from <code>main</code> (patch/minor/major). Builds APK, MSI, ZIP, DMG, DEB, RPM, AppImage, Flatpak, and tarball. Normal pushes or merges never trigger a release.</td>
 </tr>
 </tbody>
 </table>

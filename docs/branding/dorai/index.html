@@ -23,7 +23,7 @@
     
     
       
-        <title>DORAI AI Brand Assets - DORAI AI Documentation</title>
+        <title>Index - DORAI AI Documentation</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dorai-ai-brand-assets" class="md-skip">
+        <a href="#dorai-ai-d-shape-logo-pack" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              DORAI AI Brand Assets
+              Index
             
           </span>
         </div>
@@ -975,6 +975,58 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#colors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Colors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#main-svgs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Main SVGs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#raster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raster
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-caution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration caution
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -990,12 +1042,38 @@
 
 
 
-<h1 id="dorai-ai-brand-assets">DORAI AI Brand Assets</h1>
+<blockquote>
+<p><strong>Canonical pack:</strong> <code>docs/branding/dorai/assets/hexacore/</code>. Platform assets are derived from
+that directory by <code>tools/import_hexacore_assets.py</code>; loose copies at this level were removed.</p>
+</blockquote>
+<h1 id="dorai-ai-d-shape-logo-pack">DORAI AI — D-Shape Logo Pack</h1>
+<p>The selected Hexa Core direction has been refined into a clearer capital-D silhouette with a forward/play core.</p>
+<h2 id="colors">Colors</h2>
 <ul>
-<li><code>symbol.svg</code> — primary DORAI AI application symbol.</li>
-<li>App icons are generated from the same navy/cyan mark and distributed in platform asset directories.</li>
-<li>Keep wordmarks, favicons, launcher icons, and metadata aligned with the canonical identity in <code>../brand-name-usage.md</code>.</li>
+<li>Neon Cyan #25E2F5</li>
+<li>Electric Blue #377CFF</li>
+<li>Violet #6F5BFF</li>
+<li>Dark Navy #050A1C</li>
+<li>Light #FFFFFF</li>
 </ul>
+<h2 id="main-svgs">Main SVGs</h2>
+<ul>
+<li><code>svg/d-shape-gradient.svg</code> — transparent gradient symbol</li>
+<li><code>svg/d-shape-black.svg</code> — black monochrome symbol</li>
+<li><code>svg/d-shape-white.svg</code> — white monochrome symbol</li>
+<li><code>svg/app-icon-dark.svg</code> and <code>svg/app-icon-light.svg</code></li>
+<li><code>svg/app-icon-monochrome-dark.svg</code> and <code>svg/app-icon-monochrome-light.svg</code></li>
+<li>Optional wordmarks: <code>svg/wordmark-horizontal.svg</code>, <code>svg/wordmark-vertical.svg</code></li>
+</ul>
+<h2 id="raster">Raster</h2>
+<ul>
+<li><code>png/app-icons/</code> — theme and monochrome PNGs from 32px through 1024px</li>
+<li><code>png/favicon/</code> — favicon PNGs</li>
+<li><code>favicon.ico</code> and <code>favicon.svg</code></li>
+<li><code>site.webmanifest</code></li>
+</ul>
+<h2 id="integration-caution">Integration caution</h2>
+<p>This is a logo asset pack, not an automatic project migration. Inspect the target app's Android adaptive icon configuration and desktop packaging before integrating. Android adaptive icons may require separately generated foreground/background layers and platform safe-zone validation.</p>
 
 
 

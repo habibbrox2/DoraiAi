@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="240" viewBox="0 0 920 240">
+<defs><linearGradient id="g" x1="80" y1="50" x2="430" y2="450"><stop stop-color="#25E2F5"/><stop offset=".48" stop-color="#377CFF"/><stop offset="1" stop-color="#6F5BFF"/></linearGradient></defs>
+<g transform="translate(-14,-6) scale(.46)"><path d="M118 60 H244 C352.25 60 440 147.75 440 256 C440 364.25 352.25 452 244 452 H118 C99 452 84 437 84 418 V94 C84 79 103 60 118 60 Z M164 140.0 V372.0 H244 C308.07 372.0 360.0 320.07 360.0 256 C360.0 191.93 308.07 140.0 244 140.0 Z" fill="url(#g)" fill-rule="evenodd"/><path d="M214.0 223.0 Q214 201 233.0 212.1 L289.0 244.9 Q308 256 289.0 267.1 L233.0 299.9 Q214 311 214.0 289.0 Z" fill="#377CFF"/></g>
+<text x="260" y="151" font-family="Inter,Arial,sans-serif" font-size="92" font-weight="750" letter-spacing="-3" fill="#08132B">DORAI</text><text x="585" y="151" font-family="Inter,Arial,sans-serif" font-size="92" font-weight="750" letter-spacing="-3" fill="#377CFF">AI</text></svg>

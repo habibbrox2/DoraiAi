@@ -2,330 +2,366 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
+    </url>
+    <url>
+         <loc>https://habibbrox2.github.io/DoraiAi/docs/2027-kai-to-dorai-migration-plan/</loc>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/2027-premium-agent-ui-coverage-audit/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/2027-premium-ui-coverage-audit/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/2027-premium-ui-implementation-map/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/2027-premium-ui-phase-a1-composable-map/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/2027-premium-ui-phase-b1-ci-correction/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/2027-premium-ui-phase-b1-theme-color-tokens/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/2027-premium-ui-phase-c-audit-plan/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/2027-premium-ui-theme-runtime-audit/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/P0-A-IMPLEMENTATION-PLAN/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/UI-AUDIT-REPORT-PHASE1/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/UI-IMPROVEMENT-PLAN/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/UI-PHASE6-CROSSPLATFORM-PLAN/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/android-update-manifest/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/chat-ui-upgrade-plan/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/desktop-release-smoketest/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/getting-started/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
+    </url>
+    <url>
+         <loc>https://habibbrox2.github.io/DoraiAi/docs/release-procedure/</loc>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/ui-upgrade-plan-2-settings/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/ui-upgrade-plan-3-build/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/ui-upgrade-plan-4-tools-sandbox/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/ui-upgrade-plan-5-services/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/ui-upgrade-plan-6-home-dashboard/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/ui-upgrade-plan-7-premium-chat/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/architecture/communication-contract/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/architecture/hybrid-architecture/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/architecture/kotlin-architecture/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/architecture/system-architecture/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/architecture/technology-boundaries/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/architecture/typescript-architecture/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/architecture/architecture-decisions/ADR-001-hybrid-language-strategy/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/branding/brand-name-usage/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/branding/dorai-identity-migration/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/branding/dorai/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
+    </url>
+    <url>
+         <loc>https://habibbrox2.github.io/DoraiAi/docs/branding/dorai/IMPLEMENT_DORAI_LOGO_REPLACEMENT_AGENT_PROMPT/</loc>
+         <lastmod>2026-11-05</lastmod>
+    </url>
+    <url>
+         <loc>https://habibbrox2.github.io/DoraiAi/docs/branding/dorai/LOGO_ASSET_USAGE_MAP/</loc>
+         <lastmod>2026-11-05</lastmod>
+    </url>
+    <url>
+         <loc>https://habibbrox2.github.io/DoraiAi/docs/branding/dorai/LOGO_IMPLEMENTATION_REPORT/</loc>
+         <lastmod>2026-11-05</lastmod>
+    </url>
+    <url>
+         <loc>https://habibbrox2.github.io/DoraiAi/docs/branding/dorai/LOGO_REPLACEMENT_AUDIT/</loc>
+         <lastmod>2026-11-05</lastmod>
+    </url>
+    <url>
+         <loc>https://habibbrox2.github.io/DoraiAi/docs/branding/dorai/assets/hexacore/</loc>
+         <lastmod>2026-11-05</lastmod>
+    </url>
+    <url>
+         <loc>https://habibbrox2.github.io/DoraiAi/docs/branding/dorai/assets/motion/</loc>
+         <lastmod>2026-11-05</lastmod>
+    </url>
+    <url>
+         <loc>https://habibbrox2.github.io/DoraiAi/docs/branding/dorai/assets/store/</loc>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/design-system/theme-contract/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/design-system/visual-regression-matrix/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/development/hybrid-development-guide/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/development/typescript-setup/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/appearance/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/chat/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/daemon/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/dynamic-ui/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/encryption/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/file-review-accept-reject/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/heartbeat/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/kai-build/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/mcp/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/memories/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/multi-service/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/notifications/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/on-device-inference/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/reasoning/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/sandbox/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/settings-export-import/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/skills/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/sms/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/splinterlands/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/system-prompts/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/tasks/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/features/tools/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/free-tier/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/free-tier/log/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/free-tier/ollama-cloud/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/free-tier/openrouter/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/free-tier/refresh-playbook/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/litert/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/litert/log/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/litert/models/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/litert/pin-policy/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/litert/refresh-playbook/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/model-catalog/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/model-catalog/arena-scores/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/model-catalog/log/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/model-catalog/matching-policy/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/model-catalog/refresh-playbook/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/popular-mcp/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/popular-mcp/log/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/popular-mcp/refresh-playbook/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/popular-mcp/selection-policy/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/knowledge/popular-mcp/servers/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/providers/cloudflare-workers-ai/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/superpowers/plans/2026-11-02-keyless-auto-fallback/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
     <url>
          <loc>https://habibbrox2.github.io/DoraiAi/docs/superpowers/plans/2026-11-02-premium-dark-home-screen/</loc>
-         <lastmod>2026-11-04</lastmod>
+         <lastmod>2026-11-05</lastmod>
     </url>
 </urlset>

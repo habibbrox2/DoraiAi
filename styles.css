@@ -799,3 +799,74 @@ footer .impressum {
     font-size: 0.9rem;
   }
 }
+
+/* DORAI AI AURORA brand surfaces and system-aware light theme */
+:root {
+  color-scheme: dark light;
+  --bg: #050A1C;
+  --bg-gradient: #08132B;
+  --surface: #0D1C38;
+  --surface-border: rgba(92, 145, 205, 0.22);
+  --primary: #377CFF;
+  --primary-light: #25E2F5;
+  --primary-dim: rgba(37, 226, 245, 0.18);
+  --text: #F1F8FF;
+  --text-secondary: #C4D3E8;
+  --text-muted: #91ABCD;
+  --code-bg: #0B1932;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --bg: #F5F9FF;
+    --bg-gradient: #EAF2FF;
+    --surface: #FFFFFF;
+    --surface-border: rgba(30, 73, 130, 0.14);
+    --primary: #245FD8;
+    --primary-light: #176BC5;
+    --primary-dim: rgba(36, 95, 216, 0.14);
+    --text: #10213D;
+    --text-secondary: #405673;
+    --text-muted: #667C98;
+    --code-bg: #E7EFFA;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .hero h1,
+  .hero-text-centered h1 {
+    background: linear-gradient(120deg, #10213D 0%, #245FD8 58%, #087EAE 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero .tagline { color: #245FD8; }
+  .hero .sub { color: #405673; }
+  .hero, .download {
+    background: linear-gradient(180deg, #F8FBFF 0%, #EAF2FF 100%);
+  }
+  .feature-card, .howto-step, .split-card, .faq-item,
+  .models-table-wrapper, .math-card {
+    background: #FFFFFF;
+    border-color: rgba(30, 73, 130, 0.14);
+    box-shadow: 0 10px 28px rgba(25, 65, 120, 0.055);
+  }
+  .feature-card h3, .section-title, .howto-step h3,
+  .faq-item summary, .math-card figcaption h3 { color: #10213D; }
+  .feature-card p, .section-desc, .howto-step p,
+  .split-card li, .faq-item p, .models-table td,
+  .math-card figcaption p { color: #405673; }
+  .phone-carousel .phone-frame {
+    border-color: #CBD9EC;
+    box-shadow: 0 20px 60px rgba(36, 95, 216, 0.12);
+  }
+  .models-table th { background: #EAF2FF; color: #10213D; }
+  .page-nav a, .footer-links a { color: #405673; }
+  footer { border-color: rgba(30, 73, 130, 0.14); }
+  .btn-outline { color: #245FD8; border-color: #377CFF; }
+}

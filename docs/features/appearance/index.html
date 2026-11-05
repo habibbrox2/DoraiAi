@@ -908,10 +908,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#behavior" class="md-nav__link">
+  <a href="#built-in-presets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Behavior
+        Built-in presets
       
     </span>
   </a>
@@ -919,10 +919,54 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#component-guidance" class="md-nav__link">
+  <a href="#match-device-system-sync" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Component guidance
+        Match Device (system sync)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#surface-style" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Surface style
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#user-created-themes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User-created themes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Persistence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
       
     </span>
   </a>
@@ -1066,10 +1110,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#behavior" class="md-nav__link">
+  <a href="#built-in-presets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Behavior
+        Built-in presets
       
     </span>
   </a>
@@ -1077,10 +1121,54 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#component-guidance" class="md-nav__link">
+  <a href="#match-device-system-sync" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Component guidance
+        Match Device (system sync)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#surface-style" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Surface style
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#user-created-themes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User-created themes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Persistence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Behavior
       
     </span>
   </a>
@@ -1116,24 +1204,65 @@
 
 
 <h1 id="appearance">Appearance</h1>
-<p><strong>Last verified:</strong> 2026-11-03</p>
-<p>DORAI AI has a five-way theme picker — <strong>System</strong>, <strong>Light</strong>, <strong>Dark</strong>, <strong>OLED</strong> and <strong>Midnight</strong> — exposed in Settings on every platform as a row of switch buttons, one per theme, so the choice is visible at a glance and takes a single tap. The default is System, which follows the operating system's dark/light preference. The other four force a specific theme regardless of system state. Dark uses a soft dark background (<code>#121212</code>) with slightly lighter surfaces (<code>#1E1E1E</code>); OLED flattens the background and the lowest surface tier to pure black (<code>#000000</code>) for users who want to save power on OLED panels; Midnight is a deep-navy dark theme (background <code>#06152E</code>, surfaces <code>#0E2A4D</code>) that keeps the cyan brand accent without going pitch black.</p>
-<p>Cards, dialogs, bottom sheets, and menus stay visually lifted in either dark variant because only the lowest surface tiers are affected; container tiers keep their default Material 3 elevation.</p>
+<p><strong>Last verified:</strong> 2026-11-04</p>
+<p>DORAI AI ships a 2027 premium dynamic theme engine that runs identically on Android, iOS, Desktop (JVM) and Web (Wasm/JS). Appearance is configured from <strong>Settings → Appearance</strong> with a grid of live preview swatches; changes apply immediately — no restart, no Gradle rebuild.</p>
+<h2 id="built-in-presets">Built-in presets</h2>
+<p>The engine ships thirteen built-in presets, each defining <code>id</code>, <code>displayName</code>, <code>isDark</code>, <code>background</code>, <code>surface</code>, <code>primary</code>/<code>accent</code> and semantic text/outline tiers:</p>
+<ul>
+<li><strong>Dark</strong> — premium obsidian default: background <code>#050A1C</code>, surface <code>#08132B</code>, cyan primary <code>#25CDE2</code>.</li>
+<li><strong>Light</strong> — background <code>#FFFFFF</code>, blue primary <code>#245FD8</code>.</li>
+<li><strong>OG Shine</strong> (new) — deep plum <code>#14082B</code> with shine-magenta <code>#FF2E9A</code> and gold <code>#FFC24B</code>.</li>
+<li><strong>Peach</strong> (new) — warm off-white with peach <code>#FF7A45</code>.</li>
+<li><strong>Midnight</strong> — brand navy <code>#06152E</code> with cyan accent (per the former appearance contract).</li>
+<li><strong>Lilac</strong>, <strong>Dusk</strong>, <strong>Seafoam</strong>, <strong>Graphite</strong>, <strong>Daybreak</strong>, <strong>Sherbet</strong>, <strong>Paper</strong>, <strong>Carbon</strong> — promoted from the legacy <code>Theme.kt</code> schemes to full surface/text/outline tiers.</li>
+</ul>
+<p>User-created custom themes sit alongside the presets in the same grid and are marked with a remove badge.</p>
+<h2 id="match-device-system-sync">Match Device (system sync)</h2>
+<p>The <strong>Match Device</strong> switch synchronizes dark/light modes with the OS setting (<code>isSystemInDarkTheme()</code>) while retaining the selected accent. When the selected palette belongs to a different luminance class than the OS-chosen base, the base pair's own accent is used instead — a dark accent on a light canvas (or the reverse) is a contrast failure.</p>
+<h2 id="surface-style">Surface style</h2>
+<p>A <strong>Flat / 3D</strong> toggle controls premium surfaces via <code>Modifier.doraiSurfaceStyle(style, shape)</code>:</p>
+<ul>
+<li><strong>Flat</strong> — filled surface tier with a 1dp hairline outline.</li>
+<li><strong>3D</strong> — neumorphic depth: dual-toned outer shadow, vertical light gradient across the fill and a faint white top-edge highlight. Suitable for Web (Wasm), Desktop, Android and iOS.</li>
+</ul>
+<h2 id="user-created-themes">User-created themes</h2>
+<p>The <strong>Create theme</strong> builder takes a name plus three opaque HEX values (<code>background</code>, <code>surface</code>, <code>primary</code>). Each field shows a live RGB readout; Save stays disabled until all three parse. Custom palettes are stored locally under <code>custom_themes_json</code> and selected immediately (Match Device turns off).</p>
+<h2 id="persistence">Persistence</h2>
+<p>Engine state lives in <code>multiplatform-settings</code> (same store as the rest of app settings):</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>selected_theme_id</code></td>
+<td>Preset id (e.g. <code>dark</code>, <code>midnight</code>) or a <code>custom_*</code> id</td>
+</tr>
+<tr>
+<td><code>is_system_theme</code></td>
+<td>Match Device switch</td>
+</tr>
+<tr>
+<td><code>theme_style</code></td>
+<td><code>Flat</code> / <code>ThreeD</code></td>
+</tr>
+<tr>
+<td><code>custom_themes_json</code></td>
+<td>JSON array of custom palettes</td>
+</tr>
+</tbody>
+</table>
+<p>An existing legacy <code>theme_mode</code> (<code>System</code> / <code>Light</code> / <code>Dark</code>) migrates one-time into the new keys on first launch after the upgrade. The engine also writes <code>theme_mode</code> in tandem so Android system-bar icons keep their correct style — dark selection → dark bars, light selection → light bars, Match Device → system-driven.</p>
 <h2 id="behavior">Behavior</h2>
 <ul>
-<li><strong>System</strong>: <code>isSystemInDarkTheme()</code> decides between the light and dark schemes.</li>
-<li><strong>Light</strong>: forces the Material 3 light scheme.</li>
-<li><strong>Dark</strong>: forces the Material 3 dark scheme. <code>background</code> renders <code>#121212</code> and <code>surface</code> renders <code>#1E1E1E</code>. <code>surfaceContainer*</code> tiers use their default Material 3 dark values so elevated components remain visible. <code>onBackground</code> / <code>onSurface</code> stay white.</li>
-<li><strong>OLED</strong>: forces dark + pure-black override. <code>background</code>, <code>surface</code>, and <code>surfaceContainerLowest</code> render pure black. The elevated <code>surfaceContainer*</code> tiers are unchanged so cards and menus stay visible against black.</li>
-<li><strong>Midnight</strong>: forces the brand-navy dark scheme. <code>background</code> renders <code>#06152E</code> and <code>surface</code> renders <code>#0E2A4D</code>, with the same cyan accent as the dark theme. It is not the OLED variant, so the adaptive card style stays filled rather than outlined.</li>
-<li><strong>Material You (Android 12+)</strong>: the full wallpaper-derived light/dark schemes replace DORAI AI's built-in palettes, so on these devices Dark uses the dynamic dark background and surfaces rather than <code>#121212</code> / <code>#1E1E1E</code>. When OLED is selected, the black override is layered on top of the dynamic dark scheme so accents and buttons continue to track the wallpaper. Older Android versions and all other platforms use DORAI AI's built-in purple-accented palettes.</li>
-<li><strong>System bars (Android)</strong>: status and navigation bars are transparent (edge-to-edge); their icon style follows the resolved theme — Dark, OLED and Midnight always get light icons, Light always gets dark icons, System follows the OS.</li>
-<li><strong>Reactivity</strong>: changing the theme recomposes the theme immediately without an app restart.</li>
+<li><strong>Reactivity</strong> — selections recompose the whole app immediately; no app restart.</li>
+<li><strong>System bars (Android)</strong> — edge-to-edge; icon style follows the resolved theme as before.</li>
+<li><strong>Material You</strong> — dynamic wallpaper colors are <strong>no longer applied</strong>. The selected preset or custom theme is the app's identity on every platform. This is a deliberate change; if wallpaper-derived colors are wanted in Match Device on Android 12+, that needs an explicit product decision.</li>
+<li><strong>KaiAppTheme</strong> — removed. The engine root is <code>DoraiTheme</code> (<code>DoraiThemeEngine.kt</code>).</li>
 </ul>
-<p>The picker exists on every platform because system theme detection is unreliable on some desktop window systems (notably Linux/Wayland), so users there need an explicit override.</p>
-<h2 id="component-guidance">Component guidance</h2>
-<p>When adding new surfaces in dark mode, <strong>do not</strong> bind fills to <code>surface</code> if the element should stand out from the page background with OLED selected — in OLED <code>surface</code> becomes black and the element will be invisible against the background. Use <code>surfaceContainer</code> (or higher) for anything that represents a raised card, pill, or control.</p>
-<p>Many cards (settings list items, service/MCP/skill/tool cards, the heartbeat and pending-SMS banners in chat, sandbox file browser rows, dynamic UI cards) use a shared adaptive card style: normally a half-transparent <code>surfaceVariant</code> fill with no border; with OLED selected the fill becomes transparent and a thin <code>outlineVariant</code> border outlines the card instead, keeping the background pure black. New card-like surfaces should reuse this style rather than picking their own fill.</p>
 <h2 id="key-files">Key Files</h2>
 <table>
 <thead>
@@ -1144,36 +1273,52 @@
 </thead>
 <tbody>
 <tr>
-<td><code>composeApp/.../ui/Theme.kt</code></td>
-<td><code>DarkColorScheme</code> / <code>LightColorScheme</code> / <code>MidnightColorScheme</code> constants; <code>withBlackBackground()</code> extension that flattens a dark scheme to pure black; adaptive card colors/border/surface helpers that switch to outlined-transparent in OLED</td>
+<td><code>composeApp/.../theme/data/ThemeModels.kt</code></td>
+<td><code>ThemePalette</code>, <code>ThemeStyle</code>, <code>ThemeState</code>, <code>resolve()</code>, hex utilities</td>
 </tr>
 <tr>
-<td><code>composeApp/.../data/AppSettings.kt</code></td>
-<td><code>ThemeMode</code> enum; <code>themeModeFlow</code> / <code>getThemeMode()</code> / <code>setThemeMode()</code> — the persistent setting, with one-time migration from the legacy OLED boolean</td>
+<td><code>composeApp/.../theme/data/ThemePresets.kt</code></td>
+<td>The thirteen built-in presets</td>
+</tr>
+<tr>
+<td><code>composeApp/.../theme/data/ThemeSettingsRepository.kt</code></td>
+<td>Persistence (<code>selected_theme_id</code>, <code>is_system_theme</code>, <code>theme_style</code>, <code>custom_themes_json</code>), legacy <code>theme_mode</code> migration + tandem sync</td>
+</tr>
+<tr>
+<td><code>composeApp/.../theme/engine/DoraiThemeEngine.kt</code></td>
+<td><code>DoraiTheme</code> root; maps palette → Material 3 <code>ColorScheme</code>, provides <code>LocalDoraiPalette</code>/<code>LocalDoraiThemeState</code>/<code>LocalDoraiThemeStyle</code> and <code>LocalDesignColorTokens</code></td>
+</tr>
+<tr>
+<td><code>composeApp/.../theme/engine/ElevationStyles.kt</code></td>
+<td><code>Modifier.doraiSurfaceStyle(style, shape)</code> — Flat vs 3D surfaces</td>
+</tr>
+<tr>
+<td><code>composeApp/.../theme/ThemeViewModel.kt</code></td>
+<td><code>StateFlow&lt;ThemeState&gt;</code> holder for the Appearance UI</td>
+</tr>
+<tr>
+<td><code>composeApp/.../theme/ui/AppearanceSettingsScreen.kt</code></td>
+<td>Match Device, Flat/3D, preset grid, Create theme entry</td>
+</tr>
+<tr>
+<td><code>composeApp/.../theme/ui/components/ThemeSwatchCard.kt</code></td>
+<td>Preview swatch with mockup bars, accent dots, accent pill, spring selection ring</td>
+</tr>
+<tr>
+<td><code>composeApp/.../theme/ui/components/CreateThemeDialog.kt</code></td>
+<td>Hex/RGB theme builder dialog</td>
 </tr>
 <tr>
 <td><code>composeApp/.../App.kt</code></td>
-<td>Shared <code>AppContent</code> — observes <code>themeModeFlow</code>, picks <code>lightColorScheme</code> / <code>darkColorScheme</code> / <code>darkColorScheme.withBlackBackground()</code> / <code>MidnightColorScheme</code> based on the selected mode</td>
+<td>Root <code>DoraiTheme</code> wrapper (was <code>Theme(colorScheme = ...)</code>)</td>
 </tr>
 <tr>
-<td><code>composeApp/.../ui/settings/GeneralSettings.kt</code></td>
-<td>Theme mode switch buttons in the General tab</td>
+<td><code>composeApp/.../ui/settings/AppearanceSettings.kt</code></td>
+<td>Appearance tab adapter</td>
 </tr>
 <tr>
-<td><code>androidApp/.../MainActivity.kt</code></td>
-<td>Android entry — supplies dynamic-color light/dark schemes; the resolved <code>isDarkTheme</code> (from <code>themeMode</code> + system) drives the system-bar icon style</td>
-</tr>
-<tr>
-<td><code>androidApp/.../res/values-night/styles.xml</code></td>
-<td>Pre-Compose window background set to <code>#FF121212</code> to match the default dark frame</td>
-</tr>
-<tr>
-<td><code>composeApp/.../iosMain/.../MainViewController.kt</code></td>
-<td>iOS entry — uses common <code>App</code> defaults</td>
-</tr>
-<tr>
-<td><code>composeApp/.../desktopMain/.../main.kt</code></td>
-<td>Desktop entry — uses common <code>App</code> defaults; also configures HiDPI hints and an initial 1280×800 <code>WindowState</code> so the window opens at a usable size on Linux/Wayland</td>
+<td><code>composeApp/.../AppModule.kt</code></td>
+<td>Koin registrations (<code>ThemeSettingsRepository</code> singleton, <code>ThemeViewModel</code>)</td>
 </tr>
 </tbody>
 </table>

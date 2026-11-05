@@ -1,0 +1,1846 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for DORAI AI - Open-Source AI Assistant">
+      
+      
+      
+        <link rel="canonical" href="https://habibbrox2.github.io/DoraiAi/docs/branding/dorai/LOGO_IMPLEMENTATION_REPORT/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>DORAI AI — Logo Implementation Report - DORAI AI Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dorai-ai-logo-implementation-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="DORAI AI Documentation" class="md-header__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            DORAI AI Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              DORAI AI — Logo Implementation Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="DORAI AI Documentation" class="md-nav__button md-logo" aria-label="DORAI AI Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    DORAI AI Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Features
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chat & Conversations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/multi-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MCP Servers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/dynamic-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/memories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/heartbeat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Heartbeat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/daemon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Daemon
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/encryption/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Encryption
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/on-device-inference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    On-Device Inference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/reasoning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reasoning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/system-prompts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Prompts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/sandbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Sandbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/kai-build/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DORAI Build
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/notifications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notifications
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/sms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SMS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/appearance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Appearance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/settings-export-import/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings Export & Import
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../features/splinterlands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Splinterlands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../desktop-release-smoketest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Desktop Release Smoke Test
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#status-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-pack-located-and-validated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Pack located and validated
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-backup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Backup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-changed-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Changed files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Changed files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hand-edited-vector-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hand-edited (vector resources)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generated-from-pack-verbatim-copies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generated from pack (verbatim copies)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generated-derivatives-formatsize-conversion-of-pack-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generated derivatives (format/size conversion of pack sources)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unchanged-on-purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unchanged on purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-verification-actually-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Verification actually run
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-not-run-blocked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Not run / blocked
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-remaining-risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Remaining risks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-beforeafter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Before/after
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-refinement-after-adoption-v2-squircle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Refinement after adoption (v2 squircle)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#motion-assets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Motion assets
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#social-card" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Social card
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#animated-banner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Animated banner
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-motion-assets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional motion assets
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="dorai-ai-logo-implementation-report">DORAI AI — Logo Implementation Report</h1>
+<p>Date: 2026-11-05
+Scope: repository <code>G:\Web\DoraiAi-migration-worktree</code> (worktree; <code>git status</code> clean at start, branch <code>main</code>)</p>
+<h2 id="status-summary">Status summary</h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 — Locate and validate pack</td>
+<td>✅ Complete</td>
+</tr>
+<tr>
+<td>2 — Integrate</td>
+<td>✅ Complete for every active surface</td>
+</tr>
+<tr>
+<td>3 — Verify</td>
+<td>⚠️ Partial — Android resources + all asset formats validated; iOS/desktop <strong>packaging</strong> builds not runnable here</td>
+</tr>
+<tr>
+<td>Backups</td>
+<td>✅ 26 files, timestamped</td>
+</tr>
+<tr>
+<td>Commits / pushes</td>
+<td>None (not requested)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-pack-located-and-validated">1. Pack located and validated</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Path (archive)</td>
+<td><code>docs/branding/dorai/DORAI_HexaCore_Full_LogoPack.zip</code> — deleted after import; commit <code>94dbd8f</code> retains it</td>
+</tr>
+<tr>
+<td>Size</td>
+<td>664,894 bytes</td>
+</tr>
+<tr>
+<td>SHA-256</td>
+<td><code>7821c5660df5b0221f08a418d1fb9839a4252f81efb3f5acd25251ee13d0462d</code></td>
+</tr>
+<tr>
+<td>Entries</td>
+<td>82 — 9 SVG, 72 app-icon PNG, 4 favicon PNG, <code>favicon.ico</code>, <code>favicon.svg</code>, <code>site.webmanifest</code>, <code>README.md</code></td>
+</tr>
+<tr>
+<td>Integrity</td>
+<td><code>zipfile.testzip()</code> clean; no absolute paths; no <code>..</code> traversal</td>
+</tr>
+<tr>
+<td>Canonical copy (now source of truth)</td>
+<td><code>docs/branding/dorai/assets/hexacore/</code> — <strong>82/82 files byte-identical to the archive</strong> (SHA-256 compared per entry)</td>
+</tr>
+</tbody>
+</table>
+<p>The second archive, <code>DORAI_AI_Hexa_Core_Logo_Pack.zip</code> (5,587 bytes, 9 entries,
+SVG-only), is the earlier small pack and was <strong>rejected as the source</strong> and left
+untouched. No archive was overwritten.</p>
+<p>The importer no longer reads an archive: it verifies 18 sentinel files inside
+<code>docs/branding/dorai/assets/hexacore/</code> and derives everything from there.</p>
+<h2 id="2-backup">2. Backup</h2>
+<p>The 27 superseded files were backed up to
+<code>docs/branding/dorai/_legacy-logo-backup/20261105-030027/</code> before any edit, preserving relative
+paths, and committed in <code>94dbd8f</code>.</p>
+<p><strong>The backup tree was deleted on 2026-11-05 at the maintainer’s request</strong>, together with the two
+ZIP archives and the superseded design directions. Git history is now the recovery mechanism:</p>
+<div class="highlight"><pre><span></span><code>git checkout 94dbd8f -- docs/branding/dorai/_legacy-logo-backup
+</code></pre></div>
+<h2 id="3-changed-files">3. Changed files</h2>
+<h3 id="hand-edited-vector-resources">Hand-edited (vector resources)</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>composeApp/src/commonMain/composeResources/drawable/logo.xml</code></td>
+<td>Old D paths → Hexa Core D paths; solid <code>#25E2F5</code> body + <code>#377CFF</code> forward core</td>
+</tr>
+<tr>
+<td><code>androidApp/src/main/res/drawable/ic_launcher_foreground.xml</code></td>
+<td>New D + core paths, true linear gradient (<code>#25E2F5</code>→<code>#377CFF</code>→<code>#6F5BFF</code>), scaled 0.76 into the safe zone</td>
+</tr>
+<tr>
+<td><code>androidApp/src/main/res/drawable/ic_launcher_monochrome.xml</code></td>
+<td>New D + core silhouette, single <code>#000000</code> fill, same safe-zone group</td>
+</tr>
+<tr>
+<td><code>composeApp/src/androidMain/res/drawable/ic_launcher_foreground.xml</code></td>
+<td>Same as app-module foreground</td>
+</tr>
+<tr>
+<td><code>composeApp/src/androidMain/res/drawable/ic_launcher_monochrome.xml</code></td>
+<td>Same as app-module monochrome</td>
+</tr>
+<tr>
+<td><code>composeApp/src/androidMain/res/values/ic_launcher_background.xml</code></td>
+<td><code>#F5F8FC</code> → <code>#050A1C</code> (matches app module + pack tiles)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="generated-from-pack-verbatim-copies">Generated from pack (verbatim copies)</h3>
+<p><code>site/img/{icon,dorai-logo,dorai-wordmark}.svg</code>,
+<code>composeApp/src/wasmJsMain/resources/icon.svg</code>, <code>composeApp/icon.svg</code>,
+<code>site/img/apple-icon-180x180.png</code>, <code>composeApp/src/wasmJsMain/resources/apple-icon-180x180.png</code>,
+<code>composeApp/icon.png</code>, <code>iosApp/iosApp/Assets.xcassets/AppIcon.appiconset/icon2.png</code>,
+<code>fastlane/metadata/android/en-US/images/icon.png</code> (512² Google Play listing icon)</p>
+<h3 id="generated-derivatives-formatsize-conversion-of-pack-sources">Generated derivatives (format/size conversion of pack sources)</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Derivation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>site/img/favicon.ico</code></td>
+<td>16/32/48 from <code>png/favicon/favicon-*.png</code></td>
+</tr>
+<tr>
+<td><code>composeApp/src/wasmJsMain/resources/favicon.ico</code></td>
+<td>same</td>
+</tr>
+<tr>
+<td><code>composeApp/icon.ico</code></td>
+<td>16/24/32/48/64/128/256 from <code>dorai-dark-1024.png</code></td>
+</tr>
+<tr>
+<td><code>composeApp/icon.icns</code></td>
+<td>PNG-based ICNS <code>ic07</code>–<code>ic14</code> from <code>dorai-dark-{32…1024}.png</code></td>
+</tr>
+<tr>
+<td><code>iosApp/…/LaunchLogo.imageset/logo_transparent.pdf</code></td>
+<td><code>dorai-symbol-transparent-1024.png</code> at 144 dpi (same filename/format, <code>Contents.json</code> unchanged)</td>
+</tr>
+<tr>
+<td><code>composeApp/icon.pdf</code></td>
+<td>same source</td>
+</tr>
+<tr>
+<td><code>site/img/apple-icon-180x180.webp</code></td>
+<td>re-encoded q92 from the new 180 px PNG</td>
+</tr>
+</tbody>
+</table>
+<h3 id="added">Added</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docs/branding/dorai/assets/hexacore/</code></td>
+<td>Canonical validated pack copy (82 files)</td>
+</tr>
+<tr>
+<td><code>tools/import_hexacore_assets.py</code></td>
+<td>Reproducible importer (verifies SHA-256, regenerates every derivative)</td>
+</tr>
+<tr>
+<td><code>docs/branding/dorai/LOGO_REPLACEMENT_AUDIT.md</code></td>
+<td>Phase-1 audit</td>
+</tr>
+<tr>
+<td><code>docs/branding/dorai/LOGO_ASSET_USAGE_MAP.md</code></td>
+<td>Asset → usage map</td>
+</tr>
+<tr>
+<td><code>docs/branding/dorai/LOGO_IMPLEMENTATION_REPORT.md</code></td>
+<td>This report</td>
+</tr>
+<tr>
+<td><code>docs/branding/dorai/_legacy-logo-backup/20261105-030027/</code></td>
+<td>Backup</td>
+</tr>
+</tbody>
+</table>
+<h3 id="unchanged-on-purpose">Unchanged on purpose</h3>
+<p><code>androidApp/.../ic_launcher.xml</code> (adaptive-icon structure), both <code>AndroidManifest.xml</code>,
+<code>iosApp</code> <code>Contents.json</code> files, every HTML file (all icon filenames were preserved),
+<code>composeApp/build.gradle.kts:211-218</code>, <code>docs/branding/dorai/{favicon.ico,favicon.svg}</code>
+(verified byte-identical to the pack).</p>
+<h2 id="4-verification-actually-run">4. Verification actually run</h2>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Command</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pack integrity + path safety</td>
+<td><code>python</code> <code>zipfile.testzip</code> / entry scan</td>
+<td><strong>PASS</strong> — clean, no unsafe paths</td>
+</tr>
+<tr>
+<td>Pack copy parity</td>
+<td>per-entry SHA-256 vs archive</td>
+<td><strong>PASS</strong> — 82/82, 0 mismatches</td>
+</tr>
+<tr>
+<td>SVG well-formedness (6 files)</td>
+<td><code>xml.etree.ElementTree</code> parse</td>
+<td><strong>PASS</strong> — all parse, all carry the new <code>M118 60 H244</code> geometry</td>
+</tr>
+<tr>
+<td>Raster dimensions / modes</td>
+<td>Pillow</td>
+<td><strong>PASS</strong> — 180², 180², 180², 1024² RGB (iOS, alpha flattened), 1024² RGBA</td>
+</tr>
+<tr>
+<td>ICO size matrices</td>
+<td>Pillow <code>info['sizes']</code></td>
+<td><strong>PASS</strong> — site/wasm <code>16/32/48</code>; desktop <code>16/24/32/48/64/128/256</code></td>
+</tr>
+<tr>
+<td>ICNS structure</td>
+<td>byte parse (magic, declared vs actual length, element walk)</td>
+<td><strong>PASS</strong> — <code>icns</code>, 166,947 B declared = actual, 8 elements, ends exactly</td>
+</tr>
+<tr>
+<td>PDF headers</td>
+<td>first bytes</td>
+<td><strong>PASS</strong> — <code>%PDF-</code>, 128,738 B (iOS) / 128,714 B (desktop)</td>
+</tr>
+<tr>
+<td>Adaptive-icon safe zone</td>
+<td>geometric transform check</td>
+<td><strong>PASS</strong> — 297.9 units max dimension vs 312.9 safe zone; centred at 256,256</td>
+</tr>
+<tr>
+<td>Stale geometry sweep</td>
+<td><code>git grep -E 'M104[ ,](72|86)'</code> over sources</td>
+<td><strong>PASS</strong> — no matches in <code>composeApp</code>, <code>androidApp</code>, <code>site</code>, <code>iosApp</code> (matches exist only in gitignored <code>build/</code> output)</td>
+</tr>
+<tr>
+<td>Android resource processing (<code>aapt2</code>)</td>
+<td><code>./gradlew :androidApp:processFossDebugResources</code></td>
+<td><strong>BUILD SUCCESSFUL</strong> (36 s, 13 tasks executed)</td>
+</tr>
+<tr>
+<td>Compose resource generation</td>
+<td><code>./gradlew :composeApp:generateComposeResClass</code></td>
+<td><strong>BUILD SUCCESSFUL</strong>; generated <code>logo.xml</code> contains the new path data</td>
+</tr>
+<tr>
+<td>Icon legibility, dark + light surfaces</td>
+<td>contact sheet 16→180 px</td>
+<td><strong>PASS</strong> — D and forward core readable at 16 px; gradient intact; navy tile gives contrast on white</td>
+</tr>
+<tr>
+<td>Legacy generators neutralised</td>
+<td>run each with <code>python</code></td>
+<td><strong>PASS</strong> — all five exit 1 with the retirement message</td>
+</tr>
+<tr>
+<td>New importer still functional</td>
+<td><code>python tools/import_hexacore_assets.py</code></td>
+<td><strong>PASS</strong> — exit 0, regenerates all derivatives incl. the store icon</td>
+</tr>
+</tbody>
+</table>
+<p>Visual artifact: <code>build/tmp/icon-contact-sheet.png</code> (gitignored build output).</p>
+<h2 id="5-not-run-blocked">5. Not run / blocked</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Blocker</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>iOS build + Xcode asset-catalog validation</td>
+<td>Requires macOS + Xcode; not available on this Windows machine</td>
+</tr>
+<tr>
+<td>Loading <code>composeApp/icon.icns</code> through macOS <code>iconutil</code></td>
+<td>Same blocker; validated structurally only</td>
+</tr>
+<tr>
+<td>Desktop installer build (<code>packageDmg</code>/<code>packageMsi</code>)</td>
+<td>Not run — packaging icons were replaced but no package was produced</td>
+</tr>
+<tr>
+<td>Wasm distribution build</td>
+<td>Not run in this pass; only the web icon assets + <code>aapt2</code>/Compose resource generation were exercised</td>
+</tr>
+<tr>
+<td>Full <code>:composeApp:assembleDebug</code></td>
+<td>Not run — <code>processFossDebugResources</code> already compiles the changed drawables through <code>aapt2</code></td>
+</tr>
+<tr>
+<td>Runtime screen inspection in the running app</td>
+<td>Not performed; in-app mark verified by vector-resource compilation + source geometry, not by launching the UI</td>
+</tr>
+<tr>
+<td>Browser render of <code>site/index.html</code></td>
+<td>Not performed; favicon/logo assets validated as files only</td>
+</tr>
+<tr>
+<td>Google Play feature graphic</td>
+<td><code>fastlane/metadata/android/en-US/images/featureGraphic.png</code> — replaced in this migration: 1024×500, 24-bit RGB, D-shaped mark on the <code>#050A1C</code> field with the pack gradient and the tagline “Intelligence, in every direction.” Authored only from pack parts (no new shapes or colours); vector source <code>docs/branding/dorai/assets/store/feature-graphic.svg</code>, rasterised with headless Chrome per <code>assets/store/README.md</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>None of the above is reported as passing.</p>
+<h2 id="6-remaining-risks">6. Remaining risks</h2>
+<ol>
+<li><strong>Five legacy generators are now hard-retired (not deleted).</strong> <code>tools/generate_dorai_{aurora,brand,neo_cyber}_assets.py</code> and <code>tools/sync_dorai_{aurora,brand}_assets.py</code> regenerated the pre-Hexa-Core mark; <code>sync_dorai_aurora_assets.py</code> and <code>generate_dorai_brand_assets.py</code> wrote it straight into <code>logo.xml</code>, <code>ic_launcher_foreground.xml</code>, <code>composeApp/icon.*</code>, the iOS icon, site images and the fastlane store icon. Each now exits non-zero with a pointer to the new importer unless <code>DORAI_ALLOW_LEGACY_BRAND_GENERATORS=1</code> is set. Residual risk: the override still permits a regression, and the scripts themselves remain readable history.</li>
+<li><strong>In-app mark is flat, launcher is gradient.</strong> Compose Multiplatform documents XML vectors as Android format “except no external resource references”; <code>aapt:attr</code> gradient behaviour inside multiplatform resources is undocumented, so <code>logo.xml</code> uses two solid palette colours instead of risking a parse failure or a black glyph on Desktop/Wasm/iOS. Android launcher and monochrome keep the pack’s true gradient. Flattening the launcher to match was considered and rejected: the pack is the source of truth and the launcher is the most brand-visible surface. Visual difference is confined to the small in-app glyph.</li>
+<li><strong>No API-level constraint on the launcher gradient.</strong> <code>gradle/libs.versions.toml</code> sets <code>android-minSdk = "26"</code>, so the <code>aapt:attr</code> gradient in the adaptive-icon foreground renders on every supported device. An earlier revision of this report claimed an API 24 floor; that was incorrect for this project (<code>minSdk</code> 26) and <code>minSdk</code> was not changed.</li>
+<li><strong>iOS icon catalog has a single <code>universal</code>/<code>ios</code> 1024² slot.</strong> The pack ships 1024² only; if iPad/Mac slots are added later, matching sizes must be exported from the pack.</li>
+<li><strong><code>docs/branding/dorai/assets/</code> still contains the superseded Nexus Orbit direction</strong> (with <code>hexacore/</code> nested inside it, as the brief specified). Nothing in the app or site references it, but the directory layout is now slightly confusing.</li>
+<li><strong>Stale <code>build/</code> output</strong> still holds pre-migration copies of <code>logo.xml</code> / <code>ic_launcher_foreground.xml</code> until the next full build; these are gitignored and regenerate.</li>
+</ol>
+<h2 id="7-beforeafter">7. Before/after</h2>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Before</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>In-app mark</td>
+<td>D with flat triangle core, <code>M104,72 …</code></td>
+<td>Hexa Core D with forward-play core, <code>M112,56 …</code></td>
+</tr>
+<tr>
+<td>Android launcher</td>
+<td>Old D, ~70 % of canvas (outside safe zone)</td>
+<td>New D + core, 298/313 units (inside safe zone), true gradient on <code>#050A1C</code></td>
+</tr>
+<tr>
+<td>Android monochrome</td>
+<td>D ring only</td>
+<td>D ring + forward core silhouette</td>
+</tr>
+<tr>
+<td>iOS app icon</td>
+<td>Old mark, RGBA</td>
+<td>New mark, opaque RGB 1024²</td>
+</tr>
+<tr>
+<td>iOS launch logo</td>
+<td>Old mark PDF</td>
+<td>New symbol PDF, same filename</td>
+</tr>
+<tr>
+<td>Site/Wasm favicon</td>
+<td>Old ICO (site 4,154 B mono-size set)</td>
+<td>New mark, 16/32/48</td>
+</tr>
+<tr>
+<td>Site logo / hero / wordmark</td>
+<td>Old D with <code>aurora</code> gradient id</td>
+<td>Asymmetric new D + approved horizontal wordmark</td>
+</tr>
+<tr>
+<td>Desktop icons</td>
+<td>Old mark (PNG/ICO/ICNS/SVG/PDF)</td>
+<td>New mark, all five formats</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8-refinement-after-adoption-v2-squircle">8. Refinement after adoption (v2 squircle)</h2>
+<p>After the pack was integrated and committed, a refinement was requested and applied.
+A four-variant render comparison (current / balanced core / squircle / chevron) was
+made with headless Chrome at 512 px, and the <strong>squircle</strong> variant was selected.</p>
+<p>What changed in the geometry:</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>v1 (imported pack)</th>
+<th>v2 (now)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Straight-edge stroke</td>
+<td>76 / 76 / 80</td>
+<td><strong>80 uniform</strong></td>
+</tr>
+<tr>
+<td>Bowl / counter radii</td>
+<td>124 / 48 (not concentric)</td>
+<td><strong>196 / 116, concentric at x=244</strong></td>
+</tr>
+<tr>
+<td>Core</td>
+<td>100 wide, offset right, r=19</td>
+<td><strong>94 wide, optically centred, r=22</strong></td>
+</tr>
+<tr>
+<td>Outer left corners</td>
+<td>R=24</td>
+<td><strong>R=34</strong></td>
+</tr>
+<tr>
+<td>Bounding box</td>
+<td>x 84–438, y 56–456 (354 × 400)</td>
+<td>x 84–440, y 60–452 (356 × 392)</td>
+</tr>
+<tr>
+<td>Safe-zone fit (scale 0.76)</td>
+<td>296 / 312.9 units</td>
+<td><strong>297.9 / 312.9 units</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Regenerated from the new numbers: 8 pack SVGs, both wordmarks, 65 theme PNGs,
+9 transparent-symbol PNGs, 4 favicon PNGs, <code>favicon.ico</code>, plus every derived asset
+(iOS icon and launch PDF, desktop png/ico/icns/pdf, site and Wasm icons, touch icons,
+Play listing icon). Android adaptive foreground now uses <code>android:scaleX/Y="0.76"</code>
+with pivot (262, 256); the shared <code>logo.xml</code> carries the same paths with solid
+<code>#25E2F5</code> / <code>#377CFF</code> fills. <code>MARK_SIGNATURE</code> in the importer is now <code>M118 60 H244</code>.</p>
+<h2 id="motion-assets">Motion assets</h2>
+<p><code>site/img/logo_animation.svg</code> was named for animation but shipped as a static byte copy of the pack
+symbol. It is now a real animation, authored only from pack parts (mark path, core path, pack gradient):</p>
+<table>
+<thead>
+<tr>
+<th>Beat</th>
+<th>Timing</th>
+<th>What moves</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reveal</td>
+<td>0–0.9 s, ease-out</td>
+<td>A mask sweeps the mark in from its left edge</td>
+</tr>
+<tr>
+<td>Core landing</td>
+<td>0.82–1.34 s, cubic-bezier(.34,1.56,.64,1)</td>
+<td>The forward core pops from 42 % to 100 % with a small overshoot</td>
+</tr>
+<tr>
+<td>Halo</td>
+<td>0.8–1.95 s</td>
+<td>A cyan radial glow blooms and fades behind the core</td>
+</tr>
+<tr>
+<td>Breathe</td>
+<td>1.6 s onward, 4.2 s loop</td>
+<td>The core scales 1.00 → 1.045 and back</td>
+</tr>
+</tbody>
+</table>
+<p><code>prefers-reduced-motion: reduce</code> disables every animation and leaves the static mark. Canonical
+source: <code>docs/branding/dorai/assets/motion/logo-animation.svg</code> (copied to <code>site/img/logo_animation.svg</code>);
+<code>assets/motion/logo-animation.gif</code> is a 400², 64-frame, 18 fps raster built from the same layers for
+surfaces that cannot animate SVG. Verified in headless Chrome: 14.5 % canvas coverage at 150 ms versus
+33.7 % settled, and the settled frame matches the static pack symbol at IoU 0.9977.</p>
+<h2 id="social-card">Social card</h2>
+<p><code>site/img/preview-banner.png</code> (and its byte-identical twin <code>site/img/og-preview.png</code>) still showed the
+pre-migration mark, the retired hero illustration and the old purple accents, while <code>site/index.html</code>
+advertises it as <code>og:image</code>, <code>twitter:image</code> and the JSON-LD <code>image</code>. Authoring it again from the new
+mark also removes the last old-logo artwork from the deployed site.</p>
+<p>The card keeps every string the site already publishes — the lockup, “Intelligence, in every
+direction.”, “Your AI. Your World.”, the two-line description, the 01–05 feature chips, the
+LOCAL / CLOUD / HYBRID pill and “ONE ASSISTANT. MANY POSSIBILITIES.” — and swaps only the artwork:
+the old hero illustration and hexagon mark are replaced by the D mark on <code>#050A1C</code> with two faint
+concentric rings and a soft radial glow.</p>
+<p>Verified after rendering at 1200×630: the mark and the outer ring stay inside the canvas (right edge
+1198), every chip label fits its box with at least 8 px of padding, the navy field has no white
+pixels, and both output files are 24-bit RGB and byte-identical.</p>
+<h2 id="animated-banner">Animated banner</h2>
+<p><code>assets/motion/banner-animation.svg</code> is a 1200×630 staged animation of the social card: the field and
+rings fade up, the mark sweeps in, the lockup and rule follow, then both taglines, the description, the
+five chips (80 ms apart), the platform pill and the footer rise into place while the core pops and
+starts breathing. <code>prefers-reduced-motion</code> shows the finished composition immediately.</p>
+<table>
+<thead>
+<tr>
+<th>Beat</th>
+<th>Start</th>
+<th>Beat</th>
+<th>Start</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Field + rings</td>
+<td>0.00 s</td>
+<td>Core pop + halo</td>
+<td>1.00 s</td>
+</tr>
+<tr>
+<td>Mark reveal</td>
+<td>0.25 s</td>
+<td>Chips (staggered)</td>
+<td>1.50 s</td>
+</tr>
+<tr>
+<td>Lockup</td>
+<td>0.50 s</td>
+<td>Pill</td>
+<td>1.95 s</td>
+</tr>
+<tr>
+<td>Rule</td>
+<td>0.85 s</td>
+<td>Footer</td>
+<td>2.08 s</td>
+</tr>
+<tr>
+<td>Taglines</td>
+<td>1.00 / 1.12 s</td>
+<td>Loop length</td>
+<td>3.20 s</td>
+</tr>
+</tbody>
+</table>
+<p>The settled frame was compared against the static social card: mean channel difference 0.94, with the
+remaining delta coming from the breathing core and halo. <code>tools/render_banner_animation.py</code> rebuilds the
+WebP from per-element layers; the motion README records why frame-stepping with <code>--virtual-time-budget</code>
+does not work (Chrome's animation clock lags the budget by an inconsistent 0.3–0.8 s and occasionally
+captures a blank page) and why WebP replaced GIF for the banner.</p>
+<p>Known gap: nothing links the banner into the site yet, so its only consumers today are people who open
+the files directly.</p>
+<h2 id="additional-motion-assets">Additional motion assets</h2>
+<p>Three more animations complete the set, all built from pack parts and all guarded by
+<code>prefers-reduced-motion</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Asset</th>
+<th>Size</th>
+<th>Behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>loader-animation.svg</code></td>
+<td>128²</td>
+<td>Seamless 1.8 s loop — the core breathes while two rings expand outward and fade</td>
+</tr>
+<tr>
+<td><code>wordmark-animation.svg</code></td>
+<td>920×240</td>
+<td>Mark settles, DORAI and AI rise, underline draws, then holds</td>
+</tr>
+<tr>
+<td><code>splash-animation.svg</code></td>
+<td>512²</td>
+<td>One-shot app splash: tile fade, mark draw, core landing with halo, then settle</td>
+</tr>
+</tbody>
+</table>
+<p>The splash settles to an exact match with the static icon (<code>svg/app-icon-dark.svg</code>, mask IoU 1.0000),
+so a launch screen ends on precisely the shipped artwork. Two defects were found and fixed while
+building them: an animated group can lose its placement because a CSS <code>transform</code> overrides the SVG
+<code>transform</code> attribute (this bit the wordmark mark), and the pack wordmark's <code>#08132B</code> DORAI is
+invisible on dark surfaces, so the animated lockup uses <code>#F5F8FC</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.expand", "search.highlight", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

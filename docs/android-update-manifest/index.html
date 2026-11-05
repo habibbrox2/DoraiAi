@@ -1036,7 +1036,7 @@
 <h2 id="canonical-location-and-compatibility">Canonical location and compatibility</h2>
 <ul>
 <li>Primary discovery URL: <code>https://raw.githubusercontent.com/habibbrox2/DoraiAi/main/update.json</code>.</li>
-<li>The release workflow publishes the manifest only after the corresponding GitHub Release and APK asset are created.</li>
+<li>The production release workflow (triggered manually via <code>workflow_dispatch</code> from the GitHub Actions tab, <code>main</code> branch only) publishes the manifest only after the corresponding GitHub Release and APK asset are created. Normal pushes or merges to <code>main</code> never trigger a version bump, Git tag, or production GitHub Release.</li>
 <li>For older releases created before the canonical file existed, the Android client falls back to the matching stable GitHub Release's <code>update.json</code> asset only when the canonical URL returns HTTP 404.</li>
 <li>Other HTTP failures, malformed JSON, and invalid manifests fail closed; they must not silently fall back to stale metadata.</li>
 <li>Publishing is monotonic by <code>versionCode</code>: an older release workflow must never replace a newer canonical manifest.</li>
