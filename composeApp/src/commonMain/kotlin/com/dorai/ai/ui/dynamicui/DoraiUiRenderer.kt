@@ -1140,9 +1140,9 @@ private fun RenderCountdown(
 @Composable
 private fun RenderAlert(node: AlertNode) {
     val successContainer = DesignTokens.Success.copy(alpha = 0.15f)
-    val onSuccessContainer = LocalDesignColorTokens.current.textPrimary
+    val onSuccessContainer = DesignTokens.Success
     val warningContainer = DesignTokens.Warning.copy(alpha = 0.15f)
-    val onWarningContainer = LocalDesignColorTokens.current.textPrimary
+    val onWarningContainer = DesignTokens.Warning
     val containerColor = when (node.severity) {
         AlertSeverity.SUCCESS -> successContainer
         AlertSeverity.WARNING -> warningContainer
