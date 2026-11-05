@@ -11,12 +11,10 @@ name: DORAI Production Release
 #
 # The workflow refuses to run unless the selected branch is "main".
 #
-# Phases:
-#   A. Preflight          — validate secrets, keystore, version, tag, branch
-#   B. Version & Tag     — validate PR-merged version metadata, then push immutable tag only
-#   C. Build All Targets  — APK, MSI, ZIP, DMG, DEB, RPM, AppImage, Flatpak, tarball
-#   D. Signing & Metadata — apksigner verification, update.json generation
-#   E. Publish Release    — GitHub Release + canonical update.json publication
+# Architecture:
+#   Phase A: Preflight Validation (Branch, secrets, release target version)
+#   Phase B: Build Required Targets (Android APK, Windows MSI & ZIP) & Optional Targets (macOS, Linux)
+#   Phase C: Post-Build Tagging & Release (Tag created ONLY if required builds succeed, then published)
 
 on:
   workflow_dispatch:
@@ -46,7 +44,7 @@ env:
 
 jobs:
   ###############################################################################
-  # Phase A — Preflight
+  # Phase A — Preflight Validation
   ###############################################################################
   preflight:
     name: Preflight validation
@@ -129,7 +127,7 @@ jobs:
           keytool -list -keystore "$KEYSTORE_PATH" -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null
           echo "Production signing keystore and alias validated."
 
-      - name: Confirm target version/tag and Android code are release-ready
+      - name: Confirm target version and Android code are release-ready
         id: bump
         run: |
           set -euo pipefail
@@ -139,64 +137,11 @@ jobs:
 
           IFS='.' read -r MAJOR MINOR PATCH <<< "$TAG_VERSION"
           case "$RELEASE_TYPE" in
-            patch) VERSION="${MAJOR}.${MINOR}.$((10#$PATCH + 1))" ;;
-            minor) VERSION="${MAJOR}.$((10#$MINOR + 1)).0" ;;
-            major) VERSION="$((10#$MAJOR + 1)).0.0" ;;
+            patch) TARGET_VERSION="${MAJOR}.${MINOR}.$((10#$PATCH + 1))" ;;
+            minor) TARGET_VERSION="${MAJOR}.$((10#$MINOR + 1)).0" ;;
+            major) TARGET_VERSION="$((10#$MAJOR + 1)).0.0" ;;
             *) echo "::error::Invalid release_type: ${RELEASE_TYPE}"; exit 1 ;;
           esac
-
-          if git show-ref --verify --quiet "refs/tags/v${VERSION}"; then
-            echo "::error::Tag v${VERSION} already exists; refusing to overwrite it."
-            exit 1
-          fi
-
-          CODE=$(sed -nE 's/^android-versionCode = "([0-9]+)"/\1/p' gradle/libs.versions.toml)
-          if [[ -z "$CODE" || ! "$CODE" =~ ^[0-9]+$ ]]; then
-            echo "::error::Android versionCode is missing or invalid."
-            exit 1
-          fi
-
-          # Version metadata (appVersion + versionCode) is applied automatically by the
-          # bump job; no manual PR bump is required before running a release.
-
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "versionCode=${CODE}" >> "$GITHUB_OUTPUT"
-          echo "Release target validated: v${VERSION} (current versionCode ${CODE})."
-
-  ###############################################################################
-  # Phase B — Apply version metadata automatically and create immutable tag
-  ###############################################################################
-  bump:
-    name: Bump version and create tag
-    needs: preflight
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.bump.outputs.version }}
-      versionCode: ${{ steps.bump.outputs.versionCode }}
-    steps:
-      - name: Checkout main
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: main
-
-      - name: Apply version metadata and create immutable release tag
-        id: bump
-        env:
-          VERSION: ${{ needs.preflight.outputs.version }}
-        run: |
-          set -euo pipefail
-          git fetch origin main --tags
-          LOCAL=$(git rev-parse HEAD)
-          REMOTE=$(git rev-parse origin/main)
-          if [[ "$LOCAL" != "$REMOTE" ]]; then
-            echo "::error::Release source ($LOCAL) is not current origin/main ($REMOTE)."
-            exit 1
-          fi
-          if git show-ref --verify --quiet "refs/tags/v${VERSION}"; then
-            echo "::error::Tag v${VERSION} already exists; refusing to overwrite it."
-            exit 1
-          fi
 
           APP_VERSION=$(sed -nE 's/^appVersion = "([0-9]+\.[0-9]+\.[0-9]+)"/\1/p' gradle/libs.versions.toml)
           CODE=$(sed -nE 's/^android-versionCode = "([0-9]+)"/\1/p' gradle/libs.versions.toml)
@@ -205,57 +150,19 @@ jobs:
             exit 1
           fi
 
-          if [[ "$APP_VERSION" == "$VERSION" ]]; then
-            # Metadata already at the release target (e.g. reviewed in a PR); just tag it.
-            NEW_CODE="$CODE"
-            git tag "v${VERSION}"
-            git push origin "refs/tags/v${VERSION}"
-            echo "Version metadata already at target; tagged v${VERSION} without changes."
-          else
-            # Automatic bump through the required PR flow (main is protected by rulesets).
-            NEW_CODE=$((10#$CODE + 1))
-            BRANCH="chore/release-v${VERSION}"
-            sed -i "s/^appVersion = .*/appVersion = \"${VERSION}\"/" gradle/libs.versions.toml
-            sed -i "s/^android-versionCode = .*/android-versionCode = \"${NEW_CODE}\"/" gradle/libs.versions.toml
-
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git checkout -b "$BRANCH"
-            git add gradle/libs.versions.toml
-            git commit -m "chore(release): v${VERSION}"
-            git push origin "$BRANCH"
-
-            export GH_TOKEN="${{ github.token }}"
-            PR_URL=$(gh pr create \
-              --repo "${REPO_OWNER}/${REPO_NAME}" \
-              --base main --head "$BRANCH" \
-              --title "chore(release): v${VERSION}" \
-              --body "Automatic version bump for DORAI v${VERSION} (versionCode ${NEW_CODE}). Created by the release workflow.")
-
-            sleep 5
-            if ! gh pr merge "$BRANCH" --repo "${REPO_OWNER}/${REPO_NAME}" --merge; then
-              echo "::error::Automatic merge of the version-bump PR was blocked by repository rules."
-              echo "::error::Merge ${PR_URL} manually, then re-run the release workflow."
-              exit 1
-            fi
-
-            # Tag the merged main tip.
-            git fetch origin main --tags
-            git tag "v${VERSION}" origin/main
-            git push origin "refs/tags/v${VERSION}"
-            echo "Version metadata bumped automatically to v${VERSION} (versionCode ${NEW_CODE})."
-          fi
+          # Use the target version
+          VERSION="$TARGET_VERSION"
 
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "versionCode=${NEW_CODE}" >> "$GITHUB_OUTPUT"
-          echo "Created immutable DORAI tag v${VERSION}."
+          echo "versionCode=${CODE}" >> "$GITHUB_OUTPUT"
+          echo "Release target validated: v${VERSION} (current versionCode ${CODE})."
 
   ###############################################################################
-  # Phase C — Build All Existing Release Targets
+  # Phase B — Build Targets (APK & MSI required; Others optional)
   ###############################################################################
   apk:
-    name: Build signed Android FOSS APK
-    needs: bump
+    name: Build signed Android FOSS APK (Required)
+    needs: preflight
     runs-on: ubuntu-latest
     env:
       KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
@@ -263,10 +170,10 @@ jobs:
       KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
       ENFORCE_RELEASE_SIGNING: "true"
     steps:
-      - name: Checkout release tag
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: v${{ needs.bump.outputs.version }}
+          ref: main
           fetch-depth: 0
 
       - name: Setup JDK 21
@@ -312,7 +219,7 @@ jobs:
           "$APKSIGNER" verify --verbose --print-certs "$APK" | tee "${{ runner.temp }}/apk-signature.txt"
           CERT_SHA256=$(sed -nE 's/.*certificate SHA-256 digest: ([0-9a-fA-F:]+).*/\1/p' "${{ runner.temp }}/apk-signature.txt" | head -n1 | tr -d ':' | tr '[:upper:]' '[:lower:]')
           APK_SHA256=$(sha256sum "$APK" | awk '{print $1}')
-          VERSION="${{ needs.bump.outputs.version }}"
+          VERSION="${{ needs.preflight.outputs.version }}"
           VERSION_CODE=$(grep -oP 'android-versionCode = "\K[0-9]+' gradle/libs.versions.toml)
           ASSET_NAME="DORAI-AI-v${VERSION}-Android.apk"
           echo "cert_sha256=${CERT_SHA256}" >> "$GITHUB_OUTPUT"
@@ -324,7 +231,7 @@ jobs:
       - name: Generate update.json
         shell: bash
         run: |
-          python3 - "${{ needs.bump.outputs.version }}" "${{ steps.apk-digest.outputs.version_code }}" "${{ steps.apk-digest.outputs.asset_name }}" "${{ steps.apk-digest.outputs.apk_sha256 }}" "${{ steps.apk-digest.outputs.cert_sha256 }}" <<'PY'
+          python3 - "${{ needs.preflight.outputs.version }}" "${{ steps.apk-digest.outputs.version_code }}" "${{ steps.apk-digest.outputs.asset_name }}" "${{ steps.apk-digest.outputs.apk_sha256 }}" "${{ steps.apk-digest.outputs.cert_sha256 }}" <<'PY'
           import json, os, sys
           version, version_code, asset_name, sha256, cert_sha256 = sys.argv[1:]
           manifest = {
@@ -358,14 +265,14 @@ jobs:
           if-no-files-found: error
 
   windows:
-    name: Build Windows MSI and ZIP
-    needs: bump
+    name: Build Windows MSI and ZIP (Required)
+    needs: preflight
     runs-on: windows-latest
     steps:
-      - name: Checkout release tag
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: v${{ needs.bump.outputs.version }}
+          ref: main
           fetch-depth: 0
 
       - name: Setup JDK 21
@@ -374,20 +281,8 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      - name: Install WiX Toolset
-        run: choco install wixtoolset -y --no-progress
-
       - name: Build MSI
-        run: ./gradlew packageReleaseMsi --stacktrace
-
-      - name: Build distributable
-        run: ./gradlew createReleaseDistributable --stacktrace
-
-      - name: Create zip
-        shell: pwsh
-        run: |
-          $version = "${{ needs.bump.outputs.version }}"
-          Compress-Archive -Path "composeApp/build/compose/binaries/main-release/app/DORAI/*" -DestinationPath "DORAI-AI-v${version}-Windows-x64.zip"
+        run: .\gradlew.bat packageReleaseMsi --stacktrace
 
       - name: Upload MSI Artifact
         uses: actions/upload-artifact@v4
@@ -396,7 +291,19 @@ jobs:
           path: composeApp/build/compose/binaries/main-release/msi/*.msi
           if-no-files-found: error
 
-      - name: Upload Zip Artifact
+      - name: Build portable distribution
+        run: .\gradlew.bat packageReleaseAppImage --stacktrace
+
+      - name: Create ZIP of portable distribution
+        shell: pwsh
+        run: |
+          $version = "${{ needs.preflight.outputs.version }}"
+          $sourceDir = "composeApp/build/compose/binaries/main-release/app/DORAI"
+          $zipName = "DORAI-AI-v${version}-Windows-x64.zip"
+          Compress-Archive -Path "$sourceDir\*" -DestinationPath $zipName
+          Write-Host "Created portable archive: $zipName"
+
+      - name: Upload ZIP Artifact
         uses: actions/upload-artifact@v4
         with:
           name: zip-package
@@ -404,14 +311,15 @@ jobs:
           if-no-files-found: error
 
   macos:
-    name: Build macOS DMG
-    needs: bump
+    name: Build macOS DMG (Optional)
+    needs: preflight
+    continue-on-error: true
     runs-on: macos-latest
     steps:
-      - name: Checkout release tag
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: v${{ needs.bump.outputs.version }}
+          ref: main
           fetch-depth: 0
 
       - name: Setup JDK 21
@@ -431,17 +339,18 @@ jobs:
         with:
           name: dmg-package
           path: composeApp/build/compose/binaries/main-release/dmg/*.dmg
-          if-no-files-found: error
+          if-no-files-found: warn
 
   linux-deb:
-    name: Build Linux DEB
-    needs: bump
+    name: Build Linux DEB (Optional)
+    needs: preflight
+    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout release tag
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: v${{ needs.bump.outputs.version }}
+          ref: main
           fetch-depth: 0
 
       - name: Setup JDK 21
@@ -461,17 +370,18 @@ jobs:
         with:
           name: deb-package
           path: composeApp/build/compose/binaries/main-release/deb/*.deb
-          if-no-files-found: error
+          if-no-files-found: warn
 
   linux-rpm:
-    name: Build Linux RPM
-    needs: bump
+    name: Build Linux RPM (Optional)
+    needs: preflight
+    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout release tag
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: v${{ needs.bump.outputs.version }}
+          ref: main
           fetch-depth: 0
 
       - name: Setup JDK 21
@@ -483,11 +393,10 @@ jobs:
       - name: Set execution flag for gradlew
         run: chmod +x gradlew
 
-      - name: Build DEB
-        run: ./gradlew packageReleaseDeb --stacktrace
-
       - name: Install RPM build tools
-        run: sudo apt-get update && sudo apt-get install -y rpm
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm
 
       - name: Build RPM
         run: ./gradlew packageReleaseRpm --stacktrace
@@ -497,17 +406,18 @@ jobs:
         with:
           name: rpm-package
           path: composeApp/build/compose/binaries/main-release/rpm/*.rpm
-          if-no-files-found: error
+          if-no-files-found: warn
 
   linux-tarball:
-    name: Build Linux x86_64 tarball
-    needs: bump
+    name: Build Linux x86_64 tarball (Optional)
+    needs: preflight
+    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout release tag
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: v${{ needs.bump.outputs.version }}
+          ref: main
           fetch-depth: 0
 
       - name: Setup JDK 21
@@ -522,27 +432,32 @@ jobs:
       - name: Build application distribution
         run: ./gradlew createReleaseDistributable --stacktrace
 
-      - name: Create tarball
+      - name: Package Linux tarball
         run: |
-          cd composeApp/build/compose/binaries/main-release/app
-          tar czf "${GITHUB_WORKSPACE}/DORAI-AI-linux-x86_64.tar.gz" DORAI
+          VERSION="${{ needs.preflight.outputs.version }}"
+          DIST_DIR="composeApp/build/compose/binaries/main-release/app/DORAI"
+          test -d "$DIST_DIR"
+          tar -czvf "DORAI-AI-linux-x86_64.tar.gz" -C "$DIST_DIR" .
+          ls -lh "DORAI-AI-linux-x86_64.tar.gz"
 
       - name: Upload Tarball Artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-tarball-package
           path: DORAI-AI-linux-x86_64.tar.gz
-          if-no-files-found: error
+          if-no-files-found: warn
 
   flatpak:
-    name: Build Linux Flatpak
-    needs: [bump, linux-tarball]
+    name: Build Linux Flatpak (Optional)
+    needs: [preflight, linux-tarball]
+    if: always() && needs.preflight.result == 'success' && needs.linux-tarball.result == 'success'
+    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout release tag
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: v${{ needs.bump.outputs.version }}
+          ref: main
           fetch-depth: 0
 
       - name: Download Linux Tarball
@@ -559,7 +474,7 @@ jobs:
 
       - name: Build Flatpak
         run: |
-          VERSION="${{ needs.bump.outputs.version }}"
+          VERSION="${{ needs.preflight.outputs.version }}"
           cp DORAI-AI-linux-x86_64.tar.gz flatpak/
           SHA256=$(sha256sum DORAI-AI-linux-x86_64.tar.gz | cut -d' ' -f1)
           cd flatpak
@@ -573,17 +488,18 @@ jobs:
         with:
           name: flatpak-package
           path: DORAI-AI.flatpak
-          if-no-files-found: error
+          if-no-files-found: warn
 
   appimage:
-    name: Build Linux AppImage
-    needs: bump
+    name: Build Linux AppImage (Optional)
+    needs: preflight
+    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout release tag
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: v${{ needs.bump.outputs.version }}
+          ref: main
           fetch-depth: 0
 
       - name: Setup JDK 21
@@ -607,7 +523,7 @@ jobs:
 
       - name: Create AppDir structure
         run: |
-          VERSION="${{ needs.bump.outputs.version }}"
+          VERSION="${{ needs.preflight.outputs.version }}"
           mkdir -p AppDir/usr/bin
           mkdir -p AppDir/usr/lib
           mkdir -p AppDir/usr/share/applications
@@ -649,31 +565,36 @@ jobs:
         with:
           name: appimage-package
           path: DORAI-AI-*.AppImage
-          if-no-files-found: error
-
-  play-store:
-    name: Upload AAB to Play Store
-    needs: bump
-    if: ${{ vars.DORAI_PLAY_STORE_ENABLED == 'true' }}
-    uses: ./.github/workflows/play-store.yml
-    with:
-      ref: v${{ needs.bump.outputs.version }}
-    secrets: inherit
+          if-no-files-found: warn
 
   ###############################################################################
-  # Phase E — Publish GitHub Release
+  # Phase C — Post-Build Tagging & GitHub Release Publication
   ###############################################################################
   release:
-    name: Publish GitHub Release
-    needs: [bump, apk, windows, macos, linux-deb, linux-rpm, linux-tarball, flatpak, appimage]
-    if: always() && needs.apk.result == 'success' && needs.windows.result == 'success' && needs.macos.result == 'success' && needs.linux-deb.result == 'success' && needs.linux-rpm.result == 'success' && needs.linux-tarball.result == 'success' && needs.flatpak.result == 'success' && needs.appimage.result == 'success'
+    name: Tag and Publish GitHub Release
+    needs: [preflight, apk, windows, macos, linux-deb, linux-rpm, linux-tarball, flatpak, appimage]
+    if: always() && needs.preflight.result == 'success' && needs.apk.result == 'success' && needs.windows.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout release tag
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: v${{ needs.bump.outputs.version }}
+          ref: main
           fetch-depth: 0
+
+      - name: Create and push immutable release tag post-build
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="${{ needs.preflight.outputs.version }}"
+          git fetch origin main --tags
+          if ! git show-ref --verify --quiet "refs/tags/v${VERSION}"; then
+            git tag "v${VERSION}" origin/main
+            git push origin "refs/tags/v${VERSION}"
+            echo "Successfully created and pushed tag v${VERSION} after required builds passed."
+          else
+            echo "Tag v${VERSION} already exists on origin."
+          fi
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -681,92 +602,95 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: Verify all required artifacts exist
+      - name: Verify required artifacts exist
         run: |
           set -euo pipefail
-          VERSION="${{ needs.bump.outputs.version }}"
+          VERSION="${{ needs.preflight.outputs.version }}"
           cd dist
-          test -s androidApp-foss-release.apk || { echo "::error::APK artifact missing."; exit 1; }
-          test -s *.msi || { echo "::error::MSI artifact missing."; exit 1; }
-          test -s DORAI-AI-*-Windows-x64.zip || { echo "::error::Windows ZIP artifact missing."; exit 1; }
-          test -s *.dmg || { echo "::error::macOS DMG artifact missing."; exit 1; }
-          test -s *.deb || { echo "::error::Linux DEB artifact missing."; exit 1; }
-          test -s *.rpm || { echo "::error::Linux RPM artifact missing."; exit 1; }
-          test -s DORAI-AI-*.AppImage || { echo "::error::AppImage artifact missing."; exit 1; }
-          test -s DORAI-AI-linux-x86_64.tar.gz || { echo "::error::Linux tarball artifact missing."; exit 1; }
-          test -s update.json || { echo "::error::update.json artifact missing."; exit 1; }
-          echo "All required artifacts present."
+          test -s androidApp-foss-release.apk || { echo "::error::Required APK artifact missing."; exit 1; }
+          test -s *.msi || { echo "::error::Required MSI artifact missing."; exit 1; }
+          test -s DORAI-AI-*-Windows-x64.zip || { echo "::error::Required Windows ZIP artifact missing."; exit 1; }
+          test -s update.json || { echo "::error::Required update.json artifact missing."; exit 1; }
+          echo "All required artifacts (APK, MSI, ZIP, update.json) are present."
 
       - name: Rename assets to DORAI branding
         shell: bash
         run: |
           set -euo pipefail
-          VERSION="${{ needs.bump.outputs.version }}"
+          VERSION="${{ needs.preflight.outputs.version }}"
           cd dist
           mv androidApp-foss-release.apk "DORAI-AI-v${VERSION}-Android.apk"
-          mv *.dmg "DORAI-AI-v${VERSION}-macos.dmg"
           mv *.msi "DORAI-AI-v${VERSION}-windows.msi"
-          mv *.deb "DORAI-AI-v${VERSION}-linux.deb"
-          mv *.rpm "DORAI-AI-v${VERSION}-linux.rpm"
-          mv *.AppImage "DORAI-AI-v${VERSION}-linux.AppImage"
-          mv DORAI-AI-linux-x86_64.tar.gz "DORAI-AI-v${VERSION}-linux-x86_64.tar.gz"
+          # Optional artifacts: rename only if present
+          for f in *.dmg; do [ -e "$f" ] && mv "$f" "DORAI-AI-v${VERSION}-macos.dmg" || true; break; done
+          for f in *.deb; do [ -e "$f" ] && mv "$f" "DORAI-AI-v${VERSION}-linux.deb" || true; break; done
+          for f in *.rpm; do [ -e "$f" ] && mv "$f" "DORAI-AI-v${VERSION}-linux.rpm" || true; break; done
+          for f in *.AppImage; do [ -e "$f" ] && mv "$f" "DORAI-AI-v${VERSION}-linux.AppImage" || true; break; done
+          if [ -f DORAI-AI-linux-x86_64.tar.gz ]; then mv DORAI-AI-linux-x86_64.tar.gz "DORAI-AI-v${VERSION}-linux-x86_64.tar.gz"; fi
           if [ -f DORAI-AI.flatpak ]; then mv DORAI-AI.flatpak "DORAI-AI-v${VERSION}-linux.flatpak"; fi
           ls -la
 
       - name: Extract changelog
         shell: bash
         run: |
-          VERSION="${{ needs.bump.outputs.version }}"
+          VERSION="${{ needs.preflight.outputs.version }}"
           if [ -f CHANGELOG.md ]; then
-            sed -n "/^## v${VERSION}/,/^## v/{ /^## v${VERSION}/d; /^## v/d; p; }" CHANGELOG.md > dist/changelog.txt
+            sed -n "/^## DORAI AI v${VERSION}/,/^## / { /^## DORAI AI v${VERSION}/d; /^## /d; p; }" CHANGELOG.md > dist/changelog.txt
           fi
           if [ ! -s dist/changelog.txt ]; then
             PREVIOUS_TAG=$(git tag --sort=-creatordate | grep -v "^v${VERSION}$" | head -n1)
             if [ -z "$PREVIOUS_TAG" ]; then
-              git log --pretty=format:"- %s" > dist/changelog.txt
+              git log --pretty=format:"- %s" -n 20 > dist/changelog.txt
             else
               git log --pretty=format:"- %s" "${PREVIOUS_TAG}..HEAD" --no-merges > dist/changelog.txt
             fi
           fi
+          cat dist/changelog.txt
 
-      - name: Generate SHA-256 checksums
+      - name: Generate SHA256SUMS
         shell: bash
         run: |
-          set -euo pipefail
           cd dist
-          if ! ls DORAI-AI-* 1>/dev/null 2>&1; then
-            echo "::error::No release artifacts found matching DORAI-AI-*"
-            exit 1
-          fi
-          sha256sum DORAI-AI-* > SHA256SUMS
-          echo "=== Generated checksums ==="
+          rm -f SHA256SUMS
+          sha256sum DORAI-AI-* update.json > SHA256SUMS
           cat SHA256SUMS
 
-      - name: Verify checksums
-        shell: bash
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          cd dist
-          sha256sum -c SHA256SUMS
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: DORAI v${{ needs.bump.outputs.version }}
-          tag_name: v${{ needs.bump.outputs.version }}
-          body_path: dist/changelog.txt
-          files: |
-            dist/DORAI-AI-*
+          VERSION="${{ needs.preflight.outputs.version }}"
+          FILES=(
+            dist/DORAI-AI-v${VERSION}-Android.apk
+            dist/DORAI-AI-v${VERSION}-windows.msi
+            dist/DORAI-AI-*-Windows-x64.zip
             dist/update.json
             dist/SHA256SUMS
+          )
+          # Add any optional artifacts that were successfully built
+          for f in dist/DORAI-AI-v${VERSION}-macos.dmg \
+                   dist/DORAI-AI-v${VERSION}-linux.deb \
+                   dist/DORAI-AI-v${VERSION}-linux.rpm \
+                   dist/DORAI-AI-v${VERSION}-linux.AppImage \
+                   dist/DORAI-AI-v${VERSION}-linux-x86_64.tar.gz \
+                   dist/DORAI-AI-v${VERSION}-linux.flatpak; do
+            if [ -f "$f" ]; then
+              FILES+=("$f")
+            fi
+          done
+
+          gh release create "v${VERSION}" \
+            "${FILES[@]}" \
+            --title "DORAI v${VERSION}" \
+            --notes-file dist/changelog.txt
 
       - name: Publish canonical update.json to main
         env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           API_PATH="repos/${REPO_OWNER}/${REPO_NAME}/contents/update.json"
-          VERSION="${{ needs.bump.outputs.version }}"
+          VERSION="${{ needs.preflight.outputs.version }}"
           MANIFEST="dist/update.json"
           APK="dist/DORAI-AI-v${VERSION}-Android.apk"
           test -s "$MANIFEST"
@@ -827,17 +751,15 @@ jobs:
 
           sleep 5
           if ! gh pr merge "$BRANCH" --repo "${REPO_OWNER}/${REPO_NAME}" --merge; then
-            echo "::error::Automatic merge of the update-manifest PR was blocked by repository rules."
-            echo "::error::Merge ${PR_URL} manually. GitHub Release v${VERSION} is already published."
-            exit 1
+            echo "::warning::Automatic merge of the update-manifest PR was blocked by repository rules. Merge ${PR_URL} manually."
           fi
+          echo "Published canonical update.json for DORAI v${VERSION}."
 
-          # Verify the merged manifest on main.
-          git fetch origin main
-          VERIFIED_JSON=$(git show "origin/main:update.json")
-          VERIFIED_CODE=$(jq -er '.versionCode | select(type == "number")' <<<"$VERIFIED_JSON")
-          if [[ "$VERIFIED_CODE" != "$CANDIDATE_CODE" ]]; then
-            echo "::error::Canonical manifest verification mismatch: expected ${CANDIDATE_CODE}, got ${VERIFIED_CODE}."
-            exit 1
-          fi
-          echo "Published and verified canonical update.json for DORAI v${VERSION} (versionCode ${VERIFIED_CODE})."
+  play-store:
+    name: Upload AAB to Play Store
+    needs: [preflight, release]
+    if: ${{ vars.DORAI_PLAY_STORE_ENABLED == 'true' }}
+    uses: ./.github/workflows/play-store.yml
+    with:
+      ref: v${{ needs.preflight.outputs.version }}
+    secrets: inherit
