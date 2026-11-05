@@ -1,6 +1,15 @@
 name: Flatpak Build Validation
 
 on:
+  push:
+    branches: [fix/flatpak-icon-512px]
+    paths:
+      - ".github/workflows/flatpak-validation.yml"
+      - "flatpak/**"
+      - "composeApp/icon.svg"
+      - "composeApp/build.gradle.kts"
+      - "gradle/**"
+      - "gradlew"
   pull_request:
     branches: [main]
     paths:
@@ -55,7 +64,7 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder
+          sudo apt-get install -y flatpak flatpak-builder file
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
           sudo flatpak install -y flathub org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08
 
@@ -71,13 +80,12 @@ jobs:
           manifest = Path("flatpak/com.dorai.ai.validation.yaml")
           text = manifest.read_text(encoding="utf-8")
           source_url = "https://github.com/habibbrox2/DoraiAi/releases/download/v2.1.4/DORAI-AI-v2.1.4-linux-x86_64.tar.gz"
-          if source_url not in text:
+          source_sha = "aaf111532900f674a75c963721d027179d07faace520e6a02a23c33ead2d7330"
+          source = f"url: {source_url}\n        sha256: {source_sha}\n        dest-filename: DORAI-AI-linux-x86_64.tar.gz"
+          replacement = "path: DORAI-AI-linux-x86_64.tar.gz\n        dest-filename: DORAI-AI-linux-x86_64.tar.gz"
+          if source not in text:
               raise SystemExit("Expected release tarball source was not found in Flatpak manifest")
-          text = text.replace(f"url: {source_url}\n        sha256: aaf111532900f674a75c963721d027179d07faace520e6a02a23c33ead2d7330\n        dest-filename: DORAI-AI-linux-x86_64.tar.gz",
-                              "path: DORAI-AI-linux-x86_64.tar.gz\n        dest-filename: DORAI-AI-linux-x86_64.tar.gz",
-                              1)
-          if "url: " + source_url in text or "sha256: aaf111532900f674a75c963721d027179d07faace520e6a02a23c33ead2d7330" in text:
-              raise SystemExit("Failed to convert the release source to a local validation source")
+          text = text.replace(source, replacement, 1)
           manifest.write_text(text, encoding="utf-8")
           PY
 
