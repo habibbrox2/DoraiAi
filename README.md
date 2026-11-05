@@ -99,10 +99,10 @@ java -version
 
 # Run the Kotlin tests
 ./gradlew :composeApp:test
-./gradlew :composeApp:jvmTest
+./gradlew :composeApp:desktopTest
 
-# Build the Android debug variant
-./gradlew :composeApp:assembleDebug
+# Build the Android debug variant (foss flavor, default)
+./gradlew :androidApp:assembleFossDebug
 
 # Run TypeScript workspace checks
 pnpm frontend:check
@@ -122,18 +122,8 @@ Web/Wasm distribution is not release-ready. See the development guides before at
 
 See [AGENTS.md](AGENTS.md) for repository conventions and [CLAUDE.md](CLAUDE.md) for project-specific development guidance.
 
-## Upstream attribution
-
-DORAI AI is based on the open-source [Kai project](https://github.com/SimonSchubert/Kai), originally created by [Simon Schubert](https://github.com/SimonSchubert). DORAI AI maintains its own product identity, application identifiers, release process, and distribution status.
-
-Historical upstream resources and distribution links are provided for attribution only:
-
-- [Upstream source repository](https://github.com/SimonSchubert/Kai)
-- [Upstream releases](https://github.com/SimonSchubert/Kai/releases)
-- [Upstream website](https://kai9000.com)
 
 ## Credits
 
-- Original project: [Simon Schubert](https://github.com/SimonSchubert)
 - DORAI AI project: [habibbrox2](https://github.com/habibbrox2)
 - [Mistral AI](https://mistral.ai/)
