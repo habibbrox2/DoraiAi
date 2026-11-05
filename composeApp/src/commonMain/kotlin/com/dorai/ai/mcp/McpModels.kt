@@ -33,6 +33,8 @@ data class McpToolDefinition(
     val name: String,
     val description: String? = null,
     val inputSchema: JsonObject? = null,
+    @SerialName("_meta")
+    val meta: JsonObject? = null,
 )
 
 @Serializable
@@ -58,4 +60,5 @@ data class McpToolMetadata(
     val name: String,
     val description: String,
     val inputSchema: JsonObject?,
+    val uiResourceUri: String? = null,
 )

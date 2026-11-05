@@ -386,6 +386,25 @@ class McpClient(
         }
     }
 
+    /**
+     * Read an MCP resource (including `ui://` resources used by MCP Apps) via resources/read.
+     * Returns the concatenated text contents.
+     */
+    suspend fun readResource(uri: String): String {
+        val params = buildJsonObject { put("uri", JsonPrimitive(uri)) }
+        val response = sendRequest("resources/read", params)
+        if (response.error != null) {
+            throw McpException("resources/read failed: ${response.error.message}")
+        }
+        val result = response.result as? JsonObject
+            ?: throw McpException("resources/read returned an invalid response")
+        val contents = result["contents"] as? JsonArray
+            ?: throw McpException("resources/read response does not contain contents")
+        return contents.mapNotNull { item ->
+            (item as? JsonObject)?.get("text")?.let { it as? JsonPrimitive }?.contentOrNull
+        }.joinToString("\n")
+    }
+
     suspend fun callTool(name: String, arguments: JsonObject): String {
         val params = buildJsonObject {
             put("name", JsonPrimitive(name))

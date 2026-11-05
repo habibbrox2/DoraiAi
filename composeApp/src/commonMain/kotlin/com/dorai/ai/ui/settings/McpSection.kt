@@ -40,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -47,6 +48,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.mcp.PopularMcpServer
 import com.dorai.ai.mcp.authorizationHeaderValue
+import com.dorai.ai.oauth.McpOAuth
+import com.dorai.ai.oauth.OAuthMetadata
+import com.dorai.ai.openUrl
 import com.dorai.ai.mcp.popularMcpServers
 import com.dorai.ai.ui.CardFill
 import com.dorai.ai.ui.DangerAlert
@@ -332,6 +336,17 @@ private fun AddMcpServerDialog(
     // When a popular server needs auth (e.g. Jina), prefill the form and show an API key field.
     var requiresAuth by remember { mutableStateOf(false) }
     var apiKey by remember { mutableStateOf("") }
+    // OAuth-capable popular servers (Desktop Commander, Canva, ...): browser-based consent.
+    var requiresOAuth by remember { mutableStateOf(false) }
+    var oauthCode by remember { mutableStateOf("") }
+    var oauthVerifier by remember { mutableStateOf("") }
+    var oauthClientId by remember { mutableStateOf("") }
+    var oauthRedirectUri by remember { mutableStateOf("") }
+    var oauthMetadata by remember { mutableStateOf<OAuthMetadata?>(null) }
+    var oauthAuthUrl by remember { mutableStateOf("") }
+    var oauthToken by remember { mutableStateOf("") }
+    var isOAuthConnecting by remember { mutableStateOf(false) }
+    var oauthError by remember { mutableStateOf<String?>(null) }
     val mcpScrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
 
@@ -339,10 +354,76 @@ private fun AddMcpServerDialog(
         name = server.name
         url = server.url
         requiresAuth = true
+        requiresOAuth = false
         apiKey = ""
         headers.clear()
         headers.add(HeaderEntry(key = "Authorization", value = ""))
         scope.launch { mcpScrollState.animateScrollTo(0) }
+    }
+
+    fun prefillPopularWithOAuth(server: PopularMcpServer) {
+        name = server.name
+        url = server.url
+        requiresAuth = false
+        requiresOAuth = true
+        apiKey = ""
+        oauthCode = ""
+        oauthToken = ""
+        oauthAuthUrl = ""
+        oauthError = null
+        headers.clear()
+        scope.launch { mcpScrollState.animateScrollTo(0) }
+    }
+
+    fun startOAuth() {
+        scope.launch {
+            isOAuthConnecting = true
+            oauthError = null
+            try {
+                val metadata = McpOAuth.discoverMetadata(url)
+                oauthMetadata = metadata
+                // Desktop redirect URI: a custom scheme the OS routes back to the app.
+                // Falls back to a manual code-paste flow when deep-link handling is unavailable.
+                val redirect = "dorai://oauth/callback"
+                oauthRedirectUri = redirect
+                val reg = metadata.registrationEndpoint?.let { McpOAuth.registerClient(it, redirect) }
+                val clientId = reg?.clientId ?: "dorai-ai"
+                oauthClientId = clientId
+                val verifier = McpOAuth.generateCodeVerifier()
+                oauthVerifier = verifier
+                val challenge = McpOAuth.codeChallengeS256(verifier)
+                val scopeStr = metadata.scopesSupported.joinToString(" ").ifBlank { null }
+                val authUrl = McpOAuth.buildAuthorizationUrl(metadata, clientId, redirect, challenge, scopeStr, state = name)
+                oauthAuthUrl = authUrl
+                openUrl(authUrl)
+            } catch (e: Exception) {
+                oauthError = e.message
+            } finally {
+                isOAuthConnecting = false
+            }
+        }
+    }
+
+    fun finishOAuth() {
+        scope.launch {
+            isOAuthConnecting = true
+            oauthError = null
+            try {
+                val meta = oauthMetadata ?: throw Exception("OAuth not started")
+                val token = McpOAuth.exchangeCodeForToken(
+                    tokenEndpoint = meta.tokenEndpoint,
+                    code = oauthCode.trim(),
+                    redirectUri = oauthRedirectUri,
+                    clientId = oauthClientId,
+                    codeVerifier = oauthVerifier,
+                )
+                oauthToken = token.accessToken
+            } catch (e: Exception) {
+                oauthError = e.message
+            } finally {
+                isOAuthConnecting = false
+            }
+        }
     }
 
     ModalBottomSheet(
@@ -379,7 +460,56 @@ private fun AddMcpServerDialog(
                 )
                 Spacer(Modifier.height(12.dp))
 
-                if (requiresAuth) {
+                if (requiresOAuth) {
+                    if (oauthAuthUrl.isBlank()) {
+                        OutlinedButton(
+                            onClick = { startOAuth() },
+                            enabled = !isOAuthConnecting && url.isNotBlank(),
+                            modifier = Modifier.fillMaxWidth().handCursor(),
+                        ) {
+                            Text(if (isOAuthConnecting) "Connecting..." else "Connect with OAuth")
+                        }
+                    } else {
+                        DoraiOutlinedTextField(
+                            value = oauthCode,
+                            onValueChange = { oauthCode = it },
+                            label = { Text("Authorization code") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = "Paste the code from the browser, or it will be captured automatically via the dorai:// deep link.",
+                            style = DoraiTypography.bodySmall,
+                            color = LocalDesignColorTokens.current.textSecondary,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedButton(
+                            onClick = { finishOAuth() },
+                            enabled = !isOAuthConnecting && oauthCode.isNotBlank(),
+                            modifier = Modifier.fillMaxWidth().handCursor(),
+                        ) {
+                            Text(if (isOAuthConnecting) "Exchanging..." else "Exchange code for token")
+                        }
+                        if (oauthToken.isNotBlank()) {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = "Token acquired. Tap Add to save.",
+                                style = DoraiTypography.bodySmall,
+                                color = LocalDesignColorTokens.current.textSecondary,
+                            )
+                        }
+                    }
+                    if (oauthError != null) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = oauthError!!,
+                            style = DoraiTypography.bodySmall,
+                            color = DangerAlert,
+                        )
+                    }
+                    Spacer(Modifier.height(12.dp))
+                } else if (requiresAuth) {
                     DoraiOutlinedTextField(
                         value = apiKey,
                         onValueChange = { apiKey = it },
@@ -472,12 +602,18 @@ private fun AddMcpServerDialog(
                                         .forEach { remove(it) }
                                     put("Authorization", authorizationHeaderValue(apiKey))
                                 }
+                                if (requiresOAuth && oauthToken.isNotBlank()) {
+                                    keys.filter { it.equals("Authorization", ignoreCase = true) }
+                                        .toList()
+                                        .forEach { remove(it) }
+                                    put("Authorization", authorizationHeaderValue(oauthToken))
+                                }
                             }
                             onAdd(name, url, headerMap)
                         },
                         // Auth-required popular servers (e.g. Jina) can still be added without a
                         // key — some tools work unauthenticated; search needs a key later.
-                        enabled = name.isNotBlank() && url.isNotBlank(),
+                        enabled = name.isNotBlank() && url.isNotBlank() && (!requiresOAuth || oauthToken.isNotBlank()),
                         modifier = Modifier.handCursor(),
                     ) {
                         Text(stringResource(Res.string.settings_mcp_add))
@@ -497,29 +633,69 @@ private fun AddMcpServerDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(CardDefaults.shape)
-                                .clickable {
-                                    if (server.requiresAuth) {
-                                        prefillPopularWithAuth(server)
-                                    } else {
-                                        onAddPopular(server)
-                                    }
-                                }
                                 .handCursor(),
                             colors = CardDefaults.cardColors(
                                 containerColor = CardFill,
                             ),
                         ) {
-                            Column(modifier = Modifier.padding(12.dp)) {
-                                Text(
-                                    text = server.name,
-                                    style = DoraiTypography.bodyMedium,
-                                    color = LocalDesignColorTokens.current.textSecondary,
-                                )
-                                Text(
-                                    text = server.description,
-                                    style = DoraiTypography.bodySmall,
-                                    color = LocalDesignColorTokens.current.textSecondary,
-                                )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .background(CardFill),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    if (server.iconUrl != null) {
+                                        coil3.compose.AsyncImage(
+                                            model = server.iconUrl,
+                                            contentDescription = server.name,
+                                            modifier = Modifier
+                                                .size(32.dp)
+                                                .clip(CircleShape),
+                                            contentScale = ContentScale.Fit,
+                                        )
+                                    } else {
+                                        Text(
+                                            text = server.name.take(1).uppercase(),
+                                            style = DoraiTypography.titleMedium,
+                                            color = LocalDesignColorTokens.current.textSecondary,
+                                        )
+                                    }
+                                }
+                                Spacer(Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = server.name,
+                                        style = DoraiTypography.bodyMedium,
+                                        color = LocalDesignColorTokens.current.textSecondary,
+                                    )
+                                    Text(
+                                        text = server.description,
+                                        style = DoraiTypography.bodySmall,
+                                        color = LocalDesignColorTokens.current.textSecondary,
+                                    )
+                                }
+                                Spacer(Modifier.width(8.dp))
+                                OutlinedButton(
+                                    onClick = {
+                                        if (server.requiresOAuth) {
+                                            prefillPopularWithOAuth(server)
+                                        } else if (server.requiresAuth) {
+                                            prefillPopularWithAuth(server)
+                                        } else {
+                                            onAddPopular(server)
+                                        }
+                                    },
+                                    modifier = Modifier.handCursor(),
+                                ) {
+                                    Text("Connect")
+                                }
                             }
                         }
                         Spacer(Modifier.height(4.dp))

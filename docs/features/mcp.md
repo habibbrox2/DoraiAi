@@ -1,6 +1,6 @@
 # MCP Servers
 
-**Last verified:** 2026-10-21
+**Last verified:** 2026-11-05
 
 DORAI AI supports external tool servers via the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP). Users can connect to remote MCP servers using Streamable HTTP transport and use their tools alongside native tools.
 
@@ -64,6 +64,10 @@ Only Streamable HTTP transport is supported:
 ## Authentication
 
 Custom headers (e.g., `Authorization: Bearer <token>`) can be configured per server and are sent with every request. Auth-optional popular servers (Jina AI) collect an optional API key in the add sheet and, when provided, store it as an Authorization header (`Bearer` is prefixed automatically when missing). The server can be added with no key.
+
+OAuth-capable popular servers (Desktop Commander) are reached through an OAuth 2.0 flow: the remote endpoint advertises OAuth metadata (PKCE, S256) and an access token is supplied as an `Authorization: Bearer …` header. Selecting such an entry prefills the add form so the token can be pasted.
+
+Firecrawl additionally supports an agentic registration flow (WorkOS ID-JAG) that mints a Firecrawl API key without a human sign-in; the HTTP steps (discovery + `/agent/auth` registration) are implemented in `FirecrawlAgentAuth` (commonMain). Minting the ID-JAG assertion itself requires WorkOS identity + RS256 signing, which is supplied by the caller.
 
 ## Integration with Tools
 

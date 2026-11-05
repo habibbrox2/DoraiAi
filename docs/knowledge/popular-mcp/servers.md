@@ -30,7 +30,7 @@ Replace this snapshot only via the [refresh playbook](refresh-playbook.md).
 
 # Current set
 
-Snapshot mirrored into `popularMcpServers` (runtime). 13 hosts.
+Snapshot mirrored into `popularMcpServers` (runtime). 14 hosts.
 
 | Name | URL | Auth | Probe | Tools |
 |---|---|---|---|---|
@@ -47,6 +47,7 @@ Snapshot mirrored into `popularMcpServers` (runtime). 13 hosts.
 | tldraw | `https://tldraw-mcp-app.tldraw.workers.dev/mcp` | none | attested live | 6 — `search`, `exec`, `_exec_callback`, `_get_canvas_state`, `read_checkpoint`, `save_checkpoint` |
 | Find-A-Domain | `https://api.findadomain.dev/mcp` | none | attested live | 2 — `check_domain`, `list_tlds` |
 | SubwayInfo NYC | `https://subwayinfo.nyc/mcp` | none | attested live | 25 — MTA / bus / ferry arrivals and alerts |
+| Desktop Commander | `https://mcp.desktopcommander.app/mcp` | OAuth | not attested (OAuth-gated) | Desktop files, terminal, and processes on your own machine |
 
 # Snapshot
 
@@ -54,7 +55,7 @@ Snapshot mirrored into `popularMcpServers` (runtime). 13 hosts.
 |---|---|
 | Probed | 2026-08-12T20:49:34Z |
 | Handshake | `initialize` protocol `2024-11-05` + `notifications/initialized` + `tools/list` |
-| Current | 13 attested live |
+| Current | 13 attested live + 1 OAuth-gated (Desktop Commander) |
 | Dropped this refresh | Manifold Markets (`https://api.manifold.markets/v0/mcp`) — Cloudflare **526** invalid origin TLS, `retryable: false` |
 
 # Notes
@@ -62,3 +63,4 @@ Snapshot mirrored into `popularMcpServers` (runtime). 13 hosts.
 - Jina AI still uses `requiresAuth: true` in Kotlin so the add sheet shows a key field. The probe listed 22 tools without a key; search tools still need a free jina.ai key.
 - `remote.mcpservers.org` Fetch and Sequential Thinking stay out (removed earlier).
 - Do not add replacement hosts without an explicit product decision.
+- Desktop Commander (`https://mcp.desktopcommander.app/mcp`) is OAuth 2.0 (PKCE, S256) gated and uses `requiresOAuth: true`; it is not one-tap attested. Access token is supplied as `Authorization: Bearer …`.

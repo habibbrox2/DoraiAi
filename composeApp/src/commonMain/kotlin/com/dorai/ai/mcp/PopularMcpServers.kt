@@ -17,6 +17,20 @@ data class PopularMcpServer(
      * instead of one-tap adding.
      */
     val requiresAuth: Boolean = false,
+    /**
+     * Optional brand icon URL rendered in the connector card. When null, a letter avatar is used.
+     */
+    val iconUrl: String? = null,
+    /**
+     * When true, this popular entry is reached through an OAuth 2.0 flow (e.g. Desktop Commander)
+     * rather than a static API key. Selecting it prefills the add form so an access token can be
+     * supplied; the remote endpoint advertises OAuth metadata.
+     */
+    val requiresOAuth: Boolean = false,
+    val oauth: Boolean = false,
+    val supportsOAuth: Boolean = false,
+    val oauthRequired: Boolean = false,
+    val isOAuth: Boolean = false,
 )
 
 /**
@@ -136,6 +150,83 @@ val popularMcpServers = listOf(
         url = "https://mcp.firecrawl.dev/v2/mcp",
         description = "Web scraping and crawling. Note: Firecrawl uses a per-key URL (https://mcp.firecrawl.dev/<API_KEY>/v2/mcp) — paste your full URL in the add form",
         requiresAuth = true,
+    ),
+    PopularMcpServer(
+        name = "Desktop Commander",
+        url = "https://mcp.desktopcommander.app/mcp",
+        iconUrl = "https://www.google.com/s2/favicons?domain=desktopcommander.app&sz=64",
+        description = "Desktop files, terminal, and processes on your own machine (requires OAuth sign-in at mcp.desktopcommander.app)",
+        requiresOAuth = true,
+        oauth = true,
+        supportsOAuth = true,
+        oauthRequired = true,
+        isOAuth = true,
+    ),
+    PopularMcpServer(
+        name = "Canva",
+        url = "https://mcp.canva.com/mcp",
+        iconUrl = "https://www.google.com/s2/favicons?domain=canva.com&sz=64",
+        description = "Canva designs, assets, exports, and editing (requires a Canva account and OAuth consent)",
+        requiresOAuth = true,
+        oauth = true,
+        supportsOAuth = true,
+        oauthRequired = true,
+        isOAuth = true,
+    ),
+    PopularMcpServer(
+        name = "Linear",
+        url = "https://mcp.linear.app/mcp",
+        iconUrl = "https://www.google.com/s2/favicons?domain=linear.app&sz=64",
+        description = "Linear issues, projects, and cycles (requires OAuth consent)",
+        requiresOAuth = true,
+        oauth = true,
+        supportsOAuth = true,
+        oauthRequired = true,
+        isOAuth = true,
+    ),
+    PopularMcpServer(
+        name = "Slack",
+        url = "https://mcp.slack.com/mcp",
+        iconUrl = "https://www.google.com/s2/favicons?domain=slack.com&sz=64",
+        description = "Slack channels, messages, and search (requires OAuth consent)",
+        requiresOAuth = true,
+        oauth = true,
+        supportsOAuth = true,
+        oauthRequired = true,
+        isOAuth = true,
+    ),
+    PopularMcpServer(
+        name = "Asana",
+        url = "https://mcp.asana.com/mcp",
+        iconUrl = "https://www.google.com/s2/favicons?domain=asana.com&sz=64",
+        description = "Asana tasks, projects, and workspaces (requires OAuth consent)",
+        requiresOAuth = true,
+        oauth = true,
+        supportsOAuth = true,
+        oauthRequired = true,
+        isOAuth = true,
+    ),
+    PopularMcpServer(
+        name = "Sentry",
+        url = "https://mcp.sentry.dev/mcp",
+        iconUrl = "https://www.google.com/s2/favicons?domain=sentry.io&sz=64",
+        description = "Sentry issues, events, and projects (requires OAuth consent)",
+        requiresOAuth = true,
+        oauth = true,
+        supportsOAuth = true,
+        oauthRequired = true,
+        isOAuth = true,
+    ),
+    PopularMcpServer(
+        name = "Atlassian",
+        url = "https://mcp.atlassian.com/v1/mcp",
+        iconUrl = "https://www.google.com/s2/favicons?domain=atlassian.com&sz=64",
+        description = "Jira and Confluence issues, pages, and search (requires OAuth consent)",
+        requiresOAuth = true,
+        oauth = true,
+        supportsOAuth = true,
+        oauthRequired = true,
+        isOAuth = true,
     ),
 )
 

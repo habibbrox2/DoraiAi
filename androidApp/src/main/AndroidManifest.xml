@@ -60,6 +60,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
             </intent-filter>
+            <!-- OAuth callback deep link for MCP connectors (Desktop Commander, Canva, etc.) -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="dorai" android:host="oauth" android:pathPrefix="/callback" />
+            </intent-filter>
         </activity>
         <provider
             android:name="androidx.core.content.FileProvider"

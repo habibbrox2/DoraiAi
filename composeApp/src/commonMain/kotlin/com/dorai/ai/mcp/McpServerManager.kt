@@ -12,6 +12,9 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 
 private val serverIdRegex = Regex("[^a-z0-9]")
 
@@ -133,11 +136,14 @@ class McpServerManager(private val appSettings: AppSettings) {
                 JsonArray(emptyList())
             }
             val metadata = toolDefs.map { def ->
+                val uiUri = (def.meta?.get("ui") as? JsonObject)
+                    ?.get("resourceUri")?.let { it as? JsonPrimitive }?.contentOrNull
                 McpToolMetadata(
                     serverId = serverId,
                     name = def.name,
                     description = def.description ?: "",
                     inputSchema = def.inputSchema,
+                    uiResourceUri = uiUri,
                 )
             }
             mutex.withLock {

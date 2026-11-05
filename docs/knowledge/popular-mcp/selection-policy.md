@@ -44,12 +44,14 @@ Timeouts and **retryable** 5xx: retry **once**. If the retry still fails, **keep
 # Must not add
 
 - New hosts without an explicit product decision (this list is curated, not scraped).
-- stdio, OAuth-only, or paid-only servers.
+- stdio or paid-only servers. OAuth-capable servers are allowed when they expose OAuth 2.0 metadata (PKCE) and are added as `requiresOAuth` entries (e.g. Desktop Commander).
 - Duplicates of an existing host (Jina `/v1` and `/sse` are the same host).
 
 # Auth
 
 Only **Jina AI** is `requiresAuth: true` today. Do not invent default secret headers. Existing user headers are never overwritten at runtime.
+
+OAuth-capable servers (e.g. **Desktop Commander**) use `requiresOAuth: true` and are added with an OAuth access token supplied as an `Authorization: Bearer …` header. The remote endpoint advertises OAuth 2.0 metadata (PKCE, S256) at `/.well-known/oauth-authorization-server`.
 
 # Dead hosts already removed
 
