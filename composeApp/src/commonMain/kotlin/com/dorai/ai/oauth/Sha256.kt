@@ -35,18 +35,26 @@ fun sha256(input: ByteArray): ByteArray {
     var offset = 0
     while (offset < padded.size) {
         for (i in 0..15) {
-            w[i] = (((padded[offset + i * 4].toInt() and 0xff).toLong() shl 24) or
-                ((padded[offset + i * 4 + 1].toInt() and 0xff).toLong() shl 16) or
-                ((padded[offset + i * 4 + 2].toInt() and 0xff).toLong() shl 8) or
-                (padded[offset + i * 4 + 3].toInt() and 0xff).toLong()) and 0xffffffffL
+            w[i] = (
+                ((padded[offset + i * 4].toInt() and 0xff).toLong() shl 24) or
+                    ((padded[offset + i * 4 + 1].toInt() and 0xff).toLong() shl 16) or
+                    ((padded[offset + i * 4 + 2].toInt() and 0xff).toLong() shl 8) or
+                    (padded[offset + i * 4 + 3].toInt() and 0xff).toLong()
+                ) and 0xffffffffL
         }
         for (i in 16..63) {
             val s0 = rotr(w[i - 15], 7) xor rotr(w[i - 15], 18) xor (w[i - 15] ushr 3)
             val s1 = rotr(w[i - 2], 17) xor rotr(w[i - 2], 19) xor (w[i - 2] ushr 10)
             w[i] = (w[i - 16] + s0 + w[i - 7] + s1) and 0xffffffffL
         }
-        var a = h0; var b = h1; var c = h2; var d = h3
-        var e = h4; var f = h5; var g = h6; var h = h7
+        var a = h0
+        var b = h1
+        var c = h2
+        var d = h3
+        var e = h4
+        var f = h5
+        var g = h6
+        var h = h7
         for (i in 0..63) {
             val s1 = rotr(e, 6) xor rotr(e, 11) xor rotr(e, 25)
             val ch = (e and f) xor (e.inv() and g)
@@ -54,8 +62,14 @@ fun sha256(input: ByteArray): ByteArray {
             val s0 = rotr(a, 2) xor rotr(a, 13) xor rotr(a, 22)
             val maj = (a and b) xor (a and c) xor (b and c)
             val temp2 = (s0 + maj) and 0xffffffffL
-            h = g; g = f; f = e; e = (d + temp1) and 0xffffffffL
-            d = c; c = b; b = a; a = (temp1 + temp2) and 0xffffffffL
+            h = g
+            g = f
+            f = e
+            e = (d + temp1) and 0xffffffffL
+            d = c
+            c = b
+            b = a
+            a = (temp1 + temp2) and 0xffffffffL
         }
         h0 = (h0 + a) and 0xffffffffL
         h1 = (h1 + b) and 0xffffffffL

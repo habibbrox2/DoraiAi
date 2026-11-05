@@ -42,7 +42,10 @@ data class OAuthTokenResult(
 class McpOAuthException(message: String) : Exception(message)
 
 object McpOAuth {
-    private val json = Json { ignoreUnknownKeys = true; isLenient = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+    }
     private val client = httpClient {}
 
     private const val VERIFIER_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
@@ -174,6 +177,7 @@ object McpOAuth {
         for (ch in value) {
             when {
                 ch.isLetterOrDigit() || ch in "-_.~" -> sb.append(ch)
+
                 else -> {
                     val bytes = ch.toString().encodeToByteArray()
                     for (b in bytes) {

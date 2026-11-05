@@ -48,10 +48,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.mcp.PopularMcpServer
 import com.dorai.ai.mcp.authorizationHeaderValue
+import com.dorai.ai.mcp.popularMcpServers
 import com.dorai.ai.oauth.McpOAuth
 import com.dorai.ai.oauth.OAuthMetadata
 import com.dorai.ai.openUrl
-import com.dorai.ai.mcp.popularMcpServers
 import com.dorai.ai.ui.CardFill
 import com.dorai.ai.ui.DangerAlert
 import com.dorai.ai.ui.DoraiOutlinedTextField
