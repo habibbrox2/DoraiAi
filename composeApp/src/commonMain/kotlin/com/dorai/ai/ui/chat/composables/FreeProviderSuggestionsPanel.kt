@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.chat.composables
+package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -88,7 +89,10 @@ internal fun FreeProviderSuggestionsPanel(
                     Box(
                         modifier = Modifier
                             .handCursor()
-                            .clickable(onClick = { uriHandler.openUri(suggestion.signupUrl) })
+                            .clickable(
+                                role = Role.Button,
+                                onClick = { uriHandler.openUri(suggestion.signupUrl) },
+                            )
                             .clip(DoraiShapes.pill)
                             .background(CardFill, DoraiShapes.pill),
                     ) {

@@ -1,10 +1,11 @@
-﻿package com.dorai.ai.ui.chat.composables
+package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -69,7 +70,7 @@ internal fun HeartbeatBanner(
                     modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
                 )
                 IconButton(
-                    modifier = Modifier.size(24.dp).handCursor(),
+                    modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).handCursor(),
                     onClick = onDismiss,
                 ) {
                     Icon(

@@ -1,5 +1,6 @@
 package com.dorai.ai.ui.chat.composables
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
@@ -34,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.chat.ChatSpacing
@@ -167,7 +169,8 @@ private fun ActionButton(
             .handCursor()
             .clickable(
                 interactionSource = interactionSource,
-                indication = null,
+                indication = LocalIndication.current,
+                role = Role.Button,
                 onClick = onClick,
             )
             .hoverable(interactionSource),

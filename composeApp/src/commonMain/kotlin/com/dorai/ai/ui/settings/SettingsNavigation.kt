@@ -1,8 +1,9 @@
-﻿package com.dorai.ai.ui.settings
+package com.dorai.ai.ui.settings
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -159,10 +160,10 @@ fun SettingsNavRail(
                         .handCursor()
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
+                            indication = LocalIndication.current,
+                            role = Role.Tab,
                         ) { onSelectTab(tab) }
                         .semantics {
-                            role = Role.Tab
                             selected = isSelected
                         },
                     contentAlignment = Alignment.Center,

@@ -47,7 +47,7 @@ internal fun ErrorMessage(
         ) {
             Icon(
                 imageVector = vectorResource(Res.drawable.ic_refresh),
-                contentDescription = null,
+                contentDescription = "Retry",
                 tint = LocalDesignColorTokens.current.textPrimary,
             )
         }

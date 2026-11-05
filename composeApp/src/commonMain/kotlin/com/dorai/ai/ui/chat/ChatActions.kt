@@ -41,4 +41,5 @@ data class ChatActions(
     val acceptFileChange: (proposalId: String) -> Unit = {},
     val rejectFileChange: (proposalId: String) -> Unit = {},
     val rollbackFileChange: (proposalId: String) -> Unit = {},
+    val clearError: () -> Unit = {},
 )

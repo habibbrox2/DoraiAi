@@ -5,6 +5,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -88,7 +90,7 @@ fun ThemeSwatchCard(
                 .handCursor()
                 .clickable(
                     interactionSource = interactionSource,
-                    indication = null,
+                    indication = LocalIndication.current,
                     role = Role.RadioButton,
                     onClick = onClick,
                 )
@@ -139,8 +141,8 @@ fun ThemeSwatchCard(
                     onClick = onDelete,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .size(26.dp)
-                        .padding(2.dp),
+                        .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+                        .handCursor(),
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Close,
