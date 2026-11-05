@@ -13,7 +13,7 @@
 | `desktopTest` | JVM desktop tests |
 
 ## Existing platform contract
-- Shared declarations live in `composeApp/src/commonMain/kotlin/com/inspiredandroid/kai/Platform.kt`.
+- Shared declarations live in `composeApp/src/commonMain/kotlin/com/dorai/ai/Platform.kt`.
 - Inspect actual implementations in `Platform.android.kt`, `Platform.jvm.kt`, `Platform.ios.kt`, and `Platform.wasmJs.kt`.
 - When adding/changing an `expect` function/property, check every configured target and update only the appropriate `actual` implementations.
 - The shared contract already includes HTTP client creation, secure/legacy settings, host address resolution, background dispatcher, drag-and-drop, platform identity, image compression/decoding, file saving, supported-tool declarations, and notification hooks. Reuse it where appropriate rather than creating duplicate platform checks.

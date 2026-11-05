@@ -1,4 +1,4 @@
-﻿@file:OptIn(
+@file:OptIn(
     ExperimentalFoundationApi::class,
 )
 
@@ -123,6 +123,7 @@ import dorai.composeapp.generated.resources.snackbar_undo
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import nl.marc_apps.tts.TextToSpeechInstance
 import nl.marc_apps.tts.errors.TextToSpeechSynthesisInterruptedError
@@ -547,6 +548,10 @@ private fun ChatModeScreen(
                     // centered ErrorMessage blocks; auto-dismisses after 6s.
                     uiState.error?.let { error ->
                         if (!uiState.showFreeProviderSuggestions) {
+                            LaunchedEffect(error) {
+                                delay(6000)
+                                uiState.actions.clearError()
+                            }
                             androidx.compose.animation.AnimatedVisibility(
                                 visible = true,
                                 enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.scaleIn(),
@@ -578,6 +583,17 @@ private fun ChatModeScreen(
                                                 imageVector = vectorResource(Res.drawable.ic_refresh),
                                                 contentDescription = "Retry",
                                                 tint = LocalDesignColorTokens.current.textPrimary,
+                                                modifier = Modifier.size(16.dp),
+                                            )
+                                        }
+                                        IconButton(
+                                            onClick = uiState.actions.clearError,
+                                            modifier = Modifier.size(28.dp).handCursor(),
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Close,
+                                                contentDescription = "Dismiss",
+                                                tint = LocalDesignColorTokens.current.textSecondary,
                                                 modifier = Modifier.size(16.dp),
                                             )
                                         }

@@ -8,8 +8,10 @@ import com.dorai.ai.theme.data.ThemeStyle
 import com.dorai.ai.theme.data.isBackgroundDark
 import com.dorai.ai.theme.data.isValidHexColor
 import com.dorai.ai.theme.data.parseHexColor
+import com.dorai.ai.theme.data.readableTextColorFor
+import com.dorai.ai.theme.data.relativeLuminance
+import com.dorai.ai.theme.data.toHexString
 import kotlinx.coroutines.flow.StateFlow
-import kotlin.math.pow
 import kotlin.random.Random
 
 /**
@@ -76,24 +78,17 @@ class ThemeViewModel(private val repository: ThemeSettingsRepository) : ViewMode
             return buildString { repeat(8) { append(chars[Random.nextInt(chars.length)]) } }
         }
 
-        /** Near-black text on light fills, near-white on dark fills. */
-        private fun readableOn(color: androidx.compose.ui.graphics.Color): String = if (luminance(color) > 0.5) "#1C1C1E" else "#F1F8FF"
+        /** Text color maximizing contrast against the fill. */
+        private fun readableOn(color: androidx.compose.ui.graphics.Color): String =
+            readableTextColorFor(color).toHexString()
 
-        private fun variantOn(color: androidx.compose.ui.graphics.Color): String = if (luminance(color) > 0.5) "#475569" else "#C4D3E8"
+        private fun variantOn(color: androidx.compose.ui.graphics.Color): String =
+            if (color.relativeLuminance() > 0.18) "#475569" else "#C4D3E8"
 
-        private fun outlineFor(color: androidx.compose.ui.graphics.Color): String = if (luminance(color) > 0.5) "#94A3B8" else "#2B3A55"
+        private fun outlineFor(color: androidx.compose.ui.graphics.Color): String =
+            if (color.relativeLuminance() > 0.18) "#94A3B8" else "#2B3A55"
 
-        private fun variantOutlineFor(color: androidx.compose.ui.graphics.Color): String = if (luminance(color) > 0.5) "#CBD5E1" else "#1AFFFFFF"
-
-        private fun luminance(color: androidx.compose.ui.graphics.Color): Double {
-            fun lin(c: Float): Double {
-                val s = c.coerceIn(0f, 1f).toDouble()
-                return if (s <= 0.03928) s / 12.92 else ((s + 0.055) / 1.055).pow(2.4)
-            }
-            val r = lin(color.red)
-            val g = lin(color.green)
-            val b = lin(color.blue)
-            return 0.2126 * r + 0.7152 * g + 0.0722 * b
-        }
+        private fun variantOutlineFor(color: androidx.compose.ui.graphics.Color): String =
+            if (color.relativeLuminance() > 0.18) "#CBD5E1" else "#1AFFFFFF"
     }
 }

@@ -116,8 +116,10 @@ interface DataRepository {
     fun setDynamicUiEnabled(enabled: Boolean)
 
     // Theme mode
-    fun getThemeMode(): ThemeMode
-    fun setThemeMode(mode: ThemeMode)
+    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
+    fun getThemeMode(): ThemeMode = ThemeMode.System
+    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
+    fun setThemeMode(mode: ThemeMode) {}
 
     // App language
     fun getAppLanguage(): AppLanguage

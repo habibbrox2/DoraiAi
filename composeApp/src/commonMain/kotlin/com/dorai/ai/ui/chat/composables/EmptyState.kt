@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.chat.composables
+package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -164,7 +164,7 @@ private fun QuickStartCards(
     val items = listOf(
         QuickStartItem(
             label = "New Chat",
-            prompt = "???? ?? ??? ????? ?????? ??? ???",
+            prompt = "How can Dorai AI help me today?",
             icon = Icons.Default.Edit,
             accentColor = DesignTokens.PrimaryCyan,
         ),

@@ -1,10 +1,16 @@
 package com.dorai.ai.theme
 
+import androidx.compose.ui.graphics.Color
+import com.dorai.ai.theme.data.DefaultDarkText
+import com.dorai.ai.theme.data.DefaultLightText
+import com.dorai.ai.theme.data.ThemePalette
 import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.data.ThemeSettingsRepository
 import com.dorai.ai.theme.data.ThemeStyle
+import com.dorai.ai.theme.data.contrastRatio
 import com.dorai.ai.theme.data.isValidHexColor
 import com.dorai.ai.theme.data.parseHexColor
+import com.dorai.ai.theme.data.readableTextColorFor
 import com.dorai.ai.theme.data.resolve
 import com.russhwolf.settings.MapSettings
 import kotlin.test.Test
@@ -169,5 +175,93 @@ class ThemeEngineTest {
             assertTrue(isValidHexColor(palette.primary), "${palette.id} primary")
             assertNotNull(ThemePresets.find(palette.id))
         }
+    }
+
+    @Test
+    fun `contrast ratio calculation correctly detects accessible and low contrast pairs`() {
+        val accessibleRatio = contrastRatio(
+            parseHexColor("#25CDE2")!!,
+            parseHexColor("#08132B")!!,
+        )
+        assertTrue(accessibleRatio >= 9.0)
+
+        val lowContrastRatio = contrastRatio(
+            parseHexColor("#1A1A1A")!!,
+            parseHexColor("#111111")!!,
+        )
+        assertTrue(lowContrastRatio < 3.0)
+    }
+
+    @Test
+    fun `contrast ratio calculation correctly validates custom palettes`() {
+        val accessibleCustom = ThemePalette(
+            id = "custom_accessible",
+            displayName = "Accessible Custom",
+            isDark = true,
+            background = "#050A1C",
+            surface = "#08132B",
+            surfaceElevated = "#0D1C38",
+            surfaceRaised = "#13284A",
+            primary = "#25CDE2",
+            accent = "#8B78FF",
+            onPrimary = "#08132B",
+            onBackground = "#F1F8FF",
+            onSurface = "#F1F8FF",
+            onSurfaceVariant = "#C4D3E8",
+            outline = "#2B3A55",
+            outlineVariant = "#1AFFFFFF",
+            isCustom = true,
+        )
+        val onPrimaryRatio = contrastRatio(accessibleCustom.onPrimaryColor, accessibleCustom.primaryColor)
+        val onBgRatio = contrastRatio(accessibleCustom.onBackgroundColor, accessibleCustom.backgroundColor)
+        assertTrue(onPrimaryRatio >= 4.5, "onPrimary contrast $onPrimaryRatio should be >= 4.5:1")
+        assertTrue(onBgRatio >= 4.5, "onBackground contrast $onBgRatio should be >= 4.5:1")
+
+        // Inaccessible custom palette where onPrimary and onBackground fail WCAG AA contrast
+        val poorContrastCustom = accessibleCustom.copy(
+            id = "custom_poor",
+            primary = "#1E293B",
+            onPrimary = "#0F172A", // Dark on dark -> fails < 3.0:1
+            background = "#888888",
+            onBackground = "#777777", // Gray on gray -> fails < 3.0:1
+        )
+        val poorPrimaryRatio = contrastRatio(poorContrastCustom.onPrimaryColor, poorContrastCustom.primaryColor)
+        val poorBgRatio = contrastRatio(poorContrastCustom.onBackgroundColor, poorContrastCustom.backgroundColor)
+        assertTrue(poorPrimaryRatio < 3.0, "Poor onPrimary contrast $poorPrimaryRatio should be < 3.0:1")
+        assertTrue(poorBgRatio < 3.0, "Poor onBackground contrast $poorBgRatio should be < 3.0:1")
+    }
+
+    @Test
+    fun `readableTextColorFor selects highest contrast text color for custom palettes`() {
+        val darkBg = parseHexColor("#050A1C")!!
+        val lightBg = parseHexColor("#FFFFFF")!!
+        val textColorForDark = readableTextColorFor(darkBg)
+        val textColorForLight = readableTextColorFor(lightBg)
+
+        assertEquals(DefaultLightText, textColorForDark)
+        assertEquals(DefaultDarkText, textColorForLight)
+
+        val contrastOnDark = contrastRatio(textColorForDark, darkBg)
+        val contrastOnLight = contrastRatio(textColorForLight, lightBg)
+        assertTrue(contrastOnDark >= 4.5, "Contrast on dark $contrastOnDark should be >= 4.5:1")
+        assertTrue(contrastOnLight >= 4.5, "Contrast on light $contrastOnLight should be >= 4.5:1")
+    }
+
+    @Test
+    fun `ThemeViewModel creates accessible custom palette with compliant contrast`() {
+        val repo = repository()
+        val viewModel = ThemeViewModel(repo)
+        val saved = viewModel.saveCustomTheme(
+            displayName = "Cyan Cyberpunk",
+            backgroundHex = "#120824",
+            surfaceHex = "#1A0D33",
+            primaryHex = "#00F0FF",
+        )
+        assertTrue(saved)
+        val customTheme = repo.state.value.customThemes.single()
+        val onPrimaryRatio = contrastRatio(customTheme.onPrimaryColor, customTheme.primaryColor)
+        val onBgRatio = contrastRatio(customTheme.onBackgroundColor, customTheme.backgroundColor)
+        assertTrue(onPrimaryRatio >= 4.5, "Derived onPrimary contrast $onPrimaryRatio should be >= 4.5:1")
+        assertTrue(onBgRatio >= 4.5, "Derived onBackground contrast $onBgRatio should be >= 4.5:1")
     }
 }

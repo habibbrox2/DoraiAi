@@ -8,6 +8,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -48,6 +49,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -196,7 +198,8 @@ internal fun TrailingIcon(
             .handCursor()
             .clickable(
                 interactionSource = interactionSource,
-                indication = null,
+                indication = LocalIndication.current,
+                role = Role.Button,
             ) { onClick() },
         contentAlignment = Alignment.Center,
     ) {
@@ -204,7 +207,7 @@ internal fun TrailingIcon(
             vectorResource(icon),
             modifier = Modifier.size(24.dp).then(pulseModifier),
             contentDescription = contentDescription,
-            tint = LocalDesignColorTokens.current.textPrimary,
+            tint = if (isStopAction) Color.White else DesignTokens.BrandNavy,
         )
     }
 }

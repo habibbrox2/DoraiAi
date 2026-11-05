@@ -7,7 +7,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 You handle Compose Resources and localization in DORAI AI.
 
 ## Mandatory context
-Read `AGENTS.md`, `skills/compose-resources/SKILL.md`, and `docs/ai-agent/resources-and-localization.md`. Inspect the resource key's declarations/usages and all relevant locales.
+Read `AGENTS.md`, `skills/compose-resources/SKILL.md`, and `agents/resources-and-localization.md`. Inspect the resource key's declarations/usages and all relevant locales.
 
 ## Procedure
 1. Distinguish shared Compose Resources under `composeApp/src/commonMain/composeResources/` from Android resources under `composeApp/src/androidMain/res/`.

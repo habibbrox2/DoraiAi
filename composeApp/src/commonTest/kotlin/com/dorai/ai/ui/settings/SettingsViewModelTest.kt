@@ -2,6 +2,7 @@ package com.dorai.ai.ui.settings
 
 import app.cash.turbine.test
 import com.dorai.ai.DaemonController
+import com.dorai.ai.data.Conversation
 import com.dorai.ai.data.Service
 import com.dorai.ai.data.TaskScheduler
 import com.dorai.ai.testutil.FakeDataRepository
@@ -621,5 +622,46 @@ class SettingsViewModelTest {
             assertEquals(45, updated.heartbeatIntervalMinutes)
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    @Test
+    fun `clearAllConversations deletes all saved conversations`() = runTest {
+        val viewModel = SettingsViewModel(fakeRepository, fakeDaemonController, fakeNotificationPermissionController, noOpScheduler, testDispatcher)
+        fakeRepository.savedConversations.value = listOf(
+            Conversation(id = "c1", messages = emptyList(), createdAt = 100L, updatedAt = 100L),
+            Conversation(id = "c2", messages = emptyList(), createdAt = 200L, updatedAt = 200L),
+        )
+        assertEquals(2, fakeRepository.savedConversations.value.size)
+
+        viewModel.clearAllConversations()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(0, fakeRepository.savedConversations.value.size)
+    }
+
+    @Test
+    fun `actions onClearAllConversations deletes all saved conversations`() = runTest {
+        val viewModel = SettingsViewModel(fakeRepository, fakeDaemonController, fakeNotificationPermissionController, noOpScheduler, testDispatcher)
+        fakeRepository.savedConversations.value = listOf(
+            Conversation(id = "c1", messages = emptyList(), createdAt = 100L, updatedAt = 100L),
+        )
+        assertEquals(1, fakeRepository.savedConversations.value.size)
+
+        viewModel.actions.onClearAllConversations()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(0, fakeRepository.savedConversations.value.size)
+    }
+
+    @Test
+    fun `deprecated onChangeThemeMode does not alter data repository theme`() = runTest {
+        val viewModel = SettingsViewModel(fakeRepository, fakeDaemonController, fakeNotificationPermissionController, noOpScheduler, testDispatcher)
+        @Suppress("DEPRECATION")
+        val initialTheme = fakeRepository.getThemeMode()
+        @Suppress("DEPRECATION")
+        viewModel.actions.onChangeThemeMode(com.dorai.ai.data.ThemeMode.Dark)
+        testDispatcher.scheduler.advanceUntilIdle()
+        @Suppress("DEPRECATION")
+        assertEquals(initialTheme, fakeRepository.getThemeMode())
     }
 }

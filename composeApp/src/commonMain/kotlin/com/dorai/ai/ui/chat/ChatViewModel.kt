@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.chat
+package com.dorai.ai.ui.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -96,6 +96,7 @@ class ChatViewModel(
         acceptFileChange = ::acceptFileChange,
         rejectFileChange = ::rejectFileChange,
         rollbackFileChange = ::rollbackFileChange,
+        clearError = ::clearError,
     )
     private var currentJob: Job? = null
     private var pendingConversationDeleteJob: Job? = null
@@ -439,6 +440,12 @@ class ChatViewModel(
     private fun clearSnackbar() {
         _state.update {
             it.copy(snackbarMessage = null)
+        }
+    }
+
+    private fun clearError() {
+        _state.update {
+            it.copy(error = null)
         }
     }
 

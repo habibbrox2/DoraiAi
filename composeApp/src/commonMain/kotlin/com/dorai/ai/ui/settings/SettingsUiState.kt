@@ -96,6 +96,7 @@ data class SettingsUiState(
     val tools: ImmutableList<ToolInfo> = persistentListOf(),
     val soulText: String = "",
     val isDynamicUiEnabled: Boolean = true,
+    @Deprecated("Theme is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
     val themeMode: ThemeMode = ThemeMode.System,
     val appLanguage: AppLanguage = AppLanguage.Bengali,
     val isMemoryEnabled: Boolean = true,

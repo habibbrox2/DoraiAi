@@ -11,7 +11,6 @@ import com.dorai.ai.data.ImportSection
 import com.dorai.ai.data.KeylessFreeTierFallback
 import com.dorai.ai.data.Service
 import com.dorai.ai.data.TaskScheduler
-import com.dorai.ai.data.ThemeMode
 import com.dorai.ai.data.supportsAgenticFlows
 import com.dorai.ai.getBackgroundDispatcher
 import com.dorai.ai.httpClient
@@ -84,7 +83,6 @@ class SettingsViewModel(
         tools = dataRepository.getToolDefinitions().toImmutableList(),
         soulText = dataRepository.getSoulText(),
         isDynamicUiEnabled = dataRepository.isDynamicUiEnabled(),
-        themeMode = dataRepository.getThemeMode(),
         appLanguage = dataRepository.getAppLanguage(),
         isMemoryEnabled = dataRepository.isMemoryEnabled(),
         memories = dataRepository.getMemories().toImmutableList(),
@@ -159,7 +157,6 @@ class SettingsViewModel(
         onToggleTool = ::onToggleTool,
         onSaveSoul = ::onSaveSoul,
         onToggleDynamicUi = ::onToggleDynamicUi,
-        onChangeThemeMode = ::onChangeThemeMode,
         onChangeAppLanguage = ::onChangeAppLanguage,
         onToggleMemory = ::onToggleMemory,
         onDeleteMemory = ::onDeleteMemory,
@@ -208,7 +205,7 @@ class SettingsViewModel(
         onPrepareExport = ::onPrepareExport,
         onImportSettings = ::onImportSettings,
         onUndoDelete = ::onUndoDelete,
-        onClearAllConversations = ::onClearAllConversations,
+        onClearAllConversations = ::clearAllConversations,
     )
 
     private val _state = MutableStateFlow(buildFullState())
@@ -542,11 +539,6 @@ class SettingsViewModel(
     private fun onToggleDynamicUi(enabled: Boolean) {
         dataRepository.setDynamicUiEnabled(enabled)
         _state.update { it.copy(isDynamicUiEnabled = enabled) }
-    }
-
-    private fun onChangeThemeMode(mode: ThemeMode) {
-        dataRepository.setThemeMode(mode)
-        _state.update { it.copy(themeMode = mode) }
     }
 
     private fun onChangeAppLanguage(language: AppLanguage) {
@@ -1155,7 +1147,7 @@ class SettingsViewModel(
         _state.update { it.copy(pendingDeletion = null) }
     }
 
-    private fun onClearAllConversations() {
+    fun clearAllConversations() {
         viewModelScope.launch {
             for (c in dataRepository.savedConversations.value.toList()) {
                 dataRepository.deleteConversation(c.id)

@@ -1,16 +1,12 @@
 package com.dorai.ai
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -22,11 +18,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
-import com.dorai.ai.data.AppSettings
 import com.dorai.ai.data.DataRepository
-import com.dorai.ai.data.ThemeMode
-import com.dorai.ai.ui.DarkColorScheme
-import com.dorai.ai.ui.LightColorScheme
+import com.dorai.ai.theme.data.ThemeSettingsRepository
+import com.dorai.ai.theme.data.resolve
 import com.dorai.ai.updater.AndroidUpdateSettingsSection
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.init
@@ -43,15 +37,11 @@ class MainActivity : ComponentActivity() {
         FileKit.init(this)
         handleDeepLinkIntent(intent)
 
-        val dynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-        val appSettings: AppSettings = get()
+        val themeSettingsRepository: ThemeSettingsRepository = get()
         setContent {
-            val themeMode by appSettings.themeModeFlow.collectAsStateWithLifecycle()
+            val themeState by themeSettingsRepository.state.collectAsStateWithLifecycle()
             val systemInDark = isSystemInDarkTheme()
-            val isDarkTheme = when (themeMode) {
-                ThemeMode.System, ThemeMode.Light -> systemInDark
-                ThemeMode.Dark -> true
-            }
+            val isDarkTheme = themeState.resolve(systemInDark).isDark
             LaunchedEffect(isDarkTheme) {
                 enableEdgeToEdge(
                     statusBarStyle = if (isDarkTheme) {
@@ -72,9 +62,6 @@ class MainActivity : ComponentActivity() {
                     },
                 )
             }
-            val context = LocalContext.current
-            val lightScheme: ColorScheme = if (dynamicColor) dynamicLightColorScheme(context) else LightColorScheme
-            val darkScheme: ColorScheme = if (dynamicColor) dynamicDarkColorScheme(context) else DarkColorScheme
             val navController = rememberNavController()
             // Defer TTS initialization until after the first frame
             var ttsReady by remember { mutableStateOf(false) }
@@ -86,8 +73,6 @@ class MainActivity : ComponentActivity() {
             }
             App(
                 navController = navController,
-                lightColorScheme = lightScheme,
-                darkColorScheme = darkScheme,
                 textToSpeech = textToSpeech,
                 isKoinStarted = true,
                 onAppOpens = { appOpens ->

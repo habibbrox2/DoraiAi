@@ -1,8 +1,9 @@
-﻿@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -778,7 +779,8 @@ internal fun ToggleableHeadline(
             .fillMaxWidth()
             .clickable(
                 interactionSource = switchInteractionSource,
-                indication = null,
+                indication = LocalIndication.current,
+                role = Role.Switch,
             ) { onCheckedChange(!checked) }
             .handCursor(),
         verticalAlignment = Alignment.CenterVertically,

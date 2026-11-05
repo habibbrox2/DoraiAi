@@ -1,6 +1,8 @@
 package com.dorai.ai
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -400,7 +402,30 @@ actual fun PlatformBackHandler(enabled: Boolean, onBack: () -> Unit) {
 }
 
 actual fun exitApp() {
-    kotlin.system.exitProcess(0)
+    try {
+        val context: Context by inject(Context::class.java)
+        val activity = (context as? Activity) ?: (context as? ContextWrapper)?.let { wrapper ->
+            var current: Context? = wrapper
+            while (current is ContextWrapper && current !is Activity) {
+                current = current.baseContext
+            }
+            current as? Activity
+        }
+        if (activity != null) {
+            if (!activity.moveTaskToBack(true)) {
+                activity.finish()
+            }
+        } else {
+            context.startActivity(
+                Intent(Intent.ACTION_MAIN).apply {
+                    addCategory(Intent.CATEGORY_HOME)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                },
+            )
+        }
+    } catch (_: Exception) {
+        // Safe fallback - avoid hard process termination to keep services intact
+    }
 }
 
 actual suspend fun saveFileToDevice(bytes: ByteArray, baseName: String, extension: String) {

@@ -2175,10 +2175,13 @@ class RemoteDataRepository(
         appSettings.setDynamicUiEnabled(enabled)
     }
 
+    @Suppress("DEPRECATION")
+    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
     override fun getThemeMode(): ThemeMode = appSettings.getThemeMode()
 
+    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
     override fun setThemeMode(mode: ThemeMode) {
-        appSettings.setThemeMode(mode)
+        // No-op: ThemeSettingsRepository is the authoritative writer of theme configuration.
     }
 
     override fun getAppLanguage(): AppLanguage = appSettings.getAppLanguage()
