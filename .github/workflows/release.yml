@@ -33,6 +33,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: production-release
@@ -211,19 +212,37 @@ jobs:
             git push origin "refs/tags/v${VERSION}"
             echo "Version metadata already at target; tagged v${VERSION} without changes."
           else
-            # Automatic bump: appVersion -> VERSION, versionCode -> +1, commit + tag.
+            # Automatic bump through the required PR flow (main is protected by rulesets).
             NEW_CODE=$((10#$CODE + 1))
+            BRANCH="chore/release-v${VERSION}"
             sed -i "s/^appVersion = .*/appVersion = \"${VERSION}\"/" gradle/libs.versions.toml
             sed -i "s/^android-versionCode = .*/android-versionCode = \"${NEW_CODE}\"/" gradle/libs.versions.toml
 
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git checkout -b "$BRANCH"
             git add gradle/libs.versions.toml
             git commit -m "chore(release): v${VERSION}"
-            git tag "v${VERSION}"
+            git push origin "$BRANCH"
 
-            # Push the version bump commit and immutable tag atomically. Never force-update.
-            git push --atomic origin HEAD:main "refs/tags/v${VERSION}"
+            export GH_TOKEN="${{ github.token }}"
+            PR_URL=$(gh pr create \
+              --repo "${REPO_OWNER}/${REPO_NAME}" \
+              --base main --head "$BRANCH" \
+              --title "chore(release): v${VERSION}" \
+              --body "Automatic version bump for DORAI v${VERSION} (versionCode ${NEW_CODE}). Created by the release workflow.")
+
+            sleep 5
+            if ! gh pr merge "$BRANCH" --repo "${REPO_OWNER}/${REPO_NAME}" --merge; then
+              echo "::error::Automatic merge of the version-bump PR was blocked by repository rules."
+              echo "::error::Merge ${PR_URL} manually, then re-run the release workflow."
+              exit 1
+            fi
+
+            # Tag the merged main tip.
+            git fetch origin main --tags
+            git tag "v${VERSION}" origin/main
+            git push origin "refs/tags/v${VERSION}"
             echo "Version metadata bumped automatically to v${VERSION} (versionCode ${NEW_CODE})."
           fi
 
