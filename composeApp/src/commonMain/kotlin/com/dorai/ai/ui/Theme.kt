@@ -741,9 +741,18 @@ fun Theme(
     colorScheme: ColorScheme,
     content: @Composable () -> Unit,
 ) {
+    val isLight = colorScheme == LightColorScheme || colorScheme.background == Color.White || colorScheme.background == Color(0xFFFFFFFF)
+    val palette = if (isLight) com.dorai.ai.theme.data.ThemePresets.light else com.dorai.ai.theme.data.ThemePresets.dark
+    val themeState = com.dorai.ai.theme.data.ThemeState(
+        selectedThemeId = if (isLight) com.dorai.ai.theme.data.ThemePresets.LIGHT_ID else com.dorai.ai.theme.data.ThemePresets.DARK_ID,
+        isSystemTheme = false,
+    )
     CompositionLocalProvider(
         LocalDesignTokens provides DesignTokens,
         LocalDesignColorTokens provides DesignColorTokens.from(colorScheme),
+        com.dorai.ai.theme.engine.LocalDoraiPalette provides palette,
+        com.dorai.ai.theme.engine.LocalDoraiThemeState provides themeState,
+        com.dorai.ai.theme.engine.LocalDoraiThemeStyle provides themeState.activeStyle,
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

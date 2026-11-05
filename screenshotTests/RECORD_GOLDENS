@@ -1,2 +1,0 @@
-Bootstrap Paparazzi goldens re-record for UI/UX audit 2026-11-05 remediation (Phases A-F).
-This flag enables the CI step to record updated baselines reflecting WCAG AA contrast, v2 logo, insets, and responsive layout fixes.

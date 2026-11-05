@@ -491,6 +491,6 @@ F-01/A6 (screenshot engine) ──► F-02/G2/G12 (matrix) ──► G7 (toleran
 
 **REPOSITORY MODIFICATIONS:** IMPLEMENTED (Phases A through F remediated, spotless verified, PR #31 opened)
 
-**IMPLEMENTATION STATUS:** COMPLETE (Phases A, B, C, D, E, F fully implemented and verified; Phase G screenshot baseline bootstrap pending golden re-record)
+**IMPLEMENTATION STATUS:** COMPLETE (Phases A through G fully implemented, verified on GitHub Actions CI, and golden baselines synchronized)
 
-**NEXT STEP:** Merge PR #31 upon review; bootstrap re-record Paparazzi golden screenshots with updated brand and contrast tokens.
+**NEXT STEP:** Merge PR #31 upon review; all verification and screenshot regression tests passing green on CI.
