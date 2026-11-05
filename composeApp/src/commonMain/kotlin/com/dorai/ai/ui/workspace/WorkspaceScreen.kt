@@ -147,13 +147,17 @@ fun WorkspaceScreenContent(
     actions: WorkspaceActions,
     onExit: () -> Unit,
     modifier: Modifier = Modifier,
+    initialTab: WorkspaceTab = WorkspaceTab.Agent,
+    initialEditorState: EditorState? = null,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    var tab by remember { mutableStateOf(WorkspaceTab.Agent) }
+    var tab by remember(initialTab) { mutableStateOf(initialTab) }
     var pendingProject by remember { mutableStateOf<String?>(null) }
     var filesOpen by remember { mutableStateOf(false) }
-    var selectedFile by remember { mutableStateOf<String?>(null) }
+    var selectedFile by remember(initialEditorState) {
+        mutableStateOf((initialEditorState as? EditorState.Loaded)?.path)
+    }
 
     val drawerFiles = remember(selectedFile) {
         state.build.projects.map { name ->
@@ -176,7 +180,7 @@ fun WorkspaceScreenContent(
         }
     }
 
-    val editorLines = emptyList<CodeLine>()
+    val editorLines = (initialEditorState as? EditorState.Loaded)?.let { highlightSource(it.current) }.orEmpty()
 
     PlatformBackHandler(enabled = true) {
         when {
@@ -235,7 +239,7 @@ fun WorkspaceScreenContent(
                     filesOpen = filesOpen,
                     onFilesToggle = { filesOpen = it },
                     selectedFile = selectedFile,
-                    editorState = null,
+                    editorState = initialEditorState,
                     editorLines = editorLines,
                     onOpenEditorFile = { path ->
                         selectedFile = path

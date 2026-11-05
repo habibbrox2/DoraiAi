@@ -1,4 +1,4 @@
-﻿@file:OptIn(ExperimentalVoiceApi::class)
+@file:OptIn(ExperimentalVoiceApi::class)
 
 package com.dorai.ai.screenshots
 
@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -15,9 +14,9 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
-import com.dorai.ai.ui.DarkColorScheme
-import com.dorai.ai.ui.LightColorScheme
-import com.dorai.ai.ui.Theme
+import com.dorai.ai.theme.data.ThemePalette
+import com.dorai.ai.theme.data.ThemePresets
+import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.ui.chat.ChatScreenContent
 import com.dorai.ai.ui.chat.ChatUiState
 import com.dorai.ai.ui.chat.History
@@ -52,10 +51,10 @@ class DoraiUiScreenshotTest {
     }
 
     private fun Paparazzi.snap(
-        colorScheme: ColorScheme,
+        palette: ThemePalette,
         content: @Composable () -> Unit,
     ) {
-        val theme = if (colorScheme == DarkColorScheme) {
+        val theme = if (palette.isDark) {
             "android:Theme.Material.NoActionBar"
         } else {
             "android:Theme.Material.Light.NoActionBar"
@@ -66,7 +65,7 @@ class DoraiUiScreenshotTest {
             Box(modifier = Modifier.fillMaxSize()) {
                 WithScreenshotTestKoin {
                     CompositionLocalProvider(LocalInspectionMode provides true) {
-                        Theme(colorScheme = colorScheme) {
+                        DoraiTheme(repository = screenshotThemeRepository(palette)) {
                             content()
                         }
                     }
@@ -77,11 +76,11 @@ class DoraiUiScreenshotTest {
 
     private fun Paparazzi.snapDoraiUi(
         json: String,
-        colorScheme: ColorScheme = DarkColorScheme,
+        palette: ThemePalette = ThemePresets.dark,
         wrapInCard: Boolean = true,
     ) {
         val ui = DoraiUiParser.parseUiBlockBody(json) as UiBlockResult.Ui
-        snap(colorScheme) {
+        snap(palette) {
             DoraiUiRenderer(
                 node = ui.node,
                 isInteractive = true,
@@ -96,12 +95,12 @@ class DoraiUiScreenshotTest {
         json: String,
         imageResource: String,
         imageUrl: String = "preview://image",
-        colorScheme: ColorScheme = DarkColorScheme,
+        palette: ThemePalette = ThemePresets.dark,
     ) {
         val ui = DoraiUiParser.parseUiBlockBody(json) as UiBlockResult.Ui
         val bitmap = BitmapFactory.decodeStream(javaClass.getResourceAsStream(imageResource))
         val imageBitmap = bitmap.asImageBitmap()
-        snap(colorScheme) {
+        snap(palette) {
             CompositionLocalProvider(LocalPreviewImages provides mapOf(imageUrl to imageBitmap)) {
                 DoraiUiRenderer(
                     node = ui.node,
@@ -115,10 +114,10 @@ class DoraiUiScreenshotTest {
     }
 
     private fun Paparazzi.snapFullScreen(
-        colorScheme: ColorScheme,
+        palette: ThemePalette,
         content: @Composable () -> Unit,
     ) {
-        val theme = if (colorScheme == DarkColorScheme) {
+        val theme = if (palette.isDark) {
             "android:Theme.Material.NoActionBar"
         } else {
             "android:Theme.Material.Light.NoActionBar"
@@ -131,7 +130,7 @@ class DoraiUiScreenshotTest {
         snapshot {
             Box(modifier = Modifier.fillMaxSize()) {
                 CompositionLocalProvider(LocalInspectionMode provides true) {
-                    Theme(colorScheme = colorScheme) {
+                    DoraiTheme(repository = screenshotThemeRepository(palette)) {
                         content()
                     }
                 }
@@ -411,7 +410,7 @@ class DoraiUiScreenshotTest {
                     {"type":"button","label":"Save","variant":"filled","action":{"type":"callback","event":"save","collectFrom":["display_name","language","dark_mode","notifications","font_size","interests"]}}
                 ]}
             ]}""",
-            colorScheme = LightColorScheme,
+            palette = ThemePresets.light,
         )
     }
 
@@ -495,7 +494,7 @@ class DoraiUiScreenshotTest {
             """]}""" +
             "\n```"
 
-        paparazzi.snapFullScreen(LightColorScheme) {
+        paparazzi.snapFullScreen(ThemePresets.light) {
             ChatScreenContent(
                 uiState = ChatUiState(
                     actions = ScreenshotTestData.chatEmptyState.actions,
@@ -544,7 +543,7 @@ class DoraiUiScreenshotTest {
                 ]}
             ]}""",
             imageResource = "/cacio_e_pepe.png",
-            colorScheme = LightColorScheme,
+            palette = ThemePresets.light,
         )
     }
 
@@ -701,7 +700,7 @@ class DoraiUiScreenshotTest {
                     {"type":"button","label":"Brainstorm","action":{"type":"callback","event":"brainstorm_sustainable_project","collectFrom":["sustainable_themes"]},"variant":"filled"}
                 ]}
             ]}""",
-            colorScheme = LightColorScheme,
+            palette = ThemePresets.light,
         )
     }
 
@@ -835,7 +834,7 @@ class DoraiUiScreenshotTest {
                     {"type":"icon","name":"favorite","color":"error"}
                 ]}
             ]}""",
-            colorScheme = LightColorScheme,
+            palette = ThemePresets.light,
         )
     }
 }

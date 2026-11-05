@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.settings
+package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,6 +31,12 @@ internal fun IntegrationsContent(
     val splinterlandsState by splinterlandsViewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) { splinterlandsViewModel.onScreenVisible() }
 
+    IntegrationsContent(splinterlandsState)
+}
+
+/** Stateless integration surface for deterministic screenshot and preview rendering. */
+@Composable
+fun IntegrationsContent(splinterlandsState: SplinterlandsUiState) {
     val uriHandler = LocalUriHandler.current
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         if (splinterlandsState.showSplinterlandsSection) {

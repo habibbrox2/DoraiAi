@@ -74,7 +74,7 @@ internal fun GeneralContent(
                 )
             }
             SettingsCard {
-                TtsSettingsSection()
+                TtsSettingsSection(appLanguage = uiState.appLanguage)
             }
         },
         end = {
@@ -236,7 +236,7 @@ private fun UiScaleSection(
 }
 
 @Composable
-private fun TtsSettingsSection() {
+private fun TtsSettingsSection(appLanguage: AppLanguage) {
     val appSettings: AppSettings = koinInject()
     var rate by remember { mutableFloatStateOf(appSettings.getTtsRate()) }
     var pitch by remember { mutableFloatStateOf(appSettings.getTtsPitch()) }
@@ -248,18 +248,18 @@ private fun TtsSettingsSection() {
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = "Text-to-Speech (TTS)",
+            text = if (appLanguage == AppLanguage.Bengali) "লেখা থেকে কণ্ঠ (TTS)" else "Text-to-Speech (TTS)",
             style = DoraiTypography.titleMedium,
             color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
-            text = "?????? ?????????, ??? ? ???? ??? ????????? ????",
+            text = if (appLanguage == AppLanguage.Bengali) "উত্তরের কণ্ঠের গতি, স্বর ও শব্দের মাত্রা নিয়ন্ত্রণ করুন।" else "Control the speech speed, voice pitch, and volume of spoken responses.",
             style = DoraiTypography.bodyMedium,
             color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
         )
 
-        Text(text = "??? (Speed): ${(rate * 100).roundToInt()}%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        Text(text = "${if (appLanguage == AppLanguage.Bengali) "কথার গতি (Speed)" else "Speech speed (Speed)"}: ${(rate * 100).roundToInt()}%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         Slider(
             value = rate,
             onValueChange = { rate = it },
@@ -268,7 +268,7 @@ private fun TtsSettingsSection() {
         )
 
         Spacer(Modifier.height(8.dp))
-        Text(text = "????????? (Pitch): ${(pitch * 100).roundToInt()}%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        Text(text = "${if (appLanguage == AppLanguage.Bengali) "কণ্ঠের স্বর (Pitch)" else "Voice pitch (Pitch)"}: ${(pitch * 100).roundToInt()}%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         Slider(
             value = pitch,
             onValueChange = { pitch = it },
@@ -277,7 +277,7 @@ private fun TtsSettingsSection() {
         )
 
         Spacer(Modifier.height(8.dp))
-        Text(text = "????? (Volume): ${(volume * 100).roundToInt()}%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        Text(text = "${if (appLanguage == AppLanguage.Bengali) "শব্দের মাত্রা (Volume)" else "Volume"}: ${(volume * 100).roundToInt()}%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         Slider(
             value = volume,
             onValueChange = { volume = it },
@@ -287,7 +287,7 @@ private fun TtsSettingsSection() {
 
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "???: ????????? ?????? ???? ??? ?.??-?.??, ????????? ?.??-?.?? ????? ???? ????????? ???????",
+            text = if (appLanguage == AppLanguage.Bengali) "পরামর্শ: কথার গতি 0.70-1.30, কণ্ঠের স্বর 0.80-1.20 এবং প্রয়োজন অনুযায়ী ভলিউম রাখুন।" else "Tip: Keep speed between 0.70–1.30, pitch between 0.80–1.20, and adjust volume to your preference.",
             style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
         )
