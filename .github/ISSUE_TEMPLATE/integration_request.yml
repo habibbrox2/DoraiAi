@@ -1,33 +1,33 @@
 name: Integration Request
-description: Request support for a new game or service
+description: Request support for a new provider, tool, or service in DORAI AI
 labels: ["integration"]
 body:
   - type: input
     id: name
     attributes:
-      label: Service / Game Name
-      placeholder: e.g. Splinterlands
+      label: Provider / Tool / Service Name
+      placeholder: e.g. Example AI Provider
     validations:
       required: true
   - type: input
     id: url
     attributes:
-      label: Website URL
-      placeholder: e.g. https://store.steampowered.com
+      label: Website or Documentation URL
+      placeholder: e.g. https://example.com/docs
     validations:
       required: true
   - type: textarea
     id: description
     attributes:
       label: Description
-      description: What does this service offer and why should Kai support it?
+      description: What does this integration provide, and why should DORAI AI support it?
     validations:
       required: true
   - type: textarea
     id: api
     attributes:
       label: API / Data Source
-      description: Links to any public API docs or data sources, if known
+      description: Links to public API documentation or data sources, if known
     validations:
       required: false
   - type: checkboxes
