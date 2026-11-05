@@ -16,7 +16,7 @@ Homebrew, AUR, and Winget packages have not been registered for DORAI AI yet. Us
 
 ### Direct Downloads
 
-The repository currently contains legacy Kai releases only. Those APKs and installers belong to a different application identity and must not be installed as DORAI AI. The first DORAI release will be published after production signing and update-manifest verification. Track the project at the [DORAI AI repository](https://github.com/habibbrox2/DoraiAi).
+The repository currently contains legacy Dorai Ai releases only. Those APKs and installers belong to a different application identity and must not be installed as DORAI AI. The first DORAI release will be published after production signing and update-manifest verification. Track the project at the [DORAI AI repository](https://github.com/habibbrox2/DoraiAi).
 
 ## First Steps
 

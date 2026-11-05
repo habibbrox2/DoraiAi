@@ -16,7 +16,7 @@
 
 ## New-app installation model
 
-DORAI is a separate application, not an in-place rename of the legacy Kai installation. Android and iOS use new bundle/application identifiers. The old app can remain installed independently. No silent transfer of private app data is attempted. If user data import is added later, it must be an explicit, user-initiated, validated export/import flow.
+DORAI is a separate application, not an in-place rename of the legacy Dorai installation. Android and iOS use new bundle/application identifiers. The old app can remain installed independently. No silent transfer of private app data is attempted. If user data import is added later, it must be an explicit, user-initiated, validated export/import flow.
 
 ## Updater safety
 
@@ -24,11 +24,11 @@ The DORAI updater accepts only releases carrying DORAI-prefixed artifacts and a 
 
 ## External dependencies that require separate provisioning
 
-The GitHub repository has been renamed to `habibbrox2/DoraiAi`; the local working folder remains `G:\Web\broxkai2.0` until a separate local rename.
+The GitHub repository has been renamed to `habibbrox2/DoraiAi`; the local working folder remains `G:\Web\broxDorai2.0` until a separate local rename.
 
-New Google Play and App Store listings must be registered for `com.dorai.ai`; legacy Kai store URLs are upstream references only. WinGet publishing is disabled until a DORAI package ID is registered. The legacy `kai-bin` AUR package and auto-publisher were removed; create a new `dorai-bin` package only after the first DORAI release provides a verifiable checksum. Do not publish DORAI installers under legacy package-manager identifiers.
+New Google Play and App Store listings must be registered for `com.dorai.ai`; legacy Dorai store URLs are upstream references only. WinGet publishing is disabled until a DORAI package ID is registered. The legacy `Dorai-bin` AUR package and auto-publisher were removed; create a new `dorai-bin` package only after the first DORAI release provides a verifiable checksum. Do not publish DORAI installers under legacy package-manager identifiers.
 
-The legacy service endpoint `api.kai9000.com` and website hostname `kai9000.com` are external infrastructure references. They must not be replaced with guessed DORAI domains or endpoints. Before retiring them, provision and verify DORAI-owned DNS, TLS, API routing, website hosting, and release hosting, then update the app and website configuration together.
+The legacy service endpoint `api.Dorai9000.com` and website hostname `Dorai9000.com` are external infrastructure references. They must not be replaced with guessed DORAI domains or endpoints. Before retiring them, provision and verify DORAI-owned DNS, TLS, API routing, website hosting, and release hosting, then update the app and website configuration together.
 
 Upstream attribution, copyright notices, and license references must remain intact. They identify the original upstream project and are not DORAI product identity.
 
@@ -43,7 +43,7 @@ Do not publish a DORAI release until:
 
 ## GitHub release-history and first-release gate
 
-The renamed GitHub repository still retains legacy Kai release history. The latest published release is `Brox Kai v2.1.3`; legacy tags `v2.1.4` and `v2.1.5` also already exist. No DORAI release has been published. Do not direct users to the Releases page as a DORAI download source until a DORAI release exists; the current public copy explicitly marks the first release as pending.
+The renamed GitHub repository still retains legacy Dorai release history. The latest published release is `Brox Dorai v2.1.3`; legacy tags `v2.1.4` and `v2.1.5` also already exist. No DORAI release has been published. Do not direct users to the Releases page as a DORAI download source until a DORAI release exists; the current public copy explicitly marks the first release as pending.
 
 The current source metadata still says `appVersion = 2.1.4` and `android-versionCode = 216`. The `v2.1.4` tag is already occupied by a legacy release, so it cannot be reused for DORAI. Before release, select a new unused semantic version and matching version code, then update `gradle/libs.versions.toml`. The production release workflow is triggered manually via `workflow_dispatch` from `main` only (patch/minor/major). It validates that `appVersion` matches the target tag before bumping, and it publishes `update.json` to `main` only after a successful GitHub Release. Normal pushes or merges to `main` never trigger a version bump, tag, or release.
 
