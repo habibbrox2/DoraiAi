@@ -792,7 +792,6 @@ jobs:
             "$MANIFEST" >/dev/null
           CANDIDATE_CODE=$(jq -er '.versionCode' "$MANIFEST")
 
-          EXISTING_SHA=""
           if CURRENT=$(gh api "$API_PATH?ref=main" 2>/dev/null); then
             CURRENT_CONTENT=$(jq -r '.content // empty' <<<"$CURRENT" | tr -d '\r\n')
             if [[ -z "$CURRENT_CONTENT" ]]; then
@@ -801,7 +800,6 @@ jobs:
             fi
             CURRENT_JSON=$(printf '%s' "$CURRENT_CONTENT" | base64 --decode)
             CURRENT_CODE=$(jq -er '.versionCode | select(type == "number")' <<<"$CURRENT_JSON")
-            EXISTING_SHA=$(jq -er '.sha' <<<"$CURRENT")
             if (( CURRENT_CODE >= CANDIDATE_CODE )); then
               echo "Canonical manifest is already at versionCode ${CURRENT_CODE}; candidate ${CANDIDATE_CODE} is not newer."
               exit 0
@@ -810,20 +808,33 @@ jobs:
             echo "No canonical update.json exists on main yet; creating it."
           fi
 
-          CONTENT=$(base64 -w 0 "$MANIFEST")
-          PAYLOAD="${{ runner.temp }}/update-manifest-payload.json"
-          jq -n \
-            --arg message "[skip ci] chore(update): publish v${VERSION} manifest" \
-            --arg content "$CONTENT" \
-            --arg branch "main" \
-            --arg sha "$EXISTING_SHA" \
-            '{message: $message, content: $content, branch: $branch} + (if $sha == "" then {} else {sha: $sha} end)' \
-            > "$PAYLOAD"
-          gh api --method PUT "$API_PATH" --input "$PAYLOAD" >/dev/null
+          # Main is protected by repository rules: publish the manifest via PR + auto-merge.
+          BRANCH="chore/update-manifest-v${VERSION}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout -B "$BRANCH" origin/main
+          cp "$MANIFEST" update.json
+          git add update.json
+          git commit -m "[skip ci] chore(update): publish v${VERSION} manifest"
+          git push origin "HEAD:refs/heads/${BRANCH}"
 
-          VERIFIED=$(gh api "$API_PATH?ref=main")
-          VERIFIED_CONTENT=$(jq -r '.content // empty' <<<"$VERIFIED" | tr -d '\r\n')
-          VERIFIED_JSON=$(printf '%s' "$VERIFIED_CONTENT" | base64 --decode)
+          PR_URL=$(gh pr create \
+            --repo "${REPO_OWNER}/${REPO_NAME}" \
+            --base main --head "$BRANCH" \
+            --title "chore(update): publish v${VERSION} manifest" \
+            --body "Canonical update.json for DORAI v${VERSION} (versionCode ${CANDIDATE_CODE}). Created by the release workflow.")
+
+          sleep 5
+          if ! gh pr merge "$BRANCH" --repo "${REPO_OWNER}/${REPO_NAME}" --merge; then
+            echo "::error::Automatic merge of the update-manifest PR was blocked by repository rules."
+            echo "::error::Merge ${PR_URL} manually. GitHub Release v${VERSION} is already published."
+            exit 1
+          fi
+
+          # Verify the merged manifest on main.
+          git fetch origin main
+          VERIFIED_JSON=$(git show "origin/main:update.json")
           VERIFIED_CODE=$(jq -er '.versionCode | select(type == "number")' <<<"$VERIFIED_JSON")
           if [[ "$VERIFIED_CODE" != "$CANDIDATE_CODE" ]]; then
             echo "::error::Canonical manifest verification mismatch: expected ${CANDIDATE_CODE}, got ${VERIFIED_CODE}."
