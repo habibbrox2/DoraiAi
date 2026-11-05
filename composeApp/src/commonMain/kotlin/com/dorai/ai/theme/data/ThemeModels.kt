@@ -153,16 +153,39 @@ fun Color.toHexString(): String {
     return "#" + hex(channel(red)) + hex(channel(green)) + hex(channel(blue))
 }
 
-/** Relative luminance check on the background; used to flag dark vs light palettes. */
-fun ThemePalette.isBackgroundDark(): Boolean {
-    val bg = backgroundColor
+/** Compute relative luminance of a [Color] per WCAG 2.1 specs. */
+fun Color.relativeLuminance(): Double {
     fun lin(c: Float): Double {
         val s = c.coerceIn(0f, 1f).toDouble()
-        return if (s <= 0.03928) s / 12.92 else ((s + 0.055) / 1.055).pow(2.4)
+        return if (s <= 0.04045) s / 12.92 else ((s + 0.055) / 1.055).pow(2.4)
     }
-    val l = 0.2126 * lin(bg.red) + 0.7152 * lin(bg.green) + 0.0722 * lin(bg.blue)
-    return l < 0.5
+    return 0.2126 * lin(red) + 0.7152 * lin(green) + 0.0722 * lin(blue)
 }
+
+/** Compute WCAG 2.1 contrast ratio between two colors (returns value >= 1.0). */
+fun contrastRatio(first: Color, second: Color): Double {
+    val l1 = first.relativeLuminance()
+    val l2 = second.relativeLuminance()
+    val lighter = maxOf(l1, l2)
+    val darker = minOf(l1, l2)
+    return (lighter + 0.05) / (darker + 0.05)
+}
+
+val DefaultLightText: Color = Color(0xFFF1F8FF)
+val DefaultDarkText: Color = Color(0xFF1C1C1E)
+
+/**
+ * Returns either [DefaultDarkText] or [DefaultLightText], choosing whichever
+ * provides the higher WCAG contrast ratio against [background].
+ */
+fun readableTextColorFor(background: Color): Color {
+    val lightRatio = contrastRatio(background, DefaultLightText)
+    val darkRatio = contrastRatio(background, DefaultDarkText)
+    return if (darkRatio >= lightRatio) DefaultDarkText else DefaultLightText
+}
+
+/** Relative luminance check on the background; used to flag dark vs light palettes. */
+fun ThemePalette.isBackgroundDark(): Boolean = backgroundColor.relativeLuminance() < 0.5
 
 private fun expandNibbles(s: String, charsPerChannel: Int): Long = s.chunked(charsPerChannel)
     .joinToString("") { it.repeat(2) }

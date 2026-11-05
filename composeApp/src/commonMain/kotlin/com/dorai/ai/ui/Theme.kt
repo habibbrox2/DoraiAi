@@ -1,4 +1,4 @@
-﻿@file:Suppress("DEPRECATION")
+@file:Suppress("DEPRECATION")
 
 package com.dorai.ai.ui
 
@@ -404,7 +404,7 @@ val LightColorScheme = lightColorScheme(
 /** Dark theme */
 val DarkColorScheme = darkColorScheme(
     primary = AccentPrimary,
-    onPrimary = Color(0xFFFFFFFF),
+    onPrimary = Color(0xFF08132B),
     primaryContainer = broxNavy,
     onPrimaryContainer = DesignTokens.PrimaryText,
     secondary = broxDeepNavy,
@@ -475,7 +475,7 @@ val DuskColorScheme = darkColorScheme(
 
 /** Seafoam theme */
 val SeafoamColorScheme = lightColorScheme(
-    primary = Color(0xFF059669),
+    primary = Color(0xFF047857),
     onPrimary = Color.White,
     primaryContainer = Color(0xFFA7F3D0),
     onPrimaryContainer = Color(0xFF065F46),
@@ -535,7 +535,7 @@ val DaybreakColorScheme = lightColorScheme(
 
 /** Sherbet theme */
 val SherbetColorScheme = lightColorScheme(
-    primary = Color(0xFFEC4899),
+    primary = Color(0xFFD91C78),
     onPrimary = Color.White,
     primaryContainer = Color(0xFFFCE7F3),
     onPrimaryContainer = Color(0xFF9D174D),
@@ -597,32 +597,32 @@ val CarbonColorScheme = darkColorScheme(
 
 @Composable
 fun doraiAdaptiveCardColors(): CardColors = CardDefaults.cardColors(
-    containerColor = LocalDesignTokens.current.SurfaceElevated,
+    containerColor = LocalDesignColorTokens.current.cardSurface,
 )
 
 @Composable
-fun doraiAdaptiveCardBorder(): BorderStroke = BorderStroke(1.dp, LocalDesignTokens.current.BorderSubtle)
+fun doraiAdaptiveCardBorder(): BorderStroke = BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle)
 
 @Composable
 fun Modifier.doraiAdaptiveCardSurface(shape: Shape = CardDefaults.shape): Modifier = this
     .clip(shape)
     .background(
-        LocalDesignTokens.current.SurfaceElevated,
+        LocalDesignColorTokens.current.cardSurface,
         shape,
     )
     .then(
-        Modifier.border(1.dp, LocalDesignTokens.current.BorderSubtle, shape),
+        Modifier.border(1.dp, LocalDesignColorTokens.current.borderSubtle, shape),
     )
 
 /** Glassmorphic card colors for Settings and UI panels */
 @Composable
 fun glassmorphicCardColors(): CardColors = CardDefaults.cardColors(
-    containerColor = CardFill,
+    containerColor = LocalDesignColorTokens.current.cardFill,
 )
 
 /** Glassmorphic card border */
 @Composable
-fun glassmorphicCardBorder(): BorderStroke = BorderStroke(1.dp, BorderSoft)
+fun glassmorphicCardBorder(): BorderStroke = BorderStroke(1.dp, LocalDesignColorTokens.current.borderSoft)
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Text Field Colors Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
