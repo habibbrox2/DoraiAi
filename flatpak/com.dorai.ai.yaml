@@ -34,7 +34,7 @@ modules:
 
       # Install icons
       - install -Dm644 icon.svg /app/share/icons/hicolor/scalable/apps/com.dorai.ai.svg
-      - install -Dm644 icon.png /app/share/icons/hicolor/512x512/apps/com.dorai.ai.png
+      - install -Dm644 icon-512.png /app/share/icons/hicolor/512x512/apps/com.dorai.ai.png
 
     sources:
       - type: file
@@ -57,7 +57,7 @@ modules:
         path: ../composeApp/icon.svg
 
       - type: file
-        path: ../composeApp/icon.png
+        path: icon-512.png
 
       - type: script
         dest-filename: dorai-wrapper.sh
