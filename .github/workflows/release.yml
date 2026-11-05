@@ -41,7 +41,7 @@ concurrency:
 env:
   REPO_OWNER: habibbrox2
   REPO_NAME: DoraiAi
-  KEYSTORE_PATH: ${{ runner.temp }}/dorai-release.jks
+  KEYSTORE_PATH: ${{ github.workspace }}/dorai-release.jks
 
 jobs:
   ###############################################################################
