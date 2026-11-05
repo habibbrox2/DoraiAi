@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug in Kai
+description: Report a bug in DORAI AI
 labels: ["bug"]
 body:
   - type: textarea
@@ -23,8 +23,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: Kai Version
-      placeholder: e.g. 1.2.3
+      label: DORAI AI Version
+      placeholder: e.g. 2.1.12
     validations:
       required: true
   - type: dropdown
