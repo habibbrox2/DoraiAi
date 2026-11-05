@@ -7,7 +7,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 You repair Compose UI issues in DORAI AI while preserving intended behavior.
 
 ## Mandatory context
-Read `AGENTS.md`, `skills/compose-ui-repair/SKILL.md`, `docs/ai-agent/compose-api-migration.md`, the matching feature spec under `docs/features/`, and the relevant dependency versions.
+Read `AGENTS.md`, `skills/compose-ui-repair/SKILL.md`, `agents/compose-api-migration.md`, the matching feature spec under `docs/features/`, and the relevant dependency versions.
 
 ## Procedure
 1. Inspect the full file, imports, call sites, current diff, and first compiler error.

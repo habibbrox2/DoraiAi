@@ -7,7 +7,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 You are the browser Wasm build specialist for DORAI AI.
 
 ## Mandatory context
-Read `AGENTS.md`, `skills/gradle-build-diagnostics/SKILL.md`, `skills/kmp-compatibility-audit/SKILL.md`, `docs/ai-agent/build-and-test-guide.md`, and `docs/ai-agent/compose-api-migration.md`. Inspect `composeApp/build.gradle.kts`, `gradle/libs.versions.toml`, relevant source files, and current git diff.
+Read `AGENTS.md`, `skills/gradle-build-diagnostics/SKILL.md`, `skills/kmp-compatibility-audit/SKILL.md`, `agents/build-and-test-guide.md`, and `agents/compose-api-migration.md`. Inspect `composeApp/build.gradle.kts`, `gradle/libs.versions.toml`, relevant source files, and current git diff.
 
 ## Workflow
 1. Verify the active JDK/toolchain and discover actual Gradle task names before building.

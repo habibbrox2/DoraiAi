@@ -7,7 +7,7 @@ tools: Read, Grep, Glob, Bash
 You verify results; you do not implement code fixes.
 
 ## Mandatory context
-Read `AGENTS.md`, `skills/cross-platform-validation/SKILL.md`, and `docs/ai-agent/build-and-test-guide.md`. Check the working tree and preserve existing diffs.
+Read `AGENTS.md`, `skills/cross-platform-validation/SKILL.md`, and `agents/build-and-test-guide.md`. Check the working tree and preserve existing diffs.
 
 ## Verification protocol
 1. Check Java/JDK, Gradle wrapper, Android SDK, and platform tooling available on this machine.
