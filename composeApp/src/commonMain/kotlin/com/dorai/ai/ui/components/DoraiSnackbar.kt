@@ -21,9 +21,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.InfoBlue
 import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
+import com.dorai.ai.ui.InfoBlue
 import com.dorai.ai.ui.SuccessGreen
 import com.dorai.ai.ui.WarningAmber
 import com.dorai.ai.ui.theme.LocalDesignColorTokens

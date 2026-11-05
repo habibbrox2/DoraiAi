@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,7 +50,6 @@ import com.dorai.ai.ui.chat.activities.ActivityStatus
 import com.dorai.ai.ui.chat.activities.AgentActivity
 import com.dorai.ai.ui.chat.activities.formatAgentRunDuration
 import com.dorai.ai.ui.chat.activities.summarizeAgentRun
-import androidx.compose.material3.MaterialTheme
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import kotlin.time.Clock
@@ -248,7 +248,7 @@ internal fun safeActivityPreview(value: String, maxLength: Int = 1200): String {
     return if (redacted.length > maxLength) redacted.take(maxLength) + "�" else redacted
 }
 
-private @Composable fun activityStatusColor(status: ActivityStatus): Color = when (status) {
+@Composable private fun activityStatusColor(status: ActivityStatus): Color = when (status) {
     ActivityStatus.PENDING -> LocalDesignColorTokens.current.textMuted
     ActivityStatus.RUNNING -> DesignTokens.BrandCyan
     ActivityStatus.COMPLETED -> DesignTokens.Success

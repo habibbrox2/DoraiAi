@@ -77,17 +77,13 @@ class ThemeViewModel(private val repository: ThemeSettingsRepository) : ViewMode
         }
 
         /** Near-black text on light fills, near-white on dark fills. */
-        private fun readableOn(color: androidx.compose.ui.graphics.Color): String =
-            if (luminance(color) > 0.5) "#1C1C1E" else "#F1F8FF"
+        private fun readableOn(color: androidx.compose.ui.graphics.Color): String = if (luminance(color) > 0.5) "#1C1C1E" else "#F1F8FF"
 
-        private fun variantOn(color: androidx.compose.ui.graphics.Color): String =
-            if (luminance(color) > 0.5) "#475569" else "#C4D3E8"
+        private fun variantOn(color: androidx.compose.ui.graphics.Color): String = if (luminance(color) > 0.5) "#475569" else "#C4D3E8"
 
-        private fun outlineFor(color: androidx.compose.ui.graphics.Color): String =
-            if (luminance(color) > 0.5) "#94A3B8" else "#2B3A55"
+        private fun outlineFor(color: androidx.compose.ui.graphics.Color): String = if (luminance(color) > 0.5) "#94A3B8" else "#2B3A55"
 
-        private fun variantOutlineFor(color: androidx.compose.ui.graphics.Color): String =
-            if (luminance(color) > 0.5) "#CBD5E1" else "#1AFFFFFF"
+        private fun variantOutlineFor(color: androidx.compose.ui.graphics.Color): String = if (luminance(color) > 0.5) "#CBD5E1" else "#1AFFFFFF"
 
         private fun luminance(color: androidx.compose.ui.graphics.Color): Double {
             fun lin(c: Float): Double {

@@ -115,11 +115,11 @@ import com.dorai.ai.ui.components.DoraiSlider
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.components.StatusBadge
 import com.dorai.ai.ui.components.VerticalScrollbarForScroll
-import com.dorai.ai.ui.handCursor
-import com.dorai.ai.ui.icons.DragIndicator
 import com.dorai.ai.ui.doraiAdaptiveCardBorder
 import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.doraiAdaptiveCardSurface
+import com.dorai.ai.ui.handCursor
+import com.dorai.ai.ui.icons.DragIndicator
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.ic_arrow_drop_down

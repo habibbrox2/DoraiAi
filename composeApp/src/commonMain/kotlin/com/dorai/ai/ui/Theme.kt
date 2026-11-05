@@ -101,7 +101,6 @@ val SuccessGreen = DesignTokens.Success
 val WarningAmber = DesignTokens.Warning
 val InfoBlue = Color(0xFF3B82F6)
 
-
 // DoraiTypography - 2026 Modern Type Scale
 val DoraiTypography = Typography(
     displayLarge = TextStyle(

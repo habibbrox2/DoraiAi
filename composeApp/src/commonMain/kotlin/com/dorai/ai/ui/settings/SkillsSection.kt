@@ -56,9 +56,9 @@ import com.dorai.ai.ui.components.CollectionEmptyState
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.components.StatusBadge
 import com.dorai.ai.ui.components.VerticalScrollbarForScroll
-import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.doraiAdaptiveCardBorder
 import com.dorai.ai.ui.doraiAdaptiveCardColors
+import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.settings_skills

@@ -67,12 +67,12 @@ import com.dorai.ai.ui.components.CollectionEmptyState
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.components.StatusBadge
 import com.dorai.ai.ui.components.rememberOperationalStatusColors
+import com.dorai.ai.ui.doraiAdaptiveCardBorder
+import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.glassmorphicCard
 import com.dorai.ai.ui.glassmorphicCardBorder
 import com.dorai.ai.ui.glassmorphicCardColors
 import com.dorai.ai.ui.handCursor
-import com.dorai.ai.ui.doraiAdaptiveCardBorder
-import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.settings.SettingsTab
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res

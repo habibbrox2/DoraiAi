@@ -48,8 +48,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.handCursor
-import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.settings.monoStyle
+import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.workspace.terminal.TerminalKey
 import com.dorai.ai.workspace.terminal.TerminalModifiers
 import dorai.composeapp.generated.resources.Res

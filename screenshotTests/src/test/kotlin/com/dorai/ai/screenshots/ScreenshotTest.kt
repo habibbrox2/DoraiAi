@@ -18,6 +18,9 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
+import com.dorai.ai.theme.ThemeViewModel
+import com.dorai.ai.theme.data.ThemeSettingsRepository
+import com.dorai.ai.theme.ui.DoraiAppearanceSettings
 import com.dorai.ai.ui.DarkColorScheme
 import com.dorai.ai.ui.LightColorScheme
 import com.dorai.ai.ui.Theme
@@ -28,15 +31,12 @@ import com.dorai.ai.ui.chat.composables.ShellExecutionCard
 import com.dorai.ai.ui.chat.composables.ToolConfirmationCard
 import com.dorai.ai.ui.chat.composables.ToolExecutionCard
 import com.dorai.ai.ui.dynamicui.LocalPreviewImages
-import com.russhwolf.settings.MapSettings
-import com.dorai.ai.theme.ThemeViewModel
-import com.dorai.ai.theme.data.ThemeSettingsRepository
 import com.dorai.ai.ui.settings.SettingsScreenContent
-import com.dorai.ai.theme.ui.DoraiAppearanceSettings
 import com.dorai.ai.ui.workspace.WorkspaceActions
 import com.dorai.ai.ui.workspace.WorkspaceScreenContent
 import com.dorai.ai.ui.workspace.WorkspaceStatusKind
 import com.dorai.ai.ui.workspace.WorkspaceStatusPill
+import com.russhwolf.settings.MapSettings
 import nl.marc_apps.tts.experimental.ExperimentalVoiceApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext

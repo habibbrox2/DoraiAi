@@ -25,9 +25,9 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.DesignTokens
-import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 
 /**

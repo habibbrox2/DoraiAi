@@ -32,28 +32,30 @@ fun Modifier.doraiSurfaceStyle(
 ): Modifier {
     val palette = LocalDoraiPalette.current
     return when (style) {
-        ThemeStyle.Flat -> this
-            .clip(shape)
-            .background(containerColor, shape)
-            .border(1.dp, palette.outlineVariantColor, shape)
+        ThemeStyle.Flat ->
+            this
+                .clip(shape)
+                .background(containerColor, shape)
+                .border(1.dp, palette.outlineVariantColor, shape)
 
-        ThemeStyle.ThreeD -> this
-            .shadow(
-                elevation = 14.dp,
-                shape = shape,
-                clip = false,
-                ambientColor = Color.Black.copy(alpha = 0.55f),
-                spotColor = Color.Black.copy(alpha = 0.45f),
-            )
-            .clip(shape)
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(palette.surfaceRaisedColor, containerColor),
-                    startY = 0f,
-                    endY = Float.POSITIVE_INFINITY,
-                ),
-                shape,
-            )
-            .border(1.dp, highlight, shape)
+        ThemeStyle.ThreeD ->
+            this
+                .shadow(
+                    elevation = 14.dp,
+                    shape = shape,
+                    clip = false,
+                    ambientColor = Color.Black.copy(alpha = 0.55f),
+                    spotColor = Color.Black.copy(alpha = 0.45f),
+                )
+                .clip(shape)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(palette.surfaceRaisedColor, containerColor),
+                        startY = 0f,
+                        endY = Float.POSITIVE_INFINITY,
+                    ),
+                    shape,
+                )
+                .border(1.dp, highlight, shape)
     }
 }

@@ -41,12 +41,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.theme.data.ThemePalette
+import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.DesignTokens
-import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
-import dorai.composeapp.generated.resources.create_theme_remove
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.create_theme_remove
 import org.jetbrains.compose.resources.stringResource
 
 /**

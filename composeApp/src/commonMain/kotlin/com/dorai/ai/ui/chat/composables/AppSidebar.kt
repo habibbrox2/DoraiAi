@@ -67,10 +67,10 @@ import com.dorai.ai.ui.theme.LocalDesignTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.chat_history_heartbeat_label
 import dorai.composeapp.generated.resources.dashboard_title
+import dorai.composeapp.generated.resources.ic_settings
 import dorai.composeapp.generated.resources.sidebar_new_chat
 import dorai.composeapp.generated.resources.sidebar_rename_chat
 import dorai.composeapp.generated.resources.sidebar_version
-import dorai.composeapp.generated.resources.ic_settings
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.TimeZone
