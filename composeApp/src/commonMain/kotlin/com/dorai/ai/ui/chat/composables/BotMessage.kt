@@ -327,7 +327,7 @@ private fun ReasoningBlockquote(
     modifier: Modifier = Modifier,
 ) {
     var userToggled by remember { mutableStateOf(false) }
-    var expanded by remember(isComplete) { mutableStateOf(!isComplete) }
+    var expanded by remember { mutableStateOf(!isComplete) }
     LaunchedEffect(isComplete) {
         if (!userToggled && isComplete) {
             expanded = false
