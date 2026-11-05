@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "packageName": "com.dorai.ai",
+  "versionName": "2.1.13",
+  "versionCode": 225,
+  "assetName": "DORAI-AI-v2.1.13-Android.apk",
+  "downloadUrl": "https://github.com/habibbrox2/DoraiAi/releases/download/v2.1.13/DORAI-AI-v2.1.13-Android.apk",
+  "sha256": "75090fecccaf12eb5cdee038b5ab65371d011db1fb11d62151e4422be36b30b3",
+  "signerCertificateSha256": "df9578135f0bd6a9ba6e9b625c3fd98f947125ad1c8f6f846aa1fced2a096ef2"
+}
