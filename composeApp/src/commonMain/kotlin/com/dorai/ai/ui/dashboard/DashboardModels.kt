@@ -44,6 +44,7 @@ data class ReadinessFact(
 @Immutable
 data class DashboardUiState(
     val service: ServiceReadiness? = null,
+    val isCheckingServices: Boolean = false,
     val facts: ImmutableList<ReadinessFact> = persistentListOf(),
     val recentConversations: ImmutableList<ConversationSummary> = persistentListOf(),
     val recentProjects: ImmutableList<String> = persistentListOf(),
@@ -82,8 +83,11 @@ fun buildDashboardUiState(
         if (isBuildAvailable) add(buildState.toReadinessFact())
     }.toImmutableList()
 
+    val isCheckingServices = chatUiState.isRestoring || (chatUiState.availableServices.isEmpty() && chatUiState.isLoading)
+
     return DashboardUiState(
         service = service,
+        isCheckingServices = isCheckingServices,
         facts = facts,
         recentConversations = chatUiState.savedConversations
             .filter { !it.isHeartbeat }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,6 +58,7 @@ import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.settings_tab_account
 import dorai.composeapp.generated.resources.settings_tab_agent
+import dorai.composeapp.generated.resources.settings_tab_appearance
 import dorai.composeapp.generated.resources.settings_tab_data
 import dorai.composeapp.generated.resources.settings_tab_general
 import dorai.composeapp.generated.resources.settings_tab_integrations
@@ -121,7 +123,7 @@ fun SettingsNavRail(
                 }
                 val label = when (tab) {
                     SettingsTab.General -> stringResource(Res.string.settings_tab_general)
-                    SettingsTab.Appearance -> "Appearance"
+                    SettingsTab.Appearance -> stringResource(Res.string.settings_tab_appearance)
                     SettingsTab.Agent -> stringResource(Res.string.settings_tab_agent)
                     SettingsTab.Services -> stringResource(Res.string.settings_tab_services)
                     SettingsTab.Tools -> stringResource(Res.string.settings_tab_tools)
@@ -129,6 +131,9 @@ fun SettingsNavRail(
                     SettingsTab.Sandbox -> stringResource(Res.string.settings_tab_sandbox)
                     SettingsTab.Account -> stringResource(Res.string.settings_tab_account)
                 }
+
+                val interactionSource = remember { MutableInteractionSource() }
+                val isFocused by interactionSource.collectIsFocusedAsState()
 
                 val bgColor by animateColorAsState(
                     targetValue = if (isSelected) DesignTokens.PrimaryCyan.copy(alpha = 0.16f) else Color.Transparent,
@@ -141,7 +146,11 @@ fun SettingsNavRail(
                     label = "railText",
                 )
                 val borderColor by animateColorAsState(
-                    targetValue = if (isSelected) DesignTokens.PrimaryCyan.copy(alpha = 0.42f) else Color.Transparent,
+                    targetValue = when {
+                        isFocused -> DesignTokens.PrimaryCyan.copy(alpha = 0.55f)
+                        isSelected -> DesignTokens.PrimaryCyan.copy(alpha = 0.42f)
+                        else -> Color.Transparent
+                    },
                     animationSpec = tween(durationMillis = if (prefersReducedMotion()) 0 else 200),
                     label = "railBorder",
                 )
@@ -153,13 +162,13 @@ fun SettingsNavRail(
                         .clip(SettingsShapes.row)
                         .background(bgColor)
                         .border(
-                            width = if (isSelected) 1.dp else 0.dp,
+                            width = if (isSelected || isFocused) 1.dp else 0.dp,
                             color = borderColor,
                             shape = SettingsShapes.row,
                         )
                         .handCursor()
                         .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
+                            interactionSource = interactionSource,
                             indication = LocalIndication.current,
                             role = Role.Tab,
                         ) { onSelectTab(tab) }

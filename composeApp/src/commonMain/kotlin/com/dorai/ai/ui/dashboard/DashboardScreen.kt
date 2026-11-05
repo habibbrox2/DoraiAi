@@ -281,10 +281,34 @@ private fun ReadinessCard(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             when (val service = state.service) {
-                null -> StatusBadge(
-                    label = "Checking services",
-                    status = OperationalStatus.Connecting,
-                )
+                null -> if (state.isCheckingServices) {
+                    StatusBadge(
+                        label = "Checking services",
+                        status = OperationalStatus.Connecting,
+                    )
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        StatusBadge(
+                            label = "No service configured",
+                            status = OperationalStatus.NeedsSetup,
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        TextButton(
+                            onClick = { onOpenSettings(SettingsTab.Services) },
+                            modifier = Modifier.handCursor(),
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.dashboard_setup_service),
+                                style = DoraiTypography.labelLarge,
+                                color = AccentPrimary,
+                            )
+                        }
+                    }
+                }
 
                 else -> Row(
                     modifier = Modifier.fillMaxWidth(),

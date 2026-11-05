@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.chat.composables
+package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -52,7 +51,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.data.AppSettings
 import com.dorai.ai.getBackgroundDispatcher
-import com.dorai.ai.ui.CardFill
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SuccessGreen
 import com.dorai.ai.ui.chat.ChatSpacing
@@ -95,18 +93,21 @@ internal fun BotMessage(
     onResubmit: ((event: String, data: Map<String, String>) -> Unit)? = null,
     reasoningSegments: ImmutableList<String> = persistentListOf(),
     isFirstMessage: Boolean = false,
+    isComplete: Boolean = true,
 ) {
     val document = remember(message) { parseMarkdown(message) }
     var isEditing by remember(frozen) { mutableStateOf(false) }
     val effectiveFrozen = if (isEditing && frozen != null) frozen.copy(pressedEvent = null) else frozen
     val effectiveInteractive = if (frozen != null) (onResubmit != null && isEditing) else isInteractive
-    val doraiUiCallback: (String, Map<String, String>) -> Unit = if (onResubmit != null) {
-        { event, data ->
-            isEditing = false
-            onResubmit(event, data)
+    val doraiUiCallback: (String, Map<String, String>) -> Unit = remember(onResubmit, onUiCallback) {
+        if (onResubmit != null) {
+            { event, data ->
+                isEditing = false
+                onResubmit(event, data)
+            }
+        } else {
+            onUiCallback ?: { _, _ -> }
         }
-    } else {
-        onUiCallback ?: { _, _ -> }
     }
 
     val copyToClipboard = rememberCopyToClipboard()
@@ -159,6 +160,17 @@ internal fun BotMessage(
                             color = botTextColor,
                         )
                     }
+                }
+
+                // Expandable thinking/reasoning container
+                if (reasoningSegments.isNotEmpty()) {
+                    ReasoningBlockquote(
+                        segments = reasoningSegments,
+                        isComplete = isComplete,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = if (message.isNotEmpty()) 8.dp else 0.dp),
+                    )
                 }
 
                 // Markdown Message Body
@@ -311,9 +323,16 @@ internal fun BotMessage(
 @Composable
 private fun ReasoningBlockquote(
     segments: ImmutableList<String>,
+    isComplete: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var userToggled by remember { mutableStateOf(false) }
+    var expanded by remember(isComplete) { mutableStateOf(!isComplete) }
+    LaunchedEffect(isComplete) {
+        if (!userToggled && isComplete) {
+            expanded = false
+        }
+    }
     val preview = remember(segments) {
         segments.lastOrNull()
             ?.lineSequence()
@@ -323,23 +342,26 @@ private fun ReasoningBlockquote(
     }
 
     val blockShape = RoundedCornerShape(10.dp)
-    val accentCyan = com.dorai.ai.ui.theme.DesignTokens.PrimaryCyan
-    val containerBg = MaterialTheme.colorScheme.surface
+    val accentCyan = DesignTokens.PrimaryCyan
+    val surfaceRaised = LocalDesignColorTokens.current.surfaceRaised
     val borderColor = LocalDesignColorTokens.current.borderSubtle
-    val textSlate = LocalDesignColorTokens.current.textSecondary
+    val textSecondary = LocalDesignColorTokens.current.textSecondary
     val textMuted = LocalDesignColorTokens.current.textMuted
 
     Column(
         modifier = modifier
             .padding(vertical = 4.dp)
             .clip(blockShape)
-            .background(containerBg)
+            .background(surfaceRaised.copy(alpha = 0.5f))
             .border(1.dp, borderColor, blockShape),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = !expanded }
+                .clickable {
+                    userToggled = true
+                    expanded = !expanded
+                }
                 .handCursor()
                 .padding(horizontal = 10.dp, vertical = 7.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -365,7 +387,7 @@ private fun ReasoningBlockquote(
                         text = stringResource(Res.string.bot_message_thinking_label),
                         style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                         fontFamily = FontFamily.Monospace,
-                        color = textSlate,
+                        color = textSecondary,
                         fontSize = 12.sp,
                     )
                     if (segments.size > 1) {
@@ -425,10 +447,10 @@ private fun ReasoningBlockquote(
                     .fillMaxWidth()
                     .heightIn(max = 360.dp)
                     .verticalScroll(rememberScrollState())
-                    .background(com.dorai.ai.ui.theme.DesignTokens.TerminalBackground)
+                    .background(surfaceRaised)
                     .border(
                         width = 1.dp,
-                        color = borderColor.copy(alpha = 0.5f),
+                        color = borderColor,
                         shape = RoundedCornerShape(bottomStart = 10.dp, bottomEnd = 10.dp),
                     )
                     .padding(horizontal = 12.dp, vertical = 10.dp),
@@ -443,18 +465,20 @@ private fun ReasoningBlockquote(
                         )
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            text = "STEP ${index + 1}",
-                            style = DoraiTypography.labelSmall,
-                            fontFamily = FontFamily.Monospace,
-                            color = accentCyan.copy(alpha = 0.75f),
-                            fontSize = 9.sp,
-                            letterSpacing = 0.8.sp,
-                        )
+                        if (segments.size > 1) {
+                            Text(
+                                text = "STEP ${index + 1}",
+                                style = DoraiTypography.labelSmall,
+                                fontFamily = FontFamily.Monospace,
+                                color = accentCyan.copy(alpha = 0.75f),
+                                fontSize = 9.sp,
+                                letterSpacing = 0.8.sp,
+                            )
+                        }
                         SelectionContainer {
                             Text(
                                 text = segment,
-                                color = textSlate,
+                                color = textSecondary,
                                 style = DoraiTypography.bodySmall,
                                 fontFamily = FontFamily.Monospace,
                                 fontSize = 12.sp,

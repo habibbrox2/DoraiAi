@@ -31,6 +31,7 @@ import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.components.VerticalScrollbarForList
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.settings_tab_appearance
 import dorai.composeapp.generated.resources.settings_tab_data
 import org.jetbrains.compose.resources.stringResource
 
@@ -267,7 +268,7 @@ private fun SettingsPageHeading(
 ) {
     val title = when (tab) {
         SettingsTab.General -> "General"
-        SettingsTab.Appearance -> "Appearance"
+        SettingsTab.Appearance -> stringResource(Res.string.settings_tab_appearance)
         SettingsTab.Agent -> "Agent"
         SettingsTab.Services -> "Services"
         SettingsTab.Tools -> "Tools"

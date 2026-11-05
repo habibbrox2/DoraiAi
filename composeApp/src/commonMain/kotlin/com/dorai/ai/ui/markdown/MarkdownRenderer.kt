@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.markdown
+package com.dorai.ai.ui.markdown
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,8 +58,10 @@ fun MarkdownContent(
     }
     CompositionLocalProvider(LocalContentColor provides effectiveColor) {
         Column(modifier) {
-            for (block in document.blocks) {
-                BlockRenderer(block, isInteractive, onUiCallback, frozen)
+            document.blocks.forEachIndexed { index, block ->
+                key(index, block) {
+                    BlockRenderer(block, isInteractive, onUiCallback, frozen)
+                }
             }
         }
     }

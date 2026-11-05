@@ -50,6 +50,8 @@ fun main() {
             title = "DORAI AI",
             icon = painterResource(Res.drawable.logo),
         ) {
+            window.minimumSize = java.awt.Dimension(600, 480)
+
             // Defer TTS initialization until after the first frame
             var ttsReady by remember { mutableStateOf(false) }
             LaunchedEffect(Unit) { ttsReady = true }

@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -380,10 +381,12 @@ fun QuestionInput(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = ChatSpacing.md, vertical = ChatSpacing.sm),
+            contentAlignment = Alignment.Center,
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .widthIn(max = 820.dp)
                     .defaultMinSize(minHeight = 56.dp)
                     .heightIn(min = 56.dp, max = maxComposerHeight)
                     .shadow(

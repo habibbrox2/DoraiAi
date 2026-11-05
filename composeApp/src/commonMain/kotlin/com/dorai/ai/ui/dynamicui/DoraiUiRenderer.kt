@@ -1,4 +1,4 @@
-﻿@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.dorai.ai.ui.dynamicui
 
@@ -784,7 +784,7 @@ private fun RenderTable(node: TableNode) {
                     Text(
                         text = node.headers.getOrElse(index) { "" },
                         style = DoraiTypography.titleSmall,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.widthIn(min = 96.dp).padding(horizontal = 8.dp),
                     )
                 }
             }
@@ -799,7 +799,7 @@ private fun RenderTable(node: TableNode) {
                     Text(
                         text = row.getOrElse(index) { "" },
                         style = DoraiTypography.bodyMedium,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.widthIn(min = 96.dp).padding(horizontal = 8.dp),
                     )
                 }
             }
