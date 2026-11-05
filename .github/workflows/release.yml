@@ -449,8 +449,7 @@ jobs:
 
   flatpak:
     name: Build Linux Flatpak (Optional)
-    needs: [preflight, linux-tarball]
-    if: always() && needs.preflight.result == 'success' && needs.linux-tarball.result == 'success'
+    needs: preflight
     continue-on-error: true
     runs-on: ubuntu-latest
     steps:
@@ -460,10 +459,23 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Download Linux Tarball
-        uses: actions/download-artifact@v4
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
         with:
-          name: linux-tarball-package
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set execution flag for gradlew
+        run: chmod +x gradlew
+
+      - name: Build application distribution
+        run: ./gradlew createReleaseDistributable --stacktrace
+
+      - name: Package Linux tarball
+        run: |
+          DIST_DIR="composeApp/build/compose/binaries/main-release/app/DORAI"
+          test -d "$DIST_DIR"
+          tar -czvf "DORAI-AI-linux-x86_64.tar.gz" -C "$DIST_DIR" .
 
       - name: Install Flatpak and Builder
         run: |
