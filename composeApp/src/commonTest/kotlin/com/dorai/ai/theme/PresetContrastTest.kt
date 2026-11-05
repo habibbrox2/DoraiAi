@@ -74,4 +74,3 @@ class PresetContrastTest {
         assertTrue(lightRatio >= 4.5, "LightColorScheme onPrimary contrast ratio $lightRatio is below 4.5:1")
     }
 }
-

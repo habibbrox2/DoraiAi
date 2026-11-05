@@ -118,6 +118,7 @@ interface DataRepository {
     // Theme mode
     @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
     fun getThemeMode(): ThemeMode = ThemeMode.System
+
     @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
     fun setThemeMode(mode: ThemeMode) {}
 

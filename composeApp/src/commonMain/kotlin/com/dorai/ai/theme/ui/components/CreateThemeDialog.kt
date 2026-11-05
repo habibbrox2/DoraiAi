@@ -286,7 +286,9 @@ private fun HexColorField(
                 val ratioText = if (contrastRatio != null) {
                     val formatted = ((contrastRatio * 10).toInt() / 10.0).toString()
                     " · Contrast $formatted:1"
-                } else ""
+                } else {
+                    ""
+                }
                 val textColor = if (isContrastWarning) errorColor else tokens.textTertiary
                 Text(rgb + ratioText, color = textColor)
             }
