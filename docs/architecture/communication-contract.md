@@ -1,6 +1,6 @@
 # Kotlin / TypeScript Communication Contrac
 
-**Initial protocol:** `brox-kai-hybrid 1.0`
+**Initial protocol:** `dorai-ai-hybrid 1.0`
 **Status:** Schema foundation only; no transport implementation.
 
 ## Envelope types

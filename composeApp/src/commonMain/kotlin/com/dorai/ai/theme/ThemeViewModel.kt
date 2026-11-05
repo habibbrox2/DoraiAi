@@ -79,16 +79,12 @@ class ThemeViewModel(private val repository: ThemeSettingsRepository) : ViewMode
         }
 
         /** Text color maximizing contrast against the fill. */
-        private fun readableOn(color: androidx.compose.ui.graphics.Color): String =
-            readableTextColorFor(color).toHexString()
+        private fun readableOn(color: androidx.compose.ui.graphics.Color): String = readableTextColorFor(color).toHexString()
 
-        private fun variantOn(color: androidx.compose.ui.graphics.Color): String =
-            if (color.relativeLuminance() > 0.18) "#475569" else "#C4D3E8"
+        private fun variantOn(color: androidx.compose.ui.graphics.Color): String = if (color.relativeLuminance() > 0.18) "#475569" else "#C4D3E8"
 
-        private fun outlineFor(color: androidx.compose.ui.graphics.Color): String =
-            if (color.relativeLuminance() > 0.18) "#94A3B8" else "#2B3A55"
+        private fun outlineFor(color: androidx.compose.ui.graphics.Color): String = if (color.relativeLuminance() > 0.18) "#94A3B8" else "#2B3A55"
 
-        private fun variantOutlineFor(color: androidx.compose.ui.graphics.Color): String =
-            if (color.relativeLuminance() > 0.18) "#CBD5E1" else "#1AFFFFFF"
+        private fun variantOutlineFor(color: androidx.compose.ui.graphics.Color): String = if (color.relativeLuminance() > 0.18) "#CBD5E1" else "#1AFFFFFF"
     }
 }

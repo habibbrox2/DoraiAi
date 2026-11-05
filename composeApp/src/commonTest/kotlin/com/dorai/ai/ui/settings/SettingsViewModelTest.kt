@@ -656,6 +656,7 @@ class SettingsViewModelTest {
     @Test
     fun `deprecated onChangeThemeMode does not alter data repository theme`() = runTest {
         val viewModel = SettingsViewModel(fakeRepository, fakeDaemonController, fakeNotificationPermissionController, noOpScheduler, testDispatcher)
+
         @Suppress("DEPRECATION")
         val initialTheme = fakeRepository.getThemeMode()
         @Suppress("DEPRECATION")

@@ -223,7 +223,9 @@ fun ChatTimeline(
                                     } else {
                                         null
                                     },
+                                    reasoningSegments = timelineData.reasoningSegmentsByAssistantId[history.id] ?: persistentListOf(),
                                     isFirstMessage = history.id == firstAssistantId,
+                                    isComplete = !(isLastAssistant && uiState.isLoading),
                                 )
                                 if (history.fallbackServiceName != null) {
                                     Text(

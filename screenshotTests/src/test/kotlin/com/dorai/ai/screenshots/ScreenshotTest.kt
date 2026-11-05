@@ -1,4 +1,4 @@
-﻿@file:OptIn(ExperimentalVoiceApi::class)
+@file:OptIn(ExperimentalVoiceApi::class)
 
 package com.dorai.ai.screenshots
 
@@ -19,7 +19,9 @@ import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.dorai.ai.theme.ThemeViewModel
+import com.dorai.ai.theme.data.ThemePalette
 import com.dorai.ai.theme.data.ThemeSettingsRepository
+import com.dorai.ai.theme.engine.toColorScheme
 import com.dorai.ai.theme.ui.DoraiAppearanceSettings
 import com.dorai.ai.ui.DarkColorScheme
 import com.dorai.ai.ui.LightColorScheme
@@ -116,6 +118,13 @@ class ScreenshotTest {
                 }
             }
         }
+    }
+
+    fun Paparazzi.snap(
+        palette: ThemePalette,
+        content: @Composable () -> Unit,
+    ) {
+        snap(colorScheme = palette.toColorScheme(), content = content)
     }
 
     @Test

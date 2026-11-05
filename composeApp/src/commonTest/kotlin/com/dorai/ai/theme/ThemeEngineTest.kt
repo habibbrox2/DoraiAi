@@ -208,27 +208,43 @@ class ThemeEngineTest {
             onBackground = "#F1F8FF",
             onSurface = "#F1F8FF",
             onSurfaceVariant = "#C4D3E8",
-            outline = "#2B3A55",
+            outline = "#25CDE2",
             outlineVariant = "#1AFFFFFF",
             isCustom = true,
         )
+        // Normal text contrast (>= 4.5:1)
         val onPrimaryRatio = contrastRatio(accessibleCustom.onPrimaryColor, accessibleCustom.primaryColor)
         val onBgRatio = contrastRatio(accessibleCustom.onBackgroundColor, accessibleCustom.backgroundColor)
+        val onSurfaceRatio = contrastRatio(accessibleCustom.onSurfaceColor, accessibleCustom.surfaceColor)
         assertTrue(onPrimaryRatio >= 4.5, "onPrimary contrast $onPrimaryRatio should be >= 4.5:1")
         assertTrue(onBgRatio >= 4.5, "onBackground contrast $onBgRatio should be >= 4.5:1")
+        assertTrue(onSurfaceRatio >= 4.5, "onSurface contrast $onSurfaceRatio should be >= 4.5:1")
 
-        // Inaccessible custom palette where onPrimary and onBackground fail WCAG AA contrast
+        // Large text contrast (>= 3.0:1)
+        val primaryBgRatio = contrastRatio(accessibleCustom.primaryColor, accessibleCustom.backgroundColor)
+        val primarySurfaceRatio = contrastRatio(accessibleCustom.primaryColor, accessibleCustom.surfaceColor)
+        assertTrue(primaryBgRatio >= 3.0, "primary on background large text contrast $primaryBgRatio should be >= 3.0:1")
+        assertTrue(primarySurfaceRatio >= 3.0, "primary on surface large text contrast $primarySurfaceRatio should be >= 3.0:1")
+
+        // UI border contrast (>= 3.0:1)
+        val borderRatio = contrastRatio(accessibleCustom.outlineColor, accessibleCustom.backgroundColor)
+        assertTrue(borderRatio >= 3.0, "UI border contrast $borderRatio should be >= 3.0:1")
+
+        // Inaccessible custom palette where onPrimary, onBackground, and borders fail WCAG contrast
         val poorContrastCustom = accessibleCustom.copy(
             id = "custom_poor",
             primary = "#1E293B",
             onPrimary = "#0F172A", // Dark on dark -> fails < 3.0:1
             background = "#888888",
             onBackground = "#777777", // Gray on gray -> fails < 3.0:1
+            outline = "#858585", // Low border contrast -> fails < 3.0:1
         )
         val poorPrimaryRatio = contrastRatio(poorContrastCustom.onPrimaryColor, poorContrastCustom.primaryColor)
         val poorBgRatio = contrastRatio(poorContrastCustom.onBackgroundColor, poorContrastCustom.backgroundColor)
+        val poorBorderRatio = contrastRatio(poorContrastCustom.outlineColor, poorContrastCustom.backgroundColor)
         assertTrue(poorPrimaryRatio < 3.0, "Poor onPrimary contrast $poorPrimaryRatio should be < 3.0:1")
         assertTrue(poorBgRatio < 3.0, "Poor onBackground contrast $poorBgRatio should be < 3.0:1")
+        assertTrue(poorBorderRatio < 3.0, "Poor border contrast $poorBorderRatio should be < 3.0:1")
     }
 
     @Test
@@ -261,7 +277,17 @@ class ThemeEngineTest {
         val customTheme = repo.state.value.customThemes.single()
         val onPrimaryRatio = contrastRatio(customTheme.onPrimaryColor, customTheme.primaryColor)
         val onBgRatio = contrastRatio(customTheme.onBackgroundColor, customTheme.backgroundColor)
+        val onSurfaceRatio = contrastRatio(customTheme.onSurfaceColor, customTheme.surfaceColor)
+        val primaryBgRatio = contrastRatio(customTheme.primaryColor, customTheme.backgroundColor)
+        val primarySurfaceRatio = contrastRatio(customTheme.primaryColor, customTheme.surfaceColor)
+
+        // Normal text (>= 4.5:1)
         assertTrue(onPrimaryRatio >= 4.5, "Derived onPrimary contrast $onPrimaryRatio should be >= 4.5:1")
         assertTrue(onBgRatio >= 4.5, "Derived onBackground contrast $onBgRatio should be >= 4.5:1")
+        assertTrue(onSurfaceRatio >= 4.5, "Derived onSurface contrast $onSurfaceRatio should be >= 4.5:1")
+
+        // Large text (>= 3.0:1) & UI border (>= 3.0:1)
+        assertTrue(primaryBgRatio >= 3.0, "Derived primary on bg contrast $primaryBgRatio should be >= 3.0:1")
+        assertTrue(primarySurfaceRatio >= 3.0, "Derived primary on surface contrast $primarySurfaceRatio should be >= 3.0:1")
     }
 }

@@ -125,5 +125,6 @@ Knowledge lives under `docs/knowledge/` as OKF-style markdown (YAML frontmatter 
 
 - **Commits:** Use short, imperative messages (e.g., `fix(desktop): resolve window resize crash`). `CLAUDE.md` has no commit-footer/attribution rule; follow the active session/assistant instructions for any required commit or PR attribution when creating commits/PRs.
 - **Don't push/commit by default:** Only commit/push/create tags if explicitly asked.
+- **Pre-commit formatting gate:** After tests and verification succeed, and before creating any git commit or push, run `./gradlew spotlessCheck` (`gradlew.bat spotlessCheck` on Windows). Only commit and push if `spotlessCheck` returns `BUILD SUCCESSFUL`. If it fails, fix formatting issues (e.g., `./gradlew spotlessApply` if appropriate and safe), re-run relevant verification as needed, and re-run `spotlessCheck` before committing/pushing.
 - **CI:** `.github/workflows/test.yml` runs formatting/screenshot/asset steps and may push changes. Don't trigger it casually.
 - **Preserve changes:** Never use destructive git commands or overwrite unrelated user changes.

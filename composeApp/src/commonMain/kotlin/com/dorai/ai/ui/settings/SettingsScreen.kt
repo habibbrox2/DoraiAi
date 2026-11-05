@@ -112,6 +112,7 @@ import dorai.composeapp.generated.resources.settings_licenses
 import dorai.composeapp.generated.resources.settings_licenses_close
 import dorai.composeapp.generated.resources.settings_tab_account
 import dorai.composeapp.generated.resources.settings_tab_agent
+import dorai.composeapp.generated.resources.settings_tab_appearance
 import dorai.composeapp.generated.resources.settings_tab_data
 import dorai.composeapp.generated.resources.settings_tab_general
 import dorai.composeapp.generated.resources.settings_tab_integrations
@@ -500,7 +501,7 @@ private fun SettingsTabSelector(
 
                 val label = when (tab) {
                     SettingsTab.General -> stringResource(Res.string.settings_tab_general)
-                    SettingsTab.Appearance -> "Appearance"
+                    SettingsTab.Appearance -> stringResource(Res.string.settings_tab_appearance)
                     SettingsTab.Agent -> stringResource(Res.string.settings_tab_agent)
                     SettingsTab.Services -> stringResource(Res.string.settings_tab_services)
                     SettingsTab.Tools -> stringResource(Res.string.settings_tab_tools)
@@ -525,8 +526,8 @@ private fun SettingsTabSelector(
                 )
 
                 val border = when {
-                    isSelected -> androidx.compose.foundation.BorderStroke(1.dp, com.dorai.ai.ui.AccentPrimary.copy(alpha = 0.38f))
                     isFocused -> androidx.compose.foundation.BorderStroke(1.dp, com.dorai.ai.ui.AccentPrimary.copy(alpha = 0.55f))
+                    isSelected -> androidx.compose.foundation.BorderStroke(1.dp, com.dorai.ai.ui.AccentPrimary.copy(alpha = 0.38f))
                     else -> null
                 }
 
@@ -562,16 +563,7 @@ private fun SettingsTabSelector(
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                 ) {
                     Text(
-                        text = when (tab) {
-                            SettingsTab.General -> stringResource(Res.string.settings_tab_general)
-                            SettingsTab.Appearance -> "Appearance"
-                            SettingsTab.Agent -> stringResource(Res.string.settings_tab_agent)
-                            SettingsTab.Services -> stringResource(Res.string.settings_tab_services)
-                            SettingsTab.Tools -> stringResource(Res.string.settings_tab_tools)
-                            SettingsTab.Integrations -> stringResource(Res.string.settings_tab_integrations)
-                            SettingsTab.Sandbox -> stringResource(Res.string.settings_tab_sandbox)
-                            SettingsTab.Account -> stringResource(Res.string.settings_tab_account)
-                        },
+                        text = label,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         color = if (isSelected) {
                             com.dorai.ai.ui.AccentPrimary

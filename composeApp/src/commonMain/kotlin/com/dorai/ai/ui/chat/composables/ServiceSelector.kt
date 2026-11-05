@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -225,6 +227,7 @@ internal fun ServiceSelector(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(Color(0x99000000))
+                        .imePadding()
                         .clickable { expanded = false },
                     contentAlignment = Alignment.Center,
                 ) {
@@ -232,6 +235,7 @@ internal fun ServiceSelector(
                         modifier = Modifier
                             .fillMaxWidth(0.92f)
                             .widthIn(max = 440.dp)
+                            .fillMaxHeight(0.9f)
                             .heightIn(max = 540.dp)
                             .clickable(enabled = false) {}
                             .clip(RoundedCornerShape(16.dp))

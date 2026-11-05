@@ -14,7 +14,7 @@
 - Secondary accent: Blue `#168BDB`
 - Foreground: White `#F4FAFF`
 
-Use the symbol consistently across app launchers, website favicon, desktop packages, and documentation. Do not recreate the old BK monogram or use legacy Kai wordmarks.
+Use the symbol consistently across app launchers, website favicon, desktop packages, and documentation. Do not recreate the old BK monogram .
 
 ## Naming rules
 
@@ -24,4 +24,4 @@ Use the symbol consistently across app launchers, website favicon, desktop packa
 - Release artifact prefix: `DORAI-AI`
 - Internal package namespace: `com.dorai.ai`
 
-Keep upstream Kai 9000 references only where needed for attribution, license notices, or documented legacy infrastructure. Those references must never be presented as the current product identity.
+Keep upstream Dorai Ai 9000 references only where needed for attribution, license notices, or documented legacy infrastructure. Those references must never be presented as the current product identity.

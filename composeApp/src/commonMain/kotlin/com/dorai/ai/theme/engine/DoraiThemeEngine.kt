@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.theme.engine
+package com.dorai.ai.theme.engine
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -83,7 +83,7 @@ fun DoraiTheme(
 }
 
 /** Map a [ThemePalette] onto a complete Material 3 color scheme. */
-internal fun ThemePalette.toColorScheme(): ColorScheme {
+fun ThemePalette.toColorScheme(): ColorScheme {
     val primary = primaryColor
     val accent = accentColor
     val surfaceElevated = surfaceElevatedColor

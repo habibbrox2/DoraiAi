@@ -41,7 +41,7 @@ Schemas live in `hybrid/contracts/schemas/`. The protocol version is recorded in
 
 ## 6. Existing Dynamic UI
 
-The current `kai-ui` JSON format remains a constrained Compose presentation protocol. It is not a JavaScript execution mechanism and should not be silently replaced by a TypeScript renderer. Any future browser renderer must preserve allowlisted node/action semantics and Kotlin-owned privileged operations.
+The current `dorai-ui` JSON format remains a constrained Compose presentation protocol. It is not a JavaScript execution mechanism and should not be silently replaced by a TypeScript renderer. Any future browser renderer must preserve allowlisted node/action semantics and Kotlin-owned privileged operations.
 
 ## 7. Implementation sequence
 

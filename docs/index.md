@@ -169,5 +169,5 @@ DORAI AI keeps Kotlin Multiplatform as its primary application platform and prov
 
 - [GitHub Repository](https://github.com/habibbrox2/DoraiAi)
 - [Issue Tracker](https://github.com/habibbrox2/DoraiAi/issues)
-- DORAI releases: pending; the repository currently retains legacy Kai releases.
+- DORAI releases: pending; the repository currently retains legacy Dorai Ai releases.
 - Web App: planned; not published yet
