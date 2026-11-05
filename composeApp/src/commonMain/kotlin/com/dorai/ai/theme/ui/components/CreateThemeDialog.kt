@@ -34,17 +34,17 @@ import com.dorai.ai.theme.data.parseHexColor
 import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
-import dorai.composeapp.generated.resources.create_theme_save
+import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.create_theme_background
 import dorai.composeapp.generated.resources.create_theme_cancel
 import dorai.composeapp.generated.resources.create_theme_invalid_hex
 import dorai.composeapp.generated.resources.create_theme_name
 import dorai.composeapp.generated.resources.create_theme_name_hint
-import dorai.composeapp.generated.resources.create_theme_primary
 import dorai.composeapp.generated.resources.create_theme_preview
+import dorai.composeapp.generated.resources.create_theme_primary
+import dorai.composeapp.generated.resources.create_theme_save
 import dorai.composeapp.generated.resources.create_theme_surface
 import dorai.composeapp.generated.resources.create_theme_title
-import dorai.composeapp.generated.resources.Res
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -166,7 +166,7 @@ fun CreateThemeDialog(
             Button(
                 onClick = { onSave(name, backgroundHex, surfaceHex, primaryHex) },
                 enabled = canSave,
-                shape = RoundedCornerShape(999.dp),
+                shape = DoraiShapes.pill,
             ) {
                 Text(stringResource(Res.string.create_theme_save))
             }

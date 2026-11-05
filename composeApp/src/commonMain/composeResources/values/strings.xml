@@ -631,5 +631,27 @@
     <string name="create_theme_cancel">Cancel</string>
     <string name="create_theme_remove">Remove theme</string>
     <string name="create_theme_preview">Preview</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">DORAI AI</string>
+    <string name="dashboard_subtitle">What are you building today?</string>
+    <string name="dashboard_setup_service">Set up a service</string>
+    <string name="dashboard_recent_conversations">Recent conversations</string>
+    <string name="dashboard_view_all">View all</string>
+    <string name="dashboard_recent_projects">Recent projects</string>
+
+    <!-- Workspace -->
+    <string name="workspace_starting_session">Starting session…</string>
+    <string name="workspace_loading_file">Loading file…</string>
+    <string name="workspace_no_active_session">No active session</string>
+    <string name="workspace_open_project_terminal">Open a project to use Terminal</string>
+
+    <!-- App Sidebar -->
+    <string name="sidebar_new_chat">New chat</string>
+    <string name="sidebar_version">v2.0</string>
+    <string name="sidebar_rename_chat">Rename chat</string>
+
+    <!-- Empty State -->
+    <string name="empty_state_subtitle">How can I help you today?</string>
 </resources>
 

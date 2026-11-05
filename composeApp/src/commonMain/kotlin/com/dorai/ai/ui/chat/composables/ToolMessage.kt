@@ -201,10 +201,10 @@ internal fun WaitingResponseRow(
     ) {
         Column(
             modifier = Modifier
-                .clip(RoundedCornerShape(12.dp))
+                .clip(DoraiShapes.row)
                 .shadow(
                     elevation = 3.dp,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = DoraiShapes.row,
                     ambientColor = AccentPrimary.copy(alpha = 0.35f),
                     spotColor = AccentPrimary.copy(alpha = 0.35f),
                 )

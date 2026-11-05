@@ -76,7 +76,11 @@ import dorai.composeapp.generated.resources.workspace_git_no_project
 import dorai.composeapp.generated.resources.workspace_git_status_added
 import dorai.composeapp.generated.resources.workspace_git_status_deleted
 import dorai.composeapp.generated.resources.workspace_git_status_modified
+import dorai.composeapp.generated.resources.workspace_loading_file
 import dorai.composeapp.generated.resources.workspace_new_project_content_description
+import dorai.composeapp.generated.resources.workspace_no_active_session
+import dorai.composeapp.generated.resources.workspace_open_project_terminal
+import dorai.composeapp.generated.resources.workspace_starting_session
 import dorai.composeapp.generated.resources.workspace_title
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
@@ -560,7 +564,7 @@ private fun WorkspaceTabContent(
                                 contentAlignment = Alignment.Center,
                             ) {
                                 Text(
-                                    text = "Starting session…",
+                                    text = stringResource(Res.string.workspace_starting_session),
                                     style = DoraiTypography.bodyMedium,
                                     color = LocalDesignColorTokens.current.textSecondary,
                                 )
@@ -610,7 +614,7 @@ private fun WorkspaceTabContent(
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = "Loading file…",
+                                text = stringResource(Res.string.workspace_loading_file),
                                 style = DoraiTypography.bodyMedium,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
@@ -693,7 +697,7 @@ private fun WorkspaceTabContent(
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = "No active session",
+                                text = stringResource(Res.string.workspace_no_active_session),
                                 style = DoraiTypography.bodyMedium,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
@@ -705,7 +709,7 @@ private fun WorkspaceTabContent(
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = "Open a project to use Terminal",
+                            text = stringResource(Res.string.workspace_open_project_terminal),
                             style = DoraiTypography.bodyMedium,
                             color = LocalDesignColorTokens.current.textSecondary,
                         )
@@ -869,7 +873,7 @@ private fun WorkspaceGitChangesList(
                     Text(
                         text = badgeText.take(1).uppercase(),
                         style = DoraiTypography.labelSmall.copy(fontSize = 9.sp),
-                        color = Color(0xFF0F1419),
+                        color = DesignTokens.BrandInk,
                     )
                 }
 
@@ -877,7 +881,7 @@ private fun WorkspaceGitChangesList(
                     Box(
                         modifier = Modifier
                             .padding(horizontal = WorkspaceSpacing.xs)
-                            .background(Color(0xFF1B2A44))
+                            .background(DesignTokens.SurfaceRaised)
                             .clip(RoundedCornerShape(4.dp)),
                         contentAlignment = Alignment.Center,
                     ) {

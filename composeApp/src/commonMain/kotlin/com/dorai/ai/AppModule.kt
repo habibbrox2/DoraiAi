@@ -3,8 +3,6 @@ package com.dorai.ai
 import com.dorai.ai.data.AppSettings
 import com.dorai.ai.data.ConversationStorage
 import com.dorai.ai.data.DataRepository
-import com.dorai.ai.theme.ThemeViewModel
-import com.dorai.ai.theme.data.ThemeSettingsRepository
 import com.dorai.ai.data.EmailStore
 import com.dorai.ai.data.HeartbeatManager
 import com.dorai.ai.data.MemoryStore
@@ -31,6 +29,8 @@ import com.dorai.ai.sms.SmsSender
 import com.dorai.ai.splinterlands.SplinterlandsApi
 import com.dorai.ai.splinterlands.SplinterlandsBattleRunner
 import com.dorai.ai.splinterlands.SplinterlandsStore
+import com.dorai.ai.theme.ThemeViewModel
+import com.dorai.ai.theme.data.ThemeSettingsRepository
 import com.dorai.ai.tools.AppPermission
 import com.dorai.ai.tools.NotificationListenerController
 import com.dorai.ai.tools.PermissionController

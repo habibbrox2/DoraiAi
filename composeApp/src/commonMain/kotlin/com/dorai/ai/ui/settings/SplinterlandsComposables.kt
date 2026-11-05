@@ -68,6 +68,7 @@ import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.icons.DragIndicator
 import com.dorai.ai.ui.icons.Visibility
 import com.dorai.ai.ui.icons.VisibilityOff
+import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -356,7 +357,7 @@ private fun SplinterlandsModelRankings(modelStats: ImmutableList<ModelStats>) {
 private fun SplinterlandsModelRow(rank: Int, stats: ModelStats) {
     val winPct = (stats.winRate * 100).toInt()
     val barColor = when {
-        winPct >= 60 -> Color(0xFF4CAF50)
+        winPct >= 60 -> DesignTokens.Success
         winPct >= 40 -> AccentPrimary
         else -> DangerAlert
     }
@@ -427,7 +428,7 @@ private fun SplinterlandsBattleLogRow(entry: BattleLogEntry) {
                 Text(
                     text = if (entry.won) "Victory" else "Defeat",
                     style = DoraiTypography.labelMedium,
-                    color = if (entry.won) Color(0xFF4CAF50) else DangerAlert,
+                    color = if (entry.won) DesignTokens.Success else DangerAlert,
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(

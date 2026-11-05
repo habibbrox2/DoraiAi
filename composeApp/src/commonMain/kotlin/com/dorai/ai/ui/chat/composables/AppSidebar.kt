@@ -62,10 +62,15 @@ import com.dorai.ai.ui.chat.ConversationSummary
 import com.dorai.ai.ui.components.DoraiSearchField
 import com.dorai.ai.ui.components.LogoAnimation
 import com.dorai.ai.ui.handCursor
+import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.chat_history_heartbeat_label
+import dorai.composeapp.generated.resources.dashboard_title
 import dorai.composeapp.generated.resources.ic_settings
+import dorai.composeapp.generated.resources.sidebar_new_chat
+import dorai.composeapp.generated.resources.sidebar_rename_chat
+import dorai.composeapp.generated.resources.sidebar_version
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.TimeZone
@@ -138,7 +143,7 @@ fun AppSidebar(
                         Brush.horizontalGradient(
                             listOf<Color>(
                                 tokens.PrimaryCyan.copy(alpha = 0.16f),
-                                Color(0xFF168BDB).copy(alpha = 0.08f),
+                                DesignTokens.BrandBlue.copy(alpha = 0.08f),
                             ),
                         ),
                     )
@@ -164,7 +169,7 @@ fun AppSidebar(
                         )
                     }
                     Text(
-                        text = "New chat",
+                        text = stringResource(Res.string.sidebar_new_chat),
                         style = DoraiTypography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = tokens.PrimaryText,
@@ -258,7 +263,7 @@ fun AppSidebar(
             ) {
                 LogoAnimation(size = 28.dp)
                 Text(
-                    text = "DORAI AI",
+                    text = stringResource(Res.string.dashboard_title),
                     style = DoraiTypography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = tokens.PrimaryText,
@@ -272,7 +277,7 @@ fun AppSidebar(
                     .padding(horizontal = 6.dp, vertical = 2.dp),
             ) {
                 Text(
-                    text = "v2.0",
+                    text = stringResource(Res.string.sidebar_version),
                     style = DoraiTypography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = tokens.PrimaryCyan,
@@ -428,12 +433,12 @@ private fun ConversationRow(
                         },
                     )
                     DropdownMenuItem(
-                        text = { Text("Delete", color = Color(0xFFFF5252)) },
+                        text = { Text("Delete", color = DesignTokens.Error) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = null,
-                                tint = Color(0xFFFF5252),
+                                tint = DesignTokens.Error,
                                 modifier = Modifier.size(16.dp),
                             )
                         },
@@ -460,7 +465,7 @@ private fun RenameDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Rename chat",
+                text = stringResource(Res.string.sidebar_rename_chat),
                 style = DoraiTypography.titleMedium,
                 color = tokens.PrimaryText,
             )

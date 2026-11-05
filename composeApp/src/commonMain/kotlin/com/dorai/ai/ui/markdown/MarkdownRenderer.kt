@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.dorai.ai.ui.BorderSoft
 import com.dorai.ai.ui.DoraiTypography
-import com.dorai.ai.ui.dynamicui.FrozenSubmission
 import com.dorai.ai.ui.dynamicui.DoraiUiRenderer
+import com.dorai.ai.ui.dynamicui.FrozenSubmission
 import com.dorai.ai.ui.markdown.math.MathFormula
 import kotlinx.collections.immutable.persistentListOf
 

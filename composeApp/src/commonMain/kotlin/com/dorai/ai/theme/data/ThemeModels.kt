@@ -1,8 +1,8 @@
 package com.dorai.ai.theme.data
 
 import androidx.compose.ui.graphics.Color
-import kotlin.math.pow
 import kotlinx.serialization.Serializable
+import kotlin.math.pow
 
 /**
  * Surface treatment for the 2027 premium theme engine.
@@ -103,8 +103,7 @@ data class ThemeState(
         get() = ThemePresets.all + customThemes
 
     /** The palette the user selected, regardless of the Match Device switch. */
-    fun basePalette(): ThemePalette =
-        availablePresets.firstOrNull { it.id == selectedThemeId } ?: ThemePresets.dark
+    fun basePalette(): ThemePalette = availablePresets.firstOrNull { it.id == selectedThemeId } ?: ThemePresets.dark
 }
 
 /**
@@ -165,7 +164,6 @@ fun ThemePalette.isBackgroundDark(): Boolean {
     return l < 0.5
 }
 
-private fun expandNibbles(s: String, charsPerChannel: Int): Long =
-    s.chunked(charsPerChannel)
-        .joinToString("") { it.repeat(2) }
-        .toLong(16)
+private fun expandNibbles(s: String, charsPerChannel: Int): Long = s.chunked(charsPerChannel)
+    .joinToString("") { it.repeat(2) }
+    .toLong(16)

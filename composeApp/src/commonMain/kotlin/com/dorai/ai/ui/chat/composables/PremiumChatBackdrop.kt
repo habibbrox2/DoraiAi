@@ -44,8 +44,8 @@ internal enum class AgentPresentationState {
  * the same graceful fallback without a platform shader or downloaded asset.
  */
 internal fun Modifier.premiumChatBackdrop(): Modifier = drawWithCache {
-    val cyan = Color(0xFF00D7E8)
-    val violet = Color(0xFF8A63F6)
+    val cyan = DesignTokens.BrandCyan
+    val violet = DesignTokens.BrandViolet
     val topGlow = Brush.radialGradient(
         colors = listOf(cyan.copy(alpha = 0.20f), Color.Transparent),
         center = Offset(size.width * 0.14f, size.height * 0.06f),
@@ -57,7 +57,7 @@ internal fun Modifier.premiumChatBackdrop(): Modifier = drawWithCache {
         radius = size.maxDimension * 0.70f,
     )
     val base = Brush.verticalGradient(
-        colors = listOf(Color(0xFF020918), Color(0xFF06112A), Color(0xFF010612)),
+        colors = listOf(DesignTokens.BackgroundOled, DesignTokens.TerminalBackground, DesignTokens.BackgroundOled),
     )
     onDrawBehind {
         drawRect(base)
@@ -139,7 +139,7 @@ internal fun AgentOrb(
                     Brush.linearGradient(
                         colors = listOf(
                             DesignTokens.BrandCyan.copy(alpha = 0.94f),
-                            Color(0xFF174E9A),
+                            DesignTokens.Info.copy(alpha = 0.94f),
                             DesignTokens.AgentViolet.copy(alpha = 0.94f),
                         ),
                     ),

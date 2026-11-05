@@ -28,10 +28,10 @@ import coil3.compose.setSingletonImageLoaderFactory
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.svg.SvgDecoder
 import com.dorai.ai.data.AppSettings
+import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.tools.AppPermission
 import com.dorai.ai.tools.PermissionController
 import com.dorai.ai.tools.SetupPermissionHandler
-import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.ui.chat.ChatScreen
 import com.dorai.ai.ui.chat.ChatViewModel
 import com.dorai.ai.ui.components.FullScreenImageHost

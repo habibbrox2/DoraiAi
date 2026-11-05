@@ -108,7 +108,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
-      contents: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -141,7 +141,7 @@ jobs:
           ./gradlew :screenshotTests:recordPaparazziDebug
           --tests com.dorai.ai.screenshots.GemmaLocalScreenshotTest
           --tests com.dorai.ai.screenshots.MathScreenshotTest
-          --tests com.dorai.ai.screenshots.KaiUiScreenshotTest
+          --tests com.dorai.ai.screenshots.DoraiUiScreenshotTest
           --tests com.dorai.ai.screenshots.ScreenshotTest
           --tests com.dorai.ai.screenshots.PremiumScreenScreenshotTest.toolExecution_running_dark
           --tests com.dorai.ai.screenshots.PremiumScreenScreenshotTest.toolExecution_failed_dark
@@ -149,57 +149,13 @@ jobs:
           --tests com.dorai.ai.screenshots.PremiumScreenScreenshotTest.dashboard_overview_dark
           --tests com.dorai.ai.screenshots.PremiumScreenScreenshotTest.Workspace_setup_dark
           --tests com.dorai.ai.screenshots.TabletStoreScreenshotTest
-          --no-daemon --stacktrace
+          --no-parallel --max-workers=1 --no-daemon --stacktrace
 
-      # Commit the complete baseline set before verification. This bootstrap marker
-      # is removed in the same commit, so future runs verify without silently recording goldens.
-      # GITHUB_TOKEN-authored pushes do not recursively trigger another workflow run.
-      - name: Commit bootstrapped Paparazzi goldens
-        if: >-
-          github.event_name == 'pull_request' &&
-          github.event.pull_request.head.repo.full_name == github.repository &&
-          hashFiles('screenshotTests/RECORD_GOLDENS') != ''
-        env:
-          GITHUB_HEAD_REF: ${{ github.event.pull_request.head.ref }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          snapshot_dir="screenshotTests/src/test/snapshots/images"
-          mapfile -t goldens < <(find "$snapshot_dir" -maxdepth 1 -type f -name '*.png' -print | sort)
-          if [[ "${#goldens[@]}" -ne 77 ]]; then
-            echo "::error::Expected 77 Paparazzi golden PNGs after bootstrap; found ${#goldens[@]}."
-            printf '%s\\n' "${goldens[@]}"
-            exit 1
-          fi
-
-          assert_count() {
-            local pattern="$1"
-            local expected="$2"
-            local count
-            count=$(find "$snapshot_dir" -maxdepth 1 -type f -name "$pattern" | wc -l)
-            if [[ "$count" -ne "$expected" ]]; then
-              echo "::error::Expected $expected files matching $pattern; found $count."
-              exit 1
-            fi
-          }
-          assert_count '*GemmaLocalScreenshotTest_*.png' 7
-          assert_count '*MathScreenshotTest_*.png' 5
-          assert_count '*KaiUiScreenshotTest_*.png' 23
-          assert_count 'com.dorai.ai.screenshots_ScreenshotTest_*.png' 36
-          assert_count '*PremiumScreenScreenshotTest_*.png' 5
-          assert_count '*TabletStoreScreenshotTest_*.png' 1
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f -- "${goldens[@]}"
-          rm screenshotTests/RECORD_GOLDENS
-          git add -u -- screenshotTests/RECORD_GOLDENS
-          git diff --cached --check
-          git commit -m "test(ui): bootstrap complete Paparazzi golden baseline [skip ci]"
-          git push origin "HEAD:${GITHUB_HEAD_REF}"
-
+      # Bootstrap snapshots are exported as an artifact for manual review only.
+      # CI never commits or pushes generated baselines; normal runs verify committed goldens.
       - name: Verify Paparazzi golden files
-        run: ./gradlew :screenshotTests:verifyPaparazziDebug --no-daemon --stacktrace
+        if: hashFiles('screenshotTests/RECORD_GOLDENS') == ''
+        run: ./gradlew :screenshotTests:verifyPaparazziDebug --no-parallel --max-workers=1 --no-daemon --stacktrace
 
       # Paparazzi writes expected/actual/delta PNGs here when comparisons fail.
       # Keep this upload unconditional so visual evidence survives a failed verify task.
@@ -212,6 +168,7 @@ jobs:
             screenshotTests/build/test-results/testDebugUnitTest/
             screenshotTests/build/reports/tests/testDebugUnitTest/
             screenshotTests/build/paparazzi/failures/debug/
+            screenshotTests/src/test/snapshots/images/
           if-no-files-found: warn
           retention-days: 14
 

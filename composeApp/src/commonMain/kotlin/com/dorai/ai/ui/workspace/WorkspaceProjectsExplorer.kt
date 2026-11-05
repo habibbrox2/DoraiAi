@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.components.DoraiChip
 import com.dorai.ai.ui.theme.DesignTokens
@@ -290,7 +291,7 @@ private fun ProjectFilterChip(
         Text(
             text = label,
             style = DoraiTypography.labelMedium,
-            color = if (selected) Color(0xFF0B1A33) else colorTokens.textPrimary,
+            color = if (selected) DesignTokens.SurfaceDark else colorTokens.textPrimary,
         )
     }
 }
@@ -302,14 +303,14 @@ private fun ProjectFileRow(
     onClick: () -> Unit,
 ) {
     val colorTokens = LocalDesignColorTokens.current
-    val bgColor = if (file.isCurrentFile) Color(0xFF1B2A44) else Color(0xFF0F1419)
+    val bgColor = if (file.isCurrentFile) DesignTokens.SurfaceRaised else DesignTokens.BackgroundOled
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 4.dp, vertical = 1.dp)
             .background(bgColor)
-            .clip(RoundedCornerShape(9.dp))
+            .clip(DoraiShapes.sm)
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -352,7 +353,7 @@ private fun ProjectFileRow(
                 Text(
                     text = badgeText,
                     style = DoraiTypography.labelSmall,
-                    color = Color(0xFF0F1419),
+                    color = DesignTokens.BrandInk,
                 )
             }
         }
@@ -362,7 +363,7 @@ private fun ProjectFileRow(
             Box(
                 modifier = Modifier
                     .padding(horizontal = WorkspaceSpacing.xs)
-                    .background(Color(0xFF1B2A44))
+                    .background(DesignTokens.SurfaceRaised)
                     .clip(RoundedCornerShape(4.dp)),
                 contentAlignment = Alignment.Center,
             ) {

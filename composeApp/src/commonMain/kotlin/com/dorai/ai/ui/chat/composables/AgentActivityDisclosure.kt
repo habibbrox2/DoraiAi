@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.filereview.FileReviewPreview
 import com.dorai.ai.filereview.FileReviewProposal
+import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.chat.ChatActions
 import com.dorai.ai.ui.chat.ChatSpacing
@@ -48,7 +50,6 @@ import com.dorai.ai.ui.chat.activities.ActivityStatus
 import com.dorai.ai.ui.chat.activities.AgentActivity
 import com.dorai.ai.ui.chat.activities.formatAgentRunDuration
 import com.dorai.ai.ui.chat.activities.summarizeAgentRun
-import androidx.compose.material3.MaterialTheme
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import kotlin.time.Clock
@@ -93,7 +94,7 @@ internal fun AgentActivityDisclosure(
 
     Surface(
         modifier = modifier.fillMaxWidth().padding(horizontal = ChatSpacing.lg, vertical = ChatSpacing.xs),
-        shape = RoundedCornerShape(14.dp),
+        shape = DoraiShapes.input,
         color = MaterialTheme.colorScheme.surface,
         border = BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle),
     ) {
@@ -148,7 +149,7 @@ private fun AgentActivityRow(
         mutableStateOf(activity.status == ActivityStatus.RUNNING || activity.status == ActivityStatus.FAILED)
     }
     val statusColor = activityStatusColor(activity.status)
-    Surface(color = LocalDesignColorTokens.current.surfaceElevated, shape = RoundedCornerShape(10.dp), border = BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle)) {
+    Surface(color = LocalDesignColorTokens.current.surfaceElevated, shape = DoraiShapes.sm, border = BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle)) {
         Column {
             Row(
                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
@@ -247,7 +248,7 @@ internal fun safeActivityPreview(value: String, maxLength: Int = 1200): String {
     return if (redacted.length > maxLength) redacted.take(maxLength) + "�" else redacted
 }
 
-private @Composable fun activityStatusColor(status: ActivityStatus): Color = when (status) {
+@Composable private fun activityStatusColor(status: ActivityStatus): Color = when (status) {
     ActivityStatus.PENDING -> LocalDesignColorTokens.current.textMuted
     ActivityStatus.RUNNING -> DesignTokens.BrandCyan
     ActivityStatus.COMPLETED -> DesignTokens.Success

@@ -50,7 +50,7 @@ fun DoraiBadge(
     }
 }
 
-private @Composable fun badgeColors(
+@Composable private fun badgeColors(
     variant: BadgeVariant,
 ): Triple<Color, Color, Color> = when (variant) {
     BadgeVariant.Success -> Triple(DesignTokens.Success.copy(alpha = 0.15f), DesignTokens.Success, DesignTokens.Success.copy(alpha = 0.35f))

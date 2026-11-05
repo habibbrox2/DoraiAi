@@ -97,6 +97,7 @@ class ThemeSettingsRepository(private val settings: Settings) {
                 settings.putBoolean(KEY_IS_SYSTEM_THEME, false)
                 _state.update { it.copy(selectedThemeId = ThemePresets.LIGHT_ID, isSystemTheme = false) }
             }
+
             "Dark" -> {
                 settings.putString(KEY_SELECTED_THEME_ID, ThemePresets.DARK_ID)
                 settings.putBoolean(KEY_IS_SYSTEM_THEME, false)
@@ -124,8 +125,7 @@ class ThemeSettingsRepository(private val settings: Settings) {
         settings.putString(KEY_CUSTOM_THEMES_JSON, encodeCustomThemes(current.customThemes))
     }
 
-    private fun encodeCustomThemes(themes: List<ThemePalette>): String =
-        json.encodeToString(ListSerializer(ThemePalette.serializer()), themes)
+    private fun encodeCustomThemes(themes: List<ThemePalette>): String = json.encodeToString(ListSerializer(ThemePalette.serializer()), themes)
 
     private fun decodeCustomThemes(raw: String?): List<ThemePalette> {
         if (raw.isNullOrBlank()) return emptyList()

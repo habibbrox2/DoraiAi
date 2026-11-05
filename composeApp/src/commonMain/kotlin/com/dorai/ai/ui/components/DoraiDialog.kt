@@ -25,6 +25,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -49,7 +50,7 @@ fun DoraiDialog(
     modifier: Modifier = Modifier,
 ) {
     val dialogFocusRequester = remember { FocusRequester() }
-    val shape = RoundedCornerShape(16.dp)
+    val shape = DoraiShapes.card
 
     Box(
         modifier = modifier

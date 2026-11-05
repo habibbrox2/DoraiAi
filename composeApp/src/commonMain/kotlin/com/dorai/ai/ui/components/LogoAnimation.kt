@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.dorai.ai.ui.theme.DesignTokens
 
 /**
  * Theme-safe AURORA DORAI mark.
@@ -53,7 +54,7 @@ fun LogoAnimation(
                 close()
             }
             val gradient = Brush.linearGradient(
-                colors = listOf(Color(0xFF25E2F5), Color(0xFF377CFF), Color(0xFF6F5BFF)),
+                colors = listOf(DesignTokens.BrandCyan, DesignTokens.BrandBlue, DesignTokens.BrandViolet),
                 start = Offset(0f, 0f),
                 end = Offset(w, h),
             )
@@ -64,9 +65,9 @@ fun LogoAnimation(
                 lineTo(p(222f, 318f).x, p(222f, 318f).y)
                 close()
             }
-            drawPath(play, Brush.linearGradient(listOf(Color(0xFF377CFF), Color(0xFF6F5BFF))))
+            drawPath(play, Brush.linearGradient(listOf(DesignTokens.BrandBlue, DesignTokens.BrandViolet)))
             drawCircle(
-                color = Color(0xFF25E2F5).copy(alpha = 0.18f),
+                color = DesignTokens.BrandCyan.copy(alpha = 0.18f),
                 radius = w * 0.47f,
                 style = Stroke(width = w * 0.012f),
                 center = Offset(w / 2f, h / 2f),

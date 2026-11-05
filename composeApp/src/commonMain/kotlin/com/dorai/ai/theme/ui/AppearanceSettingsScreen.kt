@@ -1,5 +1,8 @@
 ﻿package com.dorai.ai.theme.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,13 +10,12 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -35,12 +37,14 @@ import com.dorai.ai.theme.ThemeViewModel
 import com.dorai.ai.theme.data.ThemeStyle
 import com.dorai.ai.theme.ui.components.CreateThemeDialog
 import com.dorai.ai.theme.ui.components.ThemeSwatchCard
-import com.dorai.ai.ui.handCursor
+import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
+import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.settings.SettingsCard
 import com.dorai.ai.ui.settings.SettingsSpacing
 import com.dorai.ai.ui.settings.ToggleableHeadline
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.appearance_create_theme
 import dorai.composeapp.generated.resources.appearance_delete_confirm_action
 import dorai.composeapp.generated.resources.appearance_delete_confirm_body
@@ -53,9 +57,6 @@ import dorai.composeapp.generated.resources.appearance_style_flat
 import dorai.composeapp.generated.resources.appearance_surface_style
 import dorai.composeapp.generated.resources.appearance_surface_style_desc
 import dorai.composeapp.generated.resources.create_theme_cancel
-import dorai.composeapp.generated.resources.Res
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -147,7 +148,7 @@ fun DoraiAppearanceSettings(
 
         Button(
             onClick = { showCreateDialog = true },
-            shape = RoundedCornerShape(999.dp),
+            shape = DoraiShapes.pill,
             modifier = Modifier.height(48.dp),
         ) {
             Icon(
@@ -205,7 +206,7 @@ private fun SurfaceStyleButton(
     onClick: () -> Unit,
 ) {
     val tokens = LocalDesignColorTokens.current
-    val shape = RoundedCornerShape(999.dp)
+    val shape = DoraiShapes.pill
     Box(
         modifier = Modifier
             .clip(shape)

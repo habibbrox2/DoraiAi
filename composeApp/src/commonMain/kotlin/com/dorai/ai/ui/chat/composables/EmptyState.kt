@@ -52,6 +52,8 @@ import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.dashboard_title
+import dorai.composeapp.generated.resources.empty_state_subtitle
 import dorai.composeapp.generated.resources.privacy_agree_prefix
 import dorai.composeapp.generated.resources.privacy_policy
 import org.jetbrains.compose.resources.stringResource
@@ -90,7 +92,7 @@ internal fun EmptyState(
         Spacer(Modifier.height(ChatSpacing.lg))
 
         Text(
-            text = "DORAI AI",
+            text = stringResource(Res.string.dashboard_title),
             modifier = Modifier.padding(horizontal = 16.dp),
             style = DoraiTypography.displaySmall,
             textAlign = TextAlign.Center,
@@ -102,7 +104,7 @@ internal fun EmptyState(
         Spacer(Modifier.height(ChatSpacing.xs))
 
         Text(
-            text = "How can I help you today?",
+            text = stringResource(Res.string.empty_state_subtitle),
             modifier = Modifier.padding(horizontal = 16.dp),
             style = DoraiTypography.titleMedium,
             textAlign = TextAlign.Center,

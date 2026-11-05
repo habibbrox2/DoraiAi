@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.sp
 import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.settings.monoStyle
+import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.workspace.terminal.TerminalKey
 import com.dorai.ai.workspace.terminal.TerminalModifiers
 import dorai.composeapp.generated.resources.Res
@@ -111,7 +112,7 @@ internal fun TerminalKeyRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color(0xFF151515))
+            .background(DesignTokens.SurfaceRaised)
             .padding(horizontal = 8.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,

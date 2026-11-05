@@ -330,7 +330,7 @@ private fun CodeRow(line: CodeLine, isDiffMode: Boolean) {
     val bgColor = when {
         isDiffMode && line.isAdded -> CodeTheme.AddedBackground
         isDiffMode && line.isRemoved -> CodeTheme.RemovedBackground
-        else -> Color(0xFF0F1419)
+        else -> DesignTokens.TerminalBackground
     }
 
     Row(

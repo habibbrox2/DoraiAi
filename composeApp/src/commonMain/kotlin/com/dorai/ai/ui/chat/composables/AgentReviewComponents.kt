@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,7 +36,6 @@ import com.dorai.ai.ui.chat.activities.ActivityStatus
 import com.dorai.ai.ui.chat.activities.DiffLineKind
 import com.dorai.ai.ui.chat.activities.SideBySideDiffLine
 import com.dorai.ai.ui.chat.activities.computeSideBySideDiff
-import androidx.compose.material3.MaterialTheme
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 

@@ -57,9 +57,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 // Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Core Brand Colors Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
-val broxNavy = Color(0xFF08132B)
-val broxDeepNavy = Color(0xFF050A1C)
-val broxCharcoal = Color(0xFF13284A)
+val broxNavy = DesignTokens.BrandNavy
+val broxDeepNavy = DesignTokens.Background
+val broxCharcoal = DesignTokens.SurfaceRaised
 val BackgroundPrimary = Color(0xFF0E0F12)
 val AccentPrimary = com.dorai.ai.ui.theme.DesignTokens.PrimaryCyan
 val broxCyan = AccentPrimary
@@ -93,14 +93,13 @@ val AccentPrimaryActive = Color(0xFF0B8FA8)
 
 /** Accent gradient colors */
 val AccentGradientStart = AccentPrimary
-val AccentGradientEnd = Color(0xFF377CFF)
+val AccentGradientEnd = DesignTokens.BrandBlue
 
 /** Status colors */
-val DangerAlert = Color(0xFFEF4444)
-val SuccessGreen = Color(0xFF10B981)
-val WarningAmber = Color(0xFFF59E0B)
+val DangerAlert = DesignTokens.Error
+val SuccessGreen = DesignTokens.Success
+val WarningAmber = DesignTokens.Warning
 val InfoBlue = Color(0xFF3B82F6)
-
 
 // DoraiTypography - 2026 Modern Type Scale
 val DoraiTypography = Typography(
@@ -394,7 +393,7 @@ val LightColorScheme = lightColorScheme(
     outlineVariant = Color(0xFFCBD5E1),
     inverseSurface = Color(0xFF1E1E1E),
     inverseOnSurface = Color(0xFFFFFFFF),
-    inversePrimary = Color(0xFF377CFF),
+    inversePrimary = DesignTokens.BrandBlue,
     surfaceContainerHighest = Color(0xFFE2E8F0),
     surfaceContainerHigh = Color(0xFFEBF1F7),
     surfaceContainer = Color(0xFFF1F5F9),

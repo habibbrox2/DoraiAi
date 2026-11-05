@@ -40,6 +40,7 @@ import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.rememberCopyToClipboard
 import com.dorai.ai.ui.theme.DesignColorTokens
+import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import kotlinx.coroutines.delay
 
@@ -210,12 +211,12 @@ internal fun parseDiff(code: String): List<DiffEntry> {
 
 /** Semantic diff colors (kept as design constants); surface/text roles come from [LocalDesignColorTokens]. */
 private object DiffPalette {
-    val added = Color(0xFF4ADE80)
-    val removed = Color(0xFFF87171)
-    val hunkText = Color(0xFF93C5FD)
-    val addedBg = Color(0xFF16A34A).copy(alpha = 0.16f)
-    val removedBg = Color(0xFFDC2626).copy(alpha = 0.18f)
-    val hunkBg = Color(0xFF1E293B).copy(alpha = 0.55f)
+    val added = DesignTokens.Success
+    val removed = DesignTokens.Error
+    val hunkText = DesignTokens.SecondaryText
+    val addedBg = DesignTokens.Success.copy(alpha = 0.16f)
+    val removedBg = DesignTokens.Error.copy(alpha = 0.18f)
+    val hunkBg = DesignTokens.SurfaceRaised.copy(alpha = 0.55f)
 }
 
 @Composable
