@@ -1,3 +1,20 @@
+## DORAI AI v2.1.14
+
+### UI/UX & Design System Remediations
+- **WCAG AA Contrast Compliance:** Validated and enforced normal text contrast (>= 4.5:1), large text contrast (>= 3.0:1), and UI border contrast (>= 3.0:1) across all 13 built-in theme presets and dynamic custom theme generators.
+- **Thought Process Disclosure:** Added modern collapsible reasoning/thinking containers with monospace step indicators for reasoning models (e.g. DeepSeek R1, Gemini Flash Thinking).
+- **Streaming Performance:** Optimized Markdown block rendering in chat timeline (`key(index, block)`) eliminating recomposition thrashing during token streaming.
+- **Service Readiness:** Added clear "No service configured" fallback and direct "Set up service" navigation in dashboard when services are unconfigured.
+- **A11y & Touch Ergonomics:** Enforced minimum 48dp touch targets, semantic content descriptions for icon buttons, and bounded auto-dismissing (6s) error notifications.
+- **Responsive Layout:** Added desktop minimum window size (600x480), centered wide-screen composer (capped at 820dp), virtual keyboard IME padding for service selector dialogs, and table cell min-width stability.
+- **Branding Consistency:** Unified logo v2 mark usage across application components and synchronized Wasm shell metadata.
+
+### Verification & Testing
+- Synchronized Paparazzi screenshot goldens across all active CMP targets.
+- Expanded comprehensive contrast and theme engine regression test suites.
+
+---
+
 ## DORAI AI v2.1.6 - First DORAI AI Release
 
 ### Release identity
