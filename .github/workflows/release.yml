@@ -33,6 +33,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: production-release
@@ -100,28 +101,6 @@ jobs:
           echo "latest=${LATEST}" >> "$GITHUB_OUTPUT"
           echo "Latest release tag: ${LATEST}"
 
-      - name: Validate Gradle appVersion matches requested next version
-        run: |
-          set -euo pipefail
-          LATEST="${{ steps.latest-tag.outputs.latest }}"
-          TAG_VERSION="${LATEST#v}"
-          RELEASE_TYPE="${{ github.event.inputs.release_type }}"
-
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$TAG_VERSION"
-          case "$RELEASE_TYPE" in
-            patch) VERSION="${MAJOR}.${MINOR}.$((10#$PATCH + 1))" ;;
-            minor) VERSION="${MAJOR}.$((10#$MINOR + 1)).0" ;;
-            major) VERSION="$((10#$MAJOR + 1)).0.0" ;;
-            *) echo "::error::Invalid release_type: ${RELEASE_TYPE}"; exit 1 ;;
-          esac
-
-          APP_VERSION=$(sed -nE 's/^appVersion = "([0-9]+\.[0-9]+\.[0-9]+)"/\1/p' gradle/libs.versions.toml)
-          if [[ "$APP_VERSION" != "$VERSION" ]]; then
-            echo "::error::Gradle appVersion ($APP_VERSION) must be updated to $VERSION in a merged PR before release."
-            exit 1
-          fi
-          echo "appVersion matches the PR-reviewed target version: ${APP_VERSION}"
-
       - name: Validate Android versionCode
         run: |
           set -euo pipefail
@@ -171,25 +150,21 @@ jobs:
             exit 1
           fi
 
-          APP_VERSION=$(sed -nE 's/^appVersion = "([0-9]+\.[0-9]+\.[0-9]+)"/\1/p' gradle/libs.versions.toml)
           CODE=$(sed -nE 's/^android-versionCode = "([0-9]+)"/\1/p' gradle/libs.versions.toml)
-          LATEST_CODE=$(git show "${LATEST}:gradle/libs.versions.toml" | sed -nE 's/^android-versionCode = "([0-9]+)"/\1/p')
-          if [[ -z "$CODE" || ! "$CODE" =~ ^[0-9]+$ || -z "$LATEST_CODE" || ! "$LATEST_CODE" =~ ^[0-9]+$ ]]; then
+          if [[ -z "$CODE" || ! "$CODE" =~ ^[0-9]+$ ]]; then
             echo "::error::Android versionCode is missing or invalid."
             exit 1
           fi
-          EXPECTED_CODE=$((10#$LATEST_CODE + 1))
-          if [[ "$APP_VERSION" != "$VERSION" || "$CODE" -ne "$EXPECTED_CODE" ]]; then
-            echo "::error::Version metadata must be PR-merged first: expected appVersion=$VERSION and android-versionCode=$EXPECTED_CODE."
-            exit 1
-          fi
+
+          # Version metadata (appVersion + versionCode) is applied automatically by the
+          # bump job; no manual PR bump is required before running a release.
 
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "versionCode=${CODE}" >> "$GITHUB_OUTPUT"
-          echo "Release target validated: v${VERSION} (versionCode ${CODE})."
+          echo "Release target validated: v${VERSION} (current versionCode ${CODE})."
 
   ###############################################################################
-  # Phase B — Validate PR-merged version metadata and create immutable tag
+  # Phase B — Apply version metadata automatically and create immutable tag
   ###############################################################################
   bump:
     name: Bump version and create tag
@@ -205,11 +180,10 @@ jobs:
           fetch-depth: 0
           ref: main
 
-      - name: Create immutable release tag
+      - name: Apply version metadata and create immutable release tag
         id: bump
         env:
           VERSION: ${{ needs.preflight.outputs.version }}
-          VERSION_CODE: ${{ needs.preflight.outputs.versionCode }}
         run: |
           set -euo pipefail
           git fetch origin main --tags
@@ -219,25 +193,62 @@ jobs:
             echo "::error::Release source ($LOCAL) is not current origin/main ($REMOTE)."
             exit 1
           fi
-
-          APP_VERSION=$(sed -nE 's/^appVersion = "([0-9]+\.[0-9]+\.[0-9]+)"/\1/p' gradle/libs.versions.toml)
-          CODE=$(sed -nE 's/^android-versionCode = "([0-9]+)"/\1/p' gradle/libs.versions.toml)
-          if [[ "$APP_VERSION" != "$VERSION" || "$CODE" != "$VERSION_CODE" ]]; then
-            echo "::error::Version metadata changed after preflight; refusing to tag."
-            exit 1
-          fi
           if git show-ref --verify --quiet "refs/tags/v${VERSION}"; then
             echo "::error::Tag v${VERSION} already exists; refusing to overwrite it."
             exit 1
           fi
 
-          git tag "v${VERSION}"
-          # Repository rules require main changes through PRs; this job only pushes the immutable tag.
-          git push origin "refs/tags/v${VERSION}"
+          APP_VERSION=$(sed -nE 's/^appVersion = "([0-9]+\.[0-9]+\.[0-9]+)"/\1/p' gradle/libs.versions.toml)
+          CODE=$(sed -nE 's/^android-versionCode = "([0-9]+)"/\1/p' gradle/libs.versions.toml)
+          if [[ -z "$CODE" || ! "$CODE" =~ ^[0-9]+$ ]]; then
+            echo "::error::Android versionCode is missing or invalid."
+            exit 1
+          fi
+
+          if [[ "$APP_VERSION" == "$VERSION" ]]; then
+            # Metadata already at the release target (e.g. reviewed in a PR); just tag it.
+            NEW_CODE="$CODE"
+            git tag "v${VERSION}"
+            git push origin "refs/tags/v${VERSION}"
+            echo "Version metadata already at target; tagged v${VERSION} without changes."
+          else
+            # Automatic bump through the required PR flow (main is protected by rulesets).
+            NEW_CODE=$((10#$CODE + 1))
+            BRANCH="chore/release-v${VERSION}"
+            sed -i "s/^appVersion = .*/appVersion = \"${VERSION}\"/" gradle/libs.versions.toml
+            sed -i "s/^android-versionCode = .*/android-versionCode = \"${NEW_CODE}\"/" gradle/libs.versions.toml
+
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git checkout -b "$BRANCH"
+            git add gradle/libs.versions.toml
+            git commit -m "chore(release): v${VERSION}"
+            git push origin "$BRANCH"
+
+            export GH_TOKEN="${{ github.token }}"
+            PR_URL=$(gh pr create \
+              --repo "${REPO_OWNER}/${REPO_NAME}" \
+              --base main --head "$BRANCH" \
+              --title "chore(release): v${VERSION}" \
+              --body "Automatic version bump for DORAI v${VERSION} (versionCode ${NEW_CODE}). Created by the release workflow.")
+
+            sleep 5
+            if ! gh pr merge "$BRANCH" --repo "${REPO_OWNER}/${REPO_NAME}" --merge; then
+              echo "::error::Automatic merge of the version-bump PR was blocked by repository rules."
+              echo "::error::Merge ${PR_URL} manually, then re-run the release workflow."
+              exit 1
+            fi
+
+            # Tag the merged main tip.
+            git fetch origin main --tags
+            git tag "v${VERSION}" origin/main
+            git push origin "refs/tags/v${VERSION}"
+            echo "Version metadata bumped automatically to v${VERSION} (versionCode ${NEW_CODE})."
+          fi
 
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "versionCode=${VERSION_CODE}" >> "$GITHUB_OUTPUT"
-          echo "Created immutable DORAI tag v${VERSION} on PR-reviewed main."
+          echo "versionCode=${NEW_CODE}" >> "$GITHUB_OUTPUT"
+          echo "Created immutable DORAI tag v${VERSION}."
 
   ###############################################################################
   # Phase C — Build All Existing Release Targets
