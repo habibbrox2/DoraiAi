@@ -1,4 +1,4 @@
-﻿<resources>
+<resources>
     <string name="welcome_message">Welcome to DORAI AI</string>
     <string name="prompt_ask_question">Ask a question</string>
     <string name="error_invalid_api_key">Invalid API Key. Please check your settings.</string>
@@ -631,6 +631,10 @@
     <string name="create_theme_cancel">Cancel</string>
     <string name="create_theme_remove">Remove theme</string>
     <string name="create_theme_preview">Preview</string>
+    <string name="create_theme_contrast_warning">This color combination may be hard to read.</string>
+    <string name="create_theme_contrast_primary_warning">Primary accent contrast is low. Buttons and highlighted text may be hard to read.</string>
+    <string name="create_theme_contrast_background_warning">Background contrast is low. Text on background may be hard to read.</string>
+    <string name="create_theme_contrast_critical">Contrast is below 3.0:1. The color combination is unreadable and cannot be saved.</string>
 
     <!-- Dashboard -->
     <string name="dashboard_title">DORAI AI</string>

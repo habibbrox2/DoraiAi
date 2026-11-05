@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.chat.composables
+package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
@@ -60,6 +60,7 @@ import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.CardFill
 import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
+import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.waiting_brewing
 import dorai.composeapp.generated.resources.waiting_content_description
@@ -162,7 +163,7 @@ internal fun AnimatedLoadingBar(
             .fillMaxWidth()
             .height(2.dp)
             .clip(RoundedCornerShape(1.dp))
-            .background(Color(0xFF1E293B)),
+            .background(LocalDesignColorTokens.current.surfaceRaised),
     ) {
         Box(
             modifier = Modifier
@@ -232,7 +233,7 @@ internal fun WaitingResponseRow(
                         text = summary,
                         fontFamily = FontFamily.Monospace,
                         style = DoraiTypography.labelSmall,
-                        color = Color(0xFF94A3B8),
+                        color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f),

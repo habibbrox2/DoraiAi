@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.settings
+package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +15,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -183,6 +187,8 @@ fun DataControlContent(
     uiState: SettingsUiState,
     actions: SettingsActions,
 ) {
+    var showClearAllConfirmationDialog by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -203,11 +209,26 @@ fun DataControlContent(
                     style = DoraiTypography.bodyMedium,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
-                Button(onClick = { actions.onClearAllConversations() }) {
+                Button(onClick = { showClearAllConfirmationDialog = true }) {
                     Text("Clear all conversations")
                 }
             }
         }
+    }
+
+    if (showClearAllConfirmationDialog) {
+        SettingsConfirmDialog(
+            title = "Clear all conversations?",
+            message = "All conversation history will be permanently deleted. This action cannot be undone.",
+            confirmLabel = "Clear all",
+            onConfirm = {
+                showClearAllConfirmationDialog = false
+                actions.onClearAllConversations()
+            },
+            onDismiss = {
+                showClearAllConfirmationDialog = false
+            },
+        )
     }
 }
 

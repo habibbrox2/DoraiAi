@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.chat.composables
+package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -58,7 +58,6 @@ import com.dorai.ai.ui.chat.activities.ActivityDetails
 import com.dorai.ai.ui.chat.activities.ActivityMapper
 import com.dorai.ai.ui.chat.deriveChatTimelineData
 import com.dorai.ai.ui.chat.lastRenderedAssistant
-import com.dorai.ai.ui.components.LogoAnimation
 import com.dorai.ai.ui.components.VerticalScrollbarForList
 import com.dorai.ai.ui.dynamicui.toSpeakableText
 import com.dorai.ai.ui.handCursor

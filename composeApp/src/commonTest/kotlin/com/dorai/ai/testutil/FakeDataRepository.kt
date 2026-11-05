@@ -419,10 +419,15 @@ class FakeDataRepository : DataRepository {
         dynamicUiEnabled = enabled
     }
 
+    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository")
     private var themeMode: ThemeMode = ThemeMode.System
 
+    @Suppress("DEPRECATION")
+    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository")
     override fun getThemeMode(): ThemeMode = themeMode
 
+    @Suppress("DEPRECATION")
+    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository")
     override fun setThemeMode(mode: ThemeMode) {
         themeMode = mode
     }

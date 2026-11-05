@@ -326,10 +326,16 @@ class AppSettings(internal val settings: Settings) {
     }
 
     private val _themeModeFlow = MutableStateFlow(loadInitialThemeMode())
+    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
     val themeModeFlow: StateFlow<ThemeMode> = _themeModeFlow
 
+    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
     fun getThemeMode(): ThemeMode = _themeModeFlow.value
 
+    @Deprecated(
+        "Theme configuration is managed authoritatively by ThemeSettingsRepository. Modifying this directly causes persistence divergence.",
+        level = DeprecationLevel.WARNING,
+    )
     fun setThemeMode(mode: ThemeMode) {
         settings.putString(KEY_THEME_MODE, mode.name)
         _themeModeFlow.value = mode

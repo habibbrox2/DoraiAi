@@ -204,7 +204,7 @@ internal fun TrailingIcon(
             vectorResource(icon),
             modifier = Modifier.size(24.dp).then(pulseModifier),
             contentDescription = contentDescription,
-            tint = LocalDesignColorTokens.current.textPrimary,
+            tint = if (isStopAction) Color.White else DesignTokens.BrandNavy,
         )
     }
 }
