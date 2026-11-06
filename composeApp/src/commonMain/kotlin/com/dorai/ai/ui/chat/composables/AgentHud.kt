@@ -24,10 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Widgets
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
@@ -35,9 +32,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -134,8 +128,6 @@ internal fun AgentHud(
                     services = services,
                     models = models,
                     isLoadingModels = isLoadingModels,
-                    isInteractiveMode = isInteractiveMode,
-                    onToggleInteractiveMode = onToggleInteractiveMode,
                     onGoBack = onGoBack,
                 )
             } else {
@@ -287,11 +279,8 @@ private fun CompactAgentHudContent(
     services: ImmutableList<ServiceEntry>,
     models: ImmutableList<SettingsModel>,
     isLoadingModels: Boolean,
-    isInteractiveMode: Boolean,
-    onToggleInteractiveMode: (() -> Unit)?,
     onGoBack: (() -> Unit)?,
 ) {
-    var overflowExpanded by remember { mutableStateOf(false) }
     val statusLabel = agentStatusLabel(isGenerating, isShellExecuting, isSpeaking)
 
     Row(
@@ -301,6 +290,19 @@ private fun CompactAgentHudContent(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
+        onGoBack?.let { goBack ->
+            IconButton(
+                modifier = Modifier.size(48.dp).handCursor(),
+                onClick = goBack,
+            ) {
+                Icon(
+                    imageVector = BackIcon,
+                    contentDescription = stringResource(Res.string.interactive_back_content_description),
+                    tint = LocalDesignColorTokens.current.textPrimary,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+        }
         if (onOpenDrawer != null) {
             IconButton(
                 modifier = Modifier.size(48.dp).handCursor(),
@@ -337,69 +339,19 @@ private fun CompactAgentHudContent(
             isSpeaking = isSpeaking,
             modifier = Modifier.semantics { contentDescription = "Agent status: $statusLabel" },
         )
-        Box {
-            IconButton(
-                modifier = Modifier.size(48.dp).handCursor(),
-                onClick = { overflowExpanded = true },
-            ) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "More agent actions",
-                    tint = LocalDesignColorTokens.current.textPrimary,
-                )
-            }
-            DropdownMenu(
-                expanded = overflowExpanded,
-                onDismissRequest = { overflowExpanded = false },
-            ) {
-                onToggleInteractiveMode?.let { toggle ->
-                    DropdownMenuItem(
-                        text = { Text(if (isInteractiveMode) "Disable interactive UI" else "Enable interactive UI") },
-                        onClick = {
-                            overflowExpanded = false
-                            toggle()
-                        },
-                    )
-                }
-                onGoBack?.let { goBack ->
-                    DropdownMenuItem(
-                        text = { Text("Back") },
-                        onClick = {
-                            overflowExpanded = false
-                            goBack()
-                        },
-                    )
-                }
-                if (isSandboxAvailable) {
-                    DropdownMenuItem(
-                        text = { Text(if (isSandboxOpen) "Close workspace" else "Open workspace") },
-                        onClick = {
-                            overflowExpanded = false
-                            onToggleSandbox()
-                        },
-                    )
-                }
-                if (textToSpeech != null) {
-                    DropdownMenuItem(
-                        text = { Text(if (isSpeechOutputEnabled) "Disable speech output" else "Enable speech output") },
-                        onClick = {
-                            overflowExpanded = false
-                            if (isSpeechOutputEnabled && isSpeaking) {
-                                actions.setIsSpeaking(false, "")
-                                textToSpeech.stop()
-                            }
-                            actions.toggleSpeechOutput()
-                        },
-                    )
-                }
-                DropdownMenuItem(
-                    text = { Text("Settings") },
-                    onClick = {
-                        overflowExpanded = false
-                        onNavigateToSettings()
-                    },
-                )
-            }
+        if (textToSpeech != null) {
+            SpeechToggleButton(textToSpeech, isSpeechOutputEnabled, isSpeaking, actions)
+        }
+        IconButton(
+            modifier = Modifier.size(48.dp).handCursor(),
+            onClick = onNavigateToSettings,
+        ) {
+            Icon(
+                imageVector = vectorResource(Res.drawable.ic_settings),
+                contentDescription = stringResource(Res.string.settings_content_description),
+                tint = LocalDesignColorTokens.current.textPrimary,
+                modifier = Modifier.size(20.dp),
+            )
         }
     }
 }

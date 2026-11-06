@@ -1,3 +1,46 @@
+## DORAI AI - Provider Model Lists
+
+### Changed
+- The model picker no longer seeds or merges the hardcoded `Service.defaultModels` catalog for providers that expose a `/models` endpoint. A newly added provider starts with an empty list and is populated from the provider's live response after the key is validated; a failed request shows the fetch error instead of stale bundled ids.
+- Providers without a models endpoint (Perplexity and the Free tier) keep their curated list, since there is nothing to fetch.
+
+---
+
+## DORAI AI - Automatic App Updates
+
+### Added
+- Added an **Auto download and install** switch to the Android FOSS **App updates** card. When enabled, the app checks for a newer stable release at launch (at most once every four hours), downloads the verified APK in the background, and opens Android's package installer when the download finishes.
+- The preference is persisted across launches. Turning the switch on requests install permission if needed and starts an immediate check.
+- The downloaded APK still passes the existing SHA-256, package, version-code, and signer-certificate verification before Android's installer is opened.
+
+### Notes
+- Android requires the user to confirm every package installation in its own system dialog. The switch automates discovery, download, and opening the installer; it cannot silently bypass the OS confirmation.
+- The Play Store flavor keeps its existing behavior (no in-app update installer).
+
+---
+
+## DORAI AI - 2027 Navigation & Library Polish
+
+### Added
+- Restructured the chat sidebar: brand header with search, New Chat and New Project primary actions, a "Recent chats" list grouped by date, boxed bottom navigation (Dashboard, Interactive UI, Workspace, Settings), and a logo/version footer.
+- Merged Settings → Integrations into Tools and rebuilt it as a three-tab library: Connectors (MCP servers), Skills, and Plugins (native tools). Each tab has a Yours/Discover split, search, and Add actions.
+- Added curated "Top connectors" and "Top skills" discovery lists with added-state badges and one-tap add.
+- Added a Plugins search field that appears once the native tool list grows past eight entries.
+- Centered the empty-state logo and welcome copy, now "Your AI. Your World.", over the premium dark backdrop; quick-start chips wrap instead of scrolling horizontally.
+
+### Changed
+- Renamed the Settings overview row from "Integrations" to "Connectors".
+- Moved the "Request an integration" entry point to the bottom of the merged Tools page.
+- Removed the Splinterlands section from Settings. The runtime, persistence, and battle loop are unchanged, so saved configurations are retained, but there is currently no in-app surface for editing them.
+
+### Removed
+- Removed the compact HUD three-dot overflow menu. Settings and Speech are now direct actions, and Back appears only in interactive mode.
+
+### Tests
+- Refreshed Paparazzi goldens and all localized store screenshots (phone and tablet) to match the new sidebar, Tools tabs, and empty state.
+
+---
+
 ## DORAI AI v2.1.14
 
 ### UI/UX & Design System Remediations

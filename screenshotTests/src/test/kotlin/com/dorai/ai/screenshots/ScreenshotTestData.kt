@@ -386,10 +386,6 @@ object ScreenshotTestData {
         currentTab = SettingsTab.Account,
     )
 
-    val settingsIntegrationsState = SettingsUiState(
-        currentTab = SettingsTab.Integrations,
-    )
-
     // --- Build Workspace states ---
 
     val buildStateNotInstalled = WorkspaceUiState(

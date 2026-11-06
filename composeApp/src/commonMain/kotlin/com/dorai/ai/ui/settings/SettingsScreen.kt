@@ -115,7 +115,6 @@ import dorai.composeapp.generated.resources.settings_tab_agent
 import dorai.composeapp.generated.resources.settings_tab_appearance
 import dorai.composeapp.generated.resources.settings_tab_data
 import dorai.composeapp.generated.resources.settings_tab_general
-import dorai.composeapp.generated.resources.settings_tab_integrations
 import dorai.composeapp.generated.resources.settings_tab_sandbox
 import dorai.composeapp.generated.resources.settings_tab_services
 import dorai.composeapp.generated.resources.settings_tab_tools
@@ -202,7 +201,6 @@ fun SettingsScreenContent(
     onNavigateBack: () -> Unit = {},
     navigationTabBar: (@Composable () -> Unit)? = null,
     androidUpdateContent: (@Composable () -> Unit)? = null,
-    integrationsContent: (@Composable () -> Unit)? = null,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val undoLabel = stringResource(Res.string.snackbar_undo)
@@ -312,7 +310,6 @@ fun SettingsScreenContent(
                             onInstallPackages = onInstallPackages,
                             onMigrateHome = onMigrateHome,
                             androidUpdateContent = androidUpdateContent,
-                            integrationsContent = integrationsContent,
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -347,7 +344,6 @@ fun SettingsScreenContent(
                         onInstallPackages = onInstallPackages,
                         onMigrateHome = onMigrateHome,
                         androidUpdateContent = androidUpdateContent,
-                        integrationsContent = integrationsContent,
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -508,7 +504,6 @@ private fun SettingsTabSelector(
                     SettingsTab.Agent -> stringResource(Res.string.settings_tab_agent)
                     SettingsTab.Services -> stringResource(Res.string.settings_tab_services)
                     SettingsTab.Tools -> stringResource(Res.string.settings_tab_tools)
-                    SettingsTab.Integrations -> stringResource(Res.string.settings_tab_integrations)
                     SettingsTab.Sandbox -> stringResource(Res.string.settings_tab_sandbox)
                     SettingsTab.Account -> stringResource(Res.string.settings_tab_account)
                 }

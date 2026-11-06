@@ -147,7 +147,6 @@ private fun AppNavigationGraph(startDestination: Any) {
                     SettingsTab.Sandbox -> ScreenshotTestData.settingsSandbox
                     SettingsTab.Account -> ScreenshotTestData.settingsAccountState
                     SettingsTab.General -> ScreenshotTestData.settingsGeneralState
-                    SettingsTab.Integrations -> ScreenshotTestData.settingsIntegrationsState
                 },
                 sandboxState = ScreenshotTestData.sandboxState,
                 onNavigateBack = { navController.navigateUp() },

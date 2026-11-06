@@ -325,6 +325,19 @@ class AppSettings(internal val settings: Settings) {
         settings.putBoolean(KEY_DYNAMIC_UI_ENABLED, enabled)
     }
 
+    // App updates
+    fun isAutoUpdateEnabled(): Boolean = settings.getBoolean(KEY_AUTO_UPDATE_ENABLED, false)
+
+    fun setAutoUpdateEnabled(enabled: Boolean) {
+        settings.putBoolean(KEY_AUTO_UPDATE_ENABLED, enabled)
+    }
+
+    fun getLastAutoUpdateCheckMs(): Long = settings.getLong(KEY_LAST_AUTO_UPDATE_CHECK_MS, 0L)
+
+    fun setLastAutoUpdateCheckMs(value: Long) {
+        settings.putLong(KEY_LAST_AUTO_UPDATE_CHECK_MS, value)
+    }
+
     private val _themeModeFlow = MutableStateFlow(loadInitialThemeMode())
 
     @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
@@ -662,6 +675,8 @@ class AppSettings(internal val settings: Settings) {
         const val KEY_SCHEDULED_TASKS = "scheduled_tasks"
         const val KEY_SCHEDULING_ENABLED = "scheduling_enabled"
         const val KEY_DYNAMIC_UI_ENABLED = "dynamic_ui_enabled"
+        const val KEY_AUTO_UPDATE_ENABLED = "auto_update_enabled"
+        const val KEY_LAST_AUTO_UPDATE_CHECK_MS = "last_auto_update_check_ms"
         const val KEY_THEME_MODE = "theme_mode"
         const val KEY_APP_LANGUAGE = "app_language"
         const val KEY_DAEMON_ENABLED = "daemon_enabled"

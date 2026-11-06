@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Terminal
@@ -69,8 +70,18 @@ import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.chat_history_heartbeat_label
 import dorai.composeapp.generated.resources.dashboard_title
 import dorai.composeapp.generated.resources.ic_settings
+import dorai.composeapp.generated.resources.sidebar_nav_dashboard
+import dorai.composeapp.generated.resources.sidebar_nav_interactive
+import dorai.composeapp.generated.resources.sidebar_nav_settings
+import dorai.composeapp.generated.resources.sidebar_nav_workspace
 import dorai.composeapp.generated.resources.sidebar_new_chat
+import dorai.composeapp.generated.resources.sidebar_new_project
+import dorai.composeapp.generated.resources.sidebar_no_chats
+import dorai.composeapp.generated.resources.sidebar_no_matches
+import dorai.composeapp.generated.resources.sidebar_recent_chats
 import dorai.composeapp.generated.resources.sidebar_rename_chat
+import dorai.composeapp.generated.resources.sidebar_search_chats
+import dorai.composeapp.generated.resources.sidebar_tagline
 import dorai.composeapp.generated.resources.sidebar_version
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -126,6 +137,37 @@ fun AppSidebar(
             .padding(ChatSpacing.sm),
         verticalArrangement = Arrangement.spacedBy(ChatSpacing.xs),
     ) {
+        // --- Header: brand mark + search -------------------------------
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            LogoAnimation(size = 32.dp)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(Res.string.dashboard_title),
+                    style = DoraiTypography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = tokens.PrimaryText,
+                )
+                Text(
+                    text = stringResource(Res.string.sidebar_tagline),
+                    style = DoraiTypography.labelSmall,
+                    color = tokens.MutedText,
+                )
+            }
+        }
+
+        DoraiSearchField(
+            query = query,
+            onQueryChange = { query = it },
+            placeholder = stringResource(Res.string.sidebar_search_chats),
+            modifier = Modifier.fillMaxWidth(),
+        )
+
         // Elevated 2027 "New Chat" primary action button
         Surface(
             onClick = onNewChat,
@@ -179,11 +221,26 @@ fun AppSidebar(
             }
         }
 
-        DoraiSearchField(
-            query = query,
-            onQueryChange = { query = it },
-            placeholder = "Search chats",
-            modifier = Modifier.fillMaxWidth(),
+        // Secondary primary action: jump into the workspace and start a project.
+        onOpenWorkspace?.let { openWorkspace ->
+            SidebarActionButton(
+                icon = Icons.Default.Folder,
+                label = stringResource(Res.string.sidebar_new_project),
+                onClick = openWorkspace,
+            )
+        }
+
+        // --- Chat history ----------------------------------------------
+        Text(
+            text = stringResource(Res.string.sidebar_recent_chats).uppercase(),
+            style = DoraiTypography.labelSmall.copy(letterSpacing = 1.sp),
+            fontWeight = FontWeight.Bold,
+            color = tokens.MutedText.copy(alpha = 0.7f),
+            modifier = Modifier.padding(
+                start = ChatSpacing.xs,
+                top = ChatSpacing.xs,
+                bottom = ChatSpacing.xxs,
+            ),
         )
 
         LazyColumn(
@@ -219,7 +276,11 @@ fun AppSidebar(
             if (visibleConversations.isEmpty()) {
                 item {
                     Text(
-                        text = if (query.isBlank()) "No chats yet" else "No matches",
+                        text = if (query.isBlank()) {
+                            stringResource(Res.string.sidebar_no_chats)
+                        } else {
+                            stringResource(Res.string.sidebar_no_matches)
+                        },
                         style = DoraiTypography.bodySmall,
                         color = tokens.MutedText,
                         modifier = Modifier.padding(vertical = ChatSpacing.md, horizontal = ChatSpacing.xs),
@@ -230,25 +291,39 @@ fun AppSidebar(
 
         HorizontalDivider(color = tokens.BorderSubtle)
 
-        onNavigateToDashboard?.let {
-            SidebarLink(icon = Icons.Default.Dashboard, label = "Dashboard", onClick = it)
-        }
-        onToggleInteractiveMode?.let { toggle ->
+        // --- Bottom navigation -----------------------------------------
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            onNavigateToDashboard?.let {
+                SidebarLink(
+                    icon = Icons.Default.Dashboard,
+                    label = stringResource(Res.string.sidebar_nav_dashboard),
+                    onClick = it,
+                )
+            }
+            onToggleInteractiveMode?.let { toggle ->
+                SidebarLink(
+                    icon = Icons.Default.Widgets,
+                    label = stringResource(Res.string.sidebar_nav_interactive),
+                    onClick = toggle,
+                    isActive = isInteractiveMode,
+                )
+            }
+            onOpenWorkspace?.let {
+                SidebarLink(
+                    icon = Icons.Default.Terminal,
+                    label = stringResource(Res.string.sidebar_nav_workspace),
+                    onClick = it,
+                )
+            }
             SidebarLink(
-                icon = Icons.Default.Widgets,
-                label = "Interactive UI",
-                onClick = toggle,
-                isActive = isInteractiveMode,
+                icon = vectorResource(Res.drawable.ic_settings),
+                label = stringResource(Res.string.sidebar_nav_settings),
+                onClick = onNavigateToSettings,
             )
         }
-        onOpenWorkspace?.let {
-            SidebarLink(icon = Icons.Default.Terminal, label = "Workspace", onClick = it)
-        }
-        SidebarLink(
-            icon = vectorResource(Res.drawable.ic_settings),
-            label = "Settings",
-            onClick = onNavigateToSettings,
-        )
 
         // Polished 2027 Brand Footer
         Row(
@@ -511,6 +586,47 @@ private fun RenameDialog(
         containerColor = tokens.SurfaceElevated,
         shape = RoundedCornerShape(16.dp),
     )
+}
+
+@Composable
+private fun SidebarActionButton(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+) {
+    val tokens = LocalDesignTokens.current
+    val shape = RoundedCornerShape(12.dp)
+    Surface(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .handCursor(),
+        shape = shape,
+        color = tokens.SurfaceElevated.copy(alpha = 0.35f),
+        border = BorderStroke(1.dp, tokens.BorderSubtle),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = tokens.SecondaryText,
+                modifier = Modifier.size(18.dp),
+            )
+            Text(
+                text = label,
+                style = DoraiTypography.labelLarge,
+                fontWeight = FontWeight.Medium,
+                color = tokens.PrimaryText,
+            )
+        }
+    }
 }
 
 @Composable

@@ -1,6 +1,6 @@
 # MCP Servers
 
-**Last verified:** 2026-10-21
+**Last verified:** 2026-11-06
 
 DORAI AI supports external tool servers via the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP). Users can connect to remote MCP servers using Streamable HTTP transport and use their tools alongside native tools.
 
@@ -20,7 +20,7 @@ A curated list of verified free MCP endpoints. Displayed as quick-add shortcuts 
 
 ## Adding a Server
 
-In the Tools tab of settings, the "MCP Servers" section appears above native tools. Users can:
+MCP servers are managed in **Settings > Tools > Connectors**. The Connectors tab uses a **Yours / Discover** split: *Yours* lists configured servers, *Discover* lists the curated "Top connectors" with one-tap Add. A search bar filters either list, and the Add button opens the server dialog. Users can:
 
 - Tap "Add MCP Server" to open a bottom sheet
 - Enter a name, URL, and any number of custom headers manually (e.g., `Authorization`, plus additional vendor-specific headers); rows can be added or removed individually
@@ -91,8 +91,8 @@ Every tool must have a unique name in a request. An MCP tool whose name is alrea
 | `composeApp/src/commonMain/.../mcp/McpModels.kt` | JSON-RPC DTOs and MCP-specific models |
 | `composeApp/src/commonMain/.../mcp/PopularMcpServers.kt` | Curated list of verified MCP endpoints |
 | `docs/knowledge/popular-mcp/` | OKF bundle: selection policy, last probe snapshot, refresh playbook |
-| `composeApp/src/commonMain/.../ui/settings/McpSection.kt` | MCP server card UI, add-server bottom sheet with multi-header editor |
-| `composeApp/src/commonMain/.../ui/settings/ToolsSettings.kt` | Hosts the MCP section inside the Tools tab content |
+| `composeApp/src/commonMain/.../ui/settings/McpSection.kt` | Connectors tab: Yours/Discover lists, search, server card UI, add-server bottom sheet |
+| `composeApp/src/commonMain/.../ui/settings/ToolsSettings.kt` | Merged Tools tab shell hosting Connectors / Skills / Plugins |
 | `composeApp/src/commonMain/.../ui/settings/SettingsViewModel.kt` | MCP connection management and UI state |
 | `composeApp/src/commonMain/.../ui/settings/SettingsUiState.kt` | McpServerUiState, McpConnectionStatus |
 | `composeApp/src/commonMain/.../data/AppSettings.kt` | MCP server config persistence, backup of undecodable JSON |

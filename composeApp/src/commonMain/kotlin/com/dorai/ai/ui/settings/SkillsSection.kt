@@ -75,11 +75,14 @@ import dorai.composeapp.generated.resources.settings_skills_github_url
 import dorai.composeapp.generated.resources.settings_skills_install
 import dorai.composeapp.generated.resources.settings_skills_installing
 import dorai.composeapp.generated.resources.settings_skills_needs_sandbox
+import dorai.composeapp.generated.resources.settings_skills_no_match
 import dorai.composeapp.generated.resources.settings_skills_none
 import dorai.composeapp.generated.resources.settings_skills_remove
 import dorai.composeapp.generated.resources.settings_skills_search
 import dorai.composeapp.generated.resources.settings_skills_search_empty
+import dorai.composeapp.generated.resources.settings_skills_search_yours
 import dorai.composeapp.generated.resources.settings_skills_setup_sandbox
+import dorai.composeapp.generated.resources.settings_skills_top
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
 
@@ -98,11 +101,29 @@ internal fun SkillsSection(
     browseFailed: Boolean,
     isSandboxInstalled: Boolean,
     onNavigateToSandbox: () -> Unit,
+    onBrowseSkills: () -> Unit = {},
 ) {
+    var scope by remember { mutableStateOf(ConnectorLibraryScope.Yours) }
+    var query by remember { mutableStateOf("") }
+    val installedIds = remember(skills) { skills.map { it.id }.toSet() }
+
+    // Discover is backed by the registry; fetch it lazily the first time the user
+    // opens that scope instead of waiting for the Add dialog.
+    LaunchedEffect(scope, isSandboxInstalled) {
+        if (scope == ConnectorLibraryScope.Discover &&
+            isSandboxInstalled &&
+            browsableSkills.isEmpty() &&
+            !isBrowsing &&
+            !browseFailed
+        ) {
+            onBrowseSkills()
+        }
+    }
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = stringResource(Res.string.settings_skills),
-            style = DoraiTypography.titleMedium,
+            style = DoraiTypography.titleLarge,
             color = LocalDesignColorTokens.current.textPrimary,
         )
         Spacer(Modifier.height(4.dp))
@@ -112,11 +133,46 @@ internal fun SkillsSection(
             color = LocalDesignColorTokens.current.textSecondary,
         )
 
+        Spacer(Modifier.height(16.dp))
+
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            ConnectorScopeToggle(
+                selected = scope,
+                onSelect = {
+                    scope = it
+                    query = ""
+                },
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = if (scope == ConnectorLibraryScope.Yours) {
+                    skills.size.toString()
+                } else {
+                    browsableSkills.size.toString()
+                },
+                style = DoraiTypography.labelMedium,
+                color = LocalDesignColorTokens.current.textTertiary,
+            )
+        }
+
         Spacer(Modifier.height(12.dp))
+
+        ConnectorSearchBar(
+            query = query,
+            onQueryChange = { query = it },
+            placeholder = if (scope == ConnectorLibraryScope.Yours) {
+                stringResource(Res.string.settings_skills_search_yours)
+            } else {
+                stringResource(Res.string.settings_skills_search)
+            },
+            addContentDescription = stringResource(Res.string.settings_skills_add),
+            onAdd = { onShowAddDialog(true) },
+        )
+
+        Spacer(Modifier.height(16.dp))
 
         if (!isSandboxInstalled) {
             // Skills live in the Linux sandbox, so it must be installed first.
-            // Standardized prerequisite badge instead of prose alone (Plan 4, Phase 1).
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = stringResource(Res.string.settings_skills_needs_sandbox),
@@ -134,27 +190,92 @@ internal fun SkillsSection(
                 Text(stringResource(Res.string.settings_skills_setup_sandbox))
             }
         } else {
-            if (skills.isEmpty()) {
-                CollectionEmptyState(
-                    message = stringResource(Res.string.settings_skills_none),
-                )
-            } else {
-                for (skill in skills) {
-                    SkillCard(
-                        skill = skill,
-                        onRemove = { onUninstallSkill(skill.id) },
-                    )
-                    Spacer(Modifier.height(8.dp))
+            when (scope) {
+                ConnectorLibraryScope.Yours -> {
+                    val visible = if (query.isBlank()) {
+                        skills
+                    } else {
+                        skills.filter { skill ->
+                            skill.id.contains(query, ignoreCase = true) ||
+                                skill.description.contains(query, ignoreCase = true)
+                        }
+                    }
+                    when {
+                        skills.isEmpty() -> CollectionEmptyState(
+                            message = stringResource(Res.string.settings_skills_none),
+                        )
+
+                        visible.isEmpty() -> CollectionEmptyState(
+                            message = stringResource(Res.string.settings_skills_no_match),
+                        )
+
+                        else -> {
+                            for (skill in visible) {
+                                SkillCard(
+                                    skill = skill,
+                                    onRemove = { onUninstallSkill(skill.id) },
+                                )
+                                Spacer(Modifier.height(8.dp))
+                            }
+                        }
+                    }
                 }
-            }
 
-            Spacer(Modifier.height(8.dp))
+                ConnectorLibraryScope.Discover -> {
+                    when {
+                        isBrowsing -> Row(verticalAlignment = Alignment.CenterVertically) {
+                            CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = stringResource(Res.string.settings_skills_browse_loading),
+                                style = DoraiTypography.bodySmall,
+                                color = LocalDesignColorTokens.current.textSecondary,
+                            )
+                        }
 
-            OutlinedButton(
-                onClick = { onShowAddDialog(true) },
-                modifier = Modifier.align(Alignment.CenterHorizontally).handCursor(),
-            ) {
-                Text(stringResource(Res.string.settings_skills_add))
+                        browseFailed -> SettingsStatusBanner(
+                            message = stringResource(Res.string.settings_skills_browse_failed),
+                            severity = SettingsBannerSeverity.Error,
+                        )
+
+                        else -> {
+                            val filtered = remember(browsableSkills, query) {
+                                if (query.isBlank()) {
+                                    browsableSkills
+                                } else {
+                                    browsableSkills.filter { entry ->
+                                        entry.id.contains(query, ignoreCase = true) ||
+                                            entry.description.contains(query, ignoreCase = true) ||
+                                            entry.sourceName.contains(query, ignoreCase = true)
+                                    }
+                                }
+                            }
+                            if (filtered.isEmpty()) {
+                                CollectionEmptyState(
+                                    message = stringResource(Res.string.settings_skills_no_match),
+                                )
+                            } else {
+                                Text(
+                                    text = stringResource(Res.string.settings_skills_top),
+                                    style = DoraiTypography.titleSmall,
+                                    color = LocalDesignColorTokens.current.textSecondary,
+                                )
+                                Spacer(Modifier.height(4.dp))
+                                for (entry in filtered) {
+                                    ConnectorDiscoverRow(
+                                        name = entry.id,
+                                        description = entry.description,
+                                        meta = entry.sourceName,
+                                        isAdded = entry.id in installedIds,
+                                        addContentDescription = stringResource(Res.string.settings_skills_add),
+                                        onAdd = { onInstallBrowsed(entry) },
+                                    )
+                                    Spacer(Modifier.height(4.dp))
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -169,7 +290,7 @@ internal fun SkillsSection(
             browsableSkills = browsableSkills,
             isBrowsing = isBrowsing,
             browseFailed = browseFailed,
-            installedIds = remember(skills) { skills.map { it.id }.toSet() },
+            installedIds = installedIds,
         )
     }
 }

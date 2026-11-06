@@ -347,15 +347,11 @@ class RemoteDataRepository(
 
     override fun getInstanceModels(instanceId: String, service: Service): StateFlow<List<SettingsModel>> = modelsByInstance.getOrPut(instanceId) {
         val selectedModelId = appSettings.getInstanceModelId(instanceId)
-        val defaultSettingsModels = service.defaultModels.map {
-            SettingsModel(
-                id = it.id,
-                subtitle = it.subtitle,
-                descriptionRes = it.descriptionRes,
-                isSelected = it.id == selectedModelId,
-            )
-        }
-        val models = if (selectedModelId.isNotEmpty() && defaultSettingsModels.none { it.id == selectedModelId }) {
+        // The picker is populated from the provider's own /models endpoint after the key is
+        // validated. Do not seed it from the curated `Service.defaultModels` catalog: those
+        // hardcoded ids go stale and would appear before any request is made. Only an already
+        // chosen id is shown so an existing selection stays visible while the fetch runs.
+        val models = if (selectedModelId.isNotEmpty()) {
             listOf(
                 SettingsModel(
                     id = selectedModelId,
@@ -363,9 +359,9 @@ class RemoteDataRepository(
                     isSelected = true,
                     isManualEntry = true,
                 ),
-            ) + defaultSettingsModels
+            )
         } else {
-            defaultSettingsModels
+            emptyList()
         }
         MutableStateFlow(models)
     }
@@ -482,26 +478,10 @@ class RemoteDataRepository(
                             }
                         }
                         if (remoteModels != null && remoteModels.isNotEmpty()) {
-                            val mapped = mapOpenAICompatibleModels(remoteModels, service, selectedModelId)
-                            val defaultModelsToAdd = service.defaultModels.filter { def -> mapped.none { it.id == def.id } }.map {
-                                SettingsModel(
-                                    id = it.id,
-                                    subtitle = it.subtitle,
-                                    descriptionRes = it.descriptionRes,
-                                    isSelected = it.id == selectedModelId,
-                                )
-                            }
-                            defaultModelsToAdd + mapped
-                        } else if (service.defaultModels.isNotEmpty()) {
-                            service.defaultModels.map {
-                                SettingsModel(
-                                    id = it.id,
-                                    subtitle = it.subtitle,
-                                    descriptionRes = it.descriptionRes,
-                                    isSelected = it.id == selectedModelId,
-                                )
-                            }
+                            mapOpenAICompatibleModels(remoteModels, service, selectedModelId)
                         } else {
+                            // The provider exposes a /models endpoint, so its response is the
+                            // only source of truth. Never fall back to the hardcoded catalog.
                             emptyList()
                         }
                     }

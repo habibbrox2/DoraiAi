@@ -4,13 +4,14 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -97,7 +98,9 @@ internal fun EmptyState(
             modifier = Modifier.padding(horizontal = 16.dp),
             style = DoraiTypography.displaySmall,
             textAlign = TextAlign.Center,
-            color = LocalDesignColorTokens.current.textPrimary,
+            // The premium chat backdrop is always dark, so the welcome copy uses fixed
+            // light tokens instead of theme-aware text colors.
+            color = DesignTokens.PrimaryText,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.5.sp,
         )
@@ -109,7 +112,7 @@ internal fun EmptyState(
             modifier = Modifier.padding(horizontal = 16.dp),
             style = DoraiTypography.titleMedium,
             textAlign = TextAlign.Center,
-            color = LocalDesignColorTokens.current.textSecondary,
+            color = DesignTokens.SecondaryText,
         )
 
         if (onQuickStart != null) {
@@ -144,7 +147,7 @@ internal fun EmptyState(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 style = DoraiTypography.bodySmall,
                 textAlign = TextAlign.Center,
-                color = LocalDesignColorTokens.current.textTertiary,
+                color = DesignTokens.TertiaryText,
             )
         }
     }
@@ -157,6 +160,7 @@ private data class QuickStartItem(
     val accentColor: Color,
 )
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun QuickStartCards(
     isSandboxAvailable: Boolean,
@@ -193,12 +197,12 @@ private fun QuickStartCards(
     } else {
         emptyList()
     }
-    Row(
+    FlowRow(
         modifier = Modifier
             .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(ChatSpacing.sm),
+        verticalArrangement = Arrangement.spacedBy(ChatSpacing.sm),
     ) {
         items.forEach { item ->
             QuickStartCard(

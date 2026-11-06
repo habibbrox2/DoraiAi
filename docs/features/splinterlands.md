@@ -1,16 +1,18 @@
 # Splinterlands Auto-Battle
 
-**Last verified:** 2026-10-21
+**Last verified:** 2026-11-06
 
 ## Overview
 
 DORAI AI can automatically play Wild Ranked Splinterlands battles. The feature uses one or more LLM services to pick teams based on match constraints (mana cap, rulesets, inactive splinters), submits them via the Hive blockchain, and plays continuously until the player hits Stop or runs out of energy. If every configured LLM service fails, a local scoring-based picker takes over (ruleset-aware monster scoring, top-3 tank trials per summoner, combined summoner + team scoring to choose the best overall lineup).
 
-The entire Splinterlands integration has a master enable/disable toggle in the settings section header; when disabled, accounts and services remain saved but the feature is hidden from the UI and no battles run.
+The integration still has a master enable/disable toggle; when disabled, accounts and services remain saved but no battles run.
+
+The Settings UI for Splinterlands was removed in the 2026 UI refresh (Settings no longer has a separate Integrations tab). The runtime, persistence, and battle loop remain in place, so existing saved accounts and services keep working, but there is currently no in-app surface for adding or editing them.
 
 ## Configuration
 
-Users configure the feature in **Settings > Integrations > Splinterlands**:
+The configuration model below is retained for the runtime and for any future UI that re-exposes it:
 
 Multiple accounts can be added, each with independent battle controls. Settings:
 
@@ -127,6 +129,6 @@ Recent Battles log keeps up to 500 entries (5 visible by default, with a "Show m
 | `ui/settings/SplinterlandsUiState.kt` | `SplinterlandsUiState`, `SplinterlandsAccountUiState`, `SplinterlandsAddStatus` |
 | `ui/settings/SplinterlandsViewModel.kt` | Wires Splinterlands callbacks, builds account states from battle runner |
 | `ui/settings/SplinterlandsComposables.kt` | `SplinterlandsServiceList`, `SplinterlandsAccountRow` with per-service battle status |
-| `ui/settings/IntegrationsSettings.kt` | Integrations tab that hosts the Splinterlands section |
+| `ui/settings/IntegrationsSettings.kt` | "Request an integration" card at the bottom of the merged Tools tab; no longer hosts a Splinterlands section |
 | `splinterlands/SplinterlandsTeamPickerPromptTest.kt` | LLM prompt-building tests (commonTest) |
 | `ui/settings/SplinterlandsViewModelTest.kt` | ViewModel tests (commonTest) |

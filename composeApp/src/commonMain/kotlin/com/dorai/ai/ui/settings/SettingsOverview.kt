@@ -55,7 +55,7 @@ fun SettingsOverview(
                 value = "${uiState.tools.count { it.isEnabled }} enabled of ${uiState.tools.size}",
             )
             SettingsKeyValueRow(
-                label = "Integrations",
+                label = "Connectors",
                 value = "${uiState.mcpServers.count { it.isEnabled }} MCP servers",
             )
             SettingsKeyValueRow(

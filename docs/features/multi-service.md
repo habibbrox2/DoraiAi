@@ -1,6 +1,6 @@
 # Multi-Service
 
-**Last verified:** 2026-11-02
+**Last verified:** 2026-11-06
 
 DORAI AI supports 32 LLM providers (plus a built-in Free tier). Each provider uses one of three API formats: **OpenAI-compatible** (most services), **Gemini native**, or **Anthropic native** -- plus **LiteRT on-device** for local inference. A handful of OpenAI models additionally require OpenAI's **Responses API**; DORAI AI switches to it per model, transparently. Users can configure multiple service instances, reorder them, and DORAI AI automatically falls back through the chain on failure.
 
@@ -135,6 +135,8 @@ When a connection is validated and models are fetched, the app auto-selects a mo
 - GroqCloud shows only models marked as active
 - Together AI filters by `type == "chat"` to exclude non-chat models (embedding, code, etc.)
 - Other services show all non-retired models
+
+Providers that expose a `/models` endpoint are the single source of truth for their list. A newly added instance starts with an empty picker and only the stored selection (if any); curated `Service.defaultModels` entries are never merged into live results and are not used as a fallback when the request fails. Only providers without a models endpoint (Perplexity, and the Free tier) keep a curated list, because there is nothing to fetch.
 
 If a stored list-selection model id is not in the fetched list, it is kept and shown as selected rather than overwritten by auto-select.
 

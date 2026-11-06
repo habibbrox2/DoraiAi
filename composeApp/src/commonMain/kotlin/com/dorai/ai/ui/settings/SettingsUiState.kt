@@ -74,11 +74,11 @@ enum class SettingsTab {
     /** Model providers, API keys and model selection. */
     Services,
 
-    /** What the agent can do: native tools, MCP servers and skills. */
+    /**
+     * What the agent can do: native tools, MCP connectors, skills and integration requests.
+     * Merged from the former Tools and Integrations tabs.
+     */
     Tools,
-
-    /** Third-party integrations and integration requests. */
-    Integrations,
 
     /** The Linux sandbox. Android only; the tab is hidden where the sandbox does not exist. */
     Sandbox,

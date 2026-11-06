@@ -295,6 +295,29 @@
     <string name="settings_skills_search_empty">No skills match your search.</string>
     <string name="settings_skills_browse_loading">Loading skills…</string>
     <string name="settings_skills_browse_failed">Couldn\'t load skills.</string>
+    <string name="settings_library_yours">Yours</string>
+    <string name="settings_library_discover">Discover</string>
+    <string name="settings_library_added">Added</string>
+    <string name="settings_library_add">Add</string>
+    <string name="settings_library_filter_no_setup">Only show connectors that need no setup</string>
+    <string name="settings_library_publisher">by %1$s</string>
+    <string name="settings_connectors">Connectors</string>
+    <string name="settings_connectors_description">Connect external tools and data sources to your agent.</string>
+    <string name="settings_connectors_search">Search your connectors</string>
+    <string name="settings_connectors_search_discover">Search connectors</string>
+    <string name="settings_connectors_top">Top connectors</string>
+    <string name="settings_connectors_empty">No connectors yet. Discover one below or add a custom server.</string>
+    <string name="settings_connectors_no_match">No connectors match your search.</string>
+    <string name="settings_connectors_add">Add connector</string>
+    <string name="settings_connectors_setup_required">Setup required</string>
+    <string name="settings_skills_search_yours">Search your skills</string>
+    <string name="settings_skills_top">Top skills</string>
+    <string name="settings_skills_empty_discover">Browse the registry to install a skill.</string>
+    <string name="settings_skills_no_match">No skills match your search.</string>
+    <string name="settings_plugins">Plugins</string>
+    <string name="settings_plugins_description">Enable or disable the tools your agent can run.</string>
+    <string name="settings_plugins_search">Search plugins</string>
+    <string name="settings_plugins_no_match">No plugins match your search.</string>
     <string name="snackbar_skill_removed">Skill removed</string>
     <string name="tab_chat">Chat</string>
     <string name="tab_settings">Settings</string>
@@ -655,8 +678,18 @@
     <string name="sidebar_new_chat">New chat</string>
     <string name="sidebar_version">v2.0</string>
     <string name="sidebar_rename_chat">Rename chat</string>
+    <string name="sidebar_tagline">Your AI. Your World.</string>
+    <string name="sidebar_search_chats">Search chats</string>
+    <string name="sidebar_new_project">New project</string>
+    <string name="sidebar_recent_chats">Recent chats</string>
+    <string name="sidebar_no_chats">No chats yet</string>
+    <string name="sidebar_no_matches">No matches</string>
+    <string name="sidebar_nav_dashboard">Dashboard</string>
+    <string name="sidebar_nav_interactive">Interactive UI</string>
+    <string name="sidebar_nav_workspace">Workspace</string>
+    <string name="sidebar_nav_settings">Settings</string>
 
     <!-- Empty State -->
-    <string name="empty_state_subtitle">How can I help you today?</string>
+    <string name="empty_state_subtitle">Your AI. Your World.</string>
 </resources>
 

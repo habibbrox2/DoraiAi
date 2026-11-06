@@ -18,9 +18,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.dorai.ai.data.AppSettings
 import com.dorai.ai.data.DataRepository
 import com.dorai.ai.theme.data.ThemeSettingsRepository
 import com.dorai.ai.theme.data.resolve
+import com.dorai.ai.updater.AndroidUpdateAutoUpdate
 import com.dorai.ai.updater.AndroidUpdateSettingsSection
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.init
@@ -38,6 +40,10 @@ class MainActivity : ComponentActivity() {
         handleDeepLinkIntent(intent)
 
         val themeSettingsRepository: ThemeSettingsRepository = get()
+        val appSettings: AppSettings = get()
+        if (BuildConfig.FLAVOR == "foss") {
+            AndroidUpdateAutoUpdate.start(this, appSettings)
+        }
         setContent {
             val themeState by themeSettingsRepository.state.collectAsStateWithLifecycle()
             val systemInDark = isSystemInDarkTheme()
@@ -81,7 +87,7 @@ class MainActivity : ComponentActivity() {
                     }
                 },
                 androidUpdateContent = if (BuildConfig.FLAVOR == "foss") {
-                    { AndroidUpdateSettingsSection() }
+                    { AndroidUpdateSettingsSection(appSettings = appSettings) }
                 } else {
                     null
                 },

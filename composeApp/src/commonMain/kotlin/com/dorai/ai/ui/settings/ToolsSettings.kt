@@ -16,10 +16,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,22 +33,27 @@ import com.dorai.ai.network.tools.ToolInfo
 import com.dorai.ai.skills.RegistrySkillEntry
 import com.dorai.ai.skills.SkillManifest
 import com.dorai.ai.ui.BorderSoft
-import com.dorai.ai.ui.DoraiOutlinedTextField
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
-import com.dorai.ai.ui.components.CapabilityCountCard
 import com.dorai.ai.ui.components.CollectionEmptyState
-import com.dorai.ai.ui.components.OperationalStatus
-import com.dorai.ai.ui.doraiAdaptiveCardBorder
-import com.dorai.ai.ui.doraiAdaptiveCardColors
+import com.dorai.ai.ui.components.DoraiSearchField
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
-import dorai.composeapp.generated.resources.settings_tools_description
+import dorai.composeapp.generated.resources.settings_plugins
+import dorai.composeapp.generated.resources.settings_plugins_description
+import dorai.composeapp.generated.resources.settings_plugins_no_match
+import dorai.composeapp.generated.resources.settings_plugins_search
 import dorai.composeapp.generated.resources.settings_tools_none_available
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
 
+/**
+ * The merged Tools tab. Three library surfaces share one shell:
+ * - Connectors: MCP servers you own plus curated ones to add.
+ * - Skills: installed slash-command skills plus the registry.
+ * - Plugins: the native tools the agent can run.
+ */
 @Composable
 internal fun ToolsContent(
     tools: ImmutableList<ToolInfo>,
@@ -67,6 +72,7 @@ internal fun ToolsContent(
     onShowAddSkillDialog: (Boolean) -> Unit,
     onInstallGitHubSkill: (String) -> Unit,
     onInstallBrowsedSkill: (RegistrySkillEntry) -> Unit,
+    onBrowseSkills: () -> Unit,
     isInstallingSkill: Boolean,
     skillInstallError: String?,
     browsableSkills: ImmutableList<RegistrySkillEntry>,
@@ -76,37 +82,41 @@ internal fun ToolsContent(
     isSandboxInstalled: Boolean,
     onNavigateToSandbox: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        // Tools Overview (Plan 4, Phase 2): one glance at what the workspace can
-        // do — enabled tools, connected servers, installed skills — before any
-        // management surface.
-        ToolsOverviewHeader(
-            tools = tools,
-            mcpServers = mcpServers,
-            skills = skills,
-            showSkills = showSkills,
-            isSandboxInstalled = isSandboxInstalled,
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        // MCP Servers section
-        McpServersSection(
-            mcpServers = mcpServers,
-            onAddMcpServer = onAddMcpServer,
-            onRemoveMcpServer = onRemoveMcpServer,
-            onToggleMcpServer = onToggleMcpServer,
-            onRefreshMcpServer = onRefreshMcpServer,
-            onToggleTool = onToggleTool,
-            showAddDialog = showAddMcpServerDialog,
-            onShowAddDialog = onShowAddMcpServerDialog,
-            onAddPopularMcpServer = onAddPopularMcpServer,
-        )
-
-        // Skills section — sandbox-backed, so Android only.
+    var section by remember { mutableStateOf(ConnectorLibrarySection.Connectors) }
+    val sections = remember(showSkills) {
         if (showSkills) {
-            Spacer(Modifier.height(24.dp))
-            SkillsSection(
+            ConnectorLibrarySection.entries
+        } else {
+            ConnectorLibrarySection.entries.filter { it != ConnectorLibrarySection.Skills }
+        }
+    }
+    LaunchedEffect(sections) {
+        if (section !in sections) section = sections.first()
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        ConnectorLibraryTabs(
+            selected = section,
+            onSelect = { section = it },
+            sections = sections,
+        )
+
+        Spacer(Modifier.height(18.dp))
+
+        when (section) {
+            ConnectorLibrarySection.Connectors -> McpServersSection(
+                mcpServers = mcpServers,
+                onAddMcpServer = onAddMcpServer,
+                onRemoveMcpServer = onRemoveMcpServer,
+                onToggleMcpServer = onToggleMcpServer,
+                onRefreshMcpServer = onRefreshMcpServer,
+                onToggleTool = onToggleTool,
+                showAddDialog = showAddMcpServerDialog,
+                onShowAddDialog = onShowAddMcpServerDialog,
+                onAddPopularMcpServer = onAddPopularMcpServer,
+            )
+
+            ConnectorLibrarySection.Skills -> SkillsSection(
                 skills = skills,
                 onUninstallSkill = onUninstallSkill,
                 showAddDialog = showAddSkillDialog,
@@ -120,95 +130,21 @@ internal fun ToolsContent(
                 browseFailed = browseSkillsFailed,
                 isSandboxInstalled = isSandboxInstalled,
                 onNavigateToSandbox = onNavigateToSandbox,
+                onBrowseSkills = onBrowseSkills,
             )
-        }
 
-        Spacer(Modifier.height(24.dp))
-
-        // Native tools section
-        Text(
-            text = stringResource(Res.string.settings_tools_description),
-            style = DoraiTypography.bodySmall,
-            color = LocalDesignColorTokens.current.textSecondary,
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        if (tools.isEmpty()) {
-            CollectionEmptyState(
-                message = stringResource(Res.string.settings_tools_none_available),
+            ConnectorLibrarySection.Plugins -> PluginsSection(
+                tools = tools,
+                onToggleTool = onToggleTool,
             )
-        } else {
-            // Search/filter once the collection is large (Plan 4, Phase 2, item 5);
-            // display strings are resolved first so localized names match too.
-            var toolFilter by remember { mutableStateOf("") }
-            val resolvedTools = tools.map { tool ->
-                Triple(
-                    tool,
-                    tool.nameRes?.let { stringResource(it) } ?: tool.name,
-                    tool.descriptionRes?.let { stringResource(it) } ?: tool.description,
-                )
-            }
-            if (tools.size >= 8) {
-                DoraiOutlinedTextField(
-                    value = toolFilter,
-                    onValueChange = { toolFilter = it },
-                    label = { Text("Search tools") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                Spacer(Modifier.height(12.dp))
-            }
-            val visibleTools = if (toolFilter.isBlank()) {
-                resolvedTools
-            } else {
-                resolvedTools.filter { (_, name, description) ->
-                    name.contains(toolFilter, ignoreCase = true) ||
-                        description.contains(toolFilter, ignoreCase = true)
-                }
-            }
-            if (visibleTools.isEmpty()) {
-                CollectionEmptyState(
-                    message = "No tools match \"$toolFilter\".",
-                )
-            } else {
-                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                    val columns = when {
-                        maxWidth >= 800.dp -> 3
-                        maxWidth >= 500.dp -> 2
-                        else -> 1
-                    }
-                    val rows = visibleTools.chunked(columns)
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        rows.forEach { rowTools ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                rowTools.forEach { (tool, _, _) ->
-                                    ToolItem(
-                                        modifier = Modifier.weight(1f).fillMaxHeight(),
-                                        tool = tool,
-                                        onToggle = { enabled -> onToggleTool(tool.id, enabled) },
-                                    )
-                                }
-                                // Fill empty slots so last row items don't stretch
-                                repeat(columns - rowTools.size) {
-                                    Spacer(modifier = Modifier.weight(1f))
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }
 
 /**
- * The Tools tab: everything that widens what the agent can do — native tools, MCP servers and
- * skills. The state and action plumbing lives here so the tab itself stays a one-liner in the
- * settings detail pane.
+ * The Tools tab: everything that widens what the agent can do — native tools,
+ * MCP connectors and skills. The state and action plumbing lives here so the tab
+ * itself stays a one-liner in the settings detail pane.
  */
 @Composable
 internal fun ToolsTabContent(
@@ -233,6 +169,7 @@ internal fun ToolsTabContent(
         onShowAddSkillDialog = actions.onShowAddSkillDialog,
         onInstallGitHubSkill = actions.onInstallGitHubSkill,
         onInstallBrowsedSkill = actions.onInstallBrowsedSkill,
+        onBrowseSkills = actions.onBrowseSkills,
         isInstallingSkill = uiState.isInstallingSkill,
         skillInstallError = uiState.skillInstallError,
         browsableSkills = uiState.browsableSkills,
@@ -245,95 +182,98 @@ internal fun ToolsTabContent(
     )
 }
 
-/**
- * Capability summary for the Tools page (Plan 4, Phase 2): count cards for
- * enabled native tools, connected MCP servers, and installed skills, each with
- * a status badge when something needs attention.
- */
 @Composable
-private fun ToolsOverviewHeader(
+private fun PluginsSection(
     tools: ImmutableList<ToolInfo>,
-    mcpServers: ImmutableList<McpServerUiState>,
-    skills: ImmutableList<SkillManifest>,
-    showSkills: Boolean,
-    isSandboxInstalled: Boolean,
+    onToggleTool: (String, Boolean) -> Unit,
 ) {
-    val enabledTools = tools.count { it.isEnabled }
-    val connectedServers = mcpServers.count {
-        it.isEnabled && it.connectionStatus == McpConnectionStatus.Connected
-    }
-    val mcpStatus = when {
-        mcpServers.any { it.connectionStatus == McpConnectionStatus.Error } -> OperationalStatus.Error
-        connectedServers > 0 -> OperationalStatus.Connected
-        mcpServers.isNotEmpty() -> OperationalStatus.Disabled
-        else -> null
-    }
-    val cards: List<@Composable () -> Unit> = buildList {
-        add {
-            CapabilityCountCard(
-                label = "Native tools enabled",
-                count = "$enabledTools / ${tools.size}",
-                status = when {
-                    tools.isNotEmpty() && enabledTools == 0 -> OperationalStatus.Disabled
-                    tools.isNotEmpty() && enabledTools == tools.size -> OperationalStatus.Active
-                    else -> null
-                },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-        add {
-            CapabilityCountCard(
-                label = "MCP servers connected",
-                count = "$connectedServers / ${mcpServers.size}",
-                status = mcpStatus,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-        if (showSkills) {
-            add {
-                CapabilityCountCard(
-                    label = "Skills installed",
-                    count = skills.size.toString(),
-                    status = when {
-                        !isSandboxInstalled -> OperationalStatus.NeedsSetup
-                        skills.isNotEmpty() -> OperationalStatus.Ready
-                        else -> null
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-        }
+    var toolFilter by remember { mutableStateOf("") }
+    val resolvedTools = tools.map { tool ->
+        Triple(
+            tool,
+            tool.nameRes?.let { stringResource(it) } ?: tool.name,
+            tool.descriptionRes?.let { stringResource(it) } ?: tool.description,
+        )
     }
 
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        // Same breakpoints idea as the native grid: three across when there is
-        // room, otherwise stacked so counts never shrink into unreadable tiles.
-        val columns = when {
-            cards.size == 3 && maxWidth >= 720.dp -> 3
-            maxWidth >= 480.dp && cards.size > 1 -> 2
-            else -> 1
-        }
-        if (columns == 1) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                cards.forEach { card -> card() }
-            }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = stringResource(Res.string.settings_plugins),
+            style = DoraiTypography.titleLarge,
+            color = LocalDesignColorTokens.current.textPrimary,
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = stringResource(Res.string.settings_plugins_description),
+            style = DoraiTypography.bodySmall,
+            color = LocalDesignColorTokens.current.textSecondary,
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        if (tools.isEmpty()) {
+            CollectionEmptyState(
+                message = stringResource(Res.string.settings_tools_none_available),
+            )
         } else {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                cards.chunked(columns).forEach { rowCards ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        rowCards.forEach { card ->
-                            Box(modifier = Modifier.weight(1f)) { card() }
-                        }
-                        repeat(columns - rowCards.size) {
-                            Spacer(modifier = Modifier.weight(1f))
+            // Filtering only matters once the plugin list is large enough to scan.
+            if (tools.size >= 8) {
+                DoraiSearchField(
+                    query = toolFilter,
+                    onQueryChange = { toolFilter = it },
+                    placeholder = stringResource(Res.string.settings_plugins_search),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(12.dp))
+            }
+            val visibleTools = if (toolFilter.isBlank()) {
+                resolvedTools
+            } else {
+                resolvedTools.filter { (_, name, description) ->
+                    name.contains(toolFilter, ignoreCase = true) ||
+                        description.contains(toolFilter, ignoreCase = true)
+                }
+            }
+            if (visibleTools.isEmpty()) {
+                CollectionEmptyState(
+                    message = stringResource(Res.string.settings_plugins_no_match),
+                )
+            } else {
+                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                    val columns = when {
+                        maxWidth >= 800.dp -> 3
+                        maxWidth >= 500.dp -> 2
+                        else -> 1
+                    }
+                    val rows = visibleTools.chunked(columns)
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        rows.forEach { rowTools ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                rowTools.forEach { (tool, _, _) ->
+                                    ToolItem(
+                                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                                        tool = tool,
+                                        onToggle = { enabled -> onToggleTool(tool.id, enabled) },
+                                    )
+                                }
+                                repeat(columns - rowTools.size) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+
+        Spacer(Modifier.height(24.dp))
+
+        // Integrations used to be a separate Settings tab; the request entry point
+        // now lives at the bottom of the merged Tools page.
+        IntegrationRequestCard()
     }
 }
 
@@ -345,7 +285,7 @@ private fun ToolItem(
 ) {
     val cardBg = SurfaceRaised.copy(alpha = 0.5f)
     val cardBorder = BorderStroke(1.dp, BorderSoft)
-    val cardShape = com.dorai.ai.ui.settings.SettingsShapes.card
+    val cardShape = SettingsShapes.card
 
     Card(
         modifier = modifier
