@@ -129,6 +129,8 @@ jobs:
 
       - name: Confirm target version and bump version metadata
         id: bump
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           LATEST="${{ steps.latest-tag.outputs.latest }}"
@@ -169,7 +171,7 @@ jobs:
             git checkout -B "$BRANCH" origin/main
             git add gradle/libs.versions.toml
             git commit -m "[skip ci] chore(release): bump version metadata to v${TARGET_VERSION} (code ${FINAL_CODE})"
-            git push origin "HEAD:refs/heads/${BRANCH}"
+            git push origin "HEAD:refs/heads/${BRANCH}" --force
             PR_URL=$(gh pr create \
               --repo "${REPO_OWNER}/${REPO_NAME}" \
               --base main --head "$BRANCH" \
