@@ -2,6 +2,7 @@ package com.dorai.ai.updater
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Serializable
@@ -16,6 +17,8 @@ data class AndroidUpdateManifest(
     val signerCertificateSha256: String,
 ) {
     fun isUpgradeFrom(installedVersionCode: Long): Boolean = versionCode > installedVersionCode
+
+    fun encode(): String = json.encodeToString(this)
 
     fun validateForRelease(tagName: String): ManifestValidation {
         if (schemaVersion != 1) return ManifestValidation.Invalid("Unsupported manifest schema")

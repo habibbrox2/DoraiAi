@@ -1,18 +1,21 @@
 package com.dorai.ai.updater
 
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,11 +27,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.dorai.ai.data.AppSettings
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -37,9 +42,13 @@ import java.io.File
  *
  * Discovery and download are separate from installation. The install button re-verifies the
  * APK immediately before handing it to Android's system package installer.
+ *
+ * When "Auto download and install" is on, a discovered update is downloaded automatically and
+ * the installer is opened once the download completes. Android always shows its own confirmation
+ * dialog, so the switch cannot bypass the system installer.
  */
 @Composable
-internal fun AndroidUpdateSettingsSection() {
+internal fun AndroidUpdateSettingsSection(appSettings: AppSettings) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val workManager = remember(context) { WorkManager.getInstance(context.applicationContext) }
@@ -48,6 +57,7 @@ internal fun AndroidUpdateSettingsSection() {
         .collectAsState(initial = emptyList())
 
     var checking by remember { mutableStateOf(false) }
+    var autoUpdateEnabled by remember { mutableStateOf(appSettings.isAutoUpdateEnabled()) }
     var discoveryMessage by rememberSaveable { mutableStateOf("Check GitHub for the latest stable release.") }
     val manifestSaver = remember {
         listSaver<AndroidUpdateManifest?, Any>(
@@ -90,6 +100,16 @@ internal fun AndroidUpdateSettingsSection() {
     val downloadedApk = remember(downloadedApkPath) { downloadedApkPath?.let(::File) }
     var installerMessage by rememberSaveable { mutableStateOf<String?>(null) }
 
+    val activeWork = workInfos.firstOrNull {
+        it.state == WorkInfo.State.ENQUEUED ||
+            it.state == WorkInfo.State.RUNNING ||
+            it.state == WorkInfo.State.BLOCKED
+    }
+    val progress = activeWork?.progress
+    val bytes = progress?.getLong(AndroidUpdateDownloadWorker.KEY_BYTES_DOWNLOADED, 0L) ?: 0L
+    val total = progress?.getLong(AndroidUpdateDownloadWorker.KEY_TOTAL_BYTES, -1L) ?: -1L
+    val isDownloading = activeWork != null
+
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
     ) {
@@ -116,7 +136,7 @@ internal fun AndroidUpdateSettingsSection() {
                     installerMessage = "APK verification failed: ${result.reason}"
             }
         } else {
-            installerMessage = "Update details expired. Check for updates and download the APK again."
+            installerMessage = "Install permission granted. Future updates can install automatically."
         }
     }
 
@@ -144,6 +164,69 @@ internal fun AndroidUpdateSettingsSection() {
         }
     }
 
+    fun runCheck(auto: Boolean, force: Boolean) {
+        if (checking) return
+        if (auto && !force &&
+            System.currentTimeMillis() - appSettings.getLastAutoUpdateCheckMs() < AndroidUpdateAutoUpdate.CHECK_INTERVAL_MS
+        ) {
+            return
+        }
+        checking = true
+        discoveryMessage = "Checking the latest stable GitHub release…"
+        manifest = null
+        downloadedApkPath = null
+        installerMessage = null
+        scope.launch {
+            val result = runCatching {
+                if (auto) {
+                    AndroidUpdateAutoUpdate.checkAndDownload(context)
+                } else {
+                    AndroidUpdateDiscovery.check(context.installedVersionCode())
+                }
+            }
+            checking = false
+            if (auto) appSettings.setLastAutoUpdateCheckMs(System.currentTimeMillis())
+            result.fold(
+                onSuccess = { update ->
+                    when (update) {
+                        AndroidUpdateDiscovery.Result.UpToDate -> {
+                            discoveryMessage = "This installation is up to date."
+                        }
+
+                        is AndroidUpdateDiscovery.Result.InvalidRelease -> {
+                            discoveryMessage = "Update metadata could not be validated: ${update.reason}"
+                        }
+
+                        is AndroidUpdateDiscovery.Result.UpdateAvailable -> {
+                            manifest = update.manifest
+                            discoveryMessage = if (auto) {
+                                "Version ${update.manifest.versionName} is available. Downloading automatically…"
+                            } else {
+                                "Version ${update.manifest.versionName} is available."
+                            }
+                        }
+                    }
+                },
+                onFailure = {
+                    discoveryMessage = "Update check failed. Check your connection and try again."
+                },
+            )
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (manifest == null) {
+            // A check may have run at app start and already queued a download.
+            manifest = AndroidUpdateAutoUpdate.readPendingManifest(context)
+            if (manifest != null) {
+                discoveryMessage = "Version ${manifest?.versionName} is available."
+            }
+        }
+        if (autoUpdateEnabled && manifest == null) {
+            runCheck(auto = true, force = false)
+        }
+    }
+
     LaunchedEffect(workInfos, manifest) {
         val completed = workInfos.firstOrNull { it.state == WorkInfo.State.SUCCEEDED } ?: return@LaunchedEffect
         val path = completed.outputData.getString(AndroidUpdateDownloadWorker.KEY_FILE_PATH) ?: return@LaunchedEffect
@@ -151,19 +234,13 @@ internal fun AndroidUpdateSettingsSection() {
         val file = runCatching { File(path).canonicalFile }.getOrNull() ?: return@LaunchedEffect
         if (file.name == currentManifest.assetName && file.isFile && file.length() > 0L) {
             downloadedApkPath = file.absolutePath
-            installerMessage = "Download complete. Verify and install when ready."
+            installerMessage = if (autoUpdateEnabled) {
+                "Download complete. Opening Android's installer…"
+            } else {
+                "Download complete. Verify and install when ready."
+            }
         }
     }
-
-    val activeWork = workInfos.firstOrNull {
-        it.state == WorkInfo.State.ENQUEUED ||
-            it.state == WorkInfo.State.RUNNING ||
-            it.state == WorkInfo.State.BLOCKED
-    }
-    val progress = activeWork?.progress
-    val bytes = progress?.getLong(AndroidUpdateDownloadWorker.KEY_BYTES_DOWNLOADED, 0L) ?: 0L
-    val total = progress?.getLong(AndroidUpdateDownloadWorker.KEY_TOTAL_BYTES, -1L) ?: -1L
-    val isDownloading = activeWork != null
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
@@ -171,42 +248,48 @@ internal fun AndroidUpdateSettingsSection() {
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Text("App updates", style = MaterialTheme.typography.titleMedium)
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Auto download and install", style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        "New releases download automatically and open Android's installer. " +
+                            "Android still asks you to confirm the install.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Switch(
+                    checked = autoUpdateEnabled,
+                    onCheckedChange = { enabled ->
+                        autoUpdateEnabled = enabled
+                        appSettings.setAutoUpdateEnabled(enabled)
+                        if (enabled) {
+                            if (!context.packageManager.canRequestPackageInstalls()) {
+                                installerMessage =
+                                    "Allow installs from this source so updates can install automatically."
+                                runCatching {
+                                    permissionLauncher.launch(
+                                        Intent(
+                                            Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                                            Uri.parse("package:${context.packageName}"),
+                                        ),
+                                    )
+                                }
+                            }
+                            runCheck(auto = true, force = true)
+                        } else {
+                            installerMessage = "Automatic updates are off."
+                        }
+                    },
+                )
+            }
+
             Text(discoveryMessage, style = MaterialTheme.typography.bodyMedium)
             Button(
-                onClick = {
-                    checking = true
-                    discoveryMessage = "Checking the latest stable GitHub release…"
-                    manifest = null
-                    downloadedApkPath = null
-                    installerMessage = null
-                    scope.launch {
-                        val result = runCatching {
-                            AndroidUpdateDiscovery.check(context.installedVersionCode())
-                        }
-                        checking = false
-                        result.fold(
-                            onSuccess = { update ->
-                                when (update) {
-                                    AndroidUpdateDiscovery.Result.UpToDate -> {
-                                        discoveryMessage = "This installation is up to date."
-                                    }
-
-                                    is AndroidUpdateDiscovery.Result.InvalidRelease -> {
-                                        discoveryMessage = "Update metadata could not be validated: ${update.reason}"
-                                    }
-
-                                    is AndroidUpdateDiscovery.Result.UpdateAvailable -> {
-                                        manifest = update.manifest
-                                        discoveryMessage = "Version ${update.manifest.versionName} is available."
-                                    }
-                                }
-                            },
-                            onFailure = {
-                                discoveryMessage = "Update check failed. Check your connection and try again."
-                            },
-                        )
-                    }
-                },
+                onClick = { runCheck(auto = autoUpdateEnabled, force = true) },
                 enabled = !checking && !isDownloading,
             ) {
                 Text(if (checking) "Checking…" else "Check for updates")
@@ -267,21 +350,6 @@ internal fun AndroidUpdateSettingsSection() {
             }
             installerMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
         }
-    }
-}
-
-private fun Context.installedVersionCode(): Long {
-    val info = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
-    } else {
-        @Suppress("DEPRECATION")
-        packageManager.getPackageInfo(packageName, 0)
-    }
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        info.longVersionCode
-    } else {
-        @Suppress("DEPRECATION")
-        info.versionCode.toLong()
     }
 }
 

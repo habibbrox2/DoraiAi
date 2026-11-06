@@ -238,4 +238,11 @@ class AndroidUpdateDiscoveryTest {
         }
         assertIs<AndroidUpdateDiscovery.Result.InvalidRelease>(result)
     }
+
+    @Test
+    fun pendingManifestRoundTripsThroughEncodedStorage() {
+        val original = AndroidUpdateManifest.parse(manifest())
+        val restored = AndroidUpdateManifest.parse(original.encode())
+        assertEquals(original, restored)
+    }
 }

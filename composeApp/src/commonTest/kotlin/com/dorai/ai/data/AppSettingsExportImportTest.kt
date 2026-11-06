@@ -44,6 +44,21 @@ class AppSettingsExportImportTest {
     }
 
     @Test
+    fun `auto update preference is off by default and persists`() {
+        val settings = MapSettings()
+        val appSettings = AppSettings(settings)
+        assertFalse(appSettings.isAutoUpdateEnabled())
+        assertEquals(0L, appSettings.getLastAutoUpdateCheckMs())
+
+        appSettings.setAutoUpdateEnabled(true)
+        appSettings.setLastAutoUpdateCheckMs(123_456L)
+
+        val reloaded = createAppSettings(settings)
+        assertTrue(reloaded.isAutoUpdateEnabled())
+        assertEquals(123_456L, reloaded.getLastAutoUpdateCheckMs())
+    }
+
+    @Test
     fun `export and import round-trips soul text`() {
         val appSettings = createAppSettings()
         appSettings.setSoulText("You are a helpful pirate.")

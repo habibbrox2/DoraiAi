@@ -1,3 +1,16 @@
+## DORAI AI - Automatic App Updates
+
+### Added
+- Added an **Auto download and install** switch to the Android FOSS **App updates** card. When enabled, the app checks for a newer stable release at launch (at most once every four hours), downloads the verified APK in the background, and opens Android's package installer when the download finishes.
+- The preference is persisted across launches. Turning the switch on requests install permission if needed and starts an immediate check.
+- The downloaded APK still passes the existing SHA-256, package, version-code, and signer-certificate verification before Android's installer is opened.
+
+### Notes
+- Android requires the user to confirm every package installation in its own system dialog. The switch automates discovery, download, and opening the installer; it cannot silently bypass the OS confirmation.
+- The Play Store flavor keeps its existing behavior (no in-app update installer).
+
+---
+
 ## DORAI AI - 2027 Navigation & Library Polish
 
 ### Added
