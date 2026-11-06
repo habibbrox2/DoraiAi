@@ -93,12 +93,23 @@ data class LocalChatResult(
     val reasoningContent: String? = null,
 )
 
+/** Identifier for system-provided Gemini Nano / AICore model */
+const val AICORE_MODEL_ID = "gemini-nano"
+
 /**
  * A single on-device inference runtime. Implementations wrap [LocalInferenceEngine] (LiteRT)
  * or a platform runtime (AICore). All methods are safe to call from common code.
  */
 interface LocalRuntime {
     val id: LocalRuntimeId
+
+    /**
+     * Whether this runtime is compatible with the given [modelId].
+     */
+    fun supportsModel(modelId: String): Boolean = when (id) {
+        LocalRuntimeId.LITERT_LM -> !modelId.equals(AICORE_MODEL_ID, ignoreCase = true) && !modelId.startsWith("aicore", ignoreCase = true)
+        LocalRuntimeId.AICORE -> modelId.equals(AICORE_MODEL_ID, ignoreCase = true) || modelId.startsWith("aicore", ignoreCase = true) || modelId.contains("nano", ignoreCase = true)
+    }
 
     /** Whether this runtime can serve a turn right now, before any inference is attempted. */
     suspend fun availability(): RuntimeAvailability
@@ -122,7 +133,20 @@ interface LocalRuntime {
 interface LocalRuntimeRegistry {
     val runtimes: List<LocalRuntime>
 
+    /** Returns the runtime matching the explicit [runtimeId], if registered. */
+    fun runtimeFor(runtimeId: LocalRuntimeId): LocalRuntime? = runtimes.firstOrNull { it.id == runtimeId }
+
+    /** Returns the runtime compatible with [modelId], or null. */
     fun runtimeFor(modelId: String): LocalRuntime?
+
+    /**
+     * Deterministically selects the best runtime capable of serving [modelId] with the
+     * requested capabilities.
+     */
+    fun selectRuntime(
+        modelId: String,
+        requiredCapabilities: LocalModelCapabilities? = null,
+    ): LocalRuntime? = runtimeFor(modelId)
 
     fun register(runtime: LocalRuntime)
 
@@ -132,7 +156,9 @@ interface LocalRuntimeRegistry {
 /** Default, empty registry for platforms/tests that have no runtimes registered yet. */
 object EmptyLocalRuntimeRegistry : LocalRuntimeRegistry {
     override val runtimes: List<LocalRuntime> = emptyList()
+    override fun runtimeFor(runtimeId: LocalRuntimeId): LocalRuntime? = null
     override fun runtimeFor(modelId: String): LocalRuntime? = null
+    override fun selectRuntime(modelId: String, requiredCapabilities: LocalModelCapabilities?): LocalRuntime? = null
     override fun register(runtime: LocalRuntime) = Unit
     override fun unregister(runtimeId: LocalRuntimeId) = Unit
 }

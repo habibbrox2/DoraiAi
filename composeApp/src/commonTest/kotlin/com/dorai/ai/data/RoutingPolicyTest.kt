@@ -48,6 +48,8 @@ private fun eligible(
     modelSupportsTools: Boolean = true,
     agenticFlow: Boolean = false,
     thermalThrottled: Boolean = false,
+    isForeground: Boolean = true,
+    quotaExceeded: Boolean = false,
 ): LocalEligibility = LocalEligibility(
     if (available) RuntimeAvailability.AVAILABLE else RuntimeAvailability.NEEDS_DOWNLOAD,
     if (contextFits) 1000 else 30_000,
@@ -61,6 +63,8 @@ private fun eligible(
     modelSupportsTools,
     agenticFlow,
     thermalThrottled,
+    isForeground,
+    quotaExceeded,
 )
 
 class RoutingPolicyTest {
@@ -261,5 +265,39 @@ class RoutingPolicyTest {
                 allowlist,
             ).eligible,
         )
+    }
+
+    @Test
+    fun negotiator_rejects_background_execution() {
+        val negotiator = CapabilityNegotiator()
+        val result = negotiator.isLocalEligible(eligible(isForeground = false))
+        assertFalse(result.eligible)
+        assertTrue(result.reason.contains("foreground"))
+    }
+
+    @Test
+    fun negotiator_rejects_quota_exceeded() {
+        val negotiator = CapabilityNegotiator()
+        val result = negotiator.isLocalEligible(eligible(quotaExceeded = true))
+        assertFalse(result.eligible)
+        assertTrue(result.reason.contains("quota"))
+    }
+
+    @Test
+    fun negotiator_rejects_attachments_when_model_lacks_vision() {
+        val negotiator = CapabilityNegotiator()
+        val context = eligible().copy(hasAttachments = true, supportsVision = false)
+        val result = negotiator.isLocalEligible(context)
+        assertFalse(result.eligible)
+        assertTrue(result.reason.contains("Attachments"))
+    }
+
+    @Test
+    fun negotiator_rejects_tools_when_model_does_not_support_tools() {
+        val negotiator = CapabilityNegotiator()
+        val context = eligible(requiredTools = listOf("get_time"), modelSupportsTools = false)
+        val result = negotiator.isLocalEligible(context)
+        assertFalse(result.eligible)
+        assertTrue(result.reason.contains("tool"))
     }
 }

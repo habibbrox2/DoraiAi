@@ -289,4 +289,9 @@ interface DataRepository {
     suspend fun importLocalModel(source: PlatformFile): ModelImportResult
     fun cancelLocalModelImport()
     suspend fun deleteLocalModel(modelId: String)
+
+    // Hybrid routing and policy
+    fun getRoutingMode(): RoutingMode
+    fun setRoutingMode(mode: RoutingMode)
+    val lastRouteDecision: StateFlow<RouteDecision?>
 }

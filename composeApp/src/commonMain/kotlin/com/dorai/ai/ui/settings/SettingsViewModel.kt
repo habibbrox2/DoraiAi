@@ -9,6 +9,7 @@ import com.dorai.ai.data.AppLanguage
 import com.dorai.ai.data.DataRepository
 import com.dorai.ai.data.ImportSection
 import com.dorai.ai.data.KeylessFreeTierFallback
+import com.dorai.ai.data.RoutingMode
 import com.dorai.ai.data.Service
 import com.dorai.ai.data.TaskScheduler
 import com.dorai.ai.data.supportsAgenticFlows
@@ -138,6 +139,7 @@ class SettingsViewModel(
         localImportingFileName = dataRepository.getLocalImportingFileName()?.value,
         localImportProgress = dataRepository.getLocalImportProgress()?.value,
         modelContextTokens = buildModelContextTokensMap(),
+        routingMode = dataRepository.getRoutingMode(),
     )
 
     // Bound once so downstream Compose skipping works — a new SettingsActions
@@ -207,6 +209,7 @@ class SettingsViewModel(
         onImportSettings = ::onImportSettings,
         onUndoDelete = ::onUndoDelete,
         onClearAllConversations = ::clearAllConversations,
+        onChangeRoutingMode = ::onChangeRoutingMode,
     )
 
     private val _state = MutableStateFlow(buildFullState())
@@ -545,6 +548,11 @@ class SettingsViewModel(
     private fun onChangeAppLanguage(language: AppLanguage) {
         dataRepository.setAppLanguage(language)
         _state.update { it.copy(appLanguage = language) }
+    }
+
+    private fun onChangeRoutingMode(mode: RoutingMode) {
+        dataRepository.setRoutingMode(mode)
+        _state.update { it.copy(routingMode = mode) }
     }
 
     private fun onToggleMemory(enabled: Boolean) {

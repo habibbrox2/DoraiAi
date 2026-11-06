@@ -41,6 +41,7 @@ mlkit-text-recognition-chinese = "16.0.1"
 mlkit-text-recognition-devanagari = "16.0.1"
 mlkit-text-recognition-japanese = "16.0.1"
 mlkit-text-recognition-korean = "16.0.1"
+mlkit-genai-prompt = "1.0.0-beta5"
 
 [libraries]
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
@@ -110,6 +111,7 @@ mlkit-text-recognition-chinese = { module = "com.google.mlkit:text-recognition-c
 mlkit-text-recognition-devanagari = { module = "com.google.mlkit:text-recognition-devanagari", version.ref = "mlkit-text-recognition-devanagari" }
 mlkit-text-recognition-japanese = { module = "com.google.mlkit:text-recognition-japanese", version.ref = "mlkit-text-recognition-japanese" }
 mlkit-text-recognition-korean = { module = "com.google.mlkit:text-recognition-korean", version.ref = "mlkit-text-recognition-korean" }
+mlkit-genai-prompt = { module = "com.google.mlkit:genai-prompt", version.ref = "mlkit-genai-prompt" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

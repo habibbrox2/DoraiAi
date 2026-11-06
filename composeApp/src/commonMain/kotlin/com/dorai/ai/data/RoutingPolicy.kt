@@ -63,6 +63,8 @@ data class LocalEligibility(
     val modelSupportsTools: Boolean,
     val isAgenticFlow: Boolean,
     val thermalThrottled: Boolean,
+    val isForeground: Boolean = true,
+    val quotaExceeded: Boolean = false,
 )
 
 /** The result of a local-eligibility check. */
@@ -120,6 +122,16 @@ class CapabilityNegotiator {
         // 7. Respect thermal/battery pressure.
         if (context.thermalThrottled) {
             return LocalEligibilityResult(false, "Device thermally throttled")
+        }
+
+        // 8. Foreground execution requirement.
+        if (!context.isForeground) {
+            return LocalEligibilityResult(false, "Local execution requires foreground application state")
+        }
+
+        // 9. Quota/rate constraints.
+        if (context.quotaExceeded) {
+            return LocalEligibilityResult(false, "Local execution quota exceeded")
         }
 
         return LocalEligibilityResult(true, "Local execution eligible")

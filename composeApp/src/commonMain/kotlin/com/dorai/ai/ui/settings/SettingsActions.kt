@@ -3,6 +3,7 @@ package com.dorai.ai.ui.settings
 import androidx.compose.runtime.Immutable
 import com.dorai.ai.data.AppLanguage
 import com.dorai.ai.data.ImportSection
+import com.dorai.ai.data.RoutingMode
 import com.dorai.ai.data.Service
 import com.dorai.ai.data.ThemeMode
 import com.dorai.ai.inference.LocalModel
@@ -77,6 +78,7 @@ data class SettingsActions(
     val onImportSettings: (ByteArray, Set<ImportSection>, Boolean) -> ImportResult,
     val onUndoDelete: () -> Unit,
     val onClearAllConversations: () -> Unit = {},
+    val onChangeRoutingMode: (RoutingMode) -> Unit = {},
 ) {
     companion object {
         val NoOp = SettingsActions(
@@ -144,6 +146,7 @@ data class SettingsActions(
             onImportSettings = { _, _, _ -> ImportResult.Failure },
             onUndoDelete = {},
             onClearAllConversations = {},
+            onChangeRoutingMode = {},
         )
     }
 }
