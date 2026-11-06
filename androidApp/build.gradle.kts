@@ -121,4 +121,5 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
     testImplementation("junit:junit:4.13.2")
     "playStoreImplementation"(libs.play.review)
+    "playStoreImplementation"(libs.mlkit.genai.prompt)
 }

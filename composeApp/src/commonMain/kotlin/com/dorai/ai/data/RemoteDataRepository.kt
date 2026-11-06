@@ -18,10 +18,13 @@ import com.dorai.ai.inference.EngineState
 import com.dorai.ai.inference.InferenceMessage
 import com.dorai.ai.inference.LocalInferenceEngine
 import com.dorai.ai.inference.LocalModel
+import com.dorai.ai.inference.LocalRuntimeId
+import com.dorai.ai.inference.LocalRuntimeRegistry
 import com.dorai.ai.inference.LocalTool
 import com.dorai.ai.inference.ModelImportError
 import com.dorai.ai.inference.ModelImportResult
 import com.dorai.ai.inference.NoModelDownloadedException
+import com.dorai.ai.inference.RuntimeAvailability
 import com.dorai.ai.inference.getTotalMemoryBytes
 import com.dorai.ai.linux.LinuxDistro
 import com.dorai.ai.mcp.McpServerConfig
@@ -81,6 +84,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
@@ -198,9 +202,20 @@ class RemoteDataRepository(
     private val skillManager: SkillManager,
     private val sandboxController: SandboxController,
     private val localInferenceEngine: LocalInferenceEngine? = null,
+    private val localRuntimeRegistry: LocalRuntimeRegistry? = null,
+    private val routingPolicy: RoutingPolicy = RoutingPolicy(),
 ) : DataRepository {
 
     private val toolPermissionManager = ToolPermissionManager(appSettings, mcpServerManager)
+
+    private val _lastRouteDecision = MutableStateFlow<RouteDecision?>(null)
+    override val lastRouteDecision: StateFlow<RouteDecision?> = _lastRouteDecision.asStateFlow()
+
+    override fun getRoutingMode(): RoutingMode = appSettings.getRoutingMode()
+
+    override fun setRoutingMode(mode: RoutingMode) {
+        appSettings.setRoutingMode(mode)
+    }
 
     private data class PendingToolExecution(
         val deferred: CompletableDeferred<ToolConfirmationResult>,
@@ -928,18 +943,146 @@ class RemoteDataRepository(
             .filter { !it.service.isOnDevice || localInferenceEngine != null }
             .filter { hasValidInstanceApiKey(it.instanceId, it.service) }
         val freeEntry = FallbackEntry(instanceId = "free", service = Service.Free)
-        val ordered = if (entries.isEmpty()) {
-            listOf(freeEntry)
-        } else if (appSettings.isFreeServicePrimary()) {
-            listOf(freeEntry) + entries
-        } else {
-            entries + freeEntry
+
+        val localEntry = instances
+            .map { FallbackEntry(instanceId = it.instanceId, service = Service.fromId(it.serviceId)) }
+            .firstOrNull { it.service.isOnDevice }
+            ?: if (localInferenceEngine != null) FallbackEntry(instanceId = "local-default", service = Service.LiteRT) else null
+
+        val localModelId = localEntry?.let { appSettings.getInstanceModelId(it.instanceId) }?.takeIf { it.isNotBlank() } ?: "gemma-4-e2b-it"
+        val downloaded = localInferenceEngine?.getDownloadedModels().orEmpty()
+        val hasLocalModel = downloaded.any { it.id == localModelId } || downloaded.isNotEmpty()
+        val localEligible = localInferenceEngine != null && hasLocalModel
+
+        val mode = getRoutingMode()
+        when (mode) {
+            RoutingMode.LOCAL_ONLY -> {
+                _lastRouteDecision.value = RouteDecision(
+                    mode = RoutingMode.LOCAL_ONLY,
+                    runtimeId = localRuntimeRegistry?.runtimeFor(localModelId)?.id ?: LocalRuntimeId.LITERT_LM,
+                    modelId = localModelId,
+                    service = null,
+                    localEligible = localEligible,
+                    reason = if (localEligible) "Local Only: strictly on-device" else "Local Only: no local model ready",
+                    usesCloud = false,
+                )
+                // Strict isolation: ZERO cloud entries returned. If no local engine, fails closed.
+                return if (localEligible && localEntry != null) listOf(localEntry) else emptyList()
+            }
+
+            RoutingMode.LOCAL_FIRST -> {
+                if (localEligible && localEntry != null) {
+                    _lastRouteDecision.value = RouteDecision(
+                        mode = RoutingMode.LOCAL_FIRST,
+                        runtimeId = localRuntimeRegistry?.runtimeFor(localModelId)?.id ?: LocalRuntimeId.LITERT_LM,
+                        modelId = localModelId,
+                        service = null,
+                        localEligible = true,
+                        reason = "Local First: on-device model prioritized",
+                        usesCloud = false,
+                    )
+                    val cloudEntries = entries.filter { !it.service.isOnDevice }
+                    val fallbacks = if (appSettings.isFreeServicePrimary()) listOf(freeEntry) + cloudEntries else cloudEntries + freeEntry
+                    return listOf(localEntry) + fallbacks
+                } else {
+                    val cloudEntries = entries.filter { !it.service.isOnDevice }
+                    val orderedCloud = if (cloudEntries.isEmpty()) {
+                        listOf(freeEntry)
+                    } else if (appSettings.isFreeServicePrimary()) {
+                        listOf(freeEntry) + cloudEntries
+                    } else {
+                        cloudEntries + freeEntry
+                    }
+                    _lastRouteDecision.value = RouteDecision(
+                        mode = RoutingMode.LOCAL_FIRST,
+                        runtimeId = null,
+                        modelId = null,
+                        service = orderedCloud.firstOrNull()?.service,
+                        localEligible = false,
+                        reason = "Local First: local unavailable; routed to cloud",
+                        usesCloud = true,
+                    )
+                    return orderedCloud
+                }
+            }
+
+            RoutingMode.CLOUD_FIRST -> {
+                val cloudEntries = entries.filter { !it.service.isOnDevice }
+                val orderedCloud = if (cloudEntries.isEmpty()) {
+                    listOf(freeEntry)
+                } else if (appSettings.isFreeServicePrimary()) {
+                    listOf(freeEntry) + cloudEntries
+                } else {
+                    cloudEntries + freeEntry
+                }
+                _lastRouteDecision.value = RouteDecision(
+                    mode = RoutingMode.CLOUD_FIRST,
+                    runtimeId = null,
+                    modelId = null,
+                    service = orderedCloud.firstOrNull()?.service,
+                    localEligible = false,
+                    reason = "Cloud First: cloud primary",
+                    usesCloud = true,
+                )
+                return orderedCloud
+            }
+
+            RoutingMode.AUTOMATIC_HYBRID -> {
+                val eligibility = LocalEligibility(
+                    availability = if (localEligible) RuntimeAvailability.AVAILABLE else RuntimeAvailability.NEEDS_DOWNLOAD,
+                    contextTokens = 1000,
+                    maxContextTokens = 32768,
+                    hasAttachments = false,
+                    supportsVision = false,
+                    hasActiveSkill = pendingActiveSkillId != null,
+                    usesMcp = false,
+                    usesEmailOrScheduling = false,
+                    requiredTools = emptyList(),
+                    modelSupportsTools = true,
+                    isAgenticFlow = false,
+                    thermalThrottled = false,
+                    isForeground = true,
+                    quotaExceeded = false,
+                )
+                val decision = routingPolicy.decide(
+                    mode = RoutingMode.AUTOMATIC_HYBRID,
+                    localRuntime = localRuntimeRegistry?.runtimeFor(localModelId),
+                    localModel = localInferenceEngine?.getAvailableModels()?.firstOrNull { it.id == localModelId },
+                    eligibility = eligibility,
+                    configured = entries.map { it.service },
+                )
+                _lastRouteDecision.value = decision
+                val cloudEntries = entries.filter { !it.service.isOnDevice }
+                val fallbacks = if (appSettings.isFreeServicePrimary()) listOf(freeEntry) + cloudEntries else cloudEntries + freeEntry
+                return if (decision.localEligible && localEntry != null) {
+                    listOf(localEntry) + fallbacks
+                } else {
+                    fallbacks
+                }
+            }
+
+            RoutingMode.MANUAL -> {
+                val ordered = if (entries.isEmpty()) {
+                    listOf(freeEntry)
+                } else if (appSettings.isFreeServicePrimary()) {
+                    listOf(freeEntry) + entries
+                } else {
+                    entries + freeEntry
+                }
+                val manualOrdered = ordered.filterIndexed { index, entry -> index == 0 || !entry.service.isOnDevice }
+                val primaryService = manualOrdered.firstOrNull()?.service
+                _lastRouteDecision.value = RouteDecision(
+                    mode = RoutingMode.MANUAL,
+                    runtimeId = if (primaryService?.isOnDevice == true) (localRuntimeRegistry?.runtimeFor(localModelId)?.id ?: LocalRuntimeId.LITERT_LM) else null,
+                    modelId = if (primaryService?.isOnDevice == true) localModelId else null,
+                    service = primaryService,
+                    localEligible = primaryService?.isOnDevice == true,
+                    reason = "Manual: configured service order",
+                    usesCloud = primaryService?.isOnDevice != true,
+                )
+                return manualOrdered
+            }
         }
-        // On-device models are only tried as the primary service, never as a fallback
-        // target — falling into one would silently start a heavy model load the user
-        // didn't ask for (mirrors the guard that keeps on-device errors from silently
-        // falling back to cloud services).
-        return ordered.filterIndexed { index, entry -> index == 0 || !entry.service.isOnDevice }
     }
 
     override suspend fun ask(question: String?, files: List<PlatformFile>, uiSubmission: UiSubmission?, activeSkillId: String?) {

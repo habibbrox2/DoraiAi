@@ -18,7 +18,9 @@ import com.dorai.ai.data.runMigrations
 import com.dorai.ai.email.EmailPoller
 import com.dorai.ai.filereview.FileReviewController
 import com.dorai.ai.filereview.NoOpFileReviewController
+import com.dorai.ai.inference.LocalRuntimeRegistry
 import com.dorai.ai.inference.createLocalInferenceEngine
+import com.dorai.ai.inference.createLocalRuntimeRegistry
 import com.dorai.ai.mcp.McpServerManager
 import com.dorai.ai.network.Requests
 import com.dorai.ai.notifications.NotificationReader
@@ -117,6 +119,7 @@ val appModule = module {
     single<SkillManager> {
         SkillManager(get<SandboxController>())
     }
+    single<LocalRuntimeRegistry> { createLocalRuntimeRegistry() }
     single<RemoteDataRepository> {
         RemoteDataRepository(
             requests = get(),
@@ -141,6 +144,7 @@ val appModule = module {
             skillManager = get(),
             sandboxController = get(),
             localInferenceEngine = createLocalInferenceEngine(),
+            localRuntimeRegistry = get(),
         )
     }
     single<DataRepository> { get<RemoteDataRepository>() }

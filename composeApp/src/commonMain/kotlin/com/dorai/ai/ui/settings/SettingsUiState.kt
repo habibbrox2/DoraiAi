@@ -6,6 +6,7 @@ import com.dorai.ai.data.EmailAccount
 import com.dorai.ai.data.EmailSyncState
 import com.dorai.ai.data.HeartbeatLogEntry
 import com.dorai.ai.data.MemoryEntry
+import com.dorai.ai.data.RoutingMode
 import com.dorai.ai.data.ScheduledTask
 import com.dorai.ai.data.Service
 import com.dorai.ai.data.ServiceEntry
@@ -158,6 +159,7 @@ data class SettingsUiState(
     val localImportProgress: Float? = null,
     val localImportError: ModelImportError? = null,
     val modelContextTokens: ImmutableMap<String, Int> = persistentMapOf(),
+    val routingMode: RoutingMode = RoutingMode.MANUAL,
     val currentSponsors: ImmutableList<SponsorsResponseDto.Sponsor> = persistentListOf(),
     val pastSponsors: ImmutableList<SponsorsResponseDto.Sponsor> = persistentListOf(),
     val pendingDeletion: PendingDeletion? = null,

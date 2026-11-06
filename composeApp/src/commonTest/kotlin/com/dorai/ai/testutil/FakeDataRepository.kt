@@ -11,6 +11,8 @@ import com.dorai.ai.data.HeartbeatConfig
 import com.dorai.ai.data.HeartbeatLogEntry
 import com.dorai.ai.data.ImportSection
 import com.dorai.ai.data.MemoryEntry
+import com.dorai.ai.data.RouteDecision
+import com.dorai.ai.data.RoutingMode
 import com.dorai.ai.data.ScheduledTask
 import com.dorai.ai.data.Service
 import com.dorai.ai.data.ServiceEntry
@@ -698,4 +700,14 @@ class FakeDataRepository : DataRepository {
     override suspend fun importLocalModel(source: PlatformFile): ModelImportResult = ModelImportResult.Failure(ModelImportError.COPY_FAILED)
     override fun cancelLocalModelImport() {}
     override suspend fun deleteLocalModel(modelId: String) {}
+
+    // Routing policy
+    private var routingMode: RoutingMode = RoutingMode.MANUAL
+    private val _lastRouteDecision = MutableStateFlow<RouteDecision?>(null)
+    override val lastRouteDecision: StateFlow<RouteDecision?> = _lastRouteDecision
+
+    override fun getRoutingMode(): RoutingMode = routingMode
+    override fun setRoutingMode(mode: RoutingMode) {
+        routingMode = mode
+    }
 }
