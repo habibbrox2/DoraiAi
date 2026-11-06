@@ -336,7 +336,7 @@ jobs:
           if-no-files-found: error
 
       - name: Build portable distribution
-        run: .\gradlew.bat packageReleaseAppImage --stacktrace
+        run: .\gradlew.bat createReleaseDistributable --stacktrace
 
       - name: Create ZIP of portable distribution
         shell: pwsh
