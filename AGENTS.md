@@ -92,6 +92,8 @@ Knowledge lives under `docs/knowledge/` as OKF-style markdown (YAML frontmatter 
 | `docs/knowledge/popular-mcp/` | `PopularMcpServers.kt` | `/update-popular-mcp-servers` |
 | `docs/knowledge/litert/` | `LocalModelCatalog.kt` | `/update-litert-models` (no silent bumps) |
 
+**Slash-command availability:** The update commands above are agent-environment commands, not repository-local scripts. Verify that each command is available in the active agent environment before invoking it. If unavailable, do not claim it exists or silently substitute another workflow; inspect the available skills/scripts and request direction when no equivalent is clearly defined.
+
 ### `CHANGELOG.md`
 
 - Update `CHANGELOG.md` when a change is user-facing, release-relevant, or otherwise notable (features, fixes, security hardening, behavior changes, migrations, deprecations/removals). Do not add entries for routine refactors or internal-only doc maintenance unless they affect users/builds/releases.

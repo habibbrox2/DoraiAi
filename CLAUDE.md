@@ -1,4 +1,8 @@
-# Feature Docs
+@AGENTS.md
+
+# Claude Code Specific Instructions
+
+## Feature Docs
 
 Feature specs live in `docs/features/`. Each describes a feature from a product/behavior perspective — no Kotlin code blocks, no class/function names in prose.
 
@@ -7,7 +11,7 @@ When you modify logic in a feature area that has a corresponding doc in `docs/fe
 - Update the "Last verified" date in the doc header
 - Keep the Key Files table accurate (add/remove files as needed)
 
-# Knowledge bundles (OKF)
+## Knowledge bundles (OKF)
 
 Agent-curated knowledge that is not a product feature spec lives under `docs/knowledge/` as OKF-style markdown (YAML frontmatter + body).
 
