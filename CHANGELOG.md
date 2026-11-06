@@ -1,3 +1,11 @@
+## DORAI AI - Provider Model Lists
+
+### Changed
+- The model picker no longer seeds or merges the hardcoded `Service.defaultModels` catalog for providers that expose a `/models` endpoint. A newly added provider starts with an empty list and is populated from the provider's live response after the key is validated; a failed request shows the fetch error instead of stale bundled ids.
+- Providers without a models endpoint (Perplexity and the Free tier) keep their curated list, since there is nothing to fetch.
+
+---
+
 ## DORAI AI - Automatic App Updates
 
 ### Added
