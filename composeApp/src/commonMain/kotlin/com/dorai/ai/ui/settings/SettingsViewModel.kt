@@ -195,6 +195,7 @@ class SettingsViewModel(
         onShowAddSkillDialog = ::onShowAddSkillDialog,
         onInstallGitHubSkill = ::onInstallGitHubSkill,
         onInstallBrowsedSkill = ::onInstallBrowsedSkill,
+        onBrowseSkills = ::browseSkillMarketplaces,
         onDownloadLocalModel = ::onDownloadLocalModel,
         onCancelLocalModelDownload = ::onCancelLocalModelDownload,
         onImportLocalModel = ::onImportLocalModel,

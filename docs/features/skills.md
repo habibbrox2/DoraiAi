@@ -1,6 +1,6 @@
 # Skills
 
-**Last verified:** 2026-11-03
+**Last verified:** 2026-11-06
 
 DORAI AI supports installable **skills**: reusable instruction bundles, modeled on Anthropic's [SKILL.md](https://github.com/anthropics/skills) format (now an open standard at [agentskills.io](https://agentskills.io)). A skill packages a name, a description, a body of instructions, and optional bundled files.
 
@@ -35,16 +35,20 @@ A marketplace is read via the [Claude Code plugin-marketplace standard](https://
 
 ## Installing a Skill
 
-The "Skills" section lives in the Tools tab of settings (Android only, between the MCP servers section and the native tool toggles).
+Skills live in **Settings → Tools → Skills** (Android only). The tab uses a **Yours / Discover** split:
 
-- **If the sandbox isn't installed**, the section shows a notice and a "Set up sandbox" button that jumps to the Sandbox tab. No skills can be added until the sandbox is installed.
-- Otherwise, **"Add Skill"** opens a bottom sheet where the user can either paste a GitHub reference (`owner/repo`, `owner/repo/path/to/skill`, a full `https://github.com/owner/repo` URL, or a `.../tree/<ref>/path` URL) or **browse** the curated marketplaces. The browse list is fetched automatically when the dialog opens, is searchable (filter by id, description, or source), shows each entry's source name, and marks already-installed entries.
+- **Yours** lists installed skills, with a search field and an Add button.
+- **Discover** shows the curated "Top skills" registry, with the same search field and an Add action per row. Opening Discover fetches the registry automatically.
+
+**If the sandbox isn't installed**, the tab shows a notice and a "Set up sandbox" button that jumps to the Sandbox tab. No skills can be added until the sandbox is installed.
+
+**Add Skill** opens a bottom sheet where the user can either paste a GitHub reference (`owner/repo`, `owner/repo/path/to/skill`, a full `https://github.com/owner/repo` URL, or a `.../tree/<ref>/path` URL) or **browse** the curated marketplaces. The browse list is fetched automatically when the dialog opens, is searchable (filter by id, description, or source), shows each entry's source name, and marks already-installed entries.
 
 Both paths install the same way: a browsed entry carries its full repo coordinates and installs through the same GitHub fetch as a manual install. Installing downloads the raw `SKILL.md` plus its sibling files (including nested ones; binaries and files over 256 KB are skipped) and writes them into `~/skills/<id>/`, replacing any existing folder, then reloads the cache. Install errors (invalid frontmatter, missing `SKILL.md`, unrecognized URL) are surfaced inline in the dialog.
 
 ## Skill Management
 
-Each skill card shows the slash command (`/<id>`) and the description; expanding a **user-installed** skill reveals a remove button. Removal is deferred with a snackbar "Undo" option before the folder is deleted, matching the MCP and service flows. Built-in skills show a Built-in badge and omit the remove action.
+Each skill card shows the slash command (`/<id>`) and the description; expanding a **user-installed** skill reveals a remove button. Removal is deferred with a snackbar "Undo" option before the folder is deleted, matching the MCP and service flows. Built-in skills show a Built-in badge and omit the remove action. Yours can be filtered by id or description.
 
 ## Chat Autocomplete
 
@@ -73,8 +77,8 @@ While the user is typing the first token of a message and it starts with `/`, a 
 | `composeApp/src/commonMain/.../ui/chat/ChatViewModel.kt` | Parses the leading slash command into a skill id |
 | `composeApp/src/commonMain/.../ui/chat/composables/QuestionInput.kt` | Detects the slash query while typing |
 | `composeApp/src/commonMain/.../ui/chat/composables/SkillAutocomplete.kt` | Slash-command dropdown above the composer |
-| `composeApp/src/commonMain/.../ui/settings/SkillsSection.kt` | Skill cards, sandbox-install prompt, and add-skill bottom sheet (GitHub + marketplace browse) |
+| `composeApp/src/commonMain/.../ui/settings/SkillsSection.kt` | Skills tab: Yours/Discover lists, search, skill cards, sandbox prompt, add-skill sheet |
 | `composeApp/src/commonMain/.../ui/settings/SettingsViewModel.kt` | Skill install/uninstall and browse UI state |
-| `composeApp/src/commonMain/.../ui/settings/ToolsSettings.kt` | Places the Skills section in the Tools tab, shown only when the sandbox is available (Android) |
+| `composeApp/src/commonMain/.../ui/settings/ToolsSettings.kt` | Merged Tools tab shell; shows the Skills tab only when the sandbox is available (Android) |
 | `composeApp/src/commonMain/.../ui/settings/SettingsDetailPane.kt` | Routes the Tools tab to its content and passes the Android/sandbox-installed state from the sandbox view model |
 | `composeApp/src/commonMain/composeResources/files/skills/create-skill/SKILL.md` | Built-in `create-skill` skill |

@@ -54,7 +54,6 @@ fun SettingsDetailPane(
     onMigrateHome: () -> Unit,
     androidUpdateContent: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier,
-    integrationsContent: (@Composable () -> Unit)? = null,
 ) {
     val settingsListState = rememberLazyListState()
     LaunchedEffect(uiState.currentTab) {
@@ -118,10 +117,6 @@ fun SettingsDetailPane(
                                     actions = actions,
                                     sandboxState = sandboxState,
                                 )
-                            }
-
-                            SettingsTab.Integrations -> {
-                                if (integrationsContent != null) integrationsContent() else IntegrationsContent()
                             }
 
                             SettingsTab.Sandbox -> {
@@ -273,7 +268,6 @@ private fun SettingsPageHeading(
         SettingsTab.Agent -> "Agent"
         SettingsTab.Services -> "Services"
         SettingsTab.Tools -> "Tools"
-        SettingsTab.Integrations -> "Integrations"
         SettingsTab.Sandbox -> "Linux Sandbox"
         SettingsTab.Account -> "Account & Data"
     }
@@ -282,8 +276,7 @@ private fun SettingsPageHeading(
         SettingsTab.Appearance -> "Tune the visual experience, theme, and accessibility."
         SettingsTab.Agent -> "Configure agent behavior, reasoning, and model defaults."
         SettingsTab.Services -> "Connect providers and manage the models available to DORAI AI."
-        SettingsTab.Tools -> "Control the tools and capabilities available to your agent."
-        SettingsTab.Integrations -> "Manage MCP servers and external integrations."
+        SettingsTab.Tools -> "Connect your agent to the tools, services and skills you trust."
         SettingsTab.Sandbox -> "Configure the isolated Linux workspace and its lifecycle."
         SettingsTab.Account -> "Review your account, application and data controls."
     }

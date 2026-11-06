@@ -157,7 +157,10 @@ class StoreScreenshotTest(
     @Test
     fun settingsTools() {
         snap("05", ThemePresets.light) {
-            SettingsScreenContent(uiState = ScreenshotTestData.settingsTools)
+            SettingsScreenContent(
+                uiState = ScreenshotTestData.settingsTools,
+                sandboxState = ScreenshotTestData.sandboxState,
+            )
         }
     }
 

@@ -1,3 +1,25 @@
+## DORAI AI - 2027 Navigation & Library Polish
+
+### Added
+- Restructured the chat sidebar: brand header with search, New Chat and New Project primary actions, a "Recent chats" list grouped by date, boxed bottom navigation (Dashboard, Interactive UI, Workspace, Settings), and a logo/version footer.
+- Merged Settings → Integrations into Tools and rebuilt it as a three-tab library: Connectors (MCP servers), Skills, and Plugins (native tools). Each tab has a Yours/Discover split, search, and Add actions.
+- Added curated "Top connectors" and "Top skills" discovery lists with added-state badges and one-tap add.
+- Added a Plugins search field that appears once the native tool list grows past eight entries.
+- Centered the empty-state logo and welcome copy, now "Your AI. Your World.", over the premium dark backdrop; quick-start chips wrap instead of scrolling horizontally.
+
+### Changed
+- Renamed the Settings overview row from "Integrations" to "Connectors".
+- Moved the "Request an integration" entry point to the bottom of the merged Tools page.
+- Removed the Splinterlands section from Settings. The runtime, persistence, and battle loop are unchanged, so saved configurations are retained, but there is currently no in-app surface for editing them.
+
+### Removed
+- Removed the compact HUD three-dot overflow menu. Settings and Speech are now direct actions, and Back appears only in interactive mode.
+
+### Tests
+- Refreshed Paparazzi goldens and all localized store screenshots (phone and tablet) to match the new sidebar, Tools tabs, and empty state.
+
+---
+
 ## DORAI AI v2.1.14
 
 ### UI/UX & Design System Remediations

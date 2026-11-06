@@ -1,6 +1,6 @@
 # Tools
 
-**Last verified:** 2026-11-03
+**Last verified:** 2026-11-06
 
 DORAI AI's tools feature allows the AI to execute external functions during conversations — web search, notifications, calendar events, shell commands, memory operations, and more. Tools are defined with a schema, executed with safety guards, and managed through per-tool toggles in settings.
 
@@ -252,15 +252,17 @@ The platform layer assembles the final list of available tools by checking all g
 
 ## Settings UI
 
-The tools tab in settings displays a responsive grid of toggle cards:
+Settings → Tools is one merged library shell with three tabs: **Connectors** (MCP servers), **Skills**, and **Plugins** (native tools). The former separate Integrations tab no longer exists; its "Request an integration" card sits at the bottom of the Plugins tab.
+
+The Plugins tab displays a responsive grid of toggle cards:
 
 - 3 columns when the screen is at least 800dp wide
 - 2 columns when at least 500dp wide
 - 1 column on narrow screens
 
-Each card shows the tool name, a short description, and a toggle switch. Clicking anywhere on the card toggles the tool. Cards use a semi-transparent surface variant background (transparent with an outline border in the OLED theme).
+Each card shows the tool name, a short description, and a toggle switch. Clicking anywhere on the card toggles the tool. Cards use a semi-transparent surface variant background (transparent with an outline border in the OLED theme). A search field appears once the list reaches eight tools and filters by name or description.
 
-The grid sits below the MCP servers section and, on Android, the Skills section (see [skills.md](skills.md)).
+The Plugins grid is its own tab, so MCP servers and Skills no longer stack above it (see [mcp.md](mcp.md) and [skills.md](skills.md)).
 
 Only individually toggleable tools appear in the grid. Tools whose only control is a master toggle in Settings → Agent (memory, scheduling, heartbeat, email, SMS, notifications) are not listed here — they appear and disappear with their feature switch. The same applies to tools gated by a capability rather than a setting: the Android sandbox tools follow the sandbox switch, and desktop's `manage_process` follows the shell switch.
 
@@ -336,7 +338,7 @@ The interactive-mode top bar shows only the static title — loading is surfaced
 | `composeApp/src/commonMain/.../ui/sandbox/SandboxTabsContent.kt` | Terminal/Files/Packages sub-tab UI rendered inline inside the chat screen body |
 | `composeApp/src/commonMain/.../ui/sandbox/SandboxFileBrowserScreen.kt` | User-facing file browser UI, pointed at either Linux environment |
 | `composeApp/src/commonMain/.../ui/sandbox/SandboxFileBrowserViewModel.kt` | State for browsing and editing sandbox files |
-| `composeApp/src/commonMain/.../ui/settings/ToolsSettings.kt` | Tools tab: MCP and Skills sections plus the per-tool toggle grid |
+| `composeApp/src/commonMain/.../ui/settings/ToolsSettings.kt` | Merged Tools tab: Connectors / Skills / Plugins shell plus the Plugins toggle grid |
 | `composeApp/src/commonMain/.../ui/settings/SandboxSettings.kt` | Linux Sandbox settings card |
 | `composeApp/src/commonMain/.../ui/chat/composables/ToolMessage.kt` | Executing/completed UI indicators |
 | `composeApp/src/commonMain/.../data/AppSettings.kt` | Tool enabled state persistence |

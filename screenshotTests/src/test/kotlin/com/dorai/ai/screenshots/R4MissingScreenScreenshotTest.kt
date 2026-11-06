@@ -10,10 +10,8 @@ import app.cash.paparazzi.Paparazzi
 import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.ui.sandbox.EditorState
-import com.dorai.ai.ui.settings.IntegrationsContent
 import com.dorai.ai.ui.settings.SettingsScreenContent
 import com.dorai.ai.ui.settings.SettingsTab
-import com.dorai.ai.ui.settings.SplinterlandsUiState
 import com.dorai.ai.ui.workspace.WorkspaceActions
 import com.dorai.ai.ui.workspace.WorkspaceScreenContent
 import com.dorai.ai.ui.workspace.WorkspaceTab
@@ -36,12 +34,6 @@ class R4MissingScreenScreenshotTest {
     fun setup() {
         setResourceReaderAndroidContext(paparazzi.context)
     }
-
-    @Test
-    fun settings_integrations_dark() = snapshotSettings(SettingsTab.Integrations)
-
-    @Test
-    fun settings_integrations_light() = snapshotSettings(SettingsTab.Integrations, light = true)
 
     @Test
     fun settings_sandbox_dark() = snapshotSettings(SettingsTab.Sandbox)
@@ -74,17 +66,8 @@ class R4MissingScreenScreenshotTest {
                 CompositionLocalProvider(LocalInspectionMode provides true) {
                     DoraiTheme(repository = screenshotThemeRepository(palette)) {
                         SettingsScreenContent(
-                            uiState = when (tab) {
-                                SettingsTab.Integrations -> ScreenshotTestData.settingsIntegrationsState
-                                SettingsTab.Sandbox -> ScreenshotTestData.settingsSandbox
-                                else -> error("Unsupported R4 settings tab: $tab")
-                            },
+                            uiState = ScreenshotTestData.settingsSandbox,
                             sandboxState = ScreenshotTestData.sandboxState,
-                            integrationsContent = if (tab == SettingsTab.Integrations) {
-                                { IntegrationsContent(SplinterlandsUiState(showSplinterlandsSection = true)) }
-                            } else {
-                                null
-                            },
                         )
                     }
                 }

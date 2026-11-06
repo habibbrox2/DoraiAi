@@ -1,6 +1,6 @@
 # Chat & Conversations
 
-**Last verified:** 2026-11-03
+**Last verified:** 2026-11-06
 
 DORAI AI's chat system manages the message history, conversation persistence, file attachments, and speech output. Conversations are service-independent — switching providers does not affect which conversation is loaded or restored. Multiple conversations are persisted and browsable via a history sheet.
 
@@ -118,14 +118,25 @@ Multiple files can be attached to a single prompt. Each file is added one at a t
 
 ## UI Elements
 
-- **Top bar**: a model pill in the middle showing the active service and the model it is running; tapping it opens the model list and the service list, so the model can be changed without leaving the chat. Alongside it: an interactive-UI toggle (the widgets icon — tinted while the mode is on) with a back action next to it that removes the last exchange, a Sandbox toggle (Android only; it flashes briefly while a shell command runs), TTS toggle, Settings (on mobile; on non-mobile, Settings is in the navigation tab bar)
+- **Top bar**: a model pill in the middle showing the active service and the model it is running; tapping it opens the model list and the service list, so the model can be changed without leaving the chat. Alongside it: an interactive-UI toggle (the widgets icon — tinted while the mode is on) with a back action next to it that removes the last exchange, a Sandbox toggle (Android only; it flashes briefly while a shell command runs), TTS toggle, and a direct Settings button. The compact HUD no longer has a three-dot overflow menu.
 - **Scroll to bottom**: a small floating action button (down arrow) appears when the user has scrolled up past the latest messages; tapping it animates back to the bottom
 - **Messages**: user (right-aligned, with optional image preview), assistant (Markdown-rendered + action buttons), tool executing (spinner), loading indicator, error with retry (or free-provider suggestions panel when Free is rate-limited with no services configured). When the fallback chain answered with an alternate service rather than the user's selected one, a small "Answered by …" label is shown under the assistant message naming the service that produced the response
 - **Interactive UI**: a mode of this same chat, not a separate screen. With it on, the AI answers with a kai-ui screen that renders inline in the conversation and its buttons and forms work like any other message. See [dynamic-ui.md](dynamic-ui.md)
 - **Input**: text field, send/stop button, attachment button, file chip
-- **Empty state**: animated logo + welcome message
+- **Empty state**: animated logo centered above the welcome text "Your AI. Your World." on the premium dark backdrop, followed by wrapping quick-start chips
 - **Drag-and-drop**: supported for file attachments
 - **History sheet**: bottom sheet listing saved conversations with title, date, active highlight, and delete
+
+## Navigation Sidebar
+
+On compact screens the chat is wrapped in a modal navigation drawer; on expanded screens the same sidebar is shown beside the conversation. The sidebar is ordered top to bottom:
+
+1. **Header** — DORAI mark, product name, tagline, and the conversation search field
+2. **Primary actions** — New Chat and New Project
+3. **Chat history** — a "Recent chats" section grouped by date; search filters titles live, and empty states distinguish "No chats yet" from "No matches"
+4. **Scrollable area** — the history list takes the remaining space
+5. **Bottom navigation** — Dashboard, Interactive UI, Workspace, Settings
+6. **Footer** — logo and version
 
 ## Key Files
 
@@ -138,7 +149,10 @@ Multiple files can be attached to a single prompt. Each file is added one at a t
 | `composeApp/src/commonMain/.../data/FileClassification.kt` | File category enum, MIME/extension classifier, size constants, file exceptions |
 | `composeApp/src/commonMain/.../data/RemoteDataRepository.kt` | History management, conversation save/restore/delete, title derivation, message sending |
 | `composeApp/src/commonMain/.../ui/chat/ChatViewModel.kt` | Chat UI state, send/retry/regenerate/cancel/loadConversation/deleteConversation actions |
-| `composeApp/src/commonMain/.../ui/chat/ChatScreen.kt` | Chat UI composables, history sheet and heartbeat banner wiring |
+| `composeApp/src/commonMain/.../ui/chat/ChatScreen.kt` | Chat UI composables, drawer/sidebar wiring, history sheet and heartbeat banner wiring |
+| `composeApp/src/commonMain/.../ui/chat/composables/AppSidebar.kt` | Navigation sidebar: header/search, New Chat/New Project, grouped history, bottom nav, footer |
+| `composeApp/src/commonMain/.../ui/chat/composables/EmptyState.kt` | Centered logo, "Your AI. Your World." welcome copy, wrapping quick-start chips |
+| `composeApp/src/commonMain/.../ui/chat/composables/AgentHud.kt` | Compact HUD with direct Settings/Speech actions (no overflow menu) |
 | `composeApp/src/commonMain/.../ui/chat/composables/ChatHistorySheet.kt` | Bottom sheet listing saved conversations |
 | `composeApp/src/commonMain/.../ui/chat/composables/HeartbeatBanner.kt` | Dismissable banner for heartbeat notifications |
 | `composeApp/src/commonMain/.../ui/chat/composables/TopBar.kt` | Top bar with the model pill, the interactive-UI toggle and back action, sandbox, TTS, and settings icons |
