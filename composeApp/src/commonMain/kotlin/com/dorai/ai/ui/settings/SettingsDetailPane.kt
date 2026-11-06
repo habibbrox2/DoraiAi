@@ -54,6 +54,7 @@ fun SettingsDetailPane(
     onMigrateHome: () -> Unit,
     androidUpdateContent: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier,
+    integrationsContent: (@Composable () -> Unit)? = null,
 ) {
     val settingsListState = rememberLazyListState()
     LaunchedEffect(uiState.currentTab) {
@@ -120,7 +121,7 @@ fun SettingsDetailPane(
                             }
 
                             SettingsTab.Integrations -> {
-                                IntegrationsContent()
+                                if (integrationsContent != null) integrationsContent() else IntegrationsContent()
                             }
 
                             SettingsTab.Sandbox -> {

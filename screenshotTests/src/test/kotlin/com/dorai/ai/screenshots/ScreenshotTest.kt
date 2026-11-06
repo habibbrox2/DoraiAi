@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -20,12 +19,10 @@ import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.dorai.ai.theme.ThemeViewModel
 import com.dorai.ai.theme.data.ThemePalette
+import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.data.ThemeSettingsRepository
-import com.dorai.ai.theme.engine.toColorScheme
+import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.theme.ui.DoraiAppearanceSettings
-import com.dorai.ai.ui.DarkColorScheme
-import com.dorai.ai.ui.LightColorScheme
-import com.dorai.ai.ui.Theme
 import com.dorai.ai.ui.chat.ChatScreenContent
 import com.dorai.ai.ui.chat.composables.AgentActivityTimeline
 import com.dorai.ai.ui.chat.composables.ChatComposer
@@ -38,7 +35,6 @@ import com.dorai.ai.ui.workspace.WorkspaceActions
 import com.dorai.ai.ui.workspace.WorkspaceScreenContent
 import com.dorai.ai.ui.workspace.WorkspaceStatusKind
 import com.dorai.ai.ui.workspace.WorkspaceStatusPill
-import com.russhwolf.settings.MapSettings
 import nl.marc_apps.tts.experimental.ExperimentalVoiceApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
@@ -94,13 +90,14 @@ class ScreenshotTest {
     }
 
     fun Paparazzi.snap(
-        colorScheme: ColorScheme,
+        palette: ThemePalette,
+        repository: ThemeSettingsRepository = screenshotThemeRepository(palette),
         content: @Composable () -> Unit,
     ) {
-        val theme = if (colorScheme == LightColorScheme) {
-            "android:Theme.Material.Light.NoActionBar"
-        } else {
+        val theme = if (palette.isDark) {
             "android:Theme.Material.NoActionBar"
+        } else {
+            "android:Theme.Material.Light.NoActionBar"
         }
         unsafeUpdateConfig(theme = theme)
 
@@ -111,7 +108,7 @@ class ScreenshotTest {
                         LocalInspectionMode provides true,
                         LocalPreviewImages provides previewImages,
                     ) {
-                        Theme(colorScheme = colorScheme) {
+                        DoraiTheme(repository = repository) {
                             content()
                         }
                     }
@@ -120,16 +117,9 @@ class ScreenshotTest {
         }
     }
 
-    fun Paparazzi.snap(
-        palette: ThemePalette,
-        content: @Composable () -> Unit,
-    ) {
-        snap(colorScheme = palette.toColorScheme(), content = content)
-    }
-
     @Test
     fun chatEmptyState_premiumDark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             ChatScreenContent(
                 uiState = ScreenshotTestData.chatEmptyState,
                 FakeTextToSpeechInstance(),
@@ -140,7 +130,7 @@ class ScreenshotTest {
 
     @Test
     fun chatWithMessages_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             ChatScreenContent(
                 uiState = ScreenshotTestData.chatWithMessages,
                 FakeTextToSpeechInstance(),
@@ -150,7 +140,7 @@ class ScreenshotTest {
 
     @Test
     fun chatWithDynamicUi_light() {
-        paparazzi.snap(LightColorScheme) {
+        paparazzi.snap(ThemePresets.light) {
             ChatScreenContent(
                 uiState = ScreenshotTestData.chatWithDynamicUi,
                 FakeTextToSpeechInstance(),
@@ -160,7 +150,7 @@ class ScreenshotTest {
 
     @Test
     fun settingsAgent_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             SettingsScreenContent(
                 uiState = ScreenshotTestData.settingsAgent,
                 sandboxState = ScreenshotTestData.sandboxState,
@@ -170,7 +160,7 @@ class ScreenshotTest {
 
     @Test
     fun settingsFree_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             SettingsScreenContent(
                 uiState = ScreenshotTestData.freeConnected,
                 sandboxState = ScreenshotTestData.sandboxState,
@@ -180,7 +170,7 @@ class ScreenshotTest {
 
     @Test
     fun settingsTools_light() {
-        paparazzi.snap(LightColorScheme) {
+        paparazzi.snap(ThemePresets.light) {
             SettingsScreenContent(
                 uiState = ScreenshotTestData.settingsTools,
                 sandboxState = ScreenshotTestData.sandboxState,
@@ -190,7 +180,7 @@ class ScreenshotTest {
 
     @Test
     fun settingsSandbox_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             ChatScreenContent(
                 uiState = ScreenshotTestData.chatEmptyState,
                 isSandboxAvailable = true,
@@ -205,7 +195,7 @@ class ScreenshotTest {
 
     @Test
     fun toolExecutionRunning_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             ToolExecutionCard(
                 toolName = ScreenshotTestData.toolExecutionRunningParams.toolName,
                 arguments = ScreenshotTestData.toolExecutionRunningParams.arguments,
@@ -219,7 +209,7 @@ class ScreenshotTest {
 
     @Test
     fun toolExecutionCompleted_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             ToolExecutionCard(
                 toolName = ScreenshotTestData.toolExecutionCompletedParams.toolName,
                 arguments = ScreenshotTestData.toolExecutionCompletedParams.arguments,
@@ -233,7 +223,7 @@ class ScreenshotTest {
 
     @Test
     fun toolExecutionFailed_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             ToolExecutionCard(
                 toolName = ScreenshotTestData.toolExecutionFailedParams.toolName,
                 arguments = ScreenshotTestData.toolExecutionFailedParams.arguments,
@@ -247,7 +237,7 @@ class ScreenshotTest {
 
     @Test
     fun toolExecutionExpanded_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             ToolExecutionCard(
                 toolName = ScreenshotTestData.toolExecutionExpandedParams.toolName,
                 arguments = ScreenshotTestData.toolExecutionExpandedParams.arguments,
@@ -261,7 +251,7 @@ class ScreenshotTest {
 
     @Test
     fun toolExecutionLongOutput_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             ToolExecutionCard(
                 toolName = ScreenshotTestData.toolExecutionLongOutputParams.toolName,
                 arguments = ScreenshotTestData.toolExecutionLongOutputParams.arguments,
@@ -277,7 +267,7 @@ class ScreenshotTest {
 
     @Test
     fun toolApproval_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             ToolConfirmationCard(
                 toolName = ScreenshotTestData.toolApprovalParams.toolName,
                 toolCallId = ScreenshotTestData.toolApprovalParams.toolCallId,
@@ -294,7 +284,7 @@ class ScreenshotTest {
 
     @Test
     fun shellExecutionRunning_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             ShellExecutionCard(
                 command = ScreenshotTestData.shellExecutionRunningParams.command,
                 workingDirectory = ScreenshotTestData.shellExecutionRunningParams.workingDirectory,
@@ -308,7 +298,7 @@ class ScreenshotTest {
 
     @Test
     fun shellExecutionCompleted_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             ShellExecutionCard(
                 command = ScreenshotTestData.shellExecutionCompletedParams.command,
                 workingDirectory = ScreenshotTestData.shellExecutionCompletedParams.workingDirectory,
@@ -322,7 +312,7 @@ class ScreenshotTest {
 
     @Test
     fun shellExecutionFailed_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             ShellExecutionCard(
                 command = ScreenshotTestData.shellExecutionFailedParams.command,
                 workingDirectory = ScreenshotTestData.shellExecutionFailedParams.workingDirectory,
@@ -338,7 +328,7 @@ class ScreenshotTest {
 
     @Test
     fun settingsGeneral_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             SettingsScreenContent(
                 uiState = ScreenshotTestData.settingsGeneralState,
                 sandboxState = ScreenshotTestData.sandboxState,
@@ -348,7 +338,7 @@ class ScreenshotTest {
 
     @Test
     fun settingsAppearance_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             SettingsScreenContent(
                 uiState = ScreenshotTestData.settingsAppearanceState,
                 sandboxState = ScreenshotTestData.sandboxState,
@@ -358,7 +348,7 @@ class ScreenshotTest {
 
     @Test
     fun settingsAccount_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             SettingsScreenContent(
                 uiState = ScreenshotTestData.settingsAccountState,
                 sandboxState = ScreenshotTestData.sandboxState,
@@ -368,27 +358,24 @@ class ScreenshotTest {
 
     @Test
     fun appearancePresets_dark() {
-        paparazzi.snap(DarkColorScheme) {
-            DoraiAppearanceSettings(
-                viewModel = ThemeViewModel(ThemeSettingsRepository(MapSettings())),
-            )
+        val repository = screenshotThemeRepository(ThemePresets.dark)
+        paparazzi.snap(ThemePresets.dark, repository) {
+            DoraiAppearanceSettings(viewModel = ThemeViewModel(repository))
         }
     }
 
     @Test
     fun appearancePresets_light() {
-        paparazzi.snap(LightColorScheme) {
-            DoraiAppearanceSettings(
-                viewModel = ThemeViewModel(ThemeSettingsRepository(MapSettings())),
-            )
+        val repository = screenshotThemeRepository(ThemePresets.light)
+        paparazzi.snap(ThemePresets.light, repository) {
+            DoraiAppearanceSettings(viewModel = ThemeViewModel(repository))
         }
     }
-
     // --- Phase C: Settings light theme ---
 
     @Test
     fun settingsAgent_light() {
-        paparazzi.snap(LightColorScheme) {
+        paparazzi.snap(ThemePresets.light) {
             SettingsScreenContent(
                 uiState = ScreenshotTestData.settingsAgent,
                 sandboxState = ScreenshotTestData.sandboxState,
@@ -400,7 +387,7 @@ class ScreenshotTest {
 
     @Test
     fun chatWithDynamicUi_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             ChatScreenContent(
                 uiState = ScreenshotTestData.chatWithDynamicUi,
                 FakeTextToSpeechInstance(),
@@ -412,7 +399,7 @@ class ScreenshotTest {
 
     @Test
     fun buildSetupNotInstalled_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             WorkspaceScreenContent(
                 state = ScreenshotTestData.buildStateNotInstalled,
                 actions = noOpBuildActions,
@@ -423,7 +410,7 @@ class ScreenshotTest {
 
     @Test
     fun buildSetupInstalling_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             WorkspaceScreenContent(
                 state = ScreenshotTestData.buildStateInstalling,
                 actions = noOpBuildActions,
@@ -434,7 +421,7 @@ class ScreenshotTest {
 
     @Test
     fun buildProjectsReady_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             WorkspaceScreenContent(
                 state = ScreenshotTestData.buildStateReadyWithProjects,
                 actions = noOpBuildActions,
@@ -445,7 +432,7 @@ class ScreenshotTest {
 
     @Test
     fun buildWithActiveProject_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             WorkspaceScreenContent(
                 state = ScreenshotTestData.buildStateWithActiveProject,
                 actions = noOpBuildActions,
@@ -456,7 +443,7 @@ class ScreenshotTest {
 
     @Test
     fun buildStatusPills_light() {
-        paparazzi.snap(LightColorScheme) {
+        paparazzi.snap(ThemePresets.light) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -475,7 +462,7 @@ class ScreenshotTest {
 
     @Test
     fun agentActivityTimelineMixed_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             AgentActivityTimeline(
                 activities = ScreenshotTestData.agentActivitiesMixed,
             )
@@ -484,7 +471,7 @@ class ScreenshotTest {
 
     @Test
     fun agentActivityTimelineToolCall_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             AgentActivityTimeline(
                 activities = ScreenshotTestData.agentActivitiesToolCall,
             )
@@ -493,7 +480,7 @@ class ScreenshotTest {
 
     @Test
     fun agentActivityTimelineShellCommand_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             AgentActivityTimeline(
                 activities = ScreenshotTestData.agentActivitiesShellCommand,
             )
@@ -502,7 +489,7 @@ class ScreenshotTest {
 
     @Test
     fun agentActivityTimelineFileOperation_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             AgentActivityTimeline(
                 activities = ScreenshotTestData.agentActivitiesFileOperation,
             )
@@ -511,7 +498,7 @@ class ScreenshotTest {
 
     @Test
     fun agentActivityTimelinePermission_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             AgentActivityTimeline(
                 activities = ScreenshotTestData.agentActivitiesPermission,
             )
@@ -522,7 +509,7 @@ class ScreenshotTest {
 
     @Test
     fun composerEmpty_light() {
-        paparazzi.snap(LightColorScheme) {
+        paparazzi.snap(ThemePresets.light) {
             ChatComposer(
                 uiState = ScreenshotTestData.chatEmptyState,
                 questionInputText = ScreenshotTestData.composerEmptyText,
@@ -534,7 +521,7 @@ class ScreenshotTest {
 
     @Test
     fun composerWithDraft_light() {
-        paparazzi.snap(LightColorScheme) {
+        paparazzi.snap(ThemePresets.light) {
             ChatComposer(
                 uiState = ScreenshotTestData.chatEmptyState.copy(
                     availableModels = ScreenshotTestData.composerAvailableModels,
@@ -548,7 +535,7 @@ class ScreenshotTest {
 
     @Test
     fun composerLoading_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             ChatComposer(
                 uiState = ScreenshotTestData.chatEmptyState.copy(isLoading = true),
                 questionInputText = ScreenshotTestData.composerEmptyText,

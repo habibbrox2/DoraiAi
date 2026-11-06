@@ -37,6 +37,17 @@ The project is built primarily with **Kotlin Multiplatform** and **Compose Multi
 
 > Feature availability depends on the platform, configured provider, permissions, and execution environment.
 
+## Screenshots
+
+The following screenshots are captured from the production Compose UI using the DORAI theme engine.
+
+<p align="center">
+  <img src="screenshots/mobile-2.png" width="180" alt="DORAI AI chat with messages">
+  <img src="screenshots/mobile-3.png" width="180" alt="DORAI AI dynamic UI in chat">
+  <img src="screenshots/mobile-4.png" width="180" alt="DORAI AI settings overview">
+  <img src="screenshots/mobile-7.png" width="180" alt="DORAI AI sandbox settings">
+</p>
+
 ## AI providers and model services
 
 DORAI AI supports a broad range of model services, including:

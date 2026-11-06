@@ -3,17 +3,19 @@
 package com.dorai.ai.screenshots
 
 import android.graphics.BitmapFactory
-import androidx.compose.material3.ColorScheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalInspectionMode
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
-import com.dorai.ai.ui.DarkColorScheme
-import com.dorai.ai.ui.LightColorScheme
-import com.dorai.ai.ui.Theme
+import com.dorai.ai.theme.data.ThemePalette
+import com.dorai.ai.theme.data.ThemePresets
+import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.ui.chat.ChatScreenContent
 import com.dorai.ai.ui.dynamicui.LocalPreviewImages
 import com.dorai.ai.ui.settings.SettingsScreenContent
@@ -90,22 +92,26 @@ class TabletStoreScreenshotTest(
 
     private fun snap(
         name: String,
-        colorScheme: ColorScheme,
+        palette: ThemePalette,
         content: @Composable () -> Unit,
     ) {
-        val theme = if (colorScheme == LightColorScheme) {
+        val theme = if (!palette.isDark) {
             "android:Theme.Material.Light.NoActionBar"
         } else {
             "android:Theme.Material.NoActionBar"
         }
         paparazzi.unsafeUpdateConfig(theme = theme)
         paparazzi.snapshot(name = "tablet_${playStoreLocale}_$name") {
-            CompositionLocalProvider(
-                LocalInspectionMode provides true,
-                LocalPreviewImages provides previewImages,
-            ) {
-                Theme(colorScheme = colorScheme) {
-                    content()
+            Box(modifier = Modifier.fillMaxSize()) {
+                WithScreenshotTestKoin {
+                    CompositionLocalProvider(
+                        LocalInspectionMode provides true,
+                        LocalPreviewImages provides previewImages,
+                    ) {
+                        DoraiTheme(repository = screenshotThemeRepository(palette)) {
+                            content()
+                        }
+                    }
                 }
             }
         }
@@ -113,7 +119,7 @@ class TabletStoreScreenshotTest(
 
     @Test
     fun chatEmptyState() {
-        snap("01", LightColorScheme) {
+        snap("01", ThemePresets.light) {
             ChatScreenContent(
                 uiState = ScreenshotTestData.chatEmptyState,
                 FakeTextToSpeechInstance(),
@@ -123,7 +129,7 @@ class TabletStoreScreenshotTest(
 
     @Test
     fun chatWithMessages() {
-        snap("02", DarkColorScheme) {
+        snap("02", ThemePresets.dark) {
             ChatScreenContent(
                 uiState = ScreenshotTestData.localizedChatWithMessages(locale),
                 FakeTextToSpeechInstance(),
@@ -133,7 +139,7 @@ class TabletStoreScreenshotTest(
 
     @Test
     fun chatWithDynamicUi() {
-        snap("03", LightColorScheme) {
+        snap("03", ThemePresets.light) {
             ChatScreenContent(
                 uiState = ScreenshotTestData.localizedChatWithDynamicUi(locale),
                 FakeTextToSpeechInstance(),
@@ -143,28 +149,28 @@ class TabletStoreScreenshotTest(
 
     @Test
     fun settingsFree() {
-        snap("04", DarkColorScheme) {
+        snap("04", ThemePresets.dark) {
             SettingsScreenContent(uiState = ScreenshotTestData.freeConnected)
         }
     }
 
     @Test
     fun settingsTools() {
-        snap("05", LightColorScheme) {
+        snap("05", ThemePresets.light) {
             SettingsScreenContent(uiState = ScreenshotTestData.settingsTools)
         }
     }
 
     @Test
     fun settingsAgent() {
-        snap("06", DarkColorScheme) {
+        snap("06", ThemePresets.dark) {
             SettingsScreenContent(uiState = ScreenshotTestData.settingsAgent)
         }
     }
 
     @Test
     fun settingsSandbox() {
-        snap("07", DarkColorScheme) {
+        snap("07", ThemePresets.dark) {
             ChatScreenContent(
                 uiState = ScreenshotTestData.chatEmptyState,
                 isSandboxAvailable = true,

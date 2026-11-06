@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
-import com.dorai.ai.ui.DarkColorScheme
-import com.dorai.ai.ui.Theme
+import com.dorai.ai.theme.data.ThemePresets
+import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.ui.chat.composables.ToolConfirmationCard
 import com.dorai.ai.ui.chat.composables.ToolExecutionCard
 import com.dorai.ai.ui.components.OperationalStatus
@@ -50,7 +50,7 @@ class PremiumScreenScreenshotTest {
             Box(modifier = Modifier.fillMaxSize()) {
                 WithScreenshotTestKoin {
                     CompositionLocalProvider(LocalInspectionMode provides true) {
-                        Theme(colorScheme = DarkColorScheme) {
+                        DoraiTheme(repository = screenshotThemeRepository(ThemePresets.dark)) {
                             content()
                         }
                     }
@@ -65,7 +65,7 @@ class PremiumScreenScreenshotTest {
             Box(modifier = Modifier.fillMaxSize().background(DesignTokens.Background)) {
                 WithScreenshotTestKoin {
                     CompositionLocalProvider(LocalInspectionMode provides true) {
-                        Theme(colorScheme = DarkColorScheme) {
+                        DoraiTheme(repository = screenshotThemeRepository(ThemePresets.dark)) {
                             content()
                         }
                     }

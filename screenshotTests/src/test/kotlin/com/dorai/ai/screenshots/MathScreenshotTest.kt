@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -17,9 +16,9 @@ import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.android.ide.common.rendering.api.SessionParams
-import com.dorai.ai.ui.DarkColorScheme
-import com.dorai.ai.ui.LightColorScheme
-import com.dorai.ai.ui.Theme
+import com.dorai.ai.theme.data.ThemePalette
+import com.dorai.ai.theme.data.ThemePresets
+import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.ui.markdown.MarkdownContent
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
@@ -51,10 +50,10 @@ class MathScreenshotTest {
     }
 
     private fun Paparazzi.snapMessage(
-        colorScheme: ColorScheme,
+        palette: ThemePalette,
         markdown: String,
     ) {
-        val theme = if (colorScheme == DarkColorScheme) {
+        val theme = if (palette.isDark) {
             "android:Theme.Material.NoActionBar"
         } else {
             "android:Theme.Material.Light.NoActionBar"
@@ -63,7 +62,7 @@ class MathScreenshotTest {
 
         snapshot {
             CompositionLocalProvider(LocalInspectionMode provides true) {
-                Theme(colorScheme = colorScheme) {
+                DoraiTheme(repository = screenshotThemeRepository(palette)) {
                     MessageCanvas {
                         MarkdownContent(
                             content = markdown,
@@ -78,7 +77,7 @@ class MathScreenshotTest {
     @Test
     fun math_algebra_light() {
         paparazzi.snapMessage(
-            LightColorScheme,
+            ThemePresets.light,
             """
             The **quadratic formula** gives the roots of ${D}ax^2 + bx + c = 0$D:
 
@@ -109,7 +108,7 @@ class MathScreenshotTest {
     fun math_calculus_dark() {
         // The exact reproducer from issue #150: integration by parts on x²·arctan(x).
         paparazzi.snapMessage(
-            DarkColorScheme,
+            ThemePresets.dark,
             """
             To evaluate $D\int_a^b x^2 \arctan(x)\,dx$D, use integration by parts with
             ${D}u = \arctan(x)$D and ${D}dv = x^2\,dx$D:
@@ -133,7 +132,7 @@ class MathScreenshotTest {
     @Test
     fun math_physics_dark() {
         paparazzi.snapMessage(
-            DarkColorScheme,
+            ThemePresets.dark,
             """
             **Einstein's mass–energy equivalence**:
 
@@ -162,7 +161,7 @@ class MathScreenshotTest {
     @Test
     fun math_structures_light() {
         paparazzi.snapMessage(
-            LightColorScheme,
+            ThemePresets.light,
             """
             The **2×2 rotation matrix** by angle $D\theta$D:
 
@@ -191,7 +190,7 @@ class MathScreenshotTest {
     @Test
     fun math_notation_light() {
         paparazzi.snapMessage(
-            LightColorScheme,
+            ThemePresets.light,
             """
             **Classic identities** in one line each:
 

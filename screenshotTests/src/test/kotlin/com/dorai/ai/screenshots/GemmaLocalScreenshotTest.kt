@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -32,8 +31,9 @@ import app.cash.paparazzi.Paparazzi
 import com.dorai.ai.data.Service
 import com.dorai.ai.inference.LocalModel
 import com.dorai.ai.inference.MODEL_CATALOG
-import com.dorai.ai.ui.DarkColorScheme
-import com.dorai.ai.ui.Theme
+import com.dorai.ai.theme.data.ThemePalette
+import com.dorai.ai.theme.data.ThemePresets
+import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.ui.chat.ChatScreenContent
 import com.dorai.ai.ui.chat.ChatUiState
 import com.dorai.ai.ui.chat.History
@@ -76,10 +76,10 @@ class GemmaLocalScreenshotTest {
     }
 
     private fun Paparazzi.snap(
-        colorScheme: ColorScheme,
+        palette: ThemePalette,
         content: @Composable () -> Unit,
     ) {
-        val theme = if (colorScheme == DarkColorScheme) {
+        val theme = if (palette.isDark) {
             "android:Theme.Material.NoActionBar"
         } else {
             "android:Theme.Material.Light.NoActionBar"
@@ -89,7 +89,7 @@ class GemmaLocalScreenshotTest {
         snapshot {
             WithScreenshotTestKoin {
                 CompositionLocalProvider(LocalInspectionMode provides true) {
-                    Theme(colorScheme = colorScheme) {
+                    DoraiTheme(repository = screenshotThemeRepository(palette)) {
                         content()
                     }
                 }
@@ -99,7 +99,7 @@ class GemmaLocalScreenshotTest {
 
     @Test
     fun gemmaLocal_settings_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             AddServiceSheetPreview(
                 services = Service.all
                     .filter { it != Service.Free }
@@ -119,7 +119,7 @@ class GemmaLocalScreenshotTest {
 
     @Test
     fun gemmaLocal_modelCard_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             SettingsScreenContent(uiState = GemmaLocalTestData.services())
         }
     }
@@ -128,14 +128,14 @@ class GemmaLocalScreenshotTest {
     fun gemmaLocal_fixedContextModel_dark() {
         // LFM2.5's export tops out at its own default, so its card carries the context
         // size as a label with no slider under it.
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             SettingsScreenContent(uiState = GemmaLocalTestData.services(availableModels = listOf(MODEL_LFM25)))
         }
     }
 
     @Test
     fun gemmaLocal_contextSlider_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             SettingsScreenContent(
                 uiState = GemmaLocalTestData.services(
                     modelContextTokens = mapOf(
@@ -149,7 +149,7 @@ class GemmaLocalScreenshotTest {
 
     @Test
     fun gemmaLocal_download_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             SettingsScreenContent(
                 uiState = GemmaLocalTestData.services(
                     downloadingModelId = MODEL_E2B.id,
@@ -161,7 +161,7 @@ class GemmaLocalScreenshotTest {
 
     @Test
     fun gemmaLocal_select_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             SettingsScreenContent(
                 uiState = GemmaLocalTestData.services(
                     downloadedIds = listOf(MODEL_E2B.id),
@@ -173,7 +173,7 @@ class GemmaLocalScreenshotTest {
 
     @Test
     fun gemmaLocal_chat_dark() {
-        paparazzi.snap(DarkColorScheme) {
+        paparazzi.snap(ThemePresets.dark) {
             ChatScreenContent(
                 uiState = GemmaLocalTestData.chatInitializing,
                 FakeTextToSpeechInstance(),

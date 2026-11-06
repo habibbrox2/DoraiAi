@@ -202,6 +202,7 @@ fun SettingsScreenContent(
     onNavigateBack: () -> Unit = {},
     navigationTabBar: (@Composable () -> Unit)? = null,
     androidUpdateContent: (@Composable () -> Unit)? = null,
+    integrationsContent: (@Composable () -> Unit)? = null,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val undoLabel = stringResource(Res.string.snackbar_undo)
@@ -311,6 +312,7 @@ fun SettingsScreenContent(
                             onInstallPackages = onInstallPackages,
                             onMigrateHome = onMigrateHome,
                             androidUpdateContent = androidUpdateContent,
+                            integrationsContent = integrationsContent,
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -345,6 +347,7 @@ fun SettingsScreenContent(
                         onInstallPackages = onInstallPackages,
                         onMigrateHome = onMigrateHome,
                         androidUpdateContent = androidUpdateContent,
+                        integrationsContent = integrationsContent,
                         modifier = Modifier.weight(1f),
                     )
                 }
