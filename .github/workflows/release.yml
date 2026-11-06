@@ -127,7 +127,7 @@ jobs:
           keytool -list -keystore "$KEYSTORE_PATH" -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null
           echo "Production signing keystore and alias validated."
 
-      - name: Confirm target version and Android code are release-ready
+      - name: Confirm target version and bump version metadata
         id: bump
         run: |
           set -euo pipefail
@@ -146,16 +146,60 @@ jobs:
           APP_VERSION=$(sed -nE 's/^appVersion = "([0-9]+\.[0-9]+\.[0-9]+)"/\1/p' gradle/libs.versions.toml)
           CODE=$(sed -nE 's/^android-versionCode = "([0-9]+)"/\1/p' gradle/libs.versions.toml)
           if [[ -z "$CODE" || ! "$CODE" =~ ^[0-9]+$ ]]; then
-            echo "::error::Android versionCode is missing or invalid."
+            echo "::error::android-versionCode is missing or invalid in gradle/libs.versions.toml."
             exit 1
           fi
 
-          # Use the target version
-          VERSION="$TARGET_VERSION"
+          if [[ "$APP_VERSION" == "$TARGET_VERSION" ]]; then
+            # Version metadata was already PR-merged to the release target; use it as-is.
+            FINAL_CODE="$CODE"
+            echo "Version metadata already at v${TARGET_VERSION} (code ${FINAL_CODE}); no bump required."
+          else
+            # Automatic bump: appVersion -> TARGET_VERSION, android-versionCode -> +1.
+            FINAL_CODE=$((10#$CODE + 1))
+            sed -i "s/^appVersion = .*/appVersion = \"${TARGET_VERSION}\"/" gradle/libs.versions.toml
+            sed -i "s/^android-versionCode = .*/android-versionCode = \"${FINAL_CODE}\"/" gradle/libs.versions.toml
 
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "versionCode=${CODE}" >> "$GITHUB_OUTPUT"
-          echo "Release target validated: v${VERSION} (current versionCode ${CODE})."
+            # Main is protected: publish the bump via PR + auto-merge, then wait for the
+            # merge so downstream build jobs (fresh checkout of main) read the bumped values.
+            BRANCH="chore/release-metadata-v${TARGET_VERSION}"
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git fetch origin main
+            git checkout -B "$BRANCH" origin/main
+            git add gradle/libs.versions.toml
+            git commit -m "[skip ci] chore(release): bump version metadata to v${TARGET_VERSION} (code ${FINAL_CODE})"
+            git push origin "HEAD:refs/heads/${BRANCH}"
+            PR_URL=$(gh pr create \
+              --repo "${REPO_OWNER}/${REPO_NAME}" \
+              --base main --head "$BRANCH" \
+              --title "chore(release): bump version metadata to v${TARGET_VERSION}" \
+              --body "Auto-bump appVersion and android-versionCode for DORAI v${TARGET_VERSION}. Created by the release workflow.")
+            for i in $(seq 1 12); do
+              if gh pr merge "$BRANCH" --repo "${REPO_OWNER}/${REPO_NAME}" --merge 2>/dev/null; then
+                echo "Version-metadata PR merged."
+                break
+              fi
+              if [[ $i -eq 12 ]]; then
+                echo "::error::Version-metadata PR was not auto-mergeable; merge ${PR_URL} manually and re-run the release."
+                exit 1
+              fi
+              sleep 5
+            done
+          fi
+
+          # Confirm the merged metadata on origin/main before builds consume it.
+          git fetch origin main
+          MERGED_VERSION=$(git show origin/main:gradle/libs.versions.toml | sed -nE 's/^appVersion = "([0-9]+\.[0-9]+\.[0-9]+)"/\1/p')
+          MERGED_CODE=$(git show origin/main:gradle/libs.versions.toml | sed -nE 's/^android-versionCode = "([0-9]+)"/\1/p')
+          if [[ "$MERGED_VERSION" != "$TARGET_VERSION" || "$MERGED_CODE" != "$FINAL_CODE" ]]; then
+            echo "::error::Merged metadata (v${MERGED_VERSION}/code ${MERGED_CODE}) does not match target (v${TARGET_VERSION}/code ${FINAL_CODE})."
+            exit 1
+          fi
+
+          echo "version=${TARGET_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "versionCode=${FINAL_CODE}" >> "$GITHUB_OUTPUT"
+          echo "Release target validated: v${TARGET_VERSION} (versionCode ${FINAL_CODE})."
 
   ###############################################################################
   # Phase B — Build Targets (APK & MSI required; Others optional)
