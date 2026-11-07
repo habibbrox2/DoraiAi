@@ -77,7 +77,9 @@ internal class AndroidApkSignatureVerifier(
     }.getOrNull()
 
     private fun signingFlags(): Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        PackageManager.GET_SIGNING_CERTIFICATES
+        PackageManager.GET_SIGNING_CERTIFICATES or
+            @Suppress("DEPRECATION")
+            PackageManager.GET_SIGNATURES
     } else {
         @Suppress("DEPRECATION")
         PackageManager.GET_SIGNATURES
@@ -92,7 +94,13 @@ internal class AndroidApkSignatureVerifier(
 
     private fun PackageInfo.signerSha256(): String? {
         val certificates = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            signingInfo?.apkContentsSigners?.map { it.toByteArray() }.orEmpty()
+            val fromSigningInfo = signingInfo?.apkContentsSigners?.map { it.toByteArray() }.orEmpty()
+            if (fromSigningInfo.isNotEmpty()) {
+                fromSigningInfo
+            } else {
+                @Suppress("DEPRECATION")
+                signatures?.map { it.toByteArray() }.orEmpty()
+            }
         } else {
             @Suppress("DEPRECATION")
             signatures?.map { it.toByteArray() }.orEmpty()

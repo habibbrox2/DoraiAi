@@ -34,18 +34,16 @@ import androidx.compose.ui.unit.dp
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.dorai.ai.data.AppSettings
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
  * FOSS Android update controls rendered inside Settings > General.
  *
- * Discovery and download are separate from installation. The install button re-verifies the
- * APK immediately before handing it to Android's system package installer.
- *
- * When "Auto download and install" is on, a discovered update is downloaded automatically and
- * the installer is opened once the download completes. Android always shows its own confirmation
- * dialog, so the switch cannot bypass the system installer.
+ * Uses Android PackageInstaller sessions instead of generic ACTION_VIEW intents, ensuring
+ * deterministic system confirmation prompts without resolver ambiguity.
  */
 @Composable
 internal fun AndroidUpdateSettingsSection(appSettings: AppSettings) {
@@ -55,6 +53,7 @@ internal fun AndroidUpdateSettingsSection(appSettings: AppSettings) {
     val workInfos by workManager
         .getWorkInfosForUniqueWorkFlow(AndroidUpdateDownloadWorker.WORK_NAME)
         .collectAsState(initial = emptyList())
+    val sessionState by AndroidUpdateSessionState.state.collectAsState()
 
     var checking by remember { mutableStateOf(false) }
     var autoUpdateEnabled by remember { mutableStateOf(appSettings.isAutoUpdateEnabled()) }
@@ -113,27 +112,37 @@ internal fun AndroidUpdateSettingsSection(appSettings: AppSettings) {
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
     ) {
-        // Permission is not proof of installability: verify the APK again after returning.
         val currentManifest = manifest
         val apk = downloadedApk
         if (!context.packageManager.canRequestPackageInstalls()) {
             installerMessage = "Installation permission was not granted. The existing app was not changed."
         } else if (currentManifest != null && apk != null) {
-            when (val result = AndroidUpdateInstaller(context).prepareInstall(currentManifest, apk)) {
-                is AndroidUpdateInstaller.InstallPreparation.Ready -> {
-                    runCatching { context.startActivity(result.installIntent) }
-                        .onSuccess { installerMessage = "Android's installer was opened. Confirm the update there to continue." }
-                        .onFailure { installerMessage = "Android could not open the package installer." }
+            scope.launch(Dispatchers.IO) {
+                when (val result = AndroidUpdateInstaller(context).prepareInstall(currentManifest, apk)) {
+                    is AndroidUpdateInstaller.InstallPreparation.Staged -> {
+                        withContext(Dispatchers.Main) {
+                            installerMessage = "Update staged with Android installer. Please confirm installation."
+                        }
+                    }
+
+                    is AndroidUpdateInstaller.InstallPreparation.PermissionRequired -> {
+                        withContext(Dispatchers.Main) {
+                            installerMessage = "Installation permission is still required."
+                        }
+                    }
+
+                    is AndroidUpdateInstaller.InstallPreparation.Unsupported -> {
+                        withContext(Dispatchers.Main) {
+                            installerMessage = result.reason
+                        }
+                    }
+
+                    is AndroidUpdateInstaller.InstallPreparation.Invalid -> {
+                        withContext(Dispatchers.Main) {
+                            installerMessage = "APK verification failed: ${result.reason}"
+                        }
+                    }
                 }
-
-                is AndroidUpdateInstaller.InstallPreparation.PermissionRequired ->
-                    installerMessage = "Installation permission is still required."
-
-                is AndroidUpdateInstaller.InstallPreparation.Unsupported ->
-                    installerMessage = result.reason
-
-                is AndroidUpdateInstaller.InstallPreparation.Invalid ->
-                    installerMessage = "APK verification failed: ${result.reason}"
             }
         } else {
             installerMessage = "Install permission granted. Future updates can install automatically."
@@ -143,24 +152,33 @@ internal fun AndroidUpdateSettingsSection(appSettings: AppSettings) {
     fun launchVerifiedInstall() {
         val currentManifest = manifest ?: return
         val apk = downloadedApk ?: return
-        when (val result = AndroidUpdateInstaller(context).prepareInstall(currentManifest, apk)) {
-            is AndroidUpdateInstaller.InstallPreparation.Ready -> {
-                try {
-                    context.startActivity(result.installIntent)
-                    installerMessage = "Android's installer was opened. Confirm the update there to continue."
-                } catch (_: Exception) {
-                    installerMessage = "Android could not open the package installer."
+        scope.launch(Dispatchers.IO) {
+            when (val result = AndroidUpdateInstaller(context).prepareInstall(currentManifest, apk)) {
+                is AndroidUpdateInstaller.InstallPreparation.Staged -> {
+                    withContext(Dispatchers.Main) {
+                        installerMessage = "Staging update with system installer. Confirm the install dialog to continue."
+                    }
+                }
+
+                is AndroidUpdateInstaller.InstallPreparation.PermissionRequired -> {
+                    withContext(Dispatchers.Main) {
+                        installerMessage = "Allow installation from this source, then return here to install."
+                        permissionLauncher.launch(result.settingsIntent)
+                    }
+                }
+
+                is AndroidUpdateInstaller.InstallPreparation.Unsupported -> {
+                    withContext(Dispatchers.Main) {
+                        installerMessage = result.reason
+                    }
+                }
+
+                is AndroidUpdateInstaller.InstallPreparation.Invalid -> {
+                    withContext(Dispatchers.Main) {
+                        installerMessage = "APK verification failed: ${result.reason}"
+                    }
                 }
             }
-
-            is AndroidUpdateInstaller.InstallPreparation.PermissionRequired -> {
-                installerMessage = "Allow installation from this source, then return here to verify the APK again."
-                permissionLauncher.launch(result.settingsIntent)
-            }
-
-            is AndroidUpdateInstaller.InstallPreparation.Unsupported -> installerMessage = result.reason
-
-            is AndroidUpdateInstaller.InstallPreparation.Invalid -> installerMessage = "APK verification failed: ${result.reason}"
         }
     }
 
@@ -215,8 +233,21 @@ internal fun AndroidUpdateSettingsSection(appSettings: AppSettings) {
     }
 
     LaunchedEffect(Unit) {
+        // Detect if an update just completed across process recreation
+        val targetVersionCode = AndroidUpdateSessionState.getTargetVersionCode(context)
+        val currentCode = context.installedVersionCode()
+        if (targetVersionCode > 0L && currentCode >= targetVersionCode) {
+            val targetName = AndroidUpdateSessionState.getTargetVersionName(context) ?: ""
+            installerMessage = "Successfully updated to version $targetName!"
+            AndroidUpdateSessionState.clearActiveSession(context)
+            AndroidUpdateAutoUpdate.clearPendingManifest(context)
+        } else {
+            AndroidUpdateSessionState.getLastFailure(context)?.let { (_, failureMsg) ->
+                installerMessage = failureMsg
+            }
+        }
+
         if (manifest == null) {
-            // A check may have run at app start and already queued a download.
             manifest = AndroidUpdateAutoUpdate.readPendingManifest(context)
             if (manifest != null) {
                 discoveryMessage = "Version ${manifest?.versionName} is available."
@@ -235,7 +266,7 @@ internal fun AndroidUpdateSettingsSection(appSettings: AppSettings) {
         if (file.name == currentManifest.assetName && file.isFile && file.length() > 0L) {
             downloadedApkPath = file.absolutePath
             installerMessage = if (autoUpdateEnabled) {
-                "Download complete. Opening Android's installer…"
+                "Download complete. Staging update with Android installer…"
             } else {
                 "Download complete. Verify and install when ready."
             }
@@ -320,6 +351,42 @@ internal fun AndroidUpdateSettingsSection(appSettings: AppSettings) {
                         Text("Verify and install")
                     }
                 }
+            }
+
+            // User confirmation fallback if system prompt is dismissed or backgrounded
+            when (val currentSession = sessionState) {
+                is AndroidUpdateSessionState.InstallState.AwaitingConfirmation -> {
+                    Button(
+                        onClick = {
+                            runCatching {
+                                context.startActivity(currentSession.confirmationIntent)
+                            }
+                        },
+                    ) {
+                        Text("Open install confirmation")
+                    }
+                }
+
+                is AndroidUpdateSessionState.InstallState.Installing -> {
+                    Text("Installing update…", style = MaterialTheme.typography.bodySmall)
+                }
+
+                is AndroidUpdateSessionState.InstallState.Success -> {
+                    Text(
+                        "Update succeeded! (Version ${currentSession.versionName})",
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+
+                is AndroidUpdateSessionState.InstallState.Failed -> {
+                    Text(
+                        currentSession.reason,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+
+                else -> Unit
             }
 
             if (isDownloading) {

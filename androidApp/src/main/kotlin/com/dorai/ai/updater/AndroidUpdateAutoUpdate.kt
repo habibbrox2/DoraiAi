@@ -23,8 +23,8 @@ import java.io.File
  *
  * A check runs at most once per [CHECK_INTERVAL_MS] when the preference is on. A discovered
  * update is downloaded through [AndroidUpdateDownloadScheduler] and its manifest is kept in
- * app-private storage so a later launch can finish the install. Installation still goes
- * through Android's package installer, which always asks the user to confirm.
+ * app-private storage so a later launch can finish the install. Installation goes through
+ * Android's PackageInstaller session API, which always requests the user's explicit confirmation.
  */
 internal object AndroidUpdateAutoUpdate {
 
@@ -128,12 +128,9 @@ internal object AndroidUpdateAutoUpdate {
             AndroidUpdateInstaller(context).prepareInstall(manifest, file)
         }
         when (preparation) {
-            is AndroidUpdateInstaller.InstallPreparation.Ready -> {
-                // Clear first so a cancelled installer does not relaunch on every onStart.
+            is AndroidUpdateInstaller.InstallPreparation.Staged -> {
+                // Clear pending manifest once staged so it does not repeatedly re-stage.
                 clearPendingManifest(context)
-                withContext(Dispatchers.Main) {
-                    runCatching { activity.startActivity(preparation.installIntent) }
-                }
             }
 
             is AndroidUpdateInstaller.InstallPreparation.PermissionRequired -> {
