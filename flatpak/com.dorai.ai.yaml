@@ -19,9 +19,9 @@ modules:
     buildsystem: simple
     build-commands:
       # Extract and install the application
-      - tar xf DORAI-AI-linux-x86_64.tar.gz
       - mkdir -p /app/lib/dorai
-      - cp -r DORAI/* /app/lib/dorai/
+      - tar xf DORAI-AI-linux-x86_64.tar.gz
+      - if [ -d "DORAI" ]; then cp -r DORAI/* /app/lib/dorai/; else cp -r bin lib /app/lib/dorai/; fi
 
       # Install wrapper script
       - install -Dm755 dorai-wrapper.sh /app/bin/dorai-wrapper
