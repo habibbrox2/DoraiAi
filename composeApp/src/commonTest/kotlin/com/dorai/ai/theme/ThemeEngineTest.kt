@@ -25,10 +25,10 @@ class ThemeEngineTest {
     private fun repository(settings: MapSettings = MapSettings()) = ThemeSettingsRepository(settings)
 
     @Test
-    fun `defaults to dark preset with Match Device on and flat style`() {
+    fun `defaults to OG Shine preset with Match Device off and flat style`() {
         val state = repository().state.value
-        assertEquals(ThemePresets.DARK_ID, state.selectedThemeId)
-        assertTrue(state.isSystemTheme)
+        assertEquals(ThemePresets.OG_SHINE_ID, state.selectedThemeId)
+        assertFalse(state.isSystemTheme)
         assertEquals(ThemeStyle.Flat, state.activeStyle)
         assertTrue(state.customThemes.isEmpty())
     }
@@ -116,7 +116,7 @@ class ThemeEngineTest {
     }
 
     @Test
-    fun `deleting the selected custom theme falls back to dark`() {
+    fun `deleting the selected custom theme falls back to OG Shine`() {
         val settings = MapSettings()
         val repo = repository(settings)
         repo.saveCustomTheme(
@@ -124,17 +124,17 @@ class ThemeEngineTest {
         )
         assertEquals("custom_gone", repo.state.value.selectedThemeId)
         repo.deleteCustomTheme("custom_gone")
-        assertEquals(ThemePresets.DARK_ID, repo.state.value.selectedThemeId)
+        assertEquals(ThemePresets.OG_SHINE_ID, repo.state.value.selectedThemeId)
         assertTrue(repo.state.value.customThemes.isEmpty())
     }
 
     @Test
-    fun `unknown selected id resolves to dark preset`() {
+    fun `unknown selected id resolves to OG Shine preset`() {
         val state = com.dorai.ai.theme.data.ThemeState(
             selectedThemeId = "does_not_exist",
             isSystemTheme = false,
         )
-        assertEquals(ThemePresets.DARK_ID, state.basePalette().id)
+        assertEquals(ThemePresets.OG_SHINE_ID, state.basePalette().id)
     }
 
     @Test

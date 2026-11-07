@@ -67,11 +67,11 @@ class ThemeSettingsRepository(private val settings: Settings) {
         syncLegacyThemeMode()
     }
 
-    /** Remove a custom theme. If it was selected, the engine falls back to the Dark preset. */
+    /** Remove a custom theme. If it was selected, the engine falls back to the OG Shine default. */
     fun deleteCustomTheme(id: String) {
         val updated = _state.value.customThemes.filterNot { it.id == id }
         if (updated.size == _state.value.customThemes.size) return
-        val selection = if (_state.value.selectedThemeId == id) ThemePresets.DARK_ID else _state.value.selectedThemeId
+        val selection = if (_state.value.selectedThemeId == id) ThemePresets.OG_SHINE_ID else _state.value.selectedThemeId
         settings.putString(KEY_CUSTOM_THEMES_JSON, encodeCustomThemes(updated))
         settings.putString(KEY_SELECTED_THEME_ID, selection)
         _state.update { it.copy(customThemes = updated, selectedThemeId = selection) }
@@ -81,8 +81,9 @@ class ThemeSettingsRepository(private val settings: Settings) {
     private fun loadInitial(): ThemeState {
         val styleRaw = settings.getStringOrNull(KEY_THEME_STYLE)
         return ThemeState(
-            selectedThemeId = settings.getStringOrNull(KEY_SELECTED_THEME_ID) ?: ThemePresets.DARK_ID,
-            isSystemTheme = settings.getBoolean(KEY_IS_SYSTEM_THEME, true),
+            // New installs default to OG Shine with Match Device off so the brand preset shows as-is.
+            selectedThemeId = settings.getStringOrNull(KEY_SELECTED_THEME_ID) ?: ThemePresets.OG_SHINE_ID,
+            isSystemTheme = settings.getBoolean(KEY_IS_SYSTEM_THEME, false),
             style = ThemeStyle.fromStorage(styleRaw).name,
             customThemes = decodeCustomThemes(settings.getStringOrNull(KEY_CUSTOM_THEMES_JSON)),
         )
@@ -103,7 +104,13 @@ class ThemeSettingsRepository(private val settings: Settings) {
                 settings.putBoolean(KEY_IS_SYSTEM_THEME, false)
                 _state.update { it.copy(selectedThemeId = ThemePresets.DARK_ID, isSystemTheme = false) }
             }
-            // "System" (or anything unreadable) keeps the premium default: Dark base + Match Device on.
+
+            // Legacy "System" means Match Device was on — honor it (selected accent stays OG Shine).
+            "System" -> {
+                settings.putBoolean(KEY_IS_SYSTEM_THEME, true)
+                _state.update { it.copy(isSystemTheme = true) }
+            }
+            // Anything unreadable keeps the premium default: OG Shine, Match Device off.
         }
     }
 

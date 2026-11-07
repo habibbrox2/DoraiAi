@@ -19,6 +19,8 @@ import com.dorai.ai.theme.data.ThemeSettingsRepository
 import com.dorai.ai.theme.data.ThemeState
 import com.dorai.ai.theme.data.ThemeStyle
 import com.dorai.ai.theme.data.resolve
+import com.dorai.ai.theme.tokens.DoraiSemanticColors
+import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.DesignColorTokens
@@ -30,8 +32,8 @@ import org.koin.compose.koinInject
 /** The persisted engine state (selected theme, Match Device, Flat/3D style, custom themes). */
 val LocalDoraiThemeState = staticCompositionLocalOf { ThemeState() }
 
-/** The palette that is actually rendered — Match Device aware. */
-val LocalDoraiPalette = staticCompositionLocalOf { ThemePresets.dark }
+/** The palette that is actually rendered — Match Device aware. Default: OG Shine brand preset. */
+val LocalDoraiPalette = staticCompositionLocalOf { ThemePresets.ogShine }
 
 /** The active Flat/3D surface treatment. */
 val LocalDoraiThemeStyle = staticCompositionLocalOf { ThemeStyle.Flat }
@@ -42,6 +44,8 @@ val LocalDoraiThemeStyle = staticCompositionLocalOf { ThemeStyle.Flat }
  * Resolves the selected preset / custom theme against the OS light-dark preference (Match
  * Device), maps it to a Material 3 [ColorScheme] and provides:
  *  - [LocalDoraiThemeState] / [LocalDoraiPalette] / [LocalDoraiThemeStyle] for premium surfaces,
+ *  - [LocalDoraiColors] (UI v2 semantic tokens) derived from the same palette — the single
+ *    source v2 screens read from,
  *  - [LocalDesignColorTokens] (scheme-aware text/surface/border tokens) derived from the same
  *    palette, so every existing screen follows the selected theme,
  *  - [LocalDesignTokens] (legacy static 2027 AURORA constants) kept for source compatibility.
@@ -64,6 +68,7 @@ fun DoraiTheme(
         LocalDoraiThemeState provides state,
         LocalDoraiPalette provides palette,
         LocalDoraiThemeStyle provides state.activeStyle,
+        LocalDoraiColors provides DoraiSemanticColors.from(palette),
         LocalDesignTokens provides DesignTokens,
         LocalDesignColorTokens provides DesignColorTokens.from(colorScheme),
     ) {

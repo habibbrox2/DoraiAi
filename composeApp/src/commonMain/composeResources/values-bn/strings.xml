@@ -1,4 +1,4 @@
-﻿<resources>
+<resources>
     <string name="welcome_message">DORAI AI-তে স্বাগতম</string>
     <string name="prompt_ask_question">একটি প্রশ্ন করুন</string>
     <string name="error_invalid_api_key">অবৈধ API কী। অনুগ্রহ করে আপনার সেটিংস পরীক্ষা করুন।</string>
@@ -538,4 +538,111 @@
     <string name="create_theme_save">থীম সংরক্ষণ করুন</string>
     <string name="create_theme_cancel">বাতিল</string>
     <string name="create_theme_remove">থীম মুছুন</string>
-    <string name="create_theme_preview">প্রিভিউ</string></resources>
+    <string name="create_theme_preview">প্রিভিউ</string>
+
+    <!-- UI v2 Navigation & Shell -->
+    <string name="nav_home">হোম</string>
+    <string name="nav_chat">চ্যাট</string>
+    <string name="nav_workspace">ওয়ার্কস্পেস</string>
+    <string name="nav_settings">সেটিংস</string>
+    <string name="nav_waiting_approval">অনুমোদনের অপেক্ষায়</string>
+    <string name="nav_main_navigation">প্রধান নেভিগেশন</string>
+    <string name="nav_brand_title">DORAI AI</string>
+
+    <!-- UI v2 Shared Components -->
+    <string name="tool_status_running">চলছে</string>
+    <string name="tool_status_completed">সম্পন্ন</string>
+    <string name="tool_status_failed">ব্যর্থ</string>
+    <string name="tool_status_waiting_approval">অনুমতি প্রয়োজন</string>
+    <string name="tool_action_allow_once">একবার অনুমতি</string>
+    <string name="tool_action_allow_session">এই সেশনের জন্য</string>
+    <string name="tool_action_deny">প্রত্যাখ্যান</string>
+    <string name="tool_action_retry">পুনরায় চেষ্টা</string>
+    <string name="tool_action_ask_fix">এজেন্টকে ঠিক করতে বলুন</string>
+    <string name="tool_approval_prompt">টুলটি চালানোর আগে আপনার অনুমোদন প্রয়োজন।</string>
+    <string name="tool_output_label">আউটপুট</string>
+    <string name="tool_error_label">ত্রুটি</string>
+    <string name="composer_attach_content_description">সংযুক্ত করুন</string>
+    <string name="composer_send_content_description">বার্তা পাঠান</string>
+    <string name="composer_mic_content_description">ভয়েস ইনপুট</string>
+    <string name="composer_input_hint">DORAI-কে জিজ্ঞাসা করুন বা নির্দেশ দিন…</string>
+    <string name="dynamic_ui_confirm">নিশ্চিত করুন</string>
+    <string name="dynamic_ui_submitted">নিশ্চিত করা হয়েছে</string>
+    <string name="mode_ask">জিজ্ঞাসা</string>
+    <string name="mode_ask_desc">শুধুমাত্র প্রশ্নোত্তর, কোনো টুল নয়</string>
+    <string name="mode_plan">পরিকল্পনা</string>
+    <string name="mode_plan_desc">ফাইল পড়ে পরিকল্পনা লেখে, কোনো পরিবর্তন করে না</string>
+    <string name="mode_build">বিল্ড</string>
+    <string name="mode_build_desc">ফাইল সম্পাদন করে ও কমান্ড চালায়, ঝুঁকিপূর্ণ কাজে অনুমতি চায়</string>
+    <string name="mode_review">রিভিউ</string>
+    <string name="mode_review_desc">কোড পরীক্ষা করে রিড-অনলি মন্তব্য দেয়</string>
+
+    <!-- UI v2 Home / Dashboard -->
+    <string name="home_today_glance">আজকের সারসংক্ষেপ</string>
+    <string name="home_setup_workspace">ওয়ার্কস্পেস সেটআপ করুন</string>
+    <string name="home_setup_workspace_desc">প্রজেক্ট খোলার আগে একবার সেটআপ লাগবে</string>
+    <string name="home_start_setup">সেটআপ শুরু</string>
+    <string name="home_continue_project">কাজ চালিয়ে যান</string>
+    <string name="home_running_count">চলছে</string>
+    <string name="home_need_approval">অনুমতির অপেক্ষায়</string>
+    <string name="home_review_approvals">অনুমোদন দেখুন</string>
+    <string name="home_no_approvals">এখন কোনো অনুমোদন বাকি নেই।</string>
+    <string name="home_quick_start">দ্রুত শুরু</string>
+    <string name="home_new_chat">নতুন চ্যাট</string>
+    <string name="home_open_project">প্রজেক্ট খুলুন</string>
+    <string name="home_terminal">Terminal</string>
+    <string name="home_models">মডেল</string>
+    <string name="home_status">অবস্থা</string>
+    <string name="home_model_label">মডেল</string>
+    <string name="home_sandbox_label">Linux Sandbox</string>
+    <string name="home_storage_label">স্টোরেজ</string>
+    <string name="home_recent_chats">সাম্প্রতিক চ্যাট</string>
+    <string name="home_no_recent_chats">এখনও কোনো সাম্প্রতিক চ্যাট নেই</string>
+
+    <!-- UI v2 Chat -->
+    <string name="chat_tagline">আপনার এআই। আপনার বিশ্ব।</string>
+    <string name="chat_jump_to_latest">সর্বশেষ বার্তায় যান</string>
+    <string name="chat_today">আজ</string>
+    <string name="chat_yesterday">গতকাল</string>
+    <string name="chat_older">আগের</string>
+    <string name="chat_copy_message">কপি করুন</string>
+    <string name="chat_regenerate_message">পুনরায় তৈরি করুন</string>
+    <string name="chat_model_picker_title">এআই মডেল নির্বাচন করুন</string>
+
+    <!-- UI v2 Workspace -->
+    <string name="workspace_v2_setup_title">ওয়ার্কস্পেস সেটআপ</string>
+    <string name="workspace_setup_desc">প্রজেক্ট শুরুর আগে লোকাল Linux Sandbox, টুলের অনুমতি ও Git কনফিগার করুন।</string>
+    <string name="workspace_setup_step_1">প্রজেক্টের ওয়ার্কস্পেস ফোল্ডার নির্বাচন করুন</string>
+    <string name="workspace_setup_step_2">Linux Sandbox পরিবেশ চালু করুন</string>
+    <string name="workspace_setup_step_3">ডেভেলপমেন্ট টুলস ও Git যাচাই করুন</string>
+    <string name="workspace_ready_title">ওয়ার্কস্পেস প্রস্তুত</string>
+    <string name="workspace_ready_desc">Linux Sandbox চলছে এবং ডেভেলপমেন্ট টুলস প্রস্তুত।</string>
+    <string name="workspace_new_project">নতুন প্রজেক্ট</string>
+    <string name="workspace_import_project">প্রজেক্ট ইম্পোর্ট করুন</string>
+    <string name="workspace_sandbox_stopped_title">Linux Sandbox বন্ধ রয়েছে</string>
+    <string name="workspace_start_sandbox_action">Sandbox চালু করুন</string>
+    <string name="workspace_commit_action">কমিট করুন</string>
+    <string name="workspace_commit_message_hint">কমিট বার্তা লিখুন…</string>
+    <string name="workspace_files_changed_count">%1$dটি ফাইল পরিবর্তিত</string>
+
+    <!-- UI v2 Settings -->
+    <string name="settings_cat_general">সাধারণ</string>
+    <string name="settings_cat_appearance">অ্যাপিয়ারেন্স</string>
+    <string name="settings_cat_agent">এজেন্ট</string>
+    <string name="settings_cat_providers">এআই প্রোভাইডার</string>
+    <string name="settings_cat_tools">টুলস ও স্কিল</string>
+    <string name="settings_cat_mcp">ইন্টিগ্রেশন ও MCP</string>
+    <string name="settings_cat_sandbox">Linux Sandbox</string>
+    <string name="settings_cat_account">অ্যাকাউন্ট ও ডেটা</string>
+    <string name="settings_approval_policy">অনুমোদন নীতি</string>
+    <string name="settings_approval_ask_all">সবকিছুর জন্য অনুমতি নিন</string>
+    <string name="settings_approval_ask_edits">ফাইল পরিবর্তন ও শেলের জন্য অনুমতি নিন</string>
+    <string name="settings_approval_auto_read">স্বয়ংক্রিয় রিড-অনলি টুলস</string>
+    <string name="settings_timeline_toggle">অ্যাক্টিভিটি টাইমলাইন</string>
+    <string name="settings_timeline_desc">এজেন্ট চলার সময় ইন্টারঅ্যাক্টিভ ভিজ্যুয়াল টাইমলাইন নোড প্রদর্শন করুন</string>
+    <string name="settings_mcp_url_hint">সার্ভার URL (HTTPS আবশ্যক)</string>
+    <string name="settings_mcp_invalid_url">ভুল URL: HTTPS আবশ্যক এবং প্রাইভেট নেটওয়ার্ক নিষিদ্ধ।</string>
+    <string name="settings_mcp_test_connection">পরীক্ষা করুন</string>
+    <string name="settings_delete_all_chats">সব চ্যাট মুছে ফেলুন</string>
+    <string name="settings_delete_chats_confirm">আপনি কি নিশ্চিত যে সংরক্ষিত সব চ্যাট মুছে ফেলতে চান? এটি পূর্বাবস্থায় ফেরানো যাবে না।</string>
+</resources>

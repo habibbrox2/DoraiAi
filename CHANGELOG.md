@@ -1,3 +1,18 @@
+## DORAI AI - UI v2 Migration
+
+### Added
+- **UI v2 Adaptive Shell:** Responsive architecture supporting Compact (<600dp), Medium (600–839dp), Expanded (840–1199dp), and Large (≥1200dp) with bottom navigation bar, 78dp navigation rail, and 224dp permanent drawer.
+- **Four Primary Destinations:** Direct top-level navigation between Home (Dashboard), Chat, Workspace, and Settings with state preservation and single-step backstack handling.
+- **Workspace Pending Approval Badge:** Dedicated badge counter on the Workspace tab indicating steps awaiting user authorization.
+- **UI v2 Semantic Token System:** Unified `DoraiSemanticColors` mapping all 13 theme presets with verified WCAG AA ($\ge 4.5:1$) contrast across light and dark modes.
+- **Flat vs. 3D Neumorphic Style:** New `doraiEdgeStyle` pressable modifier providing 3dp translation and tactile bottom edges without layout bounds alteration.
+- **Data-Driven Agent Modes:** Added Ask, Plan, Build, and Review modes with dedicated quick-start actions and composer selectors.
+- **Shared v2 Interaction Components:** Added `DoraiToolCard` (Running, Completed, Failed, Pending Approval), `DoraiShellBlock`, `DoraiDiffBlock`, `DoraiApprovalActions`, and `DoraiAgentTimeline`.
+- **Adaptive List-Detail Layouts:** Two-pane list-detail layout for Chat (History + Conversation) and Settings (8 Categories + Detail Pane).
+- **Internationalization:** Full localized string resources in Bengali (`bn`) and English (`en`) across all v2 navigation and interaction surfaces.
+
+---
+
 ## DORAI AI - Workspace Editor & Source Control
 
 ### Added
