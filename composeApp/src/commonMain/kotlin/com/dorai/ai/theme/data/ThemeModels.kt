@@ -85,8 +85,9 @@ data class ThemePalette(
  */
 @Serializable
 data class ThemeState(
-    val selectedThemeId: String = ThemePresets.DARK_ID,
-    val isSystemTheme: Boolean = true,
+    // New-install default: OG Shine brand preset, Match Device off so it shows as-is.
+    val selectedThemeId: String = ThemePresets.OG_SHINE_ID,
+    val isSystemTheme: Boolean = false,
     val style: String = ThemeStyle.Flat.name,
     val customThemes: List<ThemePalette> = emptyList(),
 ) {
@@ -103,7 +104,7 @@ data class ThemeState(
         get() = ThemePresets.all + customThemes
 
     /** The palette the user selected, regardless of the Match Device switch. */
-    fun basePalette(): ThemePalette = availablePresets.firstOrNull { it.id == selectedThemeId } ?: ThemePresets.dark
+    fun basePalette(): ThemePalette = availablePresets.firstOrNull { it.id == selectedThemeId } ?: ThemePresets.ogShine
 }
 
 /**

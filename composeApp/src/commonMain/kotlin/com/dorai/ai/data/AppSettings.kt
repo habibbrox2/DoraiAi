@@ -517,6 +517,17 @@ class AppSettings(internal val settings: Settings) {
         _uiScaleFlow.value = scale
     }
 
+    // UI v2 Migration Flag (cut-over enabled by default)
+    private val _uiV2Flow = MutableStateFlow(settings.getBoolean(KEY_UI_V2, true))
+    val uiV2Flow: StateFlow<Boolean> = _uiV2Flow
+
+    fun isUiV2Enabled(): Boolean = _uiV2Flow.value
+
+    fun setUiV2Enabled(enabled: Boolean) {
+        settings.putBoolean(KEY_UI_V2, enabled)
+        _uiV2Flow.value = enabled
+    }
+
     // Email
     fun isEmailEnabled(): Boolean = settings.getBoolean(KEY_EMAIL_ENABLED, true)
 
@@ -748,6 +759,7 @@ class AppSettings(internal val settings: Settings) {
         const val KEY_SANDBOX_DISTRO = "sandbox_distro"
         const val KEY_WORKSPACE_LAUNCH_AGENT = "workspace_launch_agent"
         const val KEY_TOOL_PERMISSIONS = "tool_permissions"
+        const val KEY_UI_V2 = "ui_v2_enabled"
 
         // Basic memory guidance shared by every chat variant. The advanced `## Structured
         // Learning` block lives in `ChatSystemPromptBuilder.DEFAULT_STRUCTURED_LEARNING_SECTION`

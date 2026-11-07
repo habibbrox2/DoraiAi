@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DORAI AI — UI v2 প্রোটোটাইপ</title>
+<style>
+:root{--page:#05070B;--bg:#150A2E;--surface:#241347;--surface2:#322059;--line:#43306E;--text:#F6F0FF;--muted:#B7A6DA;--primary:#FFC043;--on-primary:#2A1B00;--accent:#FF2E93;--ok:#34D399;--warn:#FBBF24;--err:#FB7185;--info:#22D3EE;--code:#0C0620;--scrim:rgba(0,0,0,.6);color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--text);font-family:"Noto Sans Bengali","Hind Siliguri","Nirmala UI","Kohinoor Bangla",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--info);outline-offset:2px}
+code,pre,.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+
+/* toolbar */
+.bar{display:flex;gap:10px 14px;flex-wrap:wrap;align-items:center;padding:12px 16px}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg button{padding:4px 14px;border-radius:999px;min-height:36px;font-size:14px;color:var(--muted);white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--primary);color:var(--on-primary);font-weight:600}
+.sel{min-height:42px;border-radius:21px;border:1px solid var(--line);background:var(--surface);padding:4px 14px;font-size:14px}
+.hint{font-size:13px;color:var(--muted);padding:0 16px 10px}
+.stage{padding:0 16px 24px;overflow:hidden}
+#wrap{margin:0 auto;position:relative}
+#frame{position:absolute;left:0;top:0;transform-origin:0 0;border-radius:26px;overflow:hidden;border:1px solid var(--line)}
+
+/* shell */
+.app{position:relative;overflow:hidden;display:grid;height:100%;background:var(--bg);color:var(--text);font-size:calc(16px*var(--fs,1))}
+.app[data-size=compact]{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;grid-template-areas:"main" "nav"}
+.app[data-size=medium],.app[data-size=expanded]{grid-template-columns:78px 250px minmax(0,1fr);grid-template-areas:"nav pane main"}
+.app[data-size=expanded]{grid-template-columns:78px 270px minmax(0,1fr)}
+.app[data-size=large]{grid-template-columns:224px 300px minmax(0,1fr);grid-template-areas:"nav pane main"}
+.app.nopane[data-size=medium],.app.nopane[data-size=expanded]{grid-template-columns:78px minmax(0,1fr);grid-template-areas:"nav main"}
+.app.nopane[data-size=large]{grid-template-columns:224px minmax(0,1fr);grid-template-areas:"nav main"}
+.nav{grid-area:nav;background:var(--surface);border-top:1px solid var(--line);display:flex}
+.app:not([data-size=compact]) .nav{flex-direction:column;border-top:0;border-right:1px solid var(--line);padding:12px 8px;gap:4px}
+.ni{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;min-height:64px;padding:8px 4px;color:var(--muted);font-size:12px;line-height:1.3;text-align:center;border-radius:16px;position:relative}
+.ni[aria-current=true]{color:var(--text);font-weight:600}
+.ni[aria-current=true] svg{background:color-mix(in srgb,var(--primary) 26%,transparent);color:var(--primary);border-radius:12px;padding:4px;width:42px;height:30px}
+.ni .dot{position:absolute;top:8px;right:calc(50% - 22px);width:10px;height:10px;border-radius:50%;background:var(--warn);border:2px solid var(--surface)}
+.app:not([data-size=compact]) .ni{flex:none;min-height:56px}
+.app[data-size=large] .ni{flex-direction:row;justify-content:flex-start;gap:12px;font-size:15px;padding:8px 14px;min-height:48px;text-align:left}
+.app[data-size=large] .ni[aria-current=true]{background:color-mix(in srgb,var(--primary) 16%,transparent)}
+.app[data-size=large] .ni[aria-current=true] svg{background:none;padding:0;width:22px;height:22px}
+.app[data-size=large] .ni .dot{right:14px;top:18px}
+.brandrow{display:flex;align-items:center;gap:10px;padding:4px 6px 14px;justify-content:center}
+.app[data-size=large] .brandrow{justify-content:flex-start}
+.app:not([data-size=large]) .wordmark{display:none}
+.grow{flex:1}
+.pane{grid-area:pane;background:var(--bg);border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0;min-height:0}
+.app[data-size=compact] .pane{grid-area:auto;position:absolute;left:0;top:0;bottom:0;width:min(330px,88%);z-index:30;transform:translateX(-102%);transition:transform .2s;background:var(--surface)}
+.app[data-size=compact] .pane.open{transform:none}
+.main{grid-area:main;display:flex;flex-direction:column;min-width:0;min-height:0;position:relative}
+.scrim{position:absolute;inset:0;background:var(--scrim);z-index:25}
+.top{display:flex;align-items:center;gap:8px;padding:8px 12px;min-height:56px;border-bottom:1px solid var(--line);background:var(--bg)}
+.top h1{font-size:19px;line-height:1.4;margin:0;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ib{width:44px;height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:var(--text)}
+.ib:hover{background:var(--surface2)}
+.pill{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:4px 12px 4px 14px;border-radius:22px;background:var(--surface);border:1px solid var(--line);max-width:100%;min-width:0}
+.pill .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;line-height:1.4;padding:1px 8px;border-radius:10px;font-weight:600;white-space:nowrap}
+.badge.local,.badge.ok{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
+.badge.cloud,.badge.info{background:color-mix(in srgb,var(--info) 20%,transparent);color:var(--info)}
+.badge.warn{background:color-mix(in srgb,var(--warn) 22%,transparent);color:var(--warn)}
+.badge.err{background:color-mix(in srgb,var(--err) 22%,transparent);color:var(--err)}
+.badge.mute{background:var(--surface2);color:var(--muted)}
+.scroll{flex:1;min-height:0;overflow-y:auto;padding:16px}
+.col{max-width:760px;margin:0 auto}
+.col.wide{max-width:1000px}
+.muted{color:var(--muted)}
+h2{font-size:18px;line-height:1.5;margin:0 0 6px;font-weight:600}
+h3{font-size:14px;margin:18px 0 8px;font-weight:600;color:var(--muted)}
+
+/* buttons / flat vs 3D */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:6px 20px;border-radius:24px;font-weight:600;border:1px solid var(--line);background:var(--surface);transition:transform .08s}
+.btn.primary{background:var(--primary);color:var(--on-primary);border-color:transparent}
+.btn.accent{background:var(--accent);color:#fff;border-color:transparent}
+.btn.tonal{background:color-mix(in srgb,var(--primary) 20%,var(--surface));border-color:transparent}
+.btn.danger{color:var(--err);border-color:color-mix(in srgb,var(--err) 55%,transparent)}
+.btn.text{border-color:transparent;background:none;color:var(--primary)}
+.btn.wide{width:100%}
+.btn.sm{min-height:40px;padding:4px 14px;font-size:14px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:2px 14px;border-radius:20px;border:1px solid var(--line);font-size:14px;color:var(--muted);white-space:nowrap}
+.chip[aria-pressed=true]{background:color-mix(in srgb,var(--primary) 22%,transparent);border-color:var(--primary);color:var(--text);font-weight:600}
+html[data-style=d3] .btn:not(.text){box-shadow:0 4px 0 color-mix(in srgb,var(--line) 85%,#000),0 8px 14px rgba(0,0,0,.18)}
+html[data-style=d3] .btn.primary{box-shadow:0 4px 0 color-mix(in srgb,var(--primary) 50%,#000),0 8px 14px rgba(0,0,0,.2)}
+html[data-style=d3] .btn.accent{box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 50%,#000),0 8px 14px rgba(0,0,0,.2)}
+html[data-style=d3] .btn:not(.text):active{transform:translateY(3px);box-shadow:0 1px 0 color-mix(in srgb,var(--line) 85%,#000)}
+html[data-style=d3] .card,html[data-style=d3] .tcard,html[data-style=d3] .box,html[data-style=d3] .pill{box-shadow:inset 0 1px 0 color-mix(in srgb,#fff 12%,transparent),0 4px 0 color-mix(in srgb,var(--line) 80%,#000),0 10px 16px rgba(0,0,0,.16)}
+html[data-style=d3] .chip{box-shadow:0 3px 0 color-mix(in srgb,var(--line) 80%,#000)}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:12px}
+.card .r{display:flex;align-items:center;gap:12px}
+.card .r .t{flex:1;min-width:0}
+.card .t b{display:block;overflow-wrap:anywhere}
+.card .t span{font-size:13px;color:var(--muted)}
+.grid{display:grid;gap:12px;grid-template-columns:1fr}
+.app:not([data-size=compact]) .grid.two{grid-template-columns:1fr 1fr}
+.app[data-size=large] .grid.three{grid-template-columns:1fr 1fr 1fr}
+.grid>.card{margin:0}
+.stat{display:flex;gap:10px;align-items:center}
+.stat b{font-size:26px;line-height:1.1}
+.bar2{height:8px;border-radius:4px;background:var(--surface2);overflow:hidden}
+.bar2 i{display:block;height:100%;background:var(--primary)}
+.sw{width:52px;height:32px;border-radius:16px;background:var(--surface2);border:2px solid var(--muted);position:relative;flex:none}
+.sw::after{content:"";position:absolute;top:4px;left:4px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:all .15s}
+.sw[aria-checked=true]{background:var(--primary);border-color:var(--primary)}
+.sw[aria-checked=true]::after{left:24px;background:var(--on-primary)}
+.seg2{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.kv:last-child{border:0}
+.kv span:last-child{color:var(--muted);text-align:right}
+.field{display:block;margin:12px 0}
+.field span{display:block;font-size:14px;color:var(--muted);margin-bottom:4px}
+.field input,.field select{width:100%;min-height:48px;border-radius:14px;border:1px solid var(--line);background:var(--bg);padding:8px 14px}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:4px 0;font-size:14px}
+.chk svg{flex:none;margin-top:3px}
+.chk.ok svg{color:var(--ok)}.chk.bad svg{color:var(--err)}.chk.warn svg{color:var(--warn)}
+
+/* list rows */
+.phead{padding:12px 12px 8px;display:flex;flex-direction:column;gap:10px}
+.sbox{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:0 14px;min-height:44px;color:var(--muted)}
+.sbox input{flex:1;min-width:0;border:0;background:none;outline:0;padding:8px 0}
+.plist{flex:1;overflow-y:auto;padding:0 8px 12px}
+.plist h4{font-size:13px;font-weight:600;color:var(--muted);margin:14px 8px 4px}
+.li{display:flex;align-items:center;gap:12px;width:100%;text-align:left;min-height:56px;padding:8px 12px;border-radius:14px}
+.li:hover{background:var(--surface2)}
+.li[aria-current=true]{background:color-mix(in srgb,var(--primary) 18%,transparent)}
+.li .t{flex:1;min-width:0}
+.li .t b{display:block;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.li .t span{font-size:13px;color:var(--muted);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* pill tabs (settings / project) */
+.pilltabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:6px;overflow-x:auto;margin:0 0 14px;scrollbar-width:none}
+.pilltabs button{flex:none;min-height:44px;padding:4px 18px;border-radius:22px;color:var(--muted);border:2px solid transparent;display:inline-flex;align-items:center;gap:8px}
+.pilltabs button[aria-selected=true]{border-color:var(--info);background:color-mix(in srgb,var(--info) 16%,transparent);color:var(--info);font-weight:600}
+
+/* chat */
+.msgs{flex:1;min-height:0;overflow-y:auto;padding:16px}
+.msgs .col{display:flex;flex-direction:column;gap:18px}
+.msg.user{display:flex;justify-content:flex-end}
+.bub{background:var(--surface2);padding:10px 16px;border-radius:20px 20px 6px 20px;max-width:88%;white-space:pre-wrap;overflow-wrap:anywhere}
+.ai .who{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:14px;color:var(--muted)}
+.ai p{margin:0 0 10px;overflow-wrap:anywhere}
+.acts{display:flex;gap:2px;margin:2px 0 0 -10px}
+.acts .ib{width:40px;height:40px;min-width:40px;color:var(--muted)}
+.dots{display:inline-flex;gap:4px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:b 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes b{50%{opacity:.25}}
+.empty{text-align:center;padding:24px 8px 8px}
+.empty h2{font-size:24px;margin-top:14px}
+.qs{display:grid;grid-template-columns:1fr;gap:10px;margin-top:20px;text-align:left}
+.app:not([data-size=compact]) .qs{grid-template-columns:1fr 1fr}
+.qs button{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);min-height:64px}
+.qs svg{color:var(--primary);flex:none;margin-top:2px}
+.qs b{display:block;font-size:15px}.qs span{font-size:13px;color:var(--muted);line-height:1.45;display:block}
+.composer{padding:8px 12px 12px;background:var(--bg);border-top:1px solid transparent}
+.composer .col{display:flex;flex-direction:column;gap:6px}
+.modes{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.mdesc{font-size:13px;color:var(--muted);padding:0 4px}
+.box{display:flex;align-items:flex-end;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:26px;padding:4px 6px}
+.box:focus-within{border-color:var(--info)}
+.box textarea{flex:1;border:0;background:none;resize:none;outline:0;min-height:44px;max-height:132px;padding:9px 6px;line-height:1.6}
+.box textarea::placeholder{color:var(--muted)}
+.send{background:var(--primary);color:var(--on-primary)}
+.send:hover{background:var(--primary)}
+
+/* tool cards / shell / approval */
+.tcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin:8px 0;overflow:hidden}
+.tcard.s-wait{border-color:var(--warn)}.tcard.s-fail{border-color:color-mix(in srgb,var(--err) 60%,var(--line))}
+.thead{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;min-height:48px;text-align:left}
+.thead .nm{font-weight:600;font-size:14px}
+.thead .ar{flex:1;min-width:0;color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid color-mix(in srgb,var(--info) 30%,transparent);border-top-color:var(--info);animation:sp .8s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+.tbody{padding:0 12px 12px;font-size:13px}
+.sh{background:var(--code);border-radius:10px;padding:10px 12px;overflow-x:auto;font-size:12.5px;line-height:1.55;margin:0;white-space:pre}
+.sh .cm{color:var(--info)}.sh .er{color:var(--err)}
+.diff{background:var(--code);border-radius:10px;padding:8px 0;font-size:12.5px;line-height:1.55;overflow-x:auto}
+.diff div{padding:0 12px;white-space:pre}.diff .a{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}.diff .d{background:color-mix(in srgb,var(--err) 18%,transparent);color:var(--err)}
+.appr{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+.appr .btn{flex:1;min-width:110px}
+.appr-note{display:flex;gap:8px;align-items:center;color:var(--warn);font-weight:600;margin-bottom:8px}
+.dyn{background:var(--surface);border:1px solid var(--info);border-radius:18px;padding:14px;margin:8px 0}
+.dyn .opt{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;padding:10px 12px;border-radius:14px;border:1px solid var(--line);margin-top:8px;min-height:56px}
+.dyn .opt[aria-checked=true]{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 14%,transparent)}
+.dyn .rd{width:20px;height:20px;border-radius:50%;border:2px solid var(--muted);flex:none;margin-top:3px}
+.dyn .opt[aria-checked=true] .rd{border-color:var(--primary);background:radial-gradient(var(--primary) 45%,transparent 50%)}
+.plan li{padding:2px 0}
+
+/* rail / timeline */
+.rail{position:relative;margin:8px 0 8px}
+.rail::before{content:"";position:absolute;left:15px;top:16px;bottom:16px;width:2px;background:linear-gradient(var(--info),var(--accent));opacity:.5;border-radius:2px}
+.step{position:relative;padding:0 0 14px 46px;min-height:36px}
+.node{position:absolute;left:0;top:0;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--bg);border:2px solid var(--muted);color:var(--muted)}
+.s-ok .node{background:var(--ok);border-color:var(--ok);color:#06140E}
+.s-run .node{border-color:var(--info);color:var(--info)}
+.s-wait .node{background:var(--warn);border-color:var(--warn);color:#2A1B00}
+.s-fail .node{border-color:var(--err);color:var(--err)}
+.s-task .node{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.step .ti{padding-top:3px;overflow-wrap:anywhere}
+
+/* workspace */
+.pw{flex:1;min-height:0;display:flex}
+.pcol{display:flex;flex-direction:column;min-width:0;min-height:0}
+.pcenter{flex:1}
+.pagent{width:320px;border-left:1px solid var(--line);flex:none;background:var(--bg)}
+.app[data-size=large] .pagent{width:380px}
+.ptree{width:230px;border-right:1px solid var(--line);flex:none;overflow-y:auto;padding:8px}
+.code{background:var(--code);flex:1;min-height:0;overflow:auto;font-size:13px;line-height:1.65;padding:8px 0}
+.code div{display:flex;white-space:pre}
+.code .n{width:44px;flex:none;text-align:right;padding-right:12px;color:var(--muted);user-select:none}
+.code .add{background:color-mix(in srgb,var(--ok) 16%,transparent)}
+.ftabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto;padding:0 8px;scrollbar-width:none}
+.ftabs button{padding:8px 14px;min-height:44px;color:var(--muted);border-bottom:2px solid transparent;font-size:14px;white-space:nowrap}
+.ftabs button[aria-selected=true]{color:var(--text);border-color:var(--primary)}
+.term{flex:1;min-height:0;overflow:auto;background:var(--code);padding:12px 14px;font-size:13px;line-height:1.55}
+.term div{white-space:pre-wrap;overflow-wrap:anywhere}
+.termin{display:flex;gap:8px;align-items:center;padding:6px 12px;border-top:1px solid var(--line);background:var(--code)}
+.termin input{flex:1;border:0;background:none;outline:0;min-height:40px}
+.gst{width:22px;height:22px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:none}
+.gst.M{background:color-mix(in srgb,var(--warn) 25%,transparent);color:var(--warn)}
+.gst.A{background:color-mix(in srgb,var(--ok) 25%,transparent);color:var(--ok)}
+.gst.D{background:color-mix(in srgb,var(--err) 25%,transparent);color:var(--err)}
+
+/* theme grid */
+.tg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.app[data-size=large] .tg,.app[data-size=expanded] .tg{grid-template-columns:repeat(4,1fr)}
+.tp{text-align:left;display:block}
+.tp .mk{border-radius:16px;border:2px solid var(--line);padding:10px;height:84px;display:flex;flex-direction:column;justify-content:space-between}
+.tp[aria-pressed=true] .mk{border-color:var(--info);box-shadow:0 0 0 2px color-mix(in srgb,var(--info) 40%,transparent)}
+.tp .mk i{display:block;height:8px;border-radius:4px}
+.tp .mk .row{display:flex;align-items:center;justify-content:space-between}
+.tp .mk .d{display:inline-flex;gap:4px}.tp .mk .d b{width:8px;height:8px;border-radius:50%}
+.tp .mk .pl{width:36px;height:16px;border-radius:8px}
+.tp span{display:block;font-size:13px;margin-top:4px;color:var(--muted)}
+
+/* sheets */
+.sheet{position:absolute;z-index:40;background:var(--surface);display:flex;flex-direction:column;max-height:86%}
+.app[data-size=compact] .sheet{left:0;right:0;bottom:0;border-radius:28px 28px 0 0;animation:up .22s}
+.app:not([data-size=compact]) .sheet{left:50%;top:50%;transform:translate(-50%,-50%);width:min(460px,92%);border-radius:24px;border:1px solid var(--line)}
+.app:not([data-size=compact]) .sheet.pop{top:62px;transform:translateX(-50%);width:360px;border-radius:18px}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.sheet .grab{width:36px;height:4px;border-radius:2px;background:var(--line);margin:10px auto 2px}
+.app:not([data-size=compact]) .sheet .grab{display:none}
+.sheet .sh2{padding:8px 20px 4px;font-size:18px;font-weight:600}
+.sheet .sb{padding:8px 12px 16px;overflow-y:auto}
+.sheet .sb.pad{padding:8px 20px 20px}
+.toast{position:absolute;left:50%;transform:translateX(-50%);bottom:84px;z-index:60;background:var(--text);color:var(--bg);border-radius:14px;padding:10px 16px;font-size:14px;display:flex;gap:14px;align-items:center;max-width:92%}
+.app:not([data-size=compact]) .toast{bottom:24px}
+.toast button{color:var(--bg);font-weight:700;text-decoration:underline;min-height:36px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="seg" id="devSeg" role="group" aria-label="Device"></div>
+  <div class="seg" id="langSeg" role="group" aria-label="Language"></div>
+  <div class="seg" id="styleSeg" role="group" aria-label="Style"></div>
+  <select class="sel" id="themeSel" aria-label="Theme preset"></select>
+</div>
+<div class="hint" id="hint"></div>
+<div class="stage" id="stage"><div id="wrap"><div id="frame"><div class="app" id="app"></div></div></div></div>
+
+<script>
+/* ---------- themes ---------- */
+const PRE={
+ dark:{n:'Dark',d:1,bg:'#060C18',s:'#0E182A',s2:'#16243B',l:'#26385A',t:'#E8EEF8',m:'#8FA2BF',p:'#8B7BFF',op:'#0A0620',a:'#22D3EE'},
+ light:{n:'Light',d:0,bg:'#FFFFFF',s:'#F1F5F9',s2:'#E2E8F0',l:'#CBD5E1',t:'#0F172A',m:'#52627A',p:'#2563EB',op:'#FFFFFF',a:'#0EA5E9'},
+ ogshine:{n:'OG Shine',d:1,bg:'#150A2E',s:'#241347',s2:'#322059',l:'#43306E',t:'#F6F0FF',m:'#B7A6DA',p:'#FFC043',op:'#2A1B00',a:'#FF2E93'},
+ peach:{n:'Peach',d:0,bg:'#FFF4E8',s:'#FFFFFF',s2:'#FFE6CF',l:'#EBCBAA',t:'#3A2210',m:'#7E5A3C',p:'#B45309',op:'#FFFFFF',a:'#F97316'},
+ midnight:{n:'Midnight',d:1,bg:'#04152B',s:'#0A2342',s2:'#103157',l:'#1F4A7C',t:'#E6F0FF',m:'#8DB0D9',p:'#3B82F6',op:'#FFFFFF',a:'#22D3EE'},
+ lilac:{n:'Lilac',d:0,bg:'#F8F5FF',s:'#FFFFFF',s2:'#EDE7FF',l:'#D2C5F3',t:'#241B3D',m:'#645688',p:'#7C3AED',op:'#FFFFFF',a:'#C084FC'},
+ dusk:{n:'Dusk',d:1,bg:'#100A1C',s:'#1B1230',s2:'#281B47',l:'#3A2A63',t:'#F1E9FF',m:'#AE9CD0',p:'#A855F7',op:'#FFFFFF',a:'#FB923C'},
+ seafoam:{n:'Seafoam',d:0,bg:'#EFFFF6',s:'#FFFFFF',s2:'#D8F7E6',l:'#A9DEC2',t:'#0B2E20',m:'#3B7358',p:'#0A7F59',op:'#FFFFFF',a:'#14B8A6'},
+ graphite:{n:'Graphite',d:1,bg:'#101114',s:'#1A1C21',s2:'#252830',l:'#363A45',t:'#EBEDF0',m:'#9AA1AD',p:'#8FA1BC',op:'#0B1220',a:'#64748B'},
+ daybreak:{n:'Daybreak',d:0,bg:'#F5F8FF',s:'#FFFFFF',s2:'#E4ECFF',l:'#C3D2F3',t:'#0F1B3D',m:'#4D5E8C',p:'#2F6FED',op:'#FFFFFF',a:'#60A5FA'},
+ sherbet:{n:'Sherbet',d:0,bg:'#FFF5FA',s:'#FFFFFF',s2:'#FFE3F0',l:'#F2BFD9',t:'#40142B',m:'#8A5470',p:'#C81E78',op:'#FFFFFF',a:'#F472B6'},
+ paper:{n:'Paper',d:0,bg:'#F8F5EE',s:'#FFFFFF',s2:'#EFEADF',l:'#D9D0BC',t:'#2B2519',m:'#6A6149',p:'#B8512F',op:'#FFFFFF',a:'#D97757'},
+ carbon:{n:'Carbon',d:1,bg:'#000000',s:'#0C0C0E',s2:'#17181C',l:'#2A2B32',t:'#F2F3F5',m:'#9A9DA6',p:'#4C8DFF',op:'#001028',a:'#60A5FA'}};
+const S={dev:'phone',size:'',theme:'ogshine',style:'flat',lang:'bn',nav:'home',mode:'build',conv:0,drawer:false,sheet:null,set:'general',
+ ws:'setup',setupStep:0,proj:null,ptab:'agent',file:0,input:'',q:'',toast:null,fs:1,sandbox:true,open:{},termIn:'',model:'gemini',url:'',
+ policy:'edits',defMode:'build',tog:{haptics:true,notif:true,timeline:true,autoread:true,sync:false,net:true},commitMsg:'',gitSel:0,deleteAsked:false};
+const L=(bn,en)=>S.lang==='bn'?bn:en;
+const P=o=>typeof o==='string'?o:o[S.lang];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function applyTheme(){
+ const p=PRE[S.theme],r=document.documentElement.style,d=p.d;
+ const v={bg:p.bg,surface:p.s,surface2:p.s2,line:p.l,text:p.t,muted:p.m,primary:p.p,'on-primary':p.op,accent:p.a,
+  ok:d?'#34D399':'#0B7A52',warn:d?'#FBBF24':'#8F5A00',err:d?'#FB7185':'#C0262D',info:d?'#22D3EE':'#1D5FBF',
+  code:d?`color-mix(in srgb, ${p.bg} 70%, #000)`:`color-mix(in srgb, ${p.s2} 60%, ${p.bg})`,
+  page:d?`color-mix(in srgb, ${p.bg} 55%, #000)`:`color-mix(in srgb, ${p.s2} 85%, #000)`,scrim:d?'rgba(0,0,0,.62)':'rgba(20,20,40,.4)'};
+ for(const k in v)r.setProperty('--'+k,v[k]);
+ document.documentElement.dataset.style=S.style==='3d'?'d3':'flat';
+ r.setProperty('color-scheme',d?'dark':'light');document.documentElement.lang=S.lang;
+}
+const IC={home:'M4 11l8-7 8 7v9h-5v-6H9v6H4z',chat:'M4 5h16v11H9l-5 4z',folder:'M3 6h6l2 2h10v11H3z',gear:'M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1',bot:'M5 9h14v10H5z M12 9V5 M9 14h.01 M15 14h.01 M3 13v2 M21 13v2',edit:'M4 20l4-1 11-11-3-3L5 16z',term:'M4 5h16v14H4z M7 10l3 2-3 2 M12 15h4',git:'M6 3v12 M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M18 9c0 6-12 3-12 6',menu:'M4 7h16M4 12h16M4 17h16',plus:'M12 5v14M5 12h14',mic:'M12 4a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V7a3 3 0 0 1 3-3z M6 11a6 6 0 0 0 12 0 M12 17v3',send:'M4 12l16-8-6 16-3-7z',user:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M5 20a7 7 0 0 1 14 0',chip:'M8 8h8v8H8z M10 4v4M14 4v4M10 16v4M14 16v4M4 10h4M4 14h4M16 10h4M16 14h4',cloud:'M7 18a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 8.5 4.5 4.5 0 0 1 17 18z',check:'M5 12l5 5 9-10',x:'M6 6l12 12M18 6L6 18',chev:'M9 6l6 6-6 6',down:'M6 9l6 6 6-6',back:'M15 6l-6 6 6 6',search:'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14z M20 20l-4-4',copy:'M9 9h10v11H9z M5 15V4h10',refresh:'M20 11a8 8 0 1 0-2 6 M20 4v7h-7',shield:'M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z',tool:'M14 6a4 4 0 0 0 5 5l-9 9a2 2 0 0 1-3-3l9-9a4 4 0 0 0-2-2z',list:'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',palette:'M12 3a9 9 0 1 0 0 18c1.5 0 2-1 1.5-2s0-2 1.5-2h2a4 4 0 0 0 4-4c0-5-4-10-9-10z M8 11h.01 M12 7h.01 M16 10h.01',plug:'M9 3v5M15 3v5M7 8h10v4a5 5 0 0 1-10 0z M12 17v4',box:'M12 3l8 4v10l-8 4-8-4V7z M4 7l8 4 8-4 M12 11v10',key:'M8 15a4 4 0 1 1 3.5-6H21v3h-3v3h-3v-3h-3.5A4 4 0 0 1 8 15z',sliders:'M4 7h10M18 7h2M4 17h2M10 17h10 M14 4v6 M6 14v6',zap:'M13 3L5 14h6l-1 7 8-11h-6z',play:'M7 4l12 8-12 8z',file:'M7 3h7l4 4v14H7z M14 3v4h4',img:'M4 5h16v14H4z M4 16l5-5 4 4 3-3 4 4 M9 9h.01',trash:'M5 7h14 M9 7V4h6v3 M7 7l1 13h8l1-13',warn:'M12 4l9 16H3z M12 10v5 M12 18h.01',flag:'M6 21V4 M6 5h12l-2 4 2 4H6',folder2:'M3 7h6l2 2h10v10H3z',sparkle:'M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z',lock:'M6 11h12v9H6z M8 11V8a4 4 0 0 1 8 0v3'};
+const ic=(n,s=22)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IC[n]}"/></svg>`;
+const mark=(s=32)=>`<svg width="${s}" height="${s}" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="10" fill="var(--primary)"/><path d="M10.5 8.5h5a7.5 7.5 0 0 1 0 15h-5z" fill="none" stroke="var(--on-primary)" stroke-width="2.4" stroke-linejoin="round"/><path d="M12.5 16c1.6-2 3-2 4.2 0s2.6 2 3.8 0" fill="none" stroke="var(--on-primary)" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+const ib=(act,icon,label,extra='')=>`<button class="ib" data-act="${act}" aria-label="${esc(label)}" title="${esc(label)}" ${extra}>${ic(icon)}</button>`;
+const compact=()=>S.size==='compact';
+
+/* ---------- data ---------- */
+const MODES=[
+ {id:'ask',n:'Ask',i:'chat',d:{bn:'শুধু প্রশ্নোত্তর। কোনো টুল চলবে না।',en:'Q&A only. No tools run.'}},
+ {id:'plan',n:'Plan',i:'list',d:{bn:'ফাইল পড়বে ও পরিকল্পনা লিখবে। কিছু বদলাবে না।',en:'Reads files and writes a plan. Changes nothing.'}},
+ {id:'build',n:'Build',i:'tool',d:{bn:'ফাইল বদলাবে ও কমান্ড চালাবে, ঝুঁকির ধাপে অনুমতি চেয়ে।',en:'Edits files and runs commands, asking before risky steps.'}},
+ {id:'review',n:'Review',i:'search',d:{bn:'কোড পড়ে মন্তব্য দেবে। (উদাহরণ মোড, আরও যোগ হতে পারে)',en:'Reads code and comments. (example mode, more can be added)'}}];
+const MODELS=[
+ {id:'local',kind:'local',key:true,name:{bn:'অন-ডিভাইস মডেল',en:'On-device model'},meta:{bn:'অফলাইনে চলে · নমুনা',en:'Works offline · sample'}},
+ {id:'ollama',kind:'local',key:true,name:'Ollama',meta:{bn:'আপনার নেটওয়ার্কে · নমুনা',en:'On your network · sample'}},
+ {id:'gemini',kind:'cloud',key:true,name:'Google Gemini',meta:{bn:'ক্লাউড · কী যোগ করা আছে',en:'Cloud · key added'}},
+ {id:'anthropic',kind:'cloud',key:true,name:'Anthropic',meta:{bn:'ক্লাউড · কী যোগ করা আছে',en:'Cloud · key added'}},
+ {id:'openai',kind:'cloud',key:false,name:'OpenAI',meta:{bn:'ক্লাউড · কী নেই',en:'Cloud · no key'}},
+ {id:'deepseek',kind:'cloud',key:false,name:'DeepSeek',meta:{bn:'ক্লাউড · কী নেই',en:'Cloud · no key'}}];
+const model=id=>MODELS.find(m=>m.id===(id||S.model));
+const CODE={
+ 'SettingsScreen.kt':['@Composable','fun SettingsScreen(state: SettingsState) {','    Column(Modifier.padding(16.dp)) {','        SectionTitle("Appearance")','        ThemePresetGrid(state.presets)','        SwitchRow("Dark mode", state.dark, state::toggleDark)','        SectionTitle("Agent")','        AgentModePicker(state.mode)','    }','}'],
+ 'ThemeState.kt':['class ThemeState {','    var preset by mutableStateOf(Preset.OgShine)','    var style by mutableStateOf(Style.Flat)','','    fun select(p: Preset) { preset = p }','}'],
+ 'strings.xml':['<resources>','    <string name="settings">Settings</string>','    <string name="appearance">Appearance</string>','</resources>']};
+const TREE=[['composeApp',0,1],['ui',1,1],['SettingsScreen.kt',2,0],['ThemeState.kt',2,0],['res',1,1],['strings.xml',2,0],['build.gradle.kts',0,2]];
+const D={tools:{
+ t1:{n:'read_file',a:'ThemeState.kt',s:'ok',d:'0.4s',o:'42 lines'},
+ t2:{n:'search',a:'"isDarkTheme"',s:'ok',d:'0.9s',o:'3 matches'},
+ t3:{n:'edit_file',a:'SettingsScreen.kt',s:'wait',diff:['@@ SettingsScreen.kt','- SwitchRow("Dark mode", false) {}','+ SwitchRow("Dark mode", state.dark, state::toggleDark)'],then:{bn:'হয়ে গেছে: সেটিংসে ডার্ক-মোড সুইচ যোগ হয়েছে। টেস্ট চালাব?',en:'Done: the dark-mode switch is in Settings. Run the tests?'},conv:0},
+ t4:{n:'shell',a:'./gradlew :composeApp:test',s:'fail',sh:1,cmd:'./gradlew :composeApp:test',out:['> Task :composeApp:compileKotlin','e: SettingsScreen.kt:48: Unresolved reference: ThemeToggle','BUILD FAILED in 6s'],code:1,d:'6.1s'},
+ t5:{n:'shell',a:'git status --short',s:'ok',sh:1,cmd:'git status --short',out:[' M SettingsScreen.kt','?? ThemeToggle.kt'],code:0,d:'0.2s'},
+ a1:{n:'read_file',a:'build.gradle.kts',s:'ok',d:'0.3s',o:'88 lines'},
+ a2:{n:'create_file',a:'ThemeToggle.kt',s:'ok',d:'0.2s',o:'+24 lines'},
+ a3:{n:'shell',a:'git status --short',s:'ok',sh:1,cmd:'git status --short',out:[' M SettingsScreen.kt','?? ThemeToggle.kt'],code:0,d:'0.2s'},
+ a4:{n:'edit_file',a:'SettingsScreen.kt',s:'wait',diff:['@@ SettingsScreen.kt','+ ThemeToggle(state)'],next:'a5',conv:'agent'},
+ a5:{n:'shell',a:'./gradlew assembleDebug',s:'todo',sh:1,cmd:'./gradlew assembleDebug',out:['> Task :composeApp:compileDebugKotlin','> Task :composeApp:assembleDebug','BUILD SUCCESSFUL in 14s'],code:0,d:'14.0s',then:{bn:'বিল্ড সফল। দুটি ফাইল বদলেছে। Git ট্যাবে দেখে কমিট করতে পারেন।',en:'Build passed. Two files changed. Review them in the Git tab and commit.'},conv:'agent'}},
+ convs:[
+  {id:0,g:'today',t:{bn:'ডার্ক-মোড সুইচ',en:'Dark-mode toggle'},msgs:[{r:'u',x:{bn:'সেটিংস স্ক্রিনে ডার্ক-মোড সুইচ যোগ করো।',en:'Add a dark-mode toggle to the settings screen.'}},{r:'a',done:1,x:{bn:'আগে থিমের কোড পড়ছি, তারপর সুইচটি যোগ করব।',en:'I will read the theme code first, then add the switch.'},tools:['t1','t2','t3']}]},
+  {id:1,g:'today',t:{bn:'কোন ডেটাবেস নেব',en:'Pick a database'},msgs:[{r:'u',x:{bn:'লোকাল স্টোরেজে কোন ডেটাবেস ব্যবহার করব?',en:'Which local database should I use?'}},{r:'a',done:1,x:{bn:'Kotlin Multiplatform-এ কাজ করে এমন তিনটি অপশন নিচে। একটি বেছে নিন:',en:'Three options that work in Kotlin Multiplatform. Pick one:'},ui:{done:false,sel:null,opts:[{id:'sq',n:'SQLDelight',d:{bn:'SQL আগে লিখুন, টাইপ-সেফ কোড তৈরি হবে',en:'Write SQL first, get type-safe code'}},{id:'room',n:'Room',d:{bn:'Android-এ পরিচিত, KMP সমর্থন বাড়ছে',en:'Familiar on Android, KMP support is growing'}},{id:'kv',n:'Key-value store',d:{bn:'সহজ সেটিংস ও ক্যাশের জন্য',en:'For simple settings and cache'}}]}}]},
+  {id:2,g:'yesterday',t:{bn:'ব্যর্থ টেস্ট ঠিক করা',en:'Fix failing test'},msgs:[{r:'u',x:{bn:'টেস্ট ফেইল করছে, দেখো তো।',en:'The tests are failing. Take a look.'}},{r:'a',done:1,x:{bn:'কমান্ড চালিয়ে দেখলাম, একটি ফাইলে ত্রুটি আছে।',en:'I ran the commands. One file has an error.'},tools:['t5','t4']}]}],
+ agent:{id:'agent',msgs:[{r:'u',x:{bn:'ডার্ক-মোড সুইচ বানাও ও বিল্ড চালাও।',en:'Build the dark-mode switch and run the build.'}},{r:'a',done:1,x:{bn:'পরিকল্পনা: প্রজেক্ট দেখা → ThemeToggle তৈরি → সেটিংসে বসানো → বিল্ড।',en:'Plan: inspect project → create ThemeToggle → wire into Settings → build.'},tools:['a1','a2','a3','a4','a5']}]},
+ projects:[{id:0,name:'dorai-notes',path:'~/projects/dorai-notes',br:'main',ch:3,up:{bn:'২ ঘণ্টা আগে',en:'2h ago'}},{id:1,name:'weather-app',path:'~/projects/weather-app',br:'dev',ch:0,up:{bn:'গতকাল',en:'Yesterday'}},{id:2,name:'landing-page',path:'~/projects/landing-page',br:'main',ch:0,up:{bn:'গত সপ্তাহ',en:'Last week'}}],
+ git:[['M','SettingsScreen.kt'],['A','ThemeToggle.kt'],['M','strings.xml']],log:[['a1f93c2','Add theme presets'],['7be04d1','Fix settings padding'],['c20ee93','Initial commit']],
+ term:['Linux sandbox ready. Type help.'],mcp:[{id:0,name:'docs-server',url:'https://mcp.example.com/sse',tools:7,ok:true},{id:1,name:'local-dev',url:'http://localhost:8787',tools:0,ok:false}],nid:10,nconv:10};
+const convById=id=>id==='agent'?D.agent:D.convs.find(c=>c.id===id)||D.convs[0];
+const cur=()=>convById(S.conv);
+const target=()=>S.nav==='work'?D.agent:cur();
+const tools=()=>Object.values(D.tools);
+const count=s=>tools().filter(t=>t.s===s).length;
+
+/* ---------- small pieces ---------- */
+function badge(k,mini){const l=k==='local'?L('লোকাল','Local'):L('ক্লাউড','Cloud');return `<span class="badge ${k}" ${mini?`role="img" aria-label="${l}"`:''}>${ic(k==='local'?'chip':'cloud',13)}${mini?'':l}</span>`}
+function statusBadge(s){return {ok:`<span class="badge ok">${ic('check',13)}${L('সম্পন্ন','Done')}</span>`,run:`<span class="badge info"><span class="spin" style="width:12px;height:12px"></span>${L('চলছে','Running')}</span>`,wait:`<span class="badge warn">${ic('shield',13)}${L('অনুমতি দরকার','Needs approval')}</span>`,fail:`<span class="badge err">${ic('x',13)}${L('ব্যর্থ','Failed')}</span>`}[s]||''}
+function toolCard(id){
+ const t=D.tools[id];if(!t||t.s==='todo')return '';
+ const open=S.open[id]===undefined?(t.s==='wait'||t.s==='fail'||t.s==='run'):S.open[id];
+ let body='';
+ if(open){
+  if(t.sh)body=`<pre class="sh"><span class="cm">$ ${esc(t.cmd)}</span>\n${t.s==='run'?esc(t.out.slice(0,1).join('\n'))+'\n…':t.out.map(l=>/^e:|FAILED/.test(l)?`<span class="er">${esc(l)}</span>`:esc(l)).join('\n')}${t.s!=='run'&&t.s!=='wait'?`\n<span class="cm">exit ${t.code} · ${t.d}</span>`:''}</pre>`;
+  else if(t.diff)body=`<div class="diff">${t.diff.map(l=>`<div class="${l[0]==='+'?'a':l[0]==='-'?'d':''}">${esc(l)}</div>`).join('')}</div>`;
+  else body=`<div class="muted">${esc(t.o||'')}${t.d?' · '+t.d:''}</div>`;
+  if(t.s==='wait')body+=`<div class="appr-note" style="margin-top:10px">${ic('shield',18)}${L('এজেন্ট এই ধাপ চালাতে চায়। অনুমতি দেবেন?','The agent wants to run this step. Allow it?')}</div><div class="appr"><button class="btn primary sm" data-act="allow" data-v="${id}">${L('এবার অনুমতি','Allow once')}</button><button class="btn sm" data-act="allowses" data-v="${id}">${L('এই সেশনে','Allow for session')}</button><button class="btn danger sm" data-act="deny" data-v="${id}">${L('বাদ দিন','Deny')}</button></div>`;
+  if(t.s==='fail')body+=`<div class="appr"><button class="btn tonal sm" data-act="retry" data-v="${id}">${ic('refresh',16)}${L('আবার চেষ্টা','Retry')}</button><button class="btn sm" data-act="fixit" data-v="${id}">${L('এজেন্টকে ঠিক করতে বলুন','Ask agent to fix')}</button></div>`;
+ }
+ const left=t.s==='run'?'<span class="spin"></span>':t.s==='ok'?`<span style="color:var(--ok)">${ic('check',18)}</span>`:t.s==='fail'?`<span style="color:var(--err)">${ic('x',18)}</span>`:`<span style="color:var(--warn)">${ic('shield',18)}</span>`;
+ return `<div class="tcard s-${t.s}"><button class="thead" data-act="tog" data-v="${id}" aria-expanded="${open}">${left}<span class="nm mono">${t.n}</span><span class="ar mono">${esc(t.a)}</span>${t.s==='ok'?`<span class="muted" style="font-size:12px">${t.d}</span>`:statusBadge(t.s)}</button>${body?`<div class="tbody">${body}</div>`:''}</div>`;
+}
+function planCard(items){return `<div class="card" style="margin:8px 0"><b>${ic('list',16)} ${L('পরিকল্পনা','Plan')}</b><ol class="plan" style="margin:8px 0 10px;padding-left:22px">${items.map(i=>`<li>${P(i)}</li>`).join('')}</ol><button class="btn primary sm" data-act="runplan">${ic('tool',16)}${L('Build মোডে চালান','Run in Build mode')}</button></div>`}
+function dynCard(m,ci,mi){
+ const u=m.ui;
+ return `<div class="dyn" role="radiogroup"><div class="badge info">${ic('sparkle',13)}${L('ইন্টারঅ্যাক্টিভ উত্তর','Interactive reply')}</div>${u.opts.map(o=>`<button class="opt" role="radio" aria-checked="${u.sel===o.id}" ${u.done?'disabled':''} data-act="dynsel" data-c="${ci}" data-m="${mi}" data-v="${o.id}"><span class="rd"></span><span><b>${o.n}</b><span class="muted" style="display:block;font-size:13px">${P(o.d)}</span></span></button>`).join('')}<div style="margin-top:12px"><button class="btn primary wide" ${u.sel&&!u.done?'':'disabled'} data-act="dynok" data-c="${ci}" data-m="${mi}">${u.done?L('বেছে নেওয়া হয়েছে','Chosen'):L('এটি ব্যবহার করুন','Use this one')}</button></div></div>`;
+}
+function msgHTML(m,mi,c){
+ if(m.r==='u')return `<div class="msg user"><div class="bub">${esc(P(m.x))}</div></div>`;
+ const md=model();
+ return `<div class="ai"><div class="who">${mark(22)}<span>${esc(P(md.name))}</span>${badge(md.kind)}</div>${m.wait?`<p><span class="dots" aria-label="${L('ভাবছে…','Thinking…')}"><i></i><i></i><i></i></span></p>`:m.x?`<p>${esc(P(m.x))}</p>`:''}${m.plan?planCard(m.plan):''}${m.find?`<div class="card" style="margin:8px 0">${m.find.map(f=>`<div class="chk ${f[0]}">${ic(f[0]==='warn'?'warn':'check',16)}<span>${P(f[1])}</span></div>`).join('')}</div>`:''}${(m.tools||[]).map(toolCard).join('')}${m.ui?dynCard(m,c.id,mi):''}${m.done&&!m.wait?`<div class="acts">${ib('copy','copy',L('কপি','Copy'))}${ib('regen','refresh',L('আবার তৈরি করুন','Regenerate'))}</div>`:''}</div>`;
+}
+function timelineHTML(c){
+ const items=[];
+ c.msgs.forEach((m,mi)=>{
+  if(m.r==='u')items.push(['task',`<b>${L('কাজ','Task')}</b><div>${esc(P(m.x))}</div>`]);
+  else{
+   if(m.wait)items.push(['run',`<span class="dots"><i></i><i></i><i></i></span> ${L('ভাবছে…','Thinking…')}`]);
+   if(m.x)items.push(['ok',esc(P(m.x))]);
+   if(m.plan)items.push(['ok',planCard(m.plan)]);
+   (m.tools||[]).forEach(id=>{const t=D.tools[id];if(t&&t.s!=='todo')items.push([t.s,toolCard(id)])});
+   if(m.find)items.push(['ok',m.find.map(f=>`<div class="chk ${f[0]}">${ic(f[0]==='warn'?'warn':'check',16)}<span>${P(f[1])}</span></div>`).join('')]);
+  }});
+ const nic={task:'flag',ok:'check',run:'zap',wait:'shield',fail:'x'};
+ return `<div class="rail" role="list" aria-label="${L('এজেন্ট অ্যাক্টিভিটি টাইমলাইন','Agent activity timeline')}">${items.map(([k,h])=>`<div class="step s-${k}" role="listitem"><span class="node">${ic(nic[k]||'check',16)}</span><div class="ti">${h}</div></div>`).join('')}</div>`;
+}
+function composer(ph){
+ const md=MODES.find(m=>m.id===S.mode);
+ return `<div class="composer"><div class="col"><div class="modes" role="group" aria-label="Agent mode">${MODES.map(m=>`<button class="chip" data-act="mode" data-v="${m.id}" aria-pressed="${S.mode===m.id}">${ic(m.i,16)}${m.n}</button>`).join('')}</div><div class="mdesc">${P(md.d)}</div>
+ <div class="box">${ib('sheet','plus',L('সংযুক্ত করুন','Attach'),'data-v="attach"')}<textarea id="inp" rows="1" placeholder="${esc(ph)}" aria-label="${esc(ph)}">${esc(S.input)}</textarea>${S.input.trim()?`<button class="ib send" data-act="send" aria-label="${L('পাঠান','Send')}">${ic('send')}</button>`:ib('mic','mic',L('ভয়েস','Voice'))}</div></div></div>`;
+}
+function topBar(title,o={}){
+ const left=o.back?ib('back','back',L('পিছনে','Back')):(compact()&&S.nav==='chat'?ib('drawer','menu',L('ইতিহাস','History')):'');
+ const md=model();
+ const mid=o.model?`<button class="pill" data-act="sheet" data-v="model" aria-haspopup="dialog"><span class="nm">${esc(P(md.name))}</span>${badge(md.kind,compact())}${ic('down',16)}</button>${compact()?'':`<span class="badge mute" style="margin-left:4px">${ic(MODES.find(m=>m.id===S.mode).i,13)}${S.mode[0].toUpperCase()+S.mode.slice(1)}</span>`}<span style="flex:1"></span>`:`<h1>${title}</h1>${o.extra||''}`;
+ const right=(o.newchat?ib('newchat','plus',L('নতুন চ্যাট','New chat')):'')+(compact()&&!o.back?ib('profile','user',L('অ্যাকাউন্ট','Account')):'');
+ return `<header class="top">${left}${mid}${right}</header>`;
+}
+function sw(on,act,v){return `<button class="sw" role="switch" aria-checked="${on}" data-act="${act}" data-v="${v}" aria-label="${L('চালু/বন্ধ','On/off')}"></button>`}
+function seg2(act,opts,val){return `<div class="seg2">${opts.map(([v,l])=>`<button class="chip" data-act="${act}" data-v="${v}" aria-pressed="${String(val)===String(v)}">${l}</button>`).join('')}</div>`}
+
+/* ---------- nav ---------- */
+function navHTML(){
+ const w=count('wait');
+ const items=[['home','home',L('হোম','Home')],['chat','chat',L('চ্যাট','Chat')],['work','folder',L('ওয়ার্কস্পেস','Workspace')],['settings','gear',L('সেটিংস','Settings')]]
+  .map(([k,i,l])=>`<button class="ni" data-act="nav" data-v="${k}" aria-current="${S.nav===k}">${ic(i)}<span>${l}</span>${k==='work'&&w?`<span class="dot" role="img" aria-label="${L('অনুমোদনের অপেক্ষায়','Waiting for approval')}"></span>`:''}</button>`).join('');
+ if(compact())return `<nav class="nav" aria-label="${L('প্রধান নেভিগেশন','Main navigation')}">${items}</nav>`;
+ return `<nav class="nav" aria-label="${L('প্রধান নেভিগেশন','Main navigation')}"><div class="brandrow">${mark(34)}<b class="wordmark">DORAI AI</b></div>${items}<div class="grow"></div></nav>`;
+}
+const SETS=[['general','sliders',L('সাধারণ','General')],['appearance','palette',L('অ্যাপিয়ারেন্স','Appearance')],['agent','bot','Agent'],['providers','key',L('এআই প্রোভাইডার','AI Providers')],['tools','tool','Tools / Skills'],['mcp','plug','Integrations / MCP'],['sandbox','box','Linux Sandbox'],['account','user',L('অ্যাকাউন্ট ও ডেটা','Account & Data')]];
+function paneHTML(){
+ if(S.nav==='chat'){
+  const q=S.q.trim().toLowerCase();const list=D.convs.filter(c=>!q||P(c.t).toLowerCase().includes(q));
+  const grp=(g,l)=>{const a=list.filter(c=>c.g===g);return a.length?`<h4>${l}</h4>`+a.map(c=>`<button class="li" data-act="conv" data-v="${c.id}" aria-current="${c.id===S.conv}"><div class="t"><b>${esc(P(c.t))}</b></div></button>`).join(''):''};
+  return `<aside class="pane ${S.drawer?'open':''}" ${compact()&&!S.drawer?'inert':''} aria-label="${L('চ্যাট ইতিহাস','Chat history')}"><div class="phead">${compact()?`<div style="display:flex;justify-content:space-between;align-items:center"><span style="display:flex;gap:10px;align-items:center">${mark(30)}<b>DORAI AI</b></span>${ib('drawer','x',L('বন্ধ','Close'))}</div>`:''}<button class="btn primary wide" data-act="newchat">${ic('plus',20)}${L('নতুন চ্যাট','New chat')}</button><label class="sbox">${ic('search',18)}<input id="q" value="${esc(S.q)}" placeholder="${L('চ্যাট খুঁজুন','Search chats')}" aria-label="${L('চ্যাট খুঁজুন','Search chats')}"></label></div><div class="plist">${grp('today',L('আজ','Today'))}${grp('yesterday',L('গতকাল','Yesterday'))}${list.length?'':`<p class="muted" style="padding:12px">${L('কোনো চ্যাট মেলেনি।','No chats found.')}</p>`}</div></aside>`;
+ }
+ if(S.nav==='settings'&&!compact())return `<aside class="pane"><div class="phead"><h2 style="margin:0">${L('সেটিংস','Settings')}</h2></div><div class="plist">${SETS.map(([k,i,l])=>`<button class="li" data-act="set" data-v="${k}" aria-current="${S.set===k}">${ic(i,20)}<div class="t"><b>${l}</b></div></button>`).join('')}</div></aside>`;
+ return '';
+}
+
+/* ---------- home ---------- */
+function homeMain(){
+ const w=count('wait'),r=count('run'),pr=D.projects[0],md=model();
+ const recent=D.convs.slice(0,3);
+ const cont=S.ws==='setup'?`<div class="card"><div class="r">${ic('folder',24)}<div class="t"><b>${L('ওয়ার্কস্পেস সেটআপ করুন','Set up your workspace')}</b><span>${L('প্রজেক্ট খোলার আগে একবার সেটআপ লাগবে','One-time setup before opening projects')}</span></div></div><div style="margin-top:12px"><button class="btn primary wide" data-act="nav" data-v="work">${L('সেটআপ শুরু','Start setup')}</button></div></div>`
+  :`<div class="card"><div class="r">${ic('folder',24)}<div class="t"><b>${pr.name}</b><span>${pr.br} · ${pr.ch} ${L('টি পরিবর্তন','changes')}</span></div></div><div style="margin-top:12px"><button class="btn primary wide" data-act="openproj" data-v="0">${L('কাজ চালিয়ে যান','Continue')}</button></div></div>`;
+ return `${topBar(L('হোম','Home'))}<div class="scroll"><div class="col wide"><h2 style="font-size:22px">${L('আজকের সারসংক্ষেপ','Today at a glance')}</h2>
+ <div class="grid two" style="margin-top:12px">${cont}
+ <div class="card"><div class="stat">${ic('zap',26)}<div><b>${r}</b> <span class="muted">${L('চলছে','running')}</span></div><div style="margin-left:18px"><b style="color:${w?'var(--warn)':'inherit'}">${w}</b> <span class="muted">${L('অনুমতির অপেক্ষায়','need approval')}</span></div></div>${w?`<div style="margin-top:12px"><button class="btn tonal wide" data-act="nav" data-v="work">${L('অনুমোদন দেখুন','Review approvals')}</button></div>`:`<div class="muted" style="margin-top:8px;font-size:14px">${L('এখন কোনো অনুমোদন বাকি নেই।','Nothing is waiting for you.')}</div>`}</div>
+ <div class="card"><h2 style="font-size:16px">${L('দ্রুত শুরু','Quick start')}</h2><div class="seg2"><button class="chip" data-act="nav" data-v="chat">${ic('chat',16)}${L('নতুন চ্যাট','New chat')}</button><button class="chip" data-act="nav" data-v="work">${ic('folder',16)}${L('প্রজেক্ট খুলুন','Open project')}</button><button class="chip" data-act="goterm">${ic('term',16)}Terminal</button><button class="chip" data-act="sheet" data-v="model">${ic('key',16)}${L('মডেল','Models')}</button></div></div>
+ <div class="card"><h2 style="font-size:16px">${L('অবস্থা','Status')}</h2><div class="kv"><span>${L('মডেল','Model')}</span><span>${esc(P(md.name))}</span></div><div class="kv"><span>Linux Sandbox</span><span>${S.sandbox?`<span class="badge ok">${L('চলছে','Running')}</span>`:`<span class="badge mute">${L('বন্ধ','Stopped')}</span>`}</span></div><div class="kv"><span>${L('স্টোরেজ','Storage')}</span><span>1.2 / 4 GB</span></div></div></div>
+ <h3>${L('সাম্প্রতিক চ্যাট','Recent chats')}</h3><div class="card" style="padding:6px">${recent.map(c=>`<button class="li" data-act="openconv" data-v="${c.id}"><div class="t"><b>${esc(P(c.t))}</b><span>${esc(P(c.msgs[0].x))}</span></div>${ic('chev',18)}</button>`).join('')}</div></div></div>`;
+}
+
+/* ---------- chat ---------- */
+function emptyHTML(){
+ const q={ask:[['chat',L('একটি প্রশ্ন করুন','Ask a question'),L('যেকোনো বিষয়ে','About anything')]],plan:[['list',L('ফিচারের পরিকল্পনা','Plan a feature'),L('ধাপ ভাগ করে নিন','Break it into steps')]],build:[['tool',L('একটি ফিচার বানান','Build a feature'),L('ফাইল বদলাবে, অনুমতি নিয়ে','Edits files, asks first')]],review:[['search',L('কোড রিভিউ','Review code'),L('সমস্যা ও পরামর্শ','Issues and suggestions')]]}[S.mode].concat([['img',L('ছবি থেকে প্রশ্ন','Ask about an image'),L('ছবি সংযুক্ত করুন','Attach a photo')],['file',L('ফাইল বিশ্লেষণ','Analyse a file'),L('PDF বা CSV','PDF or CSV')],['folder',L('প্রজেক্ট নিয়ে কাজ','Work on a project'),L('ওয়ার্কস্পেসে যান','Go to Workspace')]]);
+ return `<div class="empty">${mark(56)}<h2>${L('কী নিয়ে কাজ করবেন?','What are we working on?')}</h2><p class="muted" style="margin:0">Your AI. Your World.</p><div class="qs">${q.map(([i,a,b])=>`<button data-act="qs" data-t="${esc(a)}">${ic(i)}<span><b>${a}</b>${b}</span></button>`).join('')}</div></div>`;
+}
+function chatMain(){
+ const c=cur();
+ return `${topBar('',{model:1,newchat:!compact()?0:1})}<div class="msgs" id="msgs" role="log" aria-live="polite"><div class="col">${c.msgs.length?c.msgs.map((m,i)=>msgHTML(m,i,c)).join(''):emptyHTML()}</div></div>${composer(MODES.find(m=>m.id===S.mode).n+': '+L('বার্তা লিখুন…','type a message…'))}`;
+}
+
+/* ---------- workspace ---------- */
+function setupHTML(){
+ const steps=[L('ওয়ার্কস্পেস ফোল্ডার ঠিক করা','Choose the workspace folder'),L('Linux Sandbox চালু করা','Start the Linux sandbox'),L('টুল ও Git যাচাই','Check tools and Git')];
+ return `${topBar(L('ওয়ার্কস্পেস','Workspace'))}<div class="scroll"><div class="col"><div class="empty">${ic('box',44)}<h2>${L('ওয়ার্কস্পেস সেটআপ','Workspace setup')}</h2><p class="muted">${L('এজেন্ট আপনার প্রজেক্টে কাজ করার আগে একটি আলাদা Linux Sandbox লাগে। ফাইল আপনার ডিভাইসেই থাকে।','The agent needs an isolated Linux sandbox before working on projects. Files stay on your device.')}</p></div>
+ <div class="card">${steps.map((s,i)=>`<div class="chk ${S.setupStep>i?'ok':''}" style="align-items:center;padding:8px 0">${S.setupStep>i?ic('check',20):S.setupStep===i&&S.setupRun?'<span class="spin"></span>':ic('chev',20)}<span style="${S.setupStep<=i&&!(S.setupStep===i&&S.setupRun)?'color:var(--muted)':''}">${s}</span></div>`).join('')}</div>
+ <button class="btn primary wide" data-act="setup" ${S.setupRun?'disabled':''}>${S.setupRun?L('সেটআপ চলছে…','Setting up…'):L('সেটআপ শুরু করুন','Start setup')}</button></div></div>`;
+}
+function projectsHTML(){
+ return `${topBar(L('ওয়ার্কস্পেস','Workspace'))}<div class="scroll"><div class="col"><div class="card"><div class="r">${ic('check',22)}<div class="t"><b>${L('ওয়ার্কস্পেস প্রস্তুত','Workspace ready')}</b><span>Linux Sandbox · ${S.sandbox?L('চলছে','running'):L('বন্ধ','stopped')}</span></div></div></div>
+ <div style="display:flex;gap:8px;margin-bottom:6px"><button class="btn tonal" style="flex:1" data-act="toast" data-v="newproj">${ic('plus',18)}${L('নতুন প্রজেক্ট','New project')}</button><button class="btn" style="flex:1" data-act="toast" data-v="import">${ic('folder',18)}${L('ইম্পোর্ট','Import')}</button></div>
+ <h3>${L('প্রজেক্ট','Projects')}</h3>${D.projects.map(p=>`<button class="card" style="display:block;width:100%;text-align:left" data-act="openproj" data-v="${p.id}"><div class="r">${ic('folder',22)}<div class="t"><b>${p.name}</b><span class="mono">${p.path}</span><span style="display:block">${ic('git',13)} ${p.br} · ${P(p.up)}</span></div>${p.ch?`<span class="badge warn">${p.ch}</span>`:''}${ic('chev',18)}</div></button>`).join('')}</div></div>`;
+}
+function agentPanel(){
+ const c=D.agent;
+ return `<div class="scroll" id="msgs" style="padding:12px">${S.tog.timeline?timelineHTML(c):c.msgs.map((m,i)=>msgHTML(m,i,c)).join('')}</div>${composer(L('এজেন্টকে কাজ দিন…','Give the agent a task…'))}`;
+}
+function editorPanel(){
+ const names=Object.keys(CODE);const fn=names[S.file]||names[0];
+ const added=fn==='SettingsScreen.kt'?5:-1;
+ return `<div class="ftabs" role="tablist">${names.map((n,i)=>`<button role="tab" aria-selected="${i===S.file}" data-act="file" data-v="${i}">${n}</button>`).join('')}${S.size!=='large'?`<button data-act="sheet" data-v="tree" style="margin-left:auto;color:var(--info)">${ic('folder2',16)} ${L('ফাইল','Files')}</button>`:''}</div><div class="code mono" tabindex="0" aria-label="${fn}">${CODE[fn].map((l,i)=>`<div class="${i===added?'add':''}"><span class="n">${i+1}</span>${esc(l)}</div>`).join('')}</div>`;
+}
+function termPanel(){
+ return S.sandbox?`<div class="term mono" id="term" tabindex="0">${D.term.map(l=>`<div>${esc(l)}</div>`).join('')}</div><div class="termin mono"><span style="color:var(--info)">$</span><input id="termin" value="${esc(S.termIn)}" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Terminal input"></div>`
+  :`<div class="empty" style="margin:auto">${ic('box',40)}<h2>${L('Sandbox বন্ধ আছে','Sandbox is stopped')}</h2><button class="btn primary" data-act="sandbox" data-v="1">${L('চালু করুন','Start it')}</button></div>`;
+}
+function gitPanel(){
+ const ch=D.git;
+ return `<div class="scroll"><div class="col"><div class="card"><div class="r">${ic('git',20)}<div class="t"><b>main</b><span>${ch.length} ${L('টি পরিবর্তন','changes')}</span></div></div></div>
+ ${ch.length?`<div class="card" style="padding:6px">${ch.map((f,i)=>`<button class="li" data-act="gsel" data-v="${i}" aria-current="${S.gitSel===i}"><span class="gst ${f[0]}">${f[0]}</span><div class="t"><b class="mono">${f[1]}</b></div></button>`).join('')}</div>
+ <div class="diff" style="margin-bottom:12px"><div class="d">- SwitchRow("Dark mode", false) {}</div><div class="a">+ SwitchRow("Dark mode", state.dark, state::toggleDark)</div></div>
+ <label class="field"><span>${L('কমিট বার্তা','Commit message')}</span><input id="cmsg" value="${esc(S.commitMsg)}" placeholder="Add dark-mode toggle"></label><button class="btn primary wide" data-act="commit" ${S.commitMsg.trim()?'':'disabled'}>${L('কমিট করুন','Commit')}</button>`:`<div class="empty"><p class="muted">${L('কোনো পরিবর্তন নেই। এজেন্ট কিছু বদলালে এখানে দেখা যাবে।','No changes. Edits by the agent will show up here.')}</p></div>`}
+ <h3>${L('ইতিহাস','History')}</h3><div class="card" style="padding:6px">${D.log.map(l=>`<div class="li" style="min-height:48px"><span class="mono muted" style="font-size:13px">${l[0]}</span><div class="t"><b>${l[1]}</b></div></div>`).join('')}</div></div></div>`;
+}
+function projectMain(){
+ const p=D.projects[S.proj];
+ const tabs=compact()?[['agent','bot','Agent'],['editor','edit','Editor'],['terminal','term','Terminal'],['git','git','Git']]:[['editor','edit','Editor'],['terminal','term','Terminal'],['git','git','Git']];
+ const tab=!compact()&&S.ptab==='agent'?'editor':S.ptab;
+ const centre=tab==='agent'?agentPanel():tab==='editor'?editorPanel():tab==='terminal'?termPanel():gitPanel();
+ const tree=S.size==='large'?`<div class="ptree" aria-label="${L('ফাইল ট্রি','File tree')}">${treeHTML()}</div>`:'';
+ const w=count('wait');
+ return `${topBar(esc(p.name),{back:1,extra:`<span class="badge mute">${ic('git',13)}${p.br}</span>`})}
+ <div class="pilltabs" style="margin:10px 12px 0" role="tablist">${tabs.map(([k,i,l])=>`<button role="tab" aria-selected="${tab===k}" data-act="ptab" data-v="${k}">${ic(i,18)}${l}${k==='agent'&&w&&compact()?`<span class="badge warn">${w}</span>`:''}</button>`).join('')}</div>
+ <div class="pw">${tree}<div class="pcol pcenter">${centre}</div>${compact()?'':`<div class="pcol pagent" aria-label="Agent">${agentPanel()}</div>`}</div>`;
+}
+function treeHTML(){return TREE.map(([n,d,k])=>`<button class="li" style="min-height:40px;padding-left:${8+d*16}px" ${k===0?'':`data-act="openfile" data-v="${n}"`}>${ic(k===1?'folder2':'file',16)}<div class="t"><b class="mono" style="font-size:13px">${n}</b></div></button>`).join('')}
+function workMain(){return S.ws==='setup'?setupHTML():S.proj===null?projectsHTML():projectMain()}
+
+/* ---------- settings ---------- */
+function checks(){
+ const u=S.url.trim();if(!u)return {ok:false,rows:[]};
+ const https=/^https:\/\//i.test(u),loc=/^http:\/\/(localhost|127\.0\.0\.1|10\.0\.2\.2)(:|\/|$)/i.test(u),priv=/^https?:\/\/(192\.168\.|10\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.)/i.test(u),valid=/^https?:\/\/[^\s/]+\.?[^\s]*$/i.test(u);
+ const rows=[https?['ok',L('HTTPS ব্যবহার হচ্ছে','Uses HTTPS')]:loc?['warn',L('লোকাল ডেভেলপমেন্ট ঠিকানা, শুধু এই ডিভাইসের জন্য','Local development address, this device only')]:['bad',L('সাধারণ HTTP অনুমোদিত নয়','Plain HTTP is not allowed')],priv?['bad',L('প্রাইভেট নেটওয়ার্কের ঠিকানা ব্লক','Private network addresses are blocked')]:valid?['ok',L('গন্তব্য বৈধ','Destination looks valid')]:['bad',L('URL সম্পূর্ণ নয়','URL is incomplete')],['ok',L('রিডাইরেক্ট সীমিত ও আবার যাচাই হবে','Redirects are limited and re-checked')]];
+ return {ok:!rows.some(r=>r[0]==='bad'),rows};
+}
+function setContent(){
+ const k=S.set,T=S.tog;
+ const row=(t,s,act,v,on)=>`<div class="card"><div class="r"><div class="t"><b>${t}</b><span>${s}</span></div>${sw(on,act,v)}</div></div>`;
+ if(k==='general')return `<div class="card"><div class="kv"><span>${L('ভাষা','Language')}</span></div>${seg2('lang',[['bn','বাংলা'],['en','English']],S.lang)}<div class="kv" style="margin-top:12px"><span>${L('লেখার আকার','Text size')}</span></div>${seg2('fs',[[.9,'A−'],[1,'A'],[1.15,'A+'],[1.3,'A++']],S.fs)}</div>${row(L('হ্যাপটিক','Haptics'),L('বোতামে হালকা কাঁপুনি','Light vibration on taps'),'tog','haptics',T.haptics)}${row(L('নোটিফিকেশন','Notifications'),L('দীর্ঘ কাজ শেষ বা অনুমতি চাইলে জানাবে','When a long task ends or needs approval'),'tog','notif',T.notif)}`;
+ if(k==='appearance')return `<div class="card"><b>${L('স্টাইল','Style')}</b>${seg2('style',[['flat','Flat'],['3d','3D']],S.style)}</div><div class="card"><b>Theme presets</b><div class="tg" style="margin-top:12px">${Object.entries(PRE).map(([id,p])=>`<button class="tp" data-act="theme" data-v="${id}" aria-pressed="${S.theme===id}" aria-label="${p.n}"><span class="mk" style="background:${p.bg}"><i style="background:${p.s2};width:70%"></i><i style="background:${p.l};width:45%"></i><span class="row"><span class="d"><b style="background:${p.a}"></b><b style="background:${p.p}"></b><b style="background:${p.m}"></b></span><span class="pl" style="background:${p.p}"></span></span></span><span>${p.n}</span></button>`).join('')}</div></div>`;
+ if(k==='agent')return `<div class="card"><b>${L('ডিফল্ট মোড','Default mode')}</b>${seg2('defmode',MODES.map(m=>[m.id,m.n]),S.defMode)}<div class="muted" style="font-size:13px;margin-top:8px">${P(MODES.find(m=>m.id===S.defMode).d)}</div></div><div class="card"><b>${L('অনুমতির নীতি','Approval policy')}</b>${seg2('policy',[['all',L('সবকিছুতে জিজ্ঞাসা','Ask for everything')],['edits',L('ফাইল ও শেলে জিজ্ঞাসা','Ask for edits and shell')],['read',L('শুধু পড়া স্বয়ংক্রিয়','Auto read-only')]],S.policy)}</div>${row(L('অ্যাক্টিভিটি টাইমলাইন','Activity timeline'),L('এজেন্ট ট্যাবে ধাপগুলো রেলে দেখাবে','Show steps as a rail in the Agent tab'),'tog','timeline',T.timeline)}${row(L('পড়ার টুল স্বয়ংক্রিয়','Auto-run read-only tools'),L('read_file, search অনুমতি ছাড়া চলবে','read_file and search run without asking'),'tog','autoread',T.autoread)}`;
+ if(k==='providers')return ['local','cloud'].map(kd=>`<h3>${kd==='local'?L('লোকাল','Local'):L('ক্লাউড প্রোভাইডার','Cloud providers')}</h3>`+MODELS.filter(m=>m.kind===kd).map(m=>`<div class="card"><div class="r"><div class="t"><b>${esc(P(m.name))}</b><span>${P(m.meta)}${m.key&&kd==='cloud'?' · ••••1a2b':''}</span></div>${S.model===m.id?`<span class="badge ok">${L('ডিফল্ট','Default')}</span>`:`<button class="btn text" data-act="setmodel" data-v="${m.id}">${m.key?L('ডিফল্ট করুন','Set default'):L('কী যোগ করুন','Add key')}</button>`}</div></div>`).join('')).join('');
+ if(k==='tools'){const tl=[['read_file',L('ফাইল পড়া','Read files'),'auto'],['search',L('কোডে খোঁজা','Search code'),'auto'],['edit_file',L('ফাইল বদলানো','Edit files'),'ask'],['shell',L('কমান্ড চালানো','Run commands'),'ask'],['web_search',L('ওয়েবে খোঁজা','Search the web'),'ask']];
+  return `<h3>Tools</h3>${tl.map(([n,d,a])=>`<div class="card"><div class="r"><div class="t"><b class="mono">${n}</b><span>${d}</span></div><span class="badge ${a==='ask'?'warn':'ok'}">${a==='ask'?L('অনুমতি লাগে','Asks first'):L('স্বয়ংক্রিয়','Auto')}</span></div></div>`).join('')}<h3>Skills</h3>${[[L('কোড রিভিউ','Code review'),'a'],[L('Git কমিট বার্তা','Git commit messages'),'b'],[L('Compose UI টিপস','Compose UI tips'),'c']].map(([n,id])=>`<div class="card"><div class="r"><div class="t"><b>${n}</b></div>${sw(T['sk'+id]!==false,'tog','sk'+id)}</div></div>`).join('')}`}
+ if(k==='mcp')return `<button class="btn tonal wide" style="margin-bottom:12px" data-act="sheet" data-v="addmcp">${ic('plus',20)}${L('সার্ভার যোগ করুন','Add server')}</button>`+D.mcp.map(m=>`<div class="card"><div class="r">${ic('plug',22)}<div class="t"><b>${esc(m.name)}</b><span>${esc(m.url)}</span><span style="display:block">${m.ok?`${m.tools} ${L('টি টুল · সংযুক্ত','tools · connected')}`:L('সংযোগ হয়নি','Not connected')}</span></div><button class="btn text" data-act="mcptest" data-v="${m.id}">${L('পরীক্ষা','Test')}</button></div></div>`).join('');
+ if(k==='sandbox')return `<div class="card"><div class="r">${ic('box',26)}<div class="t"><b>Linux Sandbox</b><span>${S.sandbox?L('চলছে','Running'):L('বন্ধ','Stopped')}</span></div>${S.sandbox?`<button class="btn danger sm" data-act="sandbox" data-v="0">${L('বন্ধ করুন','Stop')}</button>`:`<button class="btn primary sm" data-act="sandbox" data-v="1">${L('চালু করুন','Start')}</button>`}</div></div><div class="card"><div class="kv"><span>${L('স্টোরেজ','Storage')}</span><span>1.2 / 4 GB</span></div><div class="bar2"><i style="width:30%"></i></div></div>${row(L('নেটওয়ার্ক','Network'),L('প্যাকেজ নামাতে ইন্টারনেট দেবে','Allow internet for package installs'),'tog','net',T.net)}<button class="btn wide" data-act="resetws">${L('ওয়ার্কস্পেস সেটআপ আবার চালান','Run workspace setup again')}</button>`;
+ if(k==='account')return `<div class="card"><div class="r"><div class="ib" style="background:var(--surface2)">${ic('user')}</div><div class="t"><b>${L('আপনার অ্যাকাউন্ট','Your account')}</b><span>user@example.com</span></div></div></div>${row(L('সিঙ্ক','Sync'),L('বন্ধ থাকলে সব ডেটা শুধু এই ডিভাইসে','When off, all data stays on this device'),'tog','sync',T.sync)}<div class="card"><div class="kv"><span>${L('ডেটা এক্সপোর্ট','Export data')}</span><button class="btn text sm" data-act="toast" data-v="export">${L('এক্সপোর্ট','Export')}</button></div><div class="kv"><span>${L('সব চ্যাট মুছুন','Delete all chats')}</span><button class="btn danger sm" data-act="sheet" data-v="clear">${L('মুছুন','Delete')}</button></div></div>`;
+}
+function settingsMain(){
+ const tabs=compact()?`<div class="pilltabs" role="tablist">${SETS.map(([k,i,l])=>`<button role="tab" aria-selected="${S.set===k}" data-act="set" data-v="${k}">${l}</button>`).join('')}</div>`:'';
+ return `${topBar(compact()?L('সেটিংস','Settings'):SETS.find(s=>s[0]===S.set)[2])}<div class="scroll"><div class="col">${tabs}${setContent()}</div></div>`;
+}
+
+/* ---------- sheets ---------- */
+function sheetHTML(){
+ const t=S.sheet;if(!t)return '';
+ const wrap=(title,body,cls='')=>`<div class="scrim" data-act="sheetx"></div><div class="sheet ${cls}" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="grab"></div><div class="sh2">${title}</div>${body}</div>`;
+ if(t==='model')return wrap(L('মডেল বেছে নিন','Choose a model'),`<div class="sb">${MODELS.map(m=>`<button class="li" data-act="pickmodel" data-v="${m.id}" aria-current="${S.model===m.id}"><div class="t"><b>${esc(P(m.name))}</b><span>${P(m.meta)}</span></div>${badge(m.kind)}${S.model===m.id?ic('check',18):''}</button>`).join('')}<div style="padding:6px 8px"><button class="btn text" data-act="tomodels">${L('প্রোভাইডার পরিচালনা','Manage providers')}</button></div></div>`,'pop');
+ if(t==='attach')return wrap(L('সংযুক্ত করুন','Attach'),`<div class="sb">${[['img',L('ছবি','Photo')],['file',L('ফাইল','File')],['folder2',L('প্রজেক্ট ফাইল','Project file')]].map(([i,l])=>`<button class="li" data-act="sheetx">${ic(i)}<div class="t"><b>${l}</b></div></button>`).join('')}<p class="muted" style="font-size:13px;padding:4px 12px 0">${model().kind==='cloud'?L('ক্লাউড মডেলে পাঠানোর আগে জানানো হবে।','You will be told before a file goes to a cloud model.'):L('ফাইল এই ডিভাইসেই থাকবে।','The file stays on this device.')}</p></div>`);
+ if(t==='tree')return wrap(L('ফাইল','Files'),`<div class="sb">${treeHTML()}</div>`);
+ if(t==='clear')return wrap(L('সব চ্যাট মুছবেন?','Delete all chats?'),`<div class="sb pad"><p class="muted">${L('এটি ফেরানো যাবে না। প্রজেক্ট ফাইল মুছবে না।','This cannot be undone. Project files are not deleted.')}</p><div style="display:flex;gap:8px"><button class="btn" style="flex:1" data-act="sheetx">${L('বাতিল','Cancel')}</button><button class="btn danger" style="flex:1" data-act="clearall">${L('মুছুন','Delete')}</button></div></div>`);
+ if(t==='addmcp'){const c=checks();return wrap(L('MCP সার্ভার যোগ করুন','Add MCP server'),`<div class="sb pad"><label class="field"><span>URL</span><input id="mcpurl" inputmode="url" value="${esc(S.url)}" placeholder="https://"></label>${c.rows.map(([k,x])=>`<div class="chk ${k}">${ic(k==='ok'?'check':k==='warn'?'warn':'x',18)}<span>${x}</span></div>`).join('')}<button class="btn primary wide" style="margin-top:14px" data-act="addmcp" ${c.ok&&S.url.trim()?'':'disabled'}>${L('যোগ করুন','Add server')}</button></div>`)}
+}
+
+/* ---------- render ---------- */
+function render(){
+ applyTheme();
+ const a=document.getElementById('app');const f=document.activeElement;const fid=f&&f.id;const ss=f&&f.selectionStart;
+ a.dataset.size=S.size;a.style.setProperty('--fs',S.fs);
+ const hasPane=S.nav==='chat'||(S.nav==='settings'&&!compact());
+ a.className='app'+(hasPane?'':' nopane');
+ let main=S.nav==='home'?homeMain():S.nav==='chat'?chatMain():S.nav==='work'?workMain():settingsMain();
+ a.innerHTML=navHTML()+paneHTML()+`<main class="main">${main}</main>`+((compact()&&S.drawer&&S.nav==='chat')?`<div class="scrim" data-act="closeall"></div>`:'')+sheetHTML()+(S.toast?`<div class="toast" role="status">${S.toast.m}${S.toast.undo?`<button data-act="undo">${L('ফিরিয়ে আনুন','Undo')}</button>`:''}</div>`:'');
+ const ml=document.getElementById('msgs');if(ml)ml.scrollTop=ml.scrollHeight;
+ const tm=document.getElementById('term');if(tm)tm.scrollTop=tm.scrollHeight;
+ if(fid){const n=document.getElementById(fid);if(n&&!n.disabled){n.focus();try{n.setSelectionRange(ss,ss)}catch(e){}}}
+ const ta=document.getElementById('inp');if(ta){ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,132)+'px'}
+ toolbar();
+}
+function toast(m,undo){S.toast={m,undo};clearTimeout(S.tt);S.tt=setTimeout(()=>{S.toast=null;render()},3500)}
+const DEV={phone:[390,800,f=>f('ফোন','Phone')],tablet:[768,680,f=>f('ট্যাবলেট','Tablet')],laptop:[960,680,f=>f('ল্যাপটপ','Laptop')],desk:[1440,820,f=>f('ডেস্কটপ','Desktop')]};
+function toolbar(){
+ document.getElementById('devSeg').innerHTML=Object.entries(DEV).map(([k,v])=>`<button data-bar="dev" data-v="${k}" aria-pressed="${S.dev===k}">${v[2](L)} <span style="opacity:.7;font-size:12px">${v[0]}</span></button>`).join('');
+ document.getElementById('langSeg').innerHTML=[['bn','বাংলা'],['en','EN']].map(([v,l])=>`<button data-bar="lang" data-v="${v}" aria-pressed="${S.lang===v}">${l}</button>`).join('');
+ document.getElementById('styleSeg').innerHTML=[['flat','Flat'],['3d','3D']].map(([v,l])=>`<button data-bar="style" data-v="${v}" aria-pressed="${S.style===v}">${l}</button>`).join('');
+ const ts=document.getElementById('themeSel');if(!ts.options.length)ts.innerHTML=Object.entries(PRE).map(([k,p])=>`<option value="${k}">${p.n}</option>`).join('');ts.value=S.theme;
+ document.getElementById('hint').textContent=L('ডিভাইস, থিম ও Flat/3D বদলে লেআউট দেখুন। Compact: নিচে নেভ · Medium/Expanded: Rail · Large: ড্রয়ার ও ওয়ার্কস্পেসে ৩ প্যানেল।','Switch device, theme and Flat/3D. Compact: bottom bar · Medium/Expanded: rail · Large: drawer and 3-pane workspace.');
+}
+function fit(){
+ const [w,h]=DEV[S.dev];const st=document.getElementById('stage');const s=Math.min(1,(st.clientWidth-32)/w);
+ const fr=document.getElementById('frame'),wr=document.getElementById('wrap');
+ fr.style.width=w+'px';fr.style.height=h+'px';fr.style.transform=`scale(${s})`;wr.style.width=w*s+'px';wr.style.height=h*s+'px';
+ const sz=w<600?'compact':w<840?'medium':w<1200?'expanded':'large';
+ if(sz!==S.size){S.size=sz;S.drawer=false;if(sz!=='compact'&&S.ptab==='agent')S.ptab='editor';render()}
+}
+addEventListener('resize',fit);
+
+/* ---------- behaviour ---------- */
+function finishTool(id){
+ const t=D.tools[id];t.s='ok';
+ if(t.next){const n=D.tools[t.next];if(n.s==='todo'){n.s='run';render();setTimeout(()=>finishTool(t.next),1600)}}
+ if(t.then){const c=convById(t.conv);c.msgs.push({r:'a',done:1,x:t.then})}
+ render();
+}
+function startTool(id){const t=D.tools[id];t.s='run';render();setTimeout(()=>finishTool(id),1300)}
+function newTool(c,o){const id='n'+(D.nid++);D.tools[id]=Object.assign({conv:c.id},o);return id}
+function send(){
+ const v=S.input.trim();if(!v)return;const c=target();
+ if(c.t&&!c.msgs.length)c.t=v.slice(0,30);
+ c.msgs.push({r:'u',x:v});S.input='';const m={r:'a',x:'',wait:1,tools:[]};c.msgs.push(m);render();
+ setTimeout(()=>{
+  m.wait=0;m.done=1;
+  if(S.mode==='ask')m.x=L('এটি একটি নমুনা উত্তর। আসল মডেল যুক্ত নেই, তবে লেআউট ও অবস্থাগুলো এখানে দেখা যায়।','This is a sample reply. No real model is connected, but the layout and states are real.');
+  else if(S.mode==='plan'){m.x=L('পরিকল্পনা তৈরি। কিছু বদলানো হয়নি।','Plan ready. Nothing was changed.');m.plan=[{bn:'প্রজেক্ট দেখা',en:'Inspect the project'},{bn:'ফাইল বদলের তালিকা',en:'List the files to change'},{bn:'বদল ও টেস্ট',en:'Make changes and test'}]}
+  else if(S.mode==='review'){m.x=L('রিভিউ শেষ। তিনটি মন্তব্য:','Review done. Three comments:');m.find=[['ok',{bn:'নাম ও গঠন পরিষ্কার',en:'Naming and structure are clear'}],['warn',{bn:'একটি ফাংশন অনেক বড়, ভাগ করুন',en:'One function is long; split it'}],['warn',{bn:'ত্রুটির ক্ষেত্রে বার্তা নেই',en:'No message on the error path'}]]}
+  else{m.x=L('আগে ফাইল পড়ছি, তারপর বদল করব।','Reading the files first, then making the change.');
+   const a=newTool(c,{n:'read_file',a:'SettingsScreen.kt',s:'ok',d:'0.3s',o:'64 lines'});
+   const b=newTool(c,{n:'edit_file',a:'SettingsScreen.kt',s:'wait',diff:['@@ SettingsScreen.kt','+ // updated by agent'],then:{bn:'বদল হয়ে গেছে।',en:'The change is in.'}});
+   m.tools=[a,b]}
+  render();},800);
+}
+let lastDel=null;
+document.addEventListener('input',e=>{
+ const id=e.target.id;
+ if(id==='inp'){const had=!!S.input.trim();S.input=e.target.value;if(had!==!!S.input.trim())render();else{e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,132)+'px'}}
+ else if(id==='q'){S.q=e.target.value;render()}
+ else if(id==='mcpurl'){S.url=e.target.value;render()}
+ else if(id==='cmsg'){const had=!!S.commitMsg.trim();S.commitMsg=e.target.value;if(had!==!!S.commitMsg.trim())render()}
+ else if(id==='termin')S.termIn=e.target.value;
+});
+document.addEventListener('change',e=>{if(e.target.id==='themeSel'){S.theme=e.target.value;render()}});
+document.addEventListener('keydown',e=>{
+ if(e.target.id==='inp'&&e.key==='Enter'&&!e.shiftKey&&!compact()){e.preventDefault();send()}
+ if(e.target.id==='termin'&&e.key==='Enter'){const c=S.termIn.trim();S.termIn='';D.term.push('$ '+c);
+  if(c==='clear')D.term=[];else if(c==='help')D.term.push('help, ls, pwd, git status, clear');else if(c==='ls')D.term.push('composeApp  build.gradle.kts  README.md');else if(c==='pwd')D.term.push('/workspace/'+D.projects[S.proj].name);else if(c==='git status')D.term.push('M SettingsScreen.kt','?? ThemeToggle.kt');else if(c)D.term.push(L('প্রোটোটাইপে এই কমান্ড চলে না: ','Not run in the prototype: ')+c);
+  render()}
+ if(e.key==='Escape'&&S.sheet){S.sheet=null;render()}
+});
+document.addEventListener('click',e=>{
+ const bb=e.target.closest('[data-bar]');
+ if(bb){const k=bb.dataset.bar,v=bb.dataset.v;if(k==='dev'){S.dev=v;S.drawer=false;fit();render()}if(k==='lang'){S.lang=v;render()}if(k==='style'){S.style=v;render()}return}
+ const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,v=b.dataset.v;
+ switch(a){
+  case 'nav':S.nav=v;S.drawer=false;break;
+  case 'profile':S.nav='settings';S.set='account';break;
+  case 'drawer':S.drawer=!S.drawer;break;
+  case 'closeall':S.drawer=false;break;
+  case 'mode':S.mode=v;break;
+  case 'newchat':case 'newchatx':{const id=D.nconv++;D.convs.unshift({id,g:'today',t:{bn:'নতুন চ্যাট',en:'New chat'},msgs:[]});S.conv=id;S.drawer=false;S.nav='chat';break}
+  case 'conv':S.conv=+v;S.drawer=false;break;
+  case 'openconv':S.conv=+v;S.nav='chat';break;
+  case 'qs':S.input=b.dataset.t+': ';setTimeout(()=>{const t=document.getElementById('inp');t&&t.focus()},30);break;
+  case 'send':send();return;
+  case 'sheet':S.sheet=v;if(v==='addmcp')S.url='';break;
+  case 'sheetx':S.sheet=null;break;
+  case 'pickmodel':{const m=model(v);if(!m.key){S.sheet=null;S.nav='settings';S.set='providers';toast(L('আগে API কী যোগ করুন','Add an API key first'))}else{S.model=v;S.sheet=null}break}
+  case 'tomodels':S.sheet=null;S.nav='settings';S.set='providers';break;
+  case 'setmodel':{const m=model(v);if(m.key)S.model=v;else toast(L('প্রোটোটাইপে কী যোগ করা যায় না','Keys cannot be added in the prototype'));break}
+  case 'tog':if(v in S.tog||v.startsWith('sk')){S.tog[v]=S.tog[v]===undefined?false:!S.tog[v]}else{S.open[v]=!(S.open[v]===undefined?(D.tools[v].s==='wait'||D.tools[v].s==='fail'||D.tools[v].s==='run'):S.open[v])}break;
+  case 'allow':case 'allowses':S.open[v]=true;startTool(v);return;
+  case 'deny':D.tools[v].s='fail';D.tools[v].sh=0;D.tools[v].diff=null;D.tools[v].o=L('আপনি এই ধাপ বাদ দিয়েছেন','You denied this step');D.tools[v].d='';toast(L('ধাপটি বাদ দেওয়া হয়েছে','Step denied'));break;
+  case 'retry':{const t=D.tools[v];t.s='run';t.out=t.out||[];render();setTimeout(()=>{t.s='ok';t.code=0;t.d='5.2s';if(t.out.length)t.out=['> Task :composeApp:compileKotlin','> Task :composeApp:test','BUILD SUCCESSFUL in 5s'];finishTool(v)},1500);return}
+  case 'fixit':S.mode='build';S.input=L('ত্রুটিটি ঠিক করো','Fix the error');setTimeout(()=>{const t=document.getElementById('inp');t&&t.focus()},30);break;
+  case 'dynsel':{const m=convById(+b.dataset.c).msgs[+b.dataset.m];m.ui.sel=v;break}
+  case 'dynok':{const c=convById(+b.dataset.c),m=c.msgs[+b.dataset.m];m.ui.done=true;const o=m.ui.opts.find(x=>x.id===m.ui.sel);c.msgs.push({r:'u',x:L('ব্যবহার করব: ','Use ')+o.n});c.msgs.push({r:'a',done:1,x:{bn:o.n+' বেছে নিয়েছেন। আমি সেটআপের ধাপগুলো সাজিয়ে দিচ্ছি। Build মোডে চালালে ফাইল তৈরি হবে।',en:'You chose '+o.n+'. I will line up the setup steps. Switch to Build mode to create the files.'}});break}
+  case 'runplan':S.mode='build';S.input=L('পরিকল্পনা অনুযায়ী কাজটি করো','Carry out the plan');send();return;
+  case 'regen':case 'copy':toast(L('প্রোটোটাইপে নিষ্ক্রিয়','Not active in the prototype'));break;
+  case 'mic':toast(L('ভয়েস ইনপুট প্রোটোটাইপে নিষ্ক্রিয়','Voice input is off in the prototype'));break;
+  case 'toast':toast(L('প্রোটোটাইপে নিষ্ক্রিয়','Not active in the prototype'));break;
+  case 'setup':{S.setupRun=true;S.setupStep=0;render();const tick=()=>{S.setupStep++;if(S.setupStep>=3){S.setupRun=false;S.ws='ready';render();return}render();setTimeout(tick,900)};setTimeout(tick,900);return}
+  case 'openproj':S.nav='work';if(S.ws==='setup')break;S.proj=+v;S.ptab=compact()?'agent':'editor';break;
+  case 'goterm':S.nav='work';if(S.ws!=='setup'){S.proj=0;S.ptab='terminal'}break;
+  case 'back':if(S.nav==='work')S.proj=null;break;
+  case 'ptab':S.ptab=v;break;
+  case 'file':S.file=+v;break;
+  case 'openfile':{const i=Object.keys(CODE).indexOf(v);if(i>=0)S.file=i;S.sheet=null;S.ptab='editor';break}
+  case 'gsel':S.gitSel=+v;break;
+  case 'commit':D.git=[];D.log.unshift(['9d2e7ab',S.commitMsg.trim()]);S.commitMsg='';D.projects[0].ch=0;toast(L('কমিট হয়েছে','Committed'));break;
+  case 'sandbox':S.sandbox=v==='1';toast(S.sandbox?L('Sandbox চালু হয়েছে','Sandbox started'):L('Sandbox বন্ধ হয়েছে','Sandbox stopped'));break;
+  case 'resetws':S.ws='setup';S.setupStep=0;S.proj=null;S.nav='work';break;
+  case 'set':S.set=v;break;
+  case 'lang':S.lang=v;break;
+  case 'fs':S.fs=+v;break;
+  case 'style':S.style=v;break;
+  case 'theme':S.theme=v;break;
+  case 'defmode':S.defMode=v;S.mode=v;break;
+  case 'policy':S.policy=v;break;
+  case 'mcptest':{const m=D.mcp.find(x=>x.id===+v);m.ok=m.url.startsWith('https');toast(m.ok?L('সংযোগ ঠিক আছে','Connection works'):L('সংযোগ হয়নি। সার্ভার চালু আছে কিনা দেখুন।','Could not connect. Check the server is running.'));break}
+  case 'addmcp':D.mcp.push({id:D.nid++,name:S.url.replace(/^https?:\/\//,'').split('/')[0],url:S.url.trim(),tools:0,ok:true});S.sheet=null;toast(L('সার্ভার যোগ হয়েছে','Server added'));break;
+  case 'clearall':D.convs.length=0;D.convs.push({id:D.nconv++,g:'today',t:{bn:'নতুন চ্যাট',en:'New chat'},msgs:[]});S.conv=D.convs[0].id;S.sheet=null;toast(L('সব চ্যাট মুছে গেছে','All chats deleted'));break;
+ }
+ render();
+});
+S.size='';fit();render();fit();
+</script>
+</body>
+</html>

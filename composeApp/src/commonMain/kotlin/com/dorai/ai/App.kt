@@ -1,4 +1,4 @@
-﻿@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.dorai.ai
 
@@ -11,7 +11,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
@@ -28,17 +30,28 @@ import coil3.compose.setSingletonImageLoaderFactory
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.svg.SvgDecoder
 import com.dorai.ai.data.AppSettings
+import com.dorai.ai.theme.ThemeViewModel
 import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.tools.AppPermission
 import com.dorai.ai.tools.PermissionController
 import com.dorai.ai.tools.SetupPermissionHandler
+import com.dorai.ai.ui.adaptive.DoraiAppShell
+import com.dorai.ai.ui.adaptive.DoraiDestination
+import com.dorai.ai.ui.adaptive.rememberDoraiAppShellState
 import com.dorai.ai.ui.chat.ChatScreen
 import com.dorai.ai.ui.chat.ChatViewModel
 import com.dorai.ai.ui.components.FullScreenImageHost
 import com.dorai.ai.ui.dashboard.DashboardScreen
+import com.dorai.ai.ui.home.DoraiHomeScreen
+import com.dorai.ai.ui.home.HomeChatSummary
+import com.dorai.ai.ui.home.HomeUiState
 import com.dorai.ai.ui.rememberSandboxAwareUriHandler
+import com.dorai.ai.ui.settings.DoraiSettingsScreen
+import com.dorai.ai.ui.settings.SettingsCategory
 import com.dorai.ai.ui.settings.SettingsScreen
 import com.dorai.ai.ui.settings.SettingsTab
+import com.dorai.ai.ui.workspace.DoraiWorkspaceScreen
+import com.dorai.ai.ui.workspace.WorkspaceProjectItem
 import com.dorai.ai.ui.workspace.WorkspaceScreen
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -185,111 +198,204 @@ private fun AppContent(
         DoraiTheme {
             FullScreenImageHost {
                 val chatViewModel: ChatViewModel = koinViewModel()
+                val themeViewModel: ThemeViewModel = koinViewModel()
                 val chatUiState by chatViewModel.state.collectAsStateWithLifecycle()
+                val themeState by themeViewModel.state.collectAsStateWithLifecycle()
+                val isUiV2 by appSettings.uiV2Flow.collectAsStateWithLifecycle()
 
-                NavHost(
-                    navController,
-                    startDestination = Home,
-                    modifier = Modifier.background(MaterialTheme.colorScheme.background),
-                ) {
-                    composable<Dashboard> {
-                        PlatformBackHandler(true) {
-                            navController.navigate(Home) {
-                                popUpTo(Home)
-                                launchSingleTop = true
+                if (isUiV2) {
+                    val shellState = rememberDoraiAppShellState(initialDestination = DoraiDestination.Home)
+                    val pendingApprovalsCount = chatUiState.pendingToolConfirmations.size
+
+                    val homeState = remember(chatUiState) {
+                        HomeUiState(
+                            isWorkspaceSetupDone = true,
+                            runningCount = if (chatUiState.isLoading) 1 else 0,
+                            waitingApprovalCount = chatUiState.pendingToolConfirmations.size,
+                            currentModelName = "Free FAST",
+                            isModelLocal = false,
+                            isSandboxRunning = true,
+                            recentChats = chatUiState.savedConversations.take(3).map {
+                                HomeChatSummary(it.id, it.title, "Updated recently")
+                            },
+                        )
+                    }
+
+                    DoraiAppShell(
+                        waitingApprovalsCount = pendingApprovalsCount,
+                        shellState = shellState,
+                        homeContent = {
+                            DoraiHomeScreen(
+                                state = homeState,
+                                onNavigateToChat = {
+                                    shellState.navigateTo(DoraiDestination.Chat)
+                                },
+                                onNavigateToWorkspace = {
+                                    shellState.navigateTo(DoraiDestination.Workspace)
+                                },
+                                onOpenConversation = { id ->
+                                    chatViewModel.loadConversation(id)
+                                    shellState.navigateTo(DoraiDestination.Chat)
+                                },
+                                onOpenModels = {
+                                    shellState.navigateTo(DoraiDestination.Settings)
+                                },
+                            )
+                        },
+                        chatContent = {
+                            ChatScreen(
+                                viewModel = chatViewModel,
+                                textToSpeech = textToSpeech,
+                                onNavigateToDashboard = {
+                                    shellState.navigateTo(DoraiDestination.Home)
+                                },
+                                onNavigateToSettings = {
+                                    shellState.navigateTo(DoraiDestination.Settings)
+                                },
+                                isSandboxAvailable = currentPlatform is Platform.Mobile.Android,
+                                isWorkspaceAvailable = currentPlatform is Platform.Mobile.Android,
+                            )
+                        },
+                        workspaceContent = {
+                            var selectedProject by remember { mutableStateOf<WorkspaceProjectItem?>(null) }
+                            val projects = remember {
+                                listOf(
+                                    WorkspaceProjectItem(
+                                        name = "DoraiAi",
+                                        path = "g:/Web/DoraiAi-migration-worktree",
+                                        branch = "feature/ui-v2-migration",
+                                        lastUpdatedText = "Just now",
+                                        changesCount = 3,
+                                    ),
+                                )
                             }
-                        }
-                        DashboardScreen(
-                            chatUiState = chatUiState,
-                            isBuildAvailable = currentPlatform is Platform.Mobile.Android,
-                            isSandboxAvailable = currentPlatform is Platform.Mobile.Android,
-                            isDesignAvailable = true,
-                            onNavigateToChat = {
+                            DoraiWorkspaceScreen(
+                                isSetupCompleted = true,
+                                activeProject = selectedProject,
+                                projects = projects,
+                                isSandboxRunning = true,
+                                onStartSandbox = {},
+                                onCompleteSetup = {},
+                                onOpenProject = { selectedProject = it },
+                                onCloseProject = { selectedProject = null },
+                            )
+                        },
+                        settingsContent = {
+                            DoraiSettingsScreen(
+                                activeCategory = SettingsCategory.General,
+                                onCategoryChanged = {},
+                                selectedThemeId = themeState.selectedThemeId,
+                                onThemeSelected = { themeViewModel.selectTheme(it) },
+                                currentThemeStyle = themeState.activeStyle,
+                                onThemeStyleSelected = { themeViewModel.setThemeStyle(it) },
+                            )
+                        },
+                    )
+                } else {
+                    NavHost(
+                        navController,
+                        startDestination = Home,
+                        modifier = Modifier.background(MaterialTheme.colorScheme.background),
+                    ) {
+                        composable<Dashboard> {
+                            PlatformBackHandler(true) {
                                 navController.navigate(Home) {
                                     popUpTo(Home)
                                     launchSingleTop = true
                                 }
-                            },
-                            onOpenBuild = { project ->
-                                navController.navigate(Build(project)) {
-                                    popUpTo(Home)
-                                    launchSingleTop = true
-                                }
-                            },
-                            onOpenSettings = { tab ->
-                                navController.navigate(Settings.of(tab)) {
-                                    popUpTo(Home)
-                                    launchSingleTop = true
-                                }
-                            },
-                            onStartDesign = { prompt ->
-                                chatViewModel.startDesignChat(prompt)
-                                navController.navigate(Home) {
-                                    popUpTo(Home)
-                                    launchSingleTop = true
-                                }
-                            },
-                            onOpenConversation = { id ->
-                                chatViewModel.loadConversation(id)
-                                navController.navigate(Home) {
-                                    popUpTo(Home)
-                                    launchSingleTop = true
-                                }
-                            },
-                            onNavigateBack = {
-                                navController.navigateUp()
-                            },
-                        )
-                    }
-                    composable<Home> {
-                        ChatScreen(
-                            viewModel = chatViewModel,
-                            textToSpeech = textToSpeech,
-                            onNavigateToDashboard = {
-                                navController.navigate(Dashboard) {
-                                    launchSingleTop = true
-                                }
-                            },
-                            onNavigateToSettings = {
-                                navController.navigate(Settings()) {
-                                    launchSingleTop = true
-                                }
-                            },
-                            isSandboxAvailable = currentPlatform is Platform.Mobile.Android,
-                            isWorkspaceAvailable = currentPlatform is Platform.Mobile.Android,
-                        )
-                    }
-                    composable<Settings> { entry ->
-                        PlatformBackHandler(true) {
-                            chatViewModel.refreshSettings()
-                            navController.navigateUp()
-                        }
-                        val initialTab = Settings.tabOf(entry.toRoute<Settings>())
-                        DisposableEffect(Unit) {
-                            onDispose {
-                                chatViewModel.refreshSettings()
                             }
+                            DashboardScreen(
+                                chatUiState = chatUiState,
+                                isBuildAvailable = currentPlatform is Platform.Mobile.Android,
+                                isSandboxAvailable = currentPlatform is Platform.Mobile.Android,
+                                isDesignAvailable = true,
+                                onNavigateToChat = {
+                                    navController.navigate(Home) {
+                                        popUpTo(Home)
+                                        launchSingleTop = true
+                                    }
+                                },
+                                onOpenBuild = { project ->
+                                    navController.navigate(Build(project)) {
+                                        popUpTo(Home)
+                                        launchSingleTop = true
+                                    }
+                                },
+                                onOpenSettings = { tab ->
+                                    navController.navigate(Settings.of(tab)) {
+                                        popUpTo(Home)
+                                        launchSingleTop = true
+                                    }
+                                },
+                                onStartDesign = { prompt ->
+                                    chatViewModel.startDesignChat(prompt)
+                                    navController.navigate(Home) {
+                                        popUpTo(Home)
+                                        launchSingleTop = true
+                                    }
+                                },
+                                onOpenConversation = { id ->
+                                    chatViewModel.loadConversation(id)
+                                    navController.navigate(Home) {
+                                        popUpTo(Home)
+                                        launchSingleTop = true
+                                    }
+                                },
+                                onNavigateBack = {
+                                    navController.navigateUp()
+                                },
+                            )
                         }
-                        SettingsScreen(
-                            initialSettingsTab = initialTab,
-                            onNavigateBack = {
+                        composable<Home> {
+                            ChatScreen(
+                                viewModel = chatViewModel,
+                                textToSpeech = textToSpeech,
+                                onNavigateToDashboard = {
+                                    navController.navigate(Dashboard) {
+                                        launchSingleTop = true
+                                    }
+                                },
+                                onNavigateToSettings = {
+                                    navController.navigate(Settings()) {
+                                        launchSingleTop = true
+                                    }
+                                },
+                                isSandboxAvailable = currentPlatform is Platform.Mobile.Android,
+                                isWorkspaceAvailable = currentPlatform is Platform.Mobile.Android,
+                            )
+                        }
+                        composable<Settings> { entry ->
+                            PlatformBackHandler(true) {
                                 chatViewModel.refreshSettings()
                                 navController.navigateUp()
-                            },
-                            androidUpdateContent = androidUpdateContent,
-                        )
-                    }
-                    composable<Build> { entry ->
-                        PlatformBackHandler(true) {
-                            navController.navigateUp()
+                            }
+                            val initialTab = Settings.tabOf(entry.toRoute<Settings>())
+                            DisposableEffect(Unit) {
+                                onDispose {
+                                    chatViewModel.refreshSettings()
+                                }
+                            }
+                            SettingsScreen(
+                                initialSettingsTab = initialTab,
+                                onNavigateBack = {
+                                    chatViewModel.refreshSettings()
+                                    navController.navigateUp()
+                                },
+                                androidUpdateContent = androidUpdateContent,
+                            )
                         }
-                        val project = entry.toRoute<Build>().project
-                        WorkspaceScreen(
-                            initialProject = project,
-                            onExit = {
+                        composable<Build> { entry ->
+                            PlatformBackHandler(true) {
                                 navController.navigateUp()
-                            },
-                        )
+                            }
+                            val project = entry.toRoute<Build>().project
+                            WorkspaceScreen(
+                                initialProject = project,
+                                onExit = {
+                                    navController.navigateUp()
+                                },
+                            )
+                        }
                     }
                 }
             }
