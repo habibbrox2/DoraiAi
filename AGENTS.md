@@ -48,6 +48,8 @@ DORAI AI is a Kotlin Multiplatform (KMP) app built with Compose Multiplatform (C
 | --- | --- |
 | `./gradlew :composeApp:test` | Common/shared tests (as configured) |
 | `./gradlew :composeApp:desktopTest` | Desktop JVM tests |
+| `./gradlew :screenshotTests:verifyPaparazziDebug` | Verify Paparazzi screenshot tests against golden images |
+| `./gradlew :screenshotTests:recordPaparazziDebug` | Record/update Paparazzi golden screenshot images |
 | `./gradlew :androidApp:assembleFossDebug` | Android debug build (`foss`, default flavor) |
 | `./gradlew :androidApp:assemblePlayStoreDebug` | Android debug build (`playStore` flavor) |
 | `./gradlew :composeApp:wasmJsBrowserDistribution` | Web/Wasm distribution build (target exists; not release-ready) |
@@ -141,5 +143,7 @@ Knowledge lives under `docs/knowledge/` as OKF-style markdown (YAML frontmatter 
 - **Commits:** Use short, imperative messages (e.g., `fix(desktop): resolve window resize crash`). `CLAUDE.md` has no commit-footer/attribution rule; follow the active session/assistant instructions for any required commit or PR attribution when creating commits/PRs.
 - **Don't push/commit by default:** Only commit/push/create tags if explicitly asked.
 - **Pre-commit formatting gate:** After tests and verification succeed, and before creating any git commit or push, run `./gradlew spotlessCheck` (`gradlew.bat spotlessCheck` on Windows). Only commit and push if `spotlessCheck` returns `BUILD SUCCESSFUL`. If it fails, fix formatting issues (e.g., `./gradlew spotlessApply` if appropriate and safe), re-run relevant verification as needed, and re-run `spotlessCheck` before committing/pushing.
+- **Screenshot & Visual Regression Gate:** When modifying UI themes, color tokens, typography, spacing, global defaults (`ThemeState`, `ThemePresets`), or shared components that affect rendered screens, always run `./gradlew :screenshotTests:verifyPaparazziDebug` (`gradlew.bat :screenshotTests:verifyPaparazziDebug` on Windows) before committing or pushing. If intentional visual updates cause a golden diff, re-record the affected golden files with `./gradlew :screenshotTests:recordPaparazziDebug --tests "..."` and commit the updated golden PNGs in the same PR.
+- **State Isolation in Tests:** Never rely on ambient singleton defaults (e.g., Koin singletons without explicit test initialization) in screenshot tests. Always explicitly initialize deterministic test state (e.g., `repo.setSelectedThemeId(...)`) so that future changes to global defaults do not cause unintended visual diffs in unaffected tests.
 - **CI:** `.github/workflows/test.yml` runs formatting/screenshot/asset steps and may push changes. Don't trigger it casually.
 - **Preserve changes:** Never use destructive git commands or overwrite unrelated user changes.
