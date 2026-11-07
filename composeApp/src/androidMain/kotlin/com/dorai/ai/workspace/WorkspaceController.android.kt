@@ -5,6 +5,8 @@ import com.dorai.ai.linux.LinuxDistro
 import com.dorai.ai.linux.LinuxInstalls
 import com.dorai.ai.linux.LinuxPaths
 import com.dorai.ai.sandbox.LinuxSandboxManager
+import com.dorai.ai.workspace.WorkspaceGitDiff
+import com.dorai.ai.workspace.WorkspaceGitResult
 import com.dorai.ai.workspace.WorkspaceState
 import com.dorai.ai.workspace.runtime.WorkspaceEnvironmentManager
 import com.dorai.ai.workspace.runtime.WorkspaceFileBrowser
@@ -53,6 +55,11 @@ class AndroidWorkspaceController : WorkspaceController {
     override fun cancel() = manager.cancel()
     override fun uninstall() = manager.uninstall()
     override fun refresh() = manager.refresh()
+    override suspend fun gitStatus(project: String): WorkspaceGitResult = manager.gitStatus(project)
+    override suspend fun gitDiff(project: String, path: String): WorkspaceGitDiff = manager.gitDiff(project, path)
+    override suspend fun gitStage(project: String, path: String): Boolean = manager.gitStage(project, path)
+    override suspend fun gitUnstage(project: String, path: String): Boolean = manager.gitUnstage(project, path)
+    override suspend fun gitDiscard(project: String, path: String): Boolean = manager.gitDiscard(project, path)
     override fun createProject(name: String): String? = manager.createProject(name)
     override fun deleteProject(name: String) = manager.deleteProject(name)
     override fun renameProject(name: String, newName: String): String? = manager.renameProject(name, newName)
@@ -63,4 +70,5 @@ class AndroidWorkspaceController : WorkspaceController {
     override fun leaveProject(project: String) = manager.leaveProject(project)
     override fun writeToTerminal(text: String) = manager.writeToTerminal(text)
     override fun resizeTerminal(columns: Int, rows: Int) = manager.resizeTerminal(columns, rows)
+    override fun close() = manager.close()
 }

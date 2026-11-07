@@ -54,6 +54,7 @@ import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import com.dorai.ai.workspace.WorkspaceAgent
 import com.dorai.ai.workspace.WorkspaceAgents
+import com.dorai.ai.workspace.WorkspaceSessionStatus
 import com.dorai.ai.workspace.WorkspaceTerminalSession
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.workspace_back_content_description
@@ -61,6 +62,11 @@ import dorai.composeapp.generated.resources.workspace_files_tab
 import dorai.composeapp.generated.resources.workspace_session_close_content_description
 import dorai.composeapp.generated.resources.workspace_session_new_content_description
 import dorai.composeapp.generated.resources.workspace_session_shell
+import dorai.composeapp.generated.resources.workspace_session_status_failed
+import dorai.composeapp.generated.resources.workspace_session_status_running
+import dorai.composeapp.generated.resources.workspace_session_status_starting
+import dorai.composeapp.generated.resources.workspace_session_status_stopped
+import dorai.composeapp.generated.resources.workspace_session_status_stopping
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
 
@@ -196,13 +202,26 @@ internal fun WorkspaceSessionBar(
             }
 
             // Build/session status next to the title instead of only inside terminal
-            // text (Plan 3, Phase 3, item 6). Derived purely from the session's busy flag.
+            // text (Plan 3, Phase 3, item 6). Derived from the session lifecycle.
             val activeSession = sessions.firstOrNull { it.id == activeSessionId }
             if (activeSession != null) {
-                WorkspaceStatusPill(
-                    label = if (activeSession.busy) "Running" else "Idle",
-                    kind = if (activeSession.busy) WorkspaceStatusKind.Running else WorkspaceStatusKind.Idle,
-                )
+                val (label, kind) = when (activeSession.status) {
+                    WorkspaceSessionStatus.Starting ->
+                        stringResource(Res.string.workspace_session_status_starting) to WorkspaceStatusKind.Running
+
+                    WorkspaceSessionStatus.Running ->
+                        stringResource(Res.string.workspace_session_status_running) to WorkspaceStatusKind.Running
+
+                    WorkspaceSessionStatus.Stopping ->
+                        stringResource(Res.string.workspace_session_status_stopping) to WorkspaceStatusKind.Warning
+
+                    WorkspaceSessionStatus.Stopped ->
+                        stringResource(Res.string.workspace_session_status_stopped) to WorkspaceStatusKind.Idle
+
+                    WorkspaceSessionStatus.Failed ->
+                        stringResource(Res.string.workspace_session_status_failed) to WorkspaceStatusKind.Failed
+                }
+                WorkspaceStatusPill(label = label, kind = kind)
             }
 
             Box {
@@ -256,7 +275,7 @@ private fun SessionTab(
     val label = if (numbered) "$base ${session.number}" else base
     val contentColor = when {
         // A finished shell keeps its output readable but reads as inactive.
-        !session.busy -> if (selected) MaterialTheme.colorScheme.background.copy(alpha = 0.75f) else LocalDesignColorTokens.current.textTertiary.copy(alpha = 0.7f)
+        session.status.isTerminal -> if (selected) MaterialTheme.colorScheme.background.copy(alpha = 0.75f) else LocalDesignColorTokens.current.textTertiary.copy(alpha = 0.7f)
 
         selected -> MaterialTheme.colorScheme.background
 
@@ -267,9 +286,15 @@ private fun SessionTab(
         selected = selected,
         onSelect = onSelect,
         contentColor = contentColor,
-        // Running/idle is only carried by color for sighted users; make it audible
+        // Status is only carried by color for sighted users; make it audible
         // (Plan 3, Phase 6).
-        description = if (session.busy) "$label, running" else "$label, idle",
+        description = when (session.status) {
+            WorkspaceSessionStatus.Starting -> "$label, ${stringResource(Res.string.workspace_session_status_starting)}"
+            WorkspaceSessionStatus.Running -> "$label, ${stringResource(Res.string.workspace_session_status_running)}"
+            WorkspaceSessionStatus.Stopping -> "$label, ${stringResource(Res.string.workspace_session_status_stopping)}"
+            WorkspaceSessionStatus.Stopped -> "$label, ${stringResource(Res.string.workspace_session_status_stopped)}"
+            WorkspaceSessionStatus.Failed -> "$label, ${stringResource(Res.string.workspace_session_status_failed)}"
+        },
         focusRequester = focusRequester,
         isFocused = isFocused,
         onFocus = onFocus,

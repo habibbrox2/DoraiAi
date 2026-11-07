@@ -13,10 +13,16 @@ import com.dorai.ai.linux.ProotLauncher
 import com.dorai.ai.workspace.WorkspaceAgent
 import com.dorai.ai.workspace.WorkspaceAgents
 import com.dorai.ai.workspace.WorkspaceEnvironmentState
+import com.dorai.ai.workspace.WorkspaceGitDiff
+import com.dorai.ai.workspace.WorkspaceGitError
+import com.dorai.ai.workspace.WorkspaceGitResult
 import com.dorai.ai.workspace.WorkspaceState
 import com.dorai.ai.workspace.WorkspaceStep
 import com.dorai.ai.workspace.WorkspaceSystemInfo
 import com.dorai.ai.workspace.WorkspaceTerminalSession
+import com.dorai.ai.workspace.gitRelativePath
+import com.dorai.ai.workspace.parseGitStatusPorcelain
+import com.dorai.ai.workspace.shellQuote
 import com.dorai.ai.workspace.terminal.DEFAULT_COLUMNS
 import com.dorai.ai.workspace.terminal.DEFAULT_ROWS
 import com.dorai.ai.workspace.terminal.MAX_COLUMNS
@@ -43,6 +49,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.nio.file.FileVisitResult
@@ -103,8 +110,18 @@ private class BuildSession(
     @Volatile
     var job: Job? = null
 
+    /** Set by [stop] (close path) so a startup still in its probe phase aborts. */
     @Volatile
-    var busy: Boolean = true
+    var closed: Boolean = false
+
+    @Volatile
+    var status: com.dorai.ai.workspace.WorkspaceSessionStatus = com.dorai.ai.workspace.WorkspaceSessionStatus.Starting
+
+    @Volatile
+    var exitCode: Int? = null
+
+    @Volatile
+    var error: String? = null
 
     @Volatile
     var lastDeviceCode: String? = null
@@ -141,13 +158,19 @@ private class BuildSession(
     }
 
     fun stop() {
-        handle?.cancel()
+        closed = true
+        val current = status
+        if (current != com.dorai.ai.workspace.WorkspaceSessionStatus.Stopped &&
+            current != com.dorai.ai.workspace.WorkspaceSessionStatus.Failed
+        ) {
+            status = com.dorai.ai.workspace.WorkspaceSessionStatus.Stopping
+        }
+        runCatching { handle?.cancel() }.onFailure { Log.w(TAG, "session $id: handle cancel failed", it) }
         handle = null
         job?.cancel()
         job = null
         hyperlinkClearJob?.cancel()
         hyperlinkClearJob = null
-        busy = false
     }
 
     fun toUiSession() = WorkspaceTerminalSession(
@@ -156,7 +179,9 @@ private class BuildSession(
         agentId = agentId,
         number = number,
         terminal = snapshot,
-        busy = busy,
+        status = status,
+        exitCode = exitCode,
+        error = error,
     )
 }
 
@@ -200,7 +225,8 @@ class WorkspaceEnvironmentManager(
 ) {
 
     private val installer = LinuxInstaller(paths)
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scopeJob = SupervisorJob()
+    private val scope = CoroutineScope(scopeJob + Dispatchers.IO)
 
     /**
      * Fired whenever this install appears or disappears. Set when the rootfs is
@@ -237,7 +263,40 @@ class WorkspaceEnvironmentManager(
 
     init {
         paths.ensureLayout()
+        sweepStaleCaptureFiles()
         scope.launch { sync() }
+    }
+
+    /**
+     * Ends every session and cancels the manager scope. Process-scoped: the owners
+     * call this only when the whole app is going away — leaving the Workspace
+     * screen must not close sessions, or resume-after-leave breaks.
+     */
+    fun close() {
+        runCatching { closeAllSessions() }.onFailure { Log.w(TAG, "close: closeAllSessions failed", it) }
+        runCatching { installJob?.cancel() }.onFailure { Log.w(TAG, "close: install cancel failed", it) }
+        installJob = null
+        runCatching { scopeJob.cancel() }.onFailure { Log.w(TAG, "close: scope cancel failed", it) }
+    }
+
+    /**
+     * Deletes capture files whose session no longer exists. Runs once at startup
+     * when the live set is empty, so every `dorai-pid-*`/`dorai-winsize-*-*`/
+     * `dorai-open-url-*` file is stale. Legacy bare names from one-shot probes
+     * are left alone (see [com.dorai.ai.workspace.sessionIdFromCaptureFile]).
+     * Failures are logged, never fatal.
+     */
+    private fun sweepStaleCaptureFiles() {
+        val dir = paths.tmpDir
+        if (!dir.isDirectory) return
+        val names = dir.list()?.toList() ?: return
+        val stale = com.dorai.ai.workspace.staleSessionFileNames(names, emptySet())
+        for (name in stale) {
+            val file = File(dir, name)
+            runCatching {
+                if (!file.delete()) Log.w(TAG, "stale sweep: could not delete $name")
+            }.onFailure { Log.w(TAG, "stale sweep: failed to delete $name", it) }
+        }
     }
 
     fun install(agentIds: Set<String>) {
@@ -352,6 +411,7 @@ class WorkspaceEnvironmentManager(
                 object : SimpleFileVisitor<Path>() {
                     override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
                         runCatching { Files.deleteIfExists(file) }
+                            .onFailure { Log.w(TAG, "deleteTree: could not delete $file", it) }
                         return FileVisitResult.CONTINUE
                     }
 
@@ -359,11 +419,12 @@ class WorkspaceEnvironmentManager(
 
                     override fun postVisitDirectory(dir: Path, exc: IOException?): FileVisitResult {
                         runCatching { Files.deleteIfExists(dir) }
+                            .onFailure { Log.w(TAG, "deleteTree: could not delete $dir", it) }
                         return FileVisitResult.CONTINUE
                     }
                 },
             )
-        }
+        }.onFailure { Log.w(TAG, "deleteTree: walk failed for $dir", it) }
     }
 
     // --- sessions --------------------------------------------------------
@@ -390,8 +451,16 @@ class WorkspaceEnvironmentManager(
                 activeSessionId = id
             }
         }
-        publishSessions()
+        // Launch before publishing so the job exists before the UI can close it.
+        // The handle is still null until runShell has probed for the agent and
+        // started the PTY; runShell checks `closed` before and after that probe
+        // so a close during startup aborts instead of leaking a PTY.
         session.job = scope.launch { runShell(session) }
+        if (session.closed) {
+            session.job?.cancel()
+            Log.w(TAG, "session $id closed during startup; launch aborted")
+        }
+        publishSessions()
     }
 
     fun selectSession(id: String) {
@@ -420,12 +489,17 @@ class WorkspaceEnvironmentManager(
     /**
      * Re-enters [project]: its shells kept running while the user was away, so
      * this only calls off the reaper and puts the tab they left on back in front.
+     * Only a live session counts as resumable — a stopped/failed shell resurrected
+     * as if alive would show an active tab whose runtime is gone; dead ones stay
+     * in the strip for restart, and the caller starts a fresh session instead.
      */
     fun resumeProject(project: String): Boolean {
         foregroundProject = project
         val resumed = synchronized(sessionsLock) {
             reapJobs.remove(project)?.cancel()
-            val last = sessions.values.lastOrNull { it.project == project }
+            val last = sessions.values.lastOrNull {
+                it.project == project && it.status.isLive
+            }
             if (last != null) activeSessionId = last.id
             last != null
         }
@@ -470,9 +544,14 @@ class WorkspaceEnvironmentManager(
     /**
      * Writes text to the active session's shell/agent (UTF-8). Callers that want
      * a submitted line should include the trailing carriage return themselves.
+     * No-ops for a stopped/failed session — its handle is gone and input would
+     * only look delivered.
      */
     fun writeToTerminal(text: String) {
-        activeSession()?.handle?.writeText(text)
+        val session = activeSession() ?: return
+        if (!session.status.allowsInput) return
+        runCatching { session.handle?.writeText(text) }
+            .onFailure { Log.w(TAG, "session ${session.id}: write failed", it) }
     }
 
     /**
@@ -486,6 +565,7 @@ class WorkspaceEnvironmentManager(
         lastColumns.set(c)
         lastRows.set(r)
         val session = activeSession() ?: return
+        if (session.status.isTerminal) return
         // Cheap enough to answer on the caller's thread, and the common case: the
         // UI calls this on every layout pass, including each keyboard-animation frame.
         if (c == session.columns.get() && r == session.rows.get()) return
@@ -520,7 +600,7 @@ class WorkspaceEnvironmentManager(
                 target.writeText("$rows $columns\n")
                 staged.delete()
             }
-        }
+        }.onFailure { Log.w(TAG, "session ${session.id}: writeWinsize failed", it) }
     }
 
     private fun activeSession(): BuildSession? = synchronized(sessionsLock) { sessions[activeSessionId] }
@@ -542,10 +622,16 @@ class WorkspaceEnvironmentManager(
     /** Kills the process and drops the per-session capture files. */
     private fun endSession(session: BuildSession) {
         session.stop()
-        runCatching {
-            File(paths.tmpDir, session.winsizeFile).delete()
-            File(paths.tmpDir, session.openUrlFile).delete()
-            File(paths.tmpDir, session.pidFile).delete()
+        deleteCaptureFiles(session)
+    }
+
+    /** Best-effort delete with logging — a leftover capture file is swept at next startup. */
+    private fun deleteCaptureFiles(session: BuildSession) {
+        for (name in listOf(session.winsizeFile, session.openUrlFile, session.pidFile)) {
+            runCatching {
+                val file = File(paths.tmpDir, name)
+                if (file.exists() && !file.delete()) Log.w(TAG, "session ${session.id}: could not delete $name")
+            }.onFailure { Log.w(TAG, "session ${session.id}: failed to delete $name", it) }
         }
     }
 
@@ -661,12 +747,22 @@ class WorkspaceEnvironmentManager(
             // renders the tail — including the exit line — after every writer.
             publishScreen(session)
         }
+        var exitCode: Int? = null
+        var failure: String? = null
         try {
+            if (session.closed) {
+                Log.w(TAG, "session ${session.id} closed before startup; skipping shell")
+                return
+            }
             ensureBrowserCaptureHelpers()
             ensureAgentPathProfile()
             runCatching {
                 paths.tmpDir.mkdirs()
                 File(paths.tmpDir, session.openUrlFile).writeText("")
+            }.onFailure { Log.w(TAG, "session ${session.id}: open-url init failed", it) }
+            if (session.closed) {
+                Log.w(TAG, "session ${session.id} closed during startup probe; skipping shell")
+                return
             }
             // An agent session runs the CLI first and leaves a usable shell behind.
             // Resolve an absolute path under the non-login probe PATH: login shells
@@ -675,6 +771,10 @@ class WorkspaceEnvironmentManager(
             // bin dir — leaving only agents that force-wrote .bashrc (e.g. Grok).
             val agentBinary = WorkspaceAgents.get(session.agentId)?.binary
             val agentCmd = agentBinary?.let { resolveAgentCommand(it) }
+            if (session.closed) {
+                Log.w(TAG, "session ${session.id} closed during agent probe; skipping shell")
+                return
+            }
             val launch = if (agentCmd != null) "$agentCmd; exec bash -l" else "exec bash -l"
             // Geometry is taken as late as possible, and from the newest measurement
             // rather than the one this session was created with: resolving the agent
@@ -707,21 +807,47 @@ class WorkspaceEnvironmentManager(
                 },
             )
             session.handle = handle
+            // A close that landed while the PTY was starting must not leave a live
+            // bridge behind: cancel the fresh handle at once.
+            if (session.closed) {
+                Log.w(TAG, "session ${session.id} closed during PTY start; cancelling handle")
+                runCatching { handle.cancel() }.onFailure { Log.w(TAG, "session ${session.id}: late cancel failed", it) }
+                session.handle = null
+                return
+            }
+            session.status = com.dorai.ai.workspace.WorkspaceSessionStatus.Running
+            publishSessions()
             // Poll Grok's URL capture file (and our BROWSER wrapper) while the shell runs.
             urlPollJob = scope.launch { pollOpenUrlFile(session) }
             val exit = handle.awaitExit()
+            exitCode = exit
             if (exit > 0) {
                 session.withScreen { it.writeText("\r\n[shell exited $exit]\r\n") }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Shell failed", e)
-            session.withScreen { it.writeText("\r\n${e.message ?: "Shell failed"}\r\n") }
+            failure = e.message ?: "Shell failed"
+            session.withScreen { it.writeText("\r\n${failure}\r\n") }
         } finally {
             urlPollJob?.cancel()
             // One last read in case the URL landed as the process exited.
             ingestOpenUrlFile(session)
             session.handle = null
-            session.busy = false
+            // Natural exit (not a close-transit): the session stays in the strip
+            // so the user sees "stopped/failed" instead of a stuck active tab.
+            // A closed session was already removed from the map and is headed for
+            // endSession — publishing it would resurrect a ghost, so only record
+            // terminal status for sessions still in the map.
+            val stillInMap = synchronized(sessionsLock) { sessions.containsKey(session.id) }
+            if (!session.closed && stillInMap) {
+                session.exitCode = exitCode
+                session.error = failure
+                session.status = com.dorai.ai.workspace.deriveSessionStatus(exitCode, failure)
+                Log.i(TAG, "session ${session.id} ${session.status} exit=$exitCode error=$failure")
+            }
+            // Capture files are only meaningful while the bridge lives; a natural
+            // exit must not leave pid/winsize/open-url orphans behind.
+            deleteCaptureFiles(session)
             // Closing lets the pump run its final pass, which renders whatever the
             // blocks above wrote. Nothing writes to the screen after this point.
             repaint.close()
@@ -794,7 +920,7 @@ class WorkspaceEnvironmentManager(
             val alias = File(paths.rootfsDir, "usr/local/bin/kai-browser")
             alias.parentFile?.mkdirs()
             alias.writeText(script.readText())
-        }
+        }.onFailure { Log.w(TAG, "browser alias write failed", it) }
         script.setExecutable(true, false)
     }
 
@@ -812,6 +938,7 @@ class WorkspaceEnvironmentManager(
         if (lines.isEmpty()) return
         // Consume the file so the same URLs are not re-applied after a TTL clear.
         runCatching { file.writeText("") }
+            .onFailure { Log.w(TAG, "session ${session.id}: open-url consume failed", it) }
         var added = false
         session.withScreen { screen ->
             for (line in lines) {
@@ -962,6 +1089,139 @@ class WorkspaceEnvironmentManager(
             .toImmutableSet()
     }
 
+    /**
+     * `git status` for one project, read inside the guest: the project folders are
+     * ordinary host files, but only the rootfs has a git binary.
+     *
+     * Porcelain v1 with NUL separators — file names may contain spaces or newlines,
+     * which a line-oriented parse would split into bogus paths. `-b` adds the
+     * branch header so one guest round-trip yields both changes and branch.
+     * Failures are distinguished: missing git, not a repository, and any other
+     * error each get their own [WorkspaceGitError] instead of a silent empty list.
+     */
+    suspend fun gitStatus(project: String): WorkspaceGitResult = withContext(Dispatchers.IO) {
+        if (!isValidProjectName(project)) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.NotRepository,
+                isRepository = false,
+            )
+        }
+        val root = "/root/projects/$project"
+        val result = try {
+            executor().execute(
+                command = "git status --porcelain=v1 -b -z --untracked-files=all",
+                timeoutSeconds = 30,
+                workingDir = root,
+            )
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        }
+        if (!result.success) {
+            val stderr = result.stderr.ifBlank { result.stdout }
+            val error = when {
+                stderr.contains("not a git repository") ||
+                    stderr.contains("not inside a working tree") -> WorkspaceGitError.NotRepository
+
+                stderr.contains("git: command not found") ||
+                    stderr.contains("command not found") -> WorkspaceGitError.MissingGit
+
+                else -> WorkspaceGitError.Failed
+            }
+            return@withContext WorkspaceGitResult(error = error, isRepository = false)
+        }
+        parseGitStatusPorcelain(result.stdout, root)
+    }
+
+    /**
+     * Staged (`--cached`, index vs HEAD) + unstaged (worktree vs index) diffs
+     * for one file. Guest-side only; the path is validated and shell-quoted.
+     */
+    suspend fun gitDiff(project: String, path: String): WorkspaceGitDiff = withContext(Dispatchers.IO) {
+        val relative = gitRelativePath(path, project)
+        if (!isValidProjectName(project) || relative == null) {
+            return@withContext WorkspaceGitDiff(path = path, error = WorkspaceGitError.Failed)
+        }
+        val root = "/root/projects/$project"
+        val quoted = shellQuote(relative)
+        val unstaged = runCatching {
+            executor().execute("git diff --no-color -- $quoted", timeoutSeconds = 30, workingDir = root)
+        }
+        val staged = runCatching {
+            executor().execute("git diff --cached --no-color -- $quoted", timeoutSeconds = 30, workingDir = root)
+        }
+        val unstagedResult = unstaged.getOrNull()
+        val stagedResult = staged.getOrNull()
+        val failed = unstagedResult == null || stagedResult == null ||
+            !unstagedResult.success || !stagedResult.success
+        WorkspaceGitDiff(
+            path = path,
+            unstagedDiff = unstagedResult?.stdout.orEmpty(),
+            stagedDiff = stagedResult?.stdout.orEmpty(),
+            error = if (failed) WorkspaceGitError.Failed else null,
+        )
+    }
+
+    /** Stages one file (`git add -- <path>`). Never stages anything else. */
+    suspend fun gitStage(project: String, path: String): Boolean = gitAction(project, path) { root, quoted ->
+        "git add -- $quoted"
+    }
+
+    /** Unstages one file (`git restore --staged -- <path>`). */
+    suspend fun gitUnstage(project: String, path: String): Boolean = gitAction(project, path) { root, quoted ->
+        "git restore --staged -- $quoted"
+    }
+
+    /**
+     * Discards staged + unstaged changes for one file, guest-side only — never
+     * via the host file browser's recursive delete, which would follow symlinks
+     * the codebase deliberately treats as unsafe. Untracked files fall back to
+     * `git clean -f` (no `-d`, so directories are never removed recursively).
+     */
+    suspend fun gitDiscard(project: String, path: String): Boolean = withContext(Dispatchers.IO) {
+        val relative = gitRelativePath(path, project)
+        if (!isValidProjectName(project) || relative == null) return@withContext false
+        val root = "/root/projects/$project"
+        val quoted = shellQuote(relative)
+        val restore = runCatching {
+            executor().execute(
+                "git restore --staged --worktree -- $quoted",
+                timeoutSeconds = 30,
+                workingDir = root,
+            )
+        }.getOrNull()
+        if (restore != null && restore.success) return@withContext true
+        val clean = runCatching {
+            executor().execute(
+                "git clean -f -- $quoted",
+                timeoutSeconds = 30,
+                workingDir = root,
+            )
+        }.getOrNull()
+        clean?.success == true
+    }
+
+    private suspend fun gitAction(
+        project: String,
+        path: String,
+        command: (root: String, quoted: String) -> String,
+    ): Boolean = withContext(Dispatchers.IO) {
+        val relative = gitRelativePath(path, project)
+        if (!isValidProjectName(project) || relative == null) return@withContext false
+        val root = "/root/projects/$project"
+        runCatching {
+            executor().execute(
+                command = command(root, shellQuote(relative)),
+                timeoutSeconds = 30,
+                workingDir = root,
+            ).success
+        }.getOrDefault(false)
+    }
+
     private fun scanProjects() = paths.projectsDir.listFiles()
         .orEmpty()
         .filter { it.isDirectory }
@@ -1017,6 +1277,9 @@ class WorkspaceEnvironmentManager(
         "BROWSER" to "/usr/local/bin/dorai-browser",
     )
 }
+
+/** Project folder names are a single path segment — reject traversal before any guest call. */
+private fun isValidProjectName(project: String): Boolean = project.isNotEmpty() && !project.contains('/') && !project.contains('\\') && project != "." && project != ".."
 
 private fun WorkspaceProotExecutor.hasBinary(binary: String): Boolean = execute("command -v $binary >/dev/null 2>&1", timeoutSeconds = 20).success
 

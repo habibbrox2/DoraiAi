@@ -52,7 +52,9 @@ class WorkspaceProotExecutor(
         onOutput: (ByteArray, Int) -> Unit,
     ): ProotHandle {
         val pidFile = File(tmpPath, pidFileName)
-        runCatching { pidFile.delete() }
+        runCatching { pidFile.delete() }.onFailure {
+            android.util.Log.w("Workspace", "executeStreaming: stale pid file delete failed for $pidFileName", it)
+        }
         return launcher.startStreaming(
             command = wrapWithPty(command),
             workingDir = workingDir,

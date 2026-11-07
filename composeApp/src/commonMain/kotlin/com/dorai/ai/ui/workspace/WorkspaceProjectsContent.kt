@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -69,15 +71,15 @@ import dorai.composeapp.generated.resources.sandbox_files_rename_error_collision
 import dorai.composeapp.generated.resources.sandbox_files_rename_error_invalid
 import dorai.composeapp.generated.resources.sandbox_files_rename_label
 import dorai.composeapp.generated.resources.sandbox_files_rename_title
-import dorai.composeapp.generated.resources.workspace_new_project_title
+import dorai.composeapp.generated.resources.workspace_agents_section_subtitle
+import dorai.composeapp.generated.resources.workspace_agents_section_title
 import dorai.composeapp.generated.resources.workspace_open_with
-import dorai.composeapp.generated.resources.workspace_projects_cancel_create
+import dorai.composeapp.generated.resources.workspace_project_folder_content_description
 import dorai.composeapp.generated.resources.workspace_projects_cancel_delete
 import dorai.composeapp.generated.resources.workspace_projects_cancel_rename
 import dorai.composeapp.generated.resources.workspace_projects_cancel_uninstall
-import dorai.composeapp.generated.resources.workspace_projects_create
 import dorai.composeapp.generated.resources.workspace_projects_empty
-import dorai.composeapp.generated.resources.workspace_projects_new_placeholder
+import dorai.composeapp.generated.resources.workspace_projects_section_title
 import dorai.composeapp.generated.resources.workspace_projects_session_open
 import dorai.composeapp.generated.resources.workspace_projects_sessions_open
 import dorai.composeapp.generated.resources.workspace_session_shell
@@ -121,133 +123,143 @@ internal fun WorkspaceProjectsContent(
         state.sessions.groupingBy { it.project }.eachCount()
     }
 
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        item {
-            BuildEnvironmentHeader(state = state)
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val tier = WorkspaceTier(maxWidth)
+        val centered = if (tier == WorkspaceTier.Expanded) {
+            Modifier.widthIn(tier.contentMaxWidth).align(Alignment.TopCenter)
+        } else {
+            Modifier
         }
-
-        if (installedAgents.isNotEmpty()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(centered),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
             item {
-                Row(
-                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = stringResource(Res.string.workspace_open_with),
-                        style = DoraiTypography.bodySmall,
-                        color = LocalDesignColorTokens.current.textSecondary,
-                    )
-                    DoraiChip(
-                        selected = launchAgentId == null,
-                        onClick = { onSelectLaunchAgent(null) },
+                BuildEnvironmentHeader(state = state)
+            }
+
+            if (installedAgents.isNotEmpty()) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = stringResource(Res.string.workspace_session_shell),
-                            style = DoraiTypography.labelMedium,
+                            text = stringResource(Res.string.workspace_open_with),
+                            style = DoraiTypography.bodySmall,
+                            color = LocalDesignColorTokens.current.textSecondary,
                         )
-                    }
-                    installedAgents.forEach { agent ->
                         DoraiChip(
-                            selected = launchAgentId == agent.id,
-                            onClick = { onSelectLaunchAgent(agent.id) },
+                            selected = launchAgentId == null,
+                            onClick = { onSelectLaunchAgent(null) },
                         ) {
-                            Text(text = agent.title, style = DoraiTypography.labelMedium)
+                            Text(
+                                text = stringResource(Res.string.workspace_session_shell),
+                                style = DoraiTypography.labelMedium,
+                            )
+                        }
+                        installedAgents.forEach { agent ->
+                            DoraiChip(
+                                selected = launchAgentId == agent.id,
+                                onClick = { onSelectLaunchAgent(agent.id) },
+                            ) {
+                                Text(text = agent.title, style = DoraiTypography.labelMedium)
+                            }
                         }
                     }
                 }
             }
-        }
 
-        if (state.projects.isEmpty()) {
-            item {
-                WorkspaceSectionHeader(
-                    title = "Projects",
-                    subtitle = stringResource(Res.string.workspace_projects_empty),
+            if (state.projects.isEmpty()) {
+                item {
+                    WorkspaceSectionHeader(
+                        title = stringResource(Res.string.workspace_projects_section_title),
+                        subtitle = stringResource(Res.string.workspace_projects_empty),
+                    )
+                }
+            } else {
+                item {
+                    WorkspaceSectionHeader(title = stringResource(Res.string.workspace_projects_section_title))
+                }
+            }
+
+            items(state.projects, key = { it }) { project ->
+                val cardColors = CardDefaults.cardColors(
+                    containerColor = LocalDesignColorTokens.current.surfaceElevated,
                 )
-            }
-        } else {
-            item {
-                WorkspaceSectionHeader(title = "Projects")
-            }
-        }
+                val cardBorder = androidx.compose.foundation.BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle)
 
-        items(state.projects, key = { it }) { project ->
-            val cardColors = CardDefaults.cardColors(
-                containerColor = LocalDesignColorTokens.current.surfaceElevated,
-            )
-            val cardBorder = androidx.compose.foundation.BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle)
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { onOpenProject(project) },
-                colors = cardColors,
-                border = cardBorder,
-                shape = DoraiShapes.card,
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { onOpenProject(project) },
+                    colors = cardColors,
+                    border = cardBorder,
+                    shape = DoraiShapes.card,
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Folder,
-                        contentDescription = "Project folder",
-                        tint = AccentPrimary,
-                    )
-                    Text(
-                        text = project,
-                        style = DoraiTypography.titleMedium,
-                        color = LocalDesignColorTokens.current.textPrimary,
-                        modifier = Modifier.weight(1f),
-                    )
-                    // Shells left behind here: the list is the only place they can be
-                    // found from, now that stepping out of a project keeps them.
-                    val open = sessionCounts[project] ?: 0
-                    if (open > 0) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Folder,
+                            contentDescription = stringResource(Res.string.workspace_project_folder_content_description),
+                            tint = AccentPrimary,
+                        )
                         Text(
-                            text = openSessionsLabel(open),
-                            style = DoraiTypography.labelMedium,
-                            color = AccentPrimary,
+                            text = project,
+                            style = DoraiTypography.titleMedium,
+                            color = LocalDesignColorTokens.current.textPrimary,
+                            modifier = Modifier.weight(1f),
+                        )
+                        // Shells left behind here: the list is the only place they can be
+                        // found from, now that stepping out of a project keeps them.
+                        val open = sessionCounts[project] ?: 0
+                        if (open > 0) {
+                            Text(
+                                text = openSessionsLabel(open),
+                                style = DoraiTypography.labelMedium,
+                                color = AccentPrimary,
+                            )
+                        }
+                        ProjectRowMenu(
+                            onRename = { renaming = project },
+                            onDelete = { deleting = project },
                         )
                     }
-                    ProjectRowMenu(
-                        onRename = { renaming = project },
-                        onDelete = { deleting = project },
+                }
+            }
+
+            state.lastError?.let { error ->
+                item {
+                    Text(
+                        text = error,
+                        style = DoraiTypography.bodySmall,
+                        color = DangerAlert,
                     )
                 }
             }
-        }
 
-        state.lastError?.let { error ->
             item {
-                Text(
-                    text = error,
-                    style = DoraiTypography.bodySmall,
-                    color = DangerAlert,
+                BuildSystemCard(
+                    info = state.systemInfo,
+                    onUninstall = { showUninstall = true },
                 )
             }
-        }
 
-        item {
-            BuildSystemCard(
-                info = state.systemInfo,
-                onUninstall = { showUninstall = true },
-            )
-        }
-
-        if (missingAgents.isNotEmpty()) {
-            item {
-                WorkspaceAgentManagerCard(
-                    missingAgents = missingAgents,
-                    onInstallAgent = onInstallAgent,
-                )
+            if (missingAgents.isNotEmpty()) {
+                item {
+                    WorkspaceAgentManagerCard(
+                        missingAgents = missingAgents,
+                        onInstallAgent = onInstallAgent,
+                    )
+                }
             }
         }
     }
@@ -507,8 +519,8 @@ private fun WorkspaceAgentManagerCard(
     if (missingAgents.isEmpty()) return
     SettingsCard(modifier = Modifier.fillMaxWidth()) {
         WorkspaceSectionHeader(
-            title = "Agents",
-            subtitle = "Install an agent to open projects with it instead of a plain shell.",
+            title = stringResource(Res.string.workspace_agents_section_title),
+            subtitle = stringResource(Res.string.workspace_agents_section_subtitle),
         )
         Spacer(Modifier.height(4.dp))
         Row(
@@ -546,42 +558,4 @@ private fun SystemInfoRow(label: String, value: String) {
             textAlign = TextAlign.End,
         )
     }
-}
-
-/** Reached from the plus button in the top bar; creating opens the project right away. */
-@Composable
-internal fun CreateProjectDialog(
-    onDismiss: () -> Unit,
-    onCreate: (String) -> Unit,
-) {
-    var name by rememberSaveable { mutableStateOf("") }
-    val create = { if (name.isNotBlank()) onCreate(name) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(Res.string.workspace_new_project_title)) },
-        text = {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(Res.string.workspace_projects_new_placeholder)) },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { create() }),
-            )
-        },
-        confirmButton = {
-            TextButton(
-                onClick = create,
-                enabled = name.isNotBlank(),
-                modifier = Modifier.handCursor(),
-            ) { Text(stringResource(Res.string.workspace_projects_create)) }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss, modifier = Modifier.handCursor()) {
-                Text(stringResource(Res.string.workspace_projects_cancel_create))
-            }
-        },
-    )
 }

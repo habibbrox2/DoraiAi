@@ -547,6 +547,24 @@
     <string name="workspace_git_status_added">Added</string>
     <string name="workspace_git_status_modified">Modified</string>
     <string name="workspace_git_status_deleted">Deleted</string>
+    <string name="workspace_git_status_renamed">Renamed</string>
+    <string name="workspace_git_status_untracked">Untracked</string>
+    <string name="workspace_git_status_conflicted">Conflicted</string>
+    <string name="workspace_git_loading">Reading git status…</string>
+    <string name="workspace_git_branch">Branch: %1$s</string>
+    <string name="workspace_git_not_repository">This project is not a git repository</string>
+    <string name="workspace_git_missing_git">Git is not installed in this environment</string>
+    <string name="workspace_git_failed">Could not read git status</string>
+    <string name="workspace_git_stage">Stage</string>
+    <string name="workspace_git_unstage">Unstage</string>
+    <string name="workspace_git_discard">Discard</string>
+    <string name="workspace_git_diff">Diff</string>
+    <string name="workspace_git_diff_title">Changes in %1$s</string>
+    <string name="workspace_git_discard_title">Discard changes?</string>
+    <string name="workspace_git_discard_message">Discard all changes to %1$s? The file will be restored to the last committed version. This cannot be undone.</string>
+    <string name="workspace_git_diff_error">Could not read diff</string>
+    <string name="workspace_git_staged">Staged</string>
+    <string name="workspace_git_unstaged">Unstaged</string>
     <string name="workspace_editor_undo">Undo</string>
     <string name="workspace_editor_search">Search</string>
     <string name="workspace_editor_toggle_diff">Toggle diff</string>
@@ -561,8 +579,24 @@
     <string name="workspace_editor_next">Next</string>
     <string name="workspace_editor_reject">Reject</string>
     <string name="workspace_editor_accept">Accept</string>
+    <string name="workspace_editor_saving">Saving…</string>
+    <string name="workspace_editor_unsaved">Unsaved changes</string>
+    <string name="workspace_editor_saved">Saved</string>
+    <string name="workspace_editor_read_only">Read-only</string>
+    <string name="workspace_editor_search_count">%1$d of %2$d</string>
+    <string name="workspace_editor_search_no_results">No matches</string>
     <string name="workspace_explorer_search_placeholder">Search files</string>
     <string name="workspace_explorer_no_files">No files yet</string>
+    <string name="workspace_explorer_filter_all">All</string>
+    <string name="workspace_explorer_filter_files">Files</string>
+    <string name="workspace_explorer_filter_folders">Folders</string>
+    <string name="workspace_explorer_filter_modified">Modified %1$d</string>
+    <string name="workspace_explorer_no_matches">No matches for the current filters</string>
+    <string name="workspace_explorer_loading">Loading files…</string>
+    <string name="workspace_explorer_error">Could not load files</string>
+    <string name="workspace_explorer_refresh">Refresh</string>
+    <string name="workspace_explorer_clear_search">Clear search</string>
+    <string name="workspace_explorer_retry">Retry</string>
     <string name="sandbox_status_not_installed">Not installed</string>
     <string name="sandbox_status_downloading">Downloading rootfs…</string>
     <string name="sandbox_status_extracting">Extracting…</string>
@@ -673,6 +707,16 @@
     <string name="workspace_loading_file">Loading file…</string>
     <string name="workspace_no_active_session">No active session</string>
     <string name="workspace_open_project_terminal">Open a project to use Terminal</string>
+    <string name="workspace_session_status_starting">Starting</string>
+    <string name="workspace_session_status_running">Running</string>
+    <string name="workspace_session_status_stopping">Stopping</string>
+    <string name="workspace_session_status_stopped">Stopped</string>
+    <string name="workspace_session_status_failed">Failed</string>
+    <string name="workspace_session_status_idle">Idle</string>
+    <string name="workspace_session_restart">Restart</string>
+    <string name="workspace_session_stopped_message">Session stopped</string>
+    <string name="workspace_session_failed_message">Session failed</string>
+    <string name="workspace_session_exit_code">Exit code: %1$d</string>
 
     <!-- App Sidebar -->
     <string name="sidebar_new_chat">New chat</string>
@@ -682,6 +726,9 @@
     <string name="sidebar_search_chats">Search chats</string>
     <string name="sidebar_new_project">New project</string>
     <string name="sidebar_recent_chats">Recent chats</string>
+    <string name="sidebar_projects">Projects</string>
+    <string name="sidebar_projects_empty">No projects yet</string>
+    <string name="sidebar_projects_setup">Set up Workspace</string>
     <string name="sidebar_no_chats">No chats yet</string>
     <string name="sidebar_no_matches">No matches</string>
     <string name="sidebar_nav_dashboard">Dashboard</string>
@@ -691,5 +738,36 @@
 
     <!-- Empty State -->
     <string name="empty_state_subtitle">Your AI. Your World.</string>
+
+    <!-- Workspace UI/UX polish (Phase 6) -->
+    <string name="workspace_open_drawer_content_description">Open drawer</string>
+    <string name="workspace_default_session_label">main</string>
+    <string name="workspace_save_dismiss">Dismiss</string>
+    <string name="workspace_editor_empty">Open a file to edit</string>
+    <string name="workspace_editor_binary">Binary file: %1$s</string>
+    <string name="workspace_editor_too_large">File too large (%1$d bytes)</string>
+    <string name="workspace_editor_unreadable">Cannot read file: %1$s</string>
+    <string name="workspace_editor_close_search_content_description">Close search</string>
+    <string name="workspace_tab_agent">Agent</string>
+    <string name="workspace_tab_editor">Editor</string>
+    <string name="workspace_tab_terminal">Terminal</string>
+    <string name="workspace_tab_git">Git</string>
+    <string name="workspace_explorer_no_project">No project</string>
+    <string name="workspace_explorer_create_hint">Create a project to get started</string>
+    <string name="workspace_explorer_projects_one">1 project</string>
+    <string name="workspace_explorer_projects_other">%1$d projects</string>
+    <string name="workspace_projects_section_title">Projects</string>
+    <string name="workspace_agents_section_title">Agents</string>
+    <string name="workspace_agents_section_subtitle">Install an agent to open projects with it instead of a plain shell.</string>
+    <string name="workspace_project_folder_content_description">Project folder</string>
+    <string name="workspace_setup_verify">Verify</string>
+    <string name="workspace_setup_failed_title">Setup failed</string>
+    <string name="workspace_status_label">Status: %1$s</string>
+    <string name="workspace_env_not_installed_label">Not installed</string>
+    <string name="workspace_env_not_installed_guidance">Set up the Linux environment to create and open projects.</string>
+    <string name="workspace_env_installing_label">Installing</string>
+    <string name="workspace_env_installing_guidance">Finishing setup — you can open projects once it is ready.</string>
+    <string name="workspace_env_ready_label">Ready</string>
+    <string name="workspace_env_ready_guidance">Create a project or open one to start building.</string>
 </resources>
 

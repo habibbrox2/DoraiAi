@@ -1,5 +1,6 @@
 ﻿package com.dorai.ai.linux
 
+import android.util.Log
 import com.dorai.ai.smartTruncate
 import java.io.BufferedReader
 import java.io.File
@@ -8,6 +9,8 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+
+private const val TAG = "Proot"
 
 /** Default guest PATH. Callers that need vendor bin dirs override it. */
 const val DEFAULT_GUEST_PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -66,17 +69,49 @@ class ProotHandle internal constructor(
         // bridge closes the PTY master, which hangs up the shell and lets proot exit.
         killGuest()
         runCatching { writer.shutdownNow() }
+            .onFailure { Log.w(TAG, "cancel: writer shutdown failed", it) }
         runCatching { process.inputStream.close() }
+            .onFailure { Log.w(TAG, "cancel: stdin close failed", it) }
         runCatching { process.errorStream.close() }
+            .onFailure { Log.w(TAG, "cancel: stderr close failed", it) }
         runCatching { process.outputStream.close() }
+            .onFailure { Log.w(TAG, "cancel: stdout close failed", it) }
         process.destroyForcibly()
     }
 
     private fun killGuest() {
         val file = guestPidFile ?: return
+        if (!file.exists()) {
+            // The bridge writes its pid before starting the shell; a missing file
+            // means it never did, so there is no bridge to kill — but do not treat
+            // that as success: the proot process still gets destroyed by cancel().
+            Log.w(TAG, "killGuest: pid file missing: ${file.name}")
+            return
+        }
         val pid = runCatching { file.readText().trim().toIntOrNull() }.getOrNull()
-        if (pid != null && pid > 0) runCatching { android.os.Process.killProcess(pid) }
+        if (pid == null || pid <= 1) {
+            // Keep the file: a wrong pid must never escalate to killing an
+            // unrelated process, and the evidence is useful for debugging.
+            Log.w(TAG, "killGuest: invalid pid in ${file.name}, keeping file")
+            return
+        }
+        // PID-reuse guard: proot does not namespace pids, so a stale pid file
+        // could name an unrelated host process. The bridge is a python3 process
+        // running the PTY script; if /proc/<pid>/cmdline is readable and does not
+        // look like it, the pid was reused — skip the kill and keep the file.
+        val cmdline = runCatching { File("/proc/$pid/cmdline").readBytes().decodeToString() }
+            .getOrNull()
+        if (cmdline != null && !cmdline.contains("python") && !cmdline.contains("bash")) {
+            Log.w(TAG, "killGuest: pid $pid no longer looks like the PTY bridge, skipping kill")
+            return
+        }
+        val killed = runCatching { android.os.Process.killProcess(pid) }.isSuccess
+        if (!killed) {
+            Log.w(TAG, "killGuest: kill failed for pid $pid, keeping ${file.name}")
+            return
+        }
         runCatching { file.delete() }
+            .onFailure { Log.w(TAG, "killGuest: could not delete ${file.name}", it) }
     }
 
     fun writeBytes(data: ByteArray) {

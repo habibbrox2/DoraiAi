@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -66,6 +67,7 @@ import com.dorai.ai.ui.components.LogoAnimation
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignTokens
+import com.dorai.ai.ui.workspace.CreateProjectDialog
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.chat_history_heartbeat_label
 import dorai.composeapp.generated.resources.dashboard_title
@@ -78,6 +80,9 @@ import dorai.composeapp.generated.resources.sidebar_new_chat
 import dorai.composeapp.generated.resources.sidebar_new_project
 import dorai.composeapp.generated.resources.sidebar_no_chats
 import dorai.composeapp.generated.resources.sidebar_no_matches
+import dorai.composeapp.generated.resources.sidebar_projects
+import dorai.composeapp.generated.resources.sidebar_projects_empty
+import dorai.composeapp.generated.resources.sidebar_projects_setup
 import dorai.composeapp.generated.resources.sidebar_recent_chats
 import dorai.composeapp.generated.resources.sidebar_rename_chat
 import dorai.composeapp.generated.resources.sidebar_search_chats
@@ -114,10 +119,19 @@ fun AppSidebar(
     isInteractiveMode: Boolean = false,
     onToggleInteractiveMode: (() -> Unit)?,
     onOpenWorkspace: (() -> Unit)?,
+    /**
+     * Workspace projects for the Projects section. Null hides the section entirely
+     * (NoOp platforms); non-null with [workspaceIsReady] = false shows the setup row.
+     */
+    workspaceProjects: ImmutableList<String>? = null,
+    workspaceIsReady: Boolean = false,
+    onCreateProject: ((String) -> Unit)? = null,
+    onOpenProject: ((String) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val tokens = LocalDesignTokens.current
     var query by remember { mutableStateOf("") }
+    var showCreateProjectDialog by remember { mutableStateOf(false) }
     val visibleConversations = remember(filteredConversations, query) {
         if (query.isBlank()) {
             filteredConversations
@@ -221,12 +235,26 @@ fun AppSidebar(
             }
         }
 
-        // Secondary primary action: jump into the workspace and start a project.
+        // Secondary primary action: create a project inline when ready, else navigate to setup.
         onOpenWorkspace?.let { openWorkspace ->
+            val canCreateInline = workspaceProjects != null && workspaceIsReady && onCreateProject != null
             SidebarActionButton(
                 icon = Icons.Default.Folder,
                 label = stringResource(Res.string.sidebar_new_project),
-                onClick = openWorkspace,
+                onClick = if (canCreateInline) {
+                    { showCreateProjectDialog = true }
+                } else {
+                    openWorkspace
+                },
+            )
+        }
+
+        workspaceProjects?.let { projects ->
+            SidebarProjectsSection(
+                projects = projects,
+                isReady = workspaceIsReady,
+                onOpenProject = onOpenProject,
+                onOpenWorkspace = onOpenWorkspace,
             )
         }
 
@@ -359,6 +387,155 @@ fun AppSidebar(
                     color = tokens.PrimaryCyan,
                 )
             }
+        }
+    }
+
+    if (showCreateProjectDialog && workspaceProjects != null && onCreateProject != null) {
+        CreateProjectDialog(
+            projects = workspaceProjects,
+            onDismiss = { showCreateProjectDialog = false },
+            onCreate = { name ->
+                showCreateProjectDialog = false
+                onCreateProject(name)
+            },
+        )
+    }
+}
+
+/** Which sidebar Projects state to render — pure, exported for tests. */
+enum class SidebarProjectSection {
+    /** Debian not ready: show the setup row instead of an empty list. */
+    NotReady,
+
+    /** Ready but no folders yet. */
+    Empty,
+
+    /** Ready with folders to list. */
+    Ready,
+}
+
+/**
+ * Pure section classifier for the sidebar Projects block. Keeps the composable
+ * presentational over `ImmutableList<String>` with no filesystem access.
+ */
+fun sidebarProjectSection(projects: ImmutableList<String>, isReady: Boolean): SidebarProjectSection = when {
+    !isReady -> SidebarProjectSection.NotReady
+    projects.isEmpty() -> SidebarProjectSection.Empty
+    else -> SidebarProjectSection.Ready
+}
+
+/**
+ * Projects section between the New Project button and Recent Chats. Folder icon,
+ * `Projects` header, and a divider keep it visually separate from chat rows.
+ */
+@Composable
+private fun SidebarProjectsSection(
+    projects: ImmutableList<String>,
+    isReady: Boolean,
+    onOpenProject: ((String) -> Unit)?,
+    onOpenWorkspace: (() -> Unit)?,
+) {
+    val tokens = LocalDesignTokens.current
+    Text(
+        text = stringResource(Res.string.sidebar_projects).uppercase(),
+        style = DoraiTypography.labelSmall.copy(letterSpacing = 1.sp),
+        fontWeight = FontWeight.Bold,
+        color = tokens.MutedText.copy(alpha = 0.7f),
+        modifier = Modifier.padding(
+            start = ChatSpacing.xs,
+            top = ChatSpacing.xs,
+            bottom = ChatSpacing.xxs,
+        ),
+    )
+    when (sidebarProjectSection(projects, isReady)) {
+        SidebarProjectSection.NotReady -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .handCursor()
+                    .clickable { onOpenWorkspace?.invoke() }
+                    .padding(horizontal = ChatSpacing.xs, vertical = ChatSpacing.sm),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(ChatSpacing.sm),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Folder,
+                        contentDescription = null,
+                        tint = tokens.PrimaryCyan,
+                        modifier = Modifier.size(16.dp),
+                    )
+                    Text(
+                        text = stringResource(Res.string.sidebar_projects_setup),
+                        style = DoraiTypography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                        color = tokens.PrimaryCyan,
+                    )
+                }
+            }
+        }
+
+        SidebarProjectSection.Empty -> {
+            Text(
+                text = stringResource(Res.string.sidebar_projects_empty),
+                style = DoraiTypography.bodySmall,
+                color = tokens.MutedText,
+                modifier = Modifier.padding(vertical = ChatSpacing.sm, horizontal = ChatSpacing.xs),
+            )
+        }
+
+        SidebarProjectSection.Ready -> {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 192.dp),
+                verticalArrangement = Arrangement.spacedBy(ChatSpacing.xxs),
+            ) {
+                items(projects, key = { it }) { project ->
+                    SidebarProjectRow(
+                        project = project,
+                        onClick = { onOpenProject?.invoke(project) },
+                    )
+                }
+            }
+        }
+    }
+    HorizontalDivider(color = tokens.BorderSubtle)
+}
+
+@Composable
+private fun SidebarProjectRow(
+    project: String,
+    onClick: () -> Unit,
+) {
+    val tokens = LocalDesignTokens.current
+    val rowShape = RoundedCornerShape(10.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .handCursor()
+            .clip(rowShape)
+            .clickable(onClick = onClick)
+            .padding(horizontal = ChatSpacing.xs, vertical = ChatSpacing.sm),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(ChatSpacing.sm),
+        ) {
+            Icon(
+                imageVector = Icons.Default.Folder,
+                contentDescription = null,
+                tint = tokens.PrimaryCyan,
+                modifier = Modifier.size(16.dp),
+            )
+            Text(
+                text = project,
+                style = DoraiTypography.bodySmall,
+                color = tokens.SecondaryText,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }

@@ -5,6 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dorai.ai.WorkspaceController
 import com.dorai.ai.data.DataRepository
+import com.dorai.ai.workspace.WorkspaceGitChange
+import com.dorai.ai.workspace.WorkspaceGitDiff
+import com.dorai.ai.workspace.WorkspaceGitError
+import com.dorai.ai.workspace.WorkspaceGitResult
 import com.dorai.ai.workspace.WorkspaceState
 import com.dorai.ai.workspace.terminal.TerminalKey
 import com.dorai.ai.workspace.terminal.TerminalKeyEncoder
@@ -16,9 +20,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Immutable
 data class WorkspaceUiState(
@@ -29,6 +37,26 @@ data class WorkspaceUiState(
     val launchAgentId: String? = null,
     /** Non-null while the user is inside a project's terminal. */
     val openProject: String? = null,
+)
+
+/**
+ * Source-control view of the open project. [project] is the folder [changes] belong
+ * to; it changes as soon as another project is opened, so a slow `git status` can
+ * never paint the previous project's files over the new one.
+ */
+@Immutable
+data class WorkspaceGitState(
+    val project: String? = null,
+    val loading: Boolean = false,
+    val changes: List<WorkspaceGitChange> = emptyList(),
+    /** True once a status has come back for this project, even if the repo is clean. */
+    val loaded: Boolean = false,
+    /** Current branch from `git status -b`; null when detached, unborn, or unread. */
+    val branch: String? = null,
+    /** Why the last read failed; null means it succeeded (clean or dirty). */
+    val error: WorkspaceGitError? = null,
+    /** False when the folder is not a repository — distinct from "clean". */
+    val isRepository: Boolean = true,
 )
 
 class WorkspaceViewModel(
@@ -63,8 +91,115 @@ class WorkspaceViewModel(
         ),
     )
 
+    private val _gitState = MutableStateFlow(WorkspaceGitState())
+    val gitState: StateFlow<WorkspaceGitState> = _gitState.asStateFlow()
+
+    private val _gitDiff = MutableStateFlow<WorkspaceGitDiff?>(null)
+    val gitDiff: StateFlow<WorkspaceGitDiff?> = _gitDiff.asStateFlow()
+
+    private val _gitActionInProgress = MutableStateFlow(false)
+    val gitActionInProgress: StateFlow<Boolean> = _gitActionInProgress.asStateFlow()
+
     init {
         controller.refresh()
+    }
+
+    /**
+     * Re-reads `git status` for [project]. Called when the Git tab is opened — the
+     * agent edits files through a shell, so any cached answer goes stale at once.
+     */
+    fun refreshGitStatus(project: String) {
+        if (_gitState.value.project != project) {
+            _gitState.value = WorkspaceGitState(project = project, loading = true)
+        } else {
+            _gitState.update { it.copy(loading = true) }
+        }
+        viewModelScope.launch {
+            // The status runs a guest process; keep it off the main dispatcher.
+            val result = withContext(Dispatchers.Default) {
+                try {
+                    controller.gitStatus(project)
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    WorkspaceGitResult(error = WorkspaceGitError.Failed, isRepository = false)
+                }
+            }
+            _gitState.update {
+                if (it.project != project) {
+                    it
+                } else {
+                    it.copy(
+                        changes = result.changes,
+                        branch = result.branch,
+                        error = result.error,
+                        isRepository = result.isRepository,
+                        loading = false,
+                        loaded = true,
+                    )
+                }
+            }
+        }
+    }
+
+    /** Loads staged + unstaged diffs for one changed file. */
+    fun loadGitDiff(project: String, path: String) {
+        viewModelScope.launch {
+            val diff = withContext(Dispatchers.Default) {
+                try {
+                    controller.gitDiff(project, path)
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    WorkspaceGitDiff(path = path, error = WorkspaceGitError.Failed)
+                }
+            }
+            // Only the latest requested file's diff is shown — a slow read for a
+            // previous file must not repaint a newer selection.
+            if (_gitDiff.value?.path != path) {
+                _gitDiff.value = diff
+            } else {
+                _gitDiff.value = diff
+            }
+        }
+    }
+
+    /** Clears the currently shown diff (dialog dismissed). */
+    fun clearGitDiff() {
+        _gitDiff.value = null
+    }
+
+    /** Stages one file, then refreshes the status list. */
+    fun stageGitFile(project: String, path: String) {
+        runGitAction(project) { controller.gitStage(project, path) }
+    }
+
+    /** Unstages one file, then refreshes the status list. */
+    fun unstageGitFile(project: String, path: String) {
+        runGitAction(project) { controller.gitUnstage(project, path) }
+    }
+
+    /** Discards one file's changes, then refreshes the status list. */
+    fun discardGitFile(project: String, path: String) {
+        runGitAction(project) { controller.gitDiscard(project, path) }
+    }
+
+    private fun runGitAction(project: String, action: suspend () -> Boolean) {
+        if (_gitActionInProgress.value) return
+        _gitActionInProgress.value = true
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.Default) { action() }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                // A failed action leaves the tree untouched; the refreshed
+                // status below is still the correct UI state.
+            } finally {
+                _gitActionInProgress.value = false
+            }
+            refreshGitStatus(project)
+        }
     }
 
     /**
@@ -144,6 +279,28 @@ class WorkspaceViewModel(
             openProject.value = null
         }
     }
+
+    /**
+     * Replaces a stopped/failed session with a fresh shell in its place.
+     * Starts the replacement first so the project never looks empty: closing
+     * the old tab first would step the user back to the project list.
+     */
+    fun restartSession(id: String) {
+        val project = openProject.value ?: return
+        val old = controller.state.value.sessions.firstOrNull { it.id == id && it.project == project } ?: return
+        controller.startSession(project, old.agentId)
+        controller.closeSession(id)
+        if (controller.state.value.sessions.none { it.project == project }) {
+            openProject.value = null
+        }
+    }
+
+    /**
+     * Ends every session and releases the environment. Not called on ViewModel
+     * clear — the manager is process-scoped and leaving the Workspace screen
+     * must keep sessions alive for resume.
+     */
+    fun closeEnvironment() = controller.close()
 
     /** Submits a finished input line (caller includes the trailing carriage return). */
     fun submitLine(text: String) {

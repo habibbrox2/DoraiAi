@@ -45,12 +45,17 @@ class SandboxFileBrowserViewModelTest {
         val entriesByPath = mutableMapOf<String, MutableList<SandboxFileEntry>>()
         val files = mutableMapOf<String, String>() // path -> text content
         val listDelays = mutableMapOf<String, Long>() // path -> virtual ms listDirectory takes
+        val readDelays = mutableMapOf<String, Long>() // path -> virtual ms readTextFile takes
+        val writeDelays = mutableMapOf<String, Long>() // path -> virtual ms writeTextFile takes
         val binaryPaths = mutableSetOf<String>()
         var deleteResult: Boolean = true
+        var writeResult: Boolean = true
         var renameResult: Result<String>? = null
 
         var lastDeleteCall: Pair<String, Boolean>? = null
         var lastRenameCall: Pair<String, String>? = null
+        var writeCount = 0
+        var lastWriteContent: String? = null
 
         override fun setup() {}
         override fun cancel() {}
@@ -70,6 +75,7 @@ class SandboxFileBrowserViewModelTest {
         }
 
         override suspend fun readTextFile(path: String, maxBytes: Int, force: Boolean): TextFileResult {
+            readDelays[path]?.let { delay(it) }
             val content = files[path] ?: return TextFileResult.Unreadable
             if (content.length > maxBytes) return TextFileResult.TooLarge(content.length.toLong())
             // Stand-in for "not valid UTF-8": forcing decodes it read-only, as on device.
@@ -80,6 +86,10 @@ class SandboxFileBrowserViewModelTest {
         }
 
         override suspend fun writeTextFile(path: String, content: String): Boolean {
+            writeCount++
+            writeDelays[path]?.let { delay(it) }
+            lastWriteContent = content
+            if (!writeResult) return false
             files[path] = content
             return true
         }
@@ -580,5 +590,196 @@ class SandboxFileBrowserViewModelTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertTrue(vm.state.value.editor is EditorState.Unreadable)
+    }
+
+    @Test
+    fun `save writes the buffer and clears dirty`() = runTest {
+        val entry = fileEntry("a.txt")
+        seedDir("/root", entry)
+        controller.files[entry.path] = "hello"
+        val vm = SandboxFileBrowserViewModel(controller)
+        vm.start("/root")
+        testDispatcher.scheduler.advanceUntilIdle()
+        vm.openEntry(entry)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        vm.updateEditorContent("hello edited")
+        assertTrue((vm.state.value.editor as EditorState.Loaded).dirty)
+        vm.save()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals("hello edited", controller.files[entry.path])
+        val editor = vm.state.value.editor as EditorState.Loaded
+        assertFalse(editor.dirty)
+        assertFalse(vm.state.value.editorSaving)
+    }
+
+    @Test
+    fun `failed save preserves dirty buffer`() = runTest {
+        val entry = fileEntry("a.txt")
+        seedDir("/root", entry)
+        controller.files[entry.path] = "hello"
+        controller.writeResult = false
+        val vm = SandboxFileBrowserViewModel(controller)
+        vm.start("/root")
+        testDispatcher.scheduler.advanceUntilIdle()
+        vm.openEntry(entry)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        vm.updateEditorContent("hello edited")
+        vm.save()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals("hello", controller.files[entry.path])
+        val editor = vm.state.value.editor as EditorState.Loaded
+        assertEquals("hello edited", editor.current)
+        assertEquals("hello", editor.original)
+        assertTrue(editor.dirty)
+        assertFalse(vm.state.value.editorSaving)
+    }
+
+    @Test
+    fun `edits made during a save stay dirty after it succeeds`() = runTest {
+        val entry = fileEntry("a.txt")
+        seedDir("/root", entry)
+        controller.files[entry.path] = "hello"
+        controller.writeDelays[entry.path] = 100
+        val vm = SandboxFileBrowserViewModel(controller)
+        vm.start("/root")
+        testDispatcher.scheduler.advanceUntilIdle()
+        vm.openEntry(entry)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        vm.updateEditorContent("version one")
+        vm.save()
+        // Edit while the write is still in flight.
+        vm.updateEditorContent("version two")
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals("version one", controller.files[entry.path])
+        val editor = vm.state.value.editor as EditorState.Loaded
+        assertEquals("version one", editor.original)
+        assertEquals("version two", editor.current)
+        assertTrue(editor.dirty)
+    }
+
+    @Test
+    fun `duplicate save while one is in flight is ignored`() = runTest {
+        val entry = fileEntry("a.txt")
+        seedDir("/root", entry)
+        controller.files[entry.path] = "hello"
+        controller.writeDelays[entry.path] = 100
+        val vm = SandboxFileBrowserViewModel(controller)
+        vm.start("/root")
+        testDispatcher.scheduler.advanceUntilIdle()
+        vm.openEntry(entry)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        vm.updateEditorContent("hello edited")
+        vm.save()
+        vm.save()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(1, controller.writeCount)
+        assertEquals("hello edited", controller.files[entry.path])
+    }
+
+    @Test
+    fun `undo steps back through edits and disables at the start`() = runTest {
+        val entry = fileEntry("a.txt")
+        seedDir("/root", entry)
+        controller.files[entry.path] = "hello"
+        val vm = SandboxFileBrowserViewModel(controller)
+        vm.start("/root")
+        testDispatcher.scheduler.advanceUntilIdle()
+        vm.openEntry(entry)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertFalse(vm.state.value.canUndoEditor)
+        vm.undoEditor()
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals("hello", (vm.state.value.editor as EditorState.Loaded).current)
+
+        vm.updateEditorContent("hello 2")
+        assertTrue(vm.state.value.canUndoEditor)
+        vm.undoEditor()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val editor = vm.state.value.editor as EditorState.Loaded
+        assertEquals("hello", editor.current)
+        assertFalse(editor.dirty)
+        assertFalse(vm.state.value.canUndoEditor)
+    }
+
+    @Test
+    fun `switching files preserves the dirty buffer`() = runTest {
+        val a = fileEntry("a.txt")
+        val b = fileEntry("b.txt")
+        seedDir("/root", a, b)
+        controller.files[a.path] = "a original"
+        controller.files[b.path] = "b original"
+        val vm = SandboxFileBrowserViewModel(controller)
+        vm.start("/root")
+        testDispatcher.scheduler.advanceUntilIdle()
+        vm.openEntry(a)
+        testDispatcher.scheduler.advanceUntilIdle()
+        vm.updateEditorContent("a unsaved")
+
+        vm.openInEditor(b.path)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(b.path, (vm.state.value.editor as EditorState.Loaded).path)
+
+        vm.openInEditor(a.path)
+        testDispatcher.scheduler.advanceUntilIdle()
+        val editor = vm.state.value.editor as EditorState.Loaded
+        assertEquals("a unsaved", editor.current)
+        assertEquals("a original", editor.original)
+        assertTrue(editor.dirty)
+    }
+
+    @Test
+    fun `a slow load for a previous file does not clobber the new one`() = runTest {
+        val a = fileEntry("a.txt")
+        val b = fileEntry("b.txt")
+        seedDir("/root", a, b)
+        controller.files[a.path] = "a content"
+        controller.files[b.path] = "b content"
+        controller.readDelays[a.path] = 100
+        val vm = SandboxFileBrowserViewModel(controller)
+        vm.start("/root")
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        vm.openInEditor(a.path)
+        vm.openInEditor(b.path)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val editor = vm.state.value.editor as EditorState.Loaded
+        assertEquals(b.path, editor.path)
+        assertEquals("b content", editor.current)
+    }
+
+    @Test
+    fun `save after switching files mid-save does not repaint the new document`() = runTest {
+        val a = fileEntry("a.txt")
+        val b = fileEntry("b.txt")
+        seedDir("/root", a, b)
+        controller.files[a.path] = "a original"
+        controller.files[b.path] = "b original"
+        controller.writeDelays[a.path] = 100
+        val vm = SandboxFileBrowserViewModel(controller)
+        vm.start("/root")
+        testDispatcher.scheduler.advanceUntilIdle()
+        vm.openEntry(a)
+        testDispatcher.scheduler.advanceUntilIdle()
+        vm.updateEditorContent("a edited")
+        vm.save()
+
+        vm.openInEditor(b.path)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val editor = vm.state.value.editor as EditorState.Loaded
+        assertEquals(b.path, editor.path)
+        assertEquals("b original", editor.current)
+        assertFalse(editor.dirty)
     }
 }

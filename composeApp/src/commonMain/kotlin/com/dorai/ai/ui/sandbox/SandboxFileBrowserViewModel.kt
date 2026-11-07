@@ -53,6 +53,9 @@ private val EXTERNAL_EXTENSIONS = setOf(
     "db", "sqlite", "sqlite3", "ttf", "otf", "woff", "woff2",
 )
 
+/** How many previous editor buffers undo can step back through. */
+private const val MAX_UNDO_DEPTH = 100
+
 @Immutable
 sealed interface EditorState {
     data object Loading : EditorState
@@ -98,6 +101,10 @@ data class FileBrowserUiState(
     val pendingDelete: SandboxFileEntry? = null,
     val renaming: RenameState? = null,
     val importing: Boolean = false,
+    /** A save() is in flight — duplicate saves are ignored until it finishes. */
+    val editorSaving: Boolean = false,
+    /** The undo stack has an entry for the open document. */
+    val canUndoEditor: Boolean = false,
 )
 
 class SandboxFileBrowserViewModel(
@@ -109,6 +116,25 @@ class SandboxFileBrowserViewModel(
 
     /** Last starting point [start] was given; null until the browser has opened once. */
     private var startPath: String? = null
+
+    /**
+     * Monotonic document revision, bumped on every load/edit/undo/reload. A save
+     * captures the revision it started at, so an edit made while the write is in
+     * flight is never mistaken for saved content.
+     */
+    private var editorRevision = 0L
+
+    /** Monotonic load sequence — a slow read for a file no longer wanted is discarded. */
+    private var loadSequence = 0L
+
+    /** Previous buffers for the open document, oldest first. Capped at [MAX_UNDO_DEPTH]. */
+    private val undoStack = ArrayDeque<String>()
+
+    /**
+     * Dirty buffers keyed by path, kept when the user switches away from an edited
+     * file so reopening it restores the unsaved work instead of discarding it.
+     */
+    private val pendingBuffers = mutableMapOf<String, String>()
 
     /**
      * Called every time the browser becomes visible. The agent mutates the sandbox
@@ -141,7 +167,18 @@ class SandboxFileBrowserViewModel(
         // Already showing this directory: keep the entries on screen and re-list
         // underneath, so re-tapping a breadcrumb doesn't flash a spinner.
         val samePath = current.currentPath == normalized && current.entries.isNotEmpty()
-        _state.update { it.copy(currentPath = normalized, loading = !samePath, error = null, editor = null) }
+        preservePendingEditor()
+        undoStack.clear()
+        loadSequence++
+        _state.update {
+            it.copy(
+                currentPath = normalized,
+                loading = !samePath,
+                error = null,
+                editor = null,
+                canUndoEditor = false,
+            )
+        }
         viewModelScope.launch { refreshCurrent(silent = samePath) }
     }
 
@@ -175,6 +212,7 @@ class SandboxFileBrowserViewModel(
         if (editor.dirty || editor.readOnly) return
         val text = (files.readTextFile(editor.path) as? TextFileResult.Text)?.content ?: return
         if (text == editor.original) return
+        editorRevision++
         _state.update {
             val latest = it.editor
             if (latest is EditorState.Loaded && latest.path == editor.path && !latest.dirty) {
@@ -226,14 +264,20 @@ class SandboxFileBrowserViewModel(
     }
 
     private suspend fun loadInEditor(path: String, force: Boolean = false) {
-        _state.update { it.copy(editor = EditorState.Loading) }
+        preservePendingEditor()
+        undoStack.clear()
+        val sequence = ++loadSequence
+        _state.update { it.copy(editor = EditorState.Loading, canUndoEditor = false) }
         val editor = when (val result = files.readTextFile(path, force = force)) {
-            is TextFileResult.Text -> EditorState.Loaded(
-                path = path,
-                original = result.content,
-                current = result.content,
-                readOnly = !result.editable,
-            )
+            is TextFileResult.Text -> {
+                val pending = pendingBuffers[path]
+                EditorState.Loaded(
+                    path = path,
+                    original = result.content,
+                    current = pending ?: result.content,
+                    readOnly = !result.editable,
+                )
+            }
 
             TextFileResult.Binary -> EditorState.Binary(path)
 
@@ -241,14 +285,58 @@ class SandboxFileBrowserViewModel(
 
             TextFileResult.Unreadable -> EditorState.Unreadable(path)
         }
-        _state.update { it.copy(editor = editor) }
+        // A slower load for a file no longer wanted must not clobber the newer one.
+        if (sequence != loadSequence) return
+        editorRevision++
+        _state.update { it.copy(editor = editor, canUndoEditor = false) }
+    }
+
+    private fun preservePendingEditor() {
+        val editor = _state.value.editor as? EditorState.Loaded ?: return
+        if (editor.dirty) {
+            pendingBuffers[editor.path] = editor.current
+        }
     }
 
     fun updateEditorContent(content: String) {
         _state.update { state ->
             val editor = state.editor
-            if (editor is EditorState.Loaded && !editor.readOnly) {
-                state.copy(editor = editor.copy(current = content))
+            if (editor is EditorState.Loaded && !editor.readOnly && editor.current != content) {
+                if (undoStack.lastOrNull() != editor.current) {
+                    undoStack += editor.current
+                    while (undoStack.size > MAX_UNDO_DEPTH) undoStack.removeFirst()
+                }
+                editorRevision++
+                if (content == editor.original) {
+                    pendingBuffers.remove(editor.path)
+                } else {
+                    pendingBuffers[editor.path] = content
+                }
+                state.copy(editor = editor.copy(current = content), canUndoEditor = true)
+            } else {
+                state
+            }
+        }
+    }
+
+    /**
+     * Steps the open document back to its previous buffer. No-op on read-only or
+     * empty history — there is intentionally no redo in this phase.
+     */
+    fun undoEditor() {
+        val editor = _state.value.editor as? EditorState.Loaded ?: return
+        if (editor.readOnly) return
+        val previous = undoStack.removeLastOrNull() ?: return
+        editorRevision++
+        if (previous == editor.original) {
+            pendingBuffers.remove(editor.path)
+        } else {
+            pendingBuffers[editor.path] = previous
+        }
+        _state.update { state ->
+            val latest = state.editor
+            if (latest is EditorState.Loaded && latest.path == editor.path && !latest.readOnly) {
+                state.copy(editor = latest.copy(current = previous), canUndoEditor = undoStack.isNotEmpty())
             } else {
                 state
             }
@@ -257,18 +345,45 @@ class SandboxFileBrowserViewModel(
 
     fun save() {
         val editor = _state.value.editor as? EditorState.Loaded ?: return
-        if (editor.readOnly) return
+        if (editor.readOnly || _state.value.editorSaving) return
+        if (!editor.dirty) return
+        val snapshotPath = editor.path
+        val snapshotContent = editor.current
+        _state.update { it.copy(editorSaving = true) }
         viewModelScope.launch {
-            val ok = files.writeTextFile(editor.path, editor.current)
+            val ok = files.writeTextFile(snapshotPath, snapshotContent)
             if (ok) {
-                _state.update {
-                    it.copy(
-                        editor = editor.copy(original = editor.current),
-                        snackbarMessage = Res.string.sandbox_files_save_success,
-                    )
+                // The write persisted [snapshotContent], not whatever is on screen
+                // now — edits made while it was in flight stay dirty.
+                editorRevision++
+                _state.update { state ->
+                    val latest = state.editor
+                    if (latest is EditorState.Loaded && latest.path == snapshotPath) {
+                        if (latest.current == snapshotContent) {
+                            pendingBuffers.remove(snapshotPath)
+                            state.copy(
+                                editor = latest.copy(original = snapshotContent),
+                                editorSaving = false,
+                                snackbarMessage = Res.string.sandbox_files_save_success,
+                            )
+                        } else {
+                            pendingBuffers[snapshotPath] = latest.current
+                            state.copy(
+                                editor = latest.copy(original = snapshotContent),
+                                editorSaving = false,
+                                snackbarMessage = Res.string.sandbox_files_save_success,
+                            )
+                        }
+                    } else {
+                        // The user switched files mid-save: never repaint the new
+                        // document with the old one's result.
+                        state.copy(editorSaving = false, snackbarMessage = Res.string.sandbox_files_save_success)
+                    }
                 }
             } else {
-                _state.update { it.copy(snackbarMessage = Res.string.sandbox_files_save_failed) }
+                _state.update {
+                    it.copy(editorSaving = false, snackbarMessage = Res.string.sandbox_files_save_failed)
+                }
             }
         }
     }
@@ -287,9 +402,14 @@ class SandboxFileBrowserViewModel(
         viewModelScope.launch {
             val ok = files.deleteEntry(entry.path, recursive = entry.isDirectory)
             if (ok) {
+                pendingBuffers.remove(entry.path)
                 val editor = _state.value.editor
                 val editorPath = editorPathOf(editor)
                 val editorClosed = editorPath != null && editorPath == entry.path
+                if (editorClosed) {
+                    undoStack.clear()
+                    loadSequence++
+                }
                 val snackbar = if (editorClosed) {
                     Res.string.sandbox_files_editor_closed_after_delete
                 } else {
@@ -298,8 +418,19 @@ class SandboxFileBrowserViewModel(
                 _state.update {
                     it.copy(
                         editor = if (editorClosed) null else it.editor,
+                        canUndoEditor = if (editorClosed) false else it.canUndoEditor,
                         snackbarMessage = snackbar,
                     )
+                }
+                // Deleting a directory may also remove the open file's path.
+                if (entry.isDirectory) {
+                    val deleted = _state.value.editor as? EditorState.Loaded
+                    if (deleted != null && deleted.path.startsWith(entry.path)) {
+                        pendingBuffers.entries.removeIf { it.key.startsWith(entry.path) }
+                        undoStack.clear()
+                        loadSequence++
+                        _state.update { it.copy(editor = null, canUndoEditor = false) }
+                    }
                 }
                 refreshCurrent()
             } else {
@@ -344,6 +475,7 @@ class SandboxFileBrowserViewModel(
             val result = files.renameEntry(entry.path, newName)
             result.fold(
                 onSuccess = { newPath ->
+                    pendingBuffers.remove(entry.path)?.let { pendingBuffers[newPath] = it }
                     val editor = _state.value.editor
                     val updatedEditor = if (editor is EditorState.Loaded && editor.path == entry.path) {
                         editor.copy(path = newPath)
