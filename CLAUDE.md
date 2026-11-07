@@ -2,6 +2,10 @@
 
 # Claude Code Specific Instructions
 
+## Git Branch & Pull Request Workflow
+
+Follow the repository-wide **Branch & Pull Request Policy** in `AGENTS.md` for every Git operation. In particular, keep `main` PR-only, reuse the existing task branch/PR for follow-up work, and do not create a new branch when the task is to merge an existing branch. Preserve unrelated working-tree changes and stage only files explicitly in scope. Do not delete branches unless merge state, active worktrees, and remaining work have been checked and deletion is authorized by repository policy or the user.
+
 ## Feature Docs
 
 Feature specs live in `docs/features/`. Each describes a feature from a product/behavior perspective — no Kotlin code blocks, no class/function names in prose.
