@@ -125,6 +125,19 @@ Knowledge lives under `docs/knowledge/` as OKF-style markdown (YAML frontmatter 
 
 ## Git & CI
 
+### Branch & Pull Request Policy
+
+- **Protect `main`:** Treat `main` as the protected integration branch. Never commit or push directly to `main`; integrate changes through a Pull Request (PR).
+- **Start from current main:** Before starting an independent task, fetch `origin` and confirm the working tree state. Create one task branch from the latest `origin/main` (for example, `feat/...`, `fix/...`, `docs/...`, or `chore/...`). Do not branch from a stale local `main`.
+- **One logical task, one branch:** Keep all follow-up fixes for the same feature/task on its existing branch and PR. Create a new branch only for a genuinely independent task or when parallel work must be isolated.
+- **Existing-branch merge requests:** If asked to merge an existing branch into `main`, use that existing branch as the PR head and `main` as the base. Do not create a second branch just to open the PR. If a PR already exists, update or reuse it rather than creating a duplicate.
+- **Parallel work:** Use separate worktrees and separate task branches for independent concurrent tasks. Do not switch or reuse a branch that has uncommitted work in another task/worktree.
+- **Branch naming:** Use descriptive, lowercase, hyphenated names with a task prefix (`feat/`, `fix/`, `docs/`, `chore/`, `test/`, or `refactor/`). Avoid generic or temporary names such as `work`, `update`, or `new-branch`.
+- **PR discipline:** Open or update one PR per logical task, with `main` as base. Summarize scope, verification, and known risks. Prefer squash merge for a single logical task unless repository history or the user requires another merge method.
+- **After merge:** Verify the PR is merged and its head commit is contained in `main`. Prefer repository automatic head-branch deletion when enabled. Before any manual local or remote branch deletion, verify that the branch is merged, has no uncommitted work, and is not checked out in an active worktree. Use safe local deletion (`git branch -d`), never force-delete (`-D`) as routine cleanup. Do not bulk-delete branches or delete backup, deployment (`gh-pages`), release, or unknown-purpose branches without explicit review and approval.
+- **Pruning:** `git fetch --prune` only prunes stale remote-tracking references; it does not delete actual GitHub branches. Do not treat it as remote branch cleanup.
+- **Preserve user work:** Inspect `git status --short --branch` before branch operations. Never stash, reset, clean, overwrite, commit, or include unrelated user changes without explicit authorization. Stage and commit only files in the approved task scope.
+
 - **Commits:** Use short, imperative messages (e.g., `fix(desktop): resolve window resize crash`). `CLAUDE.md` has no commit-footer/attribution rule; follow the active session/assistant instructions for any required commit or PR attribution when creating commits/PRs.
 - **Don't push/commit by default:** Only commit/push/create tags if explicitly asked.
 - **Pre-commit formatting gate:** After tests and verification succeed, and before creating any git commit or push, run `./gradlew spotlessCheck` (`gradlew.bat spotlessCheck` on Windows). Only commit and push if `spotlessCheck` returns `BUILD SUCCESSFUL`. If it fails, fix formatting issues (e.g., `./gradlew spotlessApply` if appropriate and safe), re-run relevant verification as needed, and re-run `spotlessCheck` before committing/pushing.
