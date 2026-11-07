@@ -80,6 +80,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.BackIcon
 import com.dorai.ai.TerminalLine
+import com.dorai.ai.WorkspaceController
 import com.dorai.ai.data.Service
 import com.dorai.ai.data.supportsAgenticFlows
 import com.dorai.ai.getBackgroundDispatcher
@@ -110,6 +111,8 @@ import com.dorai.ai.ui.settings.SandboxUiState
 import com.dorai.ai.ui.settings.SandboxViewModel
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import com.dorai.ai.ui.workspace.WorkspaceScreen
+import com.dorai.ai.ui.workspace.WorkspaceViewModel
+import com.dorai.ai.workspace.WorkspaceState
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.fallback_answered_by
 import dorai.composeapp.generated.resources.fallback_service_failed
@@ -130,6 +133,7 @@ import nl.marc_apps.tts.errors.TextToSpeechSynthesisInterruptedError
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -168,6 +172,20 @@ fun ChatScreenContent(
     // Workspace is a transient surface, not a conversation � unlike interactive
     // mode it needs no persistence beyond surviving configuration changes.
     var isWorkspaceOpen by rememberSaveable { mutableStateOf(false) }
+    var initialProject by rememberSaveable { mutableStateOf<String?>(null) }
+
+    // Hoist the single Workspace controller + ViewModel once here so the sidebar
+    // and the Workspace overlay share one instance (same VM WorkspaceScreen uses).
+    // Gate on availability + preview like the sandbox below: NoOp platforms and
+    // screenshot/preview renders get no section and never touch koin.
+    val isPreview = LocalInspectionMode.current
+    val workspaceController: WorkspaceController? = if (isPreview || !isWorkspaceAvailable) null else koinInject()
+    val workspaceViewModel: WorkspaceViewModel? = if (isPreview || !isWorkspaceAvailable) null else koinViewModel()
+    val workspaceState: WorkspaceState = if (workspaceController != null) {
+        workspaceController.state.collectAsStateWithLifecycle().value
+    } else {
+        WorkspaceState()
+    }
 
     // Shared text opens a new chat; leave Workspace so the composer is visible.
     LaunchedEffect(uiState.composerPrefill) {
@@ -177,9 +195,16 @@ fun ChatScreenContent(
     }
 
     when {
-        isWorkspaceOpen -> {
+        isWorkspaceOpen && workspaceViewModel != null -> {
             com.dorai.ai.PlatformBackHandler(true) { isWorkspaceOpen = false }
-            WorkspaceScreen(onExit = { isWorkspaceOpen = false })
+            WorkspaceScreen(
+                onExit = {
+                    isWorkspaceOpen = false
+                    initialProject = null
+                },
+                initialProject = initialProject,
+                viewModel = workspaceViewModel,
+            )
         }
 
         else -> ChatModeScreen(
@@ -189,6 +214,13 @@ fun ChatScreenContent(
             onNavigateToDashboard = onNavigateToDashboard,
             isSandboxAvailable = isSandboxAvailable,
             onOpenWorkspace = { isWorkspaceOpen = true }.takeIf { isWorkspaceAvailable },
+            workspaceProjects = workspaceState.projects.takeIf { isWorkspaceAvailable && workspaceController != null },
+            workspaceIsReady = workspaceState.isReady,
+            onCreateProject = { name: String -> workspaceViewModel?.createProject(name) ?: Unit }.takeIf { isWorkspaceAvailable && workspaceViewModel != null },
+            onOpenProject = { name: String ->
+                initialProject = name
+                isWorkspaceOpen = true
+            }.takeIf { isWorkspaceAvailable && workspaceViewModel != null },
             initialSandboxOpen = initialSandboxOpen,
             previewSandboxState = previewSandboxState,
             previewSandboxLines = previewSandboxLines,
@@ -206,6 +238,10 @@ private fun ChatModeScreen(
     onNavigateToDashboard: (() -> Unit)?,
     isSandboxAvailable: Boolean,
     onOpenWorkspace: (() -> Unit)?,
+    workspaceProjects: ImmutableList<String>? = null,
+    workspaceIsReady: Boolean = false,
+    onCreateProject: ((String) -> Unit)? = null,
+    onOpenProject: ((String) -> Unit)? = null,
     initialSandboxOpen: Boolean = false,
     previewSandboxState: SandboxUiState? = null,
     previewSandboxLines: ImmutableList<TerminalLine> = persistentListOf(),
@@ -348,6 +384,10 @@ private fun ChatModeScreen(
                 uiState.actions.setInteractiveMode(!uiState.isInteractiveMode)
             }.takeUnless { primaryIsOnDevice },
             onOpenWorkspace = onOpenWorkspace,
+            workspaceProjects = workspaceProjects,
+            workspaceIsReady = workspaceIsReady,
+            onCreateProject = onCreateProject,
+            onOpenProject = onOpenProject,
         )
     }
 

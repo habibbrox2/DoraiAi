@@ -2,6 +2,7 @@
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,16 +16,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.FileCopy
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -41,25 +45,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.components.DoraiChip
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import com.dorai.ai.workspace.WorkspaceGitStatus
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.workspace_explorer_clear_search
+import dorai.composeapp.generated.resources.workspace_explorer_create_hint
+import dorai.composeapp.generated.resources.workspace_explorer_error
+import dorai.composeapp.generated.resources.workspace_explorer_filter_all
+import dorai.composeapp.generated.resources.workspace_explorer_filter_files
+import dorai.composeapp.generated.resources.workspace_explorer_filter_folders
+import dorai.composeapp.generated.resources.workspace_explorer_filter_modified
+import dorai.composeapp.generated.resources.workspace_explorer_loading
 import dorai.composeapp.generated.resources.workspace_explorer_no_files
+import dorai.composeapp.generated.resources.workspace_explorer_no_matches
+import dorai.composeapp.generated.resources.workspace_explorer_no_project
+import dorai.composeapp.generated.resources.workspace_explorer_projects_one
+import dorai.composeapp.generated.resources.workspace_explorer_projects_other
+import dorai.composeapp.generated.resources.workspace_explorer_refresh
+import dorai.composeapp.generated.resources.workspace_explorer_retry
 import dorai.composeapp.generated.resources.workspace_explorer_search_placeholder
-import dorai.composeapp.generated.resources.workspace_projects_cancel_create
+import dorai.composeapp.generated.resources.workspace_new_project_content_description
 import dorai.composeapp.generated.resources.workspace_projects_create
-import dorai.composeapp.generated.resources.workspace_projects_new_placeholder
 import org.jetbrains.compose.resources.stringResource
 
 /** Filter chip state for the project explorer. */
 enum class ProjectFilter {
     All,
+    Files,
+    Folders,
     Modified,
-    AgentTouched,
 }
 
 /** A file entry in the explorer tree. */
@@ -68,15 +86,33 @@ data class ProjectFile(
     val path: String,
     val name: String,
     val isDirectory: Boolean,
-    val gitStatus: GitStatus? = null,
-    val touchedByAgent: Boolean = false,
+    val gitStatus: WorkspaceGitStatus? = null,
     val isCurrentFile: Boolean = false,
 )
 
-enum class GitStatus {
-    Added,
-    Modified,
-    Deleted,
+/**
+ * Pure in-memory filter for the explorer list. Runs on the already-loaded
+ * listing only — no filesystem access, so large directories never block the UI.
+ * Exported for tests.
+ */
+fun filterProjectFiles(
+    files: List<ProjectFile>,
+    query: String,
+    filter: ProjectFilter,
+): List<ProjectFile> {
+    val trimmed = query.trim()
+    return files.filter { file ->
+        val matchesQuery = trimmed.isEmpty() ||
+            file.name.contains(trimmed, ignoreCase = true) ||
+            file.path.contains(trimmed, ignoreCase = true)
+        val matchesFilter = when (filter) {
+            ProjectFilter.All -> true
+            ProjectFilter.Files -> !file.isDirectory
+            ProjectFilter.Folders -> file.isDirectory
+            ProjectFilter.Modified -> file.gitStatus != null
+        }
+        matchesQuery && matchesFilter
+    }
 }
 
 /** Projects & File Explorer drawer content. */
@@ -88,13 +124,18 @@ fun WorkspaceProjectsExplorer(
     onOpenProject: (String) -> Unit,
     onCreateProject: (String) -> Unit,
     onOpenFile: (String) -> Unit,
-    onFilterChanged: (ProjectFilter) -> Unit,
-    selectedFilter: ProjectFilter = ProjectFilter.All,
     modifier: Modifier = Modifier,
+    isLoading: Boolean = false,
+    error: String? = null,
+    onRefresh: (() -> Unit)? = null,
 ) {
     val colorTokens = LocalDesignColorTokens.current
     var showCreateDialog by remember { mutableStateOf(false) }
-    var newProjectName by remember { mutableStateOf("") }
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedFilter by remember { mutableStateOf(ProjectFilter.All) }
+
+    val modifiedCount = files.count { it.gitStatus != null }
+    val visibleFiles = filterProjectFiles(files, searchQuery, selectedFilter)
 
     Column(
         modifier = modifier.fillMaxHeight(),
@@ -127,13 +168,19 @@ fun WorkspaceProjectsExplorer(
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
                     Text(
-                        text = currentProject ?: "No project",
+                        text = currentProject ?: stringResource(Res.string.workspace_explorer_no_project),
                         style = DoraiTypography.titleMedium,
                         color = colorTokens.textPrimary,
                         maxLines = 1,
                     )
                     Text(
-                        text = if (projects.isEmpty()) "Create a project to get started" else "${projects.size} project${if (projects.size != 1) "s" else ""}",
+                        text = if (projects.isEmpty()) {
+                            stringResource(Res.string.workspace_explorer_create_hint)
+                        } else if (projects.size == 1) {
+                            stringResource(Res.string.workspace_explorer_projects_one)
+                        } else {
+                            stringResource(Res.string.workspace_explorer_projects_other, projects.size)
+                        },
                         style = DoraiTypography.labelSmall,
                         color = colorTokens.textSecondary,
                         maxLines = 1,
@@ -142,7 +189,7 @@ fun WorkspaceProjectsExplorer(
                 IconButton(onClick = { showCreateDialog = true }) {
                     Icon(
                         imageVector = Icons.Default.OpenInNew,
-                        contentDescription = null,
+                        contentDescription = stringResource(Res.string.workspace_new_project_content_description),
                         tint = colorTokens.textSecondary,
                     )
                 }
@@ -150,38 +197,70 @@ fun WorkspaceProjectsExplorer(
         }
 
         // ─── File search ───
-        TextField(
-            value = "",
-            onValueChange = { },
-            placeholder = { Text(text = stringResource(Res.string.workspace_explorer_search_placeholder), style = DoraiTypography.bodyMedium) },
-            leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = null) },
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = WorkspaceSpacing.sm),
-            singleLine = true,
-        )
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            TextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text(text = stringResource(Res.string.workspace_explorer_search_placeholder), style = DoraiTypography.bodyMedium) },
+                leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = null) },
+                trailingIcon = if (searchQuery.isNotEmpty()) {
+                    {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = stringResource(Res.string.workspace_explorer_clear_search),
+                            )
+                        }
+                    }
+                } else {
+                    null
+                },
+                modifier = Modifier.weight(1f),
+                singleLine = true,
+            )
+            if (onRefresh != null) {
+                IconButton(onClick = onRefresh) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = stringResource(Res.string.workspace_explorer_refresh),
+                        tint = colorTokens.textSecondary,
+                    )
+                }
+            }
+        }
 
         // ─── Filter chips ───
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
                 .padding(horizontal = WorkspaceSpacing.sm, vertical = WorkspaceSpacing.xs),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             ProjectFilterChip(
-                label = "All files",
+                label = stringResource(Res.string.workspace_explorer_filter_all),
                 selected = selectedFilter == ProjectFilter.All,
-                onClick = { onFilterChanged(ProjectFilter.All) },
+                onClick = { selectedFilter = ProjectFilter.All },
             )
             ProjectFilterChip(
-                label = "Modified 3",
+                label = stringResource(Res.string.workspace_explorer_filter_files),
+                selected = selectedFilter == ProjectFilter.Files,
+                onClick = { selectedFilter = ProjectFilter.Files },
+            )
+            ProjectFilterChip(
+                label = stringResource(Res.string.workspace_explorer_filter_folders),
+                selected = selectedFilter == ProjectFilter.Folders,
+                onClick = { selectedFilter = ProjectFilter.Folders },
+            )
+            ProjectFilterChip(
+                label = stringResource(Res.string.workspace_explorer_filter_modified, modifiedCount),
                 selected = selectedFilter == ProjectFilter.Modified,
-                onClick = { onFilterChanged(ProjectFilter.Modified) },
-            )
-            ProjectFilterChip(
-                label = "Agent touched 2",
-                selected = selectedFilter == ProjectFilter.AgentTouched,
-                onClick = { onFilterChanged(ProjectFilter.AgentTouched) },
+                onClick = { selectedFilter = ProjectFilter.Modified },
             )
         }
 
@@ -193,33 +272,86 @@ fun WorkspaceProjectsExplorer(
             contentPadding = PaddingValues(horizontal = WorkspaceSpacing.sm),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            if (files.isEmpty()) {
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = WorkspaceSpacing.lg),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.CloudDone,
-                            contentDescription = null,
-                            tint = colorTokens.textMuted,
-                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                        )
-                        Text(
-                            text = stringResource(Res.string.workspace_explorer_no_files),
-                            style = DoraiTypography.bodyMedium,
-                            color = colorTokens.textMuted,
-                            modifier = Modifier.align(Alignment.CenterHorizontally),
-                        )
+            when {
+                isLoading && files.isEmpty() -> {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = WorkspaceSpacing.lg),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(WorkspaceSpacing.sm),
+                        ) {
+                            CircularProgressIndicator()
+                            Text(
+                                text = stringResource(Res.string.workspace_explorer_loading),
+                                style = DoraiTypography.bodyMedium,
+                                color = colorTokens.textMuted,
+                            )
+                        }
                     }
                 }
-            } else {
-                items(files, key = { it.path }) { file ->
-                    ProjectFileRow(
-                        file = file,
-                        onClick = { onOpenFile(file.path) },
-                    )
+
+                error != null && files.isEmpty() -> {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = WorkspaceSpacing.lg),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(WorkspaceSpacing.sm),
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.workspace_explorer_error),
+                                style = DoraiTypography.bodyMedium,
+                                color = DesignTokens.Error,
+                            )
+                            if (onRefresh != null) {
+                                TextButton(onClick = onRefresh) {
+                                    Text(
+                                        text = stringResource(Res.string.workspace_explorer_retry),
+                                        style = DoraiTypography.labelMedium,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                visibleFiles.isEmpty() -> {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = WorkspaceSpacing.lg),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CloudDone,
+                                contentDescription = null,
+                                tint = colorTokens.textMuted,
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                            )
+                            Text(
+                                text = if (files.isEmpty()) {
+                                    stringResource(Res.string.workspace_explorer_no_files)
+                                } else {
+                                    stringResource(Res.string.workspace_explorer_no_matches)
+                                },
+                                style = DoraiTypography.bodyMedium,
+                                color = colorTokens.textMuted,
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                            )
+                        }
+                    }
+                }
+
+                else -> {
+                    items(visibleFiles, key = { it.path }) { file ->
+                        ProjectFileRow(
+                            file = file,
+                            onClick = { onOpenFile(file.path) },
+                        )
+                    }
                 }
             }
         }
@@ -244,32 +376,12 @@ fun WorkspaceProjectsExplorer(
         }
 
         if (showCreateDialog) {
-            AlertDialog(
-                onDismissRequest = { showCreateDialog = false },
-                title = { Text(text = stringResource(Res.string.workspace_projects_new_placeholder)) },
-                text = {
-                    TextField(
-                        value = newProjectName,
-                        onValueChange = { newProjectName = it },
-                        singleLine = true,
-                    )
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            showCreateDialog = false
-                            val name = newProjectName.trim()
-                            newProjectName = ""
-                            if (name.isNotEmpty()) onCreateProject(name)
-                        },
-                    ) {
-                        Text(text = stringResource(Res.string.workspace_projects_create))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showCreateDialog = false }) {
-                        Text(text = stringResource(Res.string.workspace_projects_cancel_create))
-                    }
+            CreateProjectDialog(
+                projects = projects,
+                onDismiss = { showCreateDialog = false },
+                onCreate = { name ->
+                    showCreateDialog = false
+                    onCreateProject(name)
                 },
             )
         }
@@ -291,7 +403,7 @@ private fun ProjectFilterChip(
         Text(
             text = label,
             style = DoraiTypography.labelMedium,
-            color = if (selected) DesignTokens.SurfaceDark else colorTokens.textPrimary,
+            color = if (selected) DesignTokens.PrimaryCyan else colorTokens.textPrimary,
         )
     }
 }
@@ -339,9 +451,12 @@ private fun ProjectFileRow(
         // Git status badge
         file.gitStatus?.let { status ->
             val (badgeColor, badgeText) = when (status) {
-                GitStatus.Added -> Pair(DesignTokens.Success, "A")
-                GitStatus.Modified -> Pair(DesignTokens.Warning, "M")
-                GitStatus.Deleted -> Pair(DesignTokens.Error, "D")
+                WorkspaceGitStatus.Added -> Pair(DesignTokens.Success, "A")
+                WorkspaceGitStatus.Modified -> Pair(DesignTokens.Warning, "M")
+                WorkspaceGitStatus.Deleted -> Pair(DesignTokens.Error, "D")
+                WorkspaceGitStatus.Renamed -> Pair(DesignTokens.AccentPrimary, "R")
+                WorkspaceGitStatus.Untracked -> Pair(colorTokens.textMuted, "U")
+                WorkspaceGitStatus.Conflicted -> Pair(DesignTokens.Error, "!")
             }
             Box(
                 modifier = Modifier
@@ -354,23 +469,6 @@ private fun ProjectFileRow(
                     text = badgeText,
                     style = DoraiTypography.labelSmall,
                     color = DesignTokens.BrandInk,
-                )
-            }
-        }
-
-        // Agent tag
-        if (file.touchedByAgent) {
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = WorkspaceSpacing.xs)
-                    .background(DesignTokens.SurfaceRaised)
-                    .clip(RoundedCornerShape(4.dp)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = "Agent",
-                    style = DoraiTypography.labelSmall.copy(fontSize = 9.sp),
-                    color = DesignTokens.AccentPrimary,
                 )
             }
         }

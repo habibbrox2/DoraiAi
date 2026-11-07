@@ -1,6 +1,8 @@
 ﻿package com.dorai.ai.ui.workspace
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,9 +10,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,6 +26,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CompareArrows
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Search
@@ -56,20 +60,24 @@ import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import com.dorai.ai.ui.workspace.WorkspaceSpacing
 import dorai.composeapp.generated.resources.Res
-import dorai.composeapp.generated.resources.workspace_editor_accept
-import dorai.composeapp.generated.resources.workspace_editor_agent_changes
 import dorai.composeapp.generated.resources.workspace_editor_branch
+import dorai.composeapp.generated.resources.workspace_editor_close_search_content_description
 import dorai.composeapp.generated.resources.workspace_editor_edit
 import dorai.composeapp.generated.resources.workspace_editor_next
 import dorai.composeapp.generated.resources.workspace_editor_preview
 import dorai.composeapp.generated.resources.workspace_editor_previous
-import dorai.composeapp.generated.resources.workspace_editor_reject
+import dorai.composeapp.generated.resources.workspace_editor_read_only
 import dorai.composeapp.generated.resources.workspace_editor_run
 import dorai.composeapp.generated.resources.workspace_editor_save
+import dorai.composeapp.generated.resources.workspace_editor_saved
+import dorai.composeapp.generated.resources.workspace_editor_saving
 import dorai.composeapp.generated.resources.workspace_editor_search
+import dorai.composeapp.generated.resources.workspace_editor_search_count
+import dorai.composeapp.generated.resources.workspace_editor_search_no_results
 import dorai.composeapp.generated.resources.workspace_editor_status_line
 import dorai.composeapp.generated.resources.workspace_editor_toggle_diff
 import dorai.composeapp.generated.resources.workspace_editor_undo
+import dorai.composeapp.generated.resources.workspace_editor_unsaved
 import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.stringResource
 
@@ -129,6 +137,23 @@ fun CodeStyle.color(): Color = when (this) {
     CodeStyle.Number -> CodeTheme.Number
 }
 
+/**
+ * Counts non-overlapping, case-insensitive occurrences of [query] in [content].
+ * Exported for tests: the search panel's Prev/Next navigation indexes these.
+ */
+fun countSearchMatches(content: String, query: String): Int {
+    if (query.isEmpty() || content.isEmpty()) return 0
+    var count = 0
+    var fromIndex = 0
+    while (fromIndex < content.length) {
+        val found = content.indexOf(query, fromIndex, ignoreCase = true)
+        if (found < 0) break
+        count++
+        fromIndex = found + query.length
+    }
+    return count
+}
+
 /** Code editor screen with syntax highlighting, diff preview, search/replace, key row. */
 @Composable
 fun WorkspaceCodeEditor(
@@ -136,8 +161,8 @@ fun WorkspaceCodeEditor(
     lines: List<CodeLine>,
     onDiffToggled: (Boolean) -> Unit,
     onRun: () -> Unit,
-    onUndo: () -> Unit,
-    onSearchChanged: (String) -> Unit,
+    onUndo: () -> Unit = {},
+    onSearchChanged: (String) -> Unit = {},
     isDiffMode: Boolean = false,
     showSearch: Boolean = false,
     searchQuery: String = "",
@@ -151,6 +176,14 @@ fun WorkspaceCodeEditor(
     onSearchToggle: () -> Unit = {},
     language: String = "Text",
     readOnly: Boolean = false,
+    canUndo: Boolean = false,
+    isSaving: Boolean = false,
+    matchCount: Int = 0,
+    currentMatch: Int = 0,
+    onSearchPrevious: () -> Unit = {},
+    onSearchNext: () -> Unit = {},
+    /** Only true when real diff data and a safe execution contract both exist. */
+    showDiffRun: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val colorTokens = LocalDesignColorTokens.current
@@ -187,11 +220,11 @@ fun WorkspaceCodeEditor(
                     maxLines = 1,
                 )
             }
-            IconButton(onClick = onUndo) {
+            IconButton(onClick = onUndo, enabled = canUndo) {
                 Icon(
                     imageVector = Icons.Filled.Undo,
                     contentDescription = stringResource(Res.string.workspace_editor_undo),
-                    tint = colorTokens.textSecondary,
+                    tint = if (canUndo) colorTokens.textSecondary else colorTokens.textMuted,
                 )
             }
             IconButton(onClick = onSearchToggle) {
@@ -201,12 +234,23 @@ fun WorkspaceCodeEditor(
                     tint = if (showSearch) DesignTokens.AccentPrimary else colorTokens.textSecondary,
                 )
             }
-            IconButton(onClick = { onDiffToggled(!isDiffMode) }) {
-                Icon(
-                    imageVector = Icons.Filled.CompareArrows,
-                    contentDescription = stringResource(Res.string.workspace_editor_toggle_diff),
-                    tint = if (isDiffMode) DesignTokens.AccentPrimary else colorTokens.textSecondary,
-                )
+            // Diff and Run render only with real diff data / a safe execution
+            // contract ([showDiffRun]) — never as decorative, empty callbacks.
+            if (showDiffRun) {
+                IconButton(onClick = { onDiffToggled(!isDiffMode) }) {
+                    Icon(
+                        imageVector = Icons.Filled.CompareArrows,
+                        contentDescription = stringResource(Res.string.workspace_editor_toggle_diff),
+                        tint = if (isDiffMode) DesignTokens.AccentPrimary else colorTokens.textSecondary,
+                    )
+                }
+                IconButton(onClick = onRun) {
+                    Icon(
+                        imageVector = Icons.Filled.PlayArrow,
+                        contentDescription = stringResource(Res.string.workspace_editor_run),
+                        tint = DesignTokens.Success,
+                    )
+                }
             }
             if (!readOnly) {
                 IconButton(onClick = { onEditableChange(!editable) }) {
@@ -217,21 +261,14 @@ fun WorkspaceCodeEditor(
                     )
                 }
             }
-            if (isDirty) {
-                IconButton(onClick = onSave) {
+            if (isDirty || isSaving) {
+                IconButton(onClick = onSave, enabled = isDirty && !isSaving) {
                     Icon(
                         imageVector = Icons.Filled.Save,
-                        contentDescription = stringResource(Res.string.workspace_editor_save),
-                        tint = DesignTokens.Success,
+                        contentDescription = if (isSaving) stringResource(Res.string.workspace_editor_saving) else stringResource(Res.string.workspace_editor_save),
+                        tint = if (isSaving) colorTokens.textMuted else DesignTokens.Success,
                     )
                 }
-            }
-            IconButton(onClick = onRun) {
-                Icon(
-                    imageVector = Icons.Filled.PlayArrow,
-                    contentDescription = stringResource(Res.string.workspace_editor_run),
-                    tint = DesignTokens.Success,
-                )
             }
         }
 
@@ -241,11 +278,24 @@ fun WorkspaceCodeEditor(
                 query = searchQuery,
                 onQueryChange = onSearchChanged,
                 onClose = onCloseSearch,
+                matchCount = matchCount,
+                currentMatch = currentMatch,
+                onPrevious = onSearchPrevious,
+                onNext = onSearchNext,
+            )
+        }
+
+        if (readOnly) {
+            Text(
+                text = stringResource(Res.string.workspace_editor_read_only),
+                style = DoraiTypography.labelSmall,
+                color = colorTokens.textSecondary,
+                modifier = Modifier.padding(horizontal = WorkspaceSpacing.sm, vertical = WorkspaceSpacing.xxs),
             )
         }
 
         // ─── Code area ───
-        if (editable) {
+        if (editable && !readOnly) {
             EditableCodeArea(
                 content = content,
                 onContentChange = onContentChange,
@@ -293,33 +343,69 @@ fun WorkspaceCodeEditor(
             }
         }
 
-        // ─── Agent changes bar ───
-        AgentChangesBar()
+        // --- Agent changes bar (intentionally absent) ---
+        // Until per-agent-change before-snapshots exist, show no Agent Changes Bar at all
+        // and no accept/reject or prev/next controls for one. [FileReviewEngine] already
+        // tracks staged proposals for the chat FileReviewTools path (durable
+        // original/proposed bytes, journal-backed accept/reject/rollback with SHA-256
+        // conflict detection), but Workspace terminal agents edit files directly through
+        // the shell with no hook to capture before-snapshots at tool-call time. The Git
+        // tab's `git status` / diffs are HEAD-relative and conflate user + agent edits,
+        // so review state must never be derived from them.
+        //
+        // Dependency (Phase 4): a shell-write event hook capturing the original bytes at
+        // tool-call time, then a session-associated journal joining original/proposed/current.
+        //
+        // TODO: Render real Agent Changes Review (changed-file list, WorkspaceGitDiff
+        // before/after diff, per-file accept/reject validated against current bytes)
+        // when such a hook exists. Never synthesize counts, previews, or callbacks.
 
-        // ─── Status line ───
+        // --- Status line ---
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = WorkspaceSpacing.sm)
-                .height(24.dp)
+                .heightIn(min = 24.dp)
                 .background(MaterialTheme.colorScheme.surface),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = stringResource(Res.string.workspace_editor_status_line, "Kotlin", lines.size),
+                text = stringResource(Res.string.workspace_editor_status_line, language, if (lines.isNotEmpty()) lines.size else content.count { it == '\n' } + 1),
                 style = DoraiTypography.labelSmall,
                 color = colorTokens.textSecondary,
+            )
+            val saveStatus = when {
+                isSaving -> stringResource(Res.string.workspace_editor_saving)
+                isDirty -> stringResource(Res.string.workspace_editor_unsaved)
+                readOnly -> stringResource(Res.string.workspace_editor_read_only)
+                else -> stringResource(Res.string.workspace_editor_saved)
+            }
+            Text(
+                text = saveStatus,
+                style = DoraiTypography.labelSmall,
+                color = when {
+                    isSaving -> colorTokens.textSecondary
+                    isDirty -> DesignTokens.Warning
+                    else -> DesignTokens.Success
+                },
+                modifier = Modifier.weight(1f).padding(start = WorkspaceSpacing.sm),
             )
             Text(
                 text = stringResource(Res.string.workspace_editor_branch),
                 style = DoraiTypography.labelSmall,
                 color = colorTokens.textSecondary,
-                modifier = Modifier.weight(1f),
             )
         }
 
         // ─── Code key row ───
-        CodeKeyRow()
+        CodeKeyRow(
+            onKeyClick = { key ->
+                if (editable && !readOnly) {
+                    val insert = if (key == "Tab") "\t" else key
+                    onContentChange(content + insert)
+                }
+            },
+        )
     }
 }
 
@@ -367,13 +453,19 @@ private fun CodeRow(line: CodeLine, isDiffMode: Boolean) {
     }
 }
 
-/** Search / Replace panel. */
+/** Search panel: query field plus live match count and Prev/Next navigation. */
 @Composable
 private fun SearchReplacePanel(
     query: String,
     onQueryChange: (String) -> Unit,
     onClose: () -> Unit,
+    matchCount: Int = 0,
+    currentMatch: Int = 0,
+    onPrevious: () -> Unit = {},
+    onNext: () -> Unit = {},
 ) {
+    val colorTokens = LocalDesignColorTokens.current
+    val hasQuery = query.isNotEmpty()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -383,7 +475,7 @@ private fun SearchReplacePanel(
         IconButton(onClick = onClose) {
             Icon(
                 imageVector = Icons.Filled.Close,
-                contentDescription = null,
+                contentDescription = stringResource(Res.string.workspace_editor_close_search_content_description),
             )
         }
         TextField(
@@ -394,46 +486,40 @@ private fun SearchReplacePanel(
             singleLine = true,
             keyboardOptions = KeyboardOptions(),
         )
-    }
-}
-
-/** Floating agent changes bar: change count, prev/next, Reject/Accept. */
-@Composable
-private fun AgentChangesBar() {
-    val colorTokens = LocalDesignColorTokens.current
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = WorkspaceSpacing.sm, vertical = WorkspaceSpacing.xs)
-            .background(LocalDesignColorTokens.current.surfaceElevated)
-            .clip(RoundedCornerShape(12.dp)),
-    ) {
-        Text(
-            text = stringResource(Res.string.workspace_editor_agent_changes, 3),
-            style = DoraiTypography.labelMedium,
-            color = DesignTokens.AccentPrimary,
-        )
-        TextButton(onClick = { }) {
-            Text(text = stringResource(Res.string.workspace_editor_previous), style = DoraiTypography.labelMedium)
-        }
-        TextButton(onClick = { }) {
-            Text(text = stringResource(Res.string.workspace_editor_next), style = DoraiTypography.labelMedium)
-        }
-        TextButton(onClick = { }) {
-            Text(text = stringResource(Res.string.workspace_editor_reject), style = DoraiTypography.labelMedium, color = DesignTokens.Error)
-        }
-        TextButton(onClick = { }) {
-            Text(text = stringResource(Res.string.workspace_editor_accept), style = DoraiTypography.labelMedium, color = DesignTokens.Success)
+        if (hasQuery) {
+            Text(
+                text = if (matchCount > 0) {
+                    stringResource(Res.string.workspace_editor_search_count, currentMatch + 1, matchCount)
+                } else {
+                    stringResource(Res.string.workspace_editor_search_no_results)
+                },
+                style = DoraiTypography.labelSmall,
+                color = colorTokens.textSecondary,
+                modifier = Modifier.padding(horizontal = WorkspaceSpacing.xs),
+            )
+            IconButton(onClick = onPrevious, enabled = matchCount > 0) {
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowUp,
+                    contentDescription = stringResource(Res.string.workspace_editor_previous),
+                )
+            }
+            IconButton(onClick = onNext, enabled = matchCount > 0) {
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowDown,
+                    contentDescription = stringResource(Res.string.workspace_editor_next),
+                )
+            }
         }
     }
 }
 
 /** Code key row: Tab, arrows, symbols. Always visible above keyboard. */
 @Composable
-fun CodeKeyRow() {
+fun CodeKeyRow(onKeyClick: (String) -> Unit = {}) {
     val colorTokens = LocalDesignColorTokens.current
     val keys = listOf(
-        "Tab", "↑", "←", "↓", "→", "{ }", "( )", "[ ]", ";", "\"", "=", "<", ">", "!", ":",
+        "Tab", "↑", "←", "↓", "→", "{ }", "( )", "[ ]", ";", "\"", "=", "<", ">", "!",
+        ":",
     )
     Column(
         modifier = Modifier
@@ -441,24 +527,26 @@ fun CodeKeyRow() {
             .padding(horizontal = WorkspaceSpacing.sm, vertical = WorkspaceSpacing.xs),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(WorkspaceSpacing.xs),
         ) {
             keys.forEach { key ->
-                KeyCap(key = key)
+                KeyCap(key = key, onClick = { onKeyClick(key) })
             }
         }
     }
 }
 
 @Composable
-private fun KeyCap(key: String) {
+private fun KeyCap(key: String, onClick: () -> Unit) {
     val colorTokens = LocalDesignColorTokens.current
     Box(
         modifier = Modifier
-            .size(34.dp)
+            .sizeIn(minWidth = WorkspaceSpacing.minTouchTarget, minHeight = WorkspaceSpacing.minTouchTarget)
             .background(LocalDesignColorTokens.current.surfaceRaised)
-            .clip(RoundedCornerShape(8.dp)),
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = WorkspaceSpacing.sm, vertical = WorkspaceSpacing.xs),
         contentAlignment = Alignment.Center,
     ) {
         Text(

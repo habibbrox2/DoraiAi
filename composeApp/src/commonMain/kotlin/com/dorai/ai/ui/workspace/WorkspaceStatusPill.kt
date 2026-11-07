@@ -27,6 +27,9 @@ import com.dorai.ai.ui.CardFill
 import com.dorai.ai.ui.DoraiBorders
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.workspace_status_label
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Terminal-style status pill (Plan 3, Phase 1). Small colored dot plus a label so
@@ -41,10 +44,11 @@ fun WorkspaceStatusPill(
 ) {
     val colors = rememberWorkspaceStatusColors()
     val color = colors.forKind(kind)
+    val description = stringResource(Res.string.workspace_status_label, label)
     Box(
         modifier = modifier
             .semantics {
-                contentDescription = "Status: $label"
+                contentDescription = description
             }
             .clip(com.dorai.ai.ui.DoraiShapes.pill)
             .background(color.copy(alpha = 0.16f), com.dorai.ai.ui.DoraiShapes.pill)

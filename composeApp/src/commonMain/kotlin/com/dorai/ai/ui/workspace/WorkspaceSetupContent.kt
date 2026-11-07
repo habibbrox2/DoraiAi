@@ -2,11 +2,13 @@
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -26,9 +28,12 @@ import com.dorai.ai.workspace.WorkspaceEnvironmentState
 import com.dorai.ai.workspace.WorkspaceState
 import com.dorai.ai.workspace.WorkspaceStep
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.workspace_explorer_retry
 import dorai.composeapp.generated.resources.workspace_setup_agents_description
 import dorai.composeapp.generated.resources.workspace_setup_agents_title
+import dorai.composeapp.generated.resources.workspace_setup_failed_title
 import dorai.composeapp.generated.resources.workspace_setup_install
+import dorai.composeapp.generated.resources.workspace_setup_verify
 import dorai.composeapp.generated.resources.workspace_step_base_packages
 import dorai.composeapp.generated.resources.workspace_step_configure
 import dorai.composeapp.generated.resources.workspace_step_download
@@ -63,64 +68,73 @@ internal fun WorkspaceSetupContent(
         else -> SetupStep.Options
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        BuildEnvironmentHeader(state = state)
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val tier = WorkspaceTier(maxWidth)
+        val centered = if (tier == WorkspaceTier.Expanded) {
+            Modifier.widthIn(tier.contentMaxWidth).align(Alignment.TopCenter)
+        } else {
+            Modifier
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(centered)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            BuildEnvironmentHeader(state = state)
 
-        WorkspaceStepGuide(activeStep = activeStep)
+            WorkspaceStepGuide(activeStep = activeStep)
 
-        SettingsCard(modifier = Modifier.fillMaxWidth()) {
-            WorkspaceSectionHeader(
-                title = stringResource(Res.string.workspace_setup_agents_title),
-                subtitle = stringResource(Res.string.workspace_setup_agents_description),
-            )
-            WorkspaceAgents.all.forEach { agent ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(enabled = installing == null) { onToggleAgent(agent.id) }
-                        .handCursor(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Checkbox(
-                        checked = agent.id in selectedAgents || agent.id in state.installedAgents,
-                        onCheckedChange = { onToggleAgent(agent.id) },
-                        enabled = installing == null && agent.id !in state.installedAgents,
-                    )
-                    Text(
-                        text = agent.title,
-                        style = DoraiTypography.bodyLarge,
-                        color = LocalDesignColorTokens.current.textPrimary,
-                    )
+            SettingsCard(modifier = Modifier.fillMaxWidth()) {
+                WorkspaceSectionHeader(
+                    title = stringResource(Res.string.workspace_setup_agents_title),
+                    subtitle = stringResource(Res.string.workspace_setup_agents_description),
+                )
+                WorkspaceAgents.all.forEach { agent ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(enabled = installing == null && agent.id !in state.installedAgents) { onToggleAgent(agent.id) }
+                            .handCursor(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            checked = agent.id in selectedAgents || agent.id in state.installedAgents,
+                            onCheckedChange = { if (agent.id !in state.installedAgents) onToggleAgent(agent.id) },
+                            enabled = installing == null && agent.id !in state.installedAgents,
+                        )
+                        Text(
+                            text = agent.title,
+                            style = DoraiTypography.bodyLarge,
+                            color = LocalDesignColorTokens.current.textPrimary,
+                        )
+                    }
                 }
             }
-        }
 
-        if (installing != null) {
-            SandboxProgressRow(
-                progress = installing.progress,
-                statusText = stepLabel(installing),
-                onCancel = onCancel,
-            )
-        } else {
-            Button(onClick = onInstall, modifier = Modifier.handCursor()) {
-                Text(stringResource(Res.string.workspace_setup_install))
+            if (installing != null) {
+                SandboxProgressRow(
+                    progress = installing.progress,
+                    statusText = stepLabel(installing),
+                    onCancel = onCancel,
+                )
+            } else {
+                Button(onClick = onInstall, modifier = Modifier.handCursor()) {
+                    Text(stringResource(Res.string.workspace_setup_install))
+                }
             }
-        }
 
-        // Actionable recovery: name the failure and offer a retry that reuses the
-        // existing install action rather than leaving a dead-end error string.
-        state.lastError?.let { error ->
-            SetupErrorCard(
-                message = error,
-                canRetry = installing == null,
-                onRetry = onInstall,
-            )
+            // Actionable recovery: name the failure and offer a retry that reuses the
+            // existing install action rather than leaving a dead-end error string.
+            state.lastError?.let { error ->
+                SetupErrorCard(
+                    message = error,
+                    canRetry = installing == null,
+                    onRetry = onInstall,
+                )
+            }
         }
     }
 }
@@ -137,7 +151,7 @@ private fun WorkspaceStepGuide(activeStep: SetupStep) {
     val steps = listOf(
         SetupStep.Options to stringResource(Res.string.workspace_setup_agents_title),
         SetupStep.Install to stringResource(Res.string.workspace_setup_install),
-        SetupStep.Recover to "Verify",
+        SetupStep.Recover to stringResource(Res.string.workspace_setup_verify),
     )
     val activeIndex = steps.indexOfFirst { it.first == activeStep }
     Row(
@@ -171,12 +185,12 @@ private fun SetupErrorCard(
 ) {
     SettingsCard(modifier = Modifier.fillMaxWidth()) {
         WorkspaceSectionHeader(
-            title = "Setup failed",
+            title = stringResource(Res.string.workspace_setup_failed_title),
             subtitle = message,
             trailing = {
                 if (canRetry) {
                     Button(onClick = onRetry, modifier = Modifier.handCursor()) {
-                        Text("Retry")
+                        Text(stringResource(Res.string.workspace_explorer_retry))
                     }
                 }
             },

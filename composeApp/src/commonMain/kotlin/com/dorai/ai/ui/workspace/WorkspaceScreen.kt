@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -17,7 +18,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -28,6 +31,7 @@ import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
@@ -53,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -67,21 +72,57 @@ import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import com.dorai.ai.ui.workspace.WorkspaceSpacing
 import com.dorai.ai.workspace.WorkspaceAgents
+import com.dorai.ai.workspace.WorkspaceGitStatus
+import com.dorai.ai.workspace.WorkspaceSessionStatus
+import com.dorai.ai.workspace.activeSessionForProject
 import com.dorai.ai.workspace.terminal.TerminalKey
 import com.dorai.ai.workspace.terminal.TerminalModifiers
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.image_viewer_close
+import dorai.composeapp.generated.resources.sandbox_files_dialog_cancel
+import dorai.composeapp.generated.resources.sandbox_files_save_failed
+import dorai.composeapp.generated.resources.workspace_default_session_label
+import dorai.composeapp.generated.resources.workspace_editor_binary
+import dorai.composeapp.generated.resources.workspace_editor_empty
+import dorai.composeapp.generated.resources.workspace_editor_too_large
+import dorai.composeapp.generated.resources.workspace_editor_unreadable
 import dorai.composeapp.generated.resources.workspace_exit_content_description
+import dorai.composeapp.generated.resources.workspace_files_tab
+import dorai.composeapp.generated.resources.workspace_git_branch
 import dorai.composeapp.generated.resources.workspace_git_changes_title
+import dorai.composeapp.generated.resources.workspace_git_diff
+import dorai.composeapp.generated.resources.workspace_git_diff_error
+import dorai.composeapp.generated.resources.workspace_git_diff_title
+import dorai.composeapp.generated.resources.workspace_git_discard
+import dorai.composeapp.generated.resources.workspace_git_discard_message
+import dorai.composeapp.generated.resources.workspace_git_discard_title
+import dorai.composeapp.generated.resources.workspace_git_failed
+import dorai.composeapp.generated.resources.workspace_git_loading
+import dorai.composeapp.generated.resources.workspace_git_missing_git
 import dorai.composeapp.generated.resources.workspace_git_no_changes
 import dorai.composeapp.generated.resources.workspace_git_no_project
+import dorai.composeapp.generated.resources.workspace_git_not_repository
+import dorai.composeapp.generated.resources.workspace_git_stage
+import dorai.composeapp.generated.resources.workspace_git_staged
 import dorai.composeapp.generated.resources.workspace_git_status_added
+import dorai.composeapp.generated.resources.workspace_git_status_conflicted
 import dorai.composeapp.generated.resources.workspace_git_status_deleted
 import dorai.composeapp.generated.resources.workspace_git_status_modified
+import dorai.composeapp.generated.resources.workspace_git_status_renamed
+import dorai.composeapp.generated.resources.workspace_git_status_untracked
+import dorai.composeapp.generated.resources.workspace_git_unstage
+import dorai.composeapp.generated.resources.workspace_git_unstaged
 import dorai.composeapp.generated.resources.workspace_loading_file
 import dorai.composeapp.generated.resources.workspace_new_project_content_description
 import dorai.composeapp.generated.resources.workspace_no_active_session
+import dorai.composeapp.generated.resources.workspace_open_drawer_content_description
 import dorai.composeapp.generated.resources.workspace_open_project_terminal
+import dorai.composeapp.generated.resources.workspace_save_dismiss
 import dorai.composeapp.generated.resources.workspace_starting_session
+import dorai.composeapp.generated.resources.workspace_tab_agent
+import dorai.composeapp.generated.resources.workspace_tab_editor
+import dorai.composeapp.generated.resources.workspace_tab_git
+import dorai.composeapp.generated.resources.workspace_tab_terminal
 import dorai.composeapp.generated.resources.workspace_title
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
@@ -101,8 +142,11 @@ private const val WORKSPACE_FILES_DRAWER_KEY = "WorkspaceDrawerFiles"
 @Immutable
 data class GitFileChange(
     val path: String,
-    val status: GitStatus,
-    val touchedByAgent: Boolean = false,
+    val status: WorkspaceGitStatus,
+    /** True when the change is staged (index column of the porcelain XY pair). */
+    val staged: Boolean = false,
+    /** True when the change is unstaged (worktree column). Untracked paths have neither. */
+    val unstaged: Boolean = false,
 )
 
 @Immutable
@@ -130,15 +174,18 @@ data class WorkspaceActions(
 )
 
 /** The four bottom-navigation tabs of the Workspace. */
-enum class WorkspaceTab(val id: String, val label: String, val icon: ImageVector) {
-    Agent("agent", "Agent", Icons.Default.Comment),
-    Editor("editor", "Editor", Icons.Default.Code),
-    Terminal("terminal", "Terminal", Icons.Default.Terminal),
-    Git("git", "Git", Icons.Default.History),
+enum class WorkspaceTab(
+    val id: String,
+    val label: org.jetbrains.compose.resources.StringResource,
+    val icon: ImageVector,
+) {
+    Agent("agent", Res.string.workspace_tab_agent, Icons.Default.Comment),
+    Editor("editor", Res.string.workspace_tab_editor, Icons.Default.Code),
+    Terminal("terminal", Res.string.workspace_tab_terminal, Icons.Default.Terminal),
+    Git("git", Res.string.workspace_tab_git, Icons.Default.History),
 }
 
-/**
- * Stateless Workspace surface content for screenshot tests. Takes [state] and
+/** Stateless Workspace surface content for screenshot tests. Takes [state] and
  * [actions] directly so it can be rendered without a ViewModel or Koin.
  */
 @Composable
@@ -149,6 +196,22 @@ fun WorkspaceScreenContent(
     modifier: Modifier = Modifier,
     initialTab: WorkspaceTab = WorkspaceTab.Agent,
     initialEditorState: EditorState? = null,
+    /** Screenshot/preview surface renders whatever git state it is handed. */
+    gitState: WorkspaceGitState = WorkspaceGitState(),
+    updateEditorContent: (String) -> Unit = { },
+    saveEditorContent: () -> Unit = { },
+    undoEditorContent: () -> Unit = { },
+    canUndoEditor: Boolean = false,
+    editorSaving: Boolean = false,
+    saveMessage: org.jetbrains.compose.resources.StringResource? = null,
+    onConsumeSaveMessage: () -> Unit = { },
+    gitDiff: com.dorai.ai.workspace.WorkspaceGitDiff? = null,
+    onLoadGitDiff: (String, String) -> Unit = { _, _ -> },
+    onClearGitDiff: () -> Unit = { },
+    onStageGitFile: (String, String) -> Unit = { _, _ -> },
+    onUnstageGitFile: (String, String) -> Unit = { _, _ -> },
+    onDiscardGitFile: (String, String) -> Unit = { _, _ -> },
+    gitActionInProgress: Boolean = false,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -215,8 +278,6 @@ fun WorkspaceScreenContent(
                     tab = WorkspaceTab.Editor
                     filesOpen = false
                 },
-                onFilterChanged = { },
-                selectedFilter = ProjectFilter.All,
             )
         }
     }
@@ -241,12 +302,27 @@ fun WorkspaceScreenContent(
                     selectedFile = selectedFile,
                     editorState = initialEditorState,
                     editorLines = editorLines,
+                    gitState = gitState,
                     onOpenEditorFile = { path ->
                         selectedFile = path
                         tab = WorkspaceTab.Editor
                     },
                     onDrawerToggle = { scope.launch { drawerState.open() } },
                     onExit = onExit,
+                    updateEditorContent = updateEditorContent,
+                    saveEditorContent = saveEditorContent,
+                    undoEditorContent = undoEditorContent,
+                    canUndoEditor = canUndoEditor,
+                    editorSaving = editorSaving,
+                    saveMessage = saveMessage,
+                    onConsumeSaveMessage = onConsumeSaveMessage,
+                    gitDiff = gitDiff,
+                    onLoadGitDiff = onLoadGitDiff,
+                    onClearGitDiff = onClearGitDiff,
+                    onStageGitFile = onStageGitFile,
+                    onUnstageGitFile = onUnstageGitFile,
+                    onDiscardGitFile = onDiscardGitFile,
+                    gitActionInProgress = gitActionInProgress,
                 )
             } else {
                 WorkspaceSetupContent(
@@ -261,8 +337,7 @@ fun WorkspaceScreenContent(
     }
 }
 
-/**
- * Full-screen Workspace surface. Entered from the empty chat state and left via
+/** Full-screen Workspace surface. Entered from the empty chat state and left via
  * the top-bar close button or system back.
  */
 @Composable
@@ -273,6 +348,9 @@ fun WorkspaceScreen(
     viewModel: WorkspaceViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val gitState by viewModel.gitState.collectAsStateWithLifecycle()
+    val gitDiff by viewModel.gitDiff.collectAsStateWithLifecycle()
+    val gitActionInProgress by viewModel.gitActionInProgress.collectAsStateWithLifecycle()
     val actions = remember(viewModel) {
         WorkspaceActions(
             toggleAgent = viewModel::toggleAgent,
@@ -316,14 +394,19 @@ fun WorkspaceScreen(
     LaunchedEffect(state.openProject) {
         val project = state.openProject ?: return@LaunchedEffect
         drawerFilesViewModel.start("$PROJECTS_GUEST_DIR/$project")
+        viewModel.refreshGitStatus(project)
     }
 
-    val drawerFiles = remember(drawerFilesState.entries, selectedFile) {
+    // Badges come from the same `git status` the Git tab shows, keyed by path, so the
+    // explorer and the changes list never disagree.
+    val drawerFiles = remember(drawerFilesState.entries, selectedFile, gitState.changes) {
+        val statusByPath = gitState.changes.associate { it.path to it.status }
         drawerFilesState.entries.map { entry ->
             ProjectFile(
                 path = entry.path,
                 name = entry.name,
                 isDirectory = entry.isDirectory,
+                gitStatus = statusByPath[entry.path],
                 isCurrentFile = entry.path == selectedFile,
             )
         }
@@ -382,8 +465,13 @@ fun WorkspaceScreen(
                         filesOpen = false
                     }
                 },
-                onFilterChanged = { },
-                selectedFilter = ProjectFilter.All,
+                isLoading = drawerFilesState.loading,
+                error = drawerFilesState.error,
+                onRefresh = {
+                    // Silent re-list of the visible directory; keeps any open
+                    // editor buffer (unlike navigateTo, which clears it).
+                    drawerFilesViewModel.start(drawerFilesState.currentPath)
+                },
             )
         }
     }
@@ -400,7 +488,12 @@ fun WorkspaceScreen(
             if (state.build.isReady) {
                 WorkspaceTabContent(
                     tab = tab,
-                    onTabChanged = { tab = it },
+                    onTabChanged = { next ->
+                        tab = next
+                        // The agent edits through a shell, so a visit to the Git tab asks
+                        // the guest again rather than reusing the open-project listing.
+                        if (next == WorkspaceTab.Git) state.openProject?.let(viewModel::refreshGitStatus)
+                    },
                     state = state,
                     actions = actions,
                     filesOpen = filesOpen,
@@ -408,6 +501,7 @@ fun WorkspaceScreen(
                     selectedFile = selectedFile,
                     editorState = drawerFilesState.editor,
                     editorLines = editorLines,
+                    gitState = gitState,
                     onOpenEditorFile = { path ->
                         drawerFilesViewModel.openInEditor(path)
                         selectedFile = path
@@ -415,6 +509,24 @@ fun WorkspaceScreen(
                     },
                     onDrawerToggle = { scope.launch { drawerState.open() } },
                     onExit = onExit,
+                    updateEditorContent = { content ->
+                        drawerFilesViewModel.updateEditorContent(content)
+                    },
+                    saveEditorContent = {
+                        drawerFilesViewModel.save()
+                    },
+                    undoEditorContent = { drawerFilesViewModel.undoEditor() },
+                    canUndoEditor = drawerFilesState.canUndoEditor,
+                    editorSaving = drawerFilesState.editorSaving,
+                    saveMessage = drawerFilesState.snackbarMessage,
+                    onConsumeSaveMessage = { drawerFilesViewModel.consumeSnackbar() },
+                    gitDiff = gitDiff,
+                    onLoadGitDiff = viewModel::loadGitDiff,
+                    onClearGitDiff = viewModel::clearGitDiff,
+                    onStageGitFile = viewModel::stageGitFile,
+                    onUnstageGitFile = viewModel::unstageGitFile,
+                    onDiscardGitFile = viewModel::discardGitFile,
+                    gitActionInProgress = gitActionInProgress,
                 )
             } else {
                 WorkspaceSetupContent(
@@ -441,9 +553,24 @@ private fun WorkspaceTabContent(
     selectedFile: String?,
     editorState: EditorState?,
     editorLines: List<CodeLine>,
+    gitState: WorkspaceGitState,
     onOpenEditorFile: (String) -> Unit,
     onDrawerToggle: () -> Unit,
     onExit: () -> Unit,
+    updateEditorContent: (String) -> Unit,
+    saveEditorContent: () -> Unit,
+    undoEditorContent: () -> Unit = { },
+    canUndoEditor: Boolean = false,
+    editorSaving: Boolean = false,
+    saveMessage: org.jetbrains.compose.resources.StringResource? = null,
+    onConsumeSaveMessage: () -> Unit = { },
+    gitDiff: com.dorai.ai.workspace.WorkspaceGitDiff? = null,
+    onLoadGitDiff: (String, String) -> Unit = { _, _ -> },
+    onClearGitDiff: () -> Unit = { },
+    onStageGitFile: (String, String) -> Unit = { _, _ -> },
+    onUnstageGitFile: (String, String) -> Unit = { _, _ -> },
+    onDiscardGitFile: (String, String) -> Unit = { _, _ -> },
+    gitActionInProgress: Boolean = false,
 ) {
     val project = state.openProject
     val installedAgents = remember(state.build.installedAgents) {
@@ -470,7 +597,7 @@ private fun WorkspaceTabContent(
                 IconButton(onClick = onDrawerToggle) {
                     Icon(
                         imageVector = Icons.Default.Menu,
-                        contentDescription = "Open drawer",
+                        contentDescription = stringResource(Res.string.workspace_open_drawer_content_description),
                         tint = LocalDesignColorTokens.current.textSecondary,
                     )
                 }
@@ -479,14 +606,14 @@ private fun WorkspaceTabContent(
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
                     Text(
-                        text = project ?: "Workspace",
+                        text = project ?: stringResource(Res.string.workspace_title),
                         style = DoraiTypography.titleMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        text = state.build.activeSessionId?.take(7) ?: "main",
+                        text = state.build.activeSessionId?.take(7) ?: stringResource(Res.string.workspace_default_session_label),
                         style = DoraiTypography.labelSmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 1,
@@ -501,7 +628,7 @@ private fun WorkspaceTabContent(
                         IconButton(onClick = { onFilesToggle(true) }) {
                             Icon(
                                 imageVector = Icons.Default.Folder,
-                                contentDescription = null,
+                                contentDescription = stringResource(Res.string.workspace_files_tab),
                                 tint = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
@@ -524,9 +651,12 @@ private fun WorkspaceTabContent(
                     val sessions = remember(state.build.sessions, project) {
                         state.build.sessions.filter { it.project == project }.toImmutableList()
                     }
+                    // The global active id may point at another project's session;
+                    // resolve against this project's sessions only.
+                    val session = activeSessionForProject(state.build.sessions, state.build.activeSessionId, project)
                     WorkspaceSessionBar(
                         sessions = sessions,
-                        activeSessionId = state.build.activeSessionId,
+                        activeSessionId = session?.id,
                         installedAgents = installedAgents,
                         filesSelected = filesOpen,
                         project = project,
@@ -542,8 +672,6 @@ private fun WorkspaceTabContent(
                             actions.startSession(agentId)
                         },
                     )
-                    val session = sessions.firstOrNull { it.id == state.build.activeSessionId }
-                        ?: sessions.firstOrNull()
                     when {
                         filesOpen -> {
                             SandboxFilesContent(
@@ -563,6 +691,10 @@ private fun WorkspaceTabContent(
                             onText = actions.sendText,
                             onMouse = actions.sendMouse,
                             onResize = actions.resizeTerminal,
+                            onRestart = {
+                                actions.startSession(session.agentId)
+                                actions.closeSession(session.id)
+                            },
                         )
 
                         else -> {
@@ -571,7 +703,13 @@ private fun WorkspaceTabContent(
                                 contentAlignment = Alignment.Center,
                             ) {
                                 Text(
-                                    text = stringResource(Res.string.workspace_starting_session),
+                                    text = stringResource(
+                                        if (sessions.any { it.status == WorkspaceSessionStatus.Starting }) {
+                                            Res.string.workspace_starting_session
+                                        } else {
+                                            Res.string.workspace_no_active_session
+                                        },
+                                    ),
                                     style = DoraiTypography.bodyMedium,
                                     color = LocalDesignColorTokens.current.textSecondary,
                                 )
@@ -595,24 +733,83 @@ private fun WorkspaceTabContent(
             }
 
             WorkspaceTab.Editor -> {
-                val editorPath = selectedFile ?: "${PROJECTS_GUEST_DIR}/main.kt"
                 when (val editor = editorState) {
                     is EditorState.Loaded -> {
-                        WorkspaceCodeEditor(
-                            filePath = editor.path,
-                            lines = editorLines,
-                            content = editor.current,
-                            onContentChange = { },
-                            onDiffToggled = { },
-                            onRun = { },
-                            onUndo = { },
-                            onSearchChanged = { },
-                            editable = true,
-                            onEditableChange = { },
-                            isDirty = editor.dirty,
-                            onSave = { },
-                            onSearchToggle = { },
-                        )
+                        var editable by remember(editor.path) { mutableStateOf(true) }
+                        var showSearch by remember(editor.path) { mutableStateOf(false) }
+                        var searchQuery by remember(editor.path) { mutableStateOf("") }
+                        var searchIndex by remember(editor.path) { mutableStateOf(0) }
+                        val matchCount = remember(editor.current, searchQuery) {
+                            countSearchMatches(editor.current, searchQuery)
+                        }
+                        val safeIndex = if (matchCount == 0) 0 else searchIndex % matchCount
+                        val language = remember(editor.path) {
+                            when (editor.path.substringAfterLast('.', "").lowercase()) {
+                                "kt", "kts" -> "Kotlin"
+                                "java" -> "Java"
+                                "md" -> "Markdown"
+                                "py" -> "Python"
+                                "js", "ts", "json" -> "JavaScript"
+                                "gradle", "xml" -> "XML"
+                                else -> "Text"
+                            }
+                        }
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            // Save feedback: success/failure from the file browser.
+                            if (saveMessage != null) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = WorkspaceSpacing.sm, vertical = WorkspaceSpacing.xs),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        text = stringResource(saveMessage),
+                                        style = DoraiTypography.labelMedium,
+                                        color = if (saveMessage == Res.string.sandbox_files_save_failed) DesignTokens.Error else DesignTokens.Success,
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                    TextButton(onClick = onConsumeSaveMessage) {
+                                        Text(text = stringResource(Res.string.workspace_save_dismiss), style = DoraiTypography.labelMedium)
+                                    }
+                                }
+                            }
+                            WorkspaceCodeEditor(
+                                filePath = editor.path,
+                                lines = editorLines,
+                                content = editor.current,
+                                onContentChange = updateEditorContent,
+                                onDiffToggled = { },
+                                onRun = { },
+                                onUndo = undoEditorContent,
+                                onSearchChanged = { query ->
+                                    searchQuery = query
+                                    searchIndex = 0
+                                },
+                                editable = editable && !editor.readOnly,
+                                onEditableChange = { editable = it },
+                                isDirty = editor.dirty,
+                                onSave = saveEditorContent,
+                                onSearchToggle = { showSearch = !showSearch },
+                                onCloseSearch = { showSearch = false },
+                                showSearch = showSearch,
+                                searchQuery = searchQuery,
+                                language = language,
+                                readOnly = editor.readOnly,
+                                canUndo = canUndoEditor,
+                                isSaving = editorSaving,
+                                matchCount = matchCount,
+                                currentMatch = safeIndex,
+                                onSearchPrevious = {
+                                    if (matchCount > 0) searchIndex = (safeIndex - 1 + matchCount) % matchCount
+                                },
+                                onSearchNext = {
+                                    if (matchCount > 0) searchIndex = (safeIndex + 1) % matchCount
+                                },
+                                showDiffRun = false,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
                     }
 
                     EditorState.Loading -> {
@@ -634,7 +831,7 @@ private fun WorkspaceTabContent(
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = "Binary file: ${editor.path}",
+                                text = stringResource(Res.string.workspace_editor_binary, editor.path),
                                 style = DoraiTypography.bodyMedium,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
@@ -647,7 +844,7 @@ private fun WorkspaceTabContent(
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = "File too large (${editor.sizeBytes} bytes)",
+                                text = stringResource(Res.string.workspace_editor_too_large, editor.sizeBytes),
                                 style = DoraiTypography.bodyMedium,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
@@ -660,7 +857,7 @@ private fun WorkspaceTabContent(
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = "Cannot read file: ${editor.path}",
+                                text = stringResource(Res.string.workspace_editor_unreadable, editor.path),
                                 style = DoraiTypography.bodyMedium,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
@@ -673,7 +870,7 @@ private fun WorkspaceTabContent(
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = "Open a file to edit",
+                                text = stringResource(Res.string.workspace_editor_empty),
                                 style = DoraiTypography.bodyMedium,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
@@ -684,11 +881,7 @@ private fun WorkspaceTabContent(
 
             WorkspaceTab.Terminal -> {
                 if (project != null) {
-                    val sessions = remember(state.build.sessions, project) {
-                        state.build.sessions.filter { it.project == project }.toImmutableList()
-                    }
-                    val session = sessions.firstOrNull { it.id == state.build.activeSessionId }
-                        ?: sessions.firstOrNull()
+                    val session = activeSessionForProject(state.build.sessions, state.build.activeSessionId, project)
                     if (session != null) {
                         WorkspaceTerminalContent(
                             session = session,
@@ -697,6 +890,10 @@ private fun WorkspaceTabContent(
                             onText = actions.sendText,
                             onMouse = actions.sendMouse,
                             onResize = actions.resizeTerminal,
+                            onRestart = {
+                                actions.startSession(session.agentId)
+                                actions.closeSession(session.id)
+                            },
                         )
                     } else {
                         Box(
@@ -727,7 +924,15 @@ private fun WorkspaceTabContent(
             WorkspaceTab.Git -> {
                 WorkspaceGitContent(
                     project = project,
+                    gitState = gitState,
                     onOpenEditorFile = onOpenEditorFile,
+                    gitDiff = gitDiff,
+                    onLoadGitDiff = onLoadGitDiff,
+                    onClearGitDiff = onClearGitDiff,
+                    onStageGitFile = onStageGitFile,
+                    onUnstageGitFile = onUnstageGitFile,
+                    onDiscardGitFile = onDiscardGitFile,
+                    gitActionInProgress = gitActionInProgress,
                 )
             }
         }
@@ -750,7 +955,7 @@ private fun WorkspaceTabContent(
                     },
                     label = {
                         Text(
-                            text = t.label,
+                            text = stringResource(t.label),
                             style = DoraiTypography.labelSmall,
                             color = if (tab == t) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -765,8 +970,17 @@ private fun WorkspaceTabContent(
 @Composable
 private fun WorkspaceGitContent(
     project: String?,
+    gitState: WorkspaceGitState,
     onOpenEditorFile: (String) -> Unit,
+    gitDiff: com.dorai.ai.workspace.WorkspaceGitDiff? = null,
+    onLoadGitDiff: (String, String) -> Unit = { _, _ -> },
+    onClearGitDiff: () -> Unit = { },
+    onStageGitFile: (String, String) -> Unit = { _, _ -> },
+    onUnstageGitFile: (String, String) -> Unit = { _, _ -> },
+    onDiscardGitFile: (String, String) -> Unit = { _, _ -> },
+    gitActionInProgress: Boolean = false,
 ) {
+    var pendingDiscardPath by remember { mutableStateOf<String?>(null) }
     Column(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -788,30 +1002,192 @@ private fun WorkspaceGitContent(
                 color = LocalDesignColorTokens.current.textPrimary,
                 modifier = Modifier.padding(16.dp),
             )
-            WorkspaceGitChangesList(
-                project = project,
-                changes = gitChangesFor(project),
-                onOpenFile = onOpenEditorFile,
-            )
+            if (gitState.branch != null) {
+                Text(
+                    text = stringResource(Res.string.workspace_git_branch, gitState.branch),
+                    style = DoraiTypography.labelMedium,
+                    color = LocalDesignColorTokens.current.textSecondary,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                )
+            }
+            when {
+                gitState.loading && gitState.changes.isEmpty() -> Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(Res.string.workspace_git_loading),
+                        style = DoraiTypography.bodyMedium,
+                        color = LocalDesignColorTokens.current.textSecondary,
+                    )
+                }
+
+                !gitState.loading && gitState.error == com.dorai.ai.workspace.WorkspaceGitError.NotRepository -> Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(Res.string.workspace_git_not_repository),
+                        style = DoraiTypography.bodyMedium,
+                        color = LocalDesignColorTokens.current.textSecondary,
+                    )
+                }
+
+                !gitState.loading && gitState.error == com.dorai.ai.workspace.WorkspaceGitError.MissingGit -> Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(Res.string.workspace_git_missing_git),
+                        style = DoraiTypography.bodyMedium,
+                        color = LocalDesignColorTokens.current.textSecondary,
+                    )
+                }
+
+                !gitState.loading && gitState.error == com.dorai.ai.workspace.WorkspaceGitError.Failed -> Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(Res.string.workspace_git_failed),
+                        style = DoraiTypography.bodyMedium,
+                        color = DesignTokens.Error,
+                    )
+                }
+
+                else -> WorkspaceGitChangesList(
+                    project = project,
+                    changes = gitState.changes.map {
+                        GitFileChange(it.path, it.status, staged = it.staged, unstaged = it.unstaged)
+                    },
+                    onOpenFile = onOpenEditorFile,
+                    onStageFile = onStageGitFile,
+                    onUnstageFile = onUnstageGitFile,
+                    onDiscardFile = { pendingDiscardPath = it },
+                    onShowDiff = onLoadGitDiff,
+                    actionInProgress = gitActionInProgress,
+                )
+            }
         }
+    }
+
+    if (gitDiff != null) {
+        WorkspaceGitDiffDialog(
+            diff = gitDiff,
+            onDismiss = onClearGitDiff,
+        )
+    }
+
+    val discardPath = pendingDiscardPath
+    if (discardPath != null && project != null) {
+        AlertDialog(
+            onDismissRequest = { pendingDiscardPath = null },
+            title = {
+                Text(text = stringResource(Res.string.workspace_git_discard_title))
+            },
+            text = {
+                Text(text = stringResource(Res.string.workspace_git_discard_message, discardPath))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDiscardGitFile(project, discardPath)
+                        pendingDiscardPath = null
+                    },
+                    enabled = !gitActionInProgress,
+                ) {
+                    Text(text = stringResource(Res.string.workspace_git_discard))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDiscardPath = null }) {
+                    Text(text = stringResource(Res.string.sandbox_files_dialog_cancel))
+                }
+            },
+        )
     }
 }
 
-/** Sample of changed files for the open project. In a real build this comes from
- * the sandbox's git status; here it demonstrates the changes-list UI pattern. */
-private fun gitChangesFor(project: String): List<GitFileChange> = listOf(
-    GitFileChange(path = "${PROJECTS_GUEST_DIR}/$project/src/Main.kt", status = GitStatus.Modified, touchedByAgent = true),
-    GitFileChange(path = "${PROJECTS_GUEST_DIR}/$project/src/Utils.kt", status = GitStatus.Added),
-    GitFileChange(path = "${PROJECTS_GUEST_DIR}/$project/build.gradle.kts", status = GitStatus.Modified),
-    GitFileChange(path = "${PROJECTS_GUEST_DIR}/$project/old/Temp.kt", status = GitStatus.Deleted, touchedByAgent = true),
-)
+/** Dialog showing the staged + unstaged unified diffs for one file. */
+@Composable
+private fun WorkspaceGitDiffDialog(
+    diff: com.dorai.ai.workspace.WorkspaceGitDiff,
+    onDismiss: () -> Unit,
+) {
+    val colorTokens = LocalDesignColorTokens.current
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = stringResource(Res.string.workspace_git_diff_title, diff.path))
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 420.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(WorkspaceSpacing.sm),
+            ) {
+                if (diff.error != null) {
+                    Text(
+                        text = stringResource(Res.string.workspace_git_diff_error),
+                        style = DoraiTypography.bodyMedium,
+                        color = DesignTokens.Error,
+                    )
+                } else {
+                    if (diff.stagedDiff.isNotEmpty()) {
+                        Text(
+                            text = stringResource(Res.string.workspace_git_staged),
+                            style = DoraiTypography.labelMedium,
+                            color = colorTokens.textSecondary,
+                        )
+                        Text(
+                            text = diff.stagedDiff,
+                            style = DoraiTypography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                            color = colorTokens.textPrimary,
+                        )
+                    }
+                    if (diff.unstagedDiff.isNotEmpty()) {
+                        Text(
+                            text = stringResource(Res.string.workspace_git_unstaged),
+                            style = DoraiTypography.labelMedium,
+                            color = colorTokens.textSecondary,
+                        )
+                        Text(
+                            text = diff.unstagedDiff,
+                            style = DoraiTypography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                            color = colorTokens.textPrimary,
+                        )
+                    }
+                    if (diff.stagedDiff.isEmpty() && diff.unstagedDiff.isEmpty()) {
+                        Text(
+                            text = stringResource(Res.string.workspace_git_no_changes),
+                            style = DoraiTypography.bodyMedium,
+                            color = colorTokens.textSecondary,
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(Res.string.image_viewer_close))
+            }
+        },
+    )
+}
 
-/** List of changed files with git status badges; each row opens the file in the Editor tab. */
+/** List of changed files with git status badges; rows open in the Editor tab, action buttons stage/discard/diff. */
 @Composable
 private fun WorkspaceGitChangesList(
     project: String,
     changes: List<GitFileChange>,
     onOpenFile: (String) -> Unit,
+    onStageFile: (String, String) -> Unit,
+    onUnstageFile: (String, String) -> Unit,
+    onDiscardFile: (String) -> Unit,
+    onShowDiff: (String, String) -> Unit,
+    actionInProgress: Boolean,
 ) {
     val colorTokens = LocalDesignColorTokens.current
 
@@ -833,70 +1209,110 @@ private fun WorkspaceGitChangesList(
         modifier = Modifier.fillMaxSize(),
     ) {
         items(items = changes, key = { it.path }) { change ->
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = WorkspaceSpacing.sm, vertical = WorkspaceSpacing.xs)
-                    .clickable(onClick = { onOpenFile(change.path) }),
-                verticalAlignment = Alignment.CenterVertically,
+                    .padding(horizontal = WorkspaceSpacing.sm, vertical = WorkspaceSpacing.xs),
             ) {
-                Icon(
-                    imageVector = Icons.Default.FileCopy,
-                    contentDescription = null,
-                    tint = colorTokens.textMuted,
-                    modifier = Modifier.size(18.dp),
-                )
-
-                Column(
-                    modifier = Modifier.weight(1f).padding(start = WorkspaceSpacing.xs),
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                ) {
-                    Text(
-                        text = change.path.substringAfterLast("/"),
-                        style = DoraiTypography.bodyMedium,
-                        color = colorTokens.textPrimary,
-                        maxLines = 1,
-                    )
-                    Text(
-                        text = change.path,
-                        style = DoraiTypography.labelSmall,
-                        color = colorTokens.textSecondary,
-                        maxLines = 1,
-                    )
-                }
-
-                val (badgeColor, badgeText) = when (change.status) {
-                    GitStatus.Added -> Pair(DesignTokens.Success, stringResource(Res.string.workspace_git_status_added))
-                    GitStatus.Modified -> Pair(DesignTokens.Warning, stringResource(Res.string.workspace_git_status_modified))
-                    GitStatus.Deleted -> Pair(DesignTokens.Error, stringResource(Res.string.workspace_git_status_deleted))
-                }
-                Box(
+                Row(
                     modifier = Modifier
-                        .size(20.dp)
-                        .background(badgeColor)
-                        .clip(RoundedCornerShape(4.dp)),
-                    contentAlignment = Alignment.Center,
+                        .fillMaxWidth()
+                        .clickable(onClick = { onOpenFile(change.path) }),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = badgeText.take(1).uppercase(),
-                        style = DoraiTypography.labelSmall.copy(fontSize = 9.sp),
-                        color = DesignTokens.BrandInk,
+                    Icon(
+                        imageVector = Icons.Default.FileCopy,
+                        contentDescription = null,
+                        tint = colorTokens.textMuted,
+                        modifier = Modifier.size(18.dp),
                     )
-                }
 
-                if (change.touchedByAgent) {
+                    Column(
+                        modifier = Modifier.weight(1f).padding(start = WorkspaceSpacing.xs),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        Text(
+                            text = change.path.substringAfterLast("/"),
+                            style = DoraiTypography.bodyMedium,
+                            color = colorTokens.textPrimary,
+                            maxLines = 1,
+                        )
+                        Text(
+                            text = change.path,
+                            style = DoraiTypography.labelSmall,
+                            color = colorTokens.textSecondary,
+                            maxLines = 1,
+                        )
+                    }
+
+                    val (badgeColor, badgeText) = when (change.status) {
+                        WorkspaceGitStatus.Added -> Pair(DesignTokens.Success, stringResource(Res.string.workspace_git_status_added))
+                        WorkspaceGitStatus.Modified -> Pair(DesignTokens.Warning, stringResource(Res.string.workspace_git_status_modified))
+                        WorkspaceGitStatus.Deleted -> Pair(DesignTokens.Error, stringResource(Res.string.workspace_git_status_deleted))
+                        WorkspaceGitStatus.Renamed -> Pair(DesignTokens.AccentPrimary, stringResource(Res.string.workspace_git_status_renamed))
+                        WorkspaceGitStatus.Untracked -> Pair(colorTokens.textMuted, stringResource(Res.string.workspace_git_status_untracked))
+                        WorkspaceGitStatus.Conflicted -> Pair(DesignTokens.Error, stringResource(Res.string.workspace_git_status_conflicted))
+                    }
                     Box(
                         modifier = Modifier
-                            .padding(horizontal = WorkspaceSpacing.xs)
-                            .background(DesignTokens.SurfaceRaised)
+                            .size(20.dp)
+                            .background(badgeColor)
                             .clip(RoundedCornerShape(4.dp)),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = "Agent",
+                            text = badgeText.take(1).uppercase(),
                             style = DoraiTypography.labelSmall.copy(fontSize = 9.sp),
-                            color = DesignTokens.AccentPrimary,
+                            color = DesignTokens.BrandInk,
                         )
+                    }
+                }
+
+                // Staged/unstaged context + per-file actions.
+                val stagedLabel = when {
+                    change.staged && change.unstaged -> stringResource(Res.string.workspace_git_staged) + ", " + stringResource(Res.string.workspace_git_unstaged)
+                    change.staged -> stringResource(Res.string.workspace_git_staged)
+                    change.unstaged -> stringResource(Res.string.workspace_git_unstaged)
+                    else -> stringResource(Res.string.workspace_git_unstaged)
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    Text(
+                        text = stagedLabel,
+                        style = DoraiTypography.labelSmall,
+                        color = colorTokens.textSecondary,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
+                    )
+                    if (change.staged) {
+                        TextButton(
+                            onClick = { onUnstageFile(project, change.path) },
+                            enabled = !actionInProgress,
+                        ) {
+                            Text(text = stringResource(Res.string.workspace_git_unstage))
+                        }
+                    } else {
+                        TextButton(
+                            onClick = { onStageFile(project, change.path) },
+                            enabled = !actionInProgress,
+                        ) {
+                            Text(text = stringResource(Res.string.workspace_git_stage))
+                        }
+                    }
+                    TextButton(
+                        onClick = { onDiscardFile(change.path) },
+                        enabled = !actionInProgress,
+                    ) {
+                        Text(text = stringResource(Res.string.workspace_git_discard))
+                    }
+                    TextButton(
+                        onClick = { onShowDiff(project, change.path) },
+                        enabled = !actionInProgress,
+                    ) {
+                        Text(text = stringResource(Res.string.workspace_git_diff))
                     }
                 }
             }

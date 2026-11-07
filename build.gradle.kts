@@ -13,7 +13,7 @@ plugins {
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     kotlin {
         target("**/*.kt")
-        targetExclude("**/build/**")
+        targetExclude("**/build/**", "**/.wip-v2-backup/**")
         ktlint()
             .editorConfigOverride(
                 mapOf(

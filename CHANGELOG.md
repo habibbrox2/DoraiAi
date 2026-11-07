@@ -1,3 +1,18 @@
+## DORAI AI - Workspace Editor & Source Control
+
+### Added
+- The Workspace **Git** tab now lists the open project's real working-tree changes, read with `git status --porcelain` inside the Debian guest each time the tab is opened. Added, modified, deleted, renamed, untracked, and conflicted paths each get their own badge.
+- File rows in the projects drawer show the same git status, so the explorer and the changes list never disagree.
+
+### Changed
+- The projects drawer search field now filters the file list as you type, matching names and paths.
+- The drawer's "Modified" chip counts files that git actually reports as changed; the "Agent touched" chip and its per-file tag were removed because nothing tracks which files an agent edited.
+
+### Fixed
+- Typing in the Workspace editor buffer and pressing Save now writes the file back to the sandbox instead of keeping the edit only in the UI.
+
+---
+
 ## DORAI AI - Provider Model Lists
 
 ### Changed

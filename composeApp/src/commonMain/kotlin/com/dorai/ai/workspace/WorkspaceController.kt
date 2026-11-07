@@ -1,5 +1,8 @@
 package com.dorai.ai
 
+import com.dorai.ai.workspace.WorkspaceGitChange
+import com.dorai.ai.workspace.WorkspaceGitDiff
+import com.dorai.ai.workspace.WorkspaceGitResult
 import com.dorai.ai.workspace.WorkspaceState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +25,31 @@ interface WorkspaceController {
 
     /** Re-scans projects, installed agents, and system facts. */
     fun refresh()
+
+    /**
+     * Asks the environment for `git status` of `projects/<project>`.
+     *
+     * The result distinguishes a clean repository ([WorkspaceGitResult.error] is
+     * null, [WorkspaceGitResult.changes] is empty) from failure modes — missing
+     * git, not a repository, timeout — so the UI never reports "No changes" for
+     * a repository it could not read.
+     */
+    suspend fun gitStatus(project: String): WorkspaceGitResult
+
+    /** Reads staged + unstaged diffs for one guest-absolute [path] inside [project]. */
+    suspend fun gitDiff(project: String, path: String): WorkspaceGitDiff
+
+    /** Stages [path]; true on success. Never stages anything else. */
+    suspend fun gitStage(project: String, path: String): Boolean
+
+    /** Unstages [path]; true on success. */
+    suspend fun gitUnstage(project: String, path: String): Boolean
+
+    /**
+     * Discards all changes to [path] (staged and unstaged). Destructive — the
+     * UI must confirm first. Never commits and never touches unrelated files.
+     */
+    suspend fun gitDiscard(project: String, path: String): Boolean
 
     /** Creates `projects/<name>` and returns the sanitized folder name, or null if invalid. */
     fun createProject(name: String): String?
@@ -75,6 +103,13 @@ interface WorkspaceController {
      * (rows/cols). Call when the terminal viewport is measured or resized.
      */
     fun resizeTerminal(columns: Int, rows: Int)
+
+    /**
+     * Ends every session and releases the manager scope. Process-scoped:
+     * only the app owner's final teardown should call this — leaving the
+     * Workspace screen must not, or resume-after-leave breaks.
+     */
+    fun close()
 }
 
 /** Workspace is Android-only; every other target gets this. */
@@ -86,6 +121,11 @@ class NoOpWorkspaceController : WorkspaceController {
     override fun cancel() {}
     override fun uninstall() {}
     override fun refresh() {}
+    override suspend fun gitStatus(project: String): WorkspaceGitResult = WorkspaceGitResult()
+    override suspend fun gitDiff(project: String, path: String): WorkspaceGitDiff = WorkspaceGitDiff(path = path, error = com.dorai.ai.workspace.WorkspaceGitError.Failed)
+    override suspend fun gitStage(project: String, path: String): Boolean = false
+    override suspend fun gitUnstage(project: String, path: String): Boolean = false
+    override suspend fun gitDiscard(project: String, path: String): Boolean = false
     override fun createProject(name: String): String? = null
     override fun deleteProject(name: String) {}
     override fun renameProject(name: String, newName: String): String? = null
@@ -96,6 +136,7 @@ class NoOpWorkspaceController : WorkspaceController {
     override fun leaveProject(project: String) {}
     override fun writeToTerminal(text: String) {}
     override fun resizeTerminal(columns: Int, rows: Int) {}
+    override fun close() {}
 }
 
 expect fun createWorkspaceController(): WorkspaceController

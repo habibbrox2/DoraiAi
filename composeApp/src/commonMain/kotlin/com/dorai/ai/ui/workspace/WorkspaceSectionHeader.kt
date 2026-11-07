@@ -16,6 +16,14 @@ import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import com.dorai.ai.workspace.WorkspaceEnvironmentState
 import com.dorai.ai.workspace.WorkspaceState
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.workspace_env_installing_guidance
+import dorai.composeapp.generated.resources.workspace_env_installing_label
+import dorai.composeapp.generated.resources.workspace_env_not_installed_guidance
+import dorai.composeapp.generated.resources.workspace_env_not_installed_label
+import dorai.composeapp.generated.resources.workspace_env_ready_guidance
+import dorai.composeapp.generated.resources.workspace_env_ready_label
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Section heading for the Build workspace (Plan 3, Phase 2), marked as a semantic
@@ -68,9 +76,9 @@ fun BuildEnvironmentHeader(
     val environment = state.environment
     val kind = environment.toStatusKind()
     val (label, guidance) = when (environment) {
-        WorkspaceEnvironmentState.NotInstalled -> "Not installed" to "Set up the Linux environment to create and open projects."
-        is WorkspaceEnvironmentState.Installing -> "Installing" to "Finishing setup — you can open projects once it is ready."
-        WorkspaceEnvironmentState.Ready -> "Ready" to "Create a project or open one to start building."
+        WorkspaceEnvironmentState.NotInstalled -> stringResource(Res.string.workspace_env_not_installed_label) to stringResource(Res.string.workspace_env_not_installed_guidance)
+        is WorkspaceEnvironmentState.Installing -> stringResource(Res.string.workspace_env_installing_label) to stringResource(Res.string.workspace_env_installing_guidance)
+        WorkspaceEnvironmentState.Ready -> stringResource(Res.string.workspace_env_ready_label) to stringResource(Res.string.workspace_env_ready_guidance)
     }
     Row(
         modifier = modifier.fillMaxWidth(),

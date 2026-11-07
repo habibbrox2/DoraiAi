@@ -33,6 +33,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -78,6 +79,12 @@ import com.dorai.ai.workspace.terminal.TerminalModifiers
 import com.dorai.ai.workspace.terminal.TerminalMouseEncoder
 import com.dorai.ai.workspace.terminal.TerminalSnapshot
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.workspace_session_exit_code
+import dorai.composeapp.generated.resources.workspace_session_failed_message
+import dorai.composeapp.generated.resources.workspace_session_restart
+import dorai.composeapp.generated.resources.workspace_session_status_failed
+import dorai.composeapp.generated.resources.workspace_session_status_stopped
+import dorai.composeapp.generated.resources.workspace_session_stopped_message
 import dorai.composeapp.generated.resources.workspace_terminal_placeholder
 import dorai.composeapp.generated.resources.workspace_terminal_raw_hint
 import dorai.composeapp.generated.resources.workspace_terminal_run_content_description
@@ -175,9 +182,12 @@ internal fun WorkspaceTerminalContent(
     onMouse: (String) -> Unit,
     onResize: (columns: Int, rows: Int) -> Unit,
     modifier: Modifier = Modifier,
+    onRestart: () -> Unit = {},
 ) {
     val terminal = session.terminal
+    val status = session.status
     val busy = session.busy
+    val interactive = status.allowsInput
     // Each tab keeps its own draft line.
     var input by remember(session.id) { mutableStateOf("") }
     // Keys straight to the PTY is the default where the platform can do it —
@@ -216,7 +226,7 @@ internal fun WorkspaceTerminalContent(
 
     val submit = {
         val line = input
-        if (line.isNotEmpty() || busy) {
+        if (line.isNotEmpty() || interactive) {
             // Carriage return, not line feed: apps in raw mode read the byte
             // directly and only CR counts as Enter.
             onSubmitLine(line + "\r")
@@ -264,12 +274,12 @@ internal fun WorkspaceTerminalContent(
                             onResize(cols, rows)
                         }
 
-                        val keyboardActive = rawInput && busy
+                        val keyboardActive = rawInput && interactive
                         // An app that asked for mouse reports owns the taps: a
                         // tap is a click on the cell under the finger, not a
                         // request for the keyboard. The keyboard button in the
                         // input bar stays the way to raise the IME.
-                        val mouseActive = terminal.mouse.enabled && busy
+                        val mouseActive = terminal.mouse.enabled && interactive
                         TerminalGrid(
                             snapshot = terminal,
                             modifier = Modifier
@@ -309,8 +319,12 @@ internal fun WorkspaceTerminalContent(
 
                 HorizontalDivider(color = com.dorai.ai.ui.BorderSoft)
 
+                if (status.isTerminal) {
+                    TerminalRestartBar(session = session, onRestart = onRestart)
+                }
+
                 TerminalKeyRow(
-                    enabled = busy,
+                    enabled = interactive,
                     latched = latched,
                     onLatchChange = { latched = it },
                     onKey = { key -> onKey(key, consumeLatch(TerminalModifiers.None)) },
@@ -349,7 +363,7 @@ internal fun WorkspaceTerminalContent(
                             )
                             IconButton(
                                 onClick = { showKeyboardRequest++ },
-                                enabled = busy,
+                                enabled = interactive,
                                 modifier = Modifier.handCursor(),
                             ) {
                                 Icon(
@@ -371,7 +385,7 @@ internal fun WorkspaceTerminalContent(
                                 value = input,
                                 onValueChange = { input = it },
                                 modifier = Modifier.weight(1f).focusRequester(inputFocus),
-                                enabled = busy,
+                                enabled = interactive,
                                 textStyle = monoStyle(14.sp, AnsiPalette[7]),
                                 placeholder = {
                                     Text(
@@ -402,7 +416,7 @@ internal fun WorkspaceTerminalContent(
                             )
                         }
 
-                        if (busy && !rawInput) {
+                        if (interactive && !rawInput) {
                             IconButton(onClick = submit, modifier = Modifier.handCursor()) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.Send,
@@ -416,6 +430,51 @@ internal fun WorkspaceTerminalContent(
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Stopped/failed sessions keep their output readable but take no input; the bar
+ * says what happened (exit code / error) and offers a fresh shell in their place.
+ */
+@Composable
+private fun TerminalRestartBar(
+    session: WorkspaceTerminalSession,
+    onRestart: () -> Unit,
+) {
+    val failed = session.status == com.dorai.ai.workspace.WorkspaceSessionStatus.Failed
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(WorkspaceSurfaces.terminalRaised)
+            .padding(horizontal = com.dorai.ai.ui.workspace.WorkspaceSpacing.sm, vertical = com.dorai.ai.ui.workspace.WorkspaceSpacing.xs),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(WorkspaceSpacing.sm),
+    ) {
+        WorkspaceStatusPill(
+            label = stringResource(
+                if (failed) Res.string.workspace_session_status_failed else Res.string.workspace_session_status_stopped,
+            ),
+            kind = if (failed) WorkspaceStatusKind.Failed else WorkspaceStatusKind.Idle,
+        )
+        Text(
+            text = when {
+                session.error != null -> stringResource(Res.string.workspace_session_failed_message) + ": " + session.error
+                session.exitCode != null -> stringResource(Res.string.workspace_session_exit_code, session.exitCode)
+                failed -> stringResource(Res.string.workspace_session_failed_message)
+                else -> stringResource(Res.string.workspace_session_stopped_message)
+            },
+            style = monoStyle(12.sp, AnsiPalette[8]),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+        TextButton(onClick = onRestart, modifier = Modifier.handCursor()) {
+            Text(
+                text = stringResource(Res.string.workspace_session_restart),
+                style = monoStyle(13.sp, AnsiPalette[10]),
+            )
         }
     }
 }
