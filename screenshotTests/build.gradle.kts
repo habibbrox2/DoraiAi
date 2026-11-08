@@ -116,7 +116,7 @@ tasks.register("updateScreenshots") {
         // Paparazzi filename; destination is the resolved path on disk.
         val copies =
             buildList<Pair<String, java.io.File>> {
-                // Fastlane-style phone screenshots from ScreenshotTest â†’ screenshots/
+                // Fastlane-style phone screenshots from ScreenshotTest -> screenshots/
                 mapOf(
                     "ScreenshotTest_chatEmptyState_premiumDark" to "mobile-1.png",
                     "ScreenshotTest_chatWithMessages_dark" to "mobile-2.png",
@@ -125,6 +125,34 @@ tasks.register("updateScreenshots") {
                     "ScreenshotTest_settingsTools_light" to "mobile-5.png",
                     "ScreenshotTest_settingsGeneral_dark" to "mobile-6.png",
                     "ScreenshotTest_settingsSandbox_dark" to "mobile-7.png",
+                ).forEach { (k, v) -> add(k to readmeDir.resolve(v)) }
+
+                // UI v2 screenshots from DoraiUiV2ScreenshotTest -> screenshots/
+                mapOf(
+                    "DoraiUiV2ScreenshotTest_home_compact_ogshine" to "v2-home.png",
+                    "DoraiUiV2ScreenshotTest_chat_compact_conversation_ogshine" to "v2-chat.png",
+                    "DoraiUiV2ScreenshotTest_workspace_active_project_compact_ogshine" to "v2-workspace.png",
+                    "DoraiUiV2ScreenshotTest_settings_appearance_compact_ogshine" to "v2-settings.png",
+                    "DoraiUiV2ScreenshotTest_home_tablet_ogshine" to "v2-tablet-home.png",
+                    "DoraiUiV2ScreenshotTest_chat_tablet_conversation_ogshine" to "v2-tablet-chat.png",
+                ).forEach { (k, v) -> add(k to readmeDir.resolve(v)) }
+
+                // Interactive scenario cards from DoraiUiScreenshotTest -> screenshots/
+                mapOf(
+                    "DoraiUiScreenshotTest_scenario_survivalGame_dark" to "interactive-survival.png",
+                    "DoraiUiScreenshotTest_scenario_recipeCard_light" to "interactive-recipe.png",
+                    "DoraiUiScreenshotTest_scenario_sustainableTech_light" to "interactive-ecopulse.png",
+                    "DoraiUiScreenshotTest_scenario_memories_dark" to "interactive-memories.png",
+                ).forEach { (k, v) -> add(k to readmeDir.resolve(v)) }
+
+                // Tablet screenshots from TabletStoreScreenshotTest -> screenshots/
+                mapOf(
+                    "TabletStoreScreenshotTest_chatEmptyState[en-US]" to "tablet-1.png",
+                    "TabletStoreScreenshotTest_chatWithMessages[en-US]" to "tablet-2.png",
+                    "TabletStoreScreenshotTest_chatWithDynamicUi[en-US]" to "tablet-3.png",
+                    "TabletStoreScreenshotTest_settingsFree[en-US]" to "tablet-4.png",
+                    "TabletStoreScreenshotTest_settingsTools[en-US]" to "tablet-5.png",
+                    "TabletStoreScreenshotTest_settingsGeneral[en-US]" to "tablet-6.png",
                 ).forEach { (k, v) -> add(k to readmeDir.resolve(v)) }
 
                 // Hero carousel screenshots from DoraiUiScreenshotTest â†’ site/img/

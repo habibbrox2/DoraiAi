@@ -70,7 +70,7 @@ object SettingsSurfaces {
 
     /** Primary accent color for interactive elements */
     @Composable
-    fun accent(): Color = DesignTokens.PrimaryCyan
+    fun accent(): Color = LocalDesignColorTokens.current.primary
 
     /** Text colors */
     @Composable
@@ -84,5 +84,5 @@ object SettingsSurfaces {
 
     /** Danger/destructive color */
     @Composable
-    fun danger(): Color = DesignTokens.Error
+    fun danger(): Color = LocalDesignColorTokens.current.error
 }

@@ -3,9 +3,13 @@ package com.dorai.ai.ui.theme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.dorai.ai.theme.data.ThemePalette
+import com.dorai.ai.theme.data.ThemePresets
+import com.dorai.ai.theme.tokens.DoraiSemanticColors
 
 /**
  * DORAI AI AURORA design tokens.
@@ -87,15 +91,55 @@ data class DesignColorTokens(
     val borderSubtle: Color,
     val borderSoft: Color,
     val borderStrong: Color,
+    val primary: Color = DesignTokens.PrimaryCyan,
+    val accent: Color = DesignTokens.AgentViolet,
+    val background: Color = DesignTokens.Background,
+    val surface: Color = DesignTokens.SurfaceDark,
+    val line: Color = DesignTokens.BorderSoft,
+    val success: Color = DesignTokens.Success,
+    val warning: Color = DesignTokens.Warning,
+    val error: Color = DesignTokens.Error,
+    val info: Color = DesignTokens.Info,
 ) {
     companion object {
-        fun from(colorScheme: ColorScheme): DesignColorTokens {
+        fun from(
+            colorScheme: ColorScheme,
+            palette: ThemePalette? = null,
+        ): DesignColorTokens {
             val isLight = colorScheme.background.luminance() > 0.5f
+
+            val textTertiary = when {
+                palette != null && palette.id == ThemePresets.DARK_ID -> Color(0xFF91ABCD)
+                palette != null && palette.id == ThemePresets.LIGHT_ID -> Color(0xFF52647D)
+                palette != null -> lerp(palette.onSurfaceVariantColor, palette.surfaceColor, if (palette.isDark) 0.25f else 0.20f)
+                isLight -> Color(0xFF52647D)
+                else -> Color(0xFF91ABCD)
+            }
+
+            val textMuted = when {
+                palette != null && palette.id == ThemePresets.DARK_ID -> Color(0xFF7186A5)
+                palette != null && palette.id == ThemePresets.LIGHT_ID -> Color(0xFF718096)
+                palette != null -> lerp(palette.onSurfaceVariantColor, palette.surfaceColor, if (palette.isDark) 0.40f else 0.35f)
+                isLight -> Color(0xFF718096)
+                else -> Color(0xFF7186A5)
+            }
+
+            val (statusSuccess, statusWarning, statusError, statusInfo) = if (palette != null) {
+                val sem = DoraiSemanticColors.from(palette)
+                listOf(sem.ok, sem.warn, sem.err, sem.info)
+            } else {
+                if (isLight) {
+                    listOf(DoraiSemanticColors.LightOk, DoraiSemanticColors.LightWarn, colorScheme.error, DoraiSemanticColors.LightInfo)
+                } else {
+                    listOf(DoraiSemanticColors.DarkOk, DoraiSemanticColors.DarkWarn, colorScheme.error, DoraiSemanticColors.DarkInfo)
+                }
+            }
+
             return DesignColorTokens(
                 textPrimary = colorScheme.onSurface,
                 textSecondary = colorScheme.onSurfaceVariant,
-                textTertiary = if (isLight) Color(0xFF52647D) else Color(0xFF91ABCD),
-                textMuted = if (isLight) Color(0xFF718096) else Color(0xFF7186A5),
+                textTertiary = textTertiary,
+                textMuted = textMuted,
                 surfaceElevated = colorScheme.surfaceContainerHigh,
                 surfaceRaised = colorScheme.surfaceContainerHighest,
                 cardFill = colorScheme.surfaceContainerHigh,
@@ -103,6 +147,15 @@ data class DesignColorTokens(
                 borderSubtle = colorScheme.outlineVariant.copy(alpha = 0.55f),
                 borderSoft = colorScheme.outlineVariant,
                 borderStrong = colorScheme.outline,
+                primary = palette?.primaryColor ?: colorScheme.primary,
+                accent = palette?.accentColor ?: colorScheme.secondary,
+                background = palette?.backgroundColor ?: colorScheme.background,
+                surface = palette?.surfaceColor ?: colorScheme.surface,
+                line = palette?.outlineColor ?: colorScheme.outline,
+                success = statusSuccess,
+                warning = statusWarning,
+                error = statusError,
+                info = statusInfo,
             )
         }
     }
@@ -121,5 +174,14 @@ val LocalDesignColorTokens = staticCompositionLocalOf {
         borderSubtle = DesignTokens.BorderSubtle,
         borderSoft = DesignTokens.BorderSoft,
         borderStrong = DesignTokens.BorderStrong,
+        primary = DesignTokens.PrimaryCyan,
+        accent = DesignTokens.AgentViolet,
+        background = DesignTokens.Background,
+        surface = DesignTokens.SurfaceDark,
+        line = DesignTokens.BorderSoft,
+        success = DesignTokens.Success,
+        warning = DesignTokens.Warning,
+        error = DesignTokens.Error,
+        info = DesignTokens.Info,
     )
 }
