@@ -65,6 +65,12 @@ Run the narrowest relevant command first. Android release builds may require sig
 - Do not migrate or edit existing Kotlin/JavaScript/TypeScript feature implementation as part of workspace setup.
 - Use `pnpm frontend:check` for isolated workspace checks. Keep Gradle and pnpm dependency graphs independent.
 
+### Language Selection
+
+- For any new feature or system, prefer a TypeScript implementation when the work is clearly frontend, integration, orchestration, UI-only, or API-boundary logic that belongs in the hybrid TypeScript workspace and does not require privileged Kotlin runtime access.
+- If the feature is deeply tied to KMP application execution, security-sensitive runtime access, lifecycle hooks, native capabilities, or privileged local operations, prefer Kotlin.
+- When both Kotlin and TypeScript are viable, choose the option that best matches the actual responsibility boundary: keep shared business logic and secure runtime operations in Kotlin, and keep browser/UI or integration-facing logic in TypeScript where appropriate.
+
 ## Coding Conventions
 
 - **State:** Prefer state hoisting, unidirectional data flow (UDF), and Material 3 patterns.
