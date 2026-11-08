@@ -528,6 +528,31 @@ class AppSettings(internal val settings: Settings) {
         _uiV2Flow.value = enabled
     }
 
+    // Agent Policy & Modes (UI v2)
+    fun getDefaultAgentMode(): String = settings.getString(KEY_DEFAULT_AGENT_MODE, "build")
+
+    fun setDefaultAgentMode(mode: String) {
+        settings.putString(KEY_DEFAULT_AGENT_MODE, mode)
+    }
+
+    fun getApprovalPolicy(): String = settings.getString(KEY_APPROVAL_POLICY, "edits")
+
+    fun setApprovalPolicy(policy: String) {
+        settings.putString(KEY_APPROVAL_POLICY, policy)
+    }
+
+    fun isTimelineEnabled(): Boolean = settings.getBoolean(KEY_TIMELINE_ENABLED, true)
+
+    fun setTimelineEnabled(enabled: Boolean) {
+        settings.putBoolean(KEY_TIMELINE_ENABLED, enabled)
+    }
+
+    fun isAutoReadEnabled(): Boolean = settings.getBoolean(KEY_AUTOREAD_ENABLED, true)
+
+    fun setAutoReadEnabled(enabled: Boolean) {
+        settings.putBoolean(KEY_AUTOREAD_ENABLED, enabled)
+    }
+
     // Email
     fun isEmailEnabled(): Boolean = settings.getBoolean(KEY_EMAIL_ENABLED, true)
 
@@ -760,6 +785,10 @@ class AppSettings(internal val settings: Settings) {
         const val KEY_WORKSPACE_LAUNCH_AGENT = "workspace_launch_agent"
         const val KEY_TOOL_PERMISSIONS = "tool_permissions"
         const val KEY_UI_V2 = "ui_v2_enabled"
+        const val KEY_DEFAULT_AGENT_MODE = "default_agent_mode"
+        const val KEY_APPROVAL_POLICY = "approval_policy"
+        const val KEY_TIMELINE_ENABLED = "timeline_enabled"
+        const val KEY_AUTOREAD_ENABLED = "autoread_enabled"
 
         // Basic memory guidance shared by every chat variant. The advanced `## Structured
         // Learning` block lives in `ChatSystemPromptBuilder.DEFAULT_STRUCTURED_LEARNING_SECTION`

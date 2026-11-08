@@ -12,16 +12,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.PlatformBackHandler
 import com.dorai.ai.data.AppSettings
+import com.dorai.ai.data.imageExtensions
 import com.dorai.ai.exitApp
 import com.dorai.ai.getBackgroundDispatcher
 import com.dorai.ai.theme.tokens.DoraiSpacing
@@ -52,6 +56,8 @@ import com.dorai.ai.ui.components.v2.ToolExecutionState
 import com.dorai.ai.ui.dynamicui.toSpeakableText
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.chat_model_picker_title
+import dorai.composeapp.generated.resources.ic_file
+import dorai.composeapp.generated.resources.ic_image
 import dorai.composeapp.generated.resources.snackbar_conversation_deleted
 import dorai.composeapp.generated.resources.snackbar_undo
 import io.github.vinceglb.filekit.dialogs.FileKitType
@@ -60,6 +66,7 @@ import kotlinx.coroutines.launch
 import nl.marc_apps.tts.TextToSpeechInstance
 import nl.marc_apps.tts.errors.TextToSpeechSynthesisInterruptedError
 import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
@@ -84,6 +91,7 @@ fun DoraiChatScreenConnected(
 
     var selectedModeId by remember { mutableStateOf("ask") }
     var showModelPicker by remember { mutableStateOf(false) }
+    var showAttachSheet by remember { mutableStateOf(false) }
 
     // Precompute timeline relationships (reasoning blocks, frozen forms, etc.)
     val timelineData = remember(uiState.history, uiState.isLoading) {
@@ -225,8 +233,12 @@ fun DoraiChatScreenConnected(
     val activeService = uiState.availableServices.firstOrNull()
     val currentModelName = activeService?.serviceName ?: "Free FAST"
     val isModelLocal = activeService?.serviceId == "ollama" || activeService?.serviceId == "litert"
+    val maxContextTokens = remember(activeService) {
+        val modelId = activeService?.modelId ?: activeService?.serviceId ?: ""
+        if (modelId.isNotBlank()) com.dorai.ai.data.ModelCatalog.estimateContextWindow(modelId) else null
+    }
 
-    // File picker launcher for composer attachments
+    // File & image picker launchers for composer attachments
     val allowFileAttachment = uiState.supportedFileExtensions.isNotEmpty()
     val filePickerLauncher = if (allowFileAttachment) {
         rememberFilePickerLauncher(
@@ -236,6 +248,12 @@ fun DoraiChatScreenConnected(
         }
     } else {
         null
+    }
+
+    val imagePickerLauncher = rememberFilePickerLauncher(
+        type = FileKitType.File(extensions = imageExtensions.toList()),
+    ) { file ->
+        if (file != null) uiState.actions.addFile(file)
     }
 
     // Snackbar notifications
@@ -342,7 +360,7 @@ fun DoraiChatScreenConnected(
             },
             files = uiState.files,
             onRemoveFile = { file -> uiState.actions.removeFile(file) },
-            onAttachFile = { filePickerLauncher?.launch() },
+            onAttachFile = { showAttachSheet = true },
             onMicClick = { /* Voice input callback */ },
             hasUnreadHeartbeat = uiState.hasUnreadHeartbeat,
             onHeartbeatTap = {
@@ -356,6 +374,8 @@ fun DoraiChatScreenConnected(
             onTogglePinConversation = { id -> uiState.actions.togglePinConversation(id) },
             onDeleteConversation = { id -> uiState.actions.deleteConversation(id) },
             onRenameConversation = { id, title -> uiState.actions.renameConversation(id, title) },
+            onNavigateToSettings = onNavigateToSettings,
+            maxContextTokens = maxContextTokens,
             modifier = Modifier.fillMaxSize(),
         )
 
@@ -429,6 +449,117 @@ fun DoraiChatScreenConnected(
                         }
                     }
                 }
+
+                Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+
+                TextButton(
+                    onClick = {
+                        showModelPicker = false
+                        onNavigateToSettings()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        text = "Manage providers",
+                        color = colors.primary,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
+        }
+    }
+
+    if (showAttachSheet) {
+        val colors = LocalDoraiColors.current
+        DoraiModalSheet(onDismissRequest = { showAttachSheet = false }) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(DoraiSpacing.LG),
+            ) {
+                Text(
+                    text = "Attach",
+                    color = colors.text,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+
+                // Photo row
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(colors.surface2)
+                        .border(1.dp, colors.line, RoundedCornerShape(12.dp))
+                        .clickable {
+                            showAttachSheet = false
+                            imagePickerLauncher.launch()
+                        }
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_image),
+                        contentDescription = null,
+                        tint = colors.primary,
+                        modifier = Modifier.size(20.dp),
+                    )
+                    Text(
+                        text = "Photo / Image",
+                        color = colors.text,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // File row
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(colors.surface2)
+                        .border(1.dp, colors.line, RoundedCornerShape(12.dp))
+                        .clickable {
+                            showAttachSheet = false
+                            filePickerLauncher?.launch()
+                        }
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_file),
+                        contentDescription = null,
+                        tint = colors.primary,
+                        modifier = Modifier.size(20.dp),
+                    )
+                    Text(
+                        text = "File / Document",
+                        color = colors.text,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+
+                // Privacy disclosure footer from prototype
+                Text(
+                    text = if (isModelLocal) {
+                        "Files stay on this device."
+                    } else {
+                        "You will be told before a file goes to a cloud model."
+                    },
+                    color = colors.muted,
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp,
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                )
             }
         }
     }
