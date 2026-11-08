@@ -50,9 +50,9 @@ The on-device tool allowlist currently exposes: `get_local_time`, `get_location_
 
 **Qwen3 0.6B caveat:** at 0.6 B params it rarely emits valid function-call syntax — it tends to hallucinate answers (e.g. a fictional time) instead of invoking `get_local_time`. Treat Qwen3 as a chat-only model in practice; pick Gemma 4 E2B/E4B, or LFM2.5 1.2B where those are too large, for anything that relies on tools. Whether the capability gate above withholds tools from Qwen3 automatically depends on what its bundle declares; the caveat stands either way.
 
-The system prompt for on-device runs is composed from its own local-chat variant — it contains only the sections a small Gemma can handle (soul + basic memory guidance + runtime Context block). Memory categories, scheduled tasks, Structured Learning guidance, and kai-ui sections are never composed in.
+The system prompt for on-device runs is composed from its own local-chat variant — it contains only the sections a small Gemma can handle (soul + basic memory guidance + runtime Context block). Memory categories, scheduled tasks, Structured Learning guidance, and dorai-ui sections are never composed in.
 
-Interactive UI mode is **not supported** on-device: the kai-ui component schema is too large and too structurally complex for 2-4B Gemma models to reliably produce valid kai-ui JSON. The "Start interactive mode" button in the chat empty-state is hidden when the primary service is on-device, and on-device services are also filtered out of the quick-switch service selector while Interactive Mode is active so a user already in Interactive Mode can't switch to them. Users who need interactive UI should switch to a remote service.
+Interactive UI mode is **not supported** on-device: the dorai-ui component schema is too large and too structurally complex for 2-4B Gemma models to reliably produce valid dorai-ui JSON. The "Start interactive mode" button in the chat empty-state is hidden when the primary service is on-device, and on-device services are also filtered out of the quick-switch service selector while Interactive Mode is active so a user already in Interactive Mode can't switch to them. Users who need interactive UI should switch to a remote service.
 
 See [system-prompts.md](system-prompts.md) for the full contract.
 
@@ -67,7 +67,7 @@ If the engine throws (e.g. the model does emit malformed tool-call syntax that t
 ## Other limitations
 
 - **No image input** -- the on-device engine only accepts text messages. Some catalog bundles (Gemma 4 12B since its September 2026 revision) declare vision and audio modalities, and the capability read surfaces that, but nothing consumes it yet
-- **No dynamic UI** -- kai-ui prompts are skipped for on-device runs (the schema is too large for the native template parser)
+- **No dynamic UI** -- dorai-ui prompts are skipped for on-device runs (the schema is too large for the native template parser)
 - **Not available on web** -- the WASM build returns no local engine. iOS uses a platform-specific LiteRT bridge rather than the Android/JVM AAR.
 - **Requires a 64-bit device (Android)** -- the LiteRT-LM AAR only ships `arm64-v8a` and `x86_64` native libraries. On pure 32-bit devices (armeabi-v7a), the LiteRT service card is hidden; the app still works with remote services.
 - **Requires AVX2 on x86_64 Linux** -- the LiteRT native binary is compiled with AVX2+ instructions, so older CPUs (e.g. Intel Ivy Bridge / 3rd-gen Core) would SIGILL on model load. On Linux desktop, the engine probes `/proc/cpuinfo` for the `avx2` flag and hides the LiteRT service card when missing. Remote services are unaffected.

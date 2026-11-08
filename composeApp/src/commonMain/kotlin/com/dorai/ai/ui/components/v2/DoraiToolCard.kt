@@ -193,37 +193,37 @@ fun DoraiToolCard(
             // State Badge / Duration
             when (model.state) {
                 ToolExecutionState.Running -> {
-                    Text(
+                    DoraiStatusBadge(
                         text = stringResource(Res.string.tool_status_running),
                         color = colors.info,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
                     )
                 }
 
                 ToolExecutionState.Completed -> {
-                    Text(
-                        text = model.durationText ?: stringResource(Res.string.tool_status_completed),
-                        color = colors.muted,
-                        fontSize = 12.sp,
-                    )
+                    if (model.durationText != null) {
+                        DoraiStatusBadge(
+                            text = model.durationText,
+                            color = colors.muted,
+                        )
+                    } else {
+                        DoraiStatusBadge(
+                            text = stringResource(Res.string.tool_status_completed),
+                            color = colors.ok,
+                        )
+                    }
                 }
 
                 ToolExecutionState.Failed -> {
-                    Text(
+                    DoraiStatusBadge(
                         text = stringResource(Res.string.tool_status_failed),
                         color = colors.err,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
                     )
                 }
 
                 ToolExecutionState.PendingApproval -> {
-                    Text(
+                    DoraiStatusBadge(
                         text = stringResource(Res.string.tool_status_waiting_approval),
                         color = colors.warn,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
                     )
                 }
             }
@@ -233,11 +233,19 @@ fun DoraiToolCard(
         AnimatedVisibility(visible = isExpanded) {
             Column(modifier = Modifier.fillMaxWidth().padding(top = DoraiSpacing.MD)) {
                 // Command or Shell output if present
-                if (!model.commandText.isNullOrEmpty() || !model.outputText.isNullOrEmpty() || !model.errorText.isNullOrEmpty()) {
+                if (!model.commandText.isNullOrEmpty() || !model.errorText.isNullOrEmpty()) {
                     DoraiShellBlock(
                         command = model.commandText,
                         output = model.outputText,
                         error = model.errorText,
+                    )
+                } else if (!model.outputText.isNullOrEmpty()) {
+                    Text(
+                        text = model.outputText,
+                        color = colors.muted,
+                        fontSize = 12.5.sp,
+                        fontFamily = FontFamily.Monospace,
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
                     )
                 }
 

@@ -831,6 +831,7 @@
 
     <!-- UI v2 Chat -->
     <string name="chat_tagline">Your AI. Your World.</string>
+    <string name="chat_empty_title">What are we working on?</string>
     <string name="chat_jump_to_latest">Jump to latest</string>
     <string name="chat_today">Today</string>
     <string name="chat_yesterday">Yesterday</string>
@@ -838,6 +839,25 @@
     <string name="chat_copy_message">Copy</string>
     <string name="chat_regenerate_message">Regenerate</string>
     <string name="chat_model_picker_title">Select AI Model</string>
+    <string name="chat_plan_title">Plan</string>
+    <string name="chat_plan_run_build">Run in Build mode</string>
+    <string name="chat_interactive_reply">Interactive reply</string>
+    <string name="chat_quick_ask_title">Ask a question</string>
+    <string name="chat_quick_ask_desc">About anything</string>
+    <string name="chat_quick_plan_title">Plan a feature</string>
+    <string name="chat_quick_plan_desc">Break it into steps</string>
+    <string name="chat_quick_build_title">Build a feature</string>
+    <string name="chat_quick_build_desc">Edits files, asks first</string>
+    <string name="chat_quick_review_title">Review code</string>
+    <string name="chat_quick_review_desc">Issues and suggestions</string>
+    <string name="chat_quick_image_title">Ask about an image</string>
+    <string name="chat_quick_image_desc">Attach a photo or screenshot</string>
+    <string name="chat_quick_file_title">Analyse a file</string>
+    <string name="chat_quick_file_desc">PDF, CSV or text document</string>
+    <string name="chat_quick_project_title">Work on a project</string>
+    <string name="chat_quick_project_desc">Go to Workspace</string>
+    <string name="chat_search_placeholder">Search chats…</string>
+    <string name="chat_no_chats_found">No chats found.</string>
 
     <!-- UI v2 Workspace -->
     <string name="workspace_v2_setup_title">Workspace Setup</string>

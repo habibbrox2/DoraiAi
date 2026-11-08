@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.markdown
+package com.dorai.ai.ui.markdown
 
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.test.Test
@@ -38,9 +38,9 @@ class StreamingToleranceTest {
     }
 
     @Test
-    fun `truncated kai-ui json is repaired into a block`() {
+    fun `truncated dorai-ui json is repaired into a block`() {
         val md = """
-            ```kai-ui
+            ```dorai-ui
             {"type":"column","children":[{"type":"text","value":"a"
         """.trimIndent()
         val doc = parseMarkdown(md)

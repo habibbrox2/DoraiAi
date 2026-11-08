@@ -151,7 +151,7 @@ class ChatSystemPromptBuilderTest {
     @Test
     fun `honesty rule is composed into both variants`() {
         // Guards observed regressions: models inventing tool outputs / file contents and
-        // kai-ui buttons whose labels imply operations the callback can't perform.
+        // dorai-ui buttons whose labels imply operations the callback can't perform.
         val remote = build(SystemPromptVariant.CHAT_REMOTE)
         val local = build(SystemPromptVariant.CHAT_LOCAL)
         for (out in listOf(remote, local)) {
@@ -385,7 +385,7 @@ class ChatSystemPromptBuilderTest {
             uiMode = ChatPromptUiMode.DYNAMIC_UI,
         )
         assertTrue("## Dynamic UI" in out)
-        assertTrue("kai-ui" in out)
+        assertTrue("dorai-ui" in out)
         assertFalse("## Interactive UI Mode" in out)
     }
 
@@ -571,7 +571,7 @@ class ChatSystemPromptBuilderTest {
             uiMode = ChatPromptUiMode.DYNAMIC_UI,
         )
         assertFalse("## Dynamic UI" in out)
-        assertFalse("kai-ui" in out)
+        assertFalse("dorai-ui" in out)
     }
 
     @Test
@@ -590,7 +590,7 @@ class ChatSystemPromptBuilderTest {
     @Test
     fun `golden CHAT_LOCAL with soul + memory instructions + context`() {
         // No memories or tasks — just the minimal CHAT_LOCAL shape. Memory inclusion
-        // with a budget is covered by separate focused tests. Scheduled tasks and kai-ui
+        // with a budget is covered by separate focused tests. Scheduled tasks and dorai-ui
         // sections are verified as omitted below.
         val out = build(
             variant = SystemPromptVariant.CHAT_LOCAL,
@@ -643,7 +643,7 @@ class ChatSystemPromptBuilderTest {
             ),
             uiMode = ChatPromptUiMode.NONE,
         )
-        // Just assert the section headers are present in order — the full kai-ui sections
+        // Just assert the section headers are present in order — the full dorai-ui sections
         // are verified by separate DYNAMIC_UI / INTERACTIVE_UI tests.
         val headerOrder = listOf(
             "You are DORAI AI.",

@@ -1,4 +1,4 @@
-Fix kai-ui rendering and restore
+Fix dorai-ui rendering and restore
 Make OLED dark mode opt-in
 Improve heartbeat, email, and task scheduling
 Prevent incompatible models from interactive chat and automations

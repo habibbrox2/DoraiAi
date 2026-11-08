@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -41,17 +42,22 @@ import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Rule
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -75,6 +81,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -90,6 +98,7 @@ import com.dorai.ai.ui.adaptive.DoraiListDetailPaneScaffold
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
 import com.dorai.ai.ui.chat.composables.HeartbeatBanner
 import com.dorai.ai.ui.chat.composables.PendingSmsBanners
+import com.dorai.ai.ui.components.LogoAnimation
 import com.dorai.ai.ui.components.v2.DoraiComposer
 import com.dorai.ai.ui.components.v2.DoraiDynamicUiBlock
 import com.dorai.ai.ui.components.v2.DoraiModalSheet
@@ -105,13 +114,35 @@ import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.bot_message_thinking_expand_content_description
 import dorai.composeapp.generated.resources.bot_message_thinking_label
 import dorai.composeapp.generated.resources.chat_copy_message
+import dorai.composeapp.generated.resources.chat_empty_title
 import dorai.composeapp.generated.resources.chat_history_title
 import dorai.composeapp.generated.resources.chat_jump_to_latest
 import dorai.composeapp.generated.resources.chat_model_picker_title
+import dorai.composeapp.generated.resources.chat_no_chats_found
+import dorai.composeapp.generated.resources.chat_older
+import dorai.composeapp.generated.resources.chat_plan_run_build
+import dorai.composeapp.generated.resources.chat_plan_title
+import dorai.composeapp.generated.resources.chat_quick_ask_desc
+import dorai.composeapp.generated.resources.chat_quick_ask_title
+import dorai.composeapp.generated.resources.chat_quick_build_desc
+import dorai.composeapp.generated.resources.chat_quick_build_title
+import dorai.composeapp.generated.resources.chat_quick_file_desc
+import dorai.composeapp.generated.resources.chat_quick_file_title
+import dorai.composeapp.generated.resources.chat_quick_image_desc
+import dorai.composeapp.generated.resources.chat_quick_image_title
+import dorai.composeapp.generated.resources.chat_quick_plan_desc
+import dorai.composeapp.generated.resources.chat_quick_plan_title
+import dorai.composeapp.generated.resources.chat_quick_project_desc
+import dorai.composeapp.generated.resources.chat_quick_project_title
+import dorai.composeapp.generated.resources.chat_quick_review_desc
+import dorai.composeapp.generated.resources.chat_quick_review_title
 import dorai.composeapp.generated.resources.chat_regenerate_message
+import dorai.composeapp.generated.resources.chat_search_placeholder
 import dorai.composeapp.generated.resources.chat_tagline
+import dorai.composeapp.generated.resources.chat_today
 import dorai.composeapp.generated.resources.fallback_answered_by
 import dorai.composeapp.generated.resources.ic_file
+import dorai.composeapp.generated.resources.ic_image
 import dorai.composeapp.generated.resources.logo
 import dorai.composeapp.generated.resources.nav_brand_title
 import dorai.composeapp.generated.resources.new_chat_content_description
@@ -135,6 +166,7 @@ data class ChatMessageItem(
     val dynamicUi: DynamicUiModel? = null,
     val attachments: List<Attachment> = emptyList(),
     val reasoningSegments: List<String> = emptyList(),
+    val planItems: List<String> = emptyList(),
     val isThinking: Boolean = false,
     val isSpeaking: Boolean = false,
     val fallbackServiceName: String? = null,
@@ -171,6 +203,7 @@ fun DoraiChatScreen(
     onNewChat: () -> Unit,
     onOpenConversation: (String) -> Unit,
     modifier: Modifier = Modifier,
+    activeConversationId: String? = null,
     isStreaming: Boolean = false,
     onStopStreaming: (() -> Unit)? = null,
     onRegenerate: (() -> Unit)? = null,
@@ -182,10 +215,12 @@ fun DoraiChatScreen(
     onAskFixTool: ((String) -> Unit)? = null,
     onDynamicUiOptionSelected: ((String) -> Unit)? = null,
     onDynamicUiSubmit: (() -> Unit)? = null,
+    onRunPlan: (() -> Unit)? = null,
     onSpeak: ((String) -> Unit)? = null,
     files: ImmutableList<PlatformFile> = persistentListOf(),
     onRemoveFile: ((PlatformFile) -> Unit)? = null,
     onAttachFile: (() -> Unit)? = null,
+    onAttachImage: (() -> Unit)? = null,
     onMicClick: (() -> Unit)? = null,
     hasUnreadHeartbeat: Boolean = false,
     onHeartbeatTap: (() -> Unit)? = null,
@@ -197,6 +232,7 @@ fun DoraiChatScreen(
     onDeleteConversation: ((String) -> Unit)? = null,
     onRenameConversation: ((String, String) -> Unit)? = null,
     onNavigateToSettings: (() -> Unit)? = null,
+    onNavigateToWorkspace: (() -> Unit)? = null,
     maxContextTokens: Int? = null,
 ) {
     val widthClass = LocalDoraiWindowWidthClass.current
@@ -216,6 +252,7 @@ fun DoraiChatScreen(
                 ) {
                     ChatHistoryPane(
                         conversations = conversations,
+                        activeConversationId = activeConversationId,
                         onOpenConversation = { id ->
                             onOpenConversation(id)
                             scope.launch { drawerState.close() }
@@ -224,6 +261,7 @@ fun DoraiChatScreen(
                             onNewChat()
                             scope.launch { drawerState.close() }
                         },
+                        onCloseDrawer = { scope.launch { drawerState.close() } },
                         onTogglePin = onTogglePinConversation,
                         onDelete = onDeleteConversation,
                     )
@@ -250,10 +288,12 @@ fun DoraiChatScreen(
                 onAskFixTool = onAskFixTool,
                 onDynamicUiOptionSelected = onDynamicUiOptionSelected,
                 onDynamicUiSubmit = onDynamicUiSubmit,
+                onRunPlan = onRunPlan,
                 onSpeak = onSpeak,
                 files = files,
                 onRemoveFile = onRemoveFile,
                 onAttachFile = onAttachFile,
+                onAttachImage = onAttachImage,
                 onMicClick = onMicClick,
                 hasUnreadHeartbeat = hasUnreadHeartbeat,
                 onHeartbeatTap = onHeartbeatTap,
@@ -262,6 +302,7 @@ fun DoraiChatScreen(
                 onSendSms = onSendSms,
                 onDiscardSms = onDiscardSms,
                 onNavigateToSettings = onNavigateToSettings,
+                onNavigateToWorkspace = onNavigateToWorkspace,
                 maxContextTokens = maxContextTokens,
             )
         }
@@ -270,8 +311,10 @@ fun DoraiChatScreen(
             listPane = {
                 ChatHistoryPane(
                     conversations = conversations,
+                    activeConversationId = activeConversationId,
                     onOpenConversation = onOpenConversation,
                     onNewChat = onNewChat,
+                    onCloseDrawer = null,
                     onTogglePin = onTogglePinConversation,
                     onDelete = onDeleteConversation,
                 )
@@ -297,10 +340,12 @@ fun DoraiChatScreen(
                     onAskFixTool = onAskFixTool,
                     onDynamicUiOptionSelected = onDynamicUiOptionSelected,
                     onDynamicUiSubmit = onDynamicUiSubmit,
+                    onRunPlan = onRunPlan,
                     onSpeak = onSpeak,
                     files = files,
                     onRemoveFile = onRemoveFile,
                     onAttachFile = onAttachFile,
+                    onAttachImage = onAttachImage,
                     onMicClick = onMicClick,
                     hasUnreadHeartbeat = hasUnreadHeartbeat,
                     onHeartbeatTap = onHeartbeatTap,
@@ -309,6 +354,7 @@ fun DoraiChatScreen(
                     onSendSms = onSendSms,
                     onDiscardSms = onDiscardSms,
                     onNavigateToSettings = onNavigateToSettings,
+                    onNavigateToWorkspace = onNavigateToWorkspace,
                     maxContextTokens = maxContextTokens,
                 )
             },
@@ -324,14 +370,20 @@ private fun ChatHistoryPane(
     onNewChat: () -> Unit,
     onTogglePin: ((String) -> Unit)? = null,
     onDelete: ((String) -> Unit)? = null,
+    onCloseDrawer: (() -> Unit)? = null,
+    activeConversationId: String? = null,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalDoraiColors.current
+    val widthClass = LocalDoraiWindowWidthClass.current
     var searchQuery by remember { mutableStateOf("") }
 
     val filtered = conversations.filter {
         it.title.contains(searchQuery, ignoreCase = true) || it.preview.contains(searchQuery, ignoreCase = true)
     }.sortedByDescending { it.isPinned }
+
+    val todayConvs = remember(filtered) { filtered.filter { it.isToday } }
+    val earlierConvs = remember(filtered) { filtered.filter { !it.isToday } }
 
     Column(
         modifier = modifier
@@ -339,42 +391,98 @@ private fun ChatHistoryPane(
             .background(colors.surface)
             .padding(DoraiSpacing.MD),
     ) {
-        // Header Row: New Chat + Title
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = stringResource(Res.string.chat_history_title),
-                color = colors.text,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-            )
-            IconButton(
-                onClick = onNewChat,
+        if (widthClass.isCompact && onCloseDrawer != null) {
+            Row(
                 modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(colors.surface2),
+                    .fillMaxWidth()
+                    .padding(bottom = DoraiSpacing.SM),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(Res.string.new_chat_content_description),
-                    tint = colors.primary,
-                    modifier = Modifier.size(20.dp),
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    LogoAnimation(
+                        size = 26.dp,
+                        animate = true,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(Res.string.nav_brand_title),
+                        color = colors.text,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+                IconButton(
+                    onClick = onCloseDrawer,
+                    modifier = Modifier.size(36.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close",
+                        tint = colors.muted,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
             }
+        }
+
+        // Full-width + New Chat button matching prototype: <button class="btn primary wide" data-act="newchat">
+        Button(
+            onClick = onNewChat,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(44.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colors.primary,
+                contentColor = colors.onPrimary,
+            ),
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = stringResource(Res.string.new_chat_content_description),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
         }
 
         Spacer(modifier = Modifier.height(DoraiSpacing.SM))
 
-        // Search box
+        // Search box: <label class="sbox"><svg>search</svg><input placeholder="Search chats"></label>
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
-            placeholder = { Text("Search chats…", fontSize = 13.sp, color = colors.muted) },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = colors.muted, modifier = Modifier.size(16.dp)) },
+            placeholder = { Text(stringResource(Res.string.chat_search_placeholder), fontSize = 13.sp, color = colors.muted) },
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = null,
+                    tint = colors.muted,
+                    modifier = Modifier.size(16.dp),
+                )
+            },
+            trailingIcon = if (searchQuery.isNotEmpty()) {
+                {
+                    IconButton(
+                        onClick = { searchQuery = "" },
+                        modifier = Modifier.size(24.dp),
+                    ) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "Clear",
+                            tint = colors.muted,
+                            modifier = Modifier.size(14.dp),
+                        )
+                    }
+                }
+            } else {
+                null
+            },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = colors.surface2,
                 unfocusedContainerColor = colors.surface2,
@@ -390,82 +498,151 @@ private fun ChatHistoryPane(
             singleLine = true,
         )
 
-        Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
 
-        // Conversation items
+        // Conversation items with Today and Earlier grouping
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            items(filtered, key = { it.id }) { conv ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .clickable { onOpenConversation(conv.id) }
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = conv.title,
-                                color = colors.text,
-                                fontSize = 13.5.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f, fill = false),
-                            )
-                            if (conv.isPinned) {
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Icon(
-                                    imageVector = Icons.Default.PushPin,
-                                    contentDescription = "Pinned",
-                                    tint = colors.primary,
-                                    modifier = Modifier.size(12.dp),
-                                )
-                            }
-                        }
-                        if (conv.preview.isNotBlank()) {
-                            Text(
-                                text = conv.preview,
-                                color = colors.muted,
-                                fontSize = 12.sp,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
+            if (filtered.isEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(Res.string.chat_no_chats_found),
+                        color = colors.muted,
+                        fontSize = 13.sp,
+                        modifier = Modifier.padding(vertical = DoraiSpacing.MD, horizontal = 4.dp),
+                    )
+                }
+            } else {
+                if (todayConvs.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = stringResource(Res.string.chat_today),
+                            color = colors.muted,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
+                        )
                     }
-
-                    if (onTogglePin != null) {
-                        IconButton(
-                            onClick = { onTogglePin(conv.id) },
-                            modifier = Modifier.size(28.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.PushPin,
-                                contentDescription = "Pin/Unpin",
-                                tint = if (conv.isPinned) colors.primary else colors.muted.copy(alpha = 0.5f),
-                                modifier = Modifier.size(14.dp),
-                            )
-                        }
-                    }
-
-                    if (onDelete != null) {
-                        IconButton(
-                            onClick = { onDelete(conv.id) },
-                            modifier = Modifier.size(28.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete",
-                                tint = colors.muted.copy(alpha = 0.5f),
-                                modifier = Modifier.size(14.dp),
-                            )
-                        }
+                    items(todayConvs, key = { it.id }) { conv ->
+                        ConversationItemRow(
+                            conv = conv,
+                            isActive = conv.id == activeConversationId,
+                            onOpen = { onOpenConversation(conv.id) },
+                            onTogglePin = onTogglePin,
+                            onDelete = onDelete,
+                        )
                     }
                 }
+
+                if (earlierConvs.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = stringResource(Res.string.chat_older),
+                            color = colors.muted,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
+                        )
+                    }
+                    items(earlierConvs, key = { it.id }) { conv ->
+                        ConversationItemRow(
+                            conv = conv,
+                            isActive = conv.id == activeConversationId,
+                            onOpen = { onOpenConversation(conv.id) },
+                            onTogglePin = onTogglePin,
+                            onDelete = onDelete,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ConversationItemRow(
+    conv: ChatConversationSummary,
+    isActive: Boolean,
+    onOpen: () -> Unit,
+    onTogglePin: ((String) -> Unit)?,
+    onDelete: ((String) -> Unit)?,
+) {
+    val colors = LocalDoraiColors.current
+    val itemShape = RoundedCornerShape(10.dp)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(itemShape)
+            .background(if (isActive) colors.surface2 else Color.Transparent)
+            .border(
+                width = 1.dp,
+                color = if (isActive) colors.primary.copy(alpha = 0.6f) else Color.Transparent,
+                shape = itemShape,
+            )
+            .clickable(onClick = onOpen)
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = conv.title,
+                    color = if (isActive) colors.primary else colors.text,
+                    fontSize = 13.5.sp,
+                    fontWeight = if (isActive) FontWeight.Bold else FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                if (conv.isPinned) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.Default.PushPin,
+                        contentDescription = "Pinned",
+                        tint = colors.primary,
+                        modifier = Modifier.size(12.dp),
+                    )
+                }
+            }
+            if (conv.preview.isNotBlank()) {
+                Text(
+                    text = conv.preview,
+                    color = colors.muted,
+                    fontSize = 12.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+
+        if (onTogglePin != null) {
+            IconButton(
+                onClick = { onTogglePin(conv.id) },
+                modifier = Modifier.size(28.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PushPin,
+                    contentDescription = "Pin/Unpin",
+                    tint = if (conv.isPinned) colors.primary else colors.muted.copy(alpha = 0.5f),
+                    modifier = Modifier.size(14.dp),
+                )
+            }
+        }
+
+        if (onDelete != null) {
+            IconButton(
+                onClick = { onDelete(conv.id) },
+                modifier = Modifier.size(28.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete",
+                    tint = colors.muted.copy(alpha = 0.5f),
+                    modifier = Modifier.size(14.dp),
+                )
             }
         }
     }
@@ -493,10 +670,12 @@ private fun ChatDetailPane(
     onAskFixTool: ((String) -> Unit)? = null,
     onDynamicUiOptionSelected: ((String) -> Unit)? = null,
     onDynamicUiSubmit: (() -> Unit)? = null,
+    onRunPlan: (() -> Unit)? = null,
     onSpeak: ((String) -> Unit)? = null,
     files: ImmutableList<PlatformFile> = persistentListOf(),
     onRemoveFile: ((PlatformFile) -> Unit)? = null,
     onAttachFile: (() -> Unit)? = null,
+    onAttachImage: (() -> Unit)? = null,
     onMicClick: (() -> Unit)? = null,
     hasUnreadHeartbeat: Boolean = false,
     onHeartbeatTap: (() -> Unit)? = null,
@@ -505,6 +684,7 @@ private fun ChatDetailPane(
     onSendSms: ((String) -> Unit)? = null,
     onDiscardSms: ((String) -> Unit)? = null,
     onNavigateToSettings: (() -> Unit)? = null,
+    onNavigateToWorkspace: (() -> Unit)? = null,
     maxContextTokens: Int? = null,
 ) {
     val colors = LocalDoraiColors.current
@@ -532,11 +712,12 @@ private fun ChatDetailPane(
             .fillMaxSize()
             .background(colors.background),
     ) {
-        // Chat Top Bar
+        // Chat Top Bar (56dp fixed height matching prototype header.top)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.SM),
+                .height(56.dp)
+                .padding(horizontal = DoraiSpacing.MD),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (widthClass.isCompact && onOpenDrawer != null) {
@@ -547,6 +728,7 @@ private fun ChatDetailPane(
                         tint = colors.text,
                     )
                 }
+                Spacer(modifier = Modifier.width(4.dp))
             }
 
             // Model pill with dropdown chevron (matching prototype)
@@ -565,6 +747,9 @@ private fun ChatDetailPane(
                         color = colors.text,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.widthIn(max = 180.dp),
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     DoraiProviderBadge(isLocal = isModelLocal, iconOnly = true)
@@ -630,6 +815,8 @@ private fun ChatDetailPane(
             }
         }
 
+        HorizontalDivider(color = colors.line.copy(alpha = 0.5f), thickness = 1.dp)
+
         // Proactive Heartbeat and SMS Banners
         if (hasUnreadHeartbeat && onHeartbeatTap != null && onHeartbeatDismiss != null) {
             HeartbeatBanner(
@@ -658,6 +845,9 @@ private fun ChatDetailPane(
                     onSelectQuickPrompt = { prompt: String ->
                         composerInput = prompt
                     },
+                    onAttachImage = onAttachImage,
+                    onAttachFile = onAttachFile,
+                    onNavigateToWorkspace = onNavigateToWorkspace,
                 )
             } else {
                 LazyColumn(
@@ -679,6 +869,7 @@ private fun ChatDetailPane(
                             onAskFixTool = onAskFixTool,
                             onDynamicUiOptionSelected = onDynamicUiOptionSelected,
                             onDynamicUiSubmit = onDynamicUiSubmit,
+                            onRunPlan = onRunPlan,
                         )
                     }
                 }
@@ -760,6 +951,7 @@ private fun ChatMessageRow(
     onAskFixTool: ((String) -> Unit)? = null,
     onDynamicUiOptionSelected: ((String) -> Unit)? = null,
     onDynamicUiSubmit: (() -> Unit)? = null,
+    onRunPlan: (() -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
     val clipboardManager = androidx.compose.ui.platform.LocalClipboardManager.current
@@ -775,7 +967,8 @@ private fun ChatMessageRow(
                     .widthIn(max = 520.dp)
                     .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp, bottomStart = 20.dp, bottomEnd = 6.dp))
                     .background(colors.surface2)
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                    .border(1.dp, colors.line.copy(alpha = 0.4f), RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp, bottomStart = 20.dp, bottomEnd = 6.dp))
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
             ) {
                 Column {
                     // Image attachments
@@ -853,11 +1046,18 @@ private fun ChatMessageRow(
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
         ) {
-            // Who row: Model name + Badge + Optional Fallback indicator
+            // Who row: Brand Mark (20dp) + Model name + Badge + Optional Fallback indicator
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 6.dp),
             ) {
+                Icon(
+                    painter = painterResource(Res.drawable.logo),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(20.dp),
+                )
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = message.modelName ?: stringResource(Res.string.nav_brand_title),
                     color = colors.muted,
@@ -896,6 +1096,16 @@ private fun ChatMessageRow(
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
+            }
+
+            // Plan Card (matching prototype planCard)
+            if (message.planItems.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+                DoraiPlanCard(
+                    items = message.planItems,
+                    onRunPlan = { onRunPlan?.invoke() },
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
 
             // Embedded Tool cards
@@ -978,6 +1188,96 @@ private fun ChatMessageRow(
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * UI v2 Plan Card:
+ * Displays an ordered step-by-step plan with a primary CTA button to run in Build mode.
+ */
+@Composable
+fun DoraiPlanCard(
+    items: List<String>,
+    onRunPlan: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = LocalDoraiColors.current
+    val shape = RoundedCornerShape(14.dp)
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(colors.surface)
+            .border(1.dp, colors.line, shape)
+            .padding(14.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Default.Rule,
+                contentDescription = null,
+                tint = colors.primary,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = stringResource(Res.string.chat_plan_title),
+                color = colors.text,
+                fontSize = 14.5.sp,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Column(
+            modifier = Modifier.padding(start = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            items.forEachIndexed { idx, item ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    Text(
+                        text = "${idx + 1}. ",
+                        color = colors.muted,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = item,
+                        color = colors.text,
+                        fontSize = 13.sp,
+                        lineHeight = 19.sp,
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Button(
+            onClick = onRunPlan,
+            shape = RoundedCornerShape(10.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colors.primary,
+                contentColor = colors.onPrimary,
+            ),
+            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Default.Build,
+                contentDescription = null,
+                modifier = Modifier.size(15.dp),
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = stringResource(Res.string.chat_plan_run_build),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
         }
     }
 }
@@ -1116,57 +1416,152 @@ private fun DoraiReasoningBlock(
     }
 }
 
+private data class QuickStartAction(
+    val title: String,
+    val subtitle: String,
+    val icon: ImageVector? = null,
+    val painter: Painter? = null,
+    val onClick: () -> Unit,
+)
+
+@Composable
+private fun QuickStartCard(action: QuickStartAction) {
+    val colors = LocalDoraiColors.current
+    val shape = RoundedCornerShape(16.dp)
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 64.dp)
+            .clip(shape)
+            .background(colors.surface)
+            .border(1.dp, colors.line, shape)
+            .clickable(onClick = action.onClick)
+            .padding(14.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.Top,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            if (action.icon != null) {
+                Icon(
+                    imageVector = action.icon,
+                    contentDescription = null,
+                    tint = colors.primary,
+                    modifier = Modifier.size(20.dp),
+                )
+            } else if (action.painter != null) {
+                Icon(
+                    painter = action.painter,
+                    contentDescription = null,
+                    tint = colors.primary,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text(
+                    text = action.title,
+                    color = colors.text,
+                    fontSize = 14.5.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = action.subtitle,
+                    color = colors.muted,
+                    fontSize = 12.5.sp,
+                    lineHeight = 17.sp,
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun ChatEmptyState(
     selectedModeId: String,
     onSelectQuickPrompt: (String) -> Unit,
+    onAttachImage: (() -> Unit)? = null,
+    onAttachFile: (() -> Unit)? = null,
+    onNavigateToWorkspace: (() -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
     val widthClass = LocalDoraiWindowWidthClass.current
 
-    val quickStarts = when (selectedModeId) {
-        "plan" -> listOf(
-            "Architect a full-stack Kotlin Multiplatform app" to "Design layers, modules, and protocols.",
-            "Plan a secure database migration" to "Step-by-step schema upgrade plan.",
+    val modeAction = when (selectedModeId) {
+        "plan" -> QuickStartAction(
+            title = stringResource(Res.string.chat_quick_plan_title),
+            subtitle = stringResource(Res.string.chat_quick_plan_desc),
+            icon = Icons.Default.Rule,
+            onClick = { onSelectQuickPrompt("Plan a feature") },
         )
 
-        "build" -> listOf(
-            "Create a new Compose Multiplatform component" to "Adaptive UI card with 3D elevation.",
-            "Write a unit test suite for tokens" to "WCAG AA contrast checking test.",
+        "build" -> QuickStartAction(
+            title = stringResource(Res.string.chat_quick_build_title),
+            subtitle = stringResource(Res.string.chat_quick_build_desc),
+            icon = Icons.Default.Build,
+            onClick = { onSelectQuickPrompt("Build a feature") },
         )
 
-        "review" -> listOf(
-            "Review pull request git diff" to "Inspect changes for potential regressions.",
-            "Analyze memory usage and security gates" to "Identify non-sandboxed operations.",
+        "review" -> QuickStartAction(
+            title = stringResource(Res.string.chat_quick_review_title),
+            subtitle = stringResource(Res.string.chat_quick_review_desc),
+            icon = Icons.Default.Search,
+            onClick = { onSelectQuickPrompt("Review code") },
         )
 
-        else -> listOf(
-            "How does Compose Multiplatform work?" to "Learn shared UI cross-platform mechanics.",
-            "Explain Linux Sandbox isolation" to "Understand how tools run securely.",
+        else -> QuickStartAction(
+            title = stringResource(Res.string.chat_quick_ask_title),
+            subtitle = stringResource(Res.string.chat_quick_ask_desc),
+            icon = Icons.AutoMirrored.Filled.Chat,
+            onClick = { onSelectQuickPrompt("Ask a question") },
         )
     }
+
+    val actions = listOf(
+        modeAction,
+        QuickStartAction(
+            title = stringResource(Res.string.chat_quick_image_title),
+            subtitle = stringResource(Res.string.chat_quick_image_desc),
+            painter = painterResource(Res.drawable.ic_image),
+            onClick = onAttachImage ?: { onSelectQuickPrompt("Ask about an image") },
+        ),
+        QuickStartAction(
+            title = stringResource(Res.string.chat_quick_file_title),
+            subtitle = stringResource(Res.string.chat_quick_file_desc),
+            painter = painterResource(Res.drawable.ic_file),
+            onClick = onAttachFile ?: { onSelectQuickPrompt("Analyse a file") },
+        ),
+        QuickStartAction(
+            title = stringResource(Res.string.chat_quick_project_title),
+            subtitle = stringResource(Res.string.chat_quick_project_desc),
+            icon = Icons.Default.Folder,
+            onClick = onNavigateToWorkspace ?: { onSelectQuickPrompt("Work on a project") },
+        ),
+    )
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(DoraiSpacing.LG),
+            .padding(DoraiSpacing.MD),
         contentAlignment = Alignment.Center,
     ) {
         Column(
-            modifier = Modifier.widthIn(max = 680.dp),
+            modifier = Modifier
+                .widthIn(max = 680.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Icon(
-                painter = painterResource(Res.drawable.logo),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier.size(48.dp),
+            LogoAnimation(
+                size = 64.dp,
+                animate = true,
             )
 
             Spacer(modifier = Modifier.height(DoraiSpacing.MD))
 
             Text(
-                text = stringResource(Res.string.nav_brand_title),
+                text = stringResource(Res.string.chat_empty_title),
                 color = colors.text,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
@@ -1180,32 +1575,33 @@ private fun ChatEmptyState(
 
             Spacer(modifier = Modifier.height(DoraiSpacing.LG))
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(DoraiSpacing.SM),
-            ) {
-                quickStarts.forEach { (title, subtitle) ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(colors.surface)
-                            .border(1.dp, colors.line, RoundedCornerShape(14.dp))
-                            .clickable { onSelectQuickPrompt(title) }
-                            .padding(DoraiSpacing.MD),
-                    ) {
-                        Column {
-                            Text(
-                                text = title,
-                                color = colors.text,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
-                            )
-                            Text(
-                                text = subtitle,
-                                color = colors.muted,
-                                fontSize = 12.5.sp,
-                            )
+            if (widthClass.isCompact) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    actions.forEach { action ->
+                        QuickStartCard(action = action)
+                    }
+                }
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    actions.chunked(2).forEach { pair ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            pair.forEach { action ->
+                                Box(modifier = Modifier.weight(1f)) {
+                                    QuickStartCard(action = action)
+                                }
+                            }
+                            if (pair.size == 1) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
                         }
                     }
                 }

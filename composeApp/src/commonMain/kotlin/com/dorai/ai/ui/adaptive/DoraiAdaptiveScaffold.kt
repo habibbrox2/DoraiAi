@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
+import com.dorai.ai.ui.components.LogoAnimation
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.logo
 import dorai.composeapp.generated.resources.nav_brand_title
@@ -293,13 +294,10 @@ private fun DoraiNavRail(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Brand logo mark (34dp)
-        Icon(
-            painter = painterResource(Res.drawable.logo),
-            contentDescription = stringResource(Res.string.nav_brand_title),
-            tint = Color.Unspecified,
-            modifier = Modifier
-                .size(34.dp)
-                .padding(bottom = 4.dp),
+        LogoAnimation(
+            size = 34.dp,
+            animate = true,
+            modifier = Modifier.padding(bottom = 4.dp),
         )
 
         Spacer(modifier = Modifier.height(DoraiSpacing.MD))
@@ -428,11 +426,9 @@ private fun DoraiPermanentNavDrawer(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
-            Icon(
-                painter = painterResource(Res.drawable.logo),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier.size(34.dp),
+            LogoAnimation(
+                size = 34.dp,
+                animate = true,
             )
             Spacer(modifier = Modifier.width(DoraiSpacing.MD))
             Text(

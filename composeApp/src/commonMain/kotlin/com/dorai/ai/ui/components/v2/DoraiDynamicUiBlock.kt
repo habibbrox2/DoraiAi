@@ -82,6 +82,16 @@ fun DoraiDynamicUiBlock(
             .border(1.dp, colors.info, shape)
             .padding(DoraiSpacing.MD),
     ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = DoraiSpacing.XS),
+        ) {
+            DoraiStatusBadge(
+                text = "Interactive reply",
+                color = colors.info,
+            )
+        }
+
         Text(
             text = model.title,
             color = colors.text,

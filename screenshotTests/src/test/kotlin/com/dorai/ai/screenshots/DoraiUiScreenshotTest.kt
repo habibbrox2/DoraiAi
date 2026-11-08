@@ -33,7 +33,7 @@ import org.junit.Rule
 import org.junit.Test
 
 /**
- * Screenshot tests for all kai-ui component types and realistic screen scenarios.
+ * Screenshot tests for all dorai-ui component types and realistic screen scenarios.
  */
 @OptIn(ExperimentalResourceApi::class)
 class DoraiUiScreenshotTest {
@@ -475,7 +475,7 @@ class DoraiUiScreenshotTest {
 
     @Test
     fun scenario_quizInProgress_light() {
-        val kaiUiContent = "```kai-ui\n" +
+        val doraiUiContent = "```dorai-ui\n" +
             """{"type":"column","children":[""" +
             """{"type":"text","value":"Brain Teaser #4","style":"headline","bold":true},""" +
             """{"type":"progress","value":0.4,"label":"4 of 10"},""" +
@@ -500,7 +500,7 @@ class DoraiUiScreenshotTest {
                     actions = ScreenshotTestData.chatEmptyState.actions,
                     history = persistentListOf(
                         History(id = "1", role = History.Role.USER, content = "Give me a brain teaser quiz"),
-                        History(id = "2", role = History.Role.ASSISTANT, content = kaiUiContent),
+                        History(id = "2", role = History.Role.ASSISTANT, content = doraiUiContent),
                     ),
                     isInteractiveMode = true,
                 ),

@@ -1,4 +1,4 @@
-﻿@file:OptIn(kotlin.time.ExperimentalTime::class)
+@file:OptIn(kotlin.time.ExperimentalTime::class)
 
 // Pure builders for the chat system prompt. Every input is passed explicitly — no DI,
 // no suspend, no resource loading, no Clock — so tests can call `buildChatSystemPrompt`
@@ -23,7 +23,7 @@ enum class SystemPromptVariant {
     /**
      * Trimmed prompt for on-device LiteRT plain chat — only sections a 2-4B Gemma can
      * coherently attend to. Soul + basic memory guidance + runtime `## Context`. Drops
-     * memory category dumps, scheduled tasks, Structured Learning guidance, and kai-ui
+     * memory category dumps, scheduled tasks, Structured Learning guidance, and dorai-ui
      * modes (the latter is also hidden from the UI for on-device services — see
      * `ChatScreen.kt`).
      */
@@ -43,7 +43,7 @@ internal data class ChatPromptRuntimeContext(
     val providerName: String,
 )
 
-/** Which kai-ui section, if any, to render. */
+/** Which dorai-ui section, if any, to render. */
 internal enum class ChatPromptUiMode { NONE, DYNAMIC_UI, INTERACTIVE_UI }
 
 /**
@@ -73,7 +73,7 @@ private const val LOCAL_MEMORY_BUDGET_CHARS = 2_000
 /**
  * One-line honesty guard composed into every chat variant. Targets the two observed
  * failure modes: (1) the model inventing tool outputs / file contents instead of
- * admitting a tool returned nothing readable, and (2) kai-ui buttons whose labels
+ * admitting a tool returned nothing readable, and (2) dorai-ui buttons whose labels
  * imply operations the callback can't actually perform (downloads, exports, etc.).
  * No header — a single sentence doesn't earn a `##` section.
  */
@@ -390,12 +390,12 @@ private fun StringBuilder.appendContextSection(runtime: ChatPromptRuntimeContext
 
 private fun StringBuilder.appendDynamicUiSection() {
     append("\n## Dynamic UI\n")
-    append("You can enhance your chat responses with interactive UI elements using kai-ui blocks. ")
+    append("You can enhance your chat responses with interactive UI elements using dorai-ui blocks. ")
     append("Proactively use them whenever you need input from the user — don't just ask in plain text if a form, selector, or buttons would be more natural. ")
     append("For example, if the user asks you to help plan a trip, present destination options as buttons; if you need preferences, show a form; if presenting choices, use interactive cards. ")
-    append("Use kai-ui whenever collecting data, offering choices, presenting structured information, or guiding multi-step workflows. ")
-    append("You can mix kai-ui blocks with regular markdown text naturally — use markdown for explanations and kai-ui for interactive elements.\n\n")
-    append(KAI_UI_COMPONENT_CATALOG)
+    append("Use dorai-ui whenever collecting data, offering choices, presenting structured information, or guiding multi-step workflows. ")
+    append("You can mix dorai-ui blocks with regular markdown text naturally — use markdown for explanations and dorai-ui for interactive elements.\n\n")
+    append(DORAI_UI_COMPONENT_CATALOG)
     append("Layout tips:\n")
     append("- Put buttons INSIDE cards, directly below related content — never group all buttons separately at the bottom\n")
     append("- Use rows for groups of buttons or chips — rows wrap automatically, so any number of items is fine\n")
@@ -407,10 +407,10 @@ private fun StringBuilder.appendInteractiveUiSection() {
     append("\n## Interactive UI Mode (ACTIVE)\n")
     append("The user turned on interactive UI, so your answer is rendered as an interactive screen inside the chat. ")
     append("Your ENTIRE response MUST be a single ```dorai-ui code fence containing valid JSON. Absolutely NO text before or after the code fence. No conversational intro, no outro, no markdown outside the ```dorai-ui fence. Just the single ```dorai-ui block.\n\n")
-    append(KAI_UI_COMPONENT_CATALOG)
+    append(DORAI_UI_COMPONENT_CATALOG)
     append("Rules:\n")
     append("- Output ONLY a single ```dorai-ui code fence containing valid JSON. Absolutely NO text outside the code fence.\n")
-    append("- Each response is a COMPLETE screen layout. Include all content and actions in one kai-ui block.\n")
+    append("- Each response is a COMPLETE screen layout. Include all content and actions in one dorai-ui block.\n")
     append("- Always include clear primary action buttons so the user can proceed.\n")
     append("- Every screen MUST have at least one interactive element with a callback action (button, countdown with expiry action, etc.). A screen without any callback is a dead end the user cannot proceed from.\n")
     append("- Use headline text for screen titles. Structure screens with cards for grouping related content.\n")
@@ -433,12 +433,12 @@ private fun StringBuilder.appendInteractiveUiSection() {
 }
 
 /**
- * Pre-computed kai-ui component catalog text — shared between [appendDynamicUiSection]
+ * Pre-computed dorai-ui component catalog text — shared between [appendDynamicUiSection]
  * and [appendInteractiveUiSection]. Pre-building the ~3KB of static text once (instead
  * of re-running ~30 `append` calls per message) is the main reason this is a top-level
  * val rather than a helper function.
  */
-private val KAI_UI_COMPONENT_CATALOG: String = buildString {
+private val DORAI_UI_COMPONENT_CATALOG: String = buildString {
     append("Format: wrap a JSON object in ```dorai-ui fences.\n\n")
     append("Components: column, row, card, box, text, button, text_input, checkbox, switch, select, radio_group, slider, chip_group, table, list, divider, image, icon, code, progress, countdown, alert, tabs, accordion, quote, badge, stat, avatar.\n")
     append("- text: {\"type\":\"text\",\"value\":\"...\",\"style\":\"headline|title|body|caption\",\"bold\":true,\"color\":\"primary|secondary|error\"} — do NOT use markdown formatting (**, *, #, etc.) in text values; use the bold/italic/style properties instead\n")

@@ -279,9 +279,9 @@ class ChatViewModel(
             try {
                 dataRepository.ask(strippedQuestion, files, uiSubmission, activeSkillId)
 
-                // Auto-retry in interactive mode if the response has no valid kai-ui
+                // Auto-retry in interactive mode if the response has no valid dorai-ui
                 if (_state.value.isInteractiveMode) {
-                    doraiRyIfNoValidKaiUi()
+                    retryIfNoValidDoraiUi()
                 }
 
                 _state.update {
@@ -354,7 +354,7 @@ class ChatViewModel(
         return localNetworkPermissionController.requestPermission()
     }
 
-    private suspend fun doraiRyIfNoValidKaiUi(maxRetries: Int = 2) {
+    private suspend fun retryIfNoValidDoraiUi(maxRetries: Int = 2) {
         repeat(maxRetries) {
             currentCoroutineContext().ensureActive()
             val lastAssistant = dataRepository.chatHistory.value.lastRenderedAssistant() ?: return
@@ -368,7 +368,7 @@ class ChatViewModel(
             val errorDetail = if (errorBlock != null) {
                 "JSON parse error in: ${errorBlock.rawJson.take(200)}"
             } else {
-                "No kai-ui code fence found in your response."
+                "No dorai-ui code fence found in your response."
             }
             val retryMessage = "[SYSTEM] Your previous response failed to render as interactive UI. $errorDetail " +
                 "Remember: respond with ONLY a single ```dorai-ui code fence containing valid JSON. No text outside the fence."

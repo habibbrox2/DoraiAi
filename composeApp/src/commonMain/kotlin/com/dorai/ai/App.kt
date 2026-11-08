@@ -21,9 +21,7 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Density
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
+import androidx.navigation.compose.rememberNavController
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.compose.setSingletonImageLoaderFactory
@@ -39,24 +37,17 @@ import com.dorai.ai.tools.SetupPermissionHandler
 import com.dorai.ai.ui.adaptive.DoraiAppShell
 import com.dorai.ai.ui.adaptive.DoraiDestination
 import com.dorai.ai.ui.adaptive.rememberDoraiAppShellState
-import com.dorai.ai.ui.chat.ChatScreen
 import com.dorai.ai.ui.chat.ChatViewModel
 import com.dorai.ai.ui.chat.DoraiChatScreenConnected
 import com.dorai.ai.ui.components.FullScreenImageHost
-import com.dorai.ai.ui.dashboard.DashboardScreen
 import com.dorai.ai.ui.home.DoraiHomeScreen
 import com.dorai.ai.ui.home.HomeChatSummary
 import com.dorai.ai.ui.home.HomeUiState
 import com.dorai.ai.ui.rememberSandboxAwareUriHandler
-import com.dorai.ai.ui.settings.DoraiSettingsScreen
 import com.dorai.ai.ui.settings.DoraiSettingsScreenConnected
 import com.dorai.ai.ui.settings.SettingsCategory
-import com.dorai.ai.ui.settings.SettingsScreen
 import com.dorai.ai.ui.settings.SettingsTab
-import com.dorai.ai.ui.workspace.DoraiWorkspaceScreen
 import com.dorai.ai.ui.workspace.DoraiWorkspaceScreenConnected
-import com.dorai.ai.ui.workspace.WorkspaceProjectItem
-import com.dorai.ai.ui.workspace.WorkspaceScreen
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.marc_apps.tts.TextToSpeechInstance
@@ -108,7 +99,7 @@ data class Build(val project: String = "")
  */
 @Composable
 fun App(
-    navController: NavHostController,
+    navController: NavHostController = rememberNavController(),
     lightColorScheme: ColorScheme = com.dorai.ai.ui.LightColorScheme,
     darkColorScheme: ColorScheme = com.dorai.ai.ui.DarkColorScheme,
     textToSpeech: TextToSpeechInstance? = null,
@@ -205,187 +196,81 @@ private fun AppContent(
                 val themeViewModel: ThemeViewModel = koinViewModel()
                 val chatUiState by chatViewModel.state.collectAsStateWithLifecycle()
                 val themeState by themeViewModel.state.collectAsStateWithLifecycle()
-                val isUiV2 by appSettings.uiV2Flow.collectAsStateWithLifecycle()
 
-                if (isUiV2) {
-                    val shellState = rememberDoraiAppShellState(initialDestination = DoraiDestination.Home)
-                    val pendingApprovalsCount = chatUiState.pendingToolConfirmations.size
-                    var currentSettingsCategory by remember { mutableStateOf(SettingsCategory.General) }
+                val shellState = rememberDoraiAppShellState(initialDestination = DoraiDestination.Home)
+                val pendingApprovalsCount = chatUiState.pendingToolConfirmations.size
+                var currentSettingsCategory by remember { mutableStateOf(SettingsCategory.General) }
 
-                    val activeService = chatUiState.availableServices.firstOrNull()
-                    val currentModelName = activeService?.serviceName ?: "Free FAST"
-                    val isModelLocal = activeService?.serviceId == "ollama" || activeService?.serviceId == "litert"
+                val activeService = chatUiState.availableServices.firstOrNull()
+                val currentModelName = activeService?.serviceName ?: "Free FAST"
+                val isModelLocal = activeService?.serviceId == "ollama" || activeService?.serviceId == "litert"
 
-                    val homeState = remember(chatUiState, currentModelName, isModelLocal) {
-                        HomeUiState(
-                            isWorkspaceSetupDone = true,
-                            runningCount = if (chatUiState.isLoading) 1 else 0,
-                            waitingApprovalCount = chatUiState.pendingToolConfirmations.size,
-                            currentModelName = currentModelName,
-                            isModelLocal = isModelLocal,
-                            isSandboxRunning = true,
-                            recentChats = chatUiState.savedConversations.take(3).map {
-                                HomeChatSummary(it.id, it.title, "Updated recently")
-                            },
-                        )
-                    }
-
-                    DoraiAppShell(
-                        waitingApprovalsCount = pendingApprovalsCount,
-                        shellState = shellState,
-                        homeContent = {
-                            DoraiHomeScreen(
-                                state = homeState,
-                                onNavigateToChat = {
-                                    shellState.navigateTo(DoraiDestination.Chat)
-                                },
-                                onNavigateToWorkspace = {
-                                    shellState.navigateTo(DoraiDestination.Workspace)
-                                },
-                                onOpenConversation = { id ->
-                                    chatViewModel.loadConversation(id)
-                                    shellState.navigateTo(DoraiDestination.Chat)
-                                },
-                                onOpenModels = {
-                                    currentSettingsCategory = SettingsCategory.Providers
-                                    shellState.navigateTo(DoraiDestination.Settings)
-                                },
-                            )
-                        },
-                        chatContent = {
-                            DoraiChatScreenConnected(
-                                viewModel = chatViewModel,
-                                textToSpeech = textToSpeech,
-                                onNavigateToDashboard = {
-                                    shellState.navigateTo(DoraiDestination.Home)
-                                },
-                                onNavigateToSettings = {
-                                    shellState.navigateTo(DoraiDestination.Settings)
-                                },
-                            )
-                        },
-                        workspaceContent = {
-                            DoraiWorkspaceScreenConnected()
-                        },
-                        settingsContent = {
-                            DoraiSettingsScreenConnected(
-                                activeCategory = currentSettingsCategory,
-                                onCategoryChanged = { currentSettingsCategory = it },
-                                selectedThemeId = themeState.selectedThemeId,
-                                onThemeSelected = { themeViewModel.selectTheme(it) },
-                                currentThemeStyle = themeState.activeStyle,
-                                onThemeStyleSelected = { themeViewModel.setThemeStyle(it) },
-                                androidUpdateContent = androidUpdateContent,
-                            )
+                val homeState = remember(chatUiState, currentModelName, isModelLocal) {
+                    HomeUiState(
+                        isWorkspaceSetupDone = true,
+                        runningCount = if (chatUiState.isLoading) 1 else 0,
+                        waitingApprovalCount = chatUiState.pendingToolConfirmations.size,
+                        currentModelName = currentModelName,
+                        isModelLocal = isModelLocal,
+                        isSandboxRunning = true,
+                        recentChats = chatUiState.savedConversations.take(3).map {
+                            HomeChatSummary(it.id, it.title, "Updated recently")
                         },
                     )
-                } else {
-                    NavHost(
-                        navController,
-                        startDestination = Home,
-                        modifier = Modifier.background(MaterialTheme.colorScheme.background),
-                    ) {
-                        composable<Dashboard> {
-                            PlatformBackHandler(true) {
-                                navController.navigate(Home) {
-                                    popUpTo(Home)
-                                    launchSingleTop = true
-                                }
-                            }
-                            DashboardScreen(
-                                chatUiState = chatUiState,
-                                isBuildAvailable = currentPlatform is Platform.Mobile.Android,
-                                isSandboxAvailable = currentPlatform is Platform.Mobile.Android,
-                                isDesignAvailable = true,
-                                onNavigateToChat = {
-                                    navController.navigate(Home) {
-                                        popUpTo(Home)
-                                        launchSingleTop = true
-                                    }
-                                },
-                                onOpenBuild = { project ->
-                                    navController.navigate(Build(project)) {
-                                        popUpTo(Home)
-                                        launchSingleTop = true
-                                    }
-                                },
-                                onOpenSettings = { tab ->
-                                    navController.navigate(Settings.of(tab)) {
-                                        popUpTo(Home)
-                                        launchSingleTop = true
-                                    }
-                                },
-                                onStartDesign = { prompt ->
-                                    chatViewModel.startDesignChat(prompt)
-                                    navController.navigate(Home) {
-                                        popUpTo(Home)
-                                        launchSingleTop = true
-                                    }
-                                },
-                                onOpenConversation = { id ->
-                                    chatViewModel.loadConversation(id)
-                                    navController.navigate(Home) {
-                                        popUpTo(Home)
-                                        launchSingleTop = true
-                                    }
-                                },
-                                onNavigateBack = {
-                                    navController.navigateUp()
-                                },
-                            )
-                        }
-                        composable<Home> {
-                            ChatScreen(
-                                viewModel = chatViewModel,
-                                textToSpeech = textToSpeech,
-                                onNavigateToDashboard = {
-                                    navController.navigate(Dashboard) {
-                                        launchSingleTop = true
-                                    }
-                                },
-                                onNavigateToSettings = {
-                                    navController.navigate(Settings()) {
-                                        launchSingleTop = true
-                                    }
-                                },
-                                isSandboxAvailable = currentPlatform is Platform.Mobile.Android,
-                                isWorkspaceAvailable = currentPlatform is Platform.Mobile.Android,
-                            )
-                        }
-                        composable<Settings> { entry ->
-                            PlatformBackHandler(true) {
-                                chatViewModel.refreshSettings()
-                                navController.navigateUp()
-                            }
-                            val initialTab = Settings.tabOf(entry.toRoute<Settings>())
-                            DisposableEffect(Unit) {
-                                onDispose {
-                                    chatViewModel.refreshSettings()
-                                }
-                            }
-                            SettingsScreen(
-                                initialSettingsTab = initialTab,
-                                onNavigateBack = {
-                                    chatViewModel.refreshSettings()
-                                    navController.navigateUp()
-                                },
-                                androidUpdateContent = androidUpdateContent,
-                            )
-                        }
-                        composable<Build> { entry ->
-                            PlatformBackHandler(true) {
-                                navController.navigateUp()
-                            }
-                            val project = entry.toRoute<Build>().project
-                            WorkspaceScreen(
-                                initialProject = project,
-                                onExit = {
-                                    navController.navigateUp()
-                                },
-                            )
-                        }
-                    }
                 }
+
+                DoraiAppShell(
+                    waitingApprovalsCount = pendingApprovalsCount,
+                    shellState = shellState,
+                    homeContent = {
+                        DoraiHomeScreen(
+                            state = homeState,
+                            onNavigateToChat = {
+                                shellState.navigateTo(DoraiDestination.Chat)
+                            },
+                            onNavigateToWorkspace = {
+                                shellState.navigateTo(DoraiDestination.Workspace)
+                            },
+                            onOpenConversation = { id ->
+                                chatViewModel.loadConversation(id)
+                                shellState.navigateTo(DoraiDestination.Chat)
+                            },
+                            onOpenModels = {
+                                currentSettingsCategory = SettingsCategory.Providers
+                                shellState.navigateTo(DoraiDestination.Settings)
+                            },
+                        )
+                    },
+                    chatContent = {
+                        DoraiChatScreenConnected(
+                            viewModel = chatViewModel,
+                            textToSpeech = textToSpeech,
+                            onNavigateToDashboard = {
+                                shellState.navigateTo(DoraiDestination.Home)
+                            },
+                            onNavigateToSettings = {
+                                shellState.navigateTo(DoraiDestination.Settings)
+                            },
+                            onNavigateToWorkspace = {
+                                shellState.navigateTo(DoraiDestination.Workspace)
+                            },
+                        )
+                    },
+                    workspaceContent = {
+                        DoraiWorkspaceScreenConnected()
+                    },
+                    settingsContent = {
+                        DoraiSettingsScreenConnected(
+                            activeCategory = currentSettingsCategory,
+                            onCategoryChanged = { currentSettingsCategory = it },
+                            selectedThemeId = themeState.selectedThemeId,
+                            onThemeSelected = { themeViewModel.selectTheme(it) },
+                            currentThemeStyle = themeState.activeStyle,
+                            onThemeStyleSelected = { themeViewModel.setThemeStyle(it) },
+                            androidUpdateContent = androidUpdateContent,
+                        )
+                    },
+                )
             }
         }
     }

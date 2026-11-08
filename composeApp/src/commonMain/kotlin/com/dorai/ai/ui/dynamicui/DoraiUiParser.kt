@@ -1,13 +1,13 @@
-﻿package com.dorai.ai.ui.dynamicui
+package com.dorai.ai.ui.dynamicui
 
 import com.dorai.ai.data.SharedJson
 import kotlinx.collections.immutable.toImmutableList
 
 /**
- * Decodes the body of a `kai-ui` fenced JSON block into a [DoraiUiNode].
+ * Decodes the body of a `dorai-ui` fenced JSON block into a [DoraiUiNode].
  *
  * The parse pipeline runs each block through three stages:
- *   1. **Block extraction** — the markdown parser locates `kai-ui` fences and hands the raw
+ *   1. **Block extraction** — the markdown parser locates `dorai-ui` fences and hands the raw
  *      body to [parseUiBlockBody].
  *   2. **Syntax repair** — fix broken key syntax, trim mismatched braces, close truncated JSON
  *      so `parseToJsonElement` can succeed.
@@ -25,14 +25,14 @@ object DoraiUiParser {
     // Public API
     // =========================================================================================
 
-    /** Result of decoding a kai-ui fence body; consumed by the markdown parser. */
+    /** Result of decoding a dorai-ui fence body; consumed by the markdown parser. */
     sealed interface UiBlockResult {
         data class Ui(val node: DoraiUiNode, val rawJson: String) : UiBlockResult
         data class Error(val rawJson: String) : UiBlockResult
     }
 
     /**
-     * Decode the raw body of a kai-ui fence (everything between the opening and closing triple
+     * Decode the raw body of a dorai-ui fence (everything between the opening and closing triple
      * backticks). Returns either a decoded [DoraiUiNode] or an [UiBlockResult.Error] carrying the
      * repaired JSON so callers can display it as a code block.
      *
@@ -58,7 +58,7 @@ object DoraiUiParser {
         return try {
             parseSingleNode(json)?.let { UiBlockResult.Ui(it, json) }
         } catch (e: Exception) {
-            println("kai-ui parse error: ${e.message} | ${json.take(500)}")
+            println("dorai-ui parse error: ${e.message} | ${json.take(500)}")
             UiBlockResult.Error(json)
         }
     }
@@ -71,7 +71,7 @@ object DoraiUiParser {
     private fun tryParseLine(line: String): DoraiUiNode? = runCatching { parseSingleNode(line) }.getOrNull()
         ?: runCatching { parseSingleNode(sanitizeJson(line)) }.getOrNull()
         ?: run {
-            println("kai-ui parse error: failed to deserialize line | ${line.take(500)}")
+            println("dorai-ui parse error: failed to deserialize line | ${line.take(500)}")
             null
         }
 

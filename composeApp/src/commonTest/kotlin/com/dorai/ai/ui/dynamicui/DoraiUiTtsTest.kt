@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.dynamicui
+package com.dorai.ai.ui.dynamicui
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -12,11 +12,11 @@ class DoraiUiTtsTest {
     }
 
     @Test
-    fun `speaks text nodes and button labels inside a kai-ui fence`() {
+    fun `speaks text nodes and button labels inside a dorai-ui fence`() {
         val message = """
             Intro line.
 
-            ```kai-ui
+            ```dorai-ui
             {"type":"column","children":[
               {"type":"text","value":"Pick a cheese"},
               {"type":"button","label":"Mozzarella","action":{"type":"callback","event":"pick","data":{"choice":"moz"}}},
@@ -39,7 +39,7 @@ class DoraiUiTtsTest {
     @Test
     fun `speaks alert title and message`() {
         val message = """
-            ```kai-ui
+            ```dorai-ui
             {"type":"alert","title":"Heads up","message":"Pick carefully"}
             ```
         """.trimIndent()
@@ -52,7 +52,7 @@ class DoraiUiTtsTest {
     @Test
     fun `skips code nodes`() {
         val message = """
-            ```kai-ui
+            ```dorai-ui
             {"type":"code","code":"val x = 42","language":"kotlin"}
             ```
         """.trimIndent()

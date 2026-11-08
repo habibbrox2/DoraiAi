@@ -158,7 +158,7 @@ class SqlConversationPersistence(
         if (!withoutFilesJson.exceedsUtf8Budget(MAX_MESSAGE_JSON_BYTES)) return withoutFilesJson
 
         // Everything that can still be large goes: the reasoning trace, and the copy
-        // of the source message a kai-ui submission carries. What is left is bounded
+        // of the source message a dorai-ui submission carries. What is left is bounded
         // by MAX_MESSAGE_TEXT_CHARS, so the row is guaranteed to fit.
         val trimmed = withoutFiles.copy(
             content = withoutFiles.content.take(MAX_MESSAGE_TEXT_CHARS),
