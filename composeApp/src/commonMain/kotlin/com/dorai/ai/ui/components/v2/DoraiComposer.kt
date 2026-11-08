@@ -42,6 +42,7 @@ import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -246,7 +247,7 @@ fun DoraiComposer(
             }
         }
 
-        if (value.isNotBlank()) {
+        if (value.isNotBlank() && (value.length > 120 || (maxContextTokens != null && maxContextTokens > 0))) {
             val estimatedTokens = ((value.length + 3) / 4).coerceAtLeast(1)
             val tokenText = if (maxContextTokens != null && maxContextTokens > 0) {
                 val limitDisplay = if (maxContextTokens >= 1_000_000) {
@@ -262,8 +263,9 @@ fun DoraiComposer(
             }
             Text(
                 text = tokenText,
-                color = colors.muted,
-                fontSize = 11.sp,
+                color = colors.muted.copy(alpha = 0.7f),
+                fontSize = 10.5.sp,
+                fontFamily = FontFamily.Monospace,
                 modifier = Modifier.padding(start = 48.dp, bottom = 4.dp),
             )
         }

@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.settings
+package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -260,7 +259,7 @@ private fun TtsSettingsSection(appLanguage: AppLanguage) {
         )
 
         Text(text = "${if (appLanguage == AppLanguage.Bengali) "কথার গতি (Speed)" else "Speech speed (Speed)"}: ${(rate * 100).roundToInt()}%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
-        Slider(
+        DoraiSlider(
             value = rate,
             onValueChange = { rate = it },
             valueRange = 0.7f..1.3f,
@@ -269,7 +268,7 @@ private fun TtsSettingsSection(appLanguage: AppLanguage) {
 
         Spacer(Modifier.height(8.dp))
         Text(text = "${if (appLanguage == AppLanguage.Bengali) "কণ্ঠের স্বর (Pitch)" else "Voice pitch (Pitch)"}: ${(pitch * 100).roundToInt()}%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
-        Slider(
+        DoraiSlider(
             value = pitch,
             onValueChange = { pitch = it },
             valueRange = 0.8f..1.2f,
@@ -278,7 +277,7 @@ private fun TtsSettingsSection(appLanguage: AppLanguage) {
 
         Spacer(Modifier.height(8.dp))
         Text(text = "${if (appLanguage == AppLanguage.Bengali) "শব্দের মাত্রা (Volume)" else "Volume"}: ${(volume * 100).roundToInt()}%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
-        Slider(
+        DoraiSlider(
             value = volume,
             onValueChange = { volume = it },
             valueRange = 0.0f..1.0f,

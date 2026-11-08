@@ -18,10 +18,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.automirrored.filled.Rule
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.HelpOutline
-import androidx.compose.material.icons.filled.Rule
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,8 +62,8 @@ data class AgentMode(
 )
 
 val DefaultAgentModes = listOf(
-    AgentMode("ask", Res.string.mode_ask, Res.string.mode_ask_desc, Icons.Default.HelpOutline),
-    AgentMode("plan", Res.string.mode_plan, Res.string.mode_plan_desc, Icons.Default.Rule),
+    AgentMode("ask", Res.string.mode_ask, Res.string.mode_ask_desc, Icons.AutoMirrored.Filled.HelpOutline),
+    AgentMode("plan", Res.string.mode_plan, Res.string.mode_plan_desc, Icons.AutoMirrored.Filled.Rule),
     AgentMode("build", Res.string.mode_build, Res.string.mode_build_desc, Icons.Default.Build),
     AgentMode("review", Res.string.mode_review, Res.string.mode_review_desc, Icons.Default.CheckCircle),
 )

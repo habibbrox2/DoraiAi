@@ -1,4 +1,4 @@
-﻿@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.dorai.ai.ui.settings
 
@@ -1014,7 +1014,7 @@ private fun ConfiguredServiceCardContent(
                     }
                     if (displayModelId != null) {
                         TooltipBox(
-                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                             tooltip = { Text(text = displayModelId, style = DoraiTypography.bodyMedium) },
                             state = rememberTooltipState(),
                         ) {

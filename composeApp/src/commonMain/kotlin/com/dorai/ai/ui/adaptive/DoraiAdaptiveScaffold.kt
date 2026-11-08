@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -37,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -83,10 +86,14 @@ fun DoraiAdaptiveScaffold(
         CompositionLocalProvider(LocalDoraiWindowWidthClass provides widthClass) {
             when (widthClass) {
                 DoraiWindowWidthClass.Compact -> {
+                    val density = LocalDensity.current
+                    val imeVisible = WindowInsets.ime.getBottom(density) > 0
+
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .statusBarsPadding(),
+                            .statusBarsPadding()
+                            .imePadding(),
                     ) {
                         Box(
                             modifier = Modifier
@@ -95,11 +102,13 @@ fun DoraiAdaptiveScaffold(
                         ) {
                             content()
                         }
-                        DoraiBottomNavBar(
-                            selectedDestination = selectedDestination,
-                            onDestinationSelected = onDestinationSelected,
-                            waitingApprovalsCount = waitingApprovalsCount,
-                        )
+                        if (!imeVisible) {
+                            DoraiBottomNavBar(
+                                selectedDestination = selectedDestination,
+                                onDestinationSelected = onDestinationSelected,
+                                waitingApprovalsCount = waitingApprovalsCount,
+                            )
+                        }
                     }
                 }
 
@@ -107,7 +116,8 @@ fun DoraiAdaptiveScaffold(
                     Row(
                         modifier = Modifier
                             .fillMaxSize()
-                            .statusBarsPadding(),
+                            .statusBarsPadding()
+                            .imePadding(),
                     ) {
                         DoraiNavRail(
                             selectedDestination = selectedDestination,
@@ -128,7 +138,8 @@ fun DoraiAdaptiveScaffold(
                     Row(
                         modifier = Modifier
                             .fillMaxSize()
-                            .statusBarsPadding(),
+                            .statusBarsPadding()
+                            .imePadding(),
                     ) {
                         DoraiPermanentNavDrawer(
                             selectedDestination = selectedDestination,

@@ -105,9 +105,7 @@ import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
-import dorai.composeapp.generated.resources.github_mark
 import dorai.composeapp.generated.resources.settings_ai_mistakes_warning
-import dorai.composeapp.generated.resources.settings_documentation
 import dorai.composeapp.generated.resources.settings_licenses
 import dorai.composeapp.generated.resources.settings_licenses_close
 import dorai.composeapp.generated.resources.settings_tab_account
@@ -118,7 +116,6 @@ import dorai.composeapp.generated.resources.settings_tab_general
 import dorai.composeapp.generated.resources.settings_tab_sandbox
 import dorai.composeapp.generated.resources.settings_tab_services
 import dorai.composeapp.generated.resources.settings_tab_tools
-import dorai.composeapp.generated.resources.settings_version
 import dorai.composeapp.generated.resources.snackbar_email_removed
 import dorai.composeapp.generated.resources.snackbar_mcp_server_removed
 import dorai.composeapp.generated.resources.snackbar_memory_deleted
@@ -584,79 +581,14 @@ internal fun BottomInfo() {
         text = stringResource(Res.string.settings_ai_mistakes_warning),
         style = DoraiTypography.bodySmall,
         textAlign = TextAlign.Center,
-        color = LocalDesignColorTokens.current.textPrimary,
+        color = LocalDesignColorTokens.current.textSecondary,
+        modifier = Modifier.padding(vertical = 4.dp),
     )
-
-    Spacer(Modifier.height(8.dp))
-
-    val uriHandler = LocalUriHandler.current
-
-    // FlowRow, not Row: at large font scales the three items no longer fit on one
-    // line, and a Row would squeeze the documentation link into a column of single
-    // words that runs off the bottom of the screen.
-    FlowRow(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Text(
-            stringResource(Res.string.settings_version, Version.appVersion),
-            modifier = Modifier.align(Alignment.CenterVertically),
-            style = DoraiTypography.bodyMedium,
-            color = LocalDesignColorTokens.current.textPrimary,
-        )
-
-        IconButton(
-            onClick = { uriHandler.openUri("https://github.com/habibbrox2/DoraiAi") },
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .handCursor()
-                .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp),
-        ) {
-            Icon(
-                painter = painterResource(Res.drawable.github_mark),
-                contentDescription = "GitHub repository",
-                tint = LocalDesignColorTokens.current.textPrimary,
-                modifier = Modifier.size(24.dp),
-            )
-        }
-
-        TextButton(
-            onClick = { uriHandler.openUri("https://github.com/habibbrox2/DoraiAi/tree/main/docs") },
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .handCursor(),
-        ) {
-            Text(
-                text = stringResource(Res.string.settings_documentation),
-                style = DoraiTypography.bodyMedium,
-                color = AccentPrimary,
-            )
-        }
-
-        var showLicenses by remember { mutableStateOf(false) }
-        TextButton(
-            onClick = { showLicenses = true },
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .handCursor(),
-        ) {
-            Text(
-                text = stringResource(Res.string.settings_licenses),
-                style = DoraiTypography.bodyMedium,
-                color = AccentPrimary,
-            )
-        }
-        if (showLicenses) {
-            LicensesDialog(onDismiss = { showLicenses = false })
-        }
-    }
-
-    Spacer(Modifier.height(8.dp))
 }
 
 // The Android app ships GPL-2.0 PRoot and LGPL-3.0 talloc binaries, whose licenses
 // require their text and a source offer to travel with the app itself.
+@Suppress("UnusedPrivateMember")
 @Composable
 private fun LicensesDialog(onDismiss: () -> Unit) {
     val notices by produceState<String?>(null) {

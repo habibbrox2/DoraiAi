@@ -100,120 +100,22 @@ fun DoraiChatScreenConnected(
     }
     val reasoningByAssistantId = timelineData.reasoningSegmentsByAssistantId
 
-    val messages = remember(uiState.history, uiState.pendingToolConfirmations, uiState.isSpeaking, uiState.isSpeakingContentId, reasoningByAssistantId) {
-        uiState.history.mapNotNull { item ->
-            when (item.role) {
-                History.Role.USER -> {
-                    ChatMessageItem(
-                        id = item.id,
-                        isUser = true,
-                        text = item.content,
-                        attachments = item.attachments,
-                    )
-                }
-
-                History.Role.ASSISTANT -> {
-                    if (item.content.isEmpty() && item.toolCalls.isNullOrEmpty() && !item.isThinking) return@mapNotNull null
-
-                    val tools = item.toolCalls?.map { tc ->
-                        val pending = uiState.pendingToolConfirmations.find { it.toolCallId == tc.id }
-                        ToolExecutionModel(
-                            toolName = tc.name,
-                            argsSummary = tc.arguments,
-                            state = if (pending != null) ToolExecutionState.PendingApproval else ToolExecutionState.Completed,
-                            commandText = tc.arguments,
-                            toolCallId = tc.id,
-                        )
-                    } ?: emptyList()
-
-                    val dynamicUi = item.uiSubmission?.let { sub ->
-                        DynamicUiModel(
-                            title = "Form Submission",
-                            description = sub.sourceContent.takeIf { it.isNotBlank() },
-                            options = sub.values.map { (k, v) -> DynamicUiOption(id = k, title = "$k: $v") },
-                            isLocked = true,
-                        )
-                    }
-
-                    val reasoning = reasoningByAssistantId[item.id] ?: emptyList()
-                    val isSpeakingThis = uiState.isSpeaking && uiState.isSpeakingContentId == item.id
-
-                    ChatMessageItem(
-                        id = item.id,
-                        isUser = false,
-                        text = item.content,
-                        modelName = item.fallbackServiceName ?: uiState.availableServices.firstOrNull()?.serviceName,
-                        isModelLocal = false,
-                        toolExecutions = tools,
-                        dynamicUi = dynamicUi,
-                        attachments = item.attachments,
-                        reasoningSegments = reasoning,
-                        isThinking = item.isThinking,
-                        isSpeaking = isSpeakingThis,
-                        fallbackServiceName = item.fallbackServiceName,
-                    )
-                }
-
-                History.Role.TOOL_EXECUTING -> {
-                    val pending = uiState.pendingToolConfirmations.find { it.toolCallId == item.toolCallId }
-                    val isPending = pending != null || item.pendingToolConfirmation
-                    ChatMessageItem(
-                        id = item.id,
-                        isUser = false,
-                        text = "",
-                        modelName = "Tool Execution",
-                        isModelLocal = false,
-                        toolExecutions = listOf(
-                            ToolExecutionModel(
-                                toolName = item.toolName ?: pending?.toolName ?: "Tool",
-                                argsSummary = pending?.arguments ?: item.content,
-                                state = if (isPending) ToolExecutionState.PendingApproval else ToolExecutionState.Running,
-                                commandText = pending?.arguments ?: item.content,
-                                toolCallId = item.toolCallId ?: pending?.toolCallId ?: item.id,
-                            ),
-                        ),
-                    )
-                }
-
-                History.Role.TOOL -> {
-                    ChatMessageItem(
-                        id = item.id,
-                        isUser = false,
-                        text = "",
-                        modelName = "Tool Result",
-                        isModelLocal = false,
-                        toolExecutions = listOf(
-                            ToolExecutionModel(
-                                toolName = item.toolName ?: "Tool",
-                                outputText = item.content,
-                                state = ToolExecutionState.Completed,
-                                toolCallId = item.toolCallId ?: item.id,
-                            ),
-                        ),
-                    )
-                }
-
-                History.Role.TOOL_CONFIRMATION -> {
-                    val pending = uiState.pendingToolConfirmations.find { it.toolCallId == item.toolCallId }
-                    ChatMessageItem(
-                        id = item.id,
-                        isUser = false,
-                        text = "",
-                        modelName = "Tool Approval",
-                        isModelLocal = false,
-                        toolExecutions = listOf(
-                            ToolExecutionModel(
-                                toolName = item.toolName ?: pending?.toolName ?: "Tool",
-                                argsSummary = pending?.arguments ?: item.content,
-                                state = ToolExecutionState.PendingApproval,
-                                commandText = pending?.arguments ?: item.content,
-                                toolCallId = item.toolCallId ?: pending?.toolCallId ?: item.id,
-                            ),
-                        ),
-                    )
-                }
-            }
-        }
+    val messages = remember(
+        uiState.history,
+        uiState.pendingToolConfirmations,
+        uiState.isSpeaking,
+        uiState.isSpeakingContentId,
+        reasoningByAssistantId,
+        uiState.availableServices,
+    ) {
+        groupHistoryToChatMessages(
+            history = uiState.history,
+            pendingToolConfirmations = uiState.pendingToolConfirmations,
+            reasoningByAssistantId = reasoningByAssistantId,
+            isSpeaking = uiState.isSpeaking,
+            isSpeakingContentId = uiState.isSpeakingContentId,
+            availableServices = uiState.availableServices,
+        )
     }
 
     val conversations = remember(uiState.savedConversations, uiState.pendingConversationDeletion) {
