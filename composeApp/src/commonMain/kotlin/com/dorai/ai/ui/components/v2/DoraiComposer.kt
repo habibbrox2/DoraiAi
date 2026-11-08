@@ -78,6 +78,7 @@ fun DoraiComposer(
     files: ImmutableList<PlatformFile> = persistentListOf(),
     onRemoveFile: ((PlatformFile) -> Unit)? = null,
     placeholder: String = stringResource(Res.string.composer_input_hint),
+    maxContextTokens: Int? = null,
 ) {
     val colors = LocalDoraiColors.current
     val boxShape = RoundedCornerShape(26.dp)
@@ -243,6 +244,28 @@ fun DoraiComposer(
                     )
                 }
             }
+        }
+
+        if (value.isNotBlank()) {
+            val estimatedTokens = ((value.length + 3) / 4).coerceAtLeast(1)
+            val tokenText = if (maxContextTokens != null && maxContextTokens > 0) {
+                val limitDisplay = if (maxContextTokens >= 1_000_000) {
+                    "${maxContextTokens / 1_000_000}M"
+                } else if (maxContextTokens >= 1_000) {
+                    "${maxContextTokens / 1_000}k"
+                } else {
+                    "$maxContextTokens"
+                }
+                "~$estimatedTokens / $limitDisplay tokens"
+            } else {
+                "~$estimatedTokens tokens"
+            }
+            Text(
+                text = tokenText,
+                color = colors.muted,
+                fontSize = 11.sp,
+                modifier = Modifier.padding(start = 48.dp, bottom = 4.dp),
+            )
         }
     }
 }

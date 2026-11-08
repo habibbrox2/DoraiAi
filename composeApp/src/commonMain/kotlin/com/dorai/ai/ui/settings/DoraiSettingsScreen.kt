@@ -24,12 +24,20 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -51,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -58,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.Version
+import com.dorai.ai.data.AppSettings
 import com.dorai.ai.linux.LinuxDistro
 import com.dorai.ai.theme.data.ThemePalette
 import com.dorai.ai.theme.data.ThemePresets
@@ -95,20 +105,22 @@ import dorai.composeapp.generated.resources.settings_timeline_desc
 import dorai.composeapp.generated.resources.settings_timeline_toggle
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 enum class SettingsCategory(
     val id: String,
     val titleRes: StringResource,
+    val icon: ImageVector,
 ) {
-    General("general", Res.string.settings_cat_general),
-    Appearance("appearance", Res.string.settings_cat_appearance),
-    Agent("agent", Res.string.settings_cat_agent),
-    Providers("providers", Res.string.settings_cat_providers),
-    Tools("tools", Res.string.settings_cat_tools),
-    Mcp("mcp", Res.string.settings_cat_mcp),
-    Sandbox("sandbox", Res.string.settings_cat_sandbox),
-    Account("account", Res.string.settings_cat_account),
+    General("general", Res.string.settings_cat_general, Icons.Default.Tune),
+    Appearance("appearance", Res.string.settings_cat_appearance, Icons.Default.Palette),
+    Agent("agent", Res.string.settings_cat_agent, Icons.Default.SmartToy),
+    Providers("providers", Res.string.settings_cat_providers, Icons.Default.VpnKey),
+    Tools("tools", Res.string.settings_cat_tools, Icons.Default.Build),
+    Mcp("mcp", Res.string.settings_cat_mcp, Icons.Default.Extension),
+    Sandbox("sandbox", Res.string.settings_cat_sandbox, Icons.Default.Terminal),
+    Account("account", Res.string.settings_cat_account, Icons.Default.AccountCircle),
 }
 
 /**
@@ -305,12 +317,21 @@ private fun SettingsCategoryListPane(
                     .clickable { onCategorySelected(cat) }
                     .padding(horizontal = 12.dp, vertical = 10.dp),
             ) {
-                Text(
-                    text = stringResource(cat.titleRes),
-                    color = if (isSelected) colors.primary else colors.text,
-                    fontSize = 14.sp,
-                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = cat.icon,
+                        contentDescription = null,
+                        tint = if (isSelected) colors.primary else colors.muted,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = stringResource(cat.titleRes),
+                        color = if (isSelected) colors.primary else colors.text,
+                        fontSize = 14.sp,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                    )
+                }
             }
         }
     }
@@ -375,7 +396,10 @@ private fun SettingsCategoryContent(
                     onThemeStyleSelected = onThemeStyleSelected,
                 )
 
-                SettingsCategory.Agent -> AgentContent(uiState = uiState, actions = actions)
+                SettingsCategory.Agent -> {
+                    AgentPolicyHeader()
+                    AgentContent(uiState = uiState, actions = actions)
+                }
 
                 SettingsCategory.Providers -> ServicesContent(uiState = uiState, actions = actions)
 
@@ -433,6 +457,7 @@ private fun SettingsCategoryContent(
                 }
 
                 SettingsCategory.Account -> {
+                    AccountProfileCard()
                     DataControlContent(uiState = uiState, actions = actions)
                     AccountPlanContent(uiState = uiState)
                 }
@@ -448,7 +473,10 @@ private fun SettingsCategoryContent(
                     onThemeStyleSelected = onThemeStyleSelected,
                 )
 
-                SettingsCategory.Agent -> AgentSettingsContent()
+                SettingsCategory.Agent -> {
+                    AgentPolicyHeader()
+                    AgentSettingsContent()
+                }
 
                 SettingsCategory.Providers -> ProvidersSettingsContent()
 
@@ -458,7 +486,10 @@ private fun SettingsCategoryContent(
 
                 SettingsCategory.Sandbox -> SandboxSettingsContent()
 
-                SettingsCategory.Account -> AccountSettingsContent()
+                SettingsCategory.Account -> {
+                    AccountProfileCard()
+                    AccountSettingsContent()
+                }
             }
         }
     }
@@ -765,6 +796,212 @@ private fun AccountSettingsContent() {
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun AgentPolicyHeader(
+    appSettings: AppSettings = koinInject(),
+) {
+    val colors = LocalDoraiColors.current
+    var defaultMode by remember { mutableStateOf(appSettings.getDefaultAgentMode()) }
+    var policy by remember { mutableStateOf(appSettings.getApprovalPolicy()) }
+    var timelineEnabled by remember { mutableStateOf(appSettings.isTimelineEnabled()) }
+    var autoReadEnabled by remember { mutableStateOf(appSettings.isAutoReadEnabled()) }
+
+    val modes = listOf(
+        Triple("ask", "Ask", "Q&A only. No tools run."),
+        Triple("plan", "Plan", "Reads files and writes a plan. Changes nothing."),
+        Triple("build", "Build", "Edits files and runs commands, asking before risky steps."),
+        Triple("review", "Review", "Reads code and provides comments."),
+    )
+
+    val policies = listOf(
+        "all" to "Ask for everything",
+        "edits" to "Ask for edits and shell",
+        "read" to "Auto read-only",
+    )
+
+    // Card 1: Default Mode
+    SettingsSectionCard {
+        Text("Default mode", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.SM),
+        ) {
+            modes.forEach { (id, label, _) ->
+                val isSelected = defaultMode == id
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(if (isSelected) colors.primary else colors.surface2)
+                        .border(1.dp, if (isSelected) colors.primary else colors.line, CircleShape)
+                        .clickable {
+                            defaultMode = id
+                            appSettings.setDefaultAgentMode(id)
+                        }
+                        .padding(horizontal = 14.dp, vertical = 7.dp),
+                ) {
+                    Text(
+                        text = label,
+                        color = if (isSelected) colors.onPrimary else colors.text,
+                        fontSize = 13.sp,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                    )
+                }
+            }
+        }
+        val currentDesc = modes.firstOrNull { it.first == defaultMode }?.third.orEmpty()
+        if (currentDesc.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(DoraiSpacing.XS))
+            Text(currentDesc, color = colors.muted, fontSize = 12.5.sp)
+        }
+    }
+
+    // Card 2: Approval Policy
+    SettingsSectionCard {
+        Text("Approval policy", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.SM),
+        ) {
+            policies.forEach { (id, label) ->
+                val isSelected = policy == id
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(if (isSelected) colors.primary else colors.surface2)
+                        .border(1.dp, if (isSelected) colors.primary else colors.line, CircleShape)
+                        .clickable {
+                            policy = id
+                            appSettings.setApprovalPolicy(id)
+                        }
+                        .padding(horizontal = 12.dp, vertical = 7.dp),
+                ) {
+                    Text(
+                        text = label,
+                        color = if (isSelected) colors.onPrimary else colors.text,
+                        fontSize = 12.5.sp,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                    )
+                }
+            }
+        }
+    }
+
+    // Card 3: Activity Timeline Toggle
+    SettingsSectionCard {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Activity timeline", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text("Show steps as a rail in the Agent activity view", color = colors.muted, fontSize = 12.5.sp)
+            }
+            Switch(
+                checked = timelineEnabled,
+                onCheckedChange = {
+                    timelineEnabled = it
+                    appSettings.setTimelineEnabled(it)
+                },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = colors.onPrimary,
+                    checkedTrackColor = colors.primary,
+                ),
+            )
+        }
+    }
+
+    // Card 4: Auto-run read-only tools
+    SettingsSectionCard {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Auto-run read-only tools", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text("read_file and search run without asking for approval", color = colors.muted, fontSize = 12.5.sp)
+            }
+            Switch(
+                checked = autoReadEnabled,
+                onCheckedChange = {
+                    autoReadEnabled = it
+                    appSettings.setAutoReadEnabled(it)
+                },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = colors.onPrimary,
+                    checkedTrackColor = colors.primary,
+                ),
+            )
+        }
+    }
+}
+
+@Composable
+private fun AccountProfileCard() {
+    val colors = LocalDoraiColors.current
+    var syncEnabled by remember { mutableStateOf(false) }
+
+    SettingsSectionCard {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(colors.surface2),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = null,
+                    tint = colors.primary,
+                    modifier = Modifier.size(28.dp),
+                )
+            }
+            Spacer(modifier = Modifier.width(DoraiSpacing.MD))
+            Column {
+                Text(
+                    text = "Local Device Account",
+                    color = colors.text,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = "Offline-first · Zero remote tracking",
+                    color = colors.muted,
+                    fontSize = 13.sp,
+                )
+            }
+        }
+    }
+
+    SettingsSectionCard {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Local-only storage", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text("When active, all chat data and keys stay strictly on this device", color = colors.muted, fontSize = 12.5.sp)
+            }
+            Switch(
+                checked = !syncEnabled,
+                onCheckedChange = { syncEnabled = !it },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = colors.onPrimary,
+                    checkedTrackColor = colors.primary,
+                ),
+            )
         }
     }
 }

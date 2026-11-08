@@ -38,6 +38,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Close
@@ -195,6 +196,8 @@ fun DoraiChatScreen(
     onTogglePinConversation: ((String) -> Unit)? = null,
     onDeleteConversation: ((String) -> Unit)? = null,
     onRenameConversation: ((String, String) -> Unit)? = null,
+    onNavigateToSettings: (() -> Unit)? = null,
+    maxContextTokens: Int? = null,
 ) {
     val widthClass = LocalDoraiWindowWidthClass.current
     val colors = LocalDoraiColors.current
@@ -258,6 +261,8 @@ fun DoraiChatScreen(
                 smsDrafts = smsDrafts,
                 onSendSms = onSendSms,
                 onDiscardSms = onDiscardSms,
+                onNavigateToSettings = onNavigateToSettings,
+                maxContextTokens = maxContextTokens,
             )
         }
     } else {
@@ -303,6 +308,8 @@ fun DoraiChatScreen(
                     smsDrafts = smsDrafts,
                     onSendSms = onSendSms,
                     onDiscardSms = onDiscardSms,
+                    onNavigateToSettings = onNavigateToSettings,
+                    maxContextTokens = maxContextTokens,
                 )
             },
             modifier = modifier,
@@ -497,6 +504,8 @@ private fun ChatDetailPane(
     smsDrafts: ImmutableList<SmsDraft> = persistentListOf(),
     onSendSms: ((String) -> Unit)? = null,
     onDiscardSms: ((String) -> Unit)? = null,
+    onNavigateToSettings: (() -> Unit)? = null,
+    maxContextTokens: Int? = null,
 ) {
     val colors = LocalDoraiColors.current
     val widthClass = LocalDoraiWindowWidthClass.current
@@ -540,7 +549,7 @@ private fun ChatDetailPane(
                 }
             }
 
-            // Model pill
+            // Model pill with dropdown chevron (matching prototype)
             Box(
                 modifier = Modifier
                     .clip(CircleShape)
@@ -559,13 +568,45 @@ private fun ChatDetailPane(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     DoraiProviderBadge(isLocal = isModelLocal, iconOnly = true)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = "Choose model",
+                        tint = colors.muted,
+                        modifier = Modifier.size(16.dp),
+                    )
                 }
             }
 
-            // Active mode badge (hidden on compact)
+            // Active mode badge (shown on medium/expanded/large, prototype line 399)
             if (!widthClass.isCompact) {
                 Spacer(modifier = Modifier.width(DoraiSpacing.SM))
-                DoraiStatusBadge(text = selectedModeId.uppercase(), color = colors.primary)
+                val activeMode = com.dorai.ai.ui.components.v2.DefaultAgentModes.firstOrNull { it.id == selectedModeId }
+                val activeModeIcon = activeMode?.icon ?: Icons.AutoMirrored.Filled.Chat
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(colors.surface)
+                        .border(1.dp, colors.line, CircleShape)
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = activeModeIcon,
+                            contentDescription = null,
+                            tint = colors.primary,
+                            modifier = Modifier.size(14.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = selectedModeId.replaceFirstChar { it.uppercase() },
+                            color = colors.muted,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -576,6 +617,16 @@ private fun ChatDetailPane(
                     contentDescription = stringResource(Res.string.new_chat_content_description),
                     tint = colors.text,
                 )
+            }
+
+            if (widthClass.isCompact && onNavigateToSettings != null) {
+                IconButton(onClick = onNavigateToSettings) {
+                    Icon(
+                        imageVector = Icons.Default.AccountCircle,
+                        contentDescription = "Account & Settings",
+                        tint = colors.text,
+                    )
+                }
             }
         }
 
@@ -690,6 +741,7 @@ private fun ChatDetailPane(
                 onMicClick = onMicClick,
                 files = files,
                 onRemoveFile = onRemoveFile,
+                maxContextTokens = maxContextTokens,
             )
         }
     }
