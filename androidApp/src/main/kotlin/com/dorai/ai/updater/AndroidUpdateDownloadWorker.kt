@@ -14,17 +14,19 @@ import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 import java.security.MessageDigest
+import java.util.zip.ZipFile
 
 /**
- * Downloads a release APK into app-private storage and publishes it only after SHA-256 passes.
+ * Downloads a release APK into app-private storage and verifies integrity incrementally.
  *
- * The worker never launches an installer. The foreground UI must independently verify the APK
- * signer and request the user's explicit confirmation through Android's package installer.
+ * Enforces HTTPS, strictly validates redirect domains against trusted GitHub hosts, calculates
+ * SHA-256 on-the-fly during network streaming, verifies archive structure, and promotes atomically.
  */
 internal class AndroidUpdateDownloadWorker(
     appContext: Context,
     params: WorkerParameters,
 ) : CoroutineWorker(appContext, params) {
+
     override suspend fun doWork(): Result {
         val downloadUrl = inputData.getString(KEY_URL) ?: return failure("Missing download URL")
         val expectedSha256 = inputData.getString(KEY_SHA256) ?: return failure("Missing checksum")
@@ -36,20 +38,25 @@ internal class AndroidUpdateDownloadWorker(
         val updateDirectory = File(applicationContext.filesDir, "updates").apply { mkdirs() }
         val partialFile = File(updateDirectory, "$assetName.part")
         val finalFile = File(updateDirectory, assetName)
+
         return try {
             partialFile.delete()
             val connection = openReleaseConnection(downloadUrl)
+            val digest = MessageDigest.getInstance("SHA-256")
             try {
                 val contentLength = connection.contentLengthLong
                 if (contentLength > MAX_DOWNLOAD_BYTES) {
                     return failure("Update APK exceeds the maximum allowed size")
                 }
+
                 connection.inputStream.use { input ->
                     partialFile.outputStream().buffered().use { output ->
-                        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                        val buffer = ByteArray(BUFFER_SIZE)
                         var total = 0L
                         while (true) {
-                            if (isStopped) return Result.failure(workDataOf(KEY_ERROR to "Download cancelled"))
+                            if (isStopped) {
+                                return Result.failure(workDataOf(KEY_ERROR to "Download cancelled"))
+                            }
                             val count = input.read(buffer)
                             if (count < 0) break
                             total += count
@@ -57,6 +64,7 @@ internal class AndroidUpdateDownloadWorker(
                                 return failure("Update APK exceeds the maximum allowed size")
                             }
                             output.write(buffer, 0, count)
+                            digest.update(buffer, 0, count)
                             setProgress(
                                 workDataOf(
                                     KEY_BYTES_DOWNLOADED to total,
@@ -64,43 +72,51 @@ internal class AndroidUpdateDownloadWorker(
                                 ),
                             )
                         }
+                        output.flush()
                     }
                 }
             } finally {
                 connection.disconnect()
             }
 
-            val actualSha256 = partialFile.inputStream().use { input ->
-                val digest = MessageDigest.getInstance("SHA-256")
-                val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                while (true) {
-                    val count = input.read(buffer)
-                    if (count < 0) break
-                    digest.update(buffer, 0, count)
-                }
-                digest.digest().joinToString("") { "%02x".format(it) }
-            }
-            if (!actualSha256.equals(expectedSha256, ignoreCase = true)) {
+            val expectedDigestBytes = expectedSha256.chunked(2)
+                .map { it.toInt(16).toByte() }
+                .toByteArray()
+            if (!MessageDigest.isEqual(expectedDigestBytes, digest.digest())) {
                 return failure("Downloaded APK checksum mismatch")
             }
+
+            if (!isValidApkArchive(partialFile)) {
+                return failure("Downloaded file is not a valid APK archive")
+            }
+
             if (finalFile.exists() && !finalFile.delete()) {
                 return failure("Unable to replace previous update file")
             }
             if (!partialFile.renameTo(finalFile)) {
                 return failure("Unable to finalize downloaded APK")
             }
+
             Result.success(workDataOf(KEY_FILE_PATH to finalFile.absolutePath))
         } catch (exception: Exception) {
-            if (runAttemptCount < MAX_RETRIES) {
+            if (runAttemptCount < MAX_RETRIES && !isStopped) {
                 Result.retry()
             } else {
                 failure(exception.message ?: "Update download failed")
             }
         } finally {
-            // Never leave a partial or checksum-failed APK available to an installer.
-            if (partialFile.exists()) partialFile.delete()
+            if (partialFile.exists()) {
+                partialFile.delete()
+            }
         }
     }
+
+    private fun isValidApkArchive(file: File): Boolean = runCatching {
+        ZipFile(file).use { zip ->
+            zip.getEntry("AndroidManifest.xml") != null &&
+                zip.getEntry("classes.dex") != null
+        }
+    }.getOrDefault(false)
 
     private fun openReleaseConnection(initialUrl: String): HttpURLConnection {
         var currentUrl = initialUrl
@@ -155,6 +171,7 @@ internal class AndroidUpdateDownloadWorker(
         private const val MAX_DOWNLOAD_BYTES = 200L * 1024L * 1024L
         private const val MAX_REDIRECTS = 5
         private const val MAX_RETRIES = 3
+        private const val BUFFER_SIZE = 65536
         private val REDIRECT_CODES = setOf(301, 302, 303, 307, 308)
         private val ALLOWED_DOWNLOAD_HOSTS = setOf(
             "github.com",

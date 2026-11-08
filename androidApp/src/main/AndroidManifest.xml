@@ -70,15 +70,13 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.updateprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/update_file_paths" />
-        </provider>
+        <receiver
+            android:name="com.dorai.ai.updater.AndroidUpdateInstallStatusReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.dorai.ai.updater.INSTALL_STATUS" />
+            </intent-filter>
+        </receiver>
         <service
             android:name="com.dorai.ai.DaemonService"
             android:exported="false"
