@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "packageName": "com.dorai.ai",
-  "versionName": "2.1.19",
-  "versionCode": 231,
-  "assetName": "DORAI-AI-v2.1.19-Android.apk",
-  "downloadUrl": "https://github.com/habibbrox2/DoraiAi/releases/download/v2.1.19/DORAI-AI-v2.1.19-Android.apk",
-  "sha256": "0497df6091a9ed70af393c204579ec0c0276b0fb6228fc5b652f8f1d8f5490c9",
+  "versionName": "2.1.20",
+  "versionCode": 232,
+  "assetName": "DORAI-AI-v2.1.20-Android.apk",
+  "downloadUrl": "https://github.com/habibbrox2/DoraiAi/releases/download/v2.1.20/DORAI-AI-v2.1.20-Android.apk",
+  "sha256": "0967ad8aa6027b3854b2e6fa664534b26e7586d69fc57251ac3b60e79b45cb53",
   "signerCertificateSha256": "df9578135f0bd6a9ba6e9b625c3fd98f947125ad1c8f6f846aa1fced2a096ef2"
 }
