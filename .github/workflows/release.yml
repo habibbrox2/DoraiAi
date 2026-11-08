@@ -315,6 +315,11 @@ jobs:
     needs: preflight
     continue-on-error: true
     runs-on: ubuntu-latest
+    env:
+      KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      ENFORCE_RELEASE_SIGNING: "true"
     steps:
       - name: Checkout main
         uses: actions/checkout@v4

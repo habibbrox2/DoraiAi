@@ -39,13 +39,22 @@ The project is built primarily with **Kotlin Multiplatform** and **Compose Multi
 
 ## Screenshots
 
-The following screenshots are captured from the production Compose UI using the DORAI theme engine.
+Captured directly from production Compose Multiplatform UI running the modern DORAI UI v2 architecture and theme engine.
+
+### Mobile (Compact)
 
 <p align="center">
-  <img src="screenshots/mobile-2.png" width="180" alt="DORAI AI chat with messages">
-  <img src="screenshots/mobile-3.png" width="180" alt="DORAI AI dynamic UI in chat">
-  <img src="screenshots/mobile-4.png" width="180" alt="DORAI AI settings overview">
-  <img src="screenshots/mobile-7.png" width="180" alt="DORAI AI sandbox settings">
+  <img src="screenshots/v2-home.png" width="200" alt="DORAI AI v2 Home Dashboard">
+  <img src="screenshots/v2-chat.png" width="200" alt="DORAI AI v2 Chat with Markdown, Thinking and Tool Cards">
+  <img src="screenshots/v2-workspace.png" width="200" alt="DORAI AI v2 Workspace and Project Control">
+  <img src="screenshots/v2-settings.png" width="200" alt="DORAI AI v2 Settings and Theme Customization">
+</p>
+
+### Tablet & Expanded (List-Detail Adaptive)
+
+<p align="center">
+  <img src="screenshots/v2-tablet-home.png" width="410" alt="DORAI AI v2 Tablet Home Dashboard">
+  <img src="screenshots/v2-tablet-chat.png" width="410" alt="DORAI AI v2 Tablet Chat Two-Pane List-Detail">
 </p>
 
 ## AI providers and model services
