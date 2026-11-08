@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.workspace
+package com.dorai.ai.ui.workspace
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,8 +22,9 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.CompareArrows
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.CompareArrows
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -31,7 +32,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -222,7 +222,7 @@ fun WorkspaceCodeEditor(
             }
             IconButton(onClick = onUndo, enabled = canUndo) {
                 Icon(
-                    imageVector = Icons.Filled.Undo,
+                    imageVector = Icons.AutoMirrored.Filled.Undo,
                     contentDescription = stringResource(Res.string.workspace_editor_undo),
                     tint = if (canUndo) colorTokens.textSecondary else colorTokens.textMuted,
                 )
@@ -239,7 +239,7 @@ fun WorkspaceCodeEditor(
             if (showDiffRun) {
                 IconButton(onClick = { onDiffToggled(!isDiffMode) }) {
                     Icon(
-                        imageVector = Icons.Filled.CompareArrows,
+                        imageVector = Icons.AutoMirrored.Filled.CompareArrows,
                         contentDescription = stringResource(Res.string.workspace_editor_toggle_diff),
                         tint = if (isDiffMode) DesignTokens.AccentPrimary else colorTokens.textSecondary,
                     )

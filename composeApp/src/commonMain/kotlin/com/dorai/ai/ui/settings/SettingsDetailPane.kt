@@ -144,7 +144,6 @@ fun SettingsDetailPane(
                     }
                 }
             }
-            item { Spacer(Modifier.height(16.dp)) }
             item {
                 Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                     BottomInfo()

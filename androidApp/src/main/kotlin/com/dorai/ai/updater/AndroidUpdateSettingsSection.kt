@@ -6,14 +6,22 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -29,11 +37,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.dorai.ai.Version
 import com.dorai.ai.data.AppSettings
+import com.dorai.ai.ui.DoraiTypography
+import com.dorai.ai.ui.handCursor
+import com.dorai.ai.ui.theme.DesignTokens
+import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -273,87 +290,295 @@ internal fun AndroidUpdateSettingsSection(appSettings: AppSettings) {
         }
     }
 
-    Card(modifier = Modifier.fillMaxWidth()) {
+    val colors = LocalDesignColorTokens.current
+    val cardShape = RoundedCornerShape(16.dp)
+    val subCardShape = RoundedCornerShape(12.dp)
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(cardShape)
+            .background(colors.surfaceRaised)
+            .border(1.dp, colors.borderSubtle, cardShape)
+            .padding(16.dp),
+    ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            Text("App updates", style = MaterialTheme.typography.titleMedium)
-
+            // Header Row: Title + Auto-update Toggle
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Auto download and install", style = MaterialTheme.typography.titleSmall)
                     Text(
-                        "New releases download automatically and open Android's installer. " +
-                            "Android still asks you to confirm the install.",
-                        style = MaterialTheme.typography.bodySmall,
+                        text = "App updates",
+                        style = DoraiTypography.titleMedium,
+                        color = colors.textPrimary,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = "Automatic download & install for official releases",
+                        style = DoraiTypography.bodySmall,
+                        color = colors.textSecondary,
                     )
                 }
-                Switch(
-                    checked = autoUpdateEnabled,
-                    onCheckedChange = { enabled ->
-                        autoUpdateEnabled = enabled
-                        appSettings.setAutoUpdateEnabled(enabled)
-                        if (enabled) {
-                            if (!context.packageManager.canRequestPackageInstalls()) {
-                                installerMessage =
-                                    "Allow installs from this source so updates can install automatically."
-                                runCatching {
-                                    permissionLauncher.launch(
-                                        Intent(
-                                            Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
-                                            Uri.parse("package:${context.packageName}"),
-                                        ),
-                                    )
+                Spacer(Modifier.width(12.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Auto",
+                        style = DoraiTypography.labelMedium,
+                        color = if (autoUpdateEnabled) DesignTokens.PrimaryCyan else colors.textSecondary,
+                        modifier = Modifier.padding(end = 8.dp),
+                    )
+                    Switch(
+                        checked = autoUpdateEnabled,
+                        onCheckedChange = { enabled ->
+                            autoUpdateEnabled = enabled
+                            appSettings.setAutoUpdateEnabled(enabled)
+                            if (enabled) {
+                                if (!context.packageManager.canRequestPackageInstalls()) {
+                                    installerMessage =
+                                        "Allow installs from this source so updates can install automatically."
+                                    runCatching {
+                                        permissionLauncher.launch(
+                                            Intent(
+                                                Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                                                Uri.parse("package:${context.packageName}"),
+                                            ),
+                                        )
+                                    }
                                 }
+                                runCheck(auto = true, force = true)
+                            } else {
+                                installerMessage = "Automatic updates are off."
                             }
-                            runCheck(auto = true, force = true)
-                        } else {
-                            installerMessage = "Automatic updates are off."
-                        }
-                    },
-                )
-            }
-
-            Text(discoveryMessage, style = MaterialTheme.typography.bodyMedium)
-            Button(
-                onClick = { runCheck(auto = autoUpdateEnabled, force = true) },
-                enabled = !checking && !isDownloading,
-            ) {
-                Text(if (checking) "Checking…" else "Check for updates")
-            }
-
-            manifest?.let { available ->
-                Text(
-                    "Release ${available.versionName} (versionCode ${available.versionCode})",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                if (downloadedApk == null) {
-                    OutlinedButton(
-                        onClick = {
-                            installerMessage = null
-                            AndroidUpdateDownloadScheduler.enqueue(
-                                context = context,
-                                downloadUrl = available.downloadUrl,
-                                sha256 = available.sha256,
-                                assetName = available.assetName,
-                            )
                         },
-                        enabled = !isDownloading,
-                    ) {
-                        Text("Download update")
+                    )
+                }
+            }
+
+            // Version Information & Status Row
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(subCardShape)
+                    .background(colors.surfaceElevated)
+                    .border(1.dp, colors.borderSubtle, subCardShape)
+                    .padding(12.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text(
+                                text = "Installed: v${Version.appVersion}",
+                                style = DoraiTypography.labelLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                color = colors.textPrimary,
+                            )
+                            // Status badge
+                            val (badgeText, badgeBg, badgeColor) = when {
+                                checking -> Triple("Checking…", DesignTokens.Warning.copy(alpha = 0.15f), DesignTokens.Warning)
+                                isDownloading -> Triple("Downloading", DesignTokens.PrimaryCyan.copy(alpha = 0.15f), DesignTokens.PrimaryCyan)
+                                manifest != null -> Triple("Update Available", DesignTokens.PrimaryCyan.copy(alpha = 0.2f), DesignTokens.PrimaryCyan)
+                                else -> Triple("Up to date", DesignTokens.Success.copy(alpha = 0.15f), DesignTokens.Success)
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(badgeBg)
+                                    .padding(horizontal = 8.dp, vertical = 2.dp),
+                            ) {
+                                Text(
+                                    text = badgeText,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = badgeColor,
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = discoveryMessage,
+                            style = DoraiTypography.bodySmall,
+                            color = colors.textSecondary,
+                        )
                     }
-                } else {
-                    Button(onClick = { launchVerifiedInstall() }) {
-                        Text("Verify and install")
+
+                    Spacer(Modifier.width(12.dp))
+                    OutlinedButton(
+                        onClick = { runCheck(auto = autoUpdateEnabled, force = true) },
+                        enabled = !checking && !isDownloading,
+                        modifier = Modifier.handCursor(),
+                    ) {
+                        Text(if (checking) "Checking…" else "Check now")
                     }
                 }
             }
 
-            // User confirmation fallback if system prompt is dismissed or backgrounded
+            // Available Release Card (Distinct Grouping)
+            manifest?.let { available ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(subCardShape)
+                        .background(DesignTokens.PrimaryCyan.copy(alpha = 0.08f))
+                        .border(1.dp, DesignTokens.PrimaryCyan.copy(alpha = 0.35f), subCardShape)
+                        .padding(14.dp),
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "New Release Available: v${available.versionName}",
+                                    style = DoraiTypography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = colors.textPrimary,
+                                )
+                                Text(
+                                    text = "Build ${available.versionCode} • ${available.assetName}",
+                                    style = DoraiTypography.bodySmall,
+                                    color = colors.textSecondary,
+                                )
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End,
+                        ) {
+                            if (downloadedApk == null) {
+                                Button(
+                                    onClick = {
+                                        installerMessage = null
+                                        AndroidUpdateDownloadScheduler.enqueue(
+                                            context = context,
+                                            downloadUrl = available.downloadUrl,
+                                            sha256 = available.sha256,
+                                            assetName = available.assetName,
+                                        )
+                                    },
+                                    enabled = !isDownloading,
+                                    modifier = Modifier.handCursor(),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = DesignTokens.PrimaryCyan,
+                                        contentColor = DesignTokens.BrandNavy,
+                                    ),
+                                ) {
+                                    Text("Download update", fontWeight = FontWeight.SemiBold)
+                                }
+                            } else {
+                                Button(
+                                    onClick = { launchVerifiedInstall() },
+                                    modifier = Modifier.handCursor(),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = DesignTokens.Success,
+                                        contentColor = Color.White,
+                                    ),
+                                ) {
+                                    Text("Verify & Install", fontWeight = FontWeight.SemiBold)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Download Progress Container (Strong Visual Hierarchy)
+            if (isDownloading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(subCardShape)
+                        .background(colors.surfaceElevated)
+                        .border(1.dp, colors.borderSubtle, subCardShape)
+                        .padding(14.dp),
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        val pct = if (total > 0L) (bytes.toFloat() / total.toFloat()).coerceIn(0f, 1f) else 0f
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = "Downloading update…",
+                                style = DoraiTypography.labelLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                color = colors.textPrimary,
+                            )
+                            if (total > 0L) {
+                                Text(
+                                    text = "${(pct * 100).toInt()}%",
+                                    style = DoraiTypography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = DesignTokens.PrimaryCyan,
+                                )
+                            }
+                        }
+
+                        if (total > 0L) {
+                            LinearProgressIndicator(
+                                progress = { pct },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(6.dp)
+                                    .clip(CircleShape),
+                                color = DesignTokens.PrimaryCyan,
+                                trackColor = colors.borderSubtle,
+                            )
+                        } else {
+                            LinearProgressIndicator(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(6.dp)
+                                    .clip(CircleShape),
+                                color = DesignTokens.PrimaryCyan,
+                                trackColor = colors.borderSubtle,
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = if (total > 0L) "${formatBytes(bytes)} of ${formatBytes(total)}" else "Connecting…",
+                                style = DoraiTypography.bodySmall,
+                                color = colors.textSecondary,
+                            )
+                            OutlinedButton(
+                                onClick = { AndroidUpdateDownloadScheduler.cancel(context) },
+                                modifier = Modifier.handCursor(),
+                            ) {
+                                Text("Cancel")
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Session State Actions (e.g. Awaiting Confirmation fallback)
             when (val currentSession = sessionState) {
                 is AndroidUpdateSessionState.InstallState.AwaitingConfirmation -> {
                     Button(
@@ -362,60 +587,85 @@ internal fun AndroidUpdateSettingsSection(appSettings: AppSettings) {
                                 context.startActivity(currentSession.confirmationIntent)
                             }
                         },
+                        modifier = Modifier.fillMaxWidth().handCursor(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = DesignTokens.PrimaryCyan,
+                            contentColor = DesignTokens.BrandNavy,
+                        ),
                     ) {
-                        Text("Open install confirmation")
+                        Text("Open install confirmation dialog")
                     }
                 }
 
                 is AndroidUpdateSessionState.InstallState.Installing -> {
-                    Text("Installing update…", style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        text = "Installing update with system package installer…",
+                        style = DoraiTypography.bodySmall,
+                        color = DesignTokens.PrimaryCyan,
+                    )
                 }
 
                 is AndroidUpdateSessionState.InstallState.Success -> {
-                    Text(
-                        "Update succeeded! (Version ${currentSession.versionName})",
-                        color = MaterialTheme.colorScheme.primary,
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(DesignTokens.Success.copy(alpha = 0.12f))
+                            .border(1.dp, DesignTokens.Success.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                            .padding(10.dp),
+                    ) {
+                        Text(
+                            text = "Update succeeded! Running version ${currentSession.versionName}",
+                            color = DesignTokens.Success,
+                            fontWeight = FontWeight.SemiBold,
+                            style = DoraiTypography.bodySmall,
+                        )
+                    }
                 }
 
                 is AndroidUpdateSessionState.InstallState.Failed -> {
-                    Text(
-                        currentSession.reason,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(DesignTokens.Error.copy(alpha = 0.12f))
+                            .border(1.dp, DesignTokens.Error.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                            .padding(10.dp),
+                    ) {
+                        Text(
+                            text = currentSession.reason,
+                            color = DesignTokens.Error,
+                            style = DoraiTypography.bodySmall,
+                        )
+                    }
                 }
 
                 else -> Unit
             }
 
-            if (isDownloading) {
-                if (total > 0L) {
-                    LinearProgressIndicator(
-                        progress = { (bytes.toFloat() / total.toFloat()).coerceIn(0f, 1f) },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    Text(
-                        "${formatBytes(bytes)} of ${formatBytes(total)} downloaded",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                } else {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                    Text("Downloading update…", style = MaterialTheme.typography.bodySmall)
-                }
-                OutlinedButton(onClick = { AndroidUpdateDownloadScheduler.cancel(context) }) {
-                    Text("Cancel download")
-                }
-            }
-
+            // Error or status messages
             workInfos.firstOrNull { it.state == WorkInfo.State.FAILED }?.let { failed ->
                 val error = failed.outputData.getString(AndroidUpdateDownloadWorker.KEY_ERROR)
-                Text(error ?: "Update download failed.", color = MaterialTheme.colorScheme.error)
+                Text(
+                    text = error ?: "Update download failed.",
+                    color = DesignTokens.Error,
+                    style = DoraiTypography.bodySmall,
+                )
             }
             if (!isDownloading && workInfos.any { it.state == WorkInfo.State.CANCELLED }) {
-                Text("Update download cancelled.", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = "Update download was cancelled.",
+                    style = DoraiTypography.bodySmall,
+                    color = colors.textSecondary,
+                )
             }
-            installerMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+            installerMessage?.let {
+                Text(
+                    text = it,
+                    style = DoraiTypography.bodySmall,
+                    color = colors.textSecondary,
+                )
+            }
         }
     }
 }

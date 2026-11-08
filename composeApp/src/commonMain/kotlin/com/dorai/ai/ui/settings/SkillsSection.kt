@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.settings
+package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -329,7 +329,7 @@ private fun SkillCard(
                     }
                 }
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                     tooltip = { Text(text = skill.description, style = DoraiTypography.bodyMedium) },
                     state = rememberTooltipState(),
                 ) {
@@ -585,7 +585,7 @@ private fun RegistrySkillRow(
                     fontWeight = FontWeight.Medium,
                 )
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                     tooltip = { Text(text = entry.description, style = DoraiTypography.bodyMedium) },
                     state = rememberTooltipState(),
                 ) {

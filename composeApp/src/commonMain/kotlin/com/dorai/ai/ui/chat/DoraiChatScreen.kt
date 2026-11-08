@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -38,14 +39,20 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.CompareArrows
+import androidx.compose.material.icons.automirrored.filled.Rule
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -53,9 +60,13 @@ import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Rule
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
@@ -110,6 +121,7 @@ import com.dorai.ai.ui.components.v2.DynamicUiModel
 import com.dorai.ai.ui.components.v2.ToolExecutionModel
 import com.dorai.ai.ui.markdown.MarkdownContent
 import com.dorai.ai.ui.markdown.parseMarkdown
+import com.dorai.ai.ui.rememberCopyToClipboard
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.bot_message_thinking_expand_content_description
 import dorai.composeapp.generated.resources.bot_message_thinking_label
@@ -710,7 +722,8 @@ private fun ChatDetailPane(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(colors.background),
+            .background(colors.background)
+            .imePadding(),
     ) {
         // Chat Top Bar (56dp fixed height matching prototype header.top)
         Row(
@@ -954,7 +967,7 @@ private fun ChatMessageRow(
     onRunPlan: (() -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
-    val clipboardManager = androidx.compose.ui.platform.LocalClipboardManager.current
+    val copyToClipboard = rememberCopyToClipboard()
 
     if (message.isUser) {
         // User message bubble on right
@@ -1108,17 +1121,43 @@ private fun ChatMessageRow(
                 )
             }
 
-            // Embedded Tool cards
-            message.toolExecutions.forEach { tool ->
+            // Embedded Agent Activity / Tool cards
+            if (message.toolExecutions.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(DoraiSpacing.SM))
-                DoraiToolCard(
-                    model = tool,
-                    onAllowOnce = onAllowOnce?.let { cb -> { cb(tool.toolCallId) } },
-                    onAllowSession = onAllowSession?.let { cb -> { cb(tool.toolCallId) } },
-                    onDeny = onDeny?.let { cb -> { cb(tool.toolCallId) } },
-                    onRetry = onRetryTool?.let { cb -> { cb(tool.toolCallId) } },
-                    onAskFix = onAskFixTool?.let { cb -> { cb(tool.toolCallId) } },
-                )
+                if (message.toolExecutions.size > 1) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 4.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Bolt,
+                            contentDescription = null,
+                            tint = colors.info,
+                            modifier = Modifier.size(15.dp),
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "AGENT ACTIVITY · ${message.toolExecutions.size} STEPS",
+                            color = colors.muted,
+                            fontSize = 11.sp,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
+                message.toolExecutions.forEach { tool ->
+                    Spacer(modifier = Modifier.height(DoraiSpacing.XS))
+                    DoraiToolCard(
+                        model = tool,
+                        onAllowOnce = onAllowOnce?.let { cb -> { cb(tool.toolCallId) } },
+                        onAllowSession = onAllowSession?.let { cb -> { cb(tool.toolCallId) } },
+                        onDeny = onDeny?.let { cb -> { cb(tool.toolCallId) } },
+                        onRetry = onRetryTool?.let { cb -> { cb(tool.toolCallId) } },
+                        onAskFix = onAskFixTool?.let { cb -> { cb(tool.toolCallId) } },
+                    )
+                }
             }
 
             // Embedded Dynamic UI block
@@ -1131,60 +1170,62 @@ private fun ChatMessageRow(
                 )
             }
 
-            // Action row (copy, text-to-speech speaker, regenerate)
-            Row(
-                modifier = Modifier
-                    .padding(top = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                var isCopied by remember { mutableStateOf(false) }
-                LaunchedEffect(isCopied) {
-                    if (isCopied) {
-                        delay(2000)
-                        isCopied = false
-                    }
-                }
-                IconButton(
-                    onClick = {
-                        clipboardManager.setText(androidx.compose.ui.text.AnnotatedString(message.text))
-                        isCopied = true
-                    },
-                    modifier = Modifier.size(36.dp),
+            // Action row (copy, text-to-speech speaker, regenerate) for assistant response
+            if (message.text.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .padding(top = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.ContentCopy,
-                        contentDescription = stringResource(Res.string.chat_copy_message),
-                        tint = if (isCopied) colors.ok else colors.muted,
-                        modifier = Modifier.size(16.dp),
-                    )
-                }
-
-                if (onSpeak != null && message.text.isNotEmpty()) {
+                    var isCopied by remember { mutableStateOf(false) }
+                    LaunchedEffect(isCopied) {
+                        if (isCopied) {
+                            delay(2000)
+                            isCopied = false
+                        }
+                    }
                     IconButton(
-                        onClick = { onSpeak(message.id) },
+                        onClick = {
+                            copyToClipboard(message.text)
+                            isCopied = true
+                        },
                         modifier = Modifier.size(36.dp),
                     ) {
                         Icon(
-                            imageVector = if (message.isSpeaking) Icons.Default.Stop else Icons.AutoMirrored.Filled.VolumeUp,
-                            contentDescription = if (message.isSpeaking) "Stop Speaking" else "Read Aloud",
-                            tint = if (message.isSpeaking) colors.primary else colors.muted,
+                            imageVector = Icons.Default.ContentCopy,
+                            contentDescription = stringResource(Res.string.chat_copy_message),
+                            tint = if (isCopied) colors.ok else colors.muted,
                             modifier = Modifier.size(16.dp),
                         )
                     }
-                }
 
-                if (onRegenerate != null) {
-                    IconButton(
-                        onClick = onRegenerate,
-                        modifier = Modifier.size(36.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = stringResource(Res.string.chat_regenerate_message),
-                            tint = colors.muted,
-                            modifier = Modifier.size(16.dp),
-                        )
+                    if (onSpeak != null && message.text.isNotEmpty()) {
+                        IconButton(
+                            onClick = { onSpeak(message.id) },
+                            modifier = Modifier.size(36.dp),
+                        ) {
+                            Icon(
+                                imageVector = if (message.isSpeaking) Icons.Default.Stop else Icons.AutoMirrored.Filled.VolumeUp,
+                                contentDescription = if (message.isSpeaking) "Stop Speaking" else "Read Aloud",
+                                tint = if (message.isSpeaking) colors.primary else colors.muted,
+                                modifier = Modifier.size(16.dp),
+                            )
+                        }
+                    }
+
+                    if (onRegenerate != null) {
+                        IconButton(
+                            onClick = onRegenerate,
+                            modifier = Modifier.size(36.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = stringResource(Res.string.chat_regenerate_message),
+                                tint = colors.muted,
+                                modifier = Modifier.size(16.dp),
+                            )
+                        }
                     }
                 }
             }
@@ -1215,7 +1256,7 @@ fun DoraiPlanCard(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
-                imageVector = Icons.Default.Rule,
+                imageVector = Icons.AutoMirrored.Filled.Rule,
                 contentDescription = null,
                 tint = colors.primary,
                 modifier = Modifier.size(18.dp),
@@ -1289,6 +1330,7 @@ private fun DoraiReasoningBlock(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalDoraiColors.current
+    val copyToClipboard = rememberCopyToClipboard()
     var userToggled by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(!isComplete) }
     LaunchedEffect(isComplete) {
@@ -1304,14 +1346,15 @@ private fun DoraiReasoningBlock(
             .orEmpty()
     }
 
-    val blockShape = RoundedCornerShape(10.dp)
+    val blockShape = RoundedCornerShape(12.dp)
 
     Column(
         modifier = modifier
             .clip(blockShape)
-            .background(colors.surface2)
-            .border(1.dp, colors.line, blockShape),
+            .background(colors.surface2.copy(alpha = 0.6f))
+            .border(1.dp, colors.line.copy(alpha = 0.7f), blockShape),
     ) {
+        // Compact Activity Summary Bar (min-height 36dp)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1319,57 +1362,59 @@ private fun DoraiReasoningBlock(
                     userToggled = true
                     expanded = !expanded
                 }
-                .padding(horizontal = 10.dp, vertical = 8.dp),
+                .padding(horizontal = 10.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(20.dp)
                     .clip(CircleShape)
                     .background(colors.primary.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    imageVector = Icons.Default.Lightbulb,
+                    imageVector = Icons.Default.Bolt,
                     contentDescription = null,
                     tint = colors.primary,
-                    modifier = Modifier.size(14.dp),
+                    modifier = Modifier.size(12.dp),
                 )
             }
             Spacer(Modifier.width(8.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = stringResource(Res.string.bot_message_thinking_label),
-                        color = colors.text,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    if (segments.size > 1) {
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(colors.primary.copy(alpha = 0.12f))
-                                .padding(horizontal = 5.dp, vertical = 1.dp),
-                        ) {
-                            Text(
-                                text = "${segments.size} steps",
-                                color = colors.primary,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Medium,
-                            )
-                        }
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = if (!isComplete) stringResource(Res.string.bot_message_thinking_label) else "Thought process",
+                    color = colors.text,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                if (segments.size > 1) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(colors.primary.copy(alpha = 0.12f))
+                            .padding(horizontal = 4.dp, vertical = 1.dp),
+                    ) {
+                        Text(
+                            text = "${segments.size} steps",
+                            color = colors.primary,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Medium,
+                        )
                     }
                 }
                 if (!expanded && preview.isNotEmpty()) {
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = preview,
+                        text = "· $preview",
                         color = colors.muted,
-                        fontSize = 11.sp,
+                        fontSize = 11.5.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(top = 2.dp),
+                        modifier = Modifier.weight(1f, fill = false),
                     )
                 }
             }
@@ -1389,25 +1434,43 @@ private fun DoraiReasoningBlock(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 300.dp)
+                    .heightIn(max = 180.dp)
                     .verticalScroll(rememberScrollState())
                     .background(colors.surface)
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    val fullThought = segments.joinToString("\n\n")
+                    IconButton(
+                        onClick = { copyToClipboard(fullThought) },
+                        modifier = Modifier.size(20.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ContentCopy,
+                            contentDescription = "Copy thoughts",
+                            tint = colors.muted,
+                            modifier = Modifier.size(12.dp),
+                        )
+                    }
+                }
                 segments.forEachIndexed { index, segment ->
                     if (index > 0) {
                         HorizontalDivider(
-                            color = colors.line.copy(alpha = 0.6f),
+                            color = colors.line.copy(alpha = 0.4f),
                             thickness = 1.dp,
                         )
                     }
                     SelectionContainer {
                         Text(
                             text = segment,
-                            color = colors.text,
-                            fontSize = 12.5.sp,
-                            lineHeight = 18.sp,
+                            color = colors.muted,
+                            fontSize = 11.5.sp,
+                            lineHeight = 16.sp,
+                            fontFamily = FontFamily.Monospace,
                         )
                     }
                 }
@@ -1416,65 +1479,125 @@ private fun DoraiReasoningBlock(
     }
 }
 
-private data class QuickStartAction(
+private data class QuickPromptItem(
     val title: String,
-    val subtitle: String,
-    val icon: ImageVector? = null,
-    val painter: Painter? = null,
-    val onClick: () -> Unit,
+    val prompt: String,
+    val icon: ImageVector,
+    val tag: String,
 )
 
 @Composable
-private fun QuickStartCard(action: QuickStartAction) {
+private fun QuickPromptCard(
+    item: QuickPromptItem,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val colors = LocalDoraiColors.current
-    val shape = RoundedCornerShape(16.dp)
+    val shape = RoundedCornerShape(12.dp)
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 64.dp)
             .clip(shape)
             .background(colors.surface)
             .border(1.dp, colors.line, shape)
-            .clickable(onClick = action.onClick)
-            .padding(14.dp),
+            .clickable(onClick = onClick)
+            .padding(12.dp),
     ) {
-        Row(
-            verticalAlignment = Alignment.Top,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            if (action.icon != null) {
-                Icon(
-                    imageVector = action.icon,
-                    contentDescription = null,
-                    tint = colors.primary,
-                    modifier = Modifier.size(20.dp),
-                )
-            } else if (action.painter != null) {
-                Icon(
-                    painter = action.painter,
-                    contentDescription = null,
-                    tint = colors.primary,
-                    modifier = Modifier.size(20.dp),
-                )
-            }
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(colors.primary.copy(alpha = 0.12f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = null,
+                        tint = colors.primary,
+                        modifier = Modifier.size(14.dp),
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = action.title,
+                    text = item.title,
                     color = colors.text,
-                    fontSize = 14.5.sp,
+                    fontSize = 13.5.sp,
                     fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f),
                 )
-                Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = action.subtitle,
+                    text = item.tag,
                     color = colors.muted,
-                    fontSize = 12.5.sp,
-                    lineHeight = 17.sp,
+                    fontSize = 10.5.sp,
+                    fontFamily = FontFamily.Monospace,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(colors.surface2)
+                        .padding(horizontal = 5.dp, vertical = 2.dp),
                 )
             }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = item.prompt,
+                color = colors.muted,
+                fontSize = 12.sp,
+                lineHeight = 17.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
+    }
+}
+
+@Composable
+private fun ActionShortcutPill(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    painter: Painter? = null,
+) {
+    val colors = LocalDoraiColors.current
+    val shape = RoundedCornerShape(16.dp)
+
+    Row(
+        modifier = modifier
+            .clip(shape)
+            .background(colors.surface2)
+            .border(1.dp, colors.line, shape)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (icon != null) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = colors.muted,
+                modifier = Modifier.size(14.dp),
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+        } else if (painter != null) {
+            Icon(
+                painter = painter,
+                contentDescription = null,
+                tint = colors.muted,
+                modifier = Modifier.size(14.dp),
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+        }
+        Text(
+            text = label,
+            color = colors.text,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+        )
     }
 }
 
@@ -1489,57 +1612,49 @@ private fun ChatEmptyState(
     val colors = LocalDoraiColors.current
     val widthClass = LocalDoraiWindowWidthClass.current
 
-    val modeAction = when (selectedModeId) {
-        "plan" -> QuickStartAction(
-            title = stringResource(Res.string.chat_quick_plan_title),
-            subtitle = stringResource(Res.string.chat_quick_plan_desc),
-            icon = Icons.Default.Rule,
-            onClick = { onSelectQuickPrompt("Plan a feature") },
-        )
-
-        "build" -> QuickStartAction(
-            title = stringResource(Res.string.chat_quick_build_title),
-            subtitle = stringResource(Res.string.chat_quick_build_desc),
-            icon = Icons.Default.Build,
-            onClick = { onSelectQuickPrompt("Build a feature") },
-        )
-
-        "review" -> QuickStartAction(
-            title = stringResource(Res.string.chat_quick_review_title),
-            subtitle = stringResource(Res.string.chat_quick_review_desc),
-            icon = Icons.Default.Search,
-            onClick = { onSelectQuickPrompt("Review code") },
-        )
-
-        else -> QuickStartAction(
-            title = stringResource(Res.string.chat_quick_ask_title),
-            subtitle = stringResource(Res.string.chat_quick_ask_desc),
-            icon = Icons.AutoMirrored.Filled.Chat,
-            onClick = { onSelectQuickPrompt("Ask a question") },
-        )
+    val welcomeTitle = when (selectedModeId) {
+        "plan" -> "What feature would you like to plan?"
+        "build" -> "What would you like to build?"
+        "review" -> "Ready to review and optimize code."
+        else -> "How can I help you today?"
     }
 
-    val actions = listOf(
-        modeAction,
-        QuickStartAction(
-            title = stringResource(Res.string.chat_quick_image_title),
-            subtitle = stringResource(Res.string.chat_quick_image_desc),
-            painter = painterResource(Res.drawable.ic_image),
-            onClick = onAttachImage ?: { onSelectQuickPrompt("Ask about an image") },
-        ),
-        QuickStartAction(
-            title = stringResource(Res.string.chat_quick_file_title),
-            subtitle = stringResource(Res.string.chat_quick_file_desc),
-            painter = painterResource(Res.drawable.ic_file),
-            onClick = onAttachFile ?: { onSelectQuickPrompt("Analyse a file") },
-        ),
-        QuickStartAction(
-            title = stringResource(Res.string.chat_quick_project_title),
-            subtitle = stringResource(Res.string.chat_quick_project_desc),
-            icon = Icons.Default.Folder,
-            onClick = onNavigateToWorkspace ?: { onSelectQuickPrompt("Work on a project") },
-        ),
-    )
+    val modeBadge = when (selectedModeId) {
+        "plan" -> "Plan Mode · Structured breakdowns"
+        "build" -> "Build Mode · Code & automation"
+        "review" -> "Review Mode · Quality & security"
+        else -> "Ask Mode · Q&A and explanations"
+    }
+
+    val prompts = when (selectedModeId) {
+        "plan" -> listOf(
+            QuickPromptItem("Feature Roadmap", "Design a step-by-step roadmap for offline data synchronization with conflict resolution", Icons.AutoMirrored.Filled.Rule, "Roadmap"),
+            QuickPromptItem("Security Architecture", "Plan an audit for encrypted key storage and biometric authentication", Icons.Default.Security, "Security"),
+            QuickPromptItem("Refactoring Plan", "Plan modularizing app navigation into independent nested graphs with type-safe arguments", Icons.Default.Build, "Architecture"),
+            QuickPromptItem("Testing Strategy", "Create an end-to-end testing strategy across Android and Desktop targets", Icons.Default.CheckCircle, "QA"),
+        )
+
+        "build" -> listOf(
+            QuickPromptItem("UI Component", "Build a responsive animated bottom sheet with interactive gesture drag in Compose", Icons.Default.Widgets, "Component"),
+            QuickPromptItem("Data Layer", "Implement a reactive SQLDelight database repository with Flow queries", Icons.Default.Code, "Database"),
+            QuickPromptItem("Terminal Command", "Run gradle test suite and report any failing test outputs", Icons.Default.Terminal, "Automation"),
+            QuickPromptItem("State Management", "Create a type-safe UDF state machine with loading, content, and error states", Icons.Default.Build, "State"),
+        )
+
+        "review" -> listOf(
+            QuickPromptItem("Performance Audit", "Audit Compose components for unstable parameters and redundant recomposition loops", Icons.Default.Speed, "Performance"),
+            QuickPromptItem("Security Review", "Review API key handling, network security policies, and permission declarations", Icons.Default.Security, "Security"),
+            QuickPromptItem("Edge Cases & Tests", "Identify edge cases and missing unit test coverage in data repositories", Icons.Default.Search, "Testing"),
+            QuickPromptItem("Accessibility", "Check color contrast, touch target sizes, and screen reader labels across screens", Icons.Default.Visibility, "A11y"),
+        )
+
+        else -> listOf(
+            QuickPromptItem("Architecture", "Explain unidirectional data flow and state hoisting in Compose Multiplatform", Icons.Default.Lightbulb, "Concept"),
+            QuickPromptItem("Concurrency", "How do Kotlin coroutine dispatchers and structured concurrency work?", Icons.Default.Bolt, "Deep Dive"),
+            QuickPromptItem("Compare Frameworks", "Compare Ktor Client with OkHttp for Kotlin Multiplatform networking", Icons.AutoMirrored.Filled.CompareArrows, "Comparison"),
+            QuickPromptItem("Best Practices", "What are best practices for handling process death and saved state in KMP?", Icons.Default.Extension, "Guide"),
+        )
+    }
 
     Box(
         modifier = Modifier
@@ -1553,57 +1668,123 @@ private fun ChatEmptyState(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            LogoAnimation(
-                size = 64.dp,
-                animate = true,
-            )
+            // AI-Focused Welcome Hero
+            Box(
+                modifier = Modifier
+                    .size(68.dp)
+                    .clip(CircleShape)
+                    .background(colors.primary.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                LogoAnimation(
+                    size = 48.dp,
+                    animate = true,
+                )
+            }
 
             Spacer(modifier = Modifier.height(DoraiSpacing.MD))
 
             Text(
-                text = stringResource(Res.string.chat_empty_title),
+                text = welcomeTitle,
                 color = colors.text,
-                fontSize = 24.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
             )
 
+            Spacer(modifier = Modifier.height(4.dp))
+
             Text(
-                text = stringResource(Res.string.chat_tagline),
+                text = "Select a prompt suggestion below or start typing in the composer",
                 color = colors.muted,
-                fontSize = 14.sp,
+                fontSize = 13.5.sp,
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Active Mode Pill
+            Text(
+                text = modeBadge,
+                color = colors.primary,
+                fontSize = 11.5.sp,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(colors.primary.copy(alpha = 0.08f))
+                    .border(1.dp, colors.primary.copy(alpha = 0.25f), RoundedCornerShape(12.dp))
+                    .padding(horizontal = 10.dp, vertical = 4.dp),
             )
 
             Spacer(modifier = Modifier.height(DoraiSpacing.LG))
 
+            // Quick Prompt Suggestions Grid
             if (widthClass.isCompact) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    actions.forEach { action ->
-                        QuickStartCard(action = action)
+                    prompts.forEach { item ->
+                        QuickPromptCard(
+                            item = item,
+                            onClick = { onSelectQuickPrompt(item.prompt) },
+                        )
                     }
                 }
             } else {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    actions.chunked(2).forEach { pair ->
+                    prompts.chunked(2).forEach { rowItems ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            pair.forEach { action ->
-                                Box(modifier = Modifier.weight(1f)) {
-                                    QuickStartCard(action = action)
-                                }
+                            rowItems.forEach { item ->
+                                QuickPromptCard(
+                                    item = item,
+                                    onClick = { onSelectQuickPrompt(item.prompt) },
+                                    modifier = Modifier.weight(1f),
+                                )
                             }
-                            if (pair.size == 1) {
+                            if (rowItems.size == 1) {
                                 Spacer(modifier = Modifier.weight(1f))
                             }
                         }
                     }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+
+            // Quick Action Shortcuts Bar
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (onAttachImage != null) {
+                    ActionShortcutPill(
+                        label = "Image",
+                        painter = painterResource(Res.drawable.ic_image),
+                        onClick = onAttachImage,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                if (onAttachFile != null) {
+                    ActionShortcutPill(
+                        label = "File",
+                        painter = painterResource(Res.drawable.ic_file),
+                        onClick = onAttachFile,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                if (onNavigateToWorkspace != null) {
+                    ActionShortcutPill(
+                        label = "Workspace",
+                        icon = Icons.Default.Folder,
+                        onClick = onNavigateToWorkspace,
+                    )
                 }
             }
         }

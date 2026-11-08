@@ -22,18 +22,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Comment
 import androidx.compose.material.icons.filled.FileCopy
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -179,7 +179,7 @@ enum class WorkspaceTab(
     val label: org.jetbrains.compose.resources.StringResource,
     val icon: ImageVector,
 ) {
-    Agent("agent", Res.string.workspace_tab_agent, Icons.Default.Comment),
+    Agent("agent", Res.string.workspace_tab_agent, Icons.AutoMirrored.Filled.Comment),
     Editor("editor", Res.string.workspace_tab_editor, Icons.Default.Code),
     Terminal("terminal", Res.string.workspace_tab_terminal, Icons.Default.Terminal),
     Git("git", Res.string.workspace_tab_git, Icons.Default.History),
@@ -1317,7 +1317,7 @@ private fun WorkspaceGitChangesList(
                 }
             }
 
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = WorkspaceSpacing.sm),
                 color = colorTokens.borderSubtle,
             )

@@ -16,12 +16,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Construction
 import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.Notes
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -99,7 +99,7 @@ private fun TimelineRow(
     val nodeIcon: ImageVector = when (item.type) {
         TimelineNodeType.Task -> Icons.Default.Flag
         TimelineNodeType.Thinking -> Icons.Default.Bolt
-        TimelineNodeType.Note -> Icons.Default.Notes
+        TimelineNodeType.Note -> Icons.AutoMirrored.Filled.Notes
         TimelineNodeType.Tool -> Icons.Default.Construction
     }
 

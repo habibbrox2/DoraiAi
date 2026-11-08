@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.settings
+package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -332,7 +332,7 @@ private fun ModelCard(model: SettingsModel, isSelected: Boolean, onClick: () -> 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TooltipBox(
                     modifier = Modifier.weight(1f),
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                     tooltip = { Text(text = title, style = DoraiTypography.bodyMedium) },
                     state = rememberTooltipState(),
                 ) {
@@ -360,7 +360,7 @@ private fun ModelCard(model: SettingsModel, isSelected: Boolean, onClick: () -> 
             }
             secondary?.let {
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                     tooltip = { Text(text = it, style = DoraiTypography.bodyMedium) },
                     state = rememberTooltipState(),
                 ) {
