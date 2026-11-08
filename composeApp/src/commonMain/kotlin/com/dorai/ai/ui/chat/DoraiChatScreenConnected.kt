@@ -82,6 +82,7 @@ fun DoraiChatScreenConnected(
     textToSpeech: TextToSpeechInstance? = null,
     onNavigateToDashboard: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToWorkspace: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
@@ -217,6 +218,8 @@ fun DoraiChatScreenConnected(
 
     val conversations = remember(uiState.savedConversations, uiState.pendingConversationDeletion) {
         val pendingId = uiState.pendingConversationDeletion
+        val now = kotlin.time.Clock.System.now().toEpochMilliseconds()
+        val oneDayMs = 24 * 60 * 60 * 1000L
         uiState.savedConversations
             .filter { it.id != pendingId }
             .map { conv ->
@@ -224,7 +227,7 @@ fun DoraiChatScreenConnected(
                     id = conv.id,
                     title = conv.title,
                     preview = "",
-                    isToday = true,
+                    isToday = (now - conv.updatedAt) < oneDayMs,
                     isPinned = conv.isPinned,
                 )
             }
@@ -309,6 +312,7 @@ fun DoraiChatScreenConnected(
             },
             onNewChat = { uiState.actions.startNewChat() },
             onOpenConversation = { id -> uiState.actions.loadConversation(id) },
+            activeConversationId = uiState.currentConversationId,
             isStreaming = uiState.isLoading,
             onStopStreaming = { uiState.actions.cancel() },
             onRegenerate = { uiState.actions.regenerate() },
@@ -327,6 +331,10 @@ fun DoraiChatScreenConnected(
             },
             onAskFixTool = {
                 uiState.actions.ask("Please fix the previous tool failure.")
+            },
+            onRunPlan = {
+                selectedModeId = "build"
+                uiState.actions.ask("Run this plan in build mode.")
             },
             onSpeak = { messageId ->
                 val msg = messages.find { it.id == messageId }
@@ -361,6 +369,10 @@ fun DoraiChatScreenConnected(
             files = uiState.files,
             onRemoveFile = { file -> uiState.actions.removeFile(file) },
             onAttachFile = { showAttachSheet = true },
+            onAttachImage = {
+                showAttachSheet = false
+                imagePickerLauncher.launch()
+            },
             onMicClick = { /* Voice input callback */ },
             hasUnreadHeartbeat = uiState.hasUnreadHeartbeat,
             onHeartbeatTap = {
@@ -375,6 +387,7 @@ fun DoraiChatScreenConnected(
             onDeleteConversation = { id -> uiState.actions.deleteConversation(id) },
             onRenameConversation = { id, title -> uiState.actions.renameConversation(id, title) },
             onNavigateToSettings = onNavigateToSettings,
+            onNavigateToWorkspace = onNavigateToWorkspace,
             maxContextTokens = maxContextTokens,
             modifier = Modifier.fillMaxSize(),
         )

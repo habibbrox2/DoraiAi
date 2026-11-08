@@ -4,12 +4,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -35,7 +38,7 @@ fun DoraiDiffBlock(
             .horizontalScroll(scrollState),
     ) {
         val lines = diff.lines()
-        lines.forEach { line ->
+        lines.forEachIndexed { index, line ->
             val isAddition = line.startsWith("+") && !line.startsWith("+++")
             val isDeletion = line.startsWith("-") && !line.startsWith("---")
             val isHunkHeader = line.startsWith("@@")
@@ -53,12 +56,21 @@ fun DoraiDiffBlock(
                 else -> Color.Transparent
             }
 
-            Box(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(bgColor)
-                    .padding(horizontal = 12.dp, vertical = 1.dp),
+                    .padding(horizontal = 8.dp, vertical = 1.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
+                Text(
+                    text = "${index + 1}".padStart(3, ' '),
+                    color = colors.muted.copy(alpha = 0.6f),
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 11.5.sp,
+                    lineHeight = 18.sp,
+                    modifier = Modifier.width(32.dp),
+                )
                 Text(
                     text = line,
                     color = textColor,

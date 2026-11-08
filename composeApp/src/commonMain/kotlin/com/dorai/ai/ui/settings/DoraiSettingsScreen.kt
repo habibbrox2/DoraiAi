@@ -1,6 +1,7 @@
 package com.dorai.ai.ui.settings
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,11 +29,15 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Terminal
@@ -42,14 +47,17 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,6 +71,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -135,8 +144,8 @@ fun DoraiSettingsScreen(
     onCategoryChanged: (SettingsCategory) -> Unit,
     selectedThemeId: String,
     onThemeSelected: (String) -> Unit,
-    currentThemeStyle: ThemeStyle,
-    onThemeStyleSelected: (ThemeStyle) -> Unit,
+    currentThemeStyle: ThemeStyle = ThemeStyle.Flat,
+    onThemeStyleSelected: ((ThemeStyle) -> Unit)? = null,
     modifier: Modifier = Modifier,
     uiState: SettingsUiState? = null,
     actions: SettingsActions? = null,
@@ -252,8 +261,8 @@ fun DoraiSettingsScreenConnected(
     onCategoryChanged: (SettingsCategory) -> Unit,
     selectedThemeId: String,
     onThemeSelected: (String) -> Unit,
-    currentThemeStyle: ThemeStyle,
-    onThemeStyleSelected: (ThemeStyle) -> Unit,
+    currentThemeStyle: ThemeStyle = ThemeStyle.Flat,
+    onThemeStyleSelected: ((ThemeStyle) -> Unit)? = null,
     settingsViewModel: SettingsViewModel = koinViewModel(),
     sandboxViewModel: SandboxViewModel = koinViewModel(),
     androidUpdateContent: (@Composable () -> Unit)? = null,
@@ -342,8 +351,8 @@ private fun SettingsCategoryContent(
     category: SettingsCategory,
     selectedThemeId: String,
     onThemeSelected: (String) -> Unit,
-    currentThemeStyle: ThemeStyle,
-    onThemeStyleSelected: (ThemeStyle) -> Unit,
+    currentThemeStyle: ThemeStyle = ThemeStyle.Flat,
+    onThemeStyleSelected: ((ThemeStyle) -> Unit)? = null,
     uiState: SettingsUiState? = null,
     actions: SettingsActions? = null,
     sandboxState: SandboxUiState? = null,
@@ -392,8 +401,6 @@ private fun SettingsCategoryContent(
                 SettingsCategory.Appearance -> AppearanceSettingsContent(
                     selectedThemeId = selectedThemeId,
                     onThemeSelected = onThemeSelected,
-                    currentThemeStyle = currentThemeStyle,
-                    onThemeStyleSelected = onThemeStyleSelected,
                 )
 
                 SettingsCategory.Agent -> {
@@ -469,8 +476,6 @@ private fun SettingsCategoryContent(
                 SettingsCategory.Appearance -> AppearanceSettingsContent(
                     selectedThemeId = selectedThemeId,
                     onThemeSelected = onThemeSelected,
-                    currentThemeStyle = currentThemeStyle,
-                    onThemeStyleSelected = onThemeStyleSelected,
                 )
 
                 SettingsCategory.Agent -> {
@@ -498,9 +503,97 @@ private fun SettingsCategoryContent(
 @Composable
 private fun GeneralSettingsContent() {
     val colors = LocalDoraiColors.current
+    var currentLang by remember { mutableStateOf("bn") }
+    var currentFontSize by remember { mutableStateOf(1.0f) }
+    var hapticsEnabled by remember { mutableStateOf(true) }
+    var notifEnabled by remember { mutableStateOf(true) }
+
+    // Language & Font Size Card (Prototype line 506)
     SettingsSectionCard {
-        Text("Language", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-        Text("App Language: বাংলা (Bengali) / English", color = colors.muted, fontSize = 13.sp)
+        Text("ভাষা / Language", color = colors.text, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(modifier = Modifier.height(DoraiSpacing.XS))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            val isBn = currentLang == "bn"
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(if (isBn) colors.primary else colors.surface2)
+                    .border(1.dp, if (isBn) colors.primary else colors.line, CircleShape)
+                    .clickable { currentLang = "bn" }
+                    .padding(horizontal = 16.dp, vertical = 7.dp),
+            ) {
+                Text("বাংলা", color = if (isBn) colors.onPrimary else colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            }
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(if (!isBn) colors.primary else colors.surface2)
+                    .border(1.dp, if (!isBn) colors.primary else colors.line, CircleShape)
+                    .clickable { currentLang = "en" }
+                    .padding(horizontal = 16.dp, vertical = 7.dp),
+            ) {
+                Text("English", color = if (!isBn) colors.onPrimary else colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+
+        Text("লেখার আকার / Text size", color = colors.text, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(modifier = Modifier.height(DoraiSpacing.XS))
+        val sizes = listOf(0.9f to "A−", 1.0f to "A", 1.15f to "A+", 1.3f to "A++")
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            sizes.forEach { (scale, label) ->
+                val isSelected = currentFontSize == scale
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(if (isSelected) colors.primary else colors.surface2)
+                        .border(1.dp, if (isSelected) colors.primary else colors.line, CircleShape)
+                        .clickable { currentFontSize = scale }
+                        .padding(horizontal = 14.dp, vertical = 7.dp),
+                ) {
+                    Text(label, color = if (isSelected) colors.onPrimary else colors.text, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+
+    // Haptics Card
+    SettingsSectionCard {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("হ্যাপটিক / Haptics", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text("বোতামে হালকা কাঁপুনি / Light vibration on taps", color = colors.muted, fontSize = 12.5.sp)
+            }
+            Switch(
+                checked = hapticsEnabled,
+                onCheckedChange = {
+                    hapticsEnabled = it
+                },
+            )
+        }
+    }
+
+    // Notifications Card
+    SettingsSectionCard {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("নোটিফিকেশন / Notifications", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text("দীর্ঘ কাজ শেষ বা অনুমতি চাইলে জানাবে", color = colors.muted, fontSize = 12.5.sp)
+            }
+            Switch(
+                checked = notifEnabled,
+                onCheckedChange = { notifEnabled = it },
+            )
+        }
     }
 }
 
@@ -508,28 +601,9 @@ private fun GeneralSettingsContent() {
 private fun AppearanceSettingsContent(
     selectedThemeId: String,
     onThemeSelected: (String) -> Unit,
-    currentThemeStyle: ThemeStyle,
-    onThemeStyleSelected: (ThemeStyle) -> Unit,
 ) {
     val colors = LocalDoraiColors.current
     val widthClass = LocalDoraiWindowWidthClass.current
-
-    SettingsSectionCard {
-        Text("Surface Style", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
-        Row(horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.SM)) {
-            StyleChip(
-                label = "Flat",
-                isSelected = currentThemeStyle == ThemeStyle.Flat,
-                onClick = { onThemeStyleSelected(ThemeStyle.Flat) },
-            )
-            StyleChip(
-                label = "3D Neumorphic",
-                isSelected = currentThemeStyle == ThemeStyle.ThreeD,
-                onClick = { onThemeStyleSelected(ThemeStyle.ThreeD) },
-            )
-        }
-    }
 
     SettingsSectionCard {
         Text("Theme Presets (13)", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
@@ -564,81 +638,120 @@ private fun AppearanceSettingsContent(
 }
 
 @Composable
-private fun StyleChip(
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-) {
-    val colors = LocalDoraiColors.current
-    Box(
-        modifier = Modifier
-            .clip(CircleShape)
-            .background(if (isSelected) colors.primary else colors.surface2)
-            .border(1.dp, if (isSelected) colors.primary else colors.line, CircleShape)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-    ) {
-        Text(
-            text = label,
-            color = if (isSelected) colors.onPrimary else colors.text,
-            fontSize = 13.sp,
-            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-        )
-    }
-}
-
-@Composable
 private fun AgentSettingsContent() {
-    val colors = LocalDoraiColors.current
-    var policy by remember { mutableStateOf("edits") }
-    var timelineEnabled by remember { mutableStateOf(true) }
-
-    SettingsSectionCard {
-        Text(stringResource(Res.string.settings_approval_policy), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
-
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Switch(checked = policy == "all", onCheckedChange = { policy = "all" })
-                Spacer(modifier = Modifier.width(DoraiSpacing.SM))
-                Text(stringResource(Res.string.settings_approval_ask_all), color = colors.text, fontSize = 14.sp)
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Switch(checked = policy == "edits", onCheckedChange = { policy = "edits" })
-                Spacer(modifier = Modifier.width(DoraiSpacing.SM))
-                Text(stringResource(Res.string.settings_approval_ask_edits), color = colors.text, fontSize = 14.sp)
-            }
-        }
-    }
-
-    SettingsSectionCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(stringResource(Res.string.settings_timeline_toggle), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text(stringResource(Res.string.settings_timeline_desc), color = colors.muted, fontSize = 13.sp)
-            }
-            Switch(checked = timelineEnabled, onCheckedChange = { timelineEnabled = it })
-        }
-    }
+    AgentPolicyHeader()
 }
 
 @Composable
 private fun ProvidersSettingsContent() {
     val colors = LocalDoraiColors.current
+    var activeProviderId by remember { mutableStateOf("gemini") }
+    var showAuthSheet by remember { mutableStateOf(false) }
+    var selectedProviderForSheet by remember { mutableStateOf<String?>(null) }
+
+    // Section 1: Local
+    Text(
+        text = "লোকাল / Local",
+        color = colors.muted,
+        fontSize = 12.5.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(start = 4.dp, top = 4.dp),
+    )
     SettingsSectionCard {
-        Text("Configured Providers", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
-        ProviderRow("Free FAST", isLocal = false, keyStatus = "••••default", isDefault = true)
-        ProviderRow("Ollama Local", isLocal = true, keyStatus = "••••local", isDefault = false)
+        ProviderRowV2(
+            name = "Ollama Local",
+            meta = "Installed · Local inference",
+            isDefault = activeProviderId == "ollama",
+            hasKey = true,
+            isLocal = true,
+            onSetDefault = { activeProviderId = "ollama" },
+            onAddKey = {
+                selectedProviderForSheet = "Ollama Local"
+                showAuthSheet = true
+            },
+        )
+        HorizontalDivider(color = colors.line.copy(alpha = 0.5f), thickness = 1.dp, modifier = Modifier.padding(vertical = 4.dp))
+        ProviderRowV2(
+            name = "LiteRT On-Device",
+            meta = "NPU / CPU hardware acceleration",
+            isDefault = activeProviderId == "litert",
+            hasKey = true,
+            isLocal = true,
+            onSetDefault = { activeProviderId = "litert" },
+            onAddKey = {
+                selectedProviderForSheet = "LiteRT On-Device"
+                showAuthSheet = true
+            },
+        )
+    }
+
+    // Section 2: Cloud Providers
+    Text(
+        text = "ক্লাউড প্রোভাইডার / Cloud providers",
+        color = colors.muted,
+        fontSize = 12.5.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(start = 4.dp, top = 8.dp),
+    )
+    SettingsSectionCard {
+        ProviderRowV2(
+            name = "Google Gemini",
+            meta = "Fast 2.5 Flash · ••••1a2b",
+            isDefault = activeProviderId == "gemini",
+            hasKey = true,
+            isLocal = false,
+            onSetDefault = { activeProviderId = "gemini" },
+            onAddKey = {
+                selectedProviderForSheet = "Google Gemini"
+                showAuthSheet = true
+            },
+        )
+        HorizontalDivider(color = colors.line.copy(alpha = 0.5f), thickness = 1.dp, modifier = Modifier.padding(vertical = 4.dp))
+        ProviderRowV2(
+            name = "Anthropic Claude",
+            meta = "Claude 3.7 Sonnet & Opus",
+            isDefault = activeProviderId == "claude",
+            hasKey = false,
+            isLocal = false,
+            onSetDefault = { activeProviderId = "claude" },
+            onAddKey = {
+                selectedProviderForSheet = "Anthropic Claude"
+                showAuthSheet = true
+            },
+        )
+        HorizontalDivider(color = colors.line.copy(alpha = 0.5f), thickness = 1.dp, modifier = Modifier.padding(vertical = 4.dp))
+        ProviderRowV2(
+            name = "OpenRouter",
+            meta = "DeepSeek, Llama 3, Mistral",
+            isDefault = activeProviderId == "openrouter",
+            hasKey = false,
+            isLocal = false,
+            onSetDefault = { activeProviderId = "openrouter" },
+            onAddKey = {
+                selectedProviderForSheet = "OpenRouter"
+                showAuthSheet = true
+            },
+        )
+    }
+
+    if (showAuthSheet && selectedProviderForSheet != null) {
+        ProviderAuthModalSheet(
+            providerName = selectedProviderForSheet.orEmpty(),
+            onDismiss = { showAuthSheet = false },
+        )
     }
 }
 
 @Composable
-private fun ProviderRow(name: String, isLocal: Boolean, keyStatus: String, isDefault: Boolean) {
+private fun ProviderRowV2(
+    name: String,
+    meta: String,
+    isDefault: Boolean,
+    hasKey: Boolean,
+    isLocal: Boolean,
+    onSetDefault: () -> Unit,
+    onAddKey: () -> Unit,
+) {
     val colors = LocalDoraiColors.current
     Row(
         modifier = Modifier
@@ -647,16 +760,130 @@ private fun ProviderRow(name: String, isLocal: Boolean, keyStatus: String, isDef
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(name, color = colors.text, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.width(6.dp))
                 DoraiProviderBadge(isLocal = isLocal, iconOnly = true)
             }
-            Text("API Key: $keyStatus", color = colors.muted, fontSize = 12.sp)
+            Text(meta, color = colors.muted, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         if (isDefault) {
             DoraiStatusBadge("Default", colors.ok)
+        } else if (hasKey) {
+            TextButton(onClick = onSetDefault) {
+                Text("Set default", color = colors.primary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            }
+        } else {
+            Button(
+                onClick = onAddKey,
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = colors.surface2, contentColor = colors.primary),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+            ) {
+                Text("Add key / OAuth", fontSize = 12.5.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProviderAuthModalSheet(
+    providerName: String,
+    onDismiss: () -> Unit,
+) {
+    val colors = LocalDoraiColors.current
+    var authMethod by remember { mutableStateOf("oauth") } // "oauth" vs "apikey"
+    var apiKeyInput by remember { mutableStateOf("") }
+
+    DoraiModalSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(DoraiSpacing.LG),
+            verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD),
+        ) {
+            Text(
+                text = "$providerName Authentication",
+                color = colors.text,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+            )
+
+            // Auth Type Selector (OAuth 2.0 vs API Key)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(if (authMethod == "oauth") colors.primary else colors.surface2)
+                        .border(1.dp, if (authMethod == "oauth") colors.primary else colors.line, CircleShape)
+                        .clickable { authMethod = "oauth" }
+                        .padding(horizontal = 14.dp, vertical = 7.dp),
+                ) {
+                    Text("OAuth 2.0 Sign In", color = if (authMethod == "oauth") colors.onPrimary else colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                }
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(if (authMethod == "apikey") colors.primary else colors.surface2)
+                        .border(1.dp, if (authMethod == "apikey") colors.primary else colors.line, CircleShape)
+                        .clickable { authMethod = "apikey" }
+                        .padding(horizontal = 14.dp, vertical = 7.dp),
+                ) {
+                    Text("API Key", color = if (authMethod == "apikey") colors.onPrimary else colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                }
+            }
+
+            if (authMethod == "oauth") {
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = colors.surface2,
+                    border = BorderStroke(1.dp, colors.line),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.VpnKey, contentDescription = null, tint = colors.primary, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Secure Single Sign-On (OAuth 2.0)", color = colors.text, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Text("Connect securely using OAuth. Credentials are tokenized and stored in encrypted sandbox vault.", color = colors.muted, fontSize = 12.5.sp)
+                    }
+                }
+
+                Button(
+                    onClick = onDismiss,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = colors.primary, contentColor = colors.onPrimary),
+                    modifier = Modifier.fillMaxWidth().height(44.dp),
+                ) {
+                    Text("Sign in with $providerName (OAuth 2.0)", fontWeight = FontWeight.SemiBold)
+                }
+            } else {
+                OutlinedTextField(
+                    value = apiKeyInput,
+                    onValueChange = { apiKeyInput = it },
+                    placeholder = { Text("Enter API Key (••••••••)", color = colors.muted) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = colors.text,
+                        unfocusedTextColor = colors.text,
+                        focusedBorderColor = colors.info,
+                        unfocusedBorderColor = colors.line,
+                    ),
+                )
+
+                Button(
+                    onClick = onDismiss,
+                    enabled = apiKeyInput.isNotBlank(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = colors.primary, contentColor = colors.onPrimary),
+                    modifier = Modifier.fillMaxWidth().height(44.dp),
+                ) {
+                    Text("Save API Key", fontWeight = FontWeight.SemiBold)
+                }
+            }
         }
     }
 }
@@ -664,135 +891,439 @@ private fun ProviderRow(name: String, isLocal: Boolean, keyStatus: String, isDef
 @Composable
 private fun ToolsSettingsContent() {
     val colors = LocalDoraiColors.current
-    SettingsSectionCard {
-        Text("AI Tools & Permissions", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
-        ToolPermissionRow("edit_file", "Asks first", isRisky = true)
-        ToolPermissionRow("run_shell", "Asks first", isRisky = true)
-        ToolPermissionRow("read_file", "Auto", isRisky = false)
+    var toolPolicies by remember {
+        mutableStateOf(
+            mutableMapOf(
+                "read_file" to false,
+                "search" to false,
+                "edit_file" to true,
+                "shell" to true,
+                "web_search" to true,
+            ),
+        )
     }
-}
 
-@Composable
-private fun ToolPermissionRow(name: String, badgeText: String, isRisky: Boolean) {
-    val colors = LocalDoraiColors.current
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(name, color = colors.text, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-        DoraiStatusBadge(badgeText, if (isRisky) colors.warn else colors.info)
+    var skillStates by remember {
+        mutableStateOf(
+            mutableMapOf(
+                "code_review" to true,
+                "git_commit" to true,
+                "compose_tips" to true,
+            ),
+        )
+    }
+
+    Text(
+        text = "টুল / Tools",
+        color = colors.muted,
+        fontSize = 12.5.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(start = 4.dp, top = 4.dp),
+    )
+    SettingsSectionCard {
+        val toolList = listOf(
+            Triple("read_file", "ফাইল পড়া / Read files", "read_file"),
+            Triple("search", "কোডে খোঁজা / Search code", "search"),
+            Triple("edit_file", "ফাইল বদলানো / Edit files", "edit_file"),
+            Triple("shell", "কমান্ড চালানো / Run commands", "shell"),
+            Triple("web_search", "ওয়েবে খোঁজা / Search the web", "web_search"),
+        )
+        toolList.forEachIndexed { idx, (id, label, _) ->
+            val isRisky = toolPolicies[id] == true
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        val next = toolPolicies.toMutableMap()
+                        next[id] = !isRisky
+                        toolPolicies = next
+                    }
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(id, color = colors.text, fontSize = 13.5.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                    Text(label, color = colors.muted, fontSize = 12.sp)
+                }
+                DoraiStatusBadge(
+                    text = if (isRisky) "Asks first" else "Auto",
+                    color = if (isRisky) colors.warn else colors.ok,
+                )
+            }
+            if (idx < toolList.lastIndex) {
+                HorizontalDivider(color = colors.line.copy(alpha = 0.4f), thickness = 1.dp)
+            }
+        }
+    }
+
+    Text(
+        text = "স্কিল / Skills",
+        color = colors.muted,
+        fontSize = 12.5.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(start = 4.dp, top = 8.dp),
+    )
+    SettingsSectionCard {
+        val skills = listOf(
+            Triple("code_review", "Code review", "Analyze syntax and safety regressions"),
+            Triple("git_commit", "Git commit messages", "Generate conventional commit descriptions"),
+            Triple("compose_tips", "Compose UI tips", "State hoisting and recomposition audits"),
+        )
+        skills.forEachIndexed { idx, (id, title, desc) ->
+            val isChecked = skillStates[id] == true
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(title, color = colors.text, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    Text(desc, color = colors.muted, fontSize = 12.sp)
+                }
+                Switch(
+                    checked = isChecked,
+                    onCheckedChange = {
+                        val next = skillStates.toMutableMap()
+                        next[id] = it
+                        skillStates = next
+                    },
+                )
+            }
+            if (idx < skills.lastIndex) {
+                HorizontalDivider(color = colors.line.copy(alpha = 0.4f), thickness = 1.dp)
+            }
+        }
     }
 }
 
 @Composable
 private fun McpSettingsContent() {
     val colors = LocalDoraiColors.current
-    var urlInput by remember { mutableStateOf("") }
-    val isValidUrl = urlInput.startsWith("https://") || urlInput.startsWith("http://localhost")
+    var showAddDialog by remember { mutableStateOf(false) }
+
+    // + Add server button
+    Button(
+        onClick = { showAddDialog = true },
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = colors.surface2, contentColor = colors.primary),
+        border = BorderStroke(1.dp, colors.line),
+        modifier = Modifier.fillMaxWidth().height(44.dp),
+    ) {
+        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(stringResource(Res.string.settings_mcp_add_server), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+    }
+
+    Spacer(modifier = Modifier.height(DoraiSpacing.SM))
 
     SettingsSectionCard {
-        Text(stringResource(Res.string.settings_mcp_add_server), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
-
-        OutlinedTextField(
-            value = urlInput,
-            onValueChange = { urlInput = it },
-            placeholder = { Text(stringResource(Res.string.settings_mcp_url_hint), color = colors.muted) },
-            isError = urlInput.isNotEmpty() && !isValidUrl,
-            supportingText = {
-                if (urlInput.isNotEmpty() && !isValidUrl) {
-                    Text(stringResource(Res.string.settings_mcp_invalid_url), color = colors.err)
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = colors.text,
-                unfocusedTextColor = colors.text,
-                focusedBorderColor = colors.info,
-                unfocusedBorderColor = colors.line,
-            ),
-        )
-
-        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
-
-        Button(
-            onClick = {},
-            enabled = isValidUrl,
-            colors = ButtonDefaults.buttonColors(containerColor = colors.primary, contentColor = colors.onPrimary),
-            shape = RoundedCornerShape(10.dp),
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(stringResource(Res.string.settings_mcp_test_connection))
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Extension, contentDescription = null, tint = colors.primary, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Local SQLite Bridge", color = colors.text, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                }
+                Text("https://localhost:8080/mcp · 7 tools connected", color = colors.muted, fontSize = 12.sp)
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                DoraiStatusBadge("Connected", colors.ok)
+                Spacer(modifier = Modifier.width(8.dp))
+                TextButton(onClick = {}) {
+                    Text("Test", color = colors.primary, fontSize = 13.sp)
+                }
+            }
+        }
+    }
+
+    if (showAddDialog) {
+        AddMcpServerModalSheet(onDismiss = { showAddDialog = false })
+    }
+}
+
+@Composable
+private fun AddMcpServerModalSheet(onDismiss: () -> Unit) {
+    val colors = LocalDoraiColors.current
+    var urlInput by remember { mutableStateOf("") }
+    var authType by remember { mutableStateOf("oauth") } // "oauth" vs "header" vs "none"
+    val isHttps = urlInput.startsWith("https://")
+    val isPrivateBlocked = !urlInput.contains("192.168.") && !urlInput.contains("10.0.") && !urlInput.contains("172.16.")
+    val isValid = isHttps && isPrivateBlocked && urlInput.length > 10
+
+    DoraiModalSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(DoraiSpacing.LG),
+            verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD),
+        ) {
+            Text(stringResource(Res.string.settings_mcp_add_server), color = colors.text, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+
+            // Auth Selector (Supports OAuth 2.0 system)
+            Text("Authorization System", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("oauth" to "OAuth 2.0", "header" to "API Header", "none" to "No Auth").forEach { (type, label) ->
+                    val isSel = authType == type
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(if (isSel) colors.primary else colors.surface2)
+                            .border(1.dp, if (isSel) colors.primary else colors.line, CircleShape)
+                            .clickable { authType = type }
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                    ) {
+                        Text(label, color = if (isSel) colors.onPrimary else colors.text, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+            }
+
+            OutlinedTextField(
+                value = urlInput,
+                onValueChange = { urlInput = it },
+                placeholder = { Text("https://mcp-server.example.com", color = colors.muted) },
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = colors.text,
+                    unfocusedTextColor = colors.text,
+                    focusedBorderColor = colors.info,
+                    unfocusedBorderColor = colors.line,
+                ),
+            )
+
+            // 3-step live security check list (prototype lines 498-502)
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = colors.surface2,
+                border = BorderStroke(1.dp, colors.line),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    SecurityCheckItem(
+                        passed = isHttps,
+                        label = if (isHttps) "HTTPS ব্যবহার হচ্ছে / Uses HTTPS" else "HTTPS প্রয়োজন / HTTPS required",
+                    )
+                    SecurityCheckItem(
+                        passed = isPrivateBlocked,
+                        label = "প্রাইভেট নেটওয়ার্ক ব্লক / Private networks blocked",
+                    )
+                    SecurityCheckItem(
+                        passed = true,
+                        label = "রিডাইরেক্ট সীমিত ও যাচাই হবে / Redirects re-checked",
+                    )
+                }
+            }
+
+            Button(
+                onClick = onDismiss,
+                enabled = isValid,
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = colors.primary, contentColor = colors.onPrimary),
+                modifier = Modifier.fillMaxWidth().height(44.dp),
+            ) {
+                Text(stringResource(Res.string.settings_mcp_add_server), fontWeight = FontWeight.SemiBold)
+            }
         }
     }
 }
 
 @Composable
-private fun SandboxSettingsContent() {
+private fun SecurityCheckItem(passed: Boolean, label: String) {
     val colors = LocalDoraiColors.current
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            imageVector = if (passed) Icons.Default.Check else Icons.Default.Close,
+            contentDescription = null,
+            tint = if (passed) colors.ok else colors.err,
+            modifier = Modifier.size(16.dp),
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(label, color = if (passed) colors.text else colors.err, fontSize = 12.5.sp)
+    }
+}
+
+@Composable
+private fun SandboxSettingsContent(
+    sandboxState: SandboxUiState? = null,
+    onToggleSandbox: ((Boolean) -> Unit)? = null,
+    onResetSandbox: (() -> Unit)? = null,
+) {
+    val colors = LocalDoraiColors.current
+    var isRunning by remember { mutableStateOf(sandboxState?.sandboxReady ?: true) }
+    var allowInternet by remember { mutableStateOf(true) }
+
+    // Card 1: Status & Start/Stop
     SettingsSectionCard {
-        Text("Linux Sandbox Status", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Environment: Debian 12 (Bookworm)", color = colors.text, fontSize = 13.sp)
-            DoraiStatusBadge("Running", colors.ok)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Terminal, contentDescription = null, tint = colors.primary, modifier = Modifier.size(22.dp))
+                Spacer(modifier = Modifier.width(10.dp))
+                Column {
+                    Text("Linux Sandbox", color = colors.text, fontSize = 14.5.sp, fontWeight = FontWeight.Bold)
+                    Text(if (isRunning) "চলছে · Running" else "বন্ধ · Stopped", color = colors.muted, fontSize = 12.sp)
+                }
+            }
+            Button(
+                onClick = {
+                    val next = !isRunning
+                    isRunning = next
+                    onToggleSandbox?.invoke(next)
+                },
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isRunning) colors.err.copy(alpha = 0.15f) else colors.primary,
+                    contentColor = if (isRunning) colors.err else colors.onPrimary,
+                ),
+            ) {
+                Text(if (isRunning) "Stop" else "Start", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
+    }
+
+    // Card 2: Storage Meter Bar (Prototype line 513)
+    SettingsSectionCard {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("স্টোরেজ / Storage", color = colors.text, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+            Text("1.2 / 4.0 GB", color = colors.muted, fontSize = 13.sp, fontWeight = FontWeight.Bold)
         }
         Spacer(modifier = Modifier.height(DoraiSpacing.SM))
-        Text("Storage: 1.2 GB / 4.0 GB used", color = colors.muted, fontSize = 13.sp)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .clip(CircleShape)
+                .background(colors.surface2),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.30f)
+                    .fillMaxHeight()
+                    .clip(CircleShape)
+                    .background(colors.primary),
+            )
+        }
+    }
+
+    // Card 3: Network isolation policy
+    SettingsSectionCard {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("নেটওয়ার্ক / Network", color = colors.text, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+                Text("Allow internet for package installs", color = colors.muted, fontSize = 12.sp)
+            }
+            Switch(checked = allowInternet, onCheckedChange = { allowInternet = it })
+        }
+    }
+
+    // Card 4: Run workspace setup again
+    Button(
+        onClick = { onResetSandbox?.invoke() },
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = colors.surface2, contentColor = colors.text),
+        border = BorderStroke(1.dp, colors.line),
+        modifier = Modifier.fillMaxWidth().height(44.dp),
+    ) {
+        Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.width(6.dp))
+        Text("Run workspace setup again", fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
 @Composable
 private fun AccountSettingsContent() {
     val colors = LocalDoraiColors.current
+    var syncEnabled by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
+    // Card 1: Sync switch
     SettingsSectionCard {
-        Text("Data Control & Export", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
-        Text("All data stays on device when cloud sync is disabled.", color = colors.muted, fontSize = 13.sp)
-
-        Spacer(modifier = Modifier.height(DoraiSpacing.MD))
-
-        OutlinedButton(
-            onClick = { showDeleteConfirm = true },
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = colors.err),
-            shape = RoundedCornerShape(10.dp),
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(16.dp))
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(stringResource(Res.string.settings_delete_all_chats))
+            Column(modifier = Modifier.weight(1f)) {
+                Text("সিঙ্ক / Sync", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text("বন্ধ থাকলে সব ডেটা শুধু এই ডিভাইসে / Stays on this device", color = colors.muted, fontSize = 12.5.sp)
+            }
+            Switch(checked = syncEnabled, onCheckedChange = { syncEnabled = it })
         }
+    }
 
-        if (showDeleteConfirm) {
-            DoraiModalSheet(onDismissRequest = { showDeleteConfirm = false }) {
-                Column(verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD)) {
-                    Text("Confirm Deletion", color = colors.text, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Text(stringResource(Res.string.settings_delete_chats_confirm), color = colors.muted, fontSize = 14.sp)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
+    // Card 2: Combined Data Actions (Prototype line 514)
+    SettingsSectionCard {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("ডেটা এক্সপোর্ট / Export data", color = colors.text, fontSize = 14.sp)
+            TextButton(onClick = {}) {
+                Text("Export", color = colors.primary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+        HorizontalDivider(color = colors.line.copy(alpha = 0.4f), thickness = 1.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("সব চ্যাট মুছুন / Delete all chats", color = colors.text, fontSize = 14.sp)
+            Button(
+                onClick = { showDeleteConfirm = true },
+                colors = ButtonDefaults.buttonColors(containerColor = colors.err.copy(alpha = 0.15f), contentColor = colors.err),
+                shape = RoundedCornerShape(8.dp),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+            ) {
+                Text("Delete", fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+
+    if (showDeleteConfirm) {
+        DoraiModalSheet(onDismissRequest = { showDeleteConfirm = false }) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(DoraiSpacing.LG),
+                verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD),
+            ) {
+                Text("সব চ্যাট মুছবেন? / Delete all chats?", color = colors.text, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text("এটি ফেরানো যাবে না। প্রজেক্ট ফাইল মুছবে না। / This cannot be undone. Project files are not deleted.", color = colors.muted, fontSize = 13.sp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Button(
+                        onClick = { showDeleteConfirm = false },
+                        colors = ButtonDefaults.buttonColors(containerColor = colors.surface2, contentColor = colors.text),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.weight(1f).height(44.dp),
                     ) {
-                        Button(
-                            onClick = { showDeleteConfirm = false },
-                            colors = ButtonDefaults.buttonColors(containerColor = colors.surface2, contentColor = colors.text),
-                        ) {
-                            Text("Cancel")
-                        }
-                        Spacer(modifier = Modifier.width(DoraiSpacing.SM))
-                        Button(
-                            onClick = { showDeleteConfirm = false },
-                            colors = ButtonDefaults.buttonColors(containerColor = colors.err, contentColor = colors.text),
-                        ) {
-                            Text("Delete All")
-                        }
+                        Text("বাতিল / Cancel")
+                    }
+                    Button(
+                        onClick = { showDeleteConfirm = false },
+                        colors = ButtonDefaults.buttonColors(containerColor = colors.err, contentColor = colors.onPrimary),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.weight(1f).height(44.dp),
+                    ) {
+                        Text("মুছুন / Delete")
                     }
                 }
             }

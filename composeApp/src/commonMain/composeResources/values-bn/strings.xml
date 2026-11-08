@@ -601,6 +601,7 @@
 
     <!-- UI v2 Chat -->
     <string name="chat_tagline">আপনার এআই। আপনার বিশ্ব।</string>
+    <string name="chat_empty_title">কী নিয়ে কাজ করবেন?</string>
     <string name="chat_jump_to_latest">সর্বশেষ বার্তায় যান</string>
     <string name="chat_today">আজ</string>
     <string name="chat_yesterday">গতকাল</string>
@@ -608,6 +609,25 @@
     <string name="chat_copy_message">কপি করুন</string>
     <string name="chat_regenerate_message">পুনরায় তৈরি করুন</string>
     <string name="chat_model_picker_title">এআই মডেল নির্বাচন করুন</string>
+    <string name="chat_plan_title">পরিকল্পনা</string>
+    <string name="chat_plan_run_build">Build মোডে চালান</string>
+    <string name="chat_interactive_reply">ইন্টারঅ্যাক্টিভ উত্তর</string>
+    <string name="chat_quick_ask_title">একটি প্রশ্ন করুন</string>
+    <string name="chat_quick_ask_desc">যেকোনো বিষয়ে</string>
+    <string name="chat_quick_plan_title">ফিচারের পরিকল্পনা</string>
+    <string name="chat_quick_plan_desc">ধাপ ভাগ করে নিন</string>
+    <string name="chat_quick_build_title">একটি ফিচার বানান</string>
+    <string name="chat_quick_build_desc">ফাইল বদলাবে, অনুমতি নিয়ে</string>
+    <string name="chat_quick_review_title">কোড রিভিউ</string>
+    <string name="chat_quick_review_desc">সমস্যা ও পরামর্শ</string>
+    <string name="chat_quick_image_title">ছবি থেকে প্রশ্ন</string>
+    <string name="chat_quick_image_desc">ছবি সংযুক্ত করুন</string>
+    <string name="chat_quick_file_title">ফাইল বিশ্লেষণ</string>
+    <string name="chat_quick_file_desc">PDF বা CSV</string>
+    <string name="chat_quick_project_title">প্রজেক্ট নিয়ে কাজ</string>
+    <string name="chat_quick_project_desc">ওয়ার্কস্পেসে যান</string>
+    <string name="chat_search_placeholder">চ্যাট খুঁজুন…</string>
+    <string name="chat_no_chats_found">কোনো চ্যাট মেলেনি।</string>
 
     <!-- UI v2 Workspace -->
     <string name="workspace_v2_setup_title">ওয়ার্কস্পেস সেটআপ</string>

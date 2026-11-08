@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Check
@@ -192,7 +193,7 @@ private fun TimelineRow(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = DoraiSpacing.SM)
-                        .clip(CircleShape)
+                        .clip(RoundedCornerShape(8.dp))
                         .background(colors.surface)
                         .padding(DoraiSpacing.SM),
                 ) {
