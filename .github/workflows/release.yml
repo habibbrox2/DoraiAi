@@ -228,6 +228,9 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Set execution flag for gradlew
         run: chmod +x gradlew
 
@@ -333,6 +336,9 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Set execution flag for gradlew
         run: chmod +x gradlew
 
@@ -383,6 +389,9 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Build MSI
         run: .\gradlew.bat packageReleaseMsi --stacktrace
 
@@ -430,6 +439,9 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Set execution flag for gradlew
         run: chmod +x gradlew
 
@@ -461,6 +473,9 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Set execution flag for gradlew
         run: chmod +x gradlew
 
@@ -491,6 +506,9 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Set execution flag for gradlew
         run: chmod +x gradlew
@@ -527,6 +545,9 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Set execution flag for gradlew
         run: chmod +x gradlew
@@ -566,6 +587,9 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Set execution flag for gradlew
         run: chmod +x gradlew
@@ -621,6 +645,9 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Set execution flag for gradlew
         run: chmod +x gradlew
