@@ -2,14 +2,26 @@
 
 ### Added
 - **UI v2 Adaptive Shell:** Responsive architecture supporting Compact (<600dp), Medium (600–839dp), Expanded (840–1199dp), and Large (≥1200dp) with bottom navigation bar, 78dp navigation rail, and 224dp permanent drawer.
-- **Four Primary Destinations:** Direct top-level navigation between Home (Dashboard), Chat, Workspace, and Settings with state preservation and single-step backstack handling.
-- **Workspace Pending Approval Badge:** Dedicated badge counter on the Workspace tab indicating steps awaiting user authorization.
-- **UI v2 Semantic Token System:** Unified `DoraiSemanticColors` mapping all 13 theme presets with verified WCAG AA ($\ge 4.5:1$) contrast across light and dark modes.
-- **Flat vs. 3D Neumorphic Style:** New `doraiEdgeStyle` pressable modifier providing 3dp translation and tactile bottom edges without layout bounds alteration.
-- **Data-Driven Agent Modes:** Added Ask, Plan, Build, and Review modes with dedicated quick-start actions and composer selectors.
-- **Shared v2 Interaction Components:** Added `DoraiToolCard` (Running, Completed, Failed, Pending Approval), `DoraiShellBlock`, `DoraiDiffBlock`, `DoraiApprovalActions`, and `DoraiAgentTimeline`.
-- **Adaptive List-Detail Layouts:** Two-pane list-detail layout for Chat (History + Conversation) and Settings (8 Categories + Detail Pane).
-- **Internationalization:** Full localized string resources in Bengali (`bn`) and English (`en`) across all v2 navigation and interaction surfaces.
+- **Top Safe Area Insets:** Applied `statusBarsPadding()` across Compact, Medium/Expanded, and Large layouts ensuring edge-to-edge content renders below the system status bar and camera notch.
+- **Full Chat UI/UX Migration:**
+  - Rich Markdown rendering with syntax-highlighted code blocks, tables, and KaTeX math formulas via `MarkdownContent`.
+  - Collapsible reasoning / thinking blocks (`DoraiReasoningBlock`) with step counters and expandable accordions for reasoning models.
+  - Multimodal user attachments with inline image preview cards and document chips.
+  - Interactive Text-to-Speech (TTS) audio playback action on assistant messages.
+  - Multimodal composer attachments strip with file remove badges and system file picker integration.
+  - Proactive Heartbeat and pending SMS draft banners at the top of the chat timeline.
+  - Conversation management with search, pin/unpin badges, and deletion with undo snackbar.
+  - Full text selection enabled via `SelectionContainer` across all messages.
+- **Production Connected Wrappers:** Added `DoraiChatScreenConnected` and `DoraiWorkspaceScreenConnected` bridging UI v2 views with production `ChatViewModel` and `WorkspaceViewModel`.
+- **UI v2 Reachability Test Suite:** Added `DoraiUiV2ReachabilityTest` covering shell state, backstack routing, all 8 settings categories, rich chat item properties, and workspace tab transitions.
+
+### Fixed
+- **Runtime Screen Wiring:** Resolved issue where installed APK bypassed UI v2 screens and displayed legacy or empty mock screens. `App.kt` now directly routes `DoraiAppShell` to live production screens.
+- **Settings Multi-Category Wiring:** Connected all 8 settings categories (`General`, `Appearance`, `Agent`, `Providers`, `Tools`, `Mcp`, `Sandbox`, `Account`) to their full production feature panels, including FOSS auto-updater card, GitHub repository links, Debian sandbox controls, and GitHub MCP/skills.
+- **Chat Tool Approvals & Dynamic UI:** Added full callback wiring for tool execution approvals (`onAllowOnce`, `onAllowSession`, `onDeny`, `onRetryTool`, `onAskFixTool`), clipboard copying, and dynamic UI form submissions.
+
+### Features Retained
+- **100% Feature Continuity:** Preserved all existing capabilities including Memory management, Automation tasks, Voice TTS, FOSS auto-updater card, Third-party Licenses dialog, AI Providers catalog, GitHub Copilot MCP, and Debian Linux sandbox.
 
 ---
 

@@ -80,6 +80,7 @@ data class ToolExecutionModel(
     val outputText: String? = null,
     val errorText: String? = null,
     val diffText: String? = null,
+    val toolCallId: String = "",
 )
 
 /**

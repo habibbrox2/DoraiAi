@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.settings
+package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -183,7 +183,7 @@ internal fun ToolsTabContent(
 }
 
 @Composable
-private fun PluginsSection(
+internal fun PluginsSection(
     tools: ImmutableList<ToolInfo>,
     onToggleTool: (String, Boolean) -> Unit,
 ) {

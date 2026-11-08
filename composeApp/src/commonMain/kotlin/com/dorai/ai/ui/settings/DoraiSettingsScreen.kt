@@ -52,9 +52,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dorai.ai.Version
+import com.dorai.ai.linux.LinuxDistro
 import com.dorai.ai.theme.data.ThemePalette
 import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.data.ThemeStyle
@@ -91,6 +95,7 @@ import dorai.composeapp.generated.resources.settings_timeline_desc
 import dorai.composeapp.generated.resources.settings_timeline_toggle
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 
 enum class SettingsCategory(
     val id: String,
@@ -121,6 +126,18 @@ fun DoraiSettingsScreen(
     currentThemeStyle: ThemeStyle,
     onThemeStyleSelected: (ThemeStyle) -> Unit,
     modifier: Modifier = Modifier,
+    uiState: SettingsUiState? = null,
+    actions: SettingsActions? = null,
+    sandboxState: SandboxUiState? = null,
+    onToggleSandbox: ((Boolean) -> Unit)? = null,
+    onSelectDistro: ((LinuxDistro) -> Unit)? = null,
+    onSetupSandbox: (() -> Unit)? = null,
+    onCancelSandbox: (() -> Unit)? = null,
+    onResetSandbox: (() -> Unit)? = null,
+    onInstallPackages: (() -> Unit)? = null,
+    onMigrateHome: (() -> Unit)? = null,
+    androidUpdateContent: (@Composable () -> Unit)? = null,
+    debugBuildStamp: String? = null,
 ) {
     val widthClass = LocalDoraiWindowWidthClass.current
     val colors = LocalDoraiColors.current
@@ -154,6 +171,22 @@ fun DoraiSettingsScreen(
                     onThemeSelected = onThemeSelected,
                     currentThemeStyle = currentThemeStyle,
                     onThemeStyleSelected = onThemeStyleSelected,
+                    uiState = uiState,
+                    actions = actions,
+                    sandboxState = sandboxState,
+                    onToggleSandbox = onToggleSandbox,
+                    onSelectDistro = onSelectDistro,
+                    onSetupSandbox = onSetupSandbox,
+                    onCancelSandbox = onCancelSandbox,
+                    onResetSandbox = onResetSandbox,
+                    onInstallPackages = onInstallPackages,
+                    onMigrateHome = onMigrateHome,
+                    androidUpdateContent = androidUpdateContent,
+                    debugBuildStamp = debugBuildStamp,
+                    onNavigateToCategory = {
+                        selectedCat = it
+                        onCategoryChanged(it)
+                    },
                 )
             }
         }
@@ -175,11 +208,69 @@ fun DoraiSettingsScreen(
                     onThemeSelected = onThemeSelected,
                     currentThemeStyle = currentThemeStyle,
                     onThemeStyleSelected = onThemeStyleSelected,
+                    uiState = uiState,
+                    actions = actions,
+                    sandboxState = sandboxState,
+                    onToggleSandbox = onToggleSandbox,
+                    onSelectDistro = onSelectDistro,
+                    onSetupSandbox = onSetupSandbox,
+                    onCancelSandbox = onCancelSandbox,
+                    onResetSandbox = onResetSandbox,
+                    onInstallPackages = onInstallPackages,
+                    onMigrateHome = onMigrateHome,
+                    androidUpdateContent = androidUpdateContent,
+                    debugBuildStamp = debugBuildStamp,
+                    onNavigateToCategory = {
+                        selectedCat = it
+                        onCategoryChanged(it)
+                    },
                 )
             },
             modifier = modifier,
         )
     }
+}
+
+/**
+ * Production-connected wrapper for UI v2 Settings, binding [SettingsViewModel] and [SandboxViewModel].
+ */
+@Composable
+fun DoraiSettingsScreenConnected(
+    activeCategory: SettingsCategory = SettingsCategory.General,
+    onCategoryChanged: (SettingsCategory) -> Unit,
+    selectedThemeId: String,
+    onThemeSelected: (String) -> Unit,
+    currentThemeStyle: ThemeStyle,
+    onThemeStyleSelected: (ThemeStyle) -> Unit,
+    settingsViewModel: SettingsViewModel = koinViewModel(),
+    sandboxViewModel: SandboxViewModel = koinViewModel(),
+    androidUpdateContent: (@Composable () -> Unit)? = null,
+    modifier: Modifier = Modifier,
+) {
+    val uiState by settingsViewModel.state.collectAsStateWithLifecycle()
+    val sandboxState by sandboxViewModel.state.collectAsStateWithLifecycle()
+
+    DoraiSettingsScreen(
+        activeCategory = activeCategory,
+        onCategoryChanged = onCategoryChanged,
+        selectedThemeId = selectedThemeId,
+        onThemeSelected = onThemeSelected,
+        currentThemeStyle = currentThemeStyle,
+        onThemeStyleSelected = onThemeStyleSelected,
+        uiState = uiState,
+        actions = settingsViewModel.actions,
+        sandboxState = sandboxState,
+        onToggleSandbox = sandboxViewModel::onToggleSandbox,
+        onSelectDistro = sandboxViewModel::onSelectDistro,
+        onSetupSandbox = sandboxViewModel::onSetupSandbox,
+        onCancelSandbox = sandboxViewModel::onCancelSandbox,
+        onResetSandbox = sandboxViewModel::onResetSandbox,
+        onInstallPackages = sandboxViewModel::onInstallPackages,
+        onMigrateHome = sandboxViewModel::onMigrateHome,
+        androidUpdateContent = androidUpdateContent,
+        debugBuildStamp = "v${Version.appVersion} · uiV2=on",
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -232,6 +323,19 @@ private fun SettingsCategoryContent(
     onThemeSelected: (String) -> Unit,
     currentThemeStyle: ThemeStyle,
     onThemeStyleSelected: (ThemeStyle) -> Unit,
+    uiState: SettingsUiState? = null,
+    actions: SettingsActions? = null,
+    sandboxState: SandboxUiState? = null,
+    onToggleSandbox: ((Boolean) -> Unit)? = null,
+    onSelectDistro: ((LinuxDistro) -> Unit)? = null,
+    onSetupSandbox: (() -> Unit)? = null,
+    onCancelSandbox: (() -> Unit)? = null,
+    onResetSandbox: (() -> Unit)? = null,
+    onInstallPackages: (() -> Unit)? = null,
+    onMigrateHome: (() -> Unit)? = null,
+    androidUpdateContent: (@Composable () -> Unit)? = null,
+    debugBuildStamp: String? = null,
+    onNavigateToCategory: (SettingsCategory) -> Unit = {},
 ) {
     val colors = LocalDoraiColors.current
     val scrollState = rememberScrollState()
@@ -250,27 +354,112 @@ private fun SettingsCategoryContent(
             fontWeight = FontWeight.Bold,
         )
 
-        when (category) {
-            SettingsCategory.General -> GeneralSettingsContent()
+        if (uiState != null && actions != null) {
+            when (category) {
+                SettingsCategory.General -> {
+                    if (debugBuildStamp != null) {
+                        SettingsSectionCard {
+                            Text("Build & Environment", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(DoraiSpacing.XS))
+                            Text(debugBuildStamp, color = colors.muted, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
+                        }
+                    }
+                    GeneralContent(uiState = uiState, actions = actions, androidUpdateContent = androidUpdateContent)
+                    BottomInfo()
+                }
 
-            SettingsCategory.Appearance -> AppearanceSettingsContent(
-                selectedThemeId = selectedThemeId,
-                onThemeSelected = onThemeSelected,
-                currentThemeStyle = currentThemeStyle,
-                onThemeStyleSelected = onThemeStyleSelected,
-            )
+                SettingsCategory.Appearance -> AppearanceSettingsContent(
+                    selectedThemeId = selectedThemeId,
+                    onThemeSelected = onThemeSelected,
+                    currentThemeStyle = currentThemeStyle,
+                    onThemeStyleSelected = onThemeStyleSelected,
+                )
 
-            SettingsCategory.Agent -> AgentSettingsContent()
+                SettingsCategory.Agent -> AgentContent(uiState = uiState, actions = actions)
 
-            SettingsCategory.Providers -> ProvidersSettingsContent()
+                SettingsCategory.Providers -> ServicesContent(uiState = uiState, actions = actions)
 
-            SettingsCategory.Tools -> ToolsSettingsContent()
+                SettingsCategory.Tools -> {
+                    PluginsSection(tools = uiState.tools, onToggleTool = actions.onToggleTool)
+                    if (uiState.skills.isNotEmpty() || sandboxState?.showSandbox == true) {
+                        SkillsSection(
+                            skills = uiState.skills,
+                            onUninstallSkill = actions.onUninstallSkill,
+                            showAddDialog = uiState.showAddSkillDialog,
+                            onShowAddDialog = actions.onShowAddSkillDialog,
+                            onInstallGitHub = actions.onInstallGitHubSkill,
+                            onInstallBrowsed = actions.onInstallBrowsedSkill,
+                            isInstalling = uiState.isInstallingSkill,
+                            installError = uiState.skillInstallError,
+                            browsableSkills = uiState.browsableSkills,
+                            isBrowsing = uiState.isBrowsingSkills,
+                            browseFailed = uiState.browseSkillsFailed,
+                            isSandboxInstalled = sandboxState?.sandboxInstalled ?: false,
+                            onNavigateToSandbox = { onNavigateToCategory(SettingsCategory.Sandbox) },
+                            onBrowseSkills = actions.onBrowseSkills,
+                        )
+                    }
+                }
 
-            SettingsCategory.Mcp -> McpSettingsContent()
+                SettingsCategory.Mcp -> {
+                    McpServersSection(
+                        mcpServers = uiState.mcpServers,
+                        onAddMcpServer = actions.onAddMcpServer,
+                        onRemoveMcpServer = actions.onRemoveMcpServer,
+                        onToggleMcpServer = actions.onToggleMcpServer,
+                        onRefreshMcpServer = actions.onRefreshMcpServer,
+                        onToggleTool = actions.onToggleTool,
+                        showAddDialog = uiState.showAddMcpServerDialog,
+                        onShowAddDialog = actions.onShowAddMcpServerDialog,
+                        onAddPopularMcpServer = actions.onAddPopularMcpServer,
+                    )
+                }
 
-            SettingsCategory.Sandbox -> SandboxSettingsContent()
+                SettingsCategory.Sandbox -> {
+                    if (sandboxState != null && sandboxState.showSandbox) {
+                        SandboxSettingsCard(
+                            sandboxState = sandboxState,
+                            onToggleSandbox = onToggleSandbox ?: {},
+                            onSelectDistro = onSelectDistro ?: {},
+                            onSetupSandbox = onSetupSandbox ?: {},
+                            onCancelSandbox = onCancelSandbox ?: {},
+                            onResetSandbox = onResetSandbox ?: {},
+                            onInstallPackages = onInstallPackages ?: {},
+                            onMigrateHome = onMigrateHome ?: {},
+                        )
+                    } else {
+                        SandboxUnavailableContent()
+                    }
+                }
 
-            SettingsCategory.Account -> AccountSettingsContent()
+                SettingsCategory.Account -> {
+                    DataControlContent(uiState = uiState, actions = actions)
+                    AccountPlanContent(uiState = uiState)
+                }
+            }
+        } else {
+            when (category) {
+                SettingsCategory.General -> GeneralSettingsContent()
+
+                SettingsCategory.Appearance -> AppearanceSettingsContent(
+                    selectedThemeId = selectedThemeId,
+                    onThemeSelected = onThemeSelected,
+                    currentThemeStyle = currentThemeStyle,
+                    onThemeStyleSelected = onThemeStyleSelected,
+                )
+
+                SettingsCategory.Agent -> AgentSettingsContent()
+
+                SettingsCategory.Providers -> ProvidersSettingsContent()
+
+                SettingsCategory.Tools -> ToolsSettingsContent()
+
+                SettingsCategory.Mcp -> McpSettingsContent()
+
+                SettingsCategory.Sandbox -> SandboxSettingsContent()
+
+                SettingsCategory.Account -> AccountSettingsContent()
+            }
         }
     }
 }

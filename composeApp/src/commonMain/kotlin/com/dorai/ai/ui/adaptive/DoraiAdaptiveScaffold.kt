@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
@@ -81,7 +82,11 @@ fun DoraiAdaptiveScaffold(
         CompositionLocalProvider(LocalDoraiWindowWidthClass provides widthClass) {
             when (widthClass) {
                 DoraiWindowWidthClass.Compact -> {
-                    Column(modifier = Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .statusBarsPadding(),
+                    ) {
                         Box(
                             modifier = Modifier
                                 .weight(1f)
@@ -98,7 +103,11 @@ fun DoraiAdaptiveScaffold(
                 }
 
                 DoraiWindowWidthClass.Medium, DoraiWindowWidthClass.Expanded -> {
-                    Row(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .statusBarsPadding(),
+                    ) {
                         DoraiNavRail(
                             selectedDestination = selectedDestination,
                             onDestinationSelected = onDestinationSelected,
@@ -115,7 +124,11 @@ fun DoraiAdaptiveScaffold(
                 }
 
                 DoraiWindowWidthClass.Large -> {
-                    Row(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .statusBarsPadding(),
+                    ) {
                         DoraiPermanentNavDrawer(
                             selectedDestination = selectedDestination,
                             onDestinationSelected = onDestinationSelected,

@@ -1,14 +1,20 @@
 package com.dorai.ai.ui.chat
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -16,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,24 +30,36 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -55,16 +74,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dorai.ai.theme.engine.doraiSurfaceStyle
+import com.dorai.ai.data.Attachment
+import com.dorai.ai.data.SmsDraft
+import com.dorai.ai.decodeToImageBitmap
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.adaptive.DoraiListDetailPaneScaffold
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
+import com.dorai.ai.ui.chat.composables.HeartbeatBanner
+import com.dorai.ai.ui.chat.composables.PendingSmsBanners
 import com.dorai.ai.ui.components.v2.DoraiComposer
 import com.dorai.ai.ui.components.v2.DoraiDynamicUiBlock
 import com.dorai.ai.ui.components.v2.DoraiModalSheet
@@ -74,22 +98,31 @@ import com.dorai.ai.ui.components.v2.DoraiStatusBadge
 import com.dorai.ai.ui.components.v2.DoraiToolCard
 import com.dorai.ai.ui.components.v2.DynamicUiModel
 import com.dorai.ai.ui.components.v2.ToolExecutionModel
+import com.dorai.ai.ui.markdown.MarkdownContent
+import com.dorai.ai.ui.markdown.parseMarkdown
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.bot_message_thinking_expand_content_description
+import dorai.composeapp.generated.resources.bot_message_thinking_label
 import dorai.composeapp.generated.resources.chat_copy_message
 import dorai.composeapp.generated.resources.chat_history_title
 import dorai.composeapp.generated.resources.chat_jump_to_latest
 import dorai.composeapp.generated.resources.chat_model_picker_title
 import dorai.composeapp.generated.resources.chat_regenerate_message
 import dorai.composeapp.generated.resources.chat_tagline
-import dorai.composeapp.generated.resources.chat_today
-import dorai.composeapp.generated.resources.chat_yesterday
+import dorai.composeapp.generated.resources.fallback_answered_by
+import dorai.composeapp.generated.resources.ic_file
 import dorai.composeapp.generated.resources.logo
 import dorai.composeapp.generated.resources.nav_brand_title
-import dorai.composeapp.generated.resources.nav_chat
 import dorai.composeapp.generated.resources.new_chat_content_description
+import io.github.vinceglb.filekit.PlatformFile
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 data class ChatMessageItem(
     val id: String,
@@ -99,21 +132,30 @@ data class ChatMessageItem(
     val isModelLocal: Boolean = false,
     val toolExecutions: List<ToolExecutionModel> = emptyList(),
     val dynamicUi: DynamicUiModel? = null,
+    val attachments: List<Attachment> = emptyList(),
+    val reasoningSegments: List<String> = emptyList(),
+    val isThinking: Boolean = false,
+    val isSpeaking: Boolean = false,
+    val fallbackServiceName: String? = null,
 )
 
 data class ChatConversationSummary(
     val id: String,
     val title: String,
-    val preview: String,
+    val preview: String = "",
     val isToday: Boolean = true,
+    val isPinned: Boolean = false,
 )
 
 /**
  * UI v2 Chat screen featuring:
  * - Adaptive list-detail scaffold (History pane + Conversation pane)
  * - Empty state with mode-dependent quick starts
- * - Message timeline with tool cards and dynamic UI blocks
- * - Data-driven mode selector & multiline composer
+ * - Message timeline with Markdown, code highlighting, tool cards, and dynamic UI blocks
+ * - Collapsible reasoning/thinking blocks
+ * - Multimodal user attachments rendering
+ * - Text-to-speech audio playback action
+ * - Data-driven mode selector & multiline composer with file attachment preview chips
  * - Model picker sheet
  */
 @Composable
@@ -132,6 +174,27 @@ fun DoraiChatScreen(
     onStopStreaming: (() -> Unit)? = null,
     onRegenerate: (() -> Unit)? = null,
     onOpenModelPicker: (() -> Unit)? = null,
+    onAllowOnce: ((String) -> Unit)? = null,
+    onAllowSession: ((String) -> Unit)? = null,
+    onDeny: ((String) -> Unit)? = null,
+    onRetryTool: ((String) -> Unit)? = null,
+    onAskFixTool: ((String) -> Unit)? = null,
+    onDynamicUiOptionSelected: ((String) -> Unit)? = null,
+    onDynamicUiSubmit: (() -> Unit)? = null,
+    onSpeak: ((String) -> Unit)? = null,
+    files: ImmutableList<PlatformFile> = persistentListOf(),
+    onRemoveFile: ((PlatformFile) -> Unit)? = null,
+    onAttachFile: (() -> Unit)? = null,
+    onMicClick: (() -> Unit)? = null,
+    hasUnreadHeartbeat: Boolean = false,
+    onHeartbeatTap: (() -> Unit)? = null,
+    onHeartbeatDismiss: (() -> Unit)? = null,
+    smsDrafts: ImmutableList<SmsDraft> = persistentListOf(),
+    onSendSms: ((String) -> Unit)? = null,
+    onDiscardSms: ((String) -> Unit)? = null,
+    onTogglePinConversation: ((String) -> Unit)? = null,
+    onDeleteConversation: ((String) -> Unit)? = null,
+    onRenameConversation: ((String, String) -> Unit)? = null,
 ) {
     val widthClass = LocalDoraiWindowWidthClass.current
     val colors = LocalDoraiColors.current
@@ -158,6 +221,8 @@ fun DoraiChatScreen(
                             onNewChat()
                             scope.launch { drawerState.close() }
                         },
+                        onTogglePin = onTogglePinConversation,
+                        onDelete = onDeleteConversation,
                     )
                 }
             },
@@ -175,6 +240,24 @@ fun DoraiChatScreen(
                 onRegenerate = onRegenerate,
                 onOpenModelPicker = onOpenModelPicker,
                 onOpenDrawer = { scope.launch { drawerState.open() } },
+                onAllowOnce = onAllowOnce,
+                onAllowSession = onAllowSession,
+                onDeny = onDeny,
+                onRetryTool = onRetryTool,
+                onAskFixTool = onAskFixTool,
+                onDynamicUiOptionSelected = onDynamicUiOptionSelected,
+                onDynamicUiSubmit = onDynamicUiSubmit,
+                onSpeak = onSpeak,
+                files = files,
+                onRemoveFile = onRemoveFile,
+                onAttachFile = onAttachFile,
+                onMicClick = onMicClick,
+                hasUnreadHeartbeat = hasUnreadHeartbeat,
+                onHeartbeatTap = onHeartbeatTap,
+                onHeartbeatDismiss = onHeartbeatDismiss,
+                smsDrafts = smsDrafts,
+                onSendSms = onSendSms,
+                onDiscardSms = onDiscardSms,
             )
         }
     } else {
@@ -184,6 +267,8 @@ fun DoraiChatScreen(
                     conversations = conversations,
                     onOpenConversation = onOpenConversation,
                     onNewChat = onNewChat,
+                    onTogglePin = onTogglePinConversation,
+                    onDelete = onDeleteConversation,
                 )
             },
             detailPane = {
@@ -200,6 +285,24 @@ fun DoraiChatScreen(
                     onRegenerate = onRegenerate,
                     onOpenModelPicker = onOpenModelPicker,
                     onOpenDrawer = null,
+                    onAllowOnce = onAllowOnce,
+                    onAllowSession = onAllowSession,
+                    onDeny = onDeny,
+                    onRetryTool = onRetryTool,
+                    onAskFixTool = onAskFixTool,
+                    onDynamicUiOptionSelected = onDynamicUiOptionSelected,
+                    onDynamicUiSubmit = onDynamicUiSubmit,
+                    onSpeak = onSpeak,
+                    files = files,
+                    onRemoveFile = onRemoveFile,
+                    onAttachFile = onAttachFile,
+                    onMicClick = onMicClick,
+                    hasUnreadHeartbeat = hasUnreadHeartbeat,
+                    onHeartbeatTap = onHeartbeatTap,
+                    onHeartbeatDismiss = onHeartbeatDismiss,
+                    smsDrafts = smsDrafts,
+                    onSendSms = onSendSms,
+                    onDiscardSms = onDiscardSms,
                 )
             },
             modifier = modifier,
@@ -212,6 +315,8 @@ private fun ChatHistoryPane(
     conversations: List<ChatConversationSummary>,
     onOpenConversation: (String) -> Unit,
     onNewChat: () -> Unit,
+    onTogglePin: ((String) -> Unit)? = null,
+    onDelete: ((String) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalDoraiColors.current
@@ -219,7 +324,7 @@ private fun ChatHistoryPane(
 
     val filtered = conversations.filter {
         it.title.contains(searchQuery, ignoreCase = true) || it.preview.contains(searchQuery, ignoreCase = true)
-    }
+    }.sortedByDescending { it.isPinned }
 
     Column(
         modifier = modifier
@@ -286,28 +391,73 @@ private fun ChatHistoryPane(
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             items(filtered, key = { it.id }) { conv ->
-                Column(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
                         .clickable { onOpenConversation(conv.id) }
                         .padding(horizontal = 10.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = conv.title,
-                        color = colors.text,
-                        fontSize = 13.5.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        text = conv.preview,
-                        color = colors.muted,
-                        fontSize = 12.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = conv.title,
+                                color = colors.text,
+                                fontSize = 13.5.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false),
+                            )
+                            if (conv.isPinned) {
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Icon(
+                                    imageVector = Icons.Default.PushPin,
+                                    contentDescription = "Pinned",
+                                    tint = colors.primary,
+                                    modifier = Modifier.size(12.dp),
+                                )
+                            }
+                        }
+                        if (conv.preview.isNotBlank()) {
+                            Text(
+                                text = conv.preview,
+                                color = colors.muted,
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
+
+                    if (onTogglePin != null) {
+                        IconButton(
+                            onClick = { onTogglePin(conv.id) },
+                            modifier = Modifier.size(28.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.PushPin,
+                                contentDescription = "Pin/Unpin",
+                                tint = if (conv.isPinned) colors.primary else colors.muted.copy(alpha = 0.5f),
+                                modifier = Modifier.size(14.dp),
+                            )
+                        }
+                    }
+
+                    if (onDelete != null) {
+                        IconButton(
+                            onClick = { onDelete(conv.id) },
+                            modifier = Modifier.size(28.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete",
+                                tint = colors.muted.copy(alpha = 0.5f),
+                                modifier = Modifier.size(14.dp),
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -329,6 +479,24 @@ private fun ChatDetailPane(
     onOpenModelPicker: (() -> Unit)?,
     onOpenDrawer: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    onAllowOnce: ((String) -> Unit)? = null,
+    onAllowSession: ((String) -> Unit)? = null,
+    onDeny: ((String) -> Unit)? = null,
+    onRetryTool: ((String) -> Unit)? = null,
+    onAskFixTool: ((String) -> Unit)? = null,
+    onDynamicUiOptionSelected: ((String) -> Unit)? = null,
+    onDynamicUiSubmit: (() -> Unit)? = null,
+    onSpeak: ((String) -> Unit)? = null,
+    files: ImmutableList<PlatformFile> = persistentListOf(),
+    onRemoveFile: ((PlatformFile) -> Unit)? = null,
+    onAttachFile: (() -> Unit)? = null,
+    onMicClick: (() -> Unit)? = null,
+    hasUnreadHeartbeat: Boolean = false,
+    onHeartbeatTap: (() -> Unit)? = null,
+    onHeartbeatDismiss: (() -> Unit)? = null,
+    smsDrafts: ImmutableList<SmsDraft> = persistentListOf(),
+    onSendSms: ((String) -> Unit)? = null,
+    onDiscardSms: ((String) -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
     val widthClass = LocalDoraiWindowWidthClass.current
@@ -411,6 +579,22 @@ private fun ChatDetailPane(
             }
         }
 
+        // Proactive Heartbeat and SMS Banners
+        if (hasUnreadHeartbeat && onHeartbeatTap != null && onHeartbeatDismiss != null) {
+            HeartbeatBanner(
+                visible = true,
+                onTap = onHeartbeatTap,
+                onDismiss = onHeartbeatDismiss,
+            )
+        }
+        if (smsDrafts.isNotEmpty() && onSendSms != null && onDiscardSms != null) {
+            PendingSmsBanners(
+                drafts = smsDrafts,
+                onSend = onSendSms,
+                onDiscard = onDiscardSms,
+            )
+        }
+
         // Main Messages / Empty State Area
         Box(
             modifier = Modifier
@@ -420,7 +604,7 @@ private fun ChatDetailPane(
             if (messages.isEmpty()) {
                 ChatEmptyState(
                     selectedModeId = selectedModeId,
-                    onSelectQuickPrompt = { prompt ->
+                    onSelectQuickPrompt = { prompt: String ->
                         composerInput = prompt
                     },
                 )
@@ -436,6 +620,14 @@ private fun ChatDetailPane(
                         ChatMessageRow(
                             message = msg,
                             onRegenerate = onRegenerate,
+                            onSpeak = onSpeak,
+                            onAllowOnce = onAllowOnce,
+                            onAllowSession = onAllowSession,
+                            onDeny = onDeny,
+                            onRetryTool = onRetryTool,
+                            onAskFixTool = onAskFixTool,
+                            onDynamicUiOptionSelected = onDynamicUiOptionSelected,
+                            onDynamicUiSubmit = onDynamicUiSubmit,
                         )
                     }
                 }
@@ -487,24 +679,38 @@ private fun ChatDetailPane(
                 onValueChange = { composerInput = it },
                 onSend = {
                     val prompt = composerInput.trim()
-                    if (prompt.isNotEmpty()) {
+                    if (prompt.isNotEmpty() || files.isNotEmpty()) {
                         composerInput = ""
                         onSendMessage(prompt)
                     }
                 },
                 isStreaming = isStreaming,
                 onStopStreaming = onStopStreaming,
+                onAttach = onAttachFile,
+                onMicClick = onMicClick,
+                files = files,
+                onRemoveFile = onRemoveFile,
             )
         }
     }
 }
 
+@OptIn(ExperimentalEncodingApi::class, ExperimentalLayoutApi::class)
 @Composable
 private fun ChatMessageRow(
     message: ChatMessageItem,
     onRegenerate: (() -> Unit)?,
+    onSpeak: ((String) -> Unit)? = null,
+    onAllowOnce: ((String) -> Unit)? = null,
+    onAllowSession: ((String) -> Unit)? = null,
+    onDeny: ((String) -> Unit)? = null,
+    onRetryTool: ((String) -> Unit)? = null,
+    onAskFixTool: ((String) -> Unit)? = null,
+    onDynamicUiOptionSelected: ((String) -> Unit)? = null,
+    onDynamicUiSubmit: (() -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
+    val clipboardManager = androidx.compose.ui.platform.LocalClipboardManager.current
 
     if (message.isUser) {
         // User message bubble on right
@@ -519,22 +725,83 @@ private fun ChatMessageRow(
                     .background(colors.surface2)
                     .padding(horizontal = 16.dp, vertical = 10.dp),
             ) {
-                Text(
-                    text = message.text,
-                    color = colors.text,
-                    fontSize = 15.sp,
-                    lineHeight = 22.sp,
-                )
+                Column {
+                    // Image attachments
+                    val images = message.attachments.filter { it.mimeType.startsWith("image/") }
+                    val otherFiles = message.attachments.filter { !it.mimeType.startsWith("image/") }
+                    for (att in images) {
+                        val imageBitmap = remember(att.data) {
+                            try {
+                                decodeToImageBitmap(Base64.decode(att.data))
+                            } catch (_: Exception) {
+                                null
+                            }
+                        }
+                        if (imageBitmap != null) {
+                            Image(
+                                bitmap = imageBitmap,
+                                contentDescription = "Attachment Image",
+                                modifier = Modifier
+                                    .widthIn(max = 240.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .padding(bottom = 6.dp),
+                                contentScale = ContentScale.FillWidth,
+                            )
+                        }
+                    }
+                    if (otherFiles.isNotEmpty()) {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.padding(bottom = 6.dp),
+                        ) {
+                            for (att in otherFiles) {
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = colors.surface,
+                                    border = BorderStroke(1.dp, colors.line),
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(Res.drawable.ic_file),
+                                            contentDescription = null,
+                                            tint = colors.primary,
+                                            modifier = Modifier.size(14.dp),
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = att.fileName ?: att.mimeType,
+                                            color = colors.text,
+                                            fontSize = 12.sp,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (message.text.isNotEmpty()) {
+                        SelectionContainer {
+                            Text(
+                                text = message.text,
+                                color = colors.text,
+                                fontSize = 15.sp,
+                                lineHeight = 22.sp,
+                            )
+                        }
+                    }
+                }
             }
         }
     } else {
-        // AI message full-width, no bubble
+        // AI message full-width, clean modern layout
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
         ) {
-            // Who row: Model name + Badge
+            // Who row: Model name + Badge + Optional Fallback indicator
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 6.dp),
@@ -547,22 +814,49 @@ private fun ChatMessageRow(
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 DoraiProviderBadge(isLocal = message.isModelLocal, iconOnly = true)
+                if (message.fallbackServiceName != null) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(Res.string.fallback_answered_by, message.fallbackServiceName),
+                        color = colors.muted,
+                        fontSize = 11.5.sp,
+                    )
+                }
             }
 
-            // Message text
-            if (message.text.isNotEmpty()) {
-                Text(
-                    text = message.text,
-                    color = colors.text,
-                    fontSize = 15.sp,
-                    lineHeight = 23.sp,
+            // Reasoning / Thinking block
+            if (message.reasoningSegments.isNotEmpty() || message.isThinking) {
+                DoraiReasoningBlock(
+                    segments = message.reasoningSegments,
+                    isComplete = !message.isThinking,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
                 )
+            }
+
+            // Message text parsed with rich Markdown (code highlighting, math, tables)
+            if (message.text.isNotEmpty()) {
+                val document = remember(message.text) { parseMarkdown(message.text) }
+                SelectionContainer {
+                    MarkdownContent(
+                        document = document,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
 
             // Embedded Tool cards
             message.toolExecutions.forEach { tool ->
                 Spacer(modifier = Modifier.height(DoraiSpacing.SM))
-                DoraiToolCard(model = tool)
+                DoraiToolCard(
+                    model = tool,
+                    onAllowOnce = onAllowOnce?.let { cb -> { cb(tool.toolCallId) } },
+                    onAllowSession = onAllowSession?.let { cb -> { cb(tool.toolCallId) } },
+                    onDeny = onDeny?.let { cb -> { cb(tool.toolCallId) } },
+                    onRetry = onRetryTool?.let { cb -> { cb(tool.toolCallId) } },
+                    onAskFix = onAskFixTool?.let { cb -> { cb(tool.toolCallId) } },
+                )
             }
 
             // Embedded Dynamic UI block
@@ -570,28 +864,54 @@ private fun ChatMessageRow(
                 Spacer(modifier = Modifier.height(DoraiSpacing.SM))
                 DoraiDynamicUiBlock(
                     model = message.dynamicUi,
-                    onOptionSelected = {},
-                    onConfirm = {},
+                    onOptionSelected = { onDynamicUiOptionSelected?.invoke(it) },
+                    onConfirm = { onDynamicUiSubmit?.invoke() },
                 )
             }
 
-            // Action row (copy, regenerate)
+            // Action row (copy, text-to-speech speaker, regenerate)
             Row(
                 modifier = Modifier
                     .padding(top = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(2.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
+                var isCopied by remember { mutableStateOf(false) }
+                LaunchedEffect(isCopied) {
+                    if (isCopied) {
+                        delay(2000)
+                        isCopied = false
+                    }
+                }
                 IconButton(
-                    onClick = {},
+                    onClick = {
+                        clipboardManager.setText(androidx.compose.ui.text.AnnotatedString(message.text))
+                        isCopied = true
+                    },
                     modifier = Modifier.size(36.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Default.ContentCopy,
                         contentDescription = stringResource(Res.string.chat_copy_message),
-                        tint = colors.muted,
+                        tint = if (isCopied) colors.ok else colors.muted,
                         modifier = Modifier.size(16.dp),
                     )
                 }
+
+                if (onSpeak != null && message.text.isNotEmpty()) {
+                    IconButton(
+                        onClick = { onSpeak(message.id) },
+                        modifier = Modifier.size(36.dp),
+                    ) {
+                        Icon(
+                            imageVector = if (message.isSpeaking) Icons.Default.Stop else Icons.AutoMirrored.Filled.VolumeUp,
+                            contentDescription = if (message.isSpeaking) "Stop Speaking" else "Read Aloud",
+                            tint = if (message.isSpeaking) colors.primary else colors.muted,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                }
+
                 if (onRegenerate != null) {
                     IconButton(
                         onClick = onRegenerate,
@@ -602,6 +922,140 @@ private fun ChatMessageRow(
                             contentDescription = stringResource(Res.string.chat_regenerate_message),
                             tint = colors.muted,
                             modifier = Modifier.size(16.dp),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DoraiReasoningBlock(
+    segments: List<String>,
+    isComplete: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val colors = LocalDoraiColors.current
+    var userToggled by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(!isComplete) }
+    LaunchedEffect(isComplete) {
+        if (!userToggled && isComplete) {
+            expanded = false
+        }
+    }
+    val preview = remember(segments) {
+        segments.lastOrNull()
+            ?.lineSequence()
+            ?.map { it.trim() }
+            ?.firstOrNull { it.isNotEmpty() }
+            .orEmpty()
+    }
+
+    val blockShape = RoundedCornerShape(10.dp)
+
+    Column(
+        modifier = modifier
+            .clip(blockShape)
+            .background(colors.surface2)
+            .border(1.dp, colors.line, blockShape),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    userToggled = true
+                    expanded = !expanded
+                }
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .background(colors.primary.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Lightbulb,
+                    contentDescription = null,
+                    tint = colors.primary,
+                    modifier = Modifier.size(14.dp),
+                )
+            }
+            Spacer(Modifier.width(8.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = stringResource(Res.string.bot_message_thinking_label),
+                        color = colors.text,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    if (segments.size > 1) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(colors.primary.copy(alpha = 0.12f))
+                                .padding(horizontal = 5.dp, vertical = 1.dp),
+                        ) {
+                            Text(
+                                text = "${segments.size} steps",
+                                color = colors.primary,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Medium,
+                            )
+                        }
+                    }
+                }
+                if (!expanded && preview.isNotEmpty()) {
+                    Text(
+                        text = preview,
+                        color = colors.muted,
+                        fontSize = 11.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(top = 2.dp),
+                    )
+                }
+            }
+            Icon(
+                imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                contentDescription = stringResource(Res.string.bot_message_thinking_expand_content_description),
+                tint = colors.muted,
+                modifier = Modifier.size(16.dp),
+            )
+        }
+
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically(),
+            exit = shrinkVertically(),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 300.dp)
+                    .verticalScroll(rememberScrollState())
+                    .background(colors.surface)
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                segments.forEachIndexed { index, segment ->
+                    if (index > 0) {
+                        HorizontalDivider(
+                            color = colors.line.copy(alpha = 0.6f),
+                            thickness = 1.dp,
+                        )
+                    }
+                    SelectionContainer {
+                        Text(
+                            text = segment,
+                            color = colors.text,
+                            fontSize = 12.5.sp,
+                            lineHeight = 18.sp,
                         )
                     }
                 }
