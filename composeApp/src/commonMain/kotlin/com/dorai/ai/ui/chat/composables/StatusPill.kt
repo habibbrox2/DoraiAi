@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.chat.composables
+package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -20,6 +21,7 @@ import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.chat.ChatShapes
 import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.chat.ChatStatusColors
+import com.dorai.ai.ui.theme.LocalDesignColorTokens
 
 /**
  * A compact status pill used by the timeline to surface streaming, tool execution,
@@ -64,17 +66,42 @@ fun StatusPill(
 /** Convenience presets so callers do not repeat color wiring. */
 object StatusPillDefaults {
     @Composable
-    fun streaming(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null) = StatusPill(text = text, color = ChatStatusColors.streaming, modifier = modifier, icon = icon)
+    fun streaming(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null) = StatusPill(
+        text = text,
+        color = LocalDesignColorTokens.current.primary.takeOrElse { ChatStatusColors.streaming },
+        modifier = modifier,
+        icon = icon,
+    )
 
     @Composable
-    fun tool(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null) = StatusPill(text = text, color = ChatStatusColors.toolActivity, modifier = modifier, icon = icon)
+    fun tool(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null) = StatusPill(
+        text = text,
+        color = LocalDesignColorTokens.current.primary.takeOrElse { ChatStatusColors.toolActivity },
+        modifier = modifier,
+        icon = icon,
+    )
 
     @Composable
-    fun fallback(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null) = StatusPill(text = text, color = ChatStatusColors.fallback, modifier = modifier, icon = icon)
+    fun fallback(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null) = StatusPill(
+        text = text,
+        color = LocalDesignColorTokens.current.accent.takeOrElse { ChatStatusColors.fallback },
+        modifier = modifier,
+        icon = icon,
+    )
 
     @Composable
-    fun error(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null) = StatusPill(text = text, color = ChatStatusColors.error, modifier = modifier, icon = icon)
+    fun error(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null) = StatusPill(
+        text = text,
+        color = LocalDesignColorTokens.current.error.takeOrElse { ChatStatusColors.error },
+        modifier = modifier,
+        icon = icon,
+    )
 
     @Composable
-    fun retry(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null) = StatusPill(text = text, color = ChatStatusColors.retry, modifier = modifier, icon = icon)
+    fun retry(text: String, modifier: Modifier = Modifier, icon: ImageVector? = null) = StatusPill(
+        text = text,
+        color = LocalDesignColorTokens.current.warning.takeOrElse { ChatStatusColors.retry },
+        modifier = modifier,
+        icon = icon,
+    )
 }

@@ -70,7 +70,7 @@ fun DoraiTheme(
         LocalDoraiThemeStyle provides state.activeStyle,
         LocalDoraiColors provides DoraiSemanticColors.from(palette),
         LocalDesignTokens provides DesignTokens,
-        LocalDesignColorTokens provides DesignColorTokens.from(colorScheme),
+        LocalDesignColorTokens provides DesignColorTokens.from(colorScheme, palette),
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

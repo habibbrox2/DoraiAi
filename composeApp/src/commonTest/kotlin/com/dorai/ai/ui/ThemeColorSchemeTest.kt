@@ -5,6 +5,7 @@ import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.data.contrastRatio
 import com.dorai.ai.theme.data.relativeLuminance
 import com.dorai.ai.theme.engine.toColorScheme
+import com.dorai.ai.theme.tokens.DoraiSemanticColors
 import com.dorai.ai.ui.theme.DesignColorTokens
 import com.dorai.ai.ui.theme.DesignTokens
 import kotlin.test.Test
@@ -149,5 +150,29 @@ class ThemeColorSchemeTest {
     @Test
     fun `local design tokens has default instance`() {
         assertNotNull(com.dorai.ai.ui.theme.LocalDesignTokens)
+    }
+
+    @Test
+    fun `legacy DesignColorTokens harmonizes with DoraiSemanticColors across all 13 presets`() {
+        ThemePresets.all.forEach { preset ->
+            val scheme = preset.toColorScheme()
+            val legacyTokens = DesignColorTokens.from(scheme, preset)
+            val semanticColors = DoraiSemanticColors.from(preset)
+
+            assertEquals(semanticColors.primary, legacyTokens.primary, "${preset.id} primary contract")
+            assertEquals(semanticColors.accent, legacyTokens.accent, "${preset.id} accent contract")
+            assertEquals(semanticColors.background, legacyTokens.background, "${preset.id} background contract")
+            assertEquals(semanticColors.surface, legacyTokens.surface, "${preset.id} surface contract")
+            assertEquals(semanticColors.line, legacyTokens.line, "${preset.id} line contract")
+            assertEquals(semanticColors.text, legacyTokens.textPrimary, "${preset.id} textPrimary contract")
+            assertEquals(semanticColors.muted, legacyTokens.textSecondary, "${preset.id} textSecondary contract")
+            assertEquals(semanticColors.surface2, legacyTokens.surfaceElevated, "${preset.id} surfaceElevated contract")
+            assertEquals(semanticColors.surface, legacyTokens.cardSurface, "${preset.id} cardSurface contract")
+
+            assertEquals(semanticColors.ok, legacyTokens.success, "${preset.id} success status contract")
+            assertEquals(semanticColors.warn, legacyTokens.warning, "${preset.id} warning status contract")
+            assertEquals(semanticColors.err, legacyTokens.error, "${preset.id} error status contract")
+            assertEquals(semanticColors.info, legacyTokens.info, "${preset.id} info status contract")
+        }
     }
 }

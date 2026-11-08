@@ -74,14 +74,14 @@ fun WorkspaceEnvironmentState.toStatusKind(): WorkspaceStatusKind = when (this) 
 /** Color ramp for the four terminal/workflow statuses plus neutral idle. */
 @Composable
 fun rememberWorkspaceStatusColors(): WorkspaceStatusColors {
-    val textSecondary = LocalDesignColorTokens.current.textSecondary
-    return remember {
+    val tokens = LocalDesignColorTokens.current
+    return remember(tokens) {
         WorkspaceStatusColors(
-            idle = textSecondary,
-            running = DesignTokens.AgentViolet,
-            success = DesignTokens.Success,
-            warning = DesignTokens.Warning,
-            failed = DesignTokens.Error,
+            idle = tokens.textSecondary,
+            running = tokens.accent,
+            success = tokens.success,
+            warning = tokens.warning,
+            failed = tokens.error,
         )
     }
 }

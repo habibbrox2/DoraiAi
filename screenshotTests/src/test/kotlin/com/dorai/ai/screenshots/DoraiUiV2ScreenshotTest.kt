@@ -247,8 +247,24 @@ class DoraiUiV2ScreenshotTest {
     }
 
     // -------------------------------------------------------------------------
-    // 4. Settings Screen
+    // 4. Settings Screen (All 8 Categories on Compact Phone + Tablet)
     // -------------------------------------------------------------------------
+
+    @Test
+    fun settings_general_compact_ogshine() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.General,
+            onCategoryChanged = {},
+            selectedThemeId = "ogshine",
+            onThemeSelected = {},
+            currentThemeStyle = ThemeStyle.Flat,
+            onThemeStyleSelected = {},
+        )
+    }
 
     @Test
     fun settings_appearance_compact_ogshine() = snap(
@@ -258,6 +274,102 @@ class DoraiUiV2ScreenshotTest {
     ) {
         DoraiSettingsScreen(
             activeCategory = SettingsCategory.Appearance,
+            onCategoryChanged = {},
+            selectedThemeId = "ogshine",
+            onThemeSelected = {},
+            currentThemeStyle = ThemeStyle.Flat,
+            onThemeStyleSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_agent_compact_ogshine() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Agent,
+            onCategoryChanged = {},
+            selectedThemeId = "ogshine",
+            onThemeSelected = {},
+            currentThemeStyle = ThemeStyle.Flat,
+            onThemeStyleSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_providers_compact_ogshine() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Providers,
+            onCategoryChanged = {},
+            selectedThemeId = "ogshine",
+            onThemeSelected = {},
+            currentThemeStyle = ThemeStyle.Flat,
+            onThemeStyleSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_tools_compact_ogshine() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Tools,
+            onCategoryChanged = {},
+            selectedThemeId = "ogshine",
+            onThemeSelected = {},
+            currentThemeStyle = ThemeStyle.Flat,
+            onThemeStyleSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_mcp_compact_ogshine() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Mcp,
+            onCategoryChanged = {},
+            selectedThemeId = "ogshine",
+            onThemeSelected = {},
+            currentThemeStyle = ThemeStyle.Flat,
+            onThemeStyleSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_sandbox_compact_ogshine() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Sandbox,
+            onCategoryChanged = {},
+            selectedThemeId = "ogshine",
+            onThemeSelected = {},
+            currentThemeStyle = ThemeStyle.Flat,
+            onThemeStyleSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_account_compact_ogshine() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Account,
             onCategoryChanged = {},
             selectedThemeId = "ogshine",
             onThemeSelected = {},
