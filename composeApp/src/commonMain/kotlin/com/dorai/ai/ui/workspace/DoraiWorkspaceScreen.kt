@@ -126,6 +126,10 @@ fun DoraiWorkspaceScreen(
     onOpenProject: (WorkspaceProjectItem) -> Unit,
     onCloseProject: () -> Unit,
     modifier: Modifier = Modifier,
+    terminalContent: (@Composable () -> Unit)? = null,
+    editorContent: (@Composable () -> Unit)? = null,
+    gitContent: (@Composable () -> Unit)? = null,
+    onCreateProject: ((String) -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
     val widthClass = LocalDoraiWindowWidthClass.current
@@ -143,6 +147,7 @@ fun DoraiWorkspaceScreen(
                 isSandboxRunning = isSandboxRunning,
                 onOpenProject = onOpenProject,
                 onStartSandbox = onStartSandbox,
+                onCreateProject = onCreateProject,
             )
         } else {
             ActiveProjectView(
@@ -150,6 +155,9 @@ fun DoraiWorkspaceScreen(
                 isSandboxRunning = isSandboxRunning,
                 onCloseProject = onCloseProject,
                 onStartSandbox = onStartSandbox,
+                terminalContent = terminalContent,
+                editorContent = editorContent,
+                gitContent = gitContent,
             )
         }
     }
@@ -241,9 +249,12 @@ private fun WorkspaceProjectsView(
     isSandboxRunning: Boolean,
     onOpenProject: (WorkspaceProjectItem) -> Unit,
     onStartSandbox: () -> Unit,
+    onCreateProject: ((String) -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
     val scrollState = rememberScrollState()
+    var showNewProjectDialog by remember { mutableStateOf(false) }
+    var newProjectName by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -351,6 +362,9 @@ private fun ActiveProjectView(
     isSandboxRunning: Boolean,
     onCloseProject: () -> Unit,
     onStartSandbox: () -> Unit,
+    terminalContent: (@Composable () -> Unit)? = null,
+    editorContent: (@Composable () -> Unit)? = null,
+    gitContent: (@Composable () -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
     val widthClass = LocalDoraiWindowWidthClass.current
@@ -404,9 +418,9 @@ private fun ActiveProjectView(
             Box(modifier = Modifier.weight(1f)) {
                 when (activeTab) {
                     WorkspaceProjectTab.Agent -> AgentTabContent()
-                    WorkspaceProjectTab.Editor -> EditorTabContent()
-                    WorkspaceProjectTab.Terminal -> TerminalTabContent(isSandboxRunning, onStartSandbox)
-                    WorkspaceProjectTab.Git -> GitTabContent(project)
+                    WorkspaceProjectTab.Editor -> if (editorContent != null) editorContent() else EditorTabContent()
+                    WorkspaceProjectTab.Terminal -> if (terminalContent != null) terminalContent() else TerminalTabContent(isSandboxRunning, onStartSandbox)
+                    WorkspaceProjectTab.Git -> if (gitContent != null) gitContent() else GitTabContent(project)
                 }
             }
         } else {
@@ -433,9 +447,9 @@ private fun ActiveProjectView(
                         .fillMaxHeight(),
                 ) {
                     when (activeTab) {
-                        WorkspaceProjectTab.Agent, WorkspaceProjectTab.Editor -> EditorTabContent()
-                        WorkspaceProjectTab.Terminal -> TerminalTabContent(isSandboxRunning, onStartSandbox)
-                        WorkspaceProjectTab.Git -> GitTabContent(project)
+                        WorkspaceProjectTab.Agent, WorkspaceProjectTab.Editor -> if (editorContent != null) editorContent() else EditorTabContent()
+                        WorkspaceProjectTab.Terminal -> if (terminalContent != null) terminalContent() else TerminalTabContent(isSandboxRunning, onStartSandbox)
+                        WorkspaceProjectTab.Git -> if (gitContent != null) gitContent() else GitTabContent(project)
                     }
                 }
 

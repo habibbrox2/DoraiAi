@@ -160,7 +160,7 @@ fun SettingsDetailPane(
 }
 
 @Composable
-private fun SandboxUnavailableContent() {
+internal fun SandboxUnavailableContent() {
     Column(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

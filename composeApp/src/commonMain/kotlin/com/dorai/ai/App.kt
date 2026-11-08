@@ -30,6 +30,7 @@ import coil3.compose.setSingletonImageLoaderFactory
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.svg.SvgDecoder
 import com.dorai.ai.data.AppSettings
+import com.dorai.ai.data.Service
 import com.dorai.ai.theme.ThemeViewModel
 import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.tools.AppPermission
@@ -40,6 +41,7 @@ import com.dorai.ai.ui.adaptive.DoraiDestination
 import com.dorai.ai.ui.adaptive.rememberDoraiAppShellState
 import com.dorai.ai.ui.chat.ChatScreen
 import com.dorai.ai.ui.chat.ChatViewModel
+import com.dorai.ai.ui.chat.DoraiChatScreenConnected
 import com.dorai.ai.ui.components.FullScreenImageHost
 import com.dorai.ai.ui.dashboard.DashboardScreen
 import com.dorai.ai.ui.home.DoraiHomeScreen
@@ -47,10 +49,12 @@ import com.dorai.ai.ui.home.HomeChatSummary
 import com.dorai.ai.ui.home.HomeUiState
 import com.dorai.ai.ui.rememberSandboxAwareUriHandler
 import com.dorai.ai.ui.settings.DoraiSettingsScreen
+import com.dorai.ai.ui.settings.DoraiSettingsScreenConnected
 import com.dorai.ai.ui.settings.SettingsCategory
 import com.dorai.ai.ui.settings.SettingsScreen
 import com.dorai.ai.ui.settings.SettingsTab
 import com.dorai.ai.ui.workspace.DoraiWorkspaceScreen
+import com.dorai.ai.ui.workspace.DoraiWorkspaceScreenConnected
 import com.dorai.ai.ui.workspace.WorkspaceProjectItem
 import com.dorai.ai.ui.workspace.WorkspaceScreen
 import kotlinx.serialization.SerialName
@@ -206,14 +210,19 @@ private fun AppContent(
                 if (isUiV2) {
                     val shellState = rememberDoraiAppShellState(initialDestination = DoraiDestination.Home)
                     val pendingApprovalsCount = chatUiState.pendingToolConfirmations.size
+                    var currentSettingsCategory by remember { mutableStateOf(SettingsCategory.General) }
 
-                    val homeState = remember(chatUiState) {
+                    val activeService = chatUiState.availableServices.firstOrNull()
+                    val currentModelName = activeService?.serviceName ?: "Free FAST"
+                    val isModelLocal = activeService?.serviceId == "ollama" || activeService?.serviceId == "litert"
+
+                    val homeState = remember(chatUiState, currentModelName, isModelLocal) {
                         HomeUiState(
                             isWorkspaceSetupDone = true,
                             runningCount = if (chatUiState.isLoading) 1 else 0,
                             waitingApprovalCount = chatUiState.pendingToolConfirmations.size,
-                            currentModelName = "Free FAST",
-                            isModelLocal = false,
+                            currentModelName = currentModelName,
+                            isModelLocal = isModelLocal,
                             isSandboxRunning = true,
                             recentChats = chatUiState.savedConversations.take(3).map {
                                 HomeChatSummary(it.id, it.title, "Updated recently")
@@ -238,12 +247,13 @@ private fun AppContent(
                                     shellState.navigateTo(DoraiDestination.Chat)
                                 },
                                 onOpenModels = {
+                                    currentSettingsCategory = SettingsCategory.Providers
                                     shellState.navigateTo(DoraiDestination.Settings)
                                 },
                             )
                         },
                         chatContent = {
-                            ChatScreen(
+                            DoraiChatScreenConnected(
                                 viewModel = chatViewModel,
                                 textToSpeech = textToSpeech,
                                 onNavigateToDashboard = {
@@ -252,42 +262,20 @@ private fun AppContent(
                                 onNavigateToSettings = {
                                     shellState.navigateTo(DoraiDestination.Settings)
                                 },
-                                isSandboxAvailable = currentPlatform is Platform.Mobile.Android,
-                                isWorkspaceAvailable = currentPlatform is Platform.Mobile.Android,
                             )
                         },
                         workspaceContent = {
-                            var selectedProject by remember { mutableStateOf<WorkspaceProjectItem?>(null) }
-                            val projects = remember {
-                                listOf(
-                                    WorkspaceProjectItem(
-                                        name = "DoraiAi",
-                                        path = "g:/Web/DoraiAi-migration-worktree",
-                                        branch = "feature/ui-v2-migration",
-                                        lastUpdatedText = "Just now",
-                                        changesCount = 3,
-                                    ),
-                                )
-                            }
-                            DoraiWorkspaceScreen(
-                                isSetupCompleted = true,
-                                activeProject = selectedProject,
-                                projects = projects,
-                                isSandboxRunning = true,
-                                onStartSandbox = {},
-                                onCompleteSetup = {},
-                                onOpenProject = { selectedProject = it },
-                                onCloseProject = { selectedProject = null },
-                            )
+                            DoraiWorkspaceScreenConnected()
                         },
                         settingsContent = {
-                            DoraiSettingsScreen(
-                                activeCategory = SettingsCategory.General,
-                                onCategoryChanged = {},
+                            DoraiSettingsScreenConnected(
+                                activeCategory = currentSettingsCategory,
+                                onCategoryChanged = { currentSettingsCategory = it },
                                 selectedThemeId = themeState.selectedThemeId,
                                 onThemeSelected = { themeViewModel.selectTheme(it) },
                                 currentThemeStyle = themeState.activeStyle,
                                 onThemeStyleSelected = { themeViewModel.setThemeStyle(it) },
+                                androidUpdateContent = androidUpdateContent,
                             )
                         },
                     )
