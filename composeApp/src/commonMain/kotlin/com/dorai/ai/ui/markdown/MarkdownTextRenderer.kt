@@ -1,10 +1,10 @@
-﻿package com.dorai.ai.ui.markdown
+package com.dorai.ai.ui.markdown
 
 import com.dorai.ai.ui.dynamicui.collectSpeakableText
 
 /**
  * TTS-friendly text extracted from a parsed [MarkdownDocument]. Strips markdown formatting,
- * drops code blocks, reads link text (not URLs), and walks kai-ui blocks for their human-
+ * drops code blocks, reads link text (not URLs), and walks dorai-ui blocks for their human-
  * readable labels.
  */
 fun MarkdownDocument.toSpeakableText(): String {

@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.markdown
+package com.dorai.ai.ui.markdown
 
 import com.dorai.ai.ui.dynamicui.DoraiUiParser
 import kotlinx.collections.immutable.ImmutableList
@@ -10,8 +10,8 @@ import kotlinx.collections.immutable.toImmutableList
  *
  * Scope (LLM-output subset — not full CommonMark):
  *  - ATX and setext headings
- *  - Fenced code blocks with info-string (```/~~~), including `kai-ui` and the split-block
- *    pattern (`kai-ui` on its own line followed by a `json` fence) from legacy LLM outputs.
+ *  - Fenced code blocks with info-string (```/~~~), including `dorai-ui` and the split-block
+ *    pattern (`dorai-ui` on its own line followed by a `json` fence) from legacy LLM outputs.
  *  - Horizontal rules (`---`, `***`, `___`)
  *  - Blockquotes (`> `)
  *  - Bullet lists (`-`, `*`, `+`) and ordered lists (`1.`, `1)`), with nesting by indent
@@ -95,8 +95,8 @@ internal object BlockScanner {
                 continue
             }
 
-            if (line.trim() == "kai-ui" || line.trim() == "dorai-ui") {
-                val splitResult = doraiParseKaiUiSplit(lines, i, end)
+            if (line.trim() == "dorai-ui" || line.trim() == "kai-ui") {
+                val splitResult = doraiParseUiSplit(lines, i, end)
                 if (splitResult != null) {
                     blocks += splitResult.first
                     i = splitResult.second
@@ -170,7 +170,7 @@ internal object BlockScanner {
     }
 
     // =========================================================================================
-    // Fenced code (including kai-ui)
+    // Fenced code (including dorai-ui)
     // =========================================================================================
 
     private fun parseFence(
@@ -186,8 +186,8 @@ internal object BlockScanner {
         val info = openerMatch.groupValues[3].trim()
         val (body, closed, next) = readFenceBody(lines, start + 1, end, fenceChar, fenceLen, indent)
 
-        if (info.equals("kai-ui", ignoreCase = true) || info.equals("dorai-ui", ignoreCase = true)) {
-            return doraiOdeKaiUi(body) to next
+        if (info.equals("dorai-ui", ignoreCase = true) || info.equals("kai-ui", ignoreCase = true)) {
+            return decodeDoraiUi(body) to next
         }
 
         if (info.equals("latex", ignoreCase = true) ||
@@ -235,7 +235,7 @@ internal object BlockScanner {
         return line.substring(strip)
     }
 
-    private fun doraiOdeKaiUi(body: String): BlockNode = when (val result = DoraiUiParser.parseUiBlockBody(body)) {
+    private fun decodeDoraiUi(body: String): BlockNode = when (val result = DoraiUiParser.parseUiBlockBody(body)) {
         is DoraiUiParser.UiBlockResult.Ui -> DoraiUiBlock(result.node, result.rawJson)
         is DoraiUiParser.UiBlockResult.Error -> DoraiUiError(result.rawJson)
         null -> DoraiUiError(body)
@@ -264,7 +264,7 @@ internal object BlockScanner {
         return DisplayMath(bodyLines.joinToString("\n").trim()) to i
     }
 
-    private fun doraiParseKaiUiSplit(
+    private fun doraiParseUiSplit(
         lines: List<String>,
         start: Int,
         end: Int,
@@ -279,7 +279,7 @@ internal object BlockScanner {
         val fenceLen = fence.groupValues[2].length
         val indent = fence.groupValues[1].length
         val (body, _, next) = readFenceBody(lines, j + 1, end, fenceChar, fenceLen, indent)
-        return doraiOdeKaiUi(body) to next
+        return decodeDoraiUi(body) to next
     }
 
     // =========================================================================================
@@ -495,7 +495,7 @@ internal object BlockScanner {
                 if (HR_REGEX.matchEntire(line) != null) break
                 if (BLOCKQUOTE_REGEX.matchEntire(line) != null) break
                 if (isListOpener(line)) break
-                if (line.trim() == "kai-ui" || line.trim() == "dorai-ui") break
+                if (line.trim() == "dorai-ui" || line.trim() == "kai-ui") break
                 if (MATH_DISPLAY_DOLLAR_FENCE_REGEX.matchEntire(line) != null) break
                 if (MATH_DISPLAY_BRACKET_OPEN_REGEX.matchEntire(line) != null) break
                 if (MATH_DISPLAY_INLINE_REGEX.matchEntire(line) != null) break

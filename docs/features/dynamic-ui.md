@@ -1,4 +1,4 @@
-# Dynamic UI Architecture — kai-ui
+# Dynamic UI Architecture — dorai-ui
 
 **Status:** Existing feature with proposed hardening and extension  
 **Rendering:** Kotlin Compose Multiplatform  
@@ -6,17 +6,17 @@
 
 ## 1. Purpose
 
-kai-ui lets an assistant response contain interactive, native UI rather than only prose. The model emits a declarative JSON description; DORAI AI parses it into a typed component tree and renders supported components using Compose.
+dorai-ui lets an assistant response contain interactive, native UI rather than only prose. The model emits a declarative JSON description; DORAI AI parses it into a typed component tree and renders supported components using Compose.
 
-The model output is untrusted input. kai-ui is a constrained presentation protocol, not an executable-code format.
+The model output is untrusted input. dorai-ui is a constrained presentation protocol, not an executable-code format.
 
 ## 2. Existing implementation
 
 The current feature supports:
 
-- JSON component trees in `kai-ui` code fences.
+- JSON component trees in `dorai-ui` code fences.
 - Single-object JSON and multi-line NDJSON.
-- A unified markdown AST where kai-ui blocks are first-class blocks.
+- A unified markdown AST where dorai-ui blocks are first-class blocks.
 - Recursive Compose rendering.
 - Interactive forms and callback actions.
 - Frozen/read-only historical snapshots.
@@ -24,7 +24,7 @@ The current feature supports:
 - Local parsing repair and field-level fallback behavior.
 - Text extraction for speech output.
 
-The feature is enabled by default and can be disabled in Settings. Disabling generation instructions affects subsequent requests; parsing remains enabled so previously saved kai-ui messages continue to render.
+The feature is enabled by default and can be disabled in Settings. Disabling generation instructions affects subsequent requests; parsing remains enabled so previously saved dorai-ui messages continue to render.
 
 ## 3. Current component vocabulary
 
@@ -81,13 +81,13 @@ Parser repair may fix harmless syntax defects such as trailing commas or truncat
 
 ## 6. Proposed schema evolution
 
-The existing kai-ui format must remain readable. New schema metadata should be optional so existing persisted conversations continue to work.
+The existing dorai-ui format must remain readable. New schema metadata should be optional so existing persisted conversations continue to work.
 
 Proposed envelope for future generation:
 
 ```json
 {
-  "schema": "kai-ui",
+  "schema": "dorai-ui",
   "version": 1,
   "layout": {
     "type": "column",
@@ -122,7 +122,7 @@ Assistant message
     ↓
 Markdown parser
     ↓
-kai-ui block extraction
+dorai-ui block extraction
     ↓
 JSON limits + schema validation
     ↓
@@ -196,13 +196,13 @@ Do not introduce a generic plugin loader or runtime code generation system for t
 
 | File | Responsibility |
 |---|---|
-| `composeApp/src/commonMain/.../ui/dynamicui/KaiUiNode.kt` | Serializable node model |
+| `composeApp/src/commonMain/.../ui/dynamicui/DoraiUiNode.kt` | Serializable node model |
 | `composeApp/src/commonMain/.../ui/dynamicui/UiAction.kt` | Typed action model |
-| `composeApp/src/commonMain/.../ui/dynamicui/KaiUiParser.kt` | Parse and sanitize kai-ui blocks |
-| `composeApp/src/commonMain/.../ui/dynamicui/KaiUiNodeBuilders.kt` | Tolerant typed node construction |
-| `composeApp/src/commonMain/.../ui/dynamicui/KaiUiRenderer.kt` | Compose renderer |
-| `composeApp/src/commonMain/.../ui/dynamicui/KaiUiTts.kt` | Speakable text extraction |
-| `composeApp/src/commonMain/.../ui/markdown/MarkdownParser.kt` | Markdown/kai-ui AST parsing |
+| `composeApp/src/commonMain/.../ui/dynamicui/DoraiUiParser.kt` | Parse and sanitize dorai-ui blocks |
+| `composeApp/src/commonMain/.../ui/dynamicui/DoraiUiNodeBuilders.kt` | Tolerant typed node construction |
+| `composeApp/src/commonMain/.../ui/dynamicui/DoraiUiRenderer.kt` | Compose renderer |
+| `composeApp/src/commonMain/.../ui/dynamicui/DoraiUiTts.kt` | Speakable text extraction |
+| `composeApp/src/commonMain/.../ui/markdown/MarkdownParser.kt` | Markdown/dorai-ui AST parsing |
 | `composeApp/src/commonMain/.../ui/markdown/MarkdownRenderer.kt` | Block dispatch |
 | `composeApp/src/commonMain/.../ui/chat/composables/BotMessage.kt` | Message integration |
 | `composeApp/src/commonMain/.../ui/chat/ChatScreen.kt` | Chat/interactive mode integration |
@@ -211,7 +211,7 @@ Do not introduce a generic plugin loader or runtime code generation system for t
 
 ## 12. TypeScript boundary
 
-The existing kai-ui renderer remains Kotlin Compose Multiplatform. The new TypeScript workspace does not execute model-provided JavaScript and does not replace the current JSON component-tree protocol. If a future browser-side renderer is introduced, it must consume an explicitly versioned contract, preserve the closed component/action allowlist, and delegate privileged operations to Kotlin-owned capability APIs. No TypeScript renderer or bridge is implemented by the hybrid foundation.
+The existing dorai-ui renderer remains Kotlin Compose Multiplatform. The new TypeScript workspace does not execute model-provided JavaScript and does not replace the current JSON component-tree protocol. If a future browser-side renderer is introduced, it must consume an explicitly versioned contract, preserve the closed component/action allowlist, and delegate privileged operations to Kotlin-owned capability APIs. No TypeScript renderer or bridge is implemented by the hybrid foundation.
 
 ## 13. Rollout plan
 

@@ -48,6 +48,7 @@ import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.adaptive.DoraiWindowWidthClass
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
+import com.dorai.ai.ui.components.LogoAnimation
 import com.dorai.ai.ui.components.v2.DoraiProviderBadge
 import com.dorai.ai.ui.components.v2.DoraiStatusBadge
 import dorai.composeapp.generated.resources.Res
@@ -71,6 +72,7 @@ import dorai.composeapp.generated.resources.home_status
 import dorai.composeapp.generated.resources.home_storage_label
 import dorai.composeapp.generated.resources.home_terminal
 import dorai.composeapp.generated.resources.home_today_glance
+import dorai.composeapp.generated.resources.nav_brand_title
 import dorai.composeapp.generated.resources.nav_home
 import org.jetbrains.compose.resources.stringResource
 
@@ -128,8 +130,13 @@ fun DoraiHomeScreen(
                 .padding(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.SM),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            LogoAnimation(
+                size = 28.dp,
+                animate = true,
+            )
+            Spacer(modifier = Modifier.width(10.dp))
             Text(
-                text = stringResource(Res.string.nav_home),
+                text = stringResource(Res.string.nav_brand_title),
                 color = colors.text,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,

@@ -251,7 +251,7 @@ import kotlin.time.Duration.Companion.seconds
 val LocalPreviewImages = staticCompositionLocalOf<Map<String, ImageBitmap>> { emptyMap() }
 
 /**
- * A frozen snapshot of a user's kai-ui submission: the values they submitted, plus the
+ * A frozen snapshot of a user's dorai-ui submission: the values they submitted, plus the
  * event of the button they pressed. Matching a button uses event + collected form data
  * rather than event alone (multiple buttons often share an event but carry distinct
  * per-button data payloads, e.g. a quiz with one event and different `choice` values).

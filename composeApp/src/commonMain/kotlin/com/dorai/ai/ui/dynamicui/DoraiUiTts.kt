@@ -1,11 +1,11 @@
-﻿package com.dorai.ai.ui.dynamicui
+package com.dorai.ai.ui.dynamicui
 
 import com.dorai.ai.ui.markdown.parseMarkdown
 import com.dorai.ai.ui.markdown.toSpeakableText
 
 /**
- * TTS-friendly text for a message that may contain kai-ui fences. Routed through the unified
- * markdown parser: formatting is stripped, code blocks dropped, and kai-ui blocks walked for
+ * TTS-friendly text for a message that may contain dorai-ui fences. Routed through the unified
+ * markdown parser: formatting is stripped, code blocks dropped, and dorai-ui blocks walked for
  * their human-readable labels (titles, alerts, chips, table cells) so the user hears what the
  * form says, not the JSON behind it.
  */

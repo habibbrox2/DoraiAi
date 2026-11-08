@@ -352,7 +352,7 @@ private fun ChatModeScreen(
         .firstOrNull()
         ?.let { Service.fromId(it.serviceId).isOnDevice } == true
 
-    // Interactive mode drives a tool-calling loop and emits kai-ui JSON, so its
+    // Interactive mode drives a tool-calling loop and emits dorai-ui JSON, so its
     // service picker only lists services/models capable of agentic flows.
     val pickerServices = remember(uiState.availableServices, uiState.isInteractiveMode) {
         if (uiState.isInteractiveMode) {

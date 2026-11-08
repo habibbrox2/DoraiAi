@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.integration
+package com.dorai.ai.integration
 
 import com.dorai.ai.data.Service
 import com.dorai.ai.network.Requests
@@ -18,7 +18,7 @@ import kotlin.test.Test
 
 /**
  * Integration test that exercises real LLM providers with a battery of prompts and
- * validates that their responses contain well-formed kai-ui blocks.
+ * validates that their responses contain well-formed dorai-ui blocks.
  *
  * By default this test is **skipped** — it only runs when `KAI_INTEGRATION=1` is set
  * in the environment, because it makes real (paid) API calls.
@@ -78,7 +78,7 @@ import kotlin.test.Test
 class DoraiUiValidationTest {
 
     @Test
-    fun `validate kai-ui output across providers`() {
+    fun `validate dorai-ui output across providers`() {
         if (System.getenv("DORAI_INTEGRATION") ?: System.getenv("KAI_INTEGRATION") != "1") {
             println("[DoraiUiValidationTest] Skipped — set DORAI_INTEGRATION=1 (or KAI_INTEGRATION=1) to run.")
             return
@@ -490,7 +490,7 @@ class DoraiUiValidationTest {
 
     private fun writeReport(reportDir: File, results: List<PromptResult>, providers: List<ProviderSpec>) {
         val report = buildString {
-            appendLine("# kai-ui Integration Report")
+            appendLine("# dorai-ui Integration Report")
             appendLine()
             appendLine("Generated: ${java.time.LocalDateTime.now()}")
             appendLine()
@@ -551,7 +551,7 @@ class DoraiUiValidationTest {
     // region System prompt (mirror of RemoteDataRepository.getActiveSystemPrompt) --------------
 
     /**
-     * Duplicates the kai-ui portion of the app's system prompt. Mirrors
+     * Duplicates the dorai-ui portion of the app's system prompt. Mirrors
      * `RemoteDataRepository.getActiveSystemPrompt()` lines 1417-1495 (as of 2026-04-05).
      * Keep in sync manually if the real prompt changes — there is no automated drift check.
      */
@@ -559,18 +559,18 @@ class DoraiUiValidationTest {
         val dynamicUiOnly = mode == TestPrompt.Mode.DYNAMIC_UI
         if (dynamicUiOnly) {
             append("\n## Dynamic UI\n")
-            append("You can enhance your chat responses with interactive UI elements using kai-ui blocks. ")
+            append("You can enhance your chat responses with interactive UI elements using dorai-ui blocks. ")
             append("Proactively use them whenever you need input from the user — don't just ask in plain text if a form, selector, or buttons would be more natural. ")
             append("For example, if the user asks you to help plan a trip, present destination options as buttons; if you need preferences, show a form; if presenting choices, use interactive cards. ")
-            append("Use kai-ui whenever collecting data, offering choices, presenting structured information, or guiding multi-step workflows. ")
-            append("You can mix kai-ui blocks with regular markdown text naturally — use markdown for explanations and kai-ui for interactive elements.\n\n")
+            append("Use dorai-ui whenever collecting data, offering choices, presenting structured information, or guiding multi-step workflows. ")
+            append("You can mix dorai-ui blocks with regular markdown text naturally — use markdown for explanations and dorai-ui for interactive elements.\n\n")
         } else {
             append("\n## Interactive UI Mode (ACTIVE)\n")
-            append("You are in full-screen interactive UI mode. The user ONLY sees rendered kai-ui components — they cannot see markdown, plain text, or anything outside a kai-ui fence.\n")
-            append("Your ENTIRE response must be a single ```kai-ui code fence. No text before it, no text after it, no markdown. If you write anything outside the fence, the user will NOT see it.\n\n")
+            append("You are in full-screen interactive UI mode. The user ONLY sees rendered dorai-ui components — they cannot see markdown, plain text, or anything outside a dorai-ui fence.\n")
+            append("Your ENTIRE response must be a single ```dorai-ui code fence. No text before it, no text after it, no markdown. If you write anything outside the fence, the user will NOT see it.\n\n")
         }
 
-        append("Format: wrap a JSON object in ```kai-ui fences.\n\n")
+        append("Format: wrap a JSON object in ```dorai-ui fences.\n\n")
         append("Components: column, row, card, box, text, button, text_input, checkbox, switch, select, radio_group, slider, chip_group, table, list, divider, image, icon, code, progress, countdown, alert, tabs, accordion, quote, badge, stat, avatar.\n")
         append("- text: {\"type\":\"text\",\"value\":\"...\",\"style\":\"headline|title|body|caption\",\"bold\":true,\"color\":\"primary|secondary|error\"} — do NOT use markdown formatting (**, *, #, etc.) in text values; use the bold/italic/style properties instead\n")
         append("- button: {\"type\":\"button\",\"label\":\"...\",\"action\":{...},\"variant\":\"filled|outlined|text|tonal\"}\n")
@@ -605,10 +605,10 @@ class DoraiUiValidationTest {
             append("- Put buttons INSIDE cards, directly below related content\n")
             append("- Use rows for groups of buttons or chips — rows wrap automatically\n")
             append("- Keep button labels short (1-3 words)\n\n")
-            append("Example:\n```kai-ui\n{\"type\":\"column\",\"children\":[{\"type\":\"text\",\"value\":\"Your name?\",\"style\":\"title\"},{\"type\":\"text_input\",\"id\":\"name\",\"placeholder\":\"Enter name\"},{\"type\":\"button\",\"label\":\"Submit\",\"action\":{\"type\":\"callback\",\"event\":\"submit\",\"collectFrom\":[\"name\"]}}]}\n```\n")
+            append("Example:\n```dorai-ui\n{\"type\":\"column\",\"children\":[{\"type\":\"text\",\"value\":\"Your name?\",\"style\":\"title\"},{\"type\":\"text_input\",\"id\":\"name\",\"placeholder\":\"Enter name\"},{\"type\":\"button\",\"label\":\"Submit\",\"action\":{\"type\":\"callback\",\"event\":\"submit\",\"collectFrom\":[\"name\"]}}]}\n```\n")
         } else {
             append("Rules:\n")
-            append("- Each response is a COMPLETE screen layout. Include all content and actions in one kai-ui block.\n")
+            append("- Each response is a COMPLETE screen layout. Include all content and actions in one dorai-ui block.\n")
             append("- Always include clear primary action buttons so the user can proceed.\n")
             append("- Every screen MUST have at least one interactive element with a callback action.\n")
             append("- Use headline text for screen titles. Structure screens with cards for grouping related content.\n")
@@ -623,7 +623,7 @@ class DoraiUiValidationTest {
             append("- Each screen is independent.\n")
             append("- Only use the exact components and properties defined above.\n")
             append("- Start with simple, clean layouts.\n\n")
-            append("Example:\n```kai-ui\n{\"type\":\"column\",\"children\":[{\"type\":\"text\",\"value\":\"Welcome\",\"style\":\"headline\"},{\"type\":\"card\",\"children\":[{\"type\":\"text\",\"value\":\"What would you like to do?\",\"style\":\"title\"},{\"type\":\"button\",\"label\":\"Get Started\",\"action\":{\"type\":\"callback\",\"event\":\"get_started\"}}]}]}\n```\n")
+            append("Example:\n```dorai-ui\n{\"type\":\"column\",\"children\":[{\"type\":\"text\",\"value\":\"Welcome\",\"style\":\"headline\"},{\"type\":\"card\",\"children\":[{\"type\":\"text\",\"value\":\"What would you like to do?\",\"style\":\"title\"},{\"type\":\"button\",\"label\":\"Get Started\",\"action\":{\"type\":\"callback\",\"event\":\"get_started\"}}]}]}\n```\n")
         }
     }
 
@@ -635,7 +635,7 @@ class DoraiUiValidationTest {
         private val TEST_PROMPTS = listOf(
             TestPrompt(
                 "simple-question",
-                "Simple question expecting a text response with kai-ui elements",
+                "Simple question expecting a text response with dorai-ui elements",
                 "Ask me what my favorite color is using a form input and submit button.",
                 TestPrompt.Mode.DYNAMIC_UI,
             ),
@@ -683,7 +683,7 @@ class DoraiUiValidationTest {
             ),
             TestPrompt(
                 "mixed-markdown",
-                "Response that mixes markdown explanation with kai-ui interactive block",
+                "Response that mixes markdown explanation with dorai-ui interactive block",
                 "Explain what a linked list is in a paragraph, then show me a button to see an example.",
                 TestPrompt.Mode.DYNAMIC_UI,
             ),

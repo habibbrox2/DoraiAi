@@ -171,14 +171,14 @@
 - The back action (remove the last exchange) sits next to the toggle and appears only while interactive mode is on
 
 ### Changed
-- Interactive UI is no longer a separate full-screen interface ? it is a mode of the one chat. The kai-ui screens render inline in the conversation, so the timeline, the composer and the rest of the chat stay available
+- Interactive UI is no longer a separate full-screen interface ? it is a mode of the one chat. The dorai-ui screens render inline in the conversation, so the timeline, the composer and the rest of the chat stay available
 - Switching the mode no longer starts a new chat or clears the conversation; it changes how the next answer is produced and rendered
 - While interactive mode is on, the service picker only lists agentic-capable services and models (as the old interactive screen did)
-- The interactive system prompt now tells the model that its screen renders inside the chat and that text outside the kai-ui fence is shown as ordinary chat text
+- The interactive system prompt now tells the model that its screen renders inside the chat and that text outside the dorai-ui fence is shown as ordinary chat text
 - A conversation's type follows the mode, so a chat reopens in the mode it was left in
 
 ### Removed
-- The separate Interactive UI screen with its own top bar, welcome screen, collapsed input pill and full-screen kai-ui renderer
+- The separate Interactive UI screen with its own top bar, welcome screen, collapsed input pill and full-screen dorai-ui renderer
 
 ---
 
@@ -484,7 +484,7 @@
 - Route GPT-5.6 and newer model families to the Responses API
 - Send the OpenCode session header to every opencode.ai OpenAI-compatible instance
 - Treat empty scheduled-task triggers and null tool arguments as absent
-- Fire kai-ui countdown callbacks only from interactive messages
+- Fire dorai-ui countdown callbacks only from interactive messages
 - Fix a stray %% in the Kai Build download label
 - Verify email TLS hostnames and reject line breaks in IMAP/SMTP arguments
 - Check every fetch_url redirect hop and cap the bytes it reads
@@ -805,7 +805,7 @@
 ## v2.3.2 ? 2026-04-23
 
 ### Fixes
-- Fix kai-ui rendering and restore issues
+- Fix dorai-ui rendering and restore issues
 
 ### Improvements
 - Make OLED dark mode opt-in
@@ -950,7 +950,7 @@
 - Add additional MCP servers
 
 ### Improvements
-- Improve kai-ui prompt and split-block parsing
+- Improve dorai-ui prompt and split-block parsing
 - Replace Lottie animation with custom implementation
 - Improve tool use UI
 - Add missing localizations

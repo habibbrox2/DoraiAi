@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.dynamicui
+package com.dorai.ai.ui.dynamicui
 
 import com.dorai.ai.ui.markdown.DoraiUiBlock
 import com.dorai.ai.ui.markdown.DoraiUiError
@@ -22,8 +22,8 @@ class DoraiUiParserTest {
     }
 
     @Test
-    fun `detects kai-ui blocks`() {
-        val message = "Hello\n```kai-ui\n{\"type\":\"text\",\"value\":\"Hi\"}\n```\nBye"
+    fun `detects dorai-ui blocks`() {
+        val message = "Hello\n```dorai-ui\n{\"type\":\"text\",\"value\":\"Hi\"}\n```\nBye"
         assertTrue(hasUiBlocks(message))
     }
 
@@ -35,7 +35,7 @@ class DoraiUiParserTest {
 
     @Test
     fun `parses text node`() {
-        val message = "Before\n```kai-ui\n{\"type\":\"text\",\"value\":\"Hello\"}\n```\nAfter"
+        val message = "Before\n```dorai-ui\n{\"type\":\"text\",\"value\":\"Hello\"}\n```\nAfter"
         val blocks = parseMarkdown(message).blocks
         assertEquals(3, blocks.size)
         assertIs<Paragraph>(blocks[0])
@@ -75,7 +75,7 @@ class DoraiUiParserTest {
 
     @Test
     fun `invalid json produces error segment`() {
-        val message = "```kai-ui\n{invalid json}\n```"
+        val message = "```dorai-ui\n{invalid json}\n```"
         val blocks = parseMarkdown(message).blocks
         assertEquals(1, blocks.size)
         assertIs<DoraiUiError>(blocks[0])
@@ -83,7 +83,7 @@ class DoraiUiParserTest {
 
     @Test
     fun `multiple ui blocks in one message`() {
-        val message = "First block:\n```kai-ui\n{\"type\":\"text\",\"value\":\"A\"}\n```\nMiddle text\n```kai-ui\n{\"type\":\"text\",\"value\":\"B\"}\n```\nEnd"
+        val message = "First block:\n```dorai-ui\n{\"type\":\"text\",\"value\":\"A\"}\n```\nMiddle text\n```dorai-ui\n{\"type\":\"text\",\"value\":\"B\"}\n```\nEnd"
         val blocks = parseMarkdown(message).blocks
         assertEquals(5, blocks.size)
         assertIs<Paragraph>(blocks[0])
@@ -139,10 +139,10 @@ class DoraiUiParserTest {
     }
 
     @Test
-    fun `parses kai-ui block when body and closing fence share line with newline before body`() {
+    fun `parses dorai-ui block when body and closing fence share line with newline before body`() {
         // The markdown parser requires the opening fence to end the line; the body must start on
         // the next line. This is a well-formed CommonMark fenced block.
-        val message = "```kai-ui\n{\"type\":\"text\",\"value\":\"Hi\"}\n```"
+        val message = "```dorai-ui\n{\"type\":\"text\",\"value\":\"Hi\"}\n```"
         assertTrue(hasUiBlocks(message))
         val blocks = parseMarkdown(message).blocks
         assertEquals(1, blocks.size)
@@ -158,7 +158,7 @@ class DoraiUiParserTest {
             {"type":"text","value":"2, 6, 12, 20, 30, ?","style":"title"}
             {"type":"column","children":[{"type":"button","label":"42","action":{"type":"callback","event":"answer","data":{"answer":"42"}},"variant":"filled"}]}
         """.trimIndent()
-        val message = "Here's a quiz:\n```kai-ui\n$block\n```\nGood luck!"
+        val message = "Here's a quiz:\n```dorai-ui\n$block\n```\nGood luck!"
         val blocks = parseMarkdown(message).blocks
         assertEquals(3, blocks.size)
         assertIs<Paragraph>(blocks[0])
@@ -197,7 +197,7 @@ class DoraiUiParserTest {
             {"type":"text","value":"2, 6, 12, 20, 30, ?","style":"title"}
             {"type":"column","children":[{"type":"button","label":"38","action":{"type":"callback","event":"answer_q1","data":{"answer":"38"}},"variant":"filled"},{"type":"button","label":"40","action":{"type":"callback","event":"answer_q1","data":{"answer":"40"}},"variant":"filled"},{"type":"button","label":"42","action":{"type":"callback","event":"answer_q1","data":{"answer":"42"}},"variant":"filled"},{"type":"button","label":"44","action":{"type":"callback","event":"answer_q1","data":{"answer":"44"}},"variant":"filled"}}]}
         """.trimIndent()
-        val message = "Sure! Let's see how sharp you are today.\n\n```kai-ui\n$block\n```\n\nTake your shot!"
+        val message = "Sure! Let's see how sharp you are today.\n\n```dorai-ui\n$block\n```\n\nTake your shot!"
         val blocks = parseMarkdown(message).blocks
         val uiBlocks = blocks.filterIsInstance<DoraiUiBlock>()
         assertEquals(1, uiBlocks.size)
@@ -242,7 +242,7 @@ class DoraiUiParserTest {
     fun `single-line column with extra closing brace in children`() {
         // Real-world kimi-k2.5 output: single column with buttons, extra } before ]}
         val json = """{"type":"column","children":[{"type":"button","label":"All roses fade quickly","action":{"type":"callback","event":"answer_q2","data":{"answer":"all"}},"variant":"filled"},{"type":"button","label":"Some roses fade quickly","action":{"type":"callback","event":"answer_q2","data":{"answer":"some"}},"variant":"filled"},{"type":"button","label":"No roses fade quickly","action":{"type":"callback","event":"answer_q2","data":{"answer":"none"}},"variant":"filled"},{"type":"button","label":"None of these follow","action":{"type":"callback","event":"answer_q2","data":{"answer":"none_follow"}},"variant":"filled"}}]}"""
-        val message = "Which statement is necessarily true?\n\n```kai-ui\n$json\n```"
+        val message = "Which statement is necessarily true?\n\n```dorai-ui\n$json\n```"
         val blocks = parseMarkdown(message).blocks
         val uiBlocks = blocks.filterIsInstance<DoraiUiBlock>()
         assertEquals(1, uiBlocks.size)
@@ -300,9 +300,9 @@ class DoraiUiParserTest {
     }
 
     @Test
-    fun `parses complex nested kai-ui from kimi model`() {
+    fun `parses complex nested dorai-ui from kimi model`() {
         val json = """{"type":"column","children":[{"type":"text","value":"Wilderness Survival","style":"headline","bold":true},{"type":"text","value":"You wake up in a cold pine forest.","style":"body"},{"type":"divider"},{"type":"text","value":"Status","style":"title"},{"type":"row","children":[{"type":"card","children":[{"type":"text","value":"Health: 80/100","style":"body"}]},{"type":"card","children":[{"type":"text","value":"Hunger: 30/100","style":"body"}]},{"type":"card","children":[{"type":"text","value":"Energy: 70/100","style":"body"}]}]},{"type":"text","value":"What do you want to do?","style":"title"},{"type":"column","children":[{"type":"button","label":"Follow river","action":{"type":"callback","event":"survival_choice","data":{"choice":"river"}},"variant":"filled"},{"type":"button","label":"Head to mountains","action":{"type":"callback","event":"survival_choice","data":{"choice":"mountains"}},"variant":"filled"},{"type":"button","label":"Stay & build camp here","action":{"type":"callback","event":"survival_choice","data":{"choice":"camp"}},"variant":"filled"}]}]}"""
-        val message = "```kai-ui\n$json\n```\n\nType \"stop game\" anytime to quit."
+        val message = "```dorai-ui\n$json\n```\n\nType \"stop game\" anytime to quit."
         assertTrue(hasUiBlocks(message))
         val blocks = parseMarkdown(message).blocks
         val uiBlocks = blocks.filterIsInstance<DoraiUiBlock>()
@@ -378,7 +378,7 @@ class DoraiUiParserTest {
 
     @Test
     fun `migrates legacy multiSelect to selection`() {
-        // Legacy kai-ui blocks in historical chat messages used multiSelect:Boolean.
+        // Legacy dorai-ui blocks in historical chat messages used multiSelect:Boolean.
         val multiJson = """{"type":"chip_group","id":"tags","chips":[{"label":"A"}],"multiSelect":true}"""
         val multiNode = assertIs<ChipGroupNode>(parseUi(multiJson))
         assertEquals("multi", multiNode.selection)
@@ -430,7 +430,7 @@ class DoraiUiParserTest {
         // renderer can at least fall back to displaying the raw JSON instead of silently
         // swallowing the assistant's response.
         val json = """{"type":"bottom_bar","buttons":[{"label":"Home","icon":"home"}]}"""
-        val message = "```kai-ui\n$json\n```"
+        val message = "```dorai-ui\n$json\n```"
         val blocks = parseMarkdown(message).blocks
         assertEquals(1, blocks.size)
         assertIs<DoraiUiError>(blocks[0])
@@ -633,8 +633,8 @@ class DoraiUiParserTest {
     }
 
     @Test
-    fun `detects kai-ui as plain text followed by json code block`() {
-        val message = "kai-ui\n```json\n{\"type\":\"text\",\"value\":\"Hello\"}\n```"
+    fun `detects dorai-ui as plain text followed by json code block`() {
+        val message = "dorai-ui\n```json\n{\"type\":\"text\",\"value\":\"Hello\"}\n```"
         assertTrue(hasUiBlocks(message))
         val blocks = parseMarkdown(message).blocks
         val uiBlocks = blocks.filterIsInstance<DoraiUiBlock>()
@@ -645,8 +645,17 @@ class DoraiUiParserTest {
     }
 
     @Test
-    fun `detects kai-ui as plain text followed by untagged code block`() {
-        val message = "kai-ui\n```\n{\"type\":\"text\",\"value\":\"Hello\"}\n```"
+    fun `detects dorai-ui as plain text followed by untagged code block`() {
+        val message = "dorai-ui\n```\n{\"type\":\"text\",\"value\":\"Hello\"}\n```"
+        assertTrue(hasUiBlocks(message))
+        val blocks = parseMarkdown(message).blocks
+        val uiBlocks = blocks.filterIsInstance<DoraiUiBlock>()
+        assertEquals(1, uiBlocks.size)
+    }
+
+    @Test
+    fun `detects legacy kai-ui as plain text followed by json code block`() {
+        val message = "kai-ui\n```json\n{\"type\":\"text\",\"value\":\"Hello\"}\n```"
         assertTrue(hasUiBlocks(message))
         val blocks = parseMarkdown(message).blocks
         val uiBlocks = blocks.filterIsInstance<DoraiUiBlock>()

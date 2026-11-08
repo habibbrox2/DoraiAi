@@ -98,6 +98,7 @@ import com.dorai.ai.ui.adaptive.DoraiListDetailPaneScaffold
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
 import com.dorai.ai.ui.chat.composables.HeartbeatBanner
 import com.dorai.ai.ui.chat.composables.PendingSmsBanners
+import com.dorai.ai.ui.components.LogoAnimation
 import com.dorai.ai.ui.components.v2.DoraiComposer
 import com.dorai.ai.ui.components.v2.DoraiDynamicUiBlock
 import com.dorai.ai.ui.components.v2.DoraiModalSheet
@@ -399,11 +400,9 @@ private fun ChatHistoryPane(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(Res.drawable.logo),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                        modifier = Modifier.size(26.dp),
+                    LogoAnimation(
+                        size = 26.dp,
+                        animate = true,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
@@ -1554,11 +1553,9 @@ private fun ChatEmptyState(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Icon(
-                painter = painterResource(Res.drawable.logo),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier.size(56.dp),
+            LogoAnimation(
+                size = 64.dp,
+                animate = true,
             )
 
             Spacer(modifier = Modifier.height(DoraiSpacing.MD))

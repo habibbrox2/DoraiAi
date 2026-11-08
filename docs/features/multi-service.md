@@ -174,7 +174,7 @@ The chat header carries the same control as a pill: the provider icon, the activ
 
 Picking a model stores it for that service instance, so it applies to the next message and survives a restart — the same choice the Services settings card makes. The pill then shows the new model. Free entries have no model list of their own, so only the service list is shown for them.
 
-In **Interactive UI mode**, the same control is filtered to services whose selected model supports tool use (agentic flows), and on-device services are excluded so the user cannot switch to a model that cannot produce kai-ui.
+In **Interactive UI mode**, the same control is filtered to services whose selected model supports tool use (agentic flows), and on-device services are excluded so the user cannot switch to a model that cannot produce dorai-ui.
 
 Selecting a non-Free entry reorders the configured list so the chosen service becomes first (primary). Selecting Auto instead flips an "is Free primary" flag — Auto can be promoted to primary independently of the configured fallback order, without rearranging the configured provider chain. The fallback walker also skips any entry whose context window can't fit the current chat history, so very long conversations may transparently move past services that would otherwise be eligible.
 

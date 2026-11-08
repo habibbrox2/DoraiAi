@@ -86,6 +86,7 @@ import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.adaptive.DoraiListDetailPaneScaffold
 import com.dorai.ai.ui.adaptive.DoraiWindowWidthClass
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
+import com.dorai.ai.ui.components.LogoAnimation
 import com.dorai.ai.ui.components.v2.DoraiModalSheet
 import com.dorai.ai.ui.components.v2.DoraiPillTabs
 import com.dorai.ai.ui.components.v2.DoraiProviderBadge
@@ -1252,7 +1253,22 @@ private fun AccountSettingsContent() {
     var syncEnabled by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
-    // Card 1: Sync switch
+    // Card 1: Account Profile Header
+    SettingsSectionCard {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            LogoAnimation(size = 40.dp, animate = false)
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text("DORAI Local Account", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text("dorai-local · on-device encrypted vault", color = colors.muted, fontSize = 12.5.sp)
+            }
+        }
+    }
+
+    // Card 2: Sync switch
     SettingsSectionCard {
         Row(
             modifier = Modifier.fillMaxWidth(),

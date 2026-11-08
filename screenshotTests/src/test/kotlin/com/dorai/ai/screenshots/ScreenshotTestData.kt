@@ -73,7 +73,7 @@ object ScreenshotTestData {
     )
 
     private val survivalGameContent =
-        "```kai-ui\n" +
+        "```dorai-ui\n" +
             "{\"type\":\"column\",\"spacing\":8,\"children\":[" +
             "{\"type\":\"text\",\"value\":\"\u2694\ufe0f The Goblin Tunnels\",\"style\":\"headline\",\"bold\":true}," +
             "{\"type\":\"text\",\"value\":\"Chapter 1 \u2022 The Beginning\",\"style\":\"caption\",\"color\":\"secondary\"}," +
@@ -110,7 +110,7 @@ object ScreenshotTestData {
     )
 
     private val recipeContent =
-        "```kai-ui\n" +
+        "```dorai-ui\n" +
             "{\"type\":\"column\",\"spacing\":8,\"children\":[" +
             "{\"type\":\"text\",\"value\":\"Cacio e Pepe\",\"style\":\"headline\",\"bold\":true}," +
             "{\"type\":\"row\",\"spacing\":8,\"children\":[{\"type\":\"badge\",\"value\":\"\u23f1 20 min\",\"color\":\"secondary\"},{\"type\":\"badge\",\"value\":\"\uD83C\uDF7D 2 servings\",\"color\":\"secondary\"},{\"type\":\"badge\",\"value\":\"\u2b50 4.9/5\",\"color\":\"primary\"}]}," +
