@@ -31,6 +31,8 @@ data class ChatActions(
     val resubmit: (messageId: String, event: String, data: Map<String, String>) -> Unit,
     /** Turns the interactive-UI mode on or off for the current chat. */
     val setInteractiveMode: (Boolean) -> Unit,
+    /** Selects the UI v2 agent mode ("ask"/"plan"/"build"/"review") for the current chat. */
+    val setAgentMode: (String) -> Unit = {},
     /** Removes the last exchange — the interactive mode's back action. */
     val goBackInteractiveMode: () -> Unit,
     val sendSmsDraft: (String) -> Unit,

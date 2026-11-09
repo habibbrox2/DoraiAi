@@ -103,6 +103,8 @@ data class ChatUiState(
     val snackbarMessage: StringResource? = null,
     val pendingConversationDeletion: String? = null,
     val isInteractiveMode: Boolean = false,
+    /** UI v2 agent mode: "ask" | "plan" | "build" | "review". Session-scoped (not persisted). */
+    val selectedAgentModeId: String = "ask",
     val fallbackStatus: FallbackStatus? = null,
     val isRestoring: Boolean = true,
     val installedSkills: ImmutableList<com.dorai.ai.skills.SkillManifest> = persistentListOf(),

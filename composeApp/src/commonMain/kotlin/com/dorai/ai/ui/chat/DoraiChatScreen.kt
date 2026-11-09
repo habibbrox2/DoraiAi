@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -52,6 +51,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -74,13 +74,16 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -103,12 +106,14 @@ import androidx.compose.ui.unit.sp
 import com.dorai.ai.data.Attachment
 import com.dorai.ai.data.SmsDraft
 import com.dorai.ai.decodeToImageBitmap
+import com.dorai.ai.network.UiError
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.adaptive.DoraiListDetailPaneScaffold
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
 import com.dorai.ai.ui.chat.composables.HeartbeatBanner
 import com.dorai.ai.ui.chat.composables.PendingSmsBanners
+import com.dorai.ai.ui.chat.composables.uiErrorText
 import com.dorai.ai.ui.components.LogoAnimation
 import com.dorai.ai.ui.components.v2.DoraiComposer
 import com.dorai.ai.ui.components.v2.DoraiDynamicUiBlock
@@ -125,13 +130,29 @@ import com.dorai.ai.ui.rememberCopyToClipboard
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.bot_message_thinking_expand_content_description
 import dorai.composeapp.generated.resources.bot_message_thinking_label
+import dorai.composeapp.generated.resources.chat_account_settings
+import dorai.composeapp.generated.resources.chat_agent_activity
+import dorai.composeapp.generated.resources.chat_attachment_image
+import dorai.composeapp.generated.resources.chat_choose_model
+import dorai.composeapp.generated.resources.chat_clear_cd
+import dorai.composeapp.generated.resources.chat_close_cd
 import dorai.composeapp.generated.resources.chat_copy_message
+import dorai.composeapp.generated.resources.chat_copy_thoughts
+import dorai.composeapp.generated.resources.chat_delete_cd
+import dorai.composeapp.generated.resources.chat_dismiss
+import dorai.composeapp.generated.resources.chat_empty_file
+import dorai.composeapp.generated.resources.chat_empty_image
+import dorai.composeapp.generated.resources.chat_empty_subtitle
 import dorai.composeapp.generated.resources.chat_empty_title
+import dorai.composeapp.generated.resources.chat_empty_workspace
+import dorai.composeapp.generated.resources.chat_history_cd
 import dorai.composeapp.generated.resources.chat_history_title
 import dorai.composeapp.generated.resources.chat_jump_to_latest
 import dorai.composeapp.generated.resources.chat_model_picker_title
 import dorai.composeapp.generated.resources.chat_no_chats_found
 import dorai.composeapp.generated.resources.chat_older
+import dorai.composeapp.generated.resources.chat_pin_toggle_cd
+import dorai.composeapp.generated.resources.chat_pinned_cd
 import dorai.composeapp.generated.resources.chat_plan_run_build
 import dorai.composeapp.generated.resources.chat_plan_title
 import dorai.composeapp.generated.resources.chat_quick_ask_desc
@@ -148,21 +169,85 @@ import dorai.composeapp.generated.resources.chat_quick_project_desc
 import dorai.composeapp.generated.resources.chat_quick_project_title
 import dorai.composeapp.generated.resources.chat_quick_review_desc
 import dorai.composeapp.generated.resources.chat_quick_review_title
+import dorai.composeapp.generated.resources.chat_read_aloud
+import dorai.composeapp.generated.resources.chat_reasoning_label
 import dorai.composeapp.generated.resources.chat_regenerate_message
+import dorai.composeapp.generated.resources.chat_rename_cd
+import dorai.composeapp.generated.resources.chat_rename_hint
+import dorai.composeapp.generated.resources.chat_rename_title
+import dorai.composeapp.generated.resources.chat_retry
 import dorai.composeapp.generated.resources.chat_search_placeholder
+import dorai.composeapp.generated.resources.chat_stop_speaking
 import dorai.composeapp.generated.resources.chat_tagline
+import dorai.composeapp.generated.resources.chat_thought_steps
 import dorai.composeapp.generated.resources.chat_today
+import dorai.composeapp.generated.resources.chat_welcome_ask
+import dorai.composeapp.generated.resources.chat_welcome_build
+import dorai.composeapp.generated.resources.chat_welcome_plan
+import dorai.composeapp.generated.resources.chat_welcome_review
+import dorai.composeapp.generated.resources.composer_stop
 import dorai.composeapp.generated.resources.fallback_answered_by
 import dorai.composeapp.generated.resources.ic_file
 import dorai.composeapp.generated.resources.ic_image
 import dorai.composeapp.generated.resources.logo
 import dorai.composeapp.generated.resources.nav_brand_title
 import dorai.composeapp.generated.resources.new_chat_content_description
+import dorai.composeapp.generated.resources.qp_ask_1_prompt
+import dorai.composeapp.generated.resources.qp_ask_1_tag
+import dorai.composeapp.generated.resources.qp_ask_1_title
+import dorai.composeapp.generated.resources.qp_ask_2_prompt
+import dorai.composeapp.generated.resources.qp_ask_2_tag
+import dorai.composeapp.generated.resources.qp_ask_2_title
+import dorai.composeapp.generated.resources.qp_ask_3_prompt
+import dorai.composeapp.generated.resources.qp_ask_3_tag
+import dorai.composeapp.generated.resources.qp_ask_3_title
+import dorai.composeapp.generated.resources.qp_ask_4_prompt
+import dorai.composeapp.generated.resources.qp_ask_4_tag
+import dorai.composeapp.generated.resources.qp_ask_4_title
+import dorai.composeapp.generated.resources.qp_build_1_prompt
+import dorai.composeapp.generated.resources.qp_build_1_tag
+import dorai.composeapp.generated.resources.qp_build_1_title
+import dorai.composeapp.generated.resources.qp_build_2_prompt
+import dorai.composeapp.generated.resources.qp_build_2_tag
+import dorai.composeapp.generated.resources.qp_build_2_title
+import dorai.composeapp.generated.resources.qp_build_3_prompt
+import dorai.composeapp.generated.resources.qp_build_3_tag
+import dorai.composeapp.generated.resources.qp_build_3_title
+import dorai.composeapp.generated.resources.qp_build_4_prompt
+import dorai.composeapp.generated.resources.qp_build_4_tag
+import dorai.composeapp.generated.resources.qp_build_4_title
+import dorai.composeapp.generated.resources.qp_plan_1_prompt
+import dorai.composeapp.generated.resources.qp_plan_1_tag
+import dorai.composeapp.generated.resources.qp_plan_1_title
+import dorai.composeapp.generated.resources.qp_plan_2_prompt
+import dorai.composeapp.generated.resources.qp_plan_2_tag
+import dorai.composeapp.generated.resources.qp_plan_2_title
+import dorai.composeapp.generated.resources.qp_plan_3_prompt
+import dorai.composeapp.generated.resources.qp_plan_3_tag
+import dorai.composeapp.generated.resources.qp_plan_3_title
+import dorai.composeapp.generated.resources.qp_plan_4_prompt
+import dorai.composeapp.generated.resources.qp_plan_4_tag
+import dorai.composeapp.generated.resources.qp_plan_4_title
+import dorai.composeapp.generated.resources.qp_review_1_prompt
+import dorai.composeapp.generated.resources.qp_review_1_tag
+import dorai.composeapp.generated.resources.qp_review_1_title
+import dorai.composeapp.generated.resources.qp_review_2_prompt
+import dorai.composeapp.generated.resources.qp_review_2_tag
+import dorai.composeapp.generated.resources.qp_review_2_title
+import dorai.composeapp.generated.resources.qp_review_3_prompt
+import dorai.composeapp.generated.resources.qp_review_3_tag
+import dorai.composeapp.generated.resources.qp_review_3_title
+import dorai.composeapp.generated.resources.qp_review_4_prompt
+import dorai.composeapp.generated.resources.qp_review_4_tag
+import dorai.composeapp.generated.resources.qp_review_4_title
+import dorai.composeapp.generated.resources.settings_memories_edit_cancel
+import dorai.composeapp.generated.resources.settings_memories_edit_save
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import kotlin.io.encoding.Base64
@@ -246,6 +331,11 @@ fun DoraiChatScreen(
     onNavigateToSettings: (() -> Unit)? = null,
     onNavigateToWorkspace: (() -> Unit)? = null,
     maxContextTokens: Int? = null,
+    warning: StringResource? = null,
+    error: UiError? = null,
+    showFreeProviderSuggestions: Boolean = false,
+    onRetryError: (() -> Unit)? = null,
+    onDismissError: (() -> Unit)? = null,
 ) {
     val widthClass = LocalDoraiWindowWidthClass.current
     val colors = LocalDoraiColors.current
@@ -276,6 +366,7 @@ fun DoraiChatScreen(
                         onCloseDrawer = { scope.launch { drawerState.close() } },
                         onTogglePin = onTogglePinConversation,
                         onDelete = onDeleteConversation,
+                        onRename = onRenameConversation,
                     )
                 }
             },
@@ -316,6 +407,11 @@ fun DoraiChatScreen(
                 onNavigateToSettings = onNavigateToSettings,
                 onNavigateToWorkspace = onNavigateToWorkspace,
                 maxContextTokens = maxContextTokens,
+                warning = warning,
+                error = error,
+                showFreeProviderSuggestions = showFreeProviderSuggestions,
+                onRetryError = onRetryError,
+                onDismissError = onDismissError,
             )
         }
     } else {
@@ -329,6 +425,7 @@ fun DoraiChatScreen(
                     onCloseDrawer = null,
                     onTogglePin = onTogglePinConversation,
                     onDelete = onDeleteConversation,
+                    onRename = onRenameConversation,
                 )
             },
             detailPane = {
@@ -368,6 +465,11 @@ fun DoraiChatScreen(
                     onNavigateToSettings = onNavigateToSettings,
                     onNavigateToWorkspace = onNavigateToWorkspace,
                     maxContextTokens = maxContextTokens,
+                    warning = warning,
+                    error = error,
+                    showFreeProviderSuggestions = showFreeProviderSuggestions,
+                    onRetryError = onRetryError,
+                    onDismissError = onDismissError,
                 )
             },
             modifier = modifier,
@@ -384,11 +486,13 @@ private fun ChatHistoryPane(
     onDelete: ((String) -> Unit)? = null,
     onCloseDrawer: (() -> Unit)? = null,
     activeConversationId: String? = null,
+    onRename: ((String, String) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalDoraiColors.current
     val widthClass = LocalDoraiWindowWidthClass.current
     var searchQuery by remember { mutableStateOf("") }
+    var renamingConv by remember { mutableStateOf<ChatConversationSummary?>(null) }
 
     val filtered = conversations.filter {
         it.title.contains(searchQuery, ignoreCase = true) || it.preview.contains(searchQuery, ignoreCase = true)
@@ -426,11 +530,11 @@ private fun ChatHistoryPane(
                 }
                 IconButton(
                     onClick = onCloseDrawer,
-                    modifier = Modifier.size(36.dp),
+                    modifier = Modifier.size(48.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
+                        contentDescription = stringResource(Res.string.chat_close_cd),
                         tint = colors.muted,
                         modifier = Modifier.size(20.dp),
                     )
@@ -482,13 +586,13 @@ private fun ChatHistoryPane(
                 {
                     IconButton(
                         onClick = { searchQuery = "" },
-                        modifier = Modifier.size(24.dp),
+                        modifier = Modifier.size(48.dp),
                     ) {
                         Icon(
                             Icons.Default.Close,
-                            contentDescription = "Clear",
+                            contentDescription = stringResource(Res.string.chat_clear_cd),
                             tint = colors.muted,
-                            modifier = Modifier.size(14.dp),
+                            modifier = Modifier.size(18.dp),
                         )
                     }
                 }
@@ -544,6 +648,7 @@ private fun ChatHistoryPane(
                             onOpen = { onOpenConversation(conv.id) },
                             onTogglePin = onTogglePin,
                             onDelete = onDelete,
+                            onRenameRequest = onRename?.let { { renamingConv = conv } },
                         )
                     }
                 }
@@ -565,7 +670,63 @@ private fun ChatHistoryPane(
                             onOpen = { onOpenConversation(conv.id) },
                             onTogglePin = onTogglePin,
                             onDelete = onDelete,
+                            onRenameRequest = onRename?.let { { renamingConv = conv } },
                         )
+                    }
+                }
+            }
+        }
+    }
+
+    if (renamingConv != null && onRename != null) {
+        val conv = renamingConv!!
+        var newTitle by remember(conv.id) { mutableStateOf(conv.title) }
+        DoraiModalSheet(onDismissRequest = { renamingConv = null }) {
+            val sheetColors = LocalDoraiColors.current
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(DoraiSpacing.LG),
+            ) {
+                Text(
+                    text = stringResource(Res.string.chat_rename_title),
+                    color = sheetColors.text,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+                OutlinedTextField(
+                    value = newTitle,
+                    onValueChange = { newTitle = it },
+                    placeholder = { Text(stringResource(Res.string.chat_rename_hint)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = sheetColors.surface2,
+                        unfocusedContainerColor = sheetColors.surface2,
+                        focusedTextColor = sheetColors.text,
+                        unfocusedTextColor = sheetColors.text,
+                    ),
+                )
+                Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    TextButton(onClick = { renamingConv = null }) {
+                        Text(stringResource(Res.string.settings_memories_edit_cancel))
+                    }
+                    Button(
+                        onClick = {
+                            val trimmed = newTitle.trim()
+                            if (trimmed.isNotBlank()) {
+                                onRename(conv.id, trimmed)
+                            }
+                            renamingConv = null
+                        },
+                        enabled = newTitle.trim().isNotBlank(),
+                    ) {
+                        Text(stringResource(Res.string.settings_memories_edit_save))
                     }
                 }
             }
@@ -580,6 +741,7 @@ private fun ConversationItemRow(
     onOpen: () -> Unit,
     onTogglePin: ((String) -> Unit)?,
     onDelete: ((String) -> Unit)?,
+    onRenameRequest: (() -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
     val itemShape = RoundedCornerShape(10.dp)
@@ -613,7 +775,7 @@ private fun ConversationItemRow(
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
                         imageVector = Icons.Default.PushPin,
-                        contentDescription = "Pinned",
+                        contentDescription = stringResource(Res.string.chat_pinned_cd),
                         tint = colors.primary,
                         modifier = Modifier.size(12.dp),
                     )
@@ -630,16 +792,30 @@ private fun ConversationItemRow(
             }
         }
 
+        if (onRenameRequest != null) {
+            IconButton(
+                onClick = onRenameRequest,
+                modifier = Modifier.size(48.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = stringResource(Res.string.chat_rename_cd),
+                    tint = colors.muted.copy(alpha = 0.7f),
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+        }
+
         if (onTogglePin != null) {
             IconButton(
                 onClick = { onTogglePin(conv.id) },
-                modifier = Modifier.size(28.dp),
+                modifier = Modifier.size(48.dp),
             ) {
                 Icon(
                     imageVector = Icons.Default.PushPin,
-                    contentDescription = "Pin/Unpin",
-                    tint = if (conv.isPinned) colors.primary else colors.muted.copy(alpha = 0.5f),
-                    modifier = Modifier.size(14.dp),
+                    contentDescription = stringResource(Res.string.chat_pin_toggle_cd),
+                    tint = if (conv.isPinned) colors.primary else colors.muted.copy(alpha = 0.6f),
+                    modifier = Modifier.size(18.dp),
                 )
             }
         }
@@ -647,13 +823,13 @@ private fun ConversationItemRow(
         if (onDelete != null) {
             IconButton(
                 onClick = { onDelete(conv.id) },
-                modifier = Modifier.size(28.dp),
+                modifier = Modifier.size(48.dp),
             ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete",
-                    tint = colors.muted.copy(alpha = 0.5f),
-                    modifier = Modifier.size(14.dp),
+                    contentDescription = stringResource(Res.string.chat_delete_cd),
+                    tint = colors.muted.copy(alpha = 0.6f),
+                    modifier = Modifier.size(18.dp),
                 )
             }
         }
@@ -698,6 +874,11 @@ private fun ChatDetailPane(
     onNavigateToSettings: (() -> Unit)? = null,
     onNavigateToWorkspace: (() -> Unit)? = null,
     maxContextTokens: Int? = null,
+    warning: StringResource? = null,
+    error: UiError? = null,
+    showFreeProviderSuggestions: Boolean = false,
+    onRetryError: (() -> Unit)? = null,
+    onDismissError: (() -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
     val widthClass = LocalDoraiWindowWidthClass.current
@@ -713,17 +894,20 @@ private fun ChatDetailPane(
         }
     }
 
+    var hasInitialScrolled by remember { mutableStateOf(false) }
     LaunchedEffect(messages.size) {
-        if (messages.isNotEmpty()) {
+        if (messages.isNotEmpty() && (!hasInitialScrolled || isAtBottom)) {
             listState.animateScrollToItem(messages.lastIndex)
+            hasInitialScrolled = true
         }
     }
 
+    // imePadding is provided by DoraiAdaptiveScaffold at the shell level.
+    // Do NOT add a second imePadding here (double keyboard offset).
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(colors.background)
-            .imePadding(),
+            .background(colors.background),
     ) {
         // Chat Top Bar (56dp fixed height matching prototype header.top)
         Row(
@@ -734,10 +918,10 @@ private fun ChatDetailPane(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (widthClass.isCompact && onOpenDrawer != null) {
-                IconButton(onClick = onOpenDrawer) {
+                IconButton(onClick = onOpenDrawer, modifier = Modifier.size(48.dp)) {
                     Icon(
                         imageVector = Icons.Default.Menu,
-                        contentDescription = "History",
+                        contentDescription = stringResource(Res.string.chat_history_cd),
                         tint = colors.text,
                     )
                 }
@@ -769,15 +953,15 @@ private fun ChatDetailPane(
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = "Choose model",
+                        contentDescription = stringResource(Res.string.chat_choose_model),
                         tint = colors.muted,
                         modifier = Modifier.size(16.dp),
                     )
                 }
             }
 
-            // Active mode badge (shown on medium/expanded/large, prototype line 399)
-            if (!widthClass.isCompact) {
+            // Active mode badge (all width classes; previously hidden on Compact).
+            run {
                 Spacer(modifier = Modifier.width(DoraiSpacing.SM))
                 val activeMode = com.dorai.ai.ui.components.v2.DefaultAgentModes.firstOrNull { it.id == selectedModeId }
                 val activeModeIcon = activeMode?.icon ?: Icons.AutoMirrored.Filled.Chat
@@ -798,10 +982,12 @@ private fun ChatDetailPane(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = selectedModeId.replaceFirstChar { it.uppercase() },
+                            text = activeMode?.let { stringResource(it.nameRes) } ?: selectedModeId.replaceFirstChar { it.uppercase() },
                             color = colors.muted,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                 }
@@ -809,7 +995,7 @@ private fun ChatDetailPane(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            IconButton(onClick = onNewChat) {
+            IconButton(onClick = onNewChat, modifier = Modifier.size(48.dp)) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = stringResource(Res.string.new_chat_content_description),
@@ -818,10 +1004,10 @@ private fun ChatDetailPane(
             }
 
             if (widthClass.isCompact && onNavigateToSettings != null) {
-                IconButton(onClick = onNavigateToSettings) {
+                IconButton(onClick = onNavigateToSettings, modifier = Modifier.size(48.dp)) {
                     Icon(
                         imageVector = Icons.Default.AccountCircle,
-                        contentDescription = "Account & Settings",
+                        contentDescription = stringResource(Res.string.chat_account_settings),
                         tint = colors.text,
                     )
                 }
@@ -845,6 +1031,16 @@ private fun ChatDetailPane(
                 onDiscard = onDiscardSms,
             )
         }
+        warning?.let { warningRes ->
+            Text(
+                text = stringResource(warningRes),
+                color = colors.err,
+                fontSize = 13.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.SM),
+            )
+        }
 
         // Main Messages / Empty State Area
         Box(
@@ -863,27 +1059,34 @@ private fun ChatDetailPane(
                     onNavigateToWorkspace = onNavigateToWorkspace,
                 )
             } else {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = DoraiSpacing.MD),
-                    verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD),
+                // Centered max-width column for large windows (was unbounded).
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.TopCenter,
                 ) {
-                    items(messages, key = { it.id }) { msg ->
-                        ChatMessageRow(
-                            message = msg,
-                            onRegenerate = onRegenerate,
-                            onSpeak = onSpeak,
-                            onAllowOnce = onAllowOnce,
-                            onAllowSession = onAllowSession,
-                            onDeny = onDeny,
-                            onRetryTool = onRetryTool,
-                            onAskFixTool = onAskFixTool,
-                            onDynamicUiOptionSelected = onDynamicUiOptionSelected,
-                            onDynamicUiSubmit = onDynamicUiSubmit,
-                            onRunPlan = onRunPlan,
-                        )
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .widthIn(max = ChatAdaptivePolicy.conversationColumnMax)
+                            .fillMaxSize()
+                            .padding(horizontal = DoraiSpacing.MD),
+                        verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD),
+                    ) {
+                        items(messages, key = { it.id }) { msg ->
+                            ChatMessageRow(
+                                message = msg,
+                                onRegenerate = onRegenerate,
+                                onSpeak = onSpeak,
+                                onAllowOnce = onAllowOnce,
+                                onAllowSession = onAllowSession,
+                                onDeny = onDeny,
+                                onRetryTool = onRetryTool,
+                                onAskFixTool = onAskFixTool,
+                                onDynamicUiOptionSelected = onDynamicUiOptionSelected,
+                                onDynamicUiSubmit = onDynamicUiSubmit,
+                                onRunPlan = onRunPlan,
+                            )
+                        }
                     }
                 }
             }
@@ -915,38 +1118,95 @@ private fun ChatDetailPane(
                     )
                 }
             }
+
+            // Error toast badge (ported from legacy ChatScreen; hidden while free-tier upsell shows)
+            if (error != null && !showFreeProviderSuggestions) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(16.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(colors.surface2)
+                        .border(1.dp, colors.line, RoundedCornerShape(12.dp))
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            text = uiErrorText(error),
+                            color = colors.text,
+                            fontSize = 13.sp,
+                            modifier = Modifier.widthIn(max = 260.dp),
+                        )
+                        if (onRetryError != null) {
+                            IconButton(
+                                onClick = onRetryError,
+                                modifier = Modifier.size(48.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = stringResource(Res.string.chat_retry),
+                                    tint = colors.text,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
+                        }
+                        if (onDismissError != null) {
+                            IconButton(
+                                onClick = onDismissError,
+                                modifier = Modifier.size(48.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(Res.string.chat_dismiss),
+                                    tint = colors.muted,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        // Composer Section at Bottom
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.SM),
+        // Composer Section at Bottom (centered to match the message column)
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.Center,
         ) {
-            DoraiModeSelector(
-                selectedModeId = selectedModeId,
-                onModeSelected = onModeSelected,
-                modifier = Modifier.padding(bottom = 6.dp),
-            )
+            Column(
+                modifier = Modifier
+                    .widthIn(max = ChatAdaptivePolicy.conversationColumnMax)
+                    .fillMaxWidth()
+                    .padding(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.SM),
+            ) {
+                DoraiModeSelector(
+                    selectedModeId = selectedModeId,
+                    onModeSelected = onModeSelected,
+                    modifier = Modifier.padding(bottom = 6.dp),
+                )
 
-            DoraiComposer(
-                value = composerInput,
-                onValueChange = { composerInput = it },
-                onSend = {
-                    val prompt = composerInput.trim()
-                    if (prompt.isNotEmpty() || files.isNotEmpty()) {
-                        composerInput = ""
-                        onSendMessage(prompt)
-                    }
-                },
-                isStreaming = isStreaming,
-                onStopStreaming = onStopStreaming,
-                onAttach = onAttachFile,
-                onMicClick = onMicClick,
-                files = files,
-                onRemoveFile = onRemoveFile,
-                maxContextTokens = maxContextTokens,
-            )
+                DoraiComposer(
+                    value = composerInput,
+                    onValueChange = { composerInput = it },
+                    onSend = {
+                        val prompt = composerInput.trim()
+                        if (prompt.isNotEmpty() || files.isNotEmpty()) {
+                            composerInput = ""
+                            onSendMessage(prompt)
+                        }
+                    },
+                    isStreaming = isStreaming,
+                    onStopStreaming = onStopStreaming,
+                    onAttach = onAttachFile,
+                    onMicClick = onMicClick,
+                    files = files,
+                    onRemoveFile = onRemoveFile,
+                    maxContextTokens = maxContextTokens,
+                )
+            }
         }
     }
 }
@@ -998,7 +1258,7 @@ private fun ChatMessageRow(
                         if (imageBitmap != null) {
                             Image(
                                 bitmap = imageBitmap,
-                                contentDescription = "Attachment Image",
+                                contentDescription = stringResource(Res.string.chat_attachment_image),
                                 modifier = Modifier
                                     .widthIn(max = 240.dp)
                                     .clip(RoundedCornerShape(10.dp))
@@ -1104,10 +1364,15 @@ private fun ChatMessageRow(
             if (message.text.isNotEmpty()) {
                 val document = remember(message.text) { parseMarkdown(message.text) }
                 SelectionContainer {
-                    MarkdownContent(
-                        document = document,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    // Pin the v2 text token: without an explicit LocalContentColor the
+                    // markdown falls back to MaterialTheme onSurface, which can resolve
+                    // dark-on-dark in some presets — rendering the answer unreadable.
+                    CompositionLocalProvider(LocalContentColor provides colors.text) {
+                        MarkdownContent(
+                            document = document,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
             }
 
@@ -1139,7 +1404,7 @@ private fun ChatMessageRow(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "AGENT ACTIVITY · ${message.toolExecutions.size} STEPS",
+                            text = stringResource(Res.string.chat_agent_activity, message.toolExecutions.size),
                             color = colors.muted,
                             fontSize = 11.sp,
                             fontFamily = FontFamily.Monospace,
@@ -1190,26 +1455,26 @@ private fun ChatMessageRow(
                             copyToClipboard(message.text)
                             isCopied = true
                         },
-                        modifier = Modifier.size(36.dp),
+                        modifier = Modifier.size(48.dp),
                     ) {
                         Icon(
                             imageVector = Icons.Default.ContentCopy,
                             contentDescription = stringResource(Res.string.chat_copy_message),
                             tint = if (isCopied) colors.ok else colors.muted,
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(20.dp),
                         )
                     }
 
                     if (onSpeak != null && message.text.isNotEmpty()) {
                         IconButton(
                             onClick = { onSpeak(message.id) },
-                            modifier = Modifier.size(36.dp),
+                            modifier = Modifier.size(48.dp),
                         ) {
                             Icon(
                                 imageVector = if (message.isSpeaking) Icons.Default.Stop else Icons.AutoMirrored.Filled.VolumeUp,
-                                contentDescription = if (message.isSpeaking) "Stop Speaking" else "Read Aloud",
+                                contentDescription = stringResource(if (message.isSpeaking) Res.string.chat_stop_speaking else Res.string.chat_read_aloud),
                                 tint = if (message.isSpeaking) colors.primary else colors.muted,
-                                modifier = Modifier.size(16.dp),
+                                modifier = Modifier.size(20.dp),
                             )
                         }
                     }
@@ -1217,13 +1482,13 @@ private fun ChatMessageRow(
                     if (onRegenerate != null) {
                         IconButton(
                             onClick = onRegenerate,
-                            modifier = Modifier.size(36.dp),
+                            modifier = Modifier.size(48.dp),
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
                                 contentDescription = stringResource(Res.string.chat_regenerate_message),
                                 tint = colors.muted,
-                                modifier = Modifier.size(16.dp),
+                                modifier = Modifier.size(20.dp),
                             )
                         }
                     }
@@ -1385,7 +1650,7 @@ private fun DoraiReasoningBlock(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = if (!isComplete) stringResource(Res.string.bot_message_thinking_label) else "Thought process",
+                    text = if (!isComplete) stringResource(Res.string.bot_message_thinking_label) else stringResource(Res.string.chat_reasoning_label),
                     color = colors.text,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -1399,7 +1664,7 @@ private fun DoraiReasoningBlock(
                             .padding(horizontal = 4.dp, vertical = 1.dp),
                     ) {
                         Text(
-                            text = "${segments.size} steps",
+                            text = stringResource(Res.string.chat_thought_steps, segments.size),
                             color = colors.primary,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Medium,
@@ -1447,13 +1712,13 @@ private fun DoraiReasoningBlock(
                     val fullThought = segments.joinToString("\n\n")
                     IconButton(
                         onClick = { copyToClipboard(fullThought) },
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(48.dp),
                     ) {
                         Icon(
                             imageVector = Icons.Default.ContentCopy,
-                            contentDescription = "Copy thoughts",
+                            contentDescription = stringResource(Res.string.chat_copy_thoughts),
                             tint = colors.muted,
-                            modifier = Modifier.size(12.dp),
+                            modifier = Modifier.size(18.dp),
                         )
                     }
                 }
@@ -1612,47 +1877,48 @@ private fun ChatEmptyState(
     val colors = LocalDoraiColors.current
     val widthClass = LocalDoraiWindowWidthClass.current
 
-    val welcomeTitle = when (selectedModeId) {
-        "plan" -> "What feature would you like to plan?"
-        "build" -> "What would you like to build?"
-        "review" -> "Ready to review and optimize code."
-        else -> "How can I help you today?"
+    val welcomeTitleRes = when (selectedModeId) {
+        "plan" -> Res.string.chat_welcome_plan
+        "build" -> Res.string.chat_welcome_build
+        "review" -> Res.string.chat_welcome_review
+        else -> Res.string.chat_welcome_ask
     }
+    val welcomeTitle = stringResource(welcomeTitleRes)
 
-    val modeBadge = when (selectedModeId) {
-        "plan" -> "Plan Mode · Structured breakdowns"
-        "build" -> "Build Mode · Code & automation"
-        "review" -> "Review Mode · Quality & security"
-        else -> "Ask Mode · Q&A and explanations"
+    val activeMode = com.dorai.ai.ui.components.v2.DefaultAgentModes.firstOrNull { it.id == selectedModeId }
+    val modeBadge = if (activeMode != null) {
+        stringResource(activeMode.nameRes) + " · " + stringResource(activeMode.descRes)
+    } else {
+        selectedModeId
     }
 
     val prompts = when (selectedModeId) {
         "plan" -> listOf(
-            QuickPromptItem("Feature Roadmap", "Design a step-by-step roadmap for offline data synchronization with conflict resolution", Icons.AutoMirrored.Filled.Rule, "Roadmap"),
-            QuickPromptItem("Security Architecture", "Plan an audit for encrypted key storage and biometric authentication", Icons.Default.Security, "Security"),
-            QuickPromptItem("Refactoring Plan", "Plan modularizing app navigation into independent nested graphs with type-safe arguments", Icons.Default.Build, "Architecture"),
-            QuickPromptItem("Testing Strategy", "Create an end-to-end testing strategy across Android and Desktop targets", Icons.Default.CheckCircle, "QA"),
+            QuickPromptItem(stringResource(Res.string.qp_plan_1_title), stringResource(Res.string.qp_plan_1_prompt), Icons.AutoMirrored.Filled.Rule, stringResource(Res.string.qp_plan_1_tag)),
+            QuickPromptItem(stringResource(Res.string.qp_plan_2_title), stringResource(Res.string.qp_plan_2_prompt), Icons.Default.Security, stringResource(Res.string.qp_plan_2_tag)),
+            QuickPromptItem(stringResource(Res.string.qp_plan_3_title), stringResource(Res.string.qp_plan_3_prompt), Icons.Default.Build, stringResource(Res.string.qp_plan_3_tag)),
+            QuickPromptItem(stringResource(Res.string.qp_plan_4_title), stringResource(Res.string.qp_plan_4_prompt), Icons.Default.CheckCircle, stringResource(Res.string.qp_plan_4_tag)),
         )
 
         "build" -> listOf(
-            QuickPromptItem("UI Component", "Build a responsive animated bottom sheet with interactive gesture drag in Compose", Icons.Default.Widgets, "Component"),
-            QuickPromptItem("Data Layer", "Implement a reactive SQLDelight database repository with Flow queries", Icons.Default.Code, "Database"),
-            QuickPromptItem("Terminal Command", "Run gradle test suite and report any failing test outputs", Icons.Default.Terminal, "Automation"),
-            QuickPromptItem("State Management", "Create a type-safe UDF state machine with loading, content, and error states", Icons.Default.Build, "State"),
+            QuickPromptItem(stringResource(Res.string.qp_build_1_title), stringResource(Res.string.qp_build_1_prompt), Icons.Default.Widgets, stringResource(Res.string.qp_build_1_tag)),
+            QuickPromptItem(stringResource(Res.string.qp_build_2_title), stringResource(Res.string.qp_build_2_prompt), Icons.Default.Code, stringResource(Res.string.qp_build_2_tag)),
+            QuickPromptItem(stringResource(Res.string.qp_build_3_title), stringResource(Res.string.qp_build_3_prompt), Icons.Default.Terminal, stringResource(Res.string.qp_build_3_tag)),
+            QuickPromptItem(stringResource(Res.string.qp_build_4_title), stringResource(Res.string.qp_build_4_prompt), Icons.Default.Build, stringResource(Res.string.qp_build_4_tag)),
         )
 
         "review" -> listOf(
-            QuickPromptItem("Performance Audit", "Audit Compose components for unstable parameters and redundant recomposition loops", Icons.Default.Speed, "Performance"),
-            QuickPromptItem("Security Review", "Review API key handling, network security policies, and permission declarations", Icons.Default.Security, "Security"),
-            QuickPromptItem("Edge Cases & Tests", "Identify edge cases and missing unit test coverage in data repositories", Icons.Default.Search, "Testing"),
-            QuickPromptItem("Accessibility", "Check color contrast, touch target sizes, and screen reader labels across screens", Icons.Default.Visibility, "A11y"),
+            QuickPromptItem(stringResource(Res.string.qp_review_1_title), stringResource(Res.string.qp_review_1_prompt), Icons.Default.Speed, stringResource(Res.string.qp_review_1_tag)),
+            QuickPromptItem(stringResource(Res.string.qp_review_2_title), stringResource(Res.string.qp_review_2_prompt), Icons.Default.Security, stringResource(Res.string.qp_review_2_tag)),
+            QuickPromptItem(stringResource(Res.string.qp_review_3_title), stringResource(Res.string.qp_review_3_prompt), Icons.Default.Search, stringResource(Res.string.qp_review_3_tag)),
+            QuickPromptItem(stringResource(Res.string.qp_review_4_title), stringResource(Res.string.qp_review_4_prompt), Icons.Default.Visibility, stringResource(Res.string.qp_review_4_tag)),
         )
 
         else -> listOf(
-            QuickPromptItem("Architecture", "Explain unidirectional data flow and state hoisting in Compose Multiplatform", Icons.Default.Lightbulb, "Concept"),
-            QuickPromptItem("Concurrency", "How do Kotlin coroutine dispatchers and structured concurrency work?", Icons.Default.Bolt, "Deep Dive"),
-            QuickPromptItem("Compare Frameworks", "Compare Ktor Client with OkHttp for Kotlin Multiplatform networking", Icons.AutoMirrored.Filled.CompareArrows, "Comparison"),
-            QuickPromptItem("Best Practices", "What are best practices for handling process death and saved state in KMP?", Icons.Default.Extension, "Guide"),
+            QuickPromptItem(stringResource(Res.string.qp_ask_1_title), stringResource(Res.string.qp_ask_1_prompt), Icons.Default.Lightbulb, stringResource(Res.string.qp_ask_1_tag)),
+            QuickPromptItem(stringResource(Res.string.qp_ask_2_title), stringResource(Res.string.qp_ask_2_prompt), Icons.Default.Bolt, stringResource(Res.string.qp_ask_2_tag)),
+            QuickPromptItem(stringResource(Res.string.qp_ask_3_title), stringResource(Res.string.qp_ask_3_prompt), Icons.AutoMirrored.Filled.CompareArrows, stringResource(Res.string.qp_ask_3_tag)),
+            QuickPromptItem(stringResource(Res.string.qp_ask_4_title), stringResource(Res.string.qp_ask_4_prompt), Icons.Default.Extension, stringResource(Res.string.qp_ask_4_tag)),
         )
     }
 
@@ -1694,7 +1960,7 @@ private fun ChatEmptyState(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Select a prompt suggestion below or start typing in the composer",
+                text = stringResource(Res.string.chat_empty_subtitle),
                 color = colors.muted,
                 fontSize = 13.5.sp,
             )
@@ -1765,7 +2031,7 @@ private fun ChatEmptyState(
             ) {
                 if (onAttachImage != null) {
                     ActionShortcutPill(
-                        label = "Image",
+                        label = stringResource(Res.string.chat_empty_image),
                         painter = painterResource(Res.drawable.ic_image),
                         onClick = onAttachImage,
                     )
@@ -1773,7 +2039,7 @@ private fun ChatEmptyState(
                 }
                 if (onAttachFile != null) {
                     ActionShortcutPill(
-                        label = "File",
+                        label = stringResource(Res.string.chat_empty_file),
                         painter = painterResource(Res.drawable.ic_file),
                         onClick = onAttachFile,
                     )
@@ -1781,7 +2047,7 @@ private fun ChatEmptyState(
                 }
                 if (onNavigateToWorkspace != null) {
                     ActionShortcutPill(
-                        label = "Workspace",
+                        label = stringResource(Res.string.chat_empty_workspace),
                         icon = Icons.Default.Folder,
                         onClick = onNavigateToWorkspace,
                     )

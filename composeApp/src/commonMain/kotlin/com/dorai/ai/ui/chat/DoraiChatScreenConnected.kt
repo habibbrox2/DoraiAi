@@ -55,7 +55,15 @@ import com.dorai.ai.ui.components.v2.ToolExecutionModel
 import com.dorai.ai.ui.components.v2.ToolExecutionState
 import com.dorai.ai.ui.dynamicui.toSpeakableText
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.chat_active_badge
+import dorai.composeapp.generated.resources.chat_attach_file
+import dorai.composeapp.generated.resources.chat_attach_photo
+import dorai.composeapp.generated.resources.chat_attach_title
+import dorai.composeapp.generated.resources.chat_manage_providers
 import dorai.composeapp.generated.resources.chat_model_picker_title
+import dorai.composeapp.generated.resources.chat_privacy_cloud
+import dorai.composeapp.generated.resources.chat_privacy_local
+import dorai.composeapp.generated.resources.chat_voice_unavailable
 import dorai.composeapp.generated.resources.ic_file
 import dorai.composeapp.generated.resources.ic_image
 import dorai.composeapp.generated.resources.snackbar_conversation_deleted
@@ -90,7 +98,7 @@ fun DoraiChatScreenConnected(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var selectedModeId by remember { mutableStateOf("ask") }
+    val selectedModeId = uiState.selectedAgentModeId
     var showModelPicker by remember { mutableStateOf(false) }
     var showAttachSheet by remember { mutableStateOf(false) }
 
@@ -118,17 +126,31 @@ fun DoraiChatScreenConnected(
         )
     }
 
-    val conversations = remember(uiState.savedConversations, uiState.pendingConversationDeletion) {
+    val conversations = remember(
+        uiState.savedConversations,
+        uiState.pendingConversationDeletion,
+        uiState.history,
+        uiState.currentConversationId,
+    ) {
         val pendingId = uiState.pendingConversationDeletion
         val now = kotlin.time.Clock.System.now().toEpochMilliseconds()
         val oneDayMs = 24 * 60 * 60 * 1000L
+        // Only the open conversation has loaded history locally; derive a usable
+        // preview snippet for it so history search/titles are meaningful.
+        val currentPreview = uiState.history
+            .lastOrNull { it.content.isNotBlank() }
+            ?.content
+            ?.trim()
+            ?.replace(Regex("\\s+"), " ")
+            ?.take(90)
+            .orEmpty()
         uiState.savedConversations
             .filter { it.id != pendingId }
             .map { conv ->
                 ChatConversationSummary(
                     id = conv.id,
                     title = conv.title,
-                    preview = "",
+                    preview = if (conv.id == uiState.currentConversationId) currentPreview else "",
                     isToday = (now - conv.updatedAt) < oneDayMs,
                     isPinned = conv.isPinned,
                 )
@@ -170,6 +192,7 @@ fun DoraiChatScreenConnected(
 
     val deletedMessage = stringResource(Res.string.snackbar_conversation_deleted)
     val undoLabel = stringResource(Res.string.snackbar_undo)
+    val voiceUnavailableMsg = stringResource(Res.string.chat_voice_unavailable)
     LaunchedEffect(uiState.pendingConversationDeletion) {
         val pendingId = uiState.pendingConversationDeletion ?: return@LaunchedEffect
         snackbarHostState.currentSnackbarData?.dismiss()
@@ -181,6 +204,14 @@ fun DoraiChatScreenConnected(
         if (result == SnackbarResult.ActionPerformed) {
             uiState.actions.undoDeleteConversation()
         }
+    }
+
+    // Ported from legacy ChatScreen: error toast auto-dismisses after 6s.
+    // DoraiChatScreen renders the badge; this only clears the VM state.
+    LaunchedEffect(uiState.error) {
+        if (uiState.error == null) return@LaunchedEffect
+        kotlinx.coroutines.delay(6000)
+        uiState.actions.clearError()
     }
 
     // Double-back to exit handling
@@ -208,7 +239,7 @@ fun DoraiChatScreenConnected(
             currentModelName = currentModelName,
             isModelLocal = isModelLocal,
             selectedModeId = selectedModeId,
-            onModeSelected = { selectedModeId = it },
+            onModeSelected = { uiState.actions.setAgentMode(it) },
             onSendMessage = { prompt ->
                 uiState.actions.ask(prompt)
             },
@@ -235,7 +266,7 @@ fun DoraiChatScreenConnected(
                 uiState.actions.ask("Please fix the previous tool failure.")
             },
             onRunPlan = {
-                selectedModeId = "build"
+                uiState.actions.setAgentMode("build")
                 uiState.actions.ask("Run this plan in build mode.")
             },
             onSpeak = { messageId ->
@@ -275,7 +306,11 @@ fun DoraiChatScreenConnected(
                 showAttachSheet = false
                 imagePickerLauncher.launch()
             },
-            onMicClick = { /* Voice input callback */ },
+            onMicClick = {
+                scope.launch {
+                    snackbarHostState.showSnackbar(voiceUnavailableMsg, duration = SnackbarDuration.Short)
+                }
+            },
             hasUnreadHeartbeat = uiState.hasUnreadHeartbeat,
             onHeartbeatTap = {
                 uiState.heartbeatConversationId?.let { uiState.actions.loadConversation(it) }
@@ -291,6 +326,11 @@ fun DoraiChatScreenConnected(
             onNavigateToSettings = onNavigateToSettings,
             onNavigateToWorkspace = onNavigateToWorkspace,
             maxContextTokens = maxContextTokens,
+            warning = uiState.warning,
+            error = uiState.error,
+            showFreeProviderSuggestions = uiState.showFreeProviderSuggestions,
+            onRetryError = { uiState.actions.retry() },
+            onDismissError = { uiState.actions.clearError() },
             modifier = Modifier.fillMaxSize(),
         )
 
@@ -359,7 +399,7 @@ fun DoraiChatScreenConnected(
                                 )
                             }
                             if (isSelected) {
-                                DoraiStatusBadge(text = "Active", color = colors.ok)
+                                DoraiStatusBadge(text = stringResource(Res.string.chat_active_badge), color = colors.ok)
                             }
                         }
                     }
@@ -375,7 +415,7 @@ fun DoraiChatScreenConnected(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(
-                        text = "Manage providers",
+                        text = stringResource(Res.string.chat_manage_providers),
                         color = colors.primary,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -394,7 +434,7 @@ fun DoraiChatScreenConnected(
                     .padding(DoraiSpacing.LG),
             ) {
                 Text(
-                    text = "Attach",
+                    text = stringResource(Res.string.chat_attach_title),
                     color = colors.text,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
@@ -423,7 +463,7 @@ fun DoraiChatScreenConnected(
                         modifier = Modifier.size(20.dp),
                     )
                     Text(
-                        text = "Photo / Image",
+                        text = stringResource(Res.string.chat_attach_photo),
                         color = colors.text,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -454,7 +494,7 @@ fun DoraiChatScreenConnected(
                         modifier = Modifier.size(20.dp),
                     )
                     Text(
-                        text = "File / Document",
+                        text = stringResource(Res.string.chat_attach_file),
                         color = colors.text,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -466,9 +506,9 @@ fun DoraiChatScreenConnected(
                 // Privacy disclosure footer from prototype
                 Text(
                     text = if (isModelLocal) {
-                        "Files stay on this device."
+                        stringResource(Res.string.chat_privacy_local)
                     } else {
-                        "You will be told before a file goes to a cloud model."
+                        stringResource(Res.string.chat_privacy_cloud)
                     },
                     color = colors.muted,
                     fontSize = 12.sp,

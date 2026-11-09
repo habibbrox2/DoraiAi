@@ -518,11 +518,17 @@ class AppSettings(internal val settings: Settings) {
     }
 
     // UI v2 Migration Flag (cut-over enabled by default)
+    // @deprecated UI v2 is now unconditional in App.kt; kept for persisted-settings compatibility only.
+    @Deprecated("UI v2 is unconditional (App.kt); flag kept for migration compatibility")
     private val _uiV2Flow = MutableStateFlow(settings.getBoolean(KEY_UI_V2, true))
+
+    @Deprecated("UI v2 is unconditional (App.kt); flag kept for migration compatibility")
     val uiV2Flow: StateFlow<Boolean> = _uiV2Flow
 
+    @Deprecated("UI v2 is unconditional (App.kt); flag kept for migration compatibility")
     fun isUiV2Enabled(): Boolean = _uiV2Flow.value
 
+    @Deprecated("UI v2 is unconditional (App.kt); flag kept for migration compatibility")
     fun setUiV2Enabled(enabled: Boolean) {
         settings.putBoolean(KEY_UI_V2, enabled)
         _uiV2Flow.value = enabled

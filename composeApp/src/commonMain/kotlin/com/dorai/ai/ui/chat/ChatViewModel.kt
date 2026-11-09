@@ -83,6 +83,7 @@ class ChatViewModel(
         submitUiCallback = ::submitUiCallback,
         resubmit = ::resubmit,
         setInteractiveMode = ::setInteractiveMode,
+        setAgentMode = ::setAgentMode,
         goBackInteractiveMode = ::goBackInteractiveMode,
         sendSmsDraft = ::sendSmsDraft,
         discardSmsDraft = ::discardSmsDraft,
@@ -736,6 +737,23 @@ class ChatViewModel(
                 error = null,
                 showFreeProviderSuggestions = false,
             )
+        }
+    }
+
+    /**
+     * Selects the UI v2 agent mode for the current chat session.
+     * Validates against the known ids and keeps "build" in sync with the
+     * tool-calling (interactive) loop so Build mode actually enables tools.
+     */
+    private fun setAgentMode(modeId: String) {
+        val validIds = listOf("ask", "plan", "build", "review")
+        val normalized = modeId.takeIf { it in validIds } ?: "ask"
+        if (_state.value.selectedAgentModeId == normalized) return
+        _state.update { it.copy(selectedAgentModeId = normalized) }
+        // Build mode needs the agentic tool loop; other modes stay conversational.
+        // Guarded by supportsAgenticFlows check already applied at picker level.
+        if (normalized == "build") {
+            setInteractiveMode(true)
         }
     }
 
