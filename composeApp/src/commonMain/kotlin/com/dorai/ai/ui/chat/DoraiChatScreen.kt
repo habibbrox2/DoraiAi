@@ -15,6 +15,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,7 +37,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -946,6 +946,9 @@ private fun ChatDetailPane(
     // user just sent always re-pins. An answer therefore cannot be generated below the fold while
     // the user believes they are at the bottom.
     var pinnedToTail by remember { mutableStateOf(true) }
+    // Opening a chat must not jump away from the restored position, so the follow effect skips its
+    // first run and only starts following on the next content change (new prompt, new stream).
+    var followingArmed by remember { mutableStateOf(false) }
     val lastMessage = messages.lastOrNull()
     // First-token card visibility, derived once and shared with the follow effect so both agree on
     // whether a trailing item exists below the messages.
@@ -983,6 +986,10 @@ private fun ChatDetailPane(
     // Never scrolls while the list is being dragged or flung: the gesture wins, and the pin above
     // decides afterwards whether following continues.
     LaunchedEffect(messages.size, followTextLength, followExtraHeight, showStreamingTail) {
+        if (!followingArmed) {
+            followingArmed = true
+            return@LaunchedEffect
+        }
         if (messages.isEmpty() || !pinnedToTail || listState.isScrollInProgress) return@LaunchedEffect
         val targetIndex = if (showStreamingTail) messages.size else messages.lastIndex
         val info = listState.layoutInfo

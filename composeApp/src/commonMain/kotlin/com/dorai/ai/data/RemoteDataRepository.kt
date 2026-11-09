@@ -873,7 +873,9 @@ class RemoteDataRepository(
             // Gemini and Anthropic still use their buffered response shape; only the
             // OpenAI-compatible family streams today (see openAICompatibleChatStream).
             Service.Gemini -> handleGeminiChatWithTools(creds, messages, tools, systemPrompt, history)
+
             Service.Anthropic -> handleAnthropicChatWithTools(creds, messages, tools, systemPrompt, history)
+
             else -> handleOpenAICompatibleChatWithTools(service, creds, messages, tools, systemPrompt, history, stream)
         }
     }

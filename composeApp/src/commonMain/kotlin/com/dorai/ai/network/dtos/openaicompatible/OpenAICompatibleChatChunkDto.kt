@@ -61,11 +61,10 @@ data class OpenAICompatibleCompletion(
     val toolCalls: List<OpenAICompatibleChatResponseDto.ToolCall> = emptyList(),
     val finishReason: String? = null,
 ) {
-    fun asMessage(): OpenAICompatibleChatResponseDto.Choice.Message =
-        OpenAICompatibleChatResponseDto.Choice.Message(
-            role = "assistant",
-            content = content,
-            reasoningContent = reasoning,
-            toolCalls = toolCalls.ifEmpty { null },
-        )
+    fun asMessage(): OpenAICompatibleChatResponseDto.Choice.Message = OpenAICompatibleChatResponseDto.Choice.Message(
+        role = "assistant",
+        content = content,
+        reasoningContent = reasoning,
+        toolCalls = toolCalls.ifEmpty { null },
+    )
 }
