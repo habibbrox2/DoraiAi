@@ -64,7 +64,9 @@ Auto-derived from the first user message when a conversation is saved for the fi
 
 ## Timeline Rendering
 
-- While pinned to the bottom, the timeline follows streaming token growth (not just new messages) so the latest output stays visible during generation
+- The timeline follows streaming token growth (not just new messages) so the latest output stays visible during generation, and it aligns to the newest message's *end* so a reply taller than the viewport shows its newest text rather than its first line
+- Following the tail is durable "pinned" state, not a layout snapshot taken at one instant: scrolling away from the bottom stops the auto-follow and shows the jump-to-latest button, scrolling back (or tapping that button) resumes it, and sending a prompt always re-pins. A completed answer can therefore never land below the fold while the timeline was following
+- Replies stream over server-sent events (`"stream": true`) on the OpenAI-compatible provider family: the answer grows in place inside a single message, and tool calls are assembled from streamed fragments. Gemini, Anthropic and the Responses-API models (GPT-5 family) are still buffered and appear in one chunk; reasoning traces stream silently and attach to the message when the turn finishes. A provider that ignores `stream` and answers with plain JSON renders identically to a buffered reply
 - When a response is pending but no assistant content has arrived yet (no text, reasoning, or tool activity), a first-token "thinking" card shows animated dots, the active model name, and a Stop button (instead of a bare spinner); reduced-motion keeps the dots static
 - While the assistant reply is streaming in, a blinking trailing caret bar is shown under the reply text; reduced-motion shows a static bar
 - Assistant messages that continue a run of assistant messages (no intervening user message) omit the repeated brand-mark + model header; a fallback note may still render on its own
