@@ -781,6 +781,11 @@ class ChatViewModel(
         }
     }
 
+    /** Lightweight services refresh — no conversation restore. Used on navigation. */
+    fun refreshServices() {
+        updateAvailableServices()
+    }
+
     /**
      * Resolves the interactive mode flag from the currently-loaded conversation, or — when
      * there is no loaded conversation (new empty chat) — falls back to the persisted flag.

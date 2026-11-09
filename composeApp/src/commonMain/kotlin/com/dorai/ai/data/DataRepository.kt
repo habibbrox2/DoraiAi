@@ -39,6 +39,11 @@ interface DataRepository {
     fun updateInstanceApiKey(instanceId: String, apiKey: String)
     fun getInstanceBaseUrl(instanceId: String, service: Service): String
     fun updateInstanceBaseUrl(instanceId: String, baseUrl: String)
+
+    /** Raw per-instance base URL without any provider-specific default (e.g. no Ollama localhost fallback). Blank when unset. */
+    fun getInstanceBaseUrlRaw(instanceId: String): String = ""
+    fun getInstanceCustomName(instanceId: String): String
+    fun updateInstanceCustomName(instanceId: String, name: String)
     fun getInstanceModels(instanceId: String, service: Service): StateFlow<List<SettingsModel>>
     fun updateInstanceSelectedModel(instanceId: String, service: Service, modelId: String)
     fun getInstanceUseCustomModel(instanceId: String): Boolean

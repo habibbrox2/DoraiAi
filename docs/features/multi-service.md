@@ -1,6 +1,6 @@
 # Multi-Service
 
-**Last verified:** 2026-11-06
+**Last verified:** 2026-11-09
 
 DORAI AI supports 32 LLM providers (plus a built-in Free tier). Each provider uses one of three API formats: **OpenAI-compatible** (most services), **Gemini native**, or **Anthropic native** -- plus **LiteRT on-device** for local inference. A handful of OpenAI models additionally require OpenAI's **Responses API**; DORAI AI switches to it per model, transparently. Users can configure multiple service instances, reorder them, and DORAI AI automatically falls back through the chain on failure.
 
@@ -58,6 +58,10 @@ A fresh install has no configured provider instances. Chat uses the built-in `Au
 Most services use the **OpenAI-compatible** chat completions format. **Gemini** uses Google's native Generative Language API. **Anthropic** uses its own Messages API with `x-api-key` header authentication and a different request/response structure. **LiteRT** runs inference on-device using Google's LiteRT LM SDK -- no HTTP, no API key, fully offline.
 
 The **OpenAI-Compatible API** service supports a custom base URL, defaulting to `localhost:11434/v1` for local Ollama setups. The base URL should include the version path segment (e.g., `http://localhost:11434/v1` or `https://my-provider.com/api/v1`), following the OpenAI SDK convention. DORAI AI appends only `/chat/completions`, `/responses` or `/models` to this base URL. A pasted full chat endpoint (ending in `/chat/completions`) is trimmed back to the base first, so the path is never doubled and the models list still resolves.
+
+Each OpenAI-Compatible instance accepts an optional **display name** in its config card (e.g. "My LiteLLM proxy"). The name is persisted per instance, shown in the Settings card header, and used in chat and everywhere a service instance is listed, so multiple custom gateways stay distinguishable. Export/import carries it along with the other per-instance settings. When the field is blank the instance shows the plain service name as before.
+
+Validation against a custom gateway fires only once a **base URL is actually set**: an instance with no endpoint shows "Enter the custom endpoint's base URL to fetch its models" instead of firing a request at the default Ollama default. After the base URL (or API key) changes, validation re-runs after an 800 ms debounce and the model list is re-fetched from `{base URL}/models`. If the fetch fails, the error is shown in place of the model list — the endpoint is not reported as connected-with-zero-models — and can be retried.
 
 ### OpenAI Responses API
 
@@ -188,7 +192,7 @@ Users manage services through the settings screen:
 - **Add** — pick from the list of available services (can add the same service multiple times); the OpenAI-Compatible API and the on-device Local Model are pinned to the top of the picker, followed by the highlighted featured provider Atlas Cloud, with the remaining providers sorted alphabetically
 - **Remove** — delete an instance and its stored credentials; deletion is deferred with a snackbar "Undo" option (~4 seconds) before the service is permanently removed
 - **Reorder** — drag to change priority (first = primary, rest = fallbacks)
-- **Configure** — per-instance API key, model selection, base URL (OpenAI-Compatible only; optional custom model id via checkbox)
+- **Configure** — per-instance API key, model selection, base URL (OpenAI-Compatible only; optional custom model id via checkbox); custom gateways additionally accept a per-instance **Display name** shown in the card header, chat, and everywhere the instance is listed
 - **Sponsors** — the Free tier card lists all GitHub sponsors in a single grid, with active sponsors first followed by past sponsors
 
 ## Key Files

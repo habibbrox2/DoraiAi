@@ -24,6 +24,23 @@
 
 ---
 
+## DORAI AI - Custom Gateway & Model Fetch
+
+### Added
+- **Custom Display Name:** The OpenAI-Compatible (custom gateway) config card now accepts an optional per-instance **Display name** (e.g. "My LiteLLM proxy"). The name is persisted per instance, shown in the settings card header, in chat (model picker, composer and top bar), and wherever a configured instance is listed, so multiple gateways stay distinguishable. Export/import carries the name with the other per-instance settings.
+
+### Changed
+- **Model Fetch Errors Surface:** For providers exposing a `/models` endpoint (including custom gateways), a failed model-list request now surfaces as a connection/fetch error instead of silently producing an empty selection. The endpoint is no longer reported as "connected with zero models" on a network/auth failure.
+- **No Endpoint, No Phantom Fetch:** An OpenAI-Compatible instance with no base URL configured no longer fires a request at the localhost default in Settings; it shows "Enter the custom endpoint's base URL to fetch its models" until a URL (or API key) is entered, after which validation and the model list refresh automatically.
+- **Live Rename in Chat:** The chat shell re-reads configured services whenever the destination changes, so a renamed gateway (or updated key/model) appears in chat without an app restart.
+
+### Tests
+- Screenshot coverage for the custom gateway card: `settings_providers_custom_gateway_expanded_ogshine` renders the expanded AI Providers screen with the new Display name field for the built-in gateway fixture.
+
+---
+
+---
+
 ## DORAI AI - UI v2 Migration
 
 ### Added
