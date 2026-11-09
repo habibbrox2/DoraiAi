@@ -338,6 +338,14 @@ class AppSettings(internal val settings: Settings) {
         settings.putBoolean(KEY_DYNAMIC_UI_ENABLED, enabled)
     }
 
+    // Chat restore behavior: true (default) — reopen the conversation that was
+    // open when the app was closed; false — always start fresh.
+    fun isRestoreLastChatEnabled(): Boolean = settings.getBoolean(KEY_RESTORE_LAST_CHAT, true)
+
+    fun setRestoreLastChatEnabled(enabled: Boolean) {
+        settings.putBoolean(KEY_RESTORE_LAST_CHAT, enabled)
+    }
+
     // App updates
     fun isAutoUpdateEnabled(): Boolean = settings.getBoolean(KEY_AUTO_UPDATE_ENABLED, false)
 
@@ -730,6 +738,7 @@ class AppSettings(internal val settings: Settings) {
         const val KEY_SCHEDULED_TASKS = "scheduled_tasks"
         const val KEY_SCHEDULING_ENABLED = "scheduling_enabled"
         const val KEY_DYNAMIC_UI_ENABLED = "dynamic_ui_enabled"
+        const val KEY_RESTORE_LAST_CHAT = "restore_last_chat"
         const val KEY_AUTO_UPDATE_ENABLED = "auto_update_enabled"
         const val KEY_LAST_AUTO_UPDATE_CHECK_MS = "last_auto_update_check_ms"
         const val KEY_THEME_MODE = "theme_mode"

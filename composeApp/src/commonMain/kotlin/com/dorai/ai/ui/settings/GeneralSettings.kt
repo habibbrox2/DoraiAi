@@ -39,6 +39,8 @@ import dorai.composeapp.generated.resources.settings_daemon_mode
 import dorai.composeapp.generated.resources.settings_daemon_mode_description
 import dorai.composeapp.generated.resources.settings_dynamic_ui
 import dorai.composeapp.generated.resources.settings_dynamic_ui_description
+import dorai.composeapp.generated.resources.settings_restore_last_chat
+import dorai.composeapp.generated.resources.settings_restore_last_chat_description
 import dorai.composeapp.generated.resources.settings_ui_scale
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -64,6 +66,12 @@ internal fun GeneralContent(
                 DynamicUiToggle(
                     isDynamicUiEnabled = uiState.isDynamicUiEnabled,
                     onToggleDynamicUi = actions.onToggleDynamicUi,
+                )
+            }
+            SettingsCard {
+                RestoreLastChatToggle(
+                    isRestoreLastChatEnabled = uiState.isRestoreLastChatEnabled,
+                    onToggleRestoreLastChat = actions.onToggleRestoreLastChat,
                 )
             }
             SettingsCard {
@@ -123,6 +131,21 @@ private fun DynamicUiToggle(
             description = stringResource(Res.string.settings_dynamic_ui_description),
             checked = isDynamicUiEnabled,
             onCheckedChange = onToggleDynamicUi,
+        )
+    }
+}
+
+@Composable
+private fun RestoreLastChatToggle(
+    isRestoreLastChatEnabled: Boolean,
+    onToggleRestoreLastChat: (Boolean) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        ToggleableHeadline(
+            title = stringResource(Res.string.settings_restore_last_chat),
+            description = stringResource(Res.string.settings_restore_last_chat_description),
+            checked = isRestoreLastChatEnabled,
+            onCheckedChange = onToggleRestoreLastChat,
         )
     }
 }

@@ -9,6 +9,18 @@ import kotlin.test.assertTrue
 class AppSettingsTest {
 
     @Test
+    fun `restore last chat setting defaults to true and round-trips`() {
+        val settings = MapSettings()
+        val appSettings = AppSettings(settings)
+
+        assertTrue(appSettings.isRestoreLastChatEnabled(), "default must be true (restore last conversation)")
+        appSettings.setRestoreLastChatEnabled(false)
+        assertFalse(appSettings.isRestoreLastChatEnabled())
+        appSettings.setRestoreLastChatEnabled(true)
+        assertTrue(appSettings.isRestoreLastChatEnabled())
+    }
+
+    @Test
     fun `migration only runs once so deleted services stay deleted`() {
         val settings = MapSettings()
         val appSettings = AppSettings(settings)

@@ -2331,6 +2331,12 @@ class RemoteDataRepository(
         appSettings.setDynamicUiEnabled(enabled)
     }
 
+    override fun isRestoreLastChatEnabled(): Boolean = appSettings.isRestoreLastChatEnabled()
+
+    override fun setRestoreLastChatEnabled(enabled: Boolean) {
+        appSettings.setRestoreLastChatEnabled(enabled)
+    }
+
     @Suppress("DEPRECATION")
     @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
     override fun getThemeMode(): ThemeMode = appSettings.getThemeMode()

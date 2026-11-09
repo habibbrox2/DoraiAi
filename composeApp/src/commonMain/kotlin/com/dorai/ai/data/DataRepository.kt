@@ -120,6 +120,10 @@ interface DataRepository {
     fun isDynamicUiEnabled(): Boolean
     fun setDynamicUiEnabled(enabled: Boolean)
 
+    // Chat restore behavior: true (default) — reopen last conversation on app launch
+    fun isRestoreLastChatEnabled(): Boolean
+    fun setRestoreLastChatEnabled(enabled: Boolean)
+
     // Theme mode
     @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
     fun getThemeMode(): ThemeMode = ThemeMode.System
