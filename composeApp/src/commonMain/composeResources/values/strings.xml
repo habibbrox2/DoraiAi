@@ -874,6 +874,15 @@
     <string name="workspace_commit_action">Commit</string>
     <string name="workspace_commit_message_hint">Commit messageâ€¦</string>
     <string name="workspace_files_changed_count">%1$d files changed</string>
+    <string name="workspace_finish_setup">Finish Setup &amp; Launch</string>
+    <string name="workspace_changes_count">%1$d changes</string>
+    <string name="workspace_agent_empty">No agent activity yet</string>
+    <string name="workspace_git_unavailable">Git data is unavailable for this project right now</string>
+    <string name="workspace_terminal_unavailable">Terminal view is unavailable in this build</string>
+    <string name="workspace_last_updated">Updated %1$s</string>
+    <string name="workspace_files_toggle">Files</string>
+    <string name="workspace_sandbox_running_badge">Sandbox Running</string>
+    <string name="workspace_sandbox_stopped_badge">Sandbox Stopped</string>
 
     <!-- UI v2 Settings -->
     <string name="settings_cat_general">General</string>
