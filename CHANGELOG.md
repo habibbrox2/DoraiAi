@@ -1,3 +1,20 @@
+## DORAI AI - Live Chat Streaming (Unreleased)
+
+### Added
+- **The assistant's answer now appears as it is written** on the OpenAI-compatible provider family (OpenAI, OpenRouter, Groq, Mistral, Cloudflare and other compatible endpoints, including local Ollama/LM Studio): the text grows in place inside a single reply instead of arriving all at once when generation finishes, so long answers no longer look frozen. The typing caret, follow-the-tail scrolling and "Worked for Xs" timer now track real token growth. Gemini, Anthropic, the Responses-API models (GPT-5 family) and on-device inference still deliver the whole answer in one piece.
+- Streamed tool calls are assembled from their fragments, so a tool-using turn renders its text and its tool activity on the same message.
+
+### Changed
+- **A failed provider no longer leaves a half-written answer behind:** when the fallback chain moves to the next provider (or the next free-tier target), the partial streamed text is removed before the new answer starts.
+
+### Fixed
+- **The newest answer no longer ends up off-screen.** Following the tail is now durable state instead of a scroll-position guess: scrolling up stops the auto-scroll (the jump-to-latest button appears), scrolling back or tapping it resumes, and sending a prompt always follows again. A long reply also stays anchored to its newest text instead of its first line.
+
+### Tests
+- New `StreamedAssistantRowTest` covers delta coalescing, stable row identity, single-use finalization and discard.
+
+---
+
 ## DORAI AI - Restore Last Chat on Launch Preference (Unreleased)
 
 ### Added

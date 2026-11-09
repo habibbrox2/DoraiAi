@@ -9,6 +9,11 @@ data class OpenAICompatibleChatRequestDto(
     val messages: List<Message>,
     val model: String? = null,
     val tools: List<Tool>? = null,
+    /**
+     * `true` asks the provider for a server-sent-event stream. Left null for the plain
+     * request/response path so the field is omitted from the payload entirely.
+     */
+    val stream: Boolean? = null,
 ) {
     @Serializable
     data class Message(

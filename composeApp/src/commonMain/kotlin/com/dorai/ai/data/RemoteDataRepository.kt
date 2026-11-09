@@ -119,6 +119,13 @@ private const val ESTIMATED_CHARS_PER_TOKEN = 4
 private const val COMPACTION_THRESHOLD = 0.7 // Compact when history exceeds 70% of context window
 private const val COMPACTION_KEEP_RECENT = 4 // Number of recent user exchanges to keep verbatim
 
+/**
+ * Minimum gap between streamed history writes. A fast model can emit dozens of deltas per
+ * second; coalescing to ~20 updates/s keeps the timeline smooth without re-deriving the whole
+ * chat state on every token.
+ */
+private const val STREAM_FLUSH_INTERVAL_MS = 50L
+
 // Explicit allowlist of tools exposed to the on-device (LiteRT) model. We use a
 // hardcoded name list rather than a structural filter because small Gemma models hit
 // litert-lm's strict ANTLR function-call parser hard on anything more complex than
@@ -843,6 +850,7 @@ class RemoteDataRepository(
         instanceId: String,
         history: MutableStateFlow<List<History>> = chatHistory,
         credentialsOverride: ServiceCredentials? = null,
+        stream: StreamedAssistantRow? = null,
     ): AssistantTurn {
         if (service.isOnDevice) {
             // No retry: local-inference failures are deterministic, and this path mutates
@@ -858,13 +866,17 @@ class RemoteDataRepository(
         val tools = if (supportsTools(creds.modelId)) getAvailableTools() else emptyList()
 
         if (tools.isEmpty()) {
-            return plainChat(service, creds, messages, systemPrompt, strictEmptyResponse = true)
+            return plainChat(service, creds, messages, systemPrompt, strictEmptyResponse = true, stream = stream)
         }
 
         return when (service) {
+            // Gemini and Anthropic still use their buffered response shape; only the
+            // OpenAI-compatible family streams today (see openAICompatibleChatStream).
             Service.Gemini -> handleGeminiChatWithTools(creds, messages, tools, systemPrompt, history)
+
             Service.Anthropic -> handleAnthropicChatWithTools(creds, messages, tools, systemPrompt, history)
-            else -> handleOpenAICompatibleChatWithTools(service, creds, messages, tools, systemPrompt, history)
+
+            else -> handleOpenAICompatibleChatWithTools(service, creds, messages, tools, systemPrompt, history, stream)
         }
     }
 
@@ -895,6 +907,7 @@ class RemoteDataRepository(
         requestTimeoutMs: Long? = null,
         retry: Boolean = true,
         strictEmptyResponse: Boolean = false,
+        stream: StreamedAssistantRow? = null,
     ): AssistantTurn {
         suspend fun <T> call(block: suspend () -> T): T = if (retry) retryApiCall(block) else block()
 
@@ -937,10 +950,24 @@ class RemoteDataRepository(
                     return AssistantTurn(content.orEmpty(), response.reasoningSummary)
                 }
                 val sessionId = activeConversationId()
-                val response = call {
-                    requests.openAICompatibleChat(service, credentials, openAIMessages, sessionId = sessionId, requestTimeoutMs = requestTimeoutMs).getOrThrow()
+                val message = if (stream != null) {
+                    // Deltas land in the visible row as they arrive; this only assembles the
+                    // authoritative final message (and the reasoning trace) for persistence.
+                    requests.openAICompatibleChatStream(
+                        service = service,
+                        credentials = credentials,
+                        messages = openAIMessages,
+                        sessionId = sessionId,
+                        requestTimeoutMs = requestTimeoutMs,
+                    ) { delta -> stream.append(delta) }
+                        .getOrThrow()
+                        .asMessage()
+                } else {
+                    call {
+                        requests.openAICompatibleChat(service, credentials, openAIMessages, sessionId = sessionId, requestTimeoutMs = requestTimeoutMs).getOrThrow()
+                    }.choices.firstOrNull()?.message
                 }
-                val message = response.choices.firstOrNull()?.message
+                stream?.flush()
                 val content = message?.effectiveContent
                 if (content == null && strictEmptyResponse) throw OpenAICompatibleEmptyResponseException()
                 AssistantTurn(content.orEmpty(), message?.reasoningTraceFor(content))
@@ -1221,6 +1248,9 @@ class RemoteDataRepository(
         val systemPrompt = getActiveSystemPrompt()
 
         val entries = getOrderedFallbackEntries()
+        // Renders the answer into a single in-place row while the provider is still generating.
+        // Only the visible turn gets one; silent asks and tool-only runs pass null.
+        val stream = StreamedAssistantRow(chatHistory)
         val turn = try {
             var successfulTurn: AssistantTurn? = null
             for ((index, entry) in entries.withIndex()) {
@@ -1231,6 +1261,7 @@ class RemoteDataRepository(
                             messages = messages,
                             systemPrompt = systemPrompt,
                             historyBeforeAttempt = historyBeforeAttempt,
+                            stream = stream,
                         )
                     } else {
                         validateContextWindow(
@@ -1239,7 +1270,7 @@ class RemoteDataRepository(
                             messages = messages,
                             systemPrompt = systemPrompt,
                         )
-                        askWithService(entry.service, messages, systemPrompt, entry.instanceId)
+                        askWithService(entry.service, messages, systemPrompt, entry.instanceId, stream = stream)
                     }
                     break
                 } catch (failure: Exception) {
@@ -1252,6 +1283,9 @@ class RemoteDataRepository(
                     ) {
                         throw failure
                     }
+                    // Another provider will answer from scratch: drop the partial text this one
+                    // already streamed so the transcript does not show two half-answers.
+                    stream.discard()
                     _fallbackStatus.value = FallbackStatus(
                         serviceName = if (entry.service == Service.Free) KeylessFreeTierFallback.DISPLAY_NAME else entry.service.displayName,
                         errorReason = if (entry.service == Service.Free) {
@@ -1268,16 +1302,27 @@ class RemoteDataRepository(
             _fallbackStatus.value = null
         }
 
+        // If the reply streamed, the row is already on screen: finalize it in place (authoritative
+        // text, reasoning trace and the id the timeline is keyed on) instead of appending a twin.
+        val streamedEntryId = stream.takeEntryId()
         chatHistory.update {
             it.toMutableList().apply {
-                add(
-                    History(
-                        role = History.Role.ASSISTANT,
+                val streamedIndex = streamedEntryId?.let { id -> indexOfFirst { entry -> entry.id == id } } ?: -1
+                if (streamedIndex >= 0) {
+                    this[streamedIndex] = this[streamedIndex].copy(
                         content = turn.content,
                         reasoningContent = turn.reasoningContent,
-                        sentAt = Clock.System.now().toEpochMilliseconds(),
-                    ),
-                )
+                    )
+                } else {
+                    add(
+                        History(
+                            role = History.Role.ASSISTANT,
+                            content = turn.content,
+                            reasoningContent = turn.reasoningContent,
+                            sentAt = Clock.System.now().toEpochMilliseconds(),
+                        ),
+                    )
+                }
             }
         }
         saveCurrentConversation()
@@ -1287,12 +1332,15 @@ class RemoteDataRepository(
         messages: List<History>,
         systemPrompt: String?,
         historyBeforeAttempt: List<History>,
+        stream: StreamedAssistantRow? = null,
     ): AssistantTurn = KeylessFreeTierFallback.execute(
         canContinueAfterFailure = {
             KeylessFreeTierFallback.canContinueAfterFailure(historyBeforeAttempt, chatHistory.value)
         },
         onFailure = { _, failure, nextTarget ->
             if (nextTarget != null) {
+                // The next free target answers from scratch — drop this one's partial text.
+                stream?.discard()
                 _fallbackStatus.value = FallbackStatus(
                     serviceName = KeylessFreeTierFallback.DISPLAY_NAME,
                     errorReason = failure.toUiError(),
@@ -1314,6 +1362,7 @@ class RemoteDataRepository(
             systemPrompt = systemPrompt,
             instanceId = "keyless-auto",
             credentialsOverride = KeylessFreeTierFallback.credentialsFor(target),
+            stream = stream,
         )
     }
 
@@ -1340,6 +1389,7 @@ class RemoteDataRepository(
         tools: List<Tool>,
         systemPrompt: String? = null,
         history: MutableStateFlow<List<History>> = chatHistory,
+        stream: StreamedAssistantRow? = null,
     ): AssistantTurn {
         val contextWindowTokens = ModelCatalog.estimateContextWindow(credentials.modelId)
         val declaredToolNames = tools.map { it.schema.name }.toSet()
@@ -1371,10 +1421,25 @@ class RemoteDataRepository(
                     )
                 }
                 val sessionId = activeConversationId()
-                val response = retryApiCall {
-                    requests.openAICompatibleChat(service, credentials, msgs, tools, sessionId = sessionId).getOrThrow()
+                // One wire call, two possible shapes: streamed deltas (assembled into a message)
+                // or the buffered JSON response. Everything below — tool-call mapping, inline
+                // <tool_call> extraction, thinking detection — is shared between them.
+                val message = if (stream != null) {
+                    requests.openAICompatibleChatStream(
+                        service = service,
+                        credentials = credentials,
+                        messages = msgs,
+                        tools = tools,
+                        sessionId = sessionId,
+                    ) { delta -> stream.append(delta) }
+                        .getOrThrow()
+                        .asMessage()
+                } else {
+                    retryApiCall {
+                        requests.openAICompatibleChat(service, credentials, msgs, tools, sessionId = sessionId).getOrThrow()
+                    }.choices.firstOrNull()?.message ?: throw OpenAICompatibleEmptyResponseException()
                 }
-                val message = response.choices.firstOrNull()?.message ?: throw OpenAICompatibleEmptyResponseException()
+                stream?.flush()
                 var calls = message.toolCalls.orEmpty().map { tc ->
                     ToolCallInfo(id = tc.id, name = tc.function.name, arguments = tc.function.arguments)
                 }
@@ -1406,7 +1471,7 @@ class RemoteDataRepository(
                 return makeFinalCallWithoutTools(service, credentials, msgs, reason, useResponsesApi)
             }
         }
-        return runToolLoop(strategy, systemPrompt, history)
+        return runToolLoop(strategy, systemPrompt, history, stream)
     }
 
     private suspend fun handleGeminiChatWithTools(
@@ -1494,6 +1559,7 @@ class RemoteDataRepository(
         strategy: ToolLoopStrategy,
         systemPrompt: String?,
         history: MutableStateFlow<List<History>>,
+        stream: StreamedAssistantRow? = null,
     ): AssistantTurn {
         var iteration = 0
         val recentSignatures = mutableListOf<String>()
@@ -1522,18 +1588,29 @@ class RemoteDataRepository(
             }
             recentSignatures.addAll(signatures)
 
+            // If this round's text already streamed into a row, turn that row into the
+            // tool-call turn rather than appending a twin with the same answer text.
+            val streamedId = stream?.takeEntryId()
+            val now = Clock.System.now().toEpochMilliseconds()
             history.update {
                 it.toMutableList().apply {
-                    add(
-                        History(
-                            role = History.Role.ASSISTANT,
-                            content = result.textContent,
-                            isThinking = result.isThinkingContent,
-                            toolCalls = result.toolCalls.toImmutableList(),
-                            reasoningContent = result.reasoningContent,
-                            sentAt = Clock.System.now().toEpochMilliseconds(),
-                        ),
+                    val entry = History(
+                        role = History.Role.ASSISTANT,
+                        content = result.textContent,
+                        isThinking = result.isThinkingContent,
+                        toolCalls = result.toolCalls.toImmutableList(),
+                        reasoningContent = result.reasoningContent,
+                        sentAt = now,
                     )
+                    val mergeIndex = streamedId?.let { id -> indexOfFirst { existing -> existing.id == id } } ?: -1
+                    if (mergeIndex >= 0) {
+                        this[mergeIndex] = entry.copy(
+                            id = this[mergeIndex].id,
+                            sentAt = this[mergeIndex].sentAt ?: now,
+                        )
+                    } else {
+                        add(entry)
+                    }
                 }
             }
 
@@ -2819,5 +2896,81 @@ class RemoteDataRepository(
 
     override suspend fun deleteLocalModel(modelId: String) {
         localInferenceEngine?.deleteModel(modelId)
+    }
+}
+
+/**
+ * Streams assistant text into a single in-place [History] row so the chat timeline renders the
+ * reply while it is still being generated.
+ *
+ * One instance per visible turn. [append] is called from the provider's SSE loop:
+ *
+ * - the first delta creates the assistant row (`sentAt` = first-token time, so the
+ *   "Worked for Xs" indicator measures the real generation span);
+ * - later deltas update that row's `content`, which is exactly what the timeline already keys
+ *   on, so the message grows in place instead of being appended after the turn;
+ * - [takeEntryId] hands the row to the authoritative final write (tool-call turn or completed
+ *   answer) so it is finalized rather than duplicated;
+ * - [discard] removes it when the fallback chain moves on to another provider.
+ *
+ * Writes are coalesced to one update per [STREAM_FLUSH_INTERVAL_MS]. `MutableStateFlow.update`
+ * is atomic, so this is safe alongside tool-row writes from other coroutines.
+ */
+internal class StreamedAssistantRow(
+    private val history: MutableStateFlow<List<History>>,
+) {
+    private var entryId: String? = null
+    private val pending = StringBuilder()
+    private var lastFlushAtMs = 0L
+
+    /** Queues [delta] and publishes it immediately or once the coalescing window elapses. */
+    fun append(delta: String) {
+        if (delta.isEmpty()) return
+        pending.append(delta)
+        val now = Clock.System.now().toEpochMilliseconds()
+        if (entryId == null || now - lastFlushAtMs >= STREAM_FLUSH_INTERVAL_MS) flush(now)
+    }
+
+    /** Publishes queued text right now — used at end of stream, before finalization. */
+    fun flush() = flush(Clock.System.now().toEpochMilliseconds())
+
+    private fun flush(now: Long) {
+        if (pending.isEmpty()) return
+        val chunk = pending.toString()
+        pending.clear()
+        lastFlushAtMs = now
+        val id = entryId
+        if (id == null) {
+            val entry = History(
+                role = History.Role.ASSISTANT,
+                content = chunk,
+                sentAt = now,
+            )
+            entryId = entry.id
+            history.update { current -> current + entry }
+        } else {
+            history.update { current ->
+                current.map { entry -> if (entry.id == id) entry.copy(content = entry.content + chunk) else entry }
+            }
+        }
+    }
+
+    /**
+     * Flushes, detaches and returns the streamed row's id (null when nothing streamed). After
+     * this call the row belongs to the final write; a later delta would start a new row.
+     */
+    fun takeEntryId(): String? {
+        flush()
+        val id = entryId
+        entryId = null
+        return id
+    }
+
+    /** Drops the streamed row and its queued text (another provider will answer instead). */
+    fun discard() {
+        pending.clear()
+        val id = entryId ?: return
+        entryId = null
+        history.update { current -> current.filterNot { it.id == id } }
     }
 }
