@@ -5,8 +5,20 @@ package com.dorai.ai.github
  *
  * The policy is deliberately read-only: write subcommands (`commit`, `push`, `add`, `restore`) are
  * absent from [allowedGitSubcommands] until a later opt-in phase, and destructive flags are
- * rejected everywhere. It is platform-neutral common code so the desktop runner, the Android
- * proot runner, and the shell/process allowlist all share one definition instead of duplicating it.
+ * rejected everywhere.
+ *
+ * No production caller consumes this policy yet. `ProcessManager`/`ShellCommandTool` still own
+ * their private executable allowlist for non-git commands; Task 6 is expected to route git
+ * commands here. The policy lives in common code so every runner (desktop `ProcessBuilder`,
+ * Android proot) can share one definition when it is wired up.
+ *
+ * Flag handling is fail-closed. Every token is normalized before the deny-list check: `--opt=value`
+ * is compared as `--opt`, clustered short options such as `-pf` are expanded to `-p` + `-f`, and
+ * abbreviated long options such as `--for` or `--upl` are refused when they abbreviate a denied
+ * long option. Subcommands with a small read-only flag surface (`fetch`, `ls-remote`, `branch`,
+ * `remote`) then accept only exact allow-listed flags; `clone` and `pull` are exact-token strict.
+ * `status`/`log`/`diff`/`rev-parse` expose too many options to enumerate, but none of them can
+ * write, and abbreviations of denied long options are still refused.
  *
  * Callers pass the arguments *after* the `git` executable. A leading `git`/`git.exe` token is
  * tolerated so a full argv list can be passed unchanged.
@@ -57,14 +69,65 @@ object GitCommandPolicy {
 
     private val fetchRejectedFlags = setOf("-p", "--prune-tags", "-u", "--update-head-ok", "--write-fetch-head")
 
+    /** Every long option that must never be accepted, including when abbreviated. */
+    private val deniedLongFlags: Set<String> =
+        (rejectedFlags + extraRejectedFlags + branchRejectedFlags + fetchRejectedFlags)
+            .filterTo(mutableSetOf()) { it.startsWith("--") }
+
+    /** Short options that must never be accepted, including when clustered. */
+    private val deniedShortFlags: Set<String> = rejectedShortFlags
+
+    /**
+     * Short options that take an attached value (`-Sneedle`, `-M90%`, `-uno`). Their tail is a
+     * value, not a cluster, so it is not expanded into individual flags.
+     */
+    private val attachedValueShortOptions = setOf('S', 'G', 'L', 'O', 'n', 'U', 'M', 'C', 'j', 'u')
+
+    private val fetchAllowedFlags = setOf(
+        "-a", "--all", "-k", "--keep", "-q", "--quiet", "-t", "--tags", "-v", "--verbose",
+        "-4", "--ipv4", "-6", "--ipv6",
+        "--append", "--atomic", "--dry-run", "--multiple", "--no-auto-gc", "--no-tags",
+        "--no-write-fetch-head", "--progress", "--unshallow", "--update-shallow",
+        "--depth", "--shallow-since", "--shallow-exclude", "--jobs", "--filter", "--negotiation-tip",
+    )
+
+    private val fetchAllowedPrefixes = listOf(
+        "--depth=",
+        "--shallow-since=",
+        "--shallow-exclude=",
+        "--jobs=",
+        "--filter=",
+        "--negotiation-tip=",
+    )
+
+    private val lsRemoteAllowedFlags = setOf(
+        "-q", "--quiet", "-t", "--tags", "-h", "--heads", "-4", "--ipv4", "-6", "--ipv6",
+        "--branches", "--refs", "--get-url", "--symref", "--exit-code", "--sort", "--server-option",
+    )
+
+    private val lsRemoteAllowedPrefixes = listOf("--sort=", "--server-option=")
+
+    private val branchAllowedFlags = setOf(
+        "-a", "--all", "-r", "--remotes", "-v", "-vv", "--verbose", "-l", "--list", "-i", "--ignore-case",
+        "--show-current", "--color", "--no-color", "--column", "--no-column", "--abbrev", "--no-abbrev",
+        "--contains", "--no-contains", "--merged", "--no-merged", "--points-at", "--format", "--sort",
+        "--omit-empty",
+    )
+
+    private val branchAllowedPrefixes = listOf(
+        "--color=", "--column=", "--abbrev=", "--contains=", "--no-contains=",
+        "--merged=", "--no-merged=", "--points-at=", "--format=", "--sort=",
+    )
+
+    private val remoteAllowedFlags = setOf("-v", "--verbose", "-n", "--all", "--push")
+
     private val safeArgPattern = Regex("[A-Za-z0-9_@%+=:,./-]+")
 
     /**
      * Returns true only when [args] is a read-only `git` invocation this app may execute.
      *
      * Checks, in order: no empty/control-character tokens, an accepted global-option prefix, an
-     * allowed subcommand, no rejected flag, then the per-subcommand rules (`pull`, `clone`,
-     * `branch`, `remote`, `fetch`).
+     * allowed subcommand, the normalized deny list, then the per-subcommand rules.
      */
     fun isAllowedGitArgs(args: List<String>): Boolean {
         val tokens = if (args.isNotEmpty() && isGitExecutable(args.first())) args.drop(1) else args
@@ -83,6 +146,7 @@ object GitCommandPolicy {
             "branch" -> isAllowedBranch(rest)
             "remote" -> isAllowedRemote(rest)
             "fetch" -> isAllowedFetch(rest)
+            "ls-remote" -> isAllowedLsRemote(rest)
             else -> true
         }
     }
@@ -102,8 +166,8 @@ object GitCommandPolicy {
 
     /**
      * True when [token] names the `git` executable in any path form (`git`, `/usr/bin/git`,
-     * `C:\Program Files\Git\cmd\git.exe`). Lets the shell/process allowlist route git commands
-     * here instead of re-implementing executable detection.
+     * `C:\Program Files\Git\cmd\git.exe`). Lets a caller such as `ProcessManager` route git
+     * commands here instead of re-implementing executable detection.
      */
     fun isGitExecutable(token: String): Boolean {
         val baseName = token.substringAfterLast('/').substringAfterLast('\\').lowercase()
@@ -141,9 +205,33 @@ object GitCommandPolicy {
         return if (separator > 0) token.substring(0, separator) else token
     }
 
+    /**
+     * Fail-closed deny check over a normalized token.
+     *
+     * Catches exact denied flags, long options abbreviated to a denied long option (`--for`,
+     * `--upl`, `--set-u`) and denied short options hidden in a cluster (`-pf`, `-uf`).
+     */
     private fun isRejectedFlag(token: String): Boolean {
+        if (!token.startsWith("-")) return false
         val name = flagName(token)
-        return name in rejectedFlags || name in rejectedShortFlags || name in extraRejectedFlags
+        if (name in rejectedFlags || name in extraRejectedFlags) return true
+        if (name in deniedShortFlags) return true
+
+        if (name.startsWith("--") && name.length > 2) {
+            return deniedLongFlags.any { denied -> denied.length > name.length && denied.startsWith(name) }
+        }
+
+        if (name.length > 2 && name[1] !in attachedValueShortOptions) {
+            return name.drop(1).any { short -> "-$short" in deniedShortFlags }
+        }
+        return false
+    }
+
+    /** Every flag token must be an exact allowed flag or match an allowed value prefix. */
+    private fun areFlagsAllowed(rest: List<String>, exact: Set<String>, prefixes: List<String>): Boolean = rest.all { token ->
+        !token.startsWith("-") ||
+            token in exact ||
+            prefixes.any { prefix -> token.length > prefix.length && token.startsWith(prefix) }
     }
 
     /** `git pull` is allowed only in its fast-forward-only form. */
@@ -183,7 +271,7 @@ object GitCommandPolicy {
      * glob pattern.
      */
     private fun isAllowedBranch(rest: List<String>): Boolean {
-        if (rest.any { flagName(it) in branchRejectedFlags }) return false
+        if (!areFlagsAllowed(rest, branchAllowedFlags, branchAllowedPrefixes)) return false
         val listMode = rest.any { it in branchListFlags || flagName(it) in branchListFlags }
 
         var expectsValue = false
@@ -203,6 +291,7 @@ object GitCommandPolicy {
 
     /** `git remote` may read remotes but never add, remove, rename, or rewrite one. */
     private fun isAllowedRemote(rest: List<String>): Boolean {
+        if (!areFlagsAllowed(rest, remoteAllowedFlags, emptyList())) return false
         val positionals = rest.filter { !it.startsWith("-") }
         if (positionals.isEmpty()) return true
         val action = positionals.first()
@@ -211,6 +300,12 @@ object GitCommandPolicy {
         return positionals.size <= 2
     }
 
-    /** `git fetch` is read-only once the pruning/ref-rewriting flags are removed. */
-    private fun isAllowedFetch(rest: List<String>): Boolean = rest.none { flagName(it) in fetchRejectedFlags }
+    /** `git fetch` accepts only its read-only flag surface. */
+    private fun isAllowedFetch(rest: List<String>): Boolean {
+        if (!areFlagsAllowed(rest, fetchAllowedFlags, fetchAllowedPrefixes)) return false
+        return rest.none { flagName(it) in fetchRejectedFlags }
+    }
+
+    /** `git ls-remote` accepts only its read-only flag surface. */
+    private fun isAllowedLsRemote(rest: List<String>): Boolean = areFlagsAllowed(rest, lsRemoteAllowedFlags, lsRemoteAllowedPrefixes)
 }
