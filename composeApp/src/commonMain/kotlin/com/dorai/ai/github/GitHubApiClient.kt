@@ -25,20 +25,20 @@ private const val MAX_PAGES = 10
  * logging (`HttpLogSanitizer`) redacts that header before it reaches stdout/logcat,
  * so tokens never appear in tool args, logs, or the agent timeline.
  */
-class GitHubApiClient(
+open class GitHubApiClient(
     private val vault: GitHubTokenVault,
     private val httpClient: HttpClient = httpClient(),
 ) {
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun getAuthenticatedUser(): GitHubApiResult<GitHubUser> = request("$GITHUB_API_BASE/user", GitHubUser.serializer())
+    open suspend fun getAuthenticatedUser(): GitHubApiResult<GitHubUser> = request("$GITHUB_API_BASE/user", GitHubUser.serializer())
 
-    suspend fun listInstallations(): GitHubApiResult<List<GitHubInstallation>> = requestAllPages("$GITHUB_API_BASE/user/installations", GitHubInstallation.serializer())
+    open suspend fun listInstallations(): GitHubApiResult<List<GitHubInstallation>> = requestAllPages("$GITHUB_API_BASE/user/installations", GitHubInstallation.serializer())
 
-    suspend fun listInstallationRepositories(installationId: Long): GitHubApiResult<List<GitHubRepository>> = requestAllPages("$GITHUB_API_BASE/installations/$installationId/repositories", GitHubRepository.serializer())
+    open suspend fun listInstallationRepositories(installationId: Long): GitHubApiResult<List<GitHubRepository>> = requestAllPages("$GITHUB_API_BASE/installations/$installationId/repositories", GitHubRepository.serializer())
 
-    suspend fun getRepository(owner: String, repo: String): GitHubApiResult<GitHubRepository> = request("$GITHUB_API_BASE/repos/$owner/$repo", GitHubRepository.serializer())
+    open suspend fun getRepository(owner: String, repo: String): GitHubApiResult<GitHubRepository> = request("$GITHUB_API_BASE/repos/$owner/$repo", GitHubRepository.serializer())
 
     private suspend fun <T : Any> request(
         url: String,

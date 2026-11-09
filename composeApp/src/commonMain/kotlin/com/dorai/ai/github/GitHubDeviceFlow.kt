@@ -34,6 +34,8 @@ sealed interface GitHubDeviceFlowState {
 
     data class Success(
         val login: String,
+        val accessToken: String? = null,
+        val refreshToken: String? = null,
     ) : GitHubDeviceFlowState
 
     data class Error(
@@ -54,13 +56,13 @@ sealed interface GitHubDeviceFlowError {
 
 class GitHubDeviceFlowException(val error: GitHubDeviceFlowError) : Exception(error.toString())
 
-class GitHubDeviceFlow(
+open class GitHubDeviceFlow(
     private val clientId: String?,
     private val httpClient: HttpClient = httpClient(),
 ) {
     private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun requestDeviceCode(): Result<GitHubDeviceFlowState.AwaitingUser> {
+    open suspend fun requestDeviceCode(): Result<GitHubDeviceFlowState.AwaitingUser> {
         val id = clientId ?: return Result.failure(GitHubDeviceFlowException(GitHubDeviceFlowError.MissingClientId))
         return runCatching {
             val response = httpClient.post("https://github.com/login/device/code") {
@@ -80,7 +82,7 @@ class GitHubDeviceFlow(
         }
     }
 
-    suspend fun pollForToken(
+    open suspend fun pollForToken(
         deviceCode: String,
         intervalSeconds: Long,
         expiresAtEpochMs: Long,
@@ -105,7 +107,7 @@ class GitHubDeviceFlow(
             val token = runCatching { json.decodeFromString(GitHubTokenResponse.serializer(), body) }.getOrNull()
             if (!body.isErrorResponse() && token?.accessToken != null) {
                 val login = fetchLogin(token.accessToken)
-                return GitHubDeviceFlowState.Success(login)
+                return GitHubDeviceFlowState.Success(login, token.accessToken, token.refreshToken)
             }
             val error = githubErrorFromBody(body)
             when (error) {
@@ -121,7 +123,7 @@ class GitHubDeviceFlow(
         }.getOrElse { GitHubDeviceFlowState.Error(GitHubDeviceFlowError.Network(it.message ?: "request failed")) }
     }
 
-    suspend fun refreshToken(refreshToken: String): Result<GitHubTokenResponse> {
+    open suspend fun refreshToken(refreshToken: String): Result<GitHubTokenResponse> {
         val id = clientId ?: return Result.failure(GitHubDeviceFlowException(GitHubDeviceFlowError.MissingClientId))
         return runCatching {
             val response = httpClient.post("https://github.com/login/oauth/access_token") {
