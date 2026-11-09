@@ -27,8 +27,17 @@ private const val GCM_TAG_LENGTH = 128
  * Stores call into this from many coroutines at once, so every mutation and its [persist] run
  * under one lock (reads stay lock-free on the concurrent map). The file is replaced atomically,
  * and a file that fails to decrypt is set aside rather than overwritten — it holds every API key.
+ *
+ * [settingsFileName]/[keyFileName] default to the app-wide `settings.aes`/`settings.key` pair;
+ * callers with a dedicated secret store (e.g. the GitHub token vault) pass their own file names.
+ * [migrateFromLegacyPreferences] must be false for dedicated vault files so they never drain the
+ * shared legacy Preferences node.
  */
-class EncryptedFileSettings : Settings {
+class EncryptedFileSettings(
+    private val settingsFileName: String = SETTINGS_FILE,
+    private val keyFileName: String = KEY_FILE,
+    private val migrateFromLegacyPreferences: Boolean = true,
+) : Settings {
 
     private val json = Json { encodeDefaults = true }
     private val map: MutableMap<String, String> = ConcurrentHashMap()
@@ -40,7 +49,7 @@ class EncryptedFileSettings : Settings {
     }
 
     private fun getOrCreateKey(): SecretKey {
-        val keyFile = File(getAppFilesDirectory(), KEY_FILE)
+        val keyFile = File(getAppFilesDirectory(), keyFileName)
         if (keyFile.exists()) {
             val keyBytes = keyFile.readBytes()
             if (keyBytes.size == 32) {
@@ -55,9 +64,9 @@ class EncryptedFileSettings : Settings {
     }
 
     private fun load() {
-        val file = File(getAppFilesDirectory(), SETTINGS_FILE)
+        val file = File(getAppFilesDirectory(), settingsFileName)
         if (!file.exists()) {
-            migrateFromPreferences()
+            if (migrateFromLegacyPreferences) migrateFromPreferences()
             return
         }
         try {
@@ -73,7 +82,7 @@ class EncryptedFileSettings : Settings {
         } catch (e: Exception) {
             // Unreadable (wrong/missing key, truncated, tampered). Start fresh, but move the file
             // aside first so the next write can't destroy the only copy of the user's settings.
-            val backup = File(file.parentFile, "$SETTINGS_FILE.unreadable-${System.currentTimeMillis()}")
+            val backup = File(file.parentFile, "$settingsFileName.unreadable-${System.currentTimeMillis()}")
             println("EncryptedFileSettings: cannot read settings (${e.message}); kept as ${backup.name}")
             file.renameTo(backup)
         }
@@ -103,7 +112,7 @@ class EncryptedFileSettings : Settings {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, key, GCMParameterSpec(GCM_TAG_LENGTH, iv))
         val encrypted = cipher.doFinal(plaintext.encodeToByteArray())
-        writeAtomically(File(getAppFilesDirectory(), SETTINGS_FILE), iv + encrypted)
+        writeAtomically(File(getAppFilesDirectory(), settingsFileName), iv + encrypted)
     }
 
     /** Writes to a sibling temp file and renames it over [target], so a crash mid-write never leaves a truncated file. */
