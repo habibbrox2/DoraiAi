@@ -810,7 +810,8 @@ jobs:
             dist/SHA256SUMS
           )
           # Add any optional artifacts that were successfully built
-          for f in dist/DORAI-AI-v${VERSION}-macos.dmg \
+          for f in dist/DORAI-AI-v${VERSION}-Android-standard.apk \
+                   dist/DORAI-AI-v${VERSION}-macos.dmg \
                    dist/DORAI-AI-v${VERSION}-linux.deb \
                    dist/DORAI-AI-v${VERSION}-linux.rpm \
                    dist/DORAI-AI-v${VERSION}-linux.AppImage \
