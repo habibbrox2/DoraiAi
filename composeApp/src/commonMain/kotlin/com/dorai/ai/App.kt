@@ -28,6 +28,7 @@ import coil3.compose.setSingletonImageLoaderFactory
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.svg.SvgDecoder
 import com.dorai.ai.data.AppSettings
+import com.dorai.ai.data.ExecutionLocation
 import com.dorai.ai.data.Service
 import com.dorai.ai.theme.ThemeViewModel
 import com.dorai.ai.theme.engine.DoraiTheme
@@ -209,7 +210,7 @@ private fun AppContent(
 
                 val activeService = chatUiState.availableServices.firstOrNull()
                 val currentModelName = activeService?.serviceName ?: "Free FAST"
-                val isModelLocal = activeService?.serviceId == "ollama" || activeService?.serviceId == "litert"
+                val isModelLocal = activeService?.executionLocation == ExecutionLocation.LOCAL
 
                 val homeState = remember(chatUiState, currentModelName, isModelLocal) {
                     HomeUiState(
@@ -220,7 +221,8 @@ private fun AppContent(
                         isModelLocal = isModelLocal,
                         isSandboxRunning = true,
                         recentChats = chatUiState.savedConversations.take(3).map {
-                            HomeChatSummary(it.id, it.title, "Updated recently")
+                            // null snippet → localized "Updated recently" placeholder
+                            HomeChatSummary(it.id, it.title)
                         },
                     )
                 }

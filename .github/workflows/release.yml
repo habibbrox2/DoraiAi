@@ -124,7 +124,11 @@ jobs:
           done
           printf '%s' "$KEYSTORE_B64" | base64 --decode > "$KEYSTORE_PATH"
           test -s "$KEYSTORE_PATH"
+          # The keystore password must reach keytool via argv (keytool has no env/filesystem
+          # option); the value is GitHub-masked and the runner is ephemeral. The decoded
+          # keystore is deleted immediately after validation.
           keytool -list -keystore "$KEYSTORE_PATH" -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null
+          rm -f "$KEYSTORE_PATH"
           echo "Production signing keystore and alias validated."
 
       - name: Confirm target version and bump version metadata
@@ -313,6 +317,10 @@ jobs:
           path: update.json
           if-no-files-found: error
 
+      - name: Remove signing keystore from runner
+        if: always()
+        run: rm -f "$KEYSTORE_PATH"
+
   android-standard:
     name: Build signed Android Standard APK (Optional)
     needs: preflight
@@ -371,6 +379,10 @@ jobs:
           name: android-standard-package
           path: androidApp/build/outputs/apk/playStore/release/androidApp-playStore-release.apk
           if-no-files-found: warn
+
+      - name: Remove signing keystore from runner
+        if: always()
+        run: rm -f "$KEYSTORE_PATH"
 
   windows:
     name: Build Windows MSI and ZIP (Required)

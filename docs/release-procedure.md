@@ -20,8 +20,9 @@ Before running a production release, ensure:
    - `KEYSTORE_B64`
    - `KEY_ALIAS`
    - `KEYSTORE_PASSWORD`
-3. `gradle/libs.versions.toml` contains a valid `appVersion` and `android-versionCode` that match the latest strict semantic-version Git tag (`vMAJOR.MINOR.PATCH`).
-4. The target version/tag does not already exist.
+3. For the **optional** Play Store lane (AAB → production track), additionally configure the repository **variable** `DORAI_PLAY_STORE_ENABLED=true` (the job is skipped otherwise) and repository **secrets** `PLAY_STORE_KEYSTORE_B64`, `PLAY_STORE_KEYSTORE_PASSWORD`, `PLAY_STORE_KEY_ALIAS`, `PLAY_STORE_KEY_JSON` (base64-encoded service-account JSON). The Play Store job (`play-store.yml`) re-validates the requested `ref` as an existing `vX.Y.Z` tag that is reachable from `origin/main` before building, requires `DORAI_PLAY_STORE_ENABLED=true`, and deletes the decoded credentials after the job.
+4. `gradle/libs.versions.toml` contains a valid `appVersion` and `android-versionCode` that match the latest strict semantic-version Git tag (`vMAJOR.MINOR.PATCH`). If they are behind, the workflow auto-bumps them via a `chore(release)` PR + auto-merge and waits for the merge before any build runs.
+5. The target version/tag does not already exist.
 
 ## How to run a production release
 
@@ -49,11 +50,10 @@ Click **Run workflow**. The pipeline executes five phases automatically:
 
 | Phase | Job | What happens |
 |-------|-----|-------------|
-| A — Preflight | `preflight` | Validates `workflow_dispatch` event, `main` branch, `origin/main` HEAD, latest tag, `appVersion`, `versionCode`, signing secrets, keystore, and that the target tag does not already exist. |
-| B — Version Bump & Tag | `bump` | Calculates the next semantic version, increments `android-versionCode` by exactly one, updates `gradle/libs.versions.toml`, commits, creates an immutable `vX.Y.Z` tag, and pushes atomically. |
-| C — Build All | `apk`, `windows`, `macos`, `linux-deb`, `linux-rpm`, `linux-tarball`, `flatpak`, `appimage`, `play-store` | Builds all release targets: signed Android FOSS APK, Windows MSI + ZIP, macOS DMG, Linux DEB + RPM + AppImage + Flatpak + tarball. Optional Play Store AAB if `DORAI_PLAY_STORE_ENABLED=true`. |
-| D — Signing & Metadata | (inside `apk`) | Verifies APK signature via `apksigner`, extracts certificate SHA-256 and APK SHA-256, generates `update.json` with the full schema. |
-| E — Publish Release | `release` | Creates exactly one GitHub Release for the tag, attaches all verified artifacts, generates SHA256SUMS, and publishes/verifies the canonical root-level `update.json` on `main`. |
+| A — Preflight & Auto-Bump | `preflight` | Validates the `workflow_dispatch` event, the `main` branch, `origin/main` HEAD, the latest tag, and signing secrets; if the catalog version is behind, auto-bumps `appVersion`/`android-versionCode` via a `chore(release)` PR + auto-merge and **waits for the merge** so downstream builds read the bumped values. The decoded keystore is deleted immediately after validation. |
+| B — Build All | `apk`, `android-standard`, `windows`, `macos`, `linux-deb`, `linux-rpm`, `linux-tarball`, `flatpak`, `appimage`, `play-store` | Builds all release targets: signed Android FOSS APK, Windows MSI + ZIP, macOS DMG, Linux DEB + RPM + AppImage + Flatpak + tarball. Optional Play Store AAB if `DORAI_PLAY_STORE_ENABLED=true`. The signing keystore is removed (`if: always()`) when each Android job finishes. |
+| C — Signing & Metadata | (inside `apk`) | Verifies the APK signature via `apksigner`, extracts certificate SHA-256 and APK SHA-256, generates `update.json` with the full schema. |
+| D — Tag & Publish Release | `release` | Runs only after the mandatory builds pass: creates and pushes the immutable `vX.Y.Z` tag on `origin/main` (never before), creates exactly one GitHub Release with verified artifacts, generates `SHA256SUMS`, and publishes/verifies the canonical root-level `update.json` on `main`. |
 
 If any mandatory job fails, no partial production release is published.
 
@@ -77,9 +77,10 @@ For each successful release, the following assets are attached to the GitHub Rel
 
 ## Version and Android versionCode generation
 
-- **Semantic version:** Calculated from the latest `vMAJOR.MINOR.PATCH` tag using the selected `release_type` (patch/minor/major).
+- **Semantic version:** Calculated from the latest `vMAJOR.MINOR.PATCH` tag using the selected `release_type` (patch/minor/major), confirmed by the `bump` step in the preflight job.
+- **Version metadata bump:** If the catalog is behind the computed target, `appVersion`/`android-versionCode` are bumped through an automated `chore(release)` PR that is auto-merged (protected `main`); the workflow waits for the auto-merge before downstream builds run.
 - **Android `versionCode`:** Incremented by exactly one from the current value in `gradle/libs.versions.toml`.
-- Both are committed to `main` and tagged as `vX.Y.Z` in a single atomic push.
+- **Tag:** The immutable `vX.Y.Z` tag is created on `origin/main` **only after** the mandatory builds pass (in the `release` job), not before builds.
 
 ## Investigating failed release jobs
 
@@ -105,6 +106,12 @@ After a successful release:
    - `downloadUrl` points to the GitHub Release asset URL
    - `sha256` matches the APK SHA-256
    - `signerCertificateSha256` matches the APK signing certificate digest
+
+## Credential hygiene on the runner
+
+- The decoded release keystore is deleted immediately after preflight validation and again (as a safety net, `if: always()`) after the `apk` and `android-standard` jobs finish — a production signing key should not linger on the runner for the remaining jobs.
+- The Play Store job (`play-store.yml`) validates the `ref` input as a strict `vX.Y.Z` tag that exists and is reachable from `origin/main` before building, decodes the Play keystore and service-account key into temporary files, and removes both on an `if: always()` cleanup step — secrets are passed between steps via `env:`, never inlined into shell.
+- Known limitation: `keytool` requires the keystore password via `-storepass` argv (it has no environment-variable or stdin option); the value is GitHub-masked in logs and the runner is ephemeral.
 
 ## What must NOT happen
 

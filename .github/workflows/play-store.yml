@@ -27,6 +27,28 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
+      - name: Validate release ref
+        env:
+          RELEASE_REF: ${{ inputs.ref }}
+        run: |
+          set -euo pipefail
+          # Only strict release tags may reach the production track — never an
+          # arbitrary branch, SHA, or workflow-dispatched commit.
+          if [[ ! "$RELEASE_REF" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::ref must be a release tag (vX.Y.Z); got: '$RELEASE_REF'"
+            exit 1
+          fi
+          if ! git rev-parse -q --verify "refs/tags/${RELEASE_REF}^{commit}" >/dev/null; then
+            echo "::error::tag ${RELEASE_REF} does not exist in this repository"
+            exit 1
+          fi
+          git fetch origin main --no-tags 2>/dev/null || true
+          TAG_COMMIT="$(git rev-parse "refs/tags/${RELEASE_REF}^{commit}")"
+          if ! git merge-base --is-ancestor "$TAG_COMMIT" origin/main; then
+            echo "::error::tag ${RELEASE_REF} (${TAG_COMMIT}) is not reachable from origin/main — refusing to deploy"
+            exit 1
+          fi
+          echo "Release ref ${RELEASE_REF} (${TAG_COMMIT}) validated against origin/main."
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
@@ -39,9 +61,22 @@ jobs:
         with:
           packages: platform-tools
       - name: Decode Play Store keystore
-        run: echo "${{ secrets.PLAY_STORE_KEYSTORE_B64 }}" | base64 --decode > /tmp/keystore.jks
+        env:
+          PLAY_STORE_KEYSTORE_B64: ${{ secrets.PLAY_STORE_KEYSTORE_B64 }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$PLAY_STORE_KEYSTORE_B64" | base64 --decode > /tmp/keystore.jks
+          test -s /tmp/keystore.jks
       - name: Decode Play Store service account key
-        run: echo "${{ secrets.PLAY_STORE_KEY_JSON }}" | base64 --decode > fastlane/play-store-key.json
+        env:
+          PLAY_STORE_KEY_JSON: ${{ secrets.PLAY_STORE_KEY_JSON }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$PLAY_STORE_KEY_JSON" | base64 --decode > fastlane/play-store-key.json
+          python3 -c "import json,sys; json.load(open('fastlane/play-store-key.json'))" || {
+            echo "::error::Decoded Play Store service account key is not valid JSON"
+            exit 1
+          }
       - name: Build signed AAB
         run: ./gradlew :androidApp:bundlePlayStoreRelease --stacktrace
         env:
@@ -55,3 +90,8 @@ jobs:
           bundler-cache: true
       - name: Deploy to Play Store
         run: bundle exec fastlane android deploy
+      - name: Clean up credentials
+        if: always()
+        run: |
+          set -euo pipefail
+          rm -f /tmp/keystore.jks fastlane/play-store-key.json

@@ -52,6 +52,7 @@ import com.dorai.ai.ui.components.LogoAnimation
 import com.dorai.ai.ui.components.v2.DoraiProviderBadge
 import com.dorai.ai.ui.components.v2.DoraiStatusBadge
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.app_updated_recently
 import dorai.composeapp.generated.resources.home_continue_project
 import dorai.composeapp.generated.resources.home_model_label
 import dorai.composeapp.generated.resources.home_models
@@ -63,12 +64,14 @@ import dorai.composeapp.generated.resources.home_open_project
 import dorai.composeapp.generated.resources.home_quick_start
 import dorai.composeapp.generated.resources.home_recent_chats
 import dorai.composeapp.generated.resources.home_review_approvals
+import dorai.composeapp.generated.resources.home_running
 import dorai.composeapp.generated.resources.home_running_count
 import dorai.composeapp.generated.resources.home_sandbox_label
 import dorai.composeapp.generated.resources.home_setup_workspace
 import dorai.composeapp.generated.resources.home_setup_workspace_desc
 import dorai.composeapp.generated.resources.home_start_setup
 import dorai.composeapp.generated.resources.home_status
+import dorai.composeapp.generated.resources.home_stopped
 import dorai.composeapp.generated.resources.home_storage_label
 import dorai.composeapp.generated.resources.home_terminal
 import dorai.composeapp.generated.resources.home_today_glance
@@ -85,7 +88,12 @@ data class HomeProjectSummary(
 data class HomeChatSummary(
     val id: String,
     val title: String,
-    val snippet: String,
+    /**
+     * Last-message preview shown under the title. `null` renders the localized
+     * "Updated recently" placeholder — recency metadata is a display concern,
+     * not conversation data, so it must not be baked in as an English literal.
+     */
+    val snippet: String? = null,
 )
 
 data class HomeUiState(
@@ -534,7 +542,7 @@ private fun StatusCard(state: HomeUiState) {
         ) {
             Text(stringResource(Res.string.home_sandbox_label), color = colors.muted, fontSize = 13.sp)
             DoraiStatusBadge(
-                text = if (state.isSandboxRunning) "Running" else "Stopped",
+                text = if (state.isSandboxRunning) stringResource(Res.string.home_running) else stringResource(Res.string.home_stopped),
                 color = if (state.isSandboxRunning) colors.ok else colors.muted,
             )
         }
@@ -601,7 +609,7 @@ private fun RecentChatsCard(
                             overflow = TextOverflow.Ellipsis,
                         )
                         Text(
-                            text = chat.snippet,
+                            text = chat.snippet ?: stringResource(Res.string.app_updated_recently),
                             color = colors.muted,
                             fontSize = 12.5.sp,
                             maxLines = 1,

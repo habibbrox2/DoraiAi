@@ -1,3 +1,32 @@
+## DORAI AI - Provider System Remediation (Unreleased)
+
+Security hardening, provider integrity fixes and storefront cleanup for the LLM provider surface. Not yet released.
+
+### Security
+- **SSRF defense-in-depth for `fetch_url`:** refused credentialed URLs (`user:pass@host`), cloud metadata hostnames, and any hostname that resolves to loopback/private/link-local/ULA/CGNAT/reserved/multicast (including IPv4-mapped IPv6 and NAT64-wrapped equivalents); resolved-IP validation re-runs on every redirect hop. Platforms without DNS (iOS, Web) skip the resolved-IP check (documented limitation); literal-IP checks apply everywhere.
+- **Debug logs sanitized:** Ktor debug logging (`LogLevel.BODY`) now redacts `Authorization`, `Proxy-Authorization`, `x-goog-api-key`, `x-api-key`, `api-key`, `cookie`, `set-cookie` header values and inline bearer/key tokens before printing.
+- **Legacy settings migration is now verify-then-clear:** plaintext legacy keys (API keys, encryption key, email account data and per-account passwords, splinterlands account/posting keys — including per-account keys discovered from account JSON) are copied to the encrypted store, verified against it, and only then removed — per-key, never wholesale — and the migration runs at most once. Previously the plaintext copies lingered indefinitely.
+- **Release workflows hardened:** Play Store deploy validates `ref` as an existing `vX.Y.Z` tag reachable from `main` before building; signing secrets flow via `env:` only; decoded keystores/service-account keys are deleted (`if: always()`) after the release jobs finish; the service-account key is validated as JSON after decoding; `release.yml` removes the decoded keystore after preflight validation and after the APK jobs.
+- **Android release builds without signing keys now log a loud warning** instead of silently producing a debug-signed "release" artifact.
+
+### Added
+- **Honest Local/Cloud classification:** new `ExecutionLocation` on services; OpenAI-Compatible instances are classified Local only for loopback/private/LAN base URLs (default `localhost:11434`), otherwise Cloud; LiteRT is always Local; the home privacy footer, chat model badge, and assistant who-row inherit the classification; free-fallback answers always display Cloud. Malformed base URLs classify as Cloud (never as Local).
+- **Assistant who-row shows the active provider's identity icon** (app logo remains the fallback), matching the settings card/picker surfaces.
+- **Model catalog honesty:** `OpenRouter` routing ids (`openrouter/auto`, `kilo-auto/free` and the free OpenCode Zen ids) resolve; duplicate-key detection surfaced as `ModelCatalog.duplicateKeys`; lookup prefers the full provider-qualified id.
+- **True Local/Cloud badge in chat** now survives conversation restore and tool-only messages.
+
+### Changed
+- **Positive status badges are theme-primary instead of `SecondaryText`** (Connected/Active/Ready are distinguishable from Disabled by color; labels and content descriptions remain the primary channel).
+- **Mock "AI Providers" screen in the static fallback removed** — it showed invented provider rows with a fake masked key; it now renders the real (empty-state) Services screen for that branch.
+- **Unreachable Free-fallback toggle removed** — the only caller passed `showFallbackToggle = false`; the toggle UI, its gated branch and the now-unused localized-string code reference are gone (the repository/setting/action remain live and tested for future product use).
+- Provider-related strings extracted to the string catalog (English + Bengali); decorative chevrons/badges no longer double-announce; configured service cards announce expanded/collapsed state; status badges/chips announce their meaning; services overview/groups/empty-state localized.
+- **OKF bundles synced:** `docs/knowledge/free-tier/openrouter.md` now lists the runtime 17 OpenRouter free ids (added `openrouter/auto`, `auto`); fictitious `.grok/skills` paths replaced with environment-side command wording; log.md updated.
+
+### Tests
+- New: `SsrfAddressGuardTest`, `HttpLogSanitizerTest`, `ProviderLocalityTest` (incl. Ktor localhost-fallback regression), `FreeTierModelsTest`, `SettingsLegacyMigrationTest`, `DnsResolvedHostGuardTest` (desktop), `ToolEventGrouperTest` locality propagation, `ModelCatalogTest` duplicate-key/qualified-id, `FetchUrlHostTest` metadata hosts. 8 intentional screenshot goldens re-recorded (provider icon, badge color, compact "AI Providers" screen); full suite passes.
+
+---
+
 ## DORAI AI - Chat UI v2 Polish & A11y Fixes
 
 ### Fixed

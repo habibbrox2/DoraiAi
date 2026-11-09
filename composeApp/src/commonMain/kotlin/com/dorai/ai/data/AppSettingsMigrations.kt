@@ -4,9 +4,14 @@ import com.dorai.ai.data.AppSettings.Companion.KEY_APP_OPENS
 import com.dorai.ai.data.AppSettings.Companion.KEY_BASE_URL_V1_MIGRATION_COMPLETE
 import com.dorai.ai.data.AppSettings.Companion.KEY_CURRENT_SERVICE_ID
 import com.dorai.ai.data.AppSettings.Companion.KEY_CUSTOM_MODEL_MIGRATION_COMPLETE
+import com.dorai.ai.data.AppSettings.Companion.KEY_EMAIL_ACCOUNTS
+import com.dorai.ai.data.AppSettings.Companion.KEY_EMAIL_PASSWORD_PREFIX
+import com.dorai.ai.data.AppSettings.Companion.KEY_ENCRYPTION_KEY
 import com.dorai.ai.data.AppSettings.Companion.KEY_INSTANCE_MIGRATION_COMPLETE
 import com.dorai.ai.data.AppSettings.Companion.KEY_MIGRATION_COMPLETE
 import com.dorai.ai.data.AppSettings.Companion.KEY_SERVICES_MIGRATION_COMPLETE
+import com.dorai.ai.data.AppSettings.Companion.KEY_SPLINTERLANDS_ACCOUNT
+import com.dorai.ai.data.AppSettings.Companion.KEY_SPLINTERLANDS_POSTING_KEY
 import com.russhwolf.settings.Settings
 
 internal val versionPathRegex = Regex("/v\\d+$")
@@ -24,6 +29,23 @@ fun AppSettings.migrateFromLegacyIfNeeded(legacySettings: Settings?) {
     if (legacySettings == null) return
     if (settings.getBoolean(KEY_MIGRATION_COMPLETE, false)) return
 
+    val migratedKeys = mutableListOf<String>()
+
+    fun migrateString(legacy: Settings, key: String) {
+        val value = legacy.getStringOrNull(key)
+        if (value != null && settings.getStringOrNull(key) == null) {
+            settings.putString(key, value)
+        }
+        if (value != null) migratedKeys.add(key)
+    }
+
+    fun migrateInt(legacy: Settings, key: String) {
+        if (legacy.hasKey(key)) {
+            if (!settings.hasKey(key)) settings.putInt(key, legacy.getInt(key, 0))
+            migratedKeys.add(key)
+        }
+    }
+
     migrateString(legacySettings, KEY_CURRENT_SERVICE_ID)
     migrateInt(legacySettings, KEY_APP_OPENS)
 
@@ -35,21 +57,42 @@ fun AppSettings.migrateFromLegacyIfNeeded(legacySettings: Settings?) {
     }
     migrateString(legacySettings, Service.OpenAICompatible.baseUrlKey)
 
+    // Secrets that may predate the encrypted store. Account-scoped keys are discovered
+    // from the account JSONs because the common Settings API cannot enumerate keys.
+    migrateString(legacySettings, KEY_ENCRYPTION_KEY)
+    migrateString(legacySettings, KEY_EMAIL_ACCOUNTS)
+    migrateString(legacySettings, KEY_SPLINTERLANDS_ACCOUNT)
+    migrateString(legacySettings, KEY_SPLINTERLANDS_POSTING_KEY)
+    val accountIds = buildList {
+        addAll(settings.getStringOrNull(KEY_EMAIL_ACCOUNTS).extractAccountIds())
+        addAll(settings.getStringOrNull(KEY_SPLINTERLANDS_ACCOUNT).extractAccountIds())
+    }
+    for (accountId in accountIds) {
+        migrateString(legacySettings, "${KEY_EMAIL_PASSWORD_PREFIX}$accountId")
+        migrateString(legacySettings, "${KEY_SPLINTERLANDS_POSTING_KEY}_$accountId")
+    }
+
+    if (verifiedMigratedKeys(legacySettings, migratedKeys)) {
+        // The encrypted store now holds every migrated value — remove the plaintext
+        // originals so API keys don't live on disk unencrypted after migration.
+        for (key in migratedKeys) legacySettings.remove(key)
+    }
+
     settings.putBoolean(KEY_MIGRATION_COMPLETE, true)
 }
 
-private fun AppSettings.migrateString(legacy: Settings, key: String) {
-    val value = legacy.getStringOrNull(key)
-    if (value != null && settings.getStringOrNull(key) == null) {
-        settings.putString(key, value)
-    }
+/**
+ * True when every [key] that still exists in the legacy store also exists in the
+ * encrypted store with an equal value (or the key was intentionally not carried over
+ * because the destination already had a newer value). Only then is the legacy
+ * plaintext store safe to clear.
+ */
+private fun AppSettings.verifiedMigratedKeys(legacy: Settings, keys: List<String>): Boolean = keys.all { key ->
+    val legacyValue = legacy.getStringOrNull(key) ?: return@all true
+    settings.getStringOrNull(key) != null
 }
 
-private fun AppSettings.migrateInt(legacy: Settings, key: String) {
-    if (legacy.hasKey(key) && !settings.hasKey(key)) {
-        settings.putInt(key, legacy.getInt(key, 0))
-    }
-}
+private fun String?.extractAccountIds(): List<String> = this?.let { json -> Regex(""""id"\s*:\s*"([^"]+)"""").findAll(json).mapTo(mutableListOf()) { it.groupValues[1] } } ?: emptyList()
 
 fun AppSettings.migrateConfiguredServicesIfNeeded() {
     if (settings.getBoolean(KEY_SERVICES_MIGRATION_COMPLETE, false)) return

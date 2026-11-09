@@ -1,5 +1,6 @@
 package com.dorai.ai.ui.chat
 
+import com.dorai.ai.data.ExecutionLocation
 import com.dorai.ai.data.ServiceEntry
 import com.dorai.ai.ui.components.v2.DynamicUiModel
 import com.dorai.ai.ui.components.v2.DynamicUiOption
@@ -94,6 +95,7 @@ fun groupHistoryToChatMessages(
 ): List<ChatMessageItem> {
     val result = mutableListOf<ChatMessageItem>()
     val currentTurnEntries = mutableListOf<History>()
+    val activeServiceIsLocal = availableServices.firstOrNull()?.executionLocation == ExecutionLocation.LOCAL
 
     fun flushAgentTurn() {
         if (currentTurnEntries.isEmpty()) return
@@ -201,7 +203,10 @@ fun groupHistoryToChatMessages(
                         isUser = false,
                         text = asst.content,
                         modelName = asst.fallbackServiceName ?: availableServices.firstOrNull()?.serviceName,
-                        isModelLocal = false,
+                        // Fallback answers always come from the cloud-hosted keyless targets,
+                        // even when the primary configured service is local.
+                        isModelLocal = activeServiceIsLocal && asst.fallbackServiceName == null,
+                        serviceIcon = availableServices.firstOrNull()?.icon,
                         toolExecutions = toolsForThisMessage,
                         dynamicUi = dynamicUi,
                         attachments = asst.attachments,
@@ -226,7 +231,8 @@ fun groupHistoryToChatMessages(
                         isUser = false,
                         text = "",
                         modelName = availableServices.firstOrNull()?.serviceName ?: "Agent",
-                        isModelLocal = false,
+                        isModelLocal = activeServiceIsLocal,
+                        serviceIcon = availableServices.firstOrNull()?.icon,
                         toolExecutions = consolidatedTools,
                         reasoningSegments = reasoning,
                         isThinking = isThinking,

@@ -84,4 +84,7 @@ internal object FreeTierModels {
             else -> lower
         }
     }
+
+    /** Exposed so tests can pin the curated id count to the OKF bundle snapshot. */
+    internal val openRouterFreeCount: Int = openRouterFree.size
 }

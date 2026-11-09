@@ -2,7 +2,9 @@
 
 **Last verified:** 2026-11-09
 
-DORAI AI supports 32 LLM providers (plus a built-in Free tier). Each provider uses one of three API formats: **OpenAI-compatible** (most services), **Gemini native**, or **Anthropic native** -- plus **LiteRT on-device** for local inference. A handful of OpenAI models additionally require OpenAI's **Responses API**; DORAI AI switches to it per model, transparently. Users can configure multiple service instances, reorder them, and DORAI AI automatically falls back through the chain on failure.
+DORAI AI supports 31 user-configurable LLM providers (plus a built-in Free tier). Each provider uses one of three API formats: **OpenAI-compatible** (most services), **Gemini native**, or **Anthropic native** -- plus **LiteRT on-device** for local inference. A handful of OpenAI models additionally require OpenAI's **Responses API**; DORAI AI switches to it per model, transparently. Users can configure multiple service instances, reorder them, and DORAI AI automatically falls back through the chain on failure.
+
+> Provider-count bookkeeping (verified 2026-11-09): `Service.all` holds **34** entries = 1 built-in Free tier + 31 shown in Settings → Services (LiteRT hidden on platforms without local inference) + 2 hidden keyless fallback targets (Kilo Gateway, OpenCode Zen) that are never offered in the add-service sheet.
 
 ## Concepts
 
@@ -58,6 +60,8 @@ A fresh install has no configured provider instances. Chat uses the built-in `Au
 Most services use the **OpenAI-compatible** chat completions format. **Gemini** uses Google's native Generative Language API. **Anthropic** uses its own Messages API with `x-api-key` header authentication and a different request/response structure. **LiteRT** runs inference on-device using Google's LiteRT LM SDK -- no HTTP, no API key, fully offline.
 
 The **OpenAI-Compatible API** service supports a custom base URL, defaulting to `localhost:11434/v1` for local Ollama setups. The base URL should include the version path segment (e.g., `http://localhost:11434/v1` or `https://my-provider.com/api/v1`), following the OpenAI SDK convention. DORAI AI appends only `/chat/completions`, `/responses` or `/models` to this base URL. A pasted full chat endpoint (ending in `/chat/completions`) is trimmed back to the base first, so the path is never doubled and the models list still resolves.
+
+> **Base URL trust (SSRF hardening, 2026-11-09):** custom base URLs are not arbitrary-fetch carte blanche. The `fetch_url` tool refuses credentialed URLs (`user:pass@host`), cloud metadata hostnames (`metadata.google.internal`, `metadata.amazonaws.com`, `metadata.goog`), IP literals in loopback/private/link-local/ULA/CGNAT/reserved ranges, IPv4-mapped IPv6 and NAT64-wrapped equivalents, and — on platforms with DNS support (Android, Desktop) — hostnames that *resolve* to any of those addresses (checked per redirect hop). On iOS and Web, DNS resolution is unavailable, so the resolved-IP check is skipped and literal checks still apply. Requests to a local OpenAI-Compatible gateway (Ollama, LM Studio) are intentional and allowed; `fetch_url` to the same host is a separate path and gets the full deny-list.
 
 Each OpenAI-Compatible instance accepts an optional **display name** in its config card (e.g. "My LiteLLM proxy"). The name is persisted per instance, shown in the Settings card header, and used in chat and everywhere a service instance is listed, so multiple custom gateways stay distinguishable. Export/import carries it along with the other per-instance settings. When the field is blank the instance shows the plain service name as before.
 

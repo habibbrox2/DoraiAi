@@ -20,6 +20,13 @@ expect fun createLegacySettings(): Settings?
 
 expect fun resolveHostAddresses(hostname: String): List<String>
 
+/**
+ * True when [resolveHostAddresses] can actually resolve DNS on this platform.
+ * iOS and Web return an empty list for every hostname (no DNS in their engines),
+ * so SSRF guards must skip resolved-IP validation there instead of failing every fetch.
+ */
+expect val supportsDnsResolution: Boolean
+
 expect fun getBackgroundDispatcher(): CoroutineContext
 
 expect fun onDragAndDropEventDropped(event: DragAndDropEvent): PlatformFile?

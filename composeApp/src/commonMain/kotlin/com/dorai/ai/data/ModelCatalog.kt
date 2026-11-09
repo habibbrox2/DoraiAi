@@ -34,7 +34,8 @@ internal data class CuratedModelInfo(
  */
 internal object ModelCatalog {
 
-    private val baseEntries: Map<String, CuratedModelInfo> = mapOf(
+    /** Raw id → info pairs, kept as a list so duplicate ids stay detectable (a Map would silently collapse them). */
+    private val baseEntries: List<Pair<String, CuratedModelInfo>> = listOf(
         "openrouter/auto" to CuratedModelInfo("Auto", 128_000, "2025-01"),
         "auto" to CuratedModelInfo("Auto", 128_000, "2025-01"),
         // ==============================================================
@@ -1211,11 +1212,27 @@ internal object ModelCatalog {
         // OpenRouter routing / meta
         // ==============================================================
         "free" to CuratedModelInfo("OpenRouter Auto (Free)"),
-        "auto" to CuratedModelInfo("OpenRouter Auto"),
         "bodybuilder" to CuratedModelInfo("OpenRouter Bodybuilder"),
         "router" to CuratedModelInfo("Switchpoint Router"),
         "elephant-alpha" to CuratedModelInfo("Elephant Alpha", 200_000, "2026-04"),
         "owl-alpha" to CuratedModelInfo("Owl Alpha", 200_000, "2026-04"),
+
+        // ==============================================================
+        // Keyless free-fallback targets (Kilo / OpenCode Zen).
+        // Identity-only entries: hosted context windows are not officially
+        // documented, so none is claimed here — lookups fall back to
+        // DEFAULT_CONTEXT_WINDOW_TOKENS instead of a guessed number.
+        // ==============================================================
+        "kilo-auto/free" to CuratedModelInfo("Kilo Auto (Free)"),
+        "big-pickle" to CuratedModelInfo("Big Pickle"),
+        "glm-5.3-flash-free" to CuratedModelInfo("GLM 5.3 Flash (Free)"),
+        "deepseek-v4.1-flash-free" to CuratedModelInfo("DeepSeek V4.1 Flash (Free)"),
+        "minimax-m3.1-flash-free" to CuratedModelInfo("MiniMax M3.1 (Free)"),
+        "beam-free" to CuratedModelInfo("Beam (Free)"),
+        "ll-alpha-free" to CuratedModelInfo("LL Alpha (Free)"),
+        "exo-free" to CuratedModelInfo("Exo (Free)"),
+        "mimo-v2.6-flash-free" to CuratedModelInfo("MiMo V2.6 Flash (Free)"),
+        "nemotron-3.5-lightning-free" to CuratedModelInfo("Nemotron 3.5 Lightning (Free)"),
 
         // ==============================================================
         // Baidu Ernie — additional
@@ -2040,19 +2057,32 @@ internal object ModelCatalog {
         }
     }
 
+    /**
+     * Keys defined more than once in [baseEntries]. The later definition would silently
+     * override the earlier one (HashMap.put semantics), which has already hidden real
+     * metadata once (`auto`), so duplicates are surfaced for tests/tooling to catch.
+     */
+    internal val duplicateKeys: List<String> = baseEntries
+        .groupingBy { it.first }
+        .eachCount()
+        .filterValues { it > 1 }
+        .keys
+        .toList()
+
     /** Misses already logged this session — so logcat isn't spammed on every repeat lookup. */
     private val loggedMisses = mutableSetOf<String>()
 
     /**
-     * Strip any leading `provider/` prefix from the id, lowercase it, and
-     * look it up in the hash map. That's the whole contract — no walking,
-     * no noise stripping, no normalization.
+     * Look up a model id. The full lowercase id is tried first (so provider-qualified
+     * ids like `openrouter/auto` and `kilo-auto/free` match their own entries), then the
+     * last path segment (`gemini/gemini-pro` → `gemini-pro`).
      *
      * If the id isn't in the catalog, log it once (per session) so missing
      * models can be added later. Grep logcat for `ModelCatalog miss:`.
      */
     fun lookup(modelId: String): CuratedModelInfo? {
-        val key = modelId.substringAfterLast('/').lowercase()
+        val lower = modelId.lowercase()
+        val key = if (entries.containsKey(lower)) lower else lower.substringAfterLast('/')
         val hit = entries[key]
         if (hit == null && loggedMisses.add(key)) {
             println("ModelCatalog miss: \"$key\" (raw: \"$modelId\")")

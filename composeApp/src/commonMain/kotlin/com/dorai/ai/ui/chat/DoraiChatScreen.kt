@@ -272,6 +272,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -284,6 +285,8 @@ data class ChatMessageItem(
     val text: String,
     val modelName: String? = null,
     val isModelLocal: Boolean = false,
+    /** Provider identity icon for the who-row; null falls back to the app logo. */
+    val serviceIcon: DrawableResource? = null,
     val toolExecutions: List<ToolExecutionModel> = emptyList(),
     val dynamicUi: DynamicUiModel? = null,
     val attachments: List<Attachment> = emptyList(),
@@ -981,7 +984,7 @@ private fun ChatDetailPane(
                     .clip(CircleShape)
                     .background(colors.surface2)
                     .border(1.dp, colors.line, CircleShape)
-                    .clickable { onOpenModelPicker?.invoke() }
+                    .clickable(onClickLabel = stringResource(Res.string.chat_choose_model)) { onOpenModelPicker?.invoke() }
                     .padding(horizontal = 12.dp, vertical = 6.dp),
                 contentAlignment = Alignment.Center,
             ) {
@@ -1000,7 +1003,8 @@ private fun ChatDetailPane(
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = stringResource(Res.string.chat_choose_model),
+                        // decorative — the pill's onClickLabel carries the action name
+                        contentDescription = null,
                         tint = colors.muted,
                         modifier = Modifier.size(16.dp),
                     )
@@ -2224,12 +2228,23 @@ private fun AssistantWhoRow(message: ChatMessageItem) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(bottom = 6.dp),
     ) {
-        Icon(
-            painter = painterResource(Res.drawable.logo),
-            contentDescription = null,
-            tint = Color.Unspecified,
-            modifier = Modifier.size(20.dp),
-        )
+        // Provider identity icon when known (matches the configured-service card in
+        // settings); the generic app logo is the fallback for unknown/legacy paths.
+        if (message.serviceIcon != null) {
+            Icon(
+                painter = painterResource(message.serviceIcon),
+                contentDescription = null, // decorative — the model name text follows
+                tint = Color.Unspecified,
+                modifier = Modifier.size(20.dp),
+            )
+        } else {
+            Icon(
+                painter = painterResource(Res.drawable.logo),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier.size(20.dp),
+            )
+        }
         Spacer(modifier = Modifier.width(6.dp))
         Text(
             text = message.modelName ?: stringResource(Res.string.nav_brand_title),

@@ -5,6 +5,8 @@ import com.dorai.ai.network.tools.ParameterSchema
 import com.dorai.ai.network.tools.Tool
 import com.dorai.ai.network.tools.ToolInfo
 import com.dorai.ai.network.tools.ToolSchema
+import com.dorai.ai.resolveHostAddresses
+import com.dorai.ai.supportsDnsResolution
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.tool_fetch_url_description
 import dorai.composeapp.generated.resources.tool_fetch_url_name
@@ -28,6 +30,9 @@ import kotlinx.io.readByteArray
 private val ALLOWED_METHODS = setOf("GET", "POST", "HEAD")
 private val HTML_TAG_REGEX = Regex("<[^>]*>")
 private const val MAX_REDIRECTS = 5
+
+/** Hostnames that map to cloud metadata services (OWASP SSRF deny-list). */
+private val METADATA_HOSTS = setOf("metadata.google.internal", "metadata.amazonaws.com", "metadata.goog")
 
 // Results are cut to 20K chars downstream; reading more than this only costs memory (a large
 // download used to be buffered whole before truncation). Generous enough for HTML that shrinks
@@ -143,7 +148,23 @@ object FetchUrlTool : Tool {
     private fun rejectUrl(url: Url): String? {
         val scheme = url.protocol.name.lowercase()
         if (scheme != "http" && scheme != "https") return "only http and https schemes are allowed"
+        if (!url.encodedUser.isNullOrEmpty() || !url.encodedPassword.isNullOrEmpty()) return "credentials in the URL are not allowed"
         if (isBlockedFetchHost(url.host)) return "blocked host: ${url.host}"
+        // Defense-in-depth (OWASP SSRF): a public-looking hostname may resolve to a
+        // loopback/private/metadata address. Validate every resolved IP, and re-validate
+        // on every redirect hop (rejectUrl runs again for each hop).
+        rejectResolvedHost(url.host)?.let { return it }
+        return null
+    }
+
+    private fun rejectResolvedHost(host: String): String? {
+        if (isIpLiteralHost(host)) return null // literals were already judged by isBlockedFetchHost
+        if (!supportsDnsResolution) return null // documented limitation: no DNS on this platform
+        val addresses = resolveHostAddresses(host)
+        if (addresses.isEmpty()) return "dns resolution failed for host: $host"
+        addresses.firstOrNull { NetworkAddressGuard.isBlockedIp(it) }?.let {
+            return "blocked resolved address: $it"
+        }
         return null
     }
 
@@ -156,56 +177,38 @@ object FetchUrlTool : Tool {
     )
 }
 
+/** True when [host] is a raw IPv4/IPv6 literal rather than a resolvable hostname. */
+internal fun isIpLiteralHost(host: String): Boolean {
+    val h = host.lowercase().trim('[', ']').trimEnd('.')
+    if (h.contains(":")) return true
+    val octets = h.split(".")
+    return octets.size == 4 && octets.all { (it.toIntOrNull() ?: -1) in 0..255 }
+}
+
 /**
- * Hosts fetch_url refuses: loopback, private, link-local and unspecified addresses, plus numeric
- * spellings a resolver would turn into one (`2130706433`, `127.1`, `0x7f.0.0.1`). IPv6 rules apply
- * only to IP literals — a hostname like `fdic.gov` is not an fd00::/8 address. Hostnames that
- * merely *resolve* to private addresses are not caught here (no DNS in common code).
+ * Hosts fetch_url refuses when used as a literal: loopback, private, link-local and
+ * unspecified addresses, plus numeric spellings a resolver would turn into one
+ * (`2130706433`, `127.1`, `0x7f.0.0.1`), and cloud metadata hostnames. IPv6 rules apply
+ * only to IP literals — a hostname like `fdic.gov` is not an fd00::/8 address.
+ * Hostnames that merely *resolve* to private addresses are caught separately by
+ * [rejectResolvedHost] on platforms with DNS support.
  */
 internal fun isBlockedFetchHost(host: String): Boolean {
     val h = host.lowercase().trim('[', ']').trimEnd('.')
     if (h.isEmpty()) return true
     if (h == "localhost" || h.endsWith(".localhost")) return true
-    if (':' in h) return isBlockedIpv6(h)
+    if (h in METADATA_HOSTS || h.endsWith(".metadata.google.internal")) return true
+    if (':' in h) return NetworkAddressGuard.isBlockedIp(h)
     val octets = h.split(".")
     if (octets.size == 4) {
         if (octets.any { it.length > 1 && it.startsWith('0') }) return true // Block octal IPv4 notation
         if (octets.all { (it.toIntOrNull() ?: -1) in 0..255 }) {
-            return isBlockedIpv4(octets.map { it.toInt() })
+            return NetworkAddressGuard.isBlockedIp(h)
         }
     }
     // Shortened (127.1), single-integer (2130706433) or hex/octal forms: not a normal hostname,
     // and resolvers map them onto arbitrary IPv4 addresses.
     if (h.all { it.isDigit() || it == '.' } || h.startsWith("0x") || h.contains(".0x")) return true
-    return false
-}
-
-private fun isBlockedIpv4(o: List<Int>): Boolean {
-    val (a, b) = o[0] to o[1]
-    return a == 127 || a == 10 || a == 0 ||
-        (a == 169 && b == 254) ||
-        (a == 192 && b == 168) ||
-        (a == 172 && b in 16..31) ||
-        (a == 100 && b in 64..127) // carrier-grade NAT, often used for internal services
-}
-
-private fun isBlockedIpv6(h: String): Boolean {
-    if (h == "::" || h == "::1" || h == "0:0:0:0:0:0:0:1") return true
-    if (h.startsWith("fe8") || h.startsWith("fe9") || h.startsWith("fea") || h.startsWith("feb")) return true // fe80::/10
-    if (h.startsWith("fc") || h.startsWith("fd")) return true // fc00::/7
-    // IPv4-mapped/compatible (::ffff:127.0.0.1, ::ffff:7f00:1): judge the embedded IPv4 address.
-    val mapped = h.removePrefix("::ffff:").removePrefix("0:0:0:0:0:ffff:")
-    if (mapped != h) {
-        val dotted = mapped.split(".")
-        if (dotted.size == 4) return dotted.all { (it.toIntOrNull() ?: -1) in 0..255 } && isBlockedIpv4(dotted.map { it.toInt() })
-        val groups = mapped.split(":")
-        if (groups.size == 2) {
-            val hi = groups[0].toIntOrNull(16) ?: return true
-            val lo = groups[1].toIntOrNull(16) ?: return true
-            return isBlockedIpv4(listOf(hi shr 8, hi and 0xff, lo shr 8, lo and 0xff))
-        }
-        return true
-    }
     return false
 }
 

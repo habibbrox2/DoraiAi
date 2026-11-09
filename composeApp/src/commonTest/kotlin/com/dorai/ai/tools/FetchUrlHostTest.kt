@@ -17,6 +17,29 @@ class FetchUrlHostTest {
     }
 
     @Test
+    fun `cloud metadata hostnames are blocked`() {
+        listOf(
+            "metadata.google.internal",
+            "metadata.amazonaws.com",
+            "metadata.goog",
+            "sub.metadata.google.internal",
+            "METADATA.GOOGLE.INTERNAL",
+        ).forEach { assertTrue(isBlockedFetchHost(it), it) }
+        // Similar-but-public hostnames are not swept up.
+        assertTrue(!isBlockedFetchHost("metadata.example.com"))
+    }
+
+    @Test
+    fun `ip literal detection distinguishes literals from hostnames`() {
+        listOf("127.0.0.1", "8.8.8.8", "[::1]", "::1", "fe80::1").forEach {
+            assertTrue(isIpLiteralHost(it), it)
+        }
+        listOf("localhost", "api.example.com", "openrouter.ai", "metadata.google.internal").forEach {
+            assertFalse(isIpLiteralHost(it), it)
+        }
+    }
+
+    @Test
     fun `ipv4-mapped ipv6 is judged by its embedded address`() {
         assertTrue(isBlockedFetchHost("[::ffff:127.0.0.1]"))
         assertTrue(isBlockedFetchHost("::ffff:7f00:1"))

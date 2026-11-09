@@ -90,6 +90,14 @@ android {
                 // Non-release CI tasks (formatting, lint, and unit tests) must not be blocked
                 // merely because production signing secrets are unavailable.
                 signingConfig = signingConfigs.getByName("debug")
+                // Make the fallback loud: a debug-signed "release" artifact must never be
+                // mistaken for a production build. CI always sets ENFORCE_RELEASE_SIGNING=true,
+                // so any publishable release comes from a properly signed workflow run.
+                logger.warn(
+                    "WARNING: Android release build is falling back to DEBUG signing " +
+                        "(KEYSTORE_FILE/KEYSTORE_PASSWORD/KEY_ALIAS not set and ENFORCE_RELEASE_SIGNING!=true). " +
+                        "The produced artifact is NOT production-ready and must not be distributed.",
+                )
             }
         }
     }

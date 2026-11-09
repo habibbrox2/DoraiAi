@@ -1,6 +1,6 @@
 # Encryption & Secure Storage
 
-**Last verified:** 2026-10-02
+**Last verified:** 2026-11-09
 
 All app settings — including sensitive ones such as API keys and email passwords — are stored in a single platform-specific secure settings store. Each platform uses the strongest available mechanism.
 
@@ -24,7 +24,7 @@ The following data is stored in secure settings:
 - **Size limit:** ~2 MB per value (SharedPreferences limit)
 - **File location:** App-private `kai_secure_prefs` SharedPreferences
 - **Restore recovery:** If the encrypted file cannot be opened (typically after Android Auto Backup restores it onto a device whose hardware-bound Keystore key did not transfer), the file is deleted and a fresh empty store is created — settings and keys must be re-entered.
-- **Legacy migration:** On first run, values from the old plaintext `com.dorai.ai_preferences` (selected service, model ids, API keys, base URL, app-open counter) are copied into the encrypted store once.
+- **Legacy migration:** On first run, values from the old plaintext `com.dorai.ai_preferences` (selected service, model ids, API keys, base URL, app-open counter, plus pre-encryption copies of the encryption key, email account data and per-account passwords, and splinterlands account/posting keys) are copied into the encrypted store once. The migration is **verify-then-clear**: after the encrypted destination is confirmed to hold every migrated value, the plaintext originals are removed per-key (never a wholesale clear — on iOS the legacy store may share UserDefaults with the system), the destination value wins on conflict, and the migration runs at most once.
 
 ### iOS
 - **Mechanism:** `KeychainSettings` (`com.russhwolf/multiplatform-settings`)
@@ -32,16 +32,17 @@ The following data is stored in secure settings:
 - **Key management:** Managed by iOS Keychain Services
 - **Size limit:** Effectively unlimited
 - **Service identifier:** `com.dorai.ai`
-- **Legacy migration:** On first run, the same legacy keys are copied once from `NSUserDefaults`.
+- **Legacy migration:** On first run, the same legacy keys are copied once from `NSUserDefaults` — same verify-then-clear semantics (per-key removal, destination wins, runs at most once).
 
 ### Desktop (macOS, Windows, Linux)
 - **Mechanism:** `EncryptedFileSettings` — custom file-backed `Settings` implementation
 - **Encryption:** AES-256-GCM via `javax.crypto`
-- **Key management:** 256-bit random key generated via `SecureRandom`, stored at `~/.kai/settings.key`
+- **Key management:** 256-bit random key generated via `SecureRandom`, stored at `~/.dorai/settings.key`
 - **IV:** 12-byte random IV per write, prepended to ciphertext
 - **Authentication tag:** 128-bit GCM tag (integrity + authenticity)
 - **File format:** `[12-byte IV][AES-GCM ciphertext + tag]`
-- **File location:** `~/.kai/settings.aes`
+- **File location:** `~/.dorai/settings.aes`
+- **Legacy data folder:** `~/.kai/` (pre-rename). On first run with a missing `~/.dorai`, the legacy `~/.kai` tree is copied into `~/.dorai` (non-destructive copy) so existing installs keep their data while new writes land under the new name.
 - **Write safety:** Every change re-encrypts the whole store and writes it to a temporary file that is atomically renamed over the old one, so a crash mid-write never leaves a truncated file. Concurrent writers are serialized. The key and settings files are restricted to owner read/write.
 - **Unreadable file:** If the settings file fails to decrypt (wrong or missing key, truncation, tampering), it is renamed aside to `settings.aes.unreadable-<timestamp>` and the app starts with empty settings, so the original is never overwritten.
 - **Size limit:** None (file-based)
@@ -77,5 +78,5 @@ The XOR encryption key is retained in settings for any devices that haven't migr
 | `composeApp/src/wasmJsMain/.../Platform.wasmJs.kt` | Web localStorage setup |
 | `composeApp/src/commonMain/.../data/ConversationStorage.kt` | Legacy XOR migration logic |
 | `composeApp/src/commonMain/.../data/AppSettings.kt` | Settings access layer for all app data |
-| `composeApp/src/commonMain/.../data/AppSettingsMigrations.kt` | One-time copy from legacy plaintext settings (Android/iOS) |
+| `composeApp/src/commonMain/.../data/AppSettingsMigrations.kt` | One-time copy from legacy plaintext settings (Android/iOS); verify-then-clear: copies keys, verifies the destination holds every migrated value, then removes the plaintext originals per-key |
 | `composeApp/src/commonMain/.../data/ConversationPersistence.kt` | Database vs. settings-blob conversation storage; imports a settings blob into the database |

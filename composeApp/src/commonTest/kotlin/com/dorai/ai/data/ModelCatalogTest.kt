@@ -23,6 +23,37 @@ class ModelCatalogTest {
     }
 
     // ------------------------------------------------------------------
+    // Structural invariants
+    // ------------------------------------------------------------------
+
+    @Test
+    fun `catalog has no duplicate ids that would silently override each other`() {
+        assertEquals(
+            emptyList(),
+            ModelCatalog.duplicateKeys,
+            "Duplicate catalog keys: ${ModelCatalog.duplicateKeys}. The later entry silently hides the earlier one.",
+        )
+    }
+
+    @Test
+    fun `lookup prefers the full provider-qualified id before the last segment`() {
+        // Full id has its own entry and must not be shadowed by the bare-segment one.
+        val qualified = ModelCatalog.lookup("openrouter/auto")
+        assertNotNull(qualified, "openrouter/auto must resolve via its own entry")
+        assertEquals("Auto", qualified.displayName)
+        assertContext("auto", 128_000, "Auto")
+        // Unknown provider prefix still falls back to the last segment.
+        assertNotNull(ModelCatalog.lookup("any-prefix/claude-opus-4-5"), "segment fallback broken")
+    }
+
+    @Test
+    fun `keyless fallback targets resolve to identity entries`() {
+        // Identity-only entries (no invented context/date) — presence is what matters.
+        assertNotNull(ModelCatalog.lookup("kilo-auto/free"), "kilo-auto/free must resolve")
+        assertNotNull(ModelCatalog.lookup("glm-5.3-flash-free"), "OpenCode free ids must resolve")
+    }
+
+    // ------------------------------------------------------------------
     // MiniMax — https://platform.minimax.io/docs/guides/text-generation
     // ------------------------------------------------------------------
 
