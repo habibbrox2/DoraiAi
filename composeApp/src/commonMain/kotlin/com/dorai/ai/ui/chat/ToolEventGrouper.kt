@@ -209,6 +209,7 @@ fun groupHistoryToChatMessages(
                         isThinking = asst.isThinking,
                         isSpeaking = isSpeakingThis,
                         fallbackServiceName = asst.fallbackServiceName,
+                        sentAt = asst.sentAt,
                     ),
                 )
             }
@@ -229,6 +230,7 @@ fun groupHistoryToChatMessages(
                         toolExecutions = consolidatedTools,
                         reasoningSegments = reasoning,
                         isThinking = isThinking,
+                        sentAt = assistantEntries.firstNotNullOfOrNull { it.sentAt },
                     ),
                 )
             }
@@ -246,6 +248,7 @@ fun groupHistoryToChatMessages(
                     isUser = true,
                     text = item.content,
                     attachments = item.attachments,
+                    sentAt = item.sentAt,
                 ),
             )
         } else {

@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.unit.Density
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.dorai.ai.data.Service
@@ -145,6 +147,26 @@ class DoraiUiV2ScreenshotTest {
         destination = DoraiDestination.Chat,
         device = DeviceConfig.PIXEL_9A,
         palette = ThemePresets.ogShine,
+    ) {
+        DoraiChatScreen(
+            messages = sampleMessages(),
+            conversations = sampleConversations(),
+            currentModelName = "Google Gemini",
+            isModelLocal = false,
+            selectedModeId = "build",
+            onModeSelected = {},
+            onSendMessage = {},
+            onNewChat = {},
+            onOpenConversation = {},
+        )
+    }
+
+    @Test
+    fun chat_compact_conversation_fontscale_14() = snap(
+        destination = DoraiDestination.Chat,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 1.4f,
     ) {
         DoraiChatScreen(
             messages = sampleMessages(),
@@ -455,6 +477,7 @@ class DoraiUiV2ScreenshotTest {
         device: DeviceConfig = DeviceConfig.PIXEL_9A,
         palette: ThemePalette = ThemePresets.ogShine,
         waitingApprovalsCount: Int = 2,
+        fontScale: Float = 1.0f,
         content: @Composable () -> Unit,
     ) {
         val theme = if (palette.isDark) {
@@ -472,19 +495,23 @@ class DoraiUiV2ScreenshotTest {
             WithScreenshotTestKoin {
                 CompositionLocalProvider(LocalInspectionMode provides true) {
                     DoraiTheme(repository = screenshotThemeRepository(palette)) {
-                        if (destination != null) {
-                            DoraiAdaptiveScaffold(
-                                selectedDestination = destination,
-                                onDestinationSelected = {},
-                                waitingApprovalsCount = waitingApprovalsCount,
-                            ) {
-                                content()
-                            }
-                        } else {
-                            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                                val widthClass = calculateDoraiWindowWidthClass(maxWidth)
-                                CompositionLocalProvider(LocalDoraiWindowWidthClass provides widthClass) {
+                        // Optional font-scale override (font-scale stress tests) without touching device density.
+                        val baseDensity = LocalDensity.current
+                        CompositionLocalProvider(LocalDensity provides Density(baseDensity.density, fontScale)) {
+                            if (destination != null) {
+                                DoraiAdaptiveScaffold(
+                                    selectedDestination = destination,
+                                    onDestinationSelected = {},
+                                    waitingApprovalsCount = waitingApprovalsCount,
+                                ) {
                                     content()
+                                }
+                            } else {
+                                BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                                    val widthClass = calculateDoraiWindowWidthClass(maxWidth)
+                                    CompositionLocalProvider(LocalDoraiWindowWidthClass provides widthClass) {
+                                        content()
+                                    }
                                 }
                             }
                         }

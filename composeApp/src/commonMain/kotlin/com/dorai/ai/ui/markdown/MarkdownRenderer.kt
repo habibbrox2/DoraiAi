@@ -1,6 +1,9 @@
 package com.dorai.ai.ui.markdown
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -8,10 +11,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,18 +32,27 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
+import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.BorderSoft
 import com.dorai.ai.ui.DoraiTypography
+import com.dorai.ai.ui.components.LocalShowFullScreenImageUrl
 import com.dorai.ai.ui.dynamicui.DoraiUiRenderer
 import com.dorai.ai.ui.dynamicui.FrozenSubmission
+import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.markdown.math.MathFormula
+import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.image_unavailable
 import kotlinx.collections.immutable.persistentListOf
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Render a parsed [MarkdownDocument] as a Compose layout. Each block becomes one child of the
@@ -161,22 +180,141 @@ private fun HeadingBlock(block: Heading) {
 @Composable
 private fun ParagraphBlock(block: Paragraph) {
     if (block.inlines.size == 1 && block.inlines[0] is Image) {
-        val img = block.inlines[0] as Image
-        AsyncImage(
-            model = img.src,
-            contentDescription = img.alt,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-                .padding(vertical = 4.dp),
-            contentScale = ContentScale.Crop,
-        )
+        MarkdownImage(block.inlines[0] as Image)
         return
     }
-    InlineContent(
-        inlines = block.inlines,
-        style = DoraiTypography.bodyLarge,
-        modifier = Modifier.padding(vertical = 2.dp),
+    Column(modifier = Modifier.padding(vertical = 2.dp)) {
+        InlineContent(
+            inlines = block.inlines,
+            style = DoraiTypography.bodyLarge,
+        )
+        // Inline images can't live inside AnnotatedString — render them as a thumbnail strip under the text.
+        val inlineImages = block.inlines.filterIsInstance<Image>()
+        if (inlineImages.isNotEmpty()) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .horizontalScroll(rememberScrollState())
+                    .padding(top = 6.dp),
+            ) {
+                inlineImages.forEach { img ->
+                    MarkdownImageThumbnail(img)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MarkdownImage(img: Image) {
+    val tokens = LocalDesignColorTokens.current
+    val showFullScreen = LocalShowFullScreenImageUrl.current
+    val alt = img.alt.ifBlank { "Image" }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(max = 360.dp)
+            .padding(vertical = 4.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .clickable(role = Role.Button, onClickLabel = alt) { showFullScreen(img.src) }
+            .handCursor(),
+    ) {
+        SubcomposeAsyncImage(
+            model = img.src,
+            contentDescription = alt,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 352.dp),
+            loading = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                        .background(tokens.surfaceRaised),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator(
+                        color = AccentPrimary,
+                        trackColor = AccentPrimary.copy(alpha = 0.15f),
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(28.dp),
+                    )
+                }
+            },
+            error = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(160.dp)
+                        .background(tokens.surfaceRaised),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = tokens.textMuted,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Text(
+                            text = stringResource(Res.string.image_unavailable),
+                            style = DoraiTypography.labelMedium,
+                            color = tokens.textMuted,
+                            modifier = Modifier.padding(start = 8.dp),
+                        )
+                    }
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun MarkdownImageThumbnail(img: Image) {
+    val tokens = LocalDesignColorTokens.current
+    val showFullScreen = LocalShowFullScreenImageUrl.current
+    val alt = img.alt.ifBlank { "Image" }
+    SubcomposeAsyncImage(
+        model = img.src,
+        contentDescription = alt,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .size(72.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(tokens.surfaceRaised)
+            .clickable(role = Role.Button, onClickLabel = alt) { showFullScreen(img.src) }
+            .handCursor(),
+        loading = {
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .background(tokens.surfaceRaised),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(
+                    color = AccentPrimary,
+                    trackColor = AccentPrimary.copy(alpha = 0.15f),
+                    strokeWidth = 2.dp,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
+        },
+        error = {
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .background(tokens.surfaceRaised),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = stringResource(Res.string.image_unavailable),
+                    tint = tokens.textMuted,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
+        },
     )
 }
 

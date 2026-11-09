@@ -105,3 +105,76 @@ internal fun FullScreenImageViewerOverlay(
         }
     }
 }
+
+/**
+ * Fullscreen viewer for remote images (markdown image previews). Mirrors
+ * [FullScreenImageViewerOverlay]'s pinch/pan/double-tap gestures but hosts a Coil-loaded
+ * [coil3.compose.AsyncImage] instead of a decoded bitmap, so markdown URLs can be opened
+ * without a manual download + decode round-trip.
+ */
+@Composable
+internal fun FullScreenUrlImageViewerOverlay(
+    url: String,
+    onDismiss: () -> Unit,
+) {
+    var scale by remember { mutableStateOf(1f) }
+    var offset by remember { mutableStateOf(Offset.Zero) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.95f))
+            .pointerInput(Unit) {
+                // Single-tap on the backdrop dismisses, matching the bitmap overlay.
+                detectTapGestures(onTap = { onDismiss() })
+            },
+    ) {
+        coil3.compose.AsyncImage(
+            model = url,
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer(
+                    scaleX = scale,
+                    scaleY = scale,
+                    translationX = offset.x,
+                    translationY = offset.y,
+                )
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, pan, zoom, _ ->
+                        scale = (scale * zoom).coerceIn(1f, 5f)
+                        offset = if (scale > 1f) offset + pan else Offset.Zero
+                    }
+                }
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onDoubleTap = {
+                            if (scale > 1f) {
+                                scale = 1f
+                                offset = Offset.Zero
+                            } else {
+                                scale = 2.5f
+                            }
+                        },
+                    )
+                },
+        )
+        IconButton(
+            onClick = onDismiss,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .statusBarsPadding()
+                .padding(8.dp)
+                .clip(CircleShape)
+                .background(Color.Black.copy(alpha = 0.4f))
+                .handCursor(),
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = stringResource(Res.string.image_viewer_close),
+                tint = Color.White,
+            )
+        }
+    }
+}

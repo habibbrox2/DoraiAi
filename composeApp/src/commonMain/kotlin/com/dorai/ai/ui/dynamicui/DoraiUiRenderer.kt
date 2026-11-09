@@ -223,6 +223,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.BorderSoft
 import com.dorai.ai.ui.CardFill
@@ -588,7 +589,7 @@ private fun RenderButton(
 
 @Composable
 private fun pulseModifier(active: Boolean): Modifier {
-    if (!active) return Modifier
+    if (!active || prefersReducedMotion()) return Modifier
     val transition = rememberInfiniteTransition(label = "button-pulse")
     val scale by transition.animateFloat(
         initialValue = 0.96f,

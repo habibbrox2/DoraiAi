@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 
 /**
@@ -26,6 +27,8 @@ import com.dorai.ai.theme.tokens.LocalDoraiColors
  * Implements the 1.8s dual-ring expansion loop from docs/branding/dorai/assets/motion/loader-animation.svg:
  * - Two outward pulsing rings with 0.9s phase delay
  * - Central core breathing indicator
+ *
+ * When the user prefers reduced motion, the same rings render statically.
  */
 @Composable
 fun DoraiLoadingSpinner(
@@ -35,6 +38,26 @@ fun DoraiLoadingSpinner(
 ) {
     val colors = LocalDoraiColors.current
     val strokeColor = color ?: colors.primary
+    val reducedMotion = prefersReducedMotion()
+
+    if (reducedMotion) {
+        Box(
+            modifier = modifier.size(size),
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(size)
+                    .border(width = 1.5.dp, color = strokeColor.copy(alpha = 0.45f), shape = CircleShape),
+            )
+            Box(
+                modifier = Modifier
+                    .size(size * 0.42f)
+                    .border(width = 2.dp, color = strokeColor, shape = CircleShape),
+            )
+        }
+        return
+    }
 
     val transition = rememberInfiniteTransition(label = "DoraiLoaderMotion")
 

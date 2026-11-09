@@ -994,5 +994,14 @@
     <string name="settings_mcp_test_connection">Test</string>
     <string name="settings_delete_all_chats">Delete all chats</string>
     <string name="settings_delete_chats_confirm">Are you sure you want to delete all saved conversations? This cannot be undone.</string>
+    <string name="code_block_show_more">Show %1$d more lines</string>
+    <string name="code_block_show_less">Show less</string>
+    <string name="image_unavailable">Image unavailable</string>
+    <string name="palette_hint">Type a command or search conversations…</string>
+    <string name="palette_new_chat">New Chat</string>
+    <string name="palette_switch_model">Switch Model</string>
+    <string name="palette_open_settings">Open Settings</string>
+    <string name="chat_message_sent_at">Sent at %1$s</string>
+    <string name="palette_no_results">No matches</string>
 </resources>
 
