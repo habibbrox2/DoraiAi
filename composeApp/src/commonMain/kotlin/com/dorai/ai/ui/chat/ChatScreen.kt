@@ -136,6 +136,15 @@ import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Legacy chat entry — superseded by UI v2 [DoraiChatScreenConnected] (see App.kt).
+ * Kept for screenshot-test parity only; do not wire into production navigation.
+ */
+@Deprecated(
+    "Legacy chat replaced by DoraiChatScreenConnected (UI v2)",
+    ReplaceWith("DoraiChatScreenConnected(viewModel = koinViewModel(), onNavigateToDashboard = {}, onNavigateToSettings = {})"),
+    DeprecationLevel.WARNING,
+)
 @Composable
 fun ChatScreen(
     viewModel: ChatViewModel = koinViewModel(),

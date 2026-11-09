@@ -23,7 +23,12 @@ import androidx.compose.ui.unit.dp
  *
  * Business state (history, services, sandbox) is still owned by [ChatUiState] and
  * the [ChatActions] contract; this composable only arranges presentation slots.
+ *
+ * @deprecated Legacy shell — UI v2 uses [com.dorai.ai.ui.adaptive.DoraiAppShell] +
+ * [com.dorai.ai.ui.adaptive.DoraiListDetailPaneScaffold]. Retained for legacy ChatScreen
+ * screenshot parity; do not wire into production.
  */
+@Deprecated("Legacy shell — use DoraiAppShell/DoraiListDetailPaneScaffold (UI v2)")
 @Composable
 fun ChatShell(
     header: @Composable () -> Unit,

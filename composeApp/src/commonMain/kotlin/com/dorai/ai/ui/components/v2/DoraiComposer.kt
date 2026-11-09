@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -41,6 +40,8 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
@@ -54,7 +55,9 @@ import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.composer_attach_content_description
 import dorai.composeapp.generated.resources.composer_input_hint
 import dorai.composeapp.generated.resources.composer_mic_content_description
+import dorai.composeapp.generated.resources.composer_remove_file
 import dorai.composeapp.generated.resources.composer_send_content_description
+import dorai.composeapp.generated.resources.composer_stop
 import dorai.composeapp.generated.resources.ic_file
 import dorai.composeapp.generated.resources.ic_image
 import io.github.vinceglb.filekit.PlatformFile
@@ -111,7 +114,7 @@ fun DoraiComposer(
                     ) {
                         Row(
                             modifier = Modifier
-                                .clickable { onRemoveFile?.invoke(file) }
+                                .clickable(role = Role.Button) { onRemoveFile?.invoke(file) }
                                 .padding(horizontal = 8.dp, vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -130,7 +133,7 @@ fun DoraiComposer(
                             )
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Remove file",
+                                contentDescription = stringResource(Res.string.composer_remove_file),
                                 tint = colors.muted,
                                 modifier = Modifier.size(13.dp),
                             )
@@ -148,8 +151,7 @@ fun DoraiComposer(
             IconButton(
                 onClick = { onAttach?.invoke() },
                 modifier = Modifier
-                    .size(40.dp)
-                    .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp),
+                    .size(48.dp),
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -188,6 +190,7 @@ fun DoraiComposer(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
                     modifier = Modifier
                         .fillMaxWidth()
+                        .semantics { }
                         .onPreviewKeyEvent { event ->
                             if (event.key == Key.Enter && !event.isShiftPressed && value.isNotBlank() && !isStreaming) {
                                 onSend()
@@ -204,13 +207,13 @@ fun DoraiComposer(
                 IconButton(
                     onClick = { onStopStreaming?.invoke() },
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(48.dp)
                         .clip(CircleShape)
                         .background(colors.err),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Stop,
-                        contentDescription = "Stop",
+                        contentDescription = stringResource(Res.string.composer_stop),
                         tint = colors.text,
                         modifier = Modifier.size(20.dp),
                     )
@@ -219,7 +222,7 @@ fun DoraiComposer(
                 IconButton(
                     onClick = onSend,
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(48.dp)
                         .clip(CircleShape)
                         .background(colors.primary),
                 ) {
@@ -234,8 +237,7 @@ fun DoraiComposer(
                 IconButton(
                     onClick = { onMicClick?.invoke() },
                     modifier = Modifier
-                        .size(40.dp)
-                        .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp),
+                        .size(48.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Mic,
@@ -263,8 +265,8 @@ fun DoraiComposer(
             }
             Text(
                 text = tokenText,
-                color = colors.muted.copy(alpha = 0.7f),
-                fontSize = 10.5.sp,
+                color = colors.muted,
+                fontSize = 11.sp,
                 fontFamily = FontFamily.Monospace,
                 modifier = Modifier.padding(start = 48.dp, bottom = 4.dp),
             )

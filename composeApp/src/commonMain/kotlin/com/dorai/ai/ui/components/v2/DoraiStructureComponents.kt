@@ -41,6 +41,10 @@ import com.dorai.ai.theme.data.ThemePalette
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.chat_provider_cloud
+import dorai.composeapp.generated.resources.chat_provider_local
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Scrollable pill tabs used across Settings, Workspace tabs, etc.
@@ -68,12 +72,12 @@ fun <T> DoraiPillTabs(
 
             Box(
                 modifier = Modifier
-                    .defaultMinSize(minHeight = 36.dp)
+                    .defaultMinSize(minHeight = 48.dp)
                     .clip(CircleShape)
                     .background(if (isSelected) colors.primary else colors.surface)
                     .border(1.dp, if (isSelected) colors.primary else colors.line, CircleShape)
                     .clickable(role = Role.Tab) { onItemSelected(item) }
-                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -201,7 +205,7 @@ fun DoraiProviderBadge(
 ) {
     val colors = LocalDoraiColors.current
     val badgeColor = if (isLocal) colors.ok else colors.info
-    val text = if (isLocal) "Local" else "Cloud"
+    val text = if (isLocal) stringResource(Res.string.chat_provider_local) else stringResource(Res.string.chat_provider_cloud)
     val icon = if (isLocal) Icons.Default.Computer else Icons.Default.Cloud
 
     Box(

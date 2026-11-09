@@ -96,12 +96,12 @@ fun DoraiModeSelector(
 
                 Box(
                     modifier = Modifier
-                        .defaultMinSize(minHeight = 40.dp)
+                        .defaultMinSize(minHeight = 48.dp)
                         .clip(CircleShape)
                         .background(if (isSelected) colors.primary else colors.surface)
                         .border(1.dp, if (isSelected) colors.primary else colors.line, CircleShape)
                         .clickable(role = Role.RadioButton) { onModeSelected(mode.id) }
-                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {

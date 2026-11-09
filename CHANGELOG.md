@@ -1,3 +1,29 @@
+## DORAI AI - Chat UI v2 Polish & A11y Fixes
+
+### Fixed
+- **Assistant answer readability:** the assistant message text is now pinned to an explicit content-color token, so it renders bright-on-dark on every theme preset instead of resolving to a dark fallback in some presets/pairings.
+- **Mojibake:** removed the garbled "DORAIâ€¦" composer placeholder and matching workspace hint.
+- **Scroll behaviour:** no longer force-scrolls to the bottom while the user is reading history; auto-scroll happens only at the bottom or on first load.
+- **Keyboard offset:** removed the double `imePadding` stack at the shell and composer layers on Compact.
+- **Model fetch/error visibility:** an error banner with retry/dismiss now appears in chat (previously errors were only visible in the legacy UI).
+- **Reasoning block label:** collapsed "Thought process" and expanded "Thought Process" unified into one casing; reasoning markers localized.
+
+### Changed
+- **Touch targets:** chat icon buttons (new chat, drawer toggle, settings, close, clear, rename, pin/unpin, delete, copy, speaker, regenerate, tool retry/dismiss) now meet the 48dp minimum.
+- **Message column:** conversation column capped at 760dp and centered; composer column likewise capped — no more over-wide lines on Large screens.
+- **Mode selector:** active mode badge now shown on all width classes (previously hidden on compact); Bengali strings added for the chat surface.
+- **History search:** searches both title and current-conversation preview; the preview is shown for the open conversation.
+- **Rename flow:** conversation rename action + dialog is reachable from the history list (pin/delete remain).
+- **Agent mode:** the selected mode is ViewModel-scoped (instead of screen-local state) and now actually drives the agent loop — Build enables the tool-calling (interactive) loop; Plan/Review stay conversational. Run Plan switches to Build mode and asks the model to proceed with the plan.
+
+### Fixed
+- **Legacy quarantine:** `ChatScreen`/`ChatShell` are `@Deprecated` (not deleted); `KEY_UI_V2` flag kept only for compatibility.
+
+### Tests
+- Re-recorded the 12 chat/settings/workspace goldens whose renders shifted by the accessibility (48dp) and v2 text-color fixes; full `verifyPaparazziDebug` suite passes.
+
+---
+
 ## DORAI AI - Custom Gateway & Model Fetch
 
 ### Added
@@ -10,6 +36,8 @@
 
 ### Tests
 - Screenshot coverage for the custom gateway card: `settings_providers_custom_gateway_expanded_ogshine` renders the expanded AI Providers screen with the new Display name field for the built-in gateway fixture.
+
+---
 
 ---
 
