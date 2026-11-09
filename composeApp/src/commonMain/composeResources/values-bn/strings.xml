@@ -732,6 +732,15 @@
     <string name="workspace_commit_action">কমিট করুন</string>
     <string name="workspace_commit_message_hint">কমিট বার্তা লিখুন…</string>
     <string name="workspace_files_changed_count">%1$dটি ফাইল পরিবর্তিত</string>
+    <string name="workspace_finish_setup">সেটআপ শেষ করে লঞ্চ করুন</string>
+    <string name="workspace_changes_count">%1$dটি পরিবর্তন</string>
+    <string name="workspace_agent_empty">এখনো এজেন্টের কোনো কার্যক্রম নেই</string>
+    <string name="workspace_git_unavailable">এই মুহূর্তে এই প্রজেক্টের Git তথ্য পাওয়া যাচ্ছে না</string>
+    <string name="workspace_terminal_unavailable">এই বিল্ডে Terminal ভিউ নেই</string>
+    <string name="workspace_last_updated">আপডেট %1$s</string>
+    <string name="workspace_files_toggle">ফাইল</string>
+    <string name="workspace_sandbox_running_badge">Sandbox চলছে</string>
+    <string name="workspace_sandbox_stopped_badge">Sandbox বন্ধ</string>
 
     <!-- UI v2 Settings -->
     <string name="settings_cat_general">সাধারণ</string>

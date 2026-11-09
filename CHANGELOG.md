@@ -51,6 +51,24 @@
 
 ---
 
+## DORAI AI - Workspace v2 File Explorer & Real Data
+
+### Added
+- **Left-side File Explorer (UI v2 Workspace):** Opening a project now shows the worktree file listing by default — on Compact as a left slide-in pane (open by default, toggleable from the project top bar), on Medium/Expanded/Large as a permanent left panel. The list is the real guest filesystem, with name/path search, filter chips, loading/error/empty states, and git-status badges matching the Git tab. Tapping a file opens it in the Editor pane; tapping a directory navigates.
+- **Real Project Cards:** Project list rows show the real guest path, the host-side last-modified date when available, and — for the open project — the real branch and working-tree change count.
+- **Workspace New Project dialog:** The previously dead New Project button in the ready screen now opens the create-project dialog.
+
+### Changed
+- **Editor pane shows the real buffer:** The v2 Editor tab renders the actual guest file (syntax highlighted) with save/undo support and the real readonly/binary/too-large/unreadable states.
+- **Git tab shows real changes:** The v2 Git tab lists the open project's `git status` (staged/unstaged) with stage/unstage/discard actions and a unified-diff bottom sheet per file. Empty states reflect the real status result (clean / not a repository / git missing).
+- **No demo content:** The v2 Agent activity panel, Editor fallback and Terminal fallback now show honest empty states instead of hardcoded demo tool cards, demo code, demo `git diff` text, or demo shell output.
+
+### Fixed
+- Project cards no longer display invented branch names, update timestamps, or change counts for projects that have never been opened; unknown values are omitted rather than faked.
+- The fake "New Project" affordance that did nothing when tapped now works.
+
+---
+
 ## DORAI AI - Workspace Editor & Source Control
 
 ### Added

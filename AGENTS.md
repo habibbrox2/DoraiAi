@@ -65,6 +65,12 @@ Run the narrowest relevant command first. Android release builds may require sig
 - Do not migrate or edit existing Kotlin/JavaScript/TypeScript feature implementation as part of workspace setup.
 - Use `pnpm frontend:check` for isolated workspace checks. Keep Gradle and pnpm dependency graphs independent.
 
+### Language Selection
+
+- For any new feature or system, prefer a TypeScript implementation when the work is clearly frontend, integration, orchestration, UI-only, or API-boundary logic that belongs in the hybrid TypeScript workspace and does not require privileged Kotlin runtime access.
+- If the feature is deeply tied to KMP application execution, security-sensitive runtime access, lifecycle hooks, native capabilities, or privileged local operations, prefer Kotlin.
+- When both Kotlin and TypeScript are viable, choose the option that best matches the actual responsibility boundary: keep shared business logic and secure runtime operations in Kotlin, and keep browser/UI or integration-facing logic in TypeScript where appropriate.
+
 ## Coding Conventions
 
 - **State:** Prefer state hoisting, unidirectional data flow (UDF), and Material 3 patterns.
@@ -142,7 +148,7 @@ Knowledge lives under `docs/knowledge/` as OKF-style markdown (YAML frontmatter 
 
 - **Commits:** Use short, imperative messages (e.g., `fix(desktop): resolve window resize crash`). `CLAUDE.md` has no commit-footer/attribution rule; follow the active session/assistant instructions for any required commit or PR attribution when creating commits/PRs.
 - **Don't push/commit by default:** Only commit/push/create tags if explicitly asked.
-- **Pre-commit formatting gate:** After tests and verification succeed, and before creating any git commit or push, run `./gradlew spotlessCheck` (`gradlew.bat spotlessCheck` on Windows). Only commit and push if `spotlessCheck` returns `BUILD SUCCESSFUL`. If it fails, fix formatting issues (e.g., `./gradlew spotlessApply` if appropriate and safe), re-run relevant verification as needed, and re-run `spotlessCheck` before committing/pushing.
+- **Pre-commit formatting gate:** Before creating any git commit or push, run `./gradlew spotlessCheck` (`gradlew.bat spotlessCheck` on Windows). Only commit and push if `spotlessCheck` returns `BUILD SUCCESSFUL`. If it fails, fix formatting issues (e.g., `./gradlew spotlessApply` if appropriate and safe), re-run relevant verification as needed, and re-run `spotlessCheck` before committing/pushing.
 - **Screenshot & Visual Regression Gate:** When modifying UI themes, color tokens, typography, spacing, global defaults (`ThemeState`, `ThemePresets`), or shared components that affect rendered screens, always run `./gradlew :screenshotTests:verifyPaparazziDebug` (`gradlew.bat :screenshotTests:verifyPaparazziDebug` on Windows) before committing or pushing. If intentional visual updates cause a golden diff, re-record the affected golden files with `./gradlew :screenshotTests:recordPaparazziDebug --tests "..."` and commit the updated golden PNGs in the same PR.
 - **State Isolation in Tests:** Never rely on ambient singleton defaults (e.g., Koin singletons without explicit test initialization) in screenshot tests. Always explicitly initialize deterministic test state (e.g., `repo.setSelectedThemeId(...)`) so that future changes to global defaults do not cause unintended visual diffs in unaffected tests.
 - **CI:** `.github/workflows/test.yml` runs formatting/screenshot/asset steps and may push changes. Don't trigger it casually.

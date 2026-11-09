@@ -1,6 +1,6 @@
 # DORAI Build
 
-**Last verified:** 2026-10-02
+**Last verified:** 2026-11-09
 
 DORAI Build is an **Android-only** coding environment inside the DORAI AI app. It is a separate *surface* from chat — no shared conversation store, no sandbox tools, no provider/settings coupling — but it is not necessarily a separate *Linux*: when the chat sandbox also runs Debian, both work in the same install.
 
@@ -80,6 +80,8 @@ Next to the session tabs — pinned, so it is always there — sits **Files**: t
 It does everything it does in chat: open a file in the built-in editor and save it back — including the extension-less and unfamiliar-extension files a project is full of, since what counts as text is decided from the bytes rather than the name — hand a file to another app on the device, import a file from device storage into the directory on screen, rename, delete, and re-list itself silently whenever the tab becomes visible, so files an agent just wrote show up without a manual refresh. Files are read and written directly rather than through a shell, so none of it depends on a session running.
 
 Switching to Files leaves every session running — coming back finds the terminal exactly as it was, and Files finds the directory it was left in, wherever in Debian that was. The system back gesture steps Files → terminal → project list.
+
+The UI v2 Workspace surface (the production `DoraiWorkspaceScreen` path) shows this same real worktree listing as a **persistent left panel** — on Compact it is a left slide-in pane that opens by default whenever a project opens, and the top bar carries a Files toggle when it is closed. Tapping a file opens it in the Editor pane, which renders the real file buffer with save/undo; tapping a directory navigates into it. The Git panel in the same screen lists the real `git status` (staged/unstaged) for the open project with stage/unstage/discard and a unified-diff sheet. All values come from the guest filesystem and `git status` — unknown values (branch, change count) are omitted for projects that have never been opened rather than shown as invented data.
 
 ### Terminal
 
@@ -176,3 +178,8 @@ The PTY hands DORAI AI a block of output as often as the program produces one �
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/build/KaiBuildScreen.kt` | Screen shell and the setup / projects / terminal routing. |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/build/KaiBuildViewModel.kt` | Screen state, and the remembered "Open with" agent — read back at startup and checked against what is installed. |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/composables/EmptyState.kt` | Hosts the "Open DORAI Build" entry button. |
+| `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/workspace/DoraiWorkspaceScreen.kt` | UI v2 screen: setup / projects / active-project layout. Left file pane (Compact slide-in, Medium+ permanent) with the file explorer slot. |
+| `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/workspace/DoraiWorkspaceScreenConnected.kt` | Production bridge: binds the guest file browser (`WORKSPACE_FILES`), git state, projects folder mtimes; no placeholder/mock rendering. |
+| `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/workspace/WorkspaceGitPanel.kt` | UI v2 Git panel: real `git status` list + stage/unstage/discard + unified-diff sheet. |
+| `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/workspace/WorkspaceProjectsExplorer.kt` | Real file-tree listing UI reused by the left panel; filter logic unit-tested. |
+| `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/workspace/WorkspaceProjectsContent.kt` | In-app rename/delete flows for the projects list (real guest folder ops). |
