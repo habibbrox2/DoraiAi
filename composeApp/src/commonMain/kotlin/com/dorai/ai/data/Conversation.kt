@@ -48,6 +48,10 @@ data class Conversation(
         // Most messages have no reasoning trace; skip the null to keep the persisted blob lean.
         @EncodeDefault(EncodeDefault.Mode.NEVER)
         val reasoningContent: String? = null,
+        // Milliseconds since epoch when the message was sent. Null for messages saved before
+        // this field existed (shown without a timestamp in the UI).
+        @EncodeDefault(EncodeDefault.Mode.NEVER)
+        val sentAt: Long? = null,
         // Legacy single-file fields — retained for reading old persisted conversations.
         // New code writes only `attachments`; these remain null on newly saved messages.
         val mimeType: String? = null,

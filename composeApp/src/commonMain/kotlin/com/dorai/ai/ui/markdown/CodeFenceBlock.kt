@@ -18,6 +18,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.ButtonDefaults
@@ -45,7 +47,13 @@ import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.rememberCopyToClipboard
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.code_block_show_less
+import dorai.composeapp.generated.resources.code_block_show_more
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
+
+private const val COLLAPSED_LINE_COUNT = 16
 
 @Composable
 internal fun CodeFenceBlock(
@@ -56,8 +64,15 @@ internal fun CodeFenceBlock(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val highlightColors = remember(colorScheme) { codeHighlightColors(colorScheme) }
-    val highlighted = remember(code, language, highlightColors) {
-        highlightCode(code, language, highlightColors)
+    // Collapse long blocks: only the first COLLAPSED_LINE_COUNT lines render until expanded.
+    var expanded by remember(code) { mutableStateOf(false) }
+    val allLines = remember(code) { code.lines() }
+    val isLong = allLines.size > COLLAPSED_LINE_COUNT
+    val visibleCode = remember(allLines, expanded) {
+        if (!isLong || expanded) code else allLines.take(COLLAPSED_LINE_COUNT).joinToString("\n")
+    }
+    val highlighted = remember(visibleCode, language, highlightColors) {
+        highlightCode(visibleCode, language, highlightColors)
     }
     val copyToClipboard = rememberCopyToClipboard()
     var isCopied by remember { mutableStateOf(false) }
@@ -181,7 +196,7 @@ internal fun CodeFenceBlock(
             }
 
             // Code Body with Line Numbers & Monospace Font
-            val lines = remember(code) { code.lines() }
+            val lines = remember(visibleCode) { visibleCode.lines() }
             val scrollState = rememberScrollState()
 
             Row(
@@ -214,6 +229,35 @@ internal fun CodeFenceBlock(
                     lineHeight = 20.sp,
                     color = tokens.textPrimary,
                 )
+            }
+
+            // Collapse / expand toggle for long blocks
+            if (isLong) {
+                HorizontalDivider(color = tokens.borderSoft)
+                TextButton(
+                    onClick = { expanded = !expanded },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(36.dp)
+                        .handCursor(),
+                    colors = ButtonDefaults.textButtonColors(contentColor = AccentPrimary),
+                ) {
+                    Icon(
+                        imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        text = if (expanded) {
+                            stringResource(Res.string.code_block_show_less)
+                        } else {
+                            stringResource(Res.string.code_block_show_more, allLines.size - COLLAPSED_LINE_COUNT)
+                        },
+                        style = DoraiTypography.labelSmall,
+                        fontFamily = FontFamily.Monospace,
+                    )
+                }
             }
         }
     }

@@ -764,4 +764,13 @@
     <string name="settings_mcp_test_connection">পরীক্ষা করুন</string>
     <string name="settings_delete_all_chats">সব চ্যাট মুছে ফেলুন</string>
     <string name="settings_delete_chats_confirm">আপনি কি নিশ্চিত যে সংরক্ষিত সব চ্যাট মুছে ফেলতে চান? এটি পূর্বাবস্থায় ফেরানো যাবে না।</string>
+    <string name="code_block_show_more">আরও %1$d লাইন দেখুন</string>
+    <string name="code_block_show_less">কম দেখুন</string>
+    <string name="image_unavailable">ছবিটি দেখানো যাচ্ছে না</string>
+    <string name="palette_hint">কমান্ড টাইপ করুন বা conversation খুঁজুন…</string>
+    <string name="palette_new_chat">নতুন চ্যাট</string>
+    <string name="palette_switch_model">মডেল পরিবর্তন</string>
+    <string name="palette_open_settings">Settings</string>
+    <string name="palette_no_results">কিছু পাওয়া যায়নি</string>
+    <string name="chat_message_sent_at">পাঠানো হয়েছে %1$s-এ</string>
 </resources>

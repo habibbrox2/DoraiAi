@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.logo
@@ -43,7 +44,7 @@ fun LogoAnimation(
     contentDescription: String? = "DORAI AI Logo",
 ) {
     val isInspection = LocalInspectionMode.current
-    val shouldAnimate = animate && !isInspection
+    val shouldAnimate = animate && !isInspection && !prefersReducedMotion()
     val colors = LocalDoraiColors.current
 
     val infiniteTransition = rememberInfiniteTransition(label = "DoraiLogoMotion")

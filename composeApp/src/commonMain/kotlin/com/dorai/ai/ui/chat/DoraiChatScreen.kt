@@ -1,6 +1,11 @@
 package com.dorai.ai.ui.chat
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -30,6 +35,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -97,20 +103,34 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dorai.ai.Platform
+import com.dorai.ai.currentPlatform
 import com.dorai.ai.data.Attachment
 import com.dorai.ai.data.SmsDraft
 import com.dorai.ai.decodeToImageBitmap
 import com.dorai.ai.network.UiError
+import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.adaptive.DoraiListDetailPaneScaffold
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
+import com.dorai.ai.ui.chat.composables.AnimatedTypingDots
+import com.dorai.ai.ui.chat.composables.ChatCommandPalette
 import com.dorai.ai.ui.chat.composables.HeartbeatBanner
 import com.dorai.ai.ui.chat.composables.PendingSmsBanners
 import com.dorai.ai.ui.chat.composables.uiErrorText
@@ -148,6 +168,7 @@ import dorai.composeapp.generated.resources.chat_empty_workspace
 import dorai.composeapp.generated.resources.chat_history_cd
 import dorai.composeapp.generated.resources.chat_history_title
 import dorai.composeapp.generated.resources.chat_jump_to_latest
+import dorai.composeapp.generated.resources.chat_message_sent_at
 import dorai.composeapp.generated.resources.chat_model_picker_title
 import dorai.composeapp.generated.resources.chat_no_chats_found
 import dorai.composeapp.generated.resources.chat_older
@@ -242,11 +263,15 @@ import dorai.composeapp.generated.resources.qp_review_4_tag
 import dorai.composeapp.generated.resources.qp_review_4_title
 import dorai.composeapp.generated.resources.settings_memories_edit_cancel
 import dorai.composeapp.generated.resources.settings_memories_edit_save
+import dorai.composeapp.generated.resources.waiting_thinking
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -267,6 +292,7 @@ data class ChatMessageItem(
     val isThinking: Boolean = false,
     val isSpeaking: Boolean = false,
     val fallbackServiceName: String? = null,
+    val sentAt: Long? = null,
 )
 
 data class ChatConversationSummary(
@@ -384,6 +410,8 @@ fun DoraiChatScreen(
                 onRegenerate = onRegenerate,
                 onOpenModelPicker = onOpenModelPicker,
                 onOpenDrawer = { scope.launch { drawerState.open() } },
+                conversations = conversations,
+                onOpenConversation = onOpenConversation,
                 onAllowOnce = onAllowOnce,
                 onAllowSession = onAllowSession,
                 onDeny = onDeny,
@@ -442,6 +470,8 @@ fun DoraiChatScreen(
                     onRegenerate = onRegenerate,
                     onOpenModelPicker = onOpenModelPicker,
                     onOpenDrawer = null,
+                    conversations = conversations,
+                    onOpenConversation = onOpenConversation,
                     onAllowOnce = onAllowOnce,
                     onAllowSession = onAllowSession,
                     onDeny = onDeny,
@@ -872,6 +902,8 @@ private fun ChatDetailPane(
     onSendSms: ((String) -> Unit)? = null,
     onDiscardSms: ((String) -> Unit)? = null,
     onNavigateToSettings: (() -> Unit)? = null,
+    conversations: List<ChatConversationSummary> = emptyList(),
+    onOpenConversation: ((String) -> Unit)? = null,
     onNavigateToWorkspace: (() -> Unit)? = null,
     maxContextTokens: Int? = null,
     warning: StringResource? = null,
@@ -884,6 +916,7 @@ private fun ChatDetailPane(
     val widthClass = LocalDoraiWindowWidthClass.current
     val listState = rememberLazyListState()
     var composerInput by remember { mutableStateOf("") }
+    var paletteVisible by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     val isAtBottom by remember {
@@ -894,11 +927,13 @@ private fun ChatDetailPane(
         }
     }
 
-    var hasInitialScrolled by remember { mutableStateOf(false) }
-    LaunchedEffect(messages.size) {
-        if (messages.isNotEmpty() && (!hasInitialScrolled || isAtBottom)) {
-            listState.animateScrollToItem(messages.lastIndex)
-            hasInitialScrolled = true
+    // Follow the streaming tail while the user stays pinned to the bottom.
+    // Keyed on the last message's text length so token-by-token growth also
+    // keeps the list scrolled, not just message count changes.
+    val lastMessageTextLength = messages.lastOrNull()?.text?.length ?: 0
+    LaunchedEffect(messages.size, lastMessageTextLength) {
+        if (messages.isNotEmpty() && isAtBottom) {
+            listState.scrollToItem(messages.lastIndex)
         }
     }
 
@@ -907,7 +942,19 @@ private fun ChatDetailPane(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(colors.background),
+            .background(colors.background)
+            .onPreviewKeyEvent { keyEvent ->
+                if (currentPlatform !is Platform.Mobile &&
+                    keyEvent.type == KeyEventType.KeyDown &&
+                    (keyEvent.isCtrlPressed || keyEvent.isMetaPressed) &&
+                    keyEvent.key == Key.K
+                ) {
+                    paletteVisible = !paletteVisible
+                    true
+                } else {
+                    false
+                }
+            },
     ) {
         // Chat Top Bar (56dp fixed height matching prototype header.top)
         Row(
@@ -1060,6 +1107,7 @@ private fun ChatDetailPane(
                 )
             } else {
                 // Centered max-width column for large windows (was unbounded).
+                val lastAssistantId = remember(messages) { messages.lastOrNull { !it.isUser }?.id }
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.TopCenter,
@@ -1072,10 +1120,15 @@ private fun ChatDetailPane(
                             .padding(horizontal = DoraiSpacing.MD),
                         verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD),
                     ) {
-                        items(messages, key = { it.id }) { msg ->
+                        itemsIndexed(messages, key = { _, msg -> msg.id }) { index, msg ->
+                            // Consecutive assistant messages render as one continued block:
+                            // hide the repeated logo + model header on follow-ups.
+                            val showHeader = index == 0 || messages[index - 1].isUser
                             ChatMessageRow(
                                 message = msg,
-                                onRegenerate = onRegenerate,
+                                showHeader = showHeader,
+                                showStreamingCaret = isStreaming && index == messages.lastIndex && !msg.isUser,
+                                onRegenerate = if (msg.id == lastAssistantId) onRegenerate else null,
                                 onSpeak = onSpeak,
                                 onAllowOnce = onAllowOnce,
                                 onAllowSession = onAllowSession,
@@ -1086,6 +1139,55 @@ private fun ChatDetailPane(
                                 onDynamicUiSubmit = onDynamicUiSubmit,
                                 onRunPlan = onRunPlan,
                             )
+                        }
+                        if (isStreaming) {
+                            val last = messages.lastOrNull()
+                            val tailVisible = last == null || last.isUser ||
+                                (
+                                    !last.isUser && last.text.isEmpty() &&
+                                        last.reasoningSegments.isEmpty() && !last.isThinking &&
+                                        last.toolExecutions.isEmpty() && last.dynamicUi == null &&
+                                        last.planItems.isEmpty()
+                                    )
+                            if (tailVisible) {
+                                item(key = "streaming-tail") {
+                                    // First-token "thinking" card: model name + stop, replacing a bare spinner
+                                    Surface(
+                                        shape = RoundedCornerShape(14.dp),
+                                        color = colors.surface,
+                                        border = BorderStroke(1.dp, colors.line.copy(alpha = 0.5f)),
+                                        modifier = Modifier.padding(horizontal = DoraiSpacing.XS, vertical = DoraiSpacing.XS),
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                        ) {
+                                            AnimatedTypingDots(dotColor = colors.primary)
+                                            Text(
+                                                text = "${stringResource(Res.string.waiting_thinking)} — $currentModelName",
+                                                color = colors.muted,
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                modifier = Modifier.widthIn(max = 320.dp),
+                                            )
+                                            if (onStopStreaming != null) {
+                                                IconButton(
+                                                    onClick = onStopStreaming,
+                                                    modifier = Modifier.size(48.dp),
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Stop,
+                                                        contentDescription = stringResource(Res.string.composer_stop),
+                                                        tint = colors.muted,
+                                                        modifier = Modifier.size(20.dp),
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -1109,7 +1211,7 @@ private fun ChatDetailPane(
                     containerColor = colors.surface2,
                     contentColor = colors.primary,
                     shape = CircleShape,
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(48.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowDownward,
@@ -1209,12 +1311,25 @@ private fun ChatDetailPane(
             }
         }
     }
+    if (paletteVisible) {
+        ChatCommandPalette(
+            conversations = conversations,
+            currentModelName = currentModelName,
+            onDismiss = { paletteVisible = false },
+            onNewChat = onNewChat,
+            onOpenModelPicker = onOpenModelPicker,
+            onOpenSettings = onNavigateToSettings,
+            onOpenConversation = { id -> onOpenConversation?.invoke(id) },
+        )
+    }
 }
 
 @OptIn(ExperimentalEncodingApi::class, ExperimentalLayoutApi::class)
 @Composable
 private fun ChatMessageRow(
     message: ChatMessageItem,
+    showHeader: Boolean = true,
+    showStreamingCaret: Boolean = false,
     onRegenerate: (() -> Unit)?,
     onSpeak: ((String) -> Unit)? = null,
     onAllowOnce: ((String) -> Unit)? = null,
@@ -1228,13 +1343,38 @@ private fun ChatMessageRow(
 ) {
     val colors = LocalDoraiColors.current
     val copyToClipboard = rememberCopyToClipboard()
+    var isUserCopied by remember { mutableStateOf(false) }
+    val sentAtCd = message.sentAt?.let { stringResource(Res.string.chat_message_sent_at, formatMessageTimestamp(it)) }
+    LaunchedEffect(isUserCopied) {
+        if (isUserCopied) {
+            delay(2000)
+            isUserCopied = false
+        }
+    }
 
     if (message.isUser) {
-        // User message bubble on right
+        // User message bubble on right, with a trailing copy affordance
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
+            if (message.text.isNotEmpty()) {
+                IconButton(
+                    onClick = {
+                        copyToClipboard(message.text)
+                        isUserCopied = true
+                    },
+                    modifier = Modifier.size(48.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ContentCopy,
+                        contentDescription = stringResource(Res.string.chat_copy_message),
+                        tint = if (isUserCopied) colors.ok else colors.muted,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
+            }
             Box(
                 modifier = Modifier
                     .widthIn(max = 520.dp)
@@ -1309,6 +1449,17 @@ private fun ChatMessageRow(
                             )
                         }
                     }
+                    if (message.sentAt != null) {
+                        Text(
+                            text = formatMessageTimestamp(message.sentAt),
+                            color = colors.muted,
+                            fontSize = 11.sp,
+                            modifier = Modifier
+                                .align(Alignment.End)
+                                .padding(top = 4.dp)
+                                .semantics { contentDescription = sentAtCd ?: "" },
+                        )
+                    }
                 }
             }
         }
@@ -1320,33 +1471,15 @@ private fun ChatMessageRow(
                 .padding(vertical = 4.dp),
         ) {
             // Who row: Brand Mark (20dp) + Model name + Badge + Optional Fallback indicator
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 6.dp),
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.logo),
-                    contentDescription = null,
-                    tint = Color.Unspecified,
-                    modifier = Modifier.size(20.dp),
-                )
-                Spacer(modifier = Modifier.width(6.dp))
+            if (showHeader) {
+                AssistantWhoRow(message = message)
+            } else if (message.fallbackServiceName != null) {
                 Text(
-                    text = message.modelName ?: stringResource(Res.string.nav_brand_title),
+                    text = stringResource(Res.string.fallback_answered_by, message.fallbackServiceName),
                     color = colors.muted,
-                    fontSize = 13.5.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 11.5.sp,
+                    modifier = Modifier.padding(bottom = 6.dp),
                 )
-                Spacer(modifier = Modifier.width(6.dp))
-                DoraiProviderBadge(isLocal = message.isModelLocal, iconOnly = true)
-                if (message.fallbackServiceName != null) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(Res.string.fallback_answered_by, message.fallbackServiceName),
-                        color = colors.muted,
-                        fontSize = 11.5.sp,
-                    )
-                }
             }
 
             // Reasoning / Thinking block
@@ -1373,6 +1506,16 @@ private fun ChatMessageRow(
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
+                }
+            }
+
+            // Streaming caret — trailing blink bar while this reply is generating
+            if (showStreamingCaret && message.text.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.padding(top = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    StreamingCaret()
                 }
             }
 
@@ -1493,6 +1636,19 @@ private fun ChatMessageRow(
                         }
                     }
                 }
+            }
+
+            // Timestamp — always visible under the reply (kept out of the who-row so
+            // grouped consecutive assistant messages still get their time)
+            if (message.sentAt != null) {
+                Text(
+                    text = formatMessageTimestamp(message.sentAt),
+                    color = colors.muted,
+                    fontSize = 11.sp,
+                    modifier = Modifier
+                        .padding(top = 2.dp)
+                        .semantics { contentDescription = sentAtCd ?: "" },
+                )
             }
         }
     }
@@ -2055,4 +2211,80 @@ private fun ChatEmptyState(
             }
         }
     }
+}
+
+/**
+ * Assistant "who" row: brand mark + model name + local/badge + optional fallback note.
+ * Extracted so consecutive assistant messages can omit it (see ChatMessageRow).
+ */
+@Composable
+private fun AssistantWhoRow(message: ChatMessageItem) {
+    val colors = LocalDoraiColors.current
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(bottom = 6.dp),
+    ) {
+        Icon(
+            painter = painterResource(Res.drawable.logo),
+            contentDescription = null,
+            tint = Color.Unspecified,
+            modifier = Modifier.size(20.dp),
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = message.modelName ?: stringResource(Res.string.nav_brand_title),
+            color = colors.muted,
+            fontSize = 13.5.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f, fill = false),
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        DoraiProviderBadge(isLocal = message.isModelLocal, iconOnly = true)
+        if (message.fallbackServiceName != null) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(Res.string.fallback_answered_by, message.fallbackServiceName),
+                color = colors.muted,
+                fontSize = 11.5.sp,
+            )
+        }
+    }
+}
+
+/** Formats an epoch-millis timestamp as HH:mm (24h, local zone). Returns "" on failure. */
+private fun formatMessageTimestamp(epochMs: Long): String = try {
+    val dt = Instant.fromEpochMilliseconds(epochMs).toLocalDateTime(TimeZone.currentSystemDefault())
+    "${dt.hour.toString().padStart(2, '0')}:${dt.minute.toString().padStart(2, '0')}"
+} catch (_: Exception) {
+    ""
+}
+
+/** Blinking trailing bar shown on the in-flight assistant message. Static when reduced motion is on. */
+@Composable
+private fun StreamingCaret(modifier: Modifier = Modifier) {
+    val colors = LocalDoraiColors.current
+    if (prefersReducedMotion()) {
+        Box(
+            modifier
+                .size(width = 8.dp, height = 18.dp)
+                .clip(RoundedCornerShape(3.dp))
+                .background(colors.primary),
+        )
+        return
+    }
+    val transition = rememberInfiniteTransition(label = "streamingCaret")
+    val alpha by transition.animateFloat(
+        initialValue = 0.15f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(durationMillis = 550), RepeatMode.Reverse),
+        label = "caretAlpha",
+    )
+    Box(
+        modifier
+            .size(width = 8.dp, height = 18.dp)
+            .clip(RoundedCornerShape(3.dp))
+            .background(colors.primary.copy(alpha = alpha)),
+    )
 }

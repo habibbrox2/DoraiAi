@@ -138,6 +138,7 @@ data class History(
     // For tool confirmation flow
     val pendingToolConfirmation: Boolean = false,
     val toolConfirmationId: String? = null,
+    val sentAt: Long? = null,
 ) {
     enum class Role {
         USER,

@@ -62,6 +62,20 @@ Auto-derived from the first user message when a conversation is saved for the fi
 - **Retry** resends the current prompt
 - **Regenerate** removes all messages after the last user message, then resends
 
+## Timeline Rendering
+
+- While pinned to the bottom, the timeline follows streaming token growth (not just new messages) so the latest output stays visible during generation
+- When a response is pending but no assistant content has arrived yet (no text, reasoning, or tool activity), a first-token "thinking" card shows animated dots, the active model name, and a Stop button (instead of a bare spinner); reduced-motion keeps the dots static
+- While the assistant reply is streaming in, a blinking trailing caret bar is shown under the reply text; reduced-motion shows a static bar
+- Assistant messages that continue a run of assistant messages (no intervening user message) omit the repeated brand-mark + model header; a fallback note may still render on its own
+- Only the last assistant message in the timeline shows the regenerate button; earlier ones keep copy/speak actions
+- User messages carry a trailing copy button (next to the bubble) with the same 2-second copied feedback as the assistant copy action
+- Timestamps (HH:mm, local 24h) render under user bubbles and assistant replies; they are persisted per-message in the conversation JSON blob (`Conversation.Message.sentAt`) so restored conversations show times too (messages saved before this field existed render without a timestamp)
+- Markdown images in assistant replies: a standalone `![alt](url)` block renders `Fit`-scaled (max 360.dp, aspect-ratio preserving, rounded corners), shows a loading placeholder while fetching and an "Image unavailable" fallback on error, and opens a full-screen viewer (pinch/double-tap zoom) on tap; images inline with text render as a horizontal thumbnail strip under the paragraph instead
+- `Ctrl/Cmd+K` opens a command palette (new chat, switch model, open settings, and jump to a saved conversation filtered by title); arrow keys select, Enter runs, Escape dismisses. Desktop/Web only. The composer already sends on Enter (and Ctrl/Cmd+Enter also sends)
+- Looping/decorative animations respect `prefersReducedMotion()`: logo, loading spinner, dynamic-UI button pulse, gradient border, agent orb/HUD, typing dots, loading bar, streaming caret — all render statically when the user prefers reduced motion
+- A font-scale stress snapshot (`chat_compact_conversation_fontscale_14`, 1.4×) locks in layout at large font scales; the assistant model name truncates with ellipsis before pushing the provider badge off-screen
+
 ## File Attachments
 
 Multiple files can be attached to a single prompt. Each file is added one at a time via the file picker or drag-and-drop, and appears as a chip below the input. Clicking a chip removes that specific file from the queue. All queued files are cleared after the prompt is sent. Three categories of files are supported:
@@ -149,7 +163,9 @@ On compact screens the chat is wrapped in a modal navigation drawer; on expanded
 | `composeApp/src/commonMain/.../data/FileClassification.kt` | File category enum, MIME/extension classifier, size constants, file exceptions |
 | `composeApp/src/commonMain/.../data/RemoteDataRepository.kt` | History management, conversation save/restore/delete, title derivation, message sending |
 | `composeApp/src/commonMain/.../ui/chat/ChatViewModel.kt` | Chat UI state, send/retry/regenerate/cancel/loadConversation/deleteConversation actions |
-| `composeApp/src/commonMain/.../ui/chat/ChatScreen.kt` | Chat UI composables, drawer/sidebar wiring, history sheet and heartbeat banner wiring |
+| `composeApp/src/commonMain/.../ui/chat/DoraiChatScreen.kt` | UI v2 chat screen (active): adaptive list-detail scaffold, message timeline rendering (user bubbles, assistant who-row/markdown/tool cards, streaming typing indicator, jump-to-latest) |
+| `composeApp/src/commonMain/.../ui/chat/composables/ChatCommandPalette.kt` | Ctrl/Cmd+K command palette: jump actions + conversation search |
+| `composeApp/src/commonMain/.../ui/chat/ChatScreen.kt` | Legacy chat entry — superseded by UI v2; kept for reference |
 | `composeApp/src/commonMain/.../ui/chat/composables/AppSidebar.kt` | Navigation sidebar: header/search, New Chat/New Project, grouped history, bottom nav, footer |
 | `composeApp/src/commonMain/.../ui/chat/composables/EmptyState.kt` | Centered logo, "Your AI. Your World." welcome copy, wrapping quick-start chips |
 | `composeApp/src/commonMain/.../ui/chat/composables/AgentHud.kt` | Compact HUD with direct Settings/Speech actions (no overflow menu) |

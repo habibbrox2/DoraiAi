@@ -706,6 +706,7 @@ class RemoteDataRepository(
                         toolCalls = persistentListOf(
                             ToolCallInfo(id = callId, name = name, arguments = arguments),
                         ),
+                        sentAt = Clock.System.now().toEpochMilliseconds(),
                     ),
                 )
                 add(
@@ -1189,6 +1190,7 @@ class RemoteDataRepository(
                             content = question,
                             attachments = attachments,
                             uiSubmission = uiSubmission,
+                            sentAt = Clock.System.now().toEpochMilliseconds(),
                         ),
                     )
                 }
@@ -1255,6 +1257,7 @@ class RemoteDataRepository(
                         role = History.Role.ASSISTANT,
                         content = turn.content,
                         reasoningContent = turn.reasoningContent,
+                        sentAt = Clock.System.now().toEpochMilliseconds(),
                     ),
                 )
             }
@@ -1510,6 +1513,7 @@ class RemoteDataRepository(
                             isThinking = result.isThinkingContent,
                             toolCalls = result.toolCalls.toImmutableList(),
                             reasoningContent = result.reasoningContent,
+                            sentAt = Clock.System.now().toEpochMilliseconds(),
                         ),
                     )
                 }
@@ -1929,6 +1933,7 @@ class RemoteDataRepository(
         val summaryEntry = History(
             role = History.Role.ASSISTANT,
             content = "[Conversation summary: $summary]",
+            sentAt = Clock.System.now().toEpochMilliseconds(),
         )
 
         chatHistory.value = listOf(summaryEntry) + recentMessages
@@ -1980,6 +1985,7 @@ class RemoteDataRepository(
                         uiSubmission = h.uiSubmission,
                         isThinking = h.isThinking,
                         reasoningContent = h.reasoningContent,
+                        sentAt = h.sentAt,
                     )
                 },
             createdAt = existingConversation?.createdAt ?: now,
@@ -2059,6 +2065,7 @@ class RemoteDataRepository(
                 uiSubmission = m.uiSubmission,
                 isThinking = m.isThinking,
                 reasoningContent = m.reasoningContent,
+                sentAt = m.sentAt,
             )
         }
     }
@@ -2685,6 +2692,7 @@ class RemoteDataRepository(
             id = Uuid.random().toString(),
             role = "assistant",
             content = content,
+            sentAt = now,
         )
 
         val messages = ((existing?.messages ?: emptyList()) + newMessage).takeLast(MAX_HEARTBEAT_MESSAGES)
