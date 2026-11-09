@@ -219,7 +219,10 @@ fun DoraiProviderBadge(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = icon,
-                contentDescription = text,
+                // Non-iconOnly: the label text is adjacent — announcing both reads
+                // "Local, Local" on screen readers. iconOnly: the icon carries the
+                // meaning alone, so its content description is required.
+                contentDescription = if (iconOnly) text else null,
                 tint = badgeColor,
                 modifier = Modifier.size(14.dp),
             )

@@ -37,6 +37,7 @@ import com.dorai.ai.ui.SurfaceRaised
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.action_retry
 import dorai.composeapp.generated.resources.error_free_limit_body
 import dorai.composeapp.generated.resources.error_free_limit_title
 import dorai.composeapp.generated.resources.ic_refresh
@@ -126,7 +127,7 @@ internal fun FreeProviderSuggestionsPanel(
         ) {
             Icon(
                 imageVector = vectorResource(Res.drawable.ic_refresh),
-                contentDescription = null,
+                contentDescription = stringResource(Res.string.action_retry),
                 tint = LocalDesignColorTokens.current.textPrimary,
             )
         }

@@ -12,7 +12,7 @@ OKF v0.2 bundle for DORAI AI’s **curated free-tier model lists**. Agents use t
 |---|---|---|
 | **Runtime** (shipped) | `composeApp/src/commonMain/kotlin/com/dorai/ai/data/FreeTierModels.kt` | Source of truth for Free badges in the app |
 | **Knowledge** (this bundle) | `docs/knowledge/free-tier/` | Curation policy, current snapshot, sources, stale dates |
-| **Refresh skill** | `.grok/skills/update-free-tier-models/SKILL.md` | Fetches external sources, updates Kotlin + this bundle |
+| **Refresh skill** | Environment-side agent command `/update-free-tier-models` (not a repo-local script) | Fetches external sources, updates Kotlin + this bundle |
 
 The app **never** reads this directory at runtime. No live pricing calls are made in production.
 
@@ -27,7 +27,7 @@ Only **OpenRouter** and **Ollama Cloud** are curated. Free-ness is **per service
 
 ## Playbooks
 
-* [Refresh free-tier catalogs](refresh-playbook.md) — end-to-end update procedure (also `/update-free-tier-models`)
+* [Refresh free-tier catalogs](refresh-playbook.md) — end-to-end update procedure (environment-side agent command `/update-free-tier-models`)
 
 ## History
 

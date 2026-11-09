@@ -127,6 +127,8 @@ actual fun getAppFilesDirectory(): String {
 @OptIn(ExperimentalSettingsImplementation::class)
 actual fun resolveHostAddresses(hostname: String): List<String> = emptyList()
 
+actual val supportsDnsResolution: Boolean = false
+
 actual fun createSecureSettings(): Settings = KeychainSettings(service = "com.dorai.ai")
 
 actual fun createLegacySettings(): Settings? = NSUserDefaultsSettings(platform.Foundation.NSUserDefaults.standardUserDefaults)

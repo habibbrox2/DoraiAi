@@ -12,7 +12,7 @@ OKF v0.2 bundle for DORAI AI’s **curated one-tap MCP endpoints**. Agents use t
 |---|---|---|
 | **Runtime** (shipped) | `composeApp/src/commonMain/kotlin/com/dorai/ai/mcp/PopularMcpServers.kt` | Source of truth for the Settings → Tools one-tap list |
 | **Knowledge** (this bundle) | `docs/knowledge/popular-mcp/` | Selection policy, last probe snapshot, sources, stale dates |
-| **Refresh skill** | `.grok/skills/update-popular-mcp-servers/SKILL.md` | Probes endpoints, updates Kotlin + this bundle |
+| **Refresh skill** | Environment-side agent command `/update-popular-mcp-servers` (not a repo-local script) | Probes endpoints, updates Kotlin + this bundle |
 
 The app **never** reads this directory at runtime. No live MCP probes are made in production to decide which popular servers to show.
 

@@ -283,7 +283,7 @@ class RemoteDataRepository(
 
     override fun getConfiguredServiceInstances(): List<ServiceInstance> = appSettings.getConfiguredServiceInstances()
         .filter { instance ->
-            val service = Service.fromId(instance.serviceId)
+            val service = Service.fromIdOrNull(instance.serviceId) ?: return@filter false
             service != Service.Free && !KeylessFreeTierFallback.isInternalService(service)
         }
 
@@ -312,19 +312,32 @@ class RemoteDataRepository(
         appSettings.setConfiguredServiceInstances(reordered)
     }
 
-    override fun getServiceEntries(): List<ServiceEntry> = getConfiguredServiceInstances().map { instance ->
-        val service = Service.fromId(instance.serviceId)
-        val modelId = appSettings.getInstanceEffectiveModelId(instance.instanceId).ifEmpty {
-            appSettings.getSelectedModelId(service)
+    override fun getServiceEntries(): List<ServiceEntry> {
+        val warnedIds = mutableSetOf<String>()
+        return getConfiguredServiceInstances().mapNotNull { instance ->
+            // A corrupt/unknown serviceId (e.g. after a botched restore) must not
+            // silently degrade to the Free service with wrong credentials — surface
+            // it once and skip the entry instead.
+            val service = Service.fromIdOrNull(instance.serviceId)
+            if (service == null) {
+                if (warnedIds.add(instance.serviceId)) {
+                    println("Unknown serviceId '${instance.serviceId}' in configured services; skipping entry ${instance.instanceId}")
+                }
+                return@mapNotNull null
+            }
+            val modelId = appSettings.getInstanceEffectiveModelId(instance.instanceId).ifEmpty {
+                appSettings.getSelectedModelId(service)
+            }
+            val customName = appSettings.getInstanceCustomName(instance.instanceId)
+            ServiceEntry(
+                instanceId = instance.instanceId,
+                serviceId = service.id,
+                serviceName = customName.ifBlank { service.displayName },
+                modelId = modelId,
+                icon = service.icon,
+                executionLocation = Service.resolveExecutionLocation(service, getInstanceBaseUrl(instance.instanceId, service)),
+            )
         }
-        val customName = appSettings.getInstanceCustomName(instance.instanceId)
-        ServiceEntry(
-            instanceId = instance.instanceId,
-            serviceId = service.id,
-            serviceName = customName.ifBlank { service.displayName },
-            modelId = modelId,
-            icon = service.icon,
-        )
     }
 
     override fun isFreeFallbackEnabled(): Boolean = appSettings.isFreeFallbackEnabled()
@@ -947,14 +960,19 @@ class RemoteDataRepository(
 
     private fun getOrderedFallbackEntries(): List<FallbackEntry> {
         val instances = getConfiguredServiceInstances()
-        val entries = instances.map { FallbackEntry(instanceId = it.instanceId, service = Service.fromId(it.serviceId)) }
+        fun toEntry(instance: ServiceInstance): FallbackEntry? {
+            // Corrupt/unknown ids are skipped rather than silently routed to Free.
+            val service = Service.fromIdOrNull(instance.serviceId) ?: return null
+            return FallbackEntry(instanceId = instance.instanceId, service = service)
+        }
+        val entries = instances.mapNotNull { toEntry(it) }
             .filter { it.service != Service.Free }
             .filter { !it.service.isOnDevice || localInferenceEngine != null }
             .filter { hasValidInstanceApiKey(it.instanceId, it.service) }
         val freeEntry = FallbackEntry(instanceId = "free", service = Service.Free)
 
         val localEntry = instances
-            .map { FallbackEntry(instanceId = it.instanceId, service = Service.fromId(it.serviceId)) }
+            .mapNotNull { toEntry(it) }
             .firstOrNull { it.service.isOnDevice }
             ?: if (localInferenceEngine != null) FallbackEntry(instanceId = "local-default", service = Service.LiteRT) else null
 

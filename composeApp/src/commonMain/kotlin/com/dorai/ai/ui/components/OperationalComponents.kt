@@ -95,16 +95,18 @@ data class OperationalStatusColors(
 @Composable
 fun rememberOperationalStatusColors(): OperationalStatusColors {
     val colors = LocalDesignColorTokens.current
-    return remember {
+    val materialColors = MaterialTheme.colorScheme
+    return remember(materialColors) {
         OperationalStatusColors(
-            connected = colors.textSecondary,
+            // Positive states use the theme's primary (a11y: distinct from Disabled).
+            connected = materialColors.primary,
             connecting = AccentPrimary,
             disabled = colors.textSecondary,
             installing = AccentPrimary,
             needsSetup = colors.textTertiary,
             error = DangerAlert,
-            active = DesignTokens.SecondaryText,
-            ready = DesignTokens.SecondaryText,
+            active = materialColors.primary,
+            ready = materialColors.primary,
         )
     }
 }

@@ -217,6 +217,8 @@ actual fun resolveHostAddresses(hostname: String): List<String> = try {
     emptyList()
 }
 
+actual val supportsDnsResolution: Boolean = true
+
 actual fun createLegacySettings(): Settings? {
     val context: Context by inject(Context::class.java)
     val prefs = context.getSharedPreferences("com.dorai.ai_preferences", Context.MODE_PRIVATE)

@@ -163,6 +163,8 @@ actual fun resolveHostAddresses(hostname: String): List<String> = try {
     emptyList()
 }
 
+actual val supportsDnsResolution: Boolean = true
+
 actual fun createSecureSettings(): Settings = EncryptedFileSettings()
 
 actual fun createLegacySettings(): Settings? = null // Same storage location, no migration needed

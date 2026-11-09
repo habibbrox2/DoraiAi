@@ -12,7 +12,7 @@ OKF v0.2 bundle for DORAI AI’s **curated model metadata and Arena Elo scores**
 |---|---|---|
 | **Runtime** (shipped) | `composeApp/src/commonMain/kotlin/com/dorai/ai/data/ModelCatalog.kt` | Source of truth for display name, context window, release date, params, and Elo shown in the app |
 | **Knowledge** (this bundle) | `docs/knowledge/model-catalog/` | Matching policy, attested Arena snapshot, stale dates |
-| **Refresh skill** | `.grok/skills/update-model-catalog/SKILL.md` | Fetches the text leaderboard, updates Kotlin + this bundle |
+| **Refresh skill** | Environment-side agent command `/update-model-catalog` (not a repo-local script) | Fetches the text leaderboard, updates Kotlin + this bundle |
 
 The app **never** reads this directory at runtime. No live Arena calls are made in production.
 

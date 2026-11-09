@@ -7,7 +7,8 @@ status: stable
 resource: https://openrouter.ai/api/v1/models
 stale_after: 2026-08-25
 generated: { by: process:update-free-tier-models, at: 2026-08-11T17:42:05Z }
-verified: { by: process:desktopTest-FreeTierModels, at: 2026-08-11T17:43:36Z }
+# `process:desktopTest-FreeTierModels` now genuinely exists (created 2026-11-09; pins the 17-id runtime snapshot incl. routing ids). NOTE: the library/dashboard content was NOT re-verified against the live OpenRouter API on 2026-11-09; stale_after remains 2026-08-25 and the next live refresh still needs the environment-side /update-free-tier-models command.
+verified: { by: process:desktopTest-FreeTierModels, at: 2026-11-09T00:00:00Z }
 sources:
   - id: openrouter-models
     resource: https://openrouter.ai/api/v1/models
@@ -46,6 +47,8 @@ Snapshot mirrored into `FreeTierModels.openRouterFree` (runtime). Replace this l
 - `nvidia/nemotron-nano-9b-v2:free`
 - `openai/gpt-oss-20b:free`
 - `openrouter/free`
+- `openrouter/auto`
+- `auto`
 - `poolside/laguna-s-2.1:free`
 - `poolside/laguna-xs-2.1:free`
 

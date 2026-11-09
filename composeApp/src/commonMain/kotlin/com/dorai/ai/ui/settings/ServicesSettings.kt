@@ -48,7 +48,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipBox
@@ -74,9 +73,12 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -145,6 +147,16 @@ import dorai.composeapp.generated.resources.litert_performance_poor
 import dorai.composeapp.generated.resources.litert_recommended
 import dorai.composeapp.generated.resources.litert_tool_support
 import dorai.composeapp.generated.resources.logo
+import dorai.composeapp.generated.resources.services_all_connected
+import dorai.composeapp.generated.resources.services_checking_connections
+import dorai.composeapp.generated.resources.services_configured_many
+import dorai.composeapp.generated.resources.services_configured_one
+import dorai.composeapp.generated.resources.services_empty_state
+import dorai.composeapp.generated.resources.services_group_custom
+import dorai.composeapp.generated.resources.services_group_hosted
+import dorai.composeapp.generated.resources.services_group_on_device
+import dorai.composeapp.generated.resources.services_needs_attention_many
+import dorai.composeapp.generated.resources.services_needs_attention_one
 import dorai.composeapp.generated.resources.settings_add_service
 import dorai.composeapp.generated.resources.settings_api_key_label
 import dorai.composeapp.generated.resources.settings_api_key_optional_label
@@ -155,7 +167,6 @@ import dorai.composeapp.generated.resources.settings_business_partnerships_descr
 import dorai.composeapp.generated.resources.settings_contact_sponsorship
 import dorai.composeapp.generated.resources.settings_custom_model_hint
 import dorai.composeapp.generated.resources.settings_custom_model_label
-import dorai.composeapp.generated.resources.settings_free_fallback
 import dorai.composeapp.generated.resources.settings_free_tier_description
 import dorai.composeapp.generated.resources.settings_free_tier_title
 import dorai.composeapp.generated.resources.settings_gateway_name_hint
@@ -177,6 +188,28 @@ import dorai.composeapp.generated.resources.settings_status_error_invalid_key
 import dorai.composeapp.generated.resources.settings_status_error_local_network
 import dorai.composeapp.generated.resources.settings_status_error_quota_exhausted
 import dorai.composeapp.generated.resources.settings_status_error_rate_limited
+import dorai.composeapp.generated.resources.setup_api_key_from
+import dorai.composeapp.generated.resources.setup_api_key_optional
+import dorai.composeapp.generated.resources.setup_api_key_required
+import dorai.composeapp.generated.resources.setup_cloudflare
+import dorai.composeapp.generated.resources.setup_custom_endpoint
+import dorai.composeapp.generated.resources.setup_no_key_required
+import dorai.composeapp.generated.resources.setup_on_device
+import dorai.composeapp.generated.resources.sponsors_collapse
+import dorai.composeapp.generated.resources.sponsors_past
+import dorai.composeapp.generated.resources.sponsors_show_all
+import dorai.composeapp.generated.resources.sponsors_show_all_a11y
+import dorai.composeapp.generated.resources.state_collapsed
+import dorai.composeapp.generated.resources.state_expanded
+import dorai.composeapp.generated.resources.status_checking
+import dorai.composeapp.generated.resources.status_connected
+import dorai.composeapp.generated.resources.status_connection_failed
+import dorai.composeapp.generated.resources.status_error
+import dorai.composeapp.generated.resources.status_invalid_api_key
+import dorai.composeapp.generated.resources.status_network_blocked
+import dorai.composeapp.generated.resources.status_not_checked
+import dorai.composeapp.generated.resources.status_quota_exhausted
+import dorai.composeapp.generated.resources.status_rate_limited
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
@@ -193,9 +226,6 @@ import kotlin.math.roundToInt
 
 @Composable
 internal fun FreeSettings(
-    showFallbackToggle: Boolean = false,
-    isFreeFallbackEnabled: Boolean = true,
-    onToggleFreeFallback: (Boolean) -> Unit = {},
     currentSponsors: ImmutableList<SponsorsResponseDto.Sponsor> = persistentListOf(),
     pastSponsors: ImmutableList<SponsorsResponseDto.Sponsor> = persistentListOf(),
 ) {
@@ -210,29 +240,6 @@ internal fun FreeSettings(
                 style = DoraiTypography.titleMedium,
                 color = AccentPrimary,
             )
-
-            if (showFallbackToggle) {
-                Spacer(Modifier.height(6.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                        .clip(DoraiShapes.xs)
-                        .clickable { onToggleFreeFallback(!isFreeFallbackEnabled) }
-                        .handCursor(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = stringResource(Res.string.settings_free_fallback),
-                        style = DoraiTypography.bodyMedium,
-                        color = LocalDesignColorTokens.current.textPrimary,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Switch(
-                        checked = isFreeFallbackEnabled,
-                        onCheckedChange = onToggleFreeFallback,
-                    )
-                }
-                Spacer(Modifier.height(6.dp))
-            }
 
             Spacer(Modifier.height(6.dp))
 
@@ -583,6 +590,8 @@ private fun SupportSection(
                 } else {
                     totalSponsors - collapsedProfiles.size
                 }
+                val collapseSponsorsLabel = stringResource(Res.string.sponsors_collapse)
+                val showAllSponsorsA11yLabel = stringResource(Res.string.sponsors_show_all_a11y, hiddenSponsorCount)
                 Column {
                     val mainProfiles = if (expanded) current else collapsedProfiles
                     if (mainProfiles.isNotEmpty()) {
@@ -597,7 +606,7 @@ private fun SupportSection(
                     if (expanded && past.isNotEmpty()) {
                         Spacer(Modifier.height(12.dp))
                         Text(
-                            text = "Past sponsors",
+                            text = stringResource(Res.string.sponsors_past),
                             style = DoraiTypography.labelLarge,
                             color = LocalDesignColorTokens.current.textSecondary,
                         )
@@ -615,13 +624,13 @@ private fun SupportSection(
                                     // screen-reader users know the size of the
                                     // list they are expanding into.
                                     contentDescription = if (expanded) {
-                                        "Collapse sponsors"
+                                        collapseSponsorsLabel
                                     } else {
-                                        "Show all sponsors, $hiddenSponsorCount hidden"
+                                        showAllSponsorsA11yLabel
                                     }
                                 },
                         ) {
-                            Text(if (expanded) "Collapse sponsors" else "Show all sponsors")
+                            Text(if (expanded) collapseSponsorsLabel else stringResource(Res.string.sponsors_show_all))
                         }
                     }
                 }
@@ -641,7 +650,7 @@ internal fun ServicesContent(uiState: SettingsUiState, actions: SettingsActions)
     // service requiring attention, readable before any card is opened.
     if (entries.isEmpty()) {
         CollectionEmptyState(
-            message = "No services configured yet. Add one below to pick a provider, model, and key.",
+            message = stringResource(Res.string.services_empty_state),
         )
         Spacer(Modifier.height(12.dp))
     } else {
@@ -699,9 +708,6 @@ internal fun ServicesContent(uiState: SettingsUiState, actions: SettingsActions)
 
         Spacer(Modifier.height(16.dp))
         FreeSettings(
-            showFallbackToggle = false,
-            isFreeFallbackEnabled = uiState.isFreeFallbackEnabled,
-            onToggleFreeFallback = actions.onToggleFreeFallback,
             currentSponsors = uiState.currentSponsors,
             pastSponsors = uiState.pastSponsors,
         )
@@ -728,9 +734,9 @@ internal fun ServicesContent(uiState: SettingsUiState, actions: SettingsActions)
                     val totalItems = services.size
                     var itemCounter = 0
                     listOf(
-                        "Hosted providers" to hosted,
-                        "On-device" to onDevice,
-                        "Custom endpoints" to custom,
+                        stringResource(Res.string.services_group_hosted) to hosted,
+                        stringResource(Res.string.services_group_on_device) to onDevice,
+                        stringResource(Res.string.services_group_custom) to custom,
                     ).forEach { (title, group) ->
                         if (group.isEmpty()) return@forEach
                         ProviderGroupHeader(title)
@@ -759,14 +765,15 @@ internal fun ServicesContent(uiState: SettingsUiState, actions: SettingsActions)
 }
 
 /** Short setup requirement summary shown under each provider name (Plan 5, Phase 2). */
+@Composable
 private fun setupRequirement(service: Service): String = when {
-    service.isOnDevice -> "Runs on this device · downloads models"
-    service is Service.OpenAICompatible -> "Custom endpoint · base URL and API key"
-    service is Service.Cloudflare -> "Cloudflare AI · Account ID and API token"
-    service.requiresApiKey && service.apiKeyUrlDisplay != null -> "API key from ${service.apiKeyUrlDisplay}"
-    service.requiresApiKey -> "API key required"
-    service.supportsOptionalApiKey -> "API key optional"
-    else -> "No API key required"
+    service.isOnDevice -> stringResource(Res.string.setup_on_device)
+    service is Service.OpenAICompatible -> stringResource(Res.string.setup_custom_endpoint)
+    service is Service.Cloudflare -> stringResource(Res.string.setup_cloudflare)
+    service.requiresApiKey && service.apiKeyUrlDisplay != null -> stringResource(Res.string.setup_api_key_from, service.apiKeyUrlDisplay)
+    service.requiresApiKey -> stringResource(Res.string.setup_api_key_required)
+    service.supportsOptionalApiKey -> stringResource(Res.string.setup_api_key_optional)
+    else -> stringResource(Res.string.setup_no_key_required)
 }
 
 @Composable
@@ -800,7 +807,8 @@ private fun ProviderRowItem(
             .clickable { onClick() }
             .clip(itemShape)
             .background(CardFill, itemShape)
-            .border(BorderStroke(1.dp, BorderSoft), itemShape),
+            .border(BorderStroke(1.dp, BorderSoft), itemShape)
+            .semantics { role = Role.Button },
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
@@ -883,7 +891,11 @@ private fun ServicesOverview(entries: ImmutableList<ConfiguredServiceEntry>) {
             Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = if (entries.size == 1) "Configured service" else "Configured services",
+                    text = if (entries.size == 1) {
+                        stringResource(Res.string.services_configured_one)
+                    } else {
+                        stringResource(Res.string.services_configured_many)
+                    },
                     style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
@@ -891,14 +903,14 @@ private fun ServicesOverview(entries: ImmutableList<ConfiguredServiceEntry>) {
                 StatusBadge(
                     label = when {
                         attention > 0 -> if (attention == 1) {
-                            "1 needs attention"
+                            stringResource(Res.string.services_needs_attention_one)
                         } else {
-                            "$attention need attention"
+                            stringResource(Res.string.services_needs_attention_many, attention)
                         }
 
-                        checking > 0 -> "Checking connections"
+                        checking > 0 -> stringResource(Res.string.services_checking_connections)
 
-                        else -> "All connected"
+                        else -> stringResource(Res.string.services_all_connected)
                     },
                     status = when {
                         attention > 0 -> OperationalStatus.Error
@@ -954,13 +966,23 @@ private fun ConfiguredServiceCardContent(
             onPauseOrDispose { }
         }
     }
+    val expandedStateDescription = stringResource(Res.string.state_expanded)
+    val collapsedStateDescription = stringResource(Res.string.state_collapsed)
     Column(
         modifier = Modifier
             .doraiAdaptiveCardSurface()
             .fillMaxWidth()
             .clickable { onExpand() }
             .handCursor()
-            .semantics { liveRegion = LiveRegionMode.Polite },
+            .semantics {
+                role = Role.Button
+                liveRegion = LiveRegionMode.Polite
+                stateDescription = if (isExpanded) {
+                    expandedStateDescription
+                } else {
+                    collapsedStateDescription
+                }
+            },
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             // Header row
@@ -990,19 +1012,30 @@ private fun ConfiguredServiceCardContent(
                 // Connection status badge (Plan 5, Phase 1): text alongside the
                 // icon — color alone cannot carry status.
                 val (statusLabel, statusKind) = when (entry.connectionStatus) {
-                    ConnectionStatus.Unknown -> "Not checked" to OperationalStatus.Disabled
-                    ConnectionStatus.Checking -> "Checking" to OperationalStatus.Connecting
-                    ConnectionStatus.Connected -> "Connected" to OperationalStatus.Connected
-                    ConnectionStatus.ErrorInvalidKey -> "Invalid API key" to OperationalStatus.Error
-                    ConnectionStatus.ErrorQuotaExhausted -> "Quota exhausted" to OperationalStatus.NeedsSetup
-                    ConnectionStatus.ErrorRateLimited -> "Rate limited" to OperationalStatus.Error
-                    ConnectionStatus.ErrorConnectionFailed -> "Connection failed" to OperationalStatus.Error
-                    ConnectionStatus.ErrorLocalNetworkDenied -> "Network blocked" to OperationalStatus.Error
-                    ConnectionStatus.Error -> "Error" to OperationalStatus.Error
+                    ConnectionStatus.Unknown -> stringResource(Res.string.status_not_checked) to OperationalStatus.Disabled
+                    ConnectionStatus.Checking -> stringResource(Res.string.status_checking) to OperationalStatus.Connecting
+                    ConnectionStatus.Connected -> stringResource(Res.string.status_connected) to OperationalStatus.Connected
+                    ConnectionStatus.ErrorInvalidKey -> stringResource(Res.string.status_invalid_api_key) to OperationalStatus.Error
+                    ConnectionStatus.ErrorQuotaExhausted -> stringResource(Res.string.status_quota_exhausted) to OperationalStatus.NeedsSetup
+                    ConnectionStatus.ErrorRateLimited -> stringResource(Res.string.status_rate_limited) to OperationalStatus.Error
+                    ConnectionStatus.ErrorConnectionFailed -> stringResource(Res.string.status_connection_failed) to OperationalStatus.Error
+                    ConnectionStatus.ErrorLocalNetworkDenied -> stringResource(Res.string.status_network_blocked) to OperationalStatus.Error
+                    ConnectionStatus.Error -> stringResource(Res.string.status_error) to OperationalStatus.Error
                 }
                 StatusBadge(label = statusLabel, status = statusKind)
 
                 Spacer(Modifier.width(12.dp))
+
+                // Provider identity icon — consistent with the add-sheet, picker, and
+                // free-suggestion surfaces which all show the provider's icon.
+                Icon(
+                    imageVector = vectorResource(entry.service.icon),
+                    contentDescription = null, // decorative — the service name is adjacent
+                    modifier = Modifier.size(20.dp),
+                    tint = LocalDesignColorTokens.current.textSecondary,
+                )
+
+                Spacer(Modifier.width(8.dp))
 
                 // Service name and model
                 Column(modifier = Modifier.weight(1f)) {

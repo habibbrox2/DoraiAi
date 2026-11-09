@@ -1,5 +1,6 @@
 package com.dorai.ai.data
 
+import com.dorai.ai.tools.NetworkAddressGuard
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.ic_service_1minai
 import dorai.composeapp.generated.resources.ic_service_aihorde
@@ -37,6 +38,7 @@ import dorai.composeapp.generated.resources.ic_service_xai
 import dorai.composeapp.generated.resources.ic_service_zai
 import dorai.composeapp.generated.resources.service_free_expert
 import dorai.composeapp.generated.resources.service_free_fast
+import io.ktor.http.Url
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 
@@ -53,6 +55,23 @@ data class ModelDefinition(
     val subtitle: String,
     val descriptionRes: StringResource? = null,
 )
+
+/**
+ * Where a service's inference actually runs. Used for the Local/Cloud badge and the
+ * home-screen privacy copy — must reflect reality, not the provider's brand.
+ *
+ * - [LOCAL]: inference never leaves the device (LiteRT).
+ * - [CLOUD]: inference always runs on a remote endpoint (every hosted provider,
+ *   including Ollama's *cloud* offering and the keyless free fallback, which targets
+ *   cloud-hosted Kilo/OpenCode models).
+ * - [USER_CONFIGURED]: the user decides by the endpoint they enter
+ *   (OpenAI-Compatible API — `localhost:11434` is local, a public URL is cloud).
+ */
+enum class ExecutionLocation {
+    LOCAL,
+    CLOUD,
+    USER_CONFIGURED,
+}
 
 /**
  * How a service handles a `reasoning_content` field on outgoing assistant messages.
@@ -106,6 +125,7 @@ sealed class Service(
     val supportsPdf: Boolean = false,
     val supportsImages: Boolean = true,
     val reasoningRequestMode: ReasoningRequestMode = ReasoningRequestMode.NONE,
+    val executionLocation: ExecutionLocation = ExecutionLocation.CLOUD,
 ) {
     data object Free : Service(
         id = "free",
@@ -641,6 +661,7 @@ sealed class Service(
         responsesUrl = "/responses",
         modelsUrl = "/models",
         sortModelsById = true,
+        executionLocation = ExecutionLocation.USER_CONFIGURED,
     )
 
     data object LiteRT : Service(
@@ -651,6 +672,7 @@ sealed class Service(
         defaultModel = null,
         settingsKeyPrefix = "litert",
         isOnDevice = true,
+        executionLocation = ExecutionLocation.LOCAL,
     )
 
     companion object {
@@ -669,7 +691,46 @@ sealed class Service(
             .let { url -> if (url.endsWith(OpenAICompatible.chatUrl, ignoreCase = true)) url.dropLast(OpenAICompatible.chatUrl.length) else url }
             .trimEnd('/')
 
-        fun fromId(id: String): Service = all.find { it.id == id } ?: Free
+        fun fromId(id: String): Service = fromIdOrNull(id) ?: Free
+
+        /** Null for unknown/corrupt ids instead of silently substituting [Free]. */
+        fun fromIdOrNull(id: String): Service? = all.find { it.id == id }
+
+        /**
+         * Where this service's inference actually runs. For [OpenAICompatible] the
+         * endpoint decides: loopback/private/link-local hosts are on-device LAN
+         * (local Ollama, LM Studio, llama.cpp), everything else is a remote cloud.
+         *
+         * @param baseUrl the instance's configured base URL; falls back to the
+         *   built-in default (`http://localhost:11434/v1`) when unset.
+         */
+        fun resolveExecutionLocation(service: Service, baseUrl: String? = null): ExecutionLocation = when (service.executionLocation) {
+            ExecutionLocation.LOCAL, ExecutionLocation.CLOUD -> service.executionLocation
+            ExecutionLocation.USER_CONFIGURED -> if (isOpenAiCompatibleLocalEndpoint(baseUrl)) ExecutionLocation.LOCAL else ExecutionLocation.CLOUD
+        }
+
+        /**
+         * True when [baseUrl] points at a loopback or private-network endpoint. Blank
+         * input falls back to the default localhost Ollama URL, mirroring
+         * [normalizeOpenAICompatibleBaseUrl]. Malformed input (no scheme, unparseable)
+         * is classified CLOUD — Ktor's lenient parser silently substitutes
+         * `localhost` for unparseable strings, which would otherwise grant the
+         * Local privacy badge to an endpoint we could not verify.
+         */
+        internal fun isOpenAiCompatibleLocalEndpoint(baseUrl: String?): Boolean {
+            val raw = baseUrl?.trim().takeUnless { it.isNullOrEmpty() } ?: DEFAULT_OPENAI_COMPATIBLE_BASE_URL
+            if (!raw.contains("://")) return false
+            val url = runCatching { Url(raw) }.getOrNull() ?: return false
+            val host = url.host.lowercase().trim('[', ']').trimEnd('.')
+            if (host.isEmpty()) return false
+            if (host == "localhost" || host.endsWith(".localhost") || host.endsWith(".local")) return true
+            if (host.contains(":") || host.split(".").size == 4) {
+                // Non-public addresses are exactly what the SSRF guard blocks as fetch
+                // destinations — reuse it so "local" and "unfetchable" stay consistent.
+                return NetworkAddressGuard.isBlockedIp(host)
+            }
+            return false
+        }
     }
 
     val apiKeyKey: String get() = "service_${settingsKeyPrefix}_api_key"

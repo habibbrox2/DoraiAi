@@ -66,6 +66,8 @@ actual fun getAppFilesDirectory(): String {
 
 actual fun resolveHostAddresses(hostname: String): List<String> = emptyList()
 
+actual val supportsDnsResolution: Boolean = false
+
 actual fun createSecureSettings(): Settings {
     // Web has no secure storage - using localStorage
     return StorageSettings()

@@ -1,5 +1,10 @@
 # Free-tier knowledge update log
 
+## 2026-11-09
+
+* **Alignment fix** (manual, not a live refresh): `openrouter.md` now lists the two routing meta ids present in the runtime since 2026-08-11 (`openrouter/auto`, `auto`), restoring doc ↔ `FreeTierModels.kt` parity at 17 ids. No pricing data was re-fetched; `stale_after` and provenance are unchanged. Refresh from live sources still requires the environment-side `/update-free-tier-models` command.
+* **Doc correction**: bundle index files pointed at fictitious repo-local `.grok/skills/update-*` paths; these are environment-side agent commands, not repository scripts.
+
 ## 2026-08-11
 
 * **Update**: Live refresh via `process:update-free-tier-models`.

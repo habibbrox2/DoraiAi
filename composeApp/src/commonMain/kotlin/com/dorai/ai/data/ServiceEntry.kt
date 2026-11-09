@@ -10,4 +10,5 @@ data class ServiceEntry(
     val serviceName: String,
     val modelId: String,
     val icon: DrawableResource,
+    val executionLocation: ExecutionLocation = ExecutionLocation.CLOUD,
 )

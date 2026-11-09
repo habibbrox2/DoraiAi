@@ -75,6 +75,10 @@ import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.settings.SettingsModel
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.action_close
+import dorai.composeapp.generated.resources.action_retry
+import dorai.composeapp.generated.resources.service_selector_search_hint
+import dorai.composeapp.generated.resources.service_selector_title
 import dorai.composeapp.generated.resources.settings_model_label
 import dorai.composeapp.generated.resources.settings_model_loading
 import dorai.composeapp.generated.resources.settings_tab_services
@@ -154,7 +158,7 @@ internal fun ServiceSelector(
                 )
                 if (currentModelLabel.isNotBlank()) {
                     Text(
-                        text = " � $currentModelLabel",
+                        text = "· $currentModelLabel",
                         style = DoraiTypography.labelSmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                         maxLines = 1,
@@ -165,7 +169,7 @@ internal fun ServiceSelector(
                 Spacer(Modifier.width(2.dp))
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = current.serviceName,
+                    contentDescription = null, // decorative — the service name text is adjacent
                     modifier = Modifier.size(16.dp),
                     tint = LocalDesignColorTokens.current.textSecondary,
                 )
@@ -251,7 +255,7 @@ internal fun ServiceSelector(
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    text = "Select Model & Provider",
+                                    text = stringResource(Res.string.service_selector_title),
                                     style = DoraiTypography.titleMedium,
                                     color = LocalDesignColorTokens.current.textPrimary,
                                 )
@@ -261,7 +265,7 @@ internal fun ServiceSelector(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Close,
-                                        contentDescription = "Close",
+                                        contentDescription = stringResource(Res.string.action_close),
                                         tint = LocalDesignColorTokens.current.textSecondary,
                                         modifier = Modifier.size(16.dp),
                                     )
@@ -272,7 +276,7 @@ internal fun ServiceSelector(
                             DoraiSearchField(
                                 query = searchQuery,
                                 onQueryChange = { searchQuery = it },
-                                placeholder = "Search models...",
+                                placeholder = stringResource(Res.string.service_selector_search_hint),
                                 modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
                             )
 

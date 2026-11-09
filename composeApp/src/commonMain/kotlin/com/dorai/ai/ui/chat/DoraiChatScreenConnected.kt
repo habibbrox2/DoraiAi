@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.PlatformBackHandler
 import com.dorai.ai.data.AppSettings
+import com.dorai.ai.data.ExecutionLocation
 import com.dorai.ai.data.imageExtensions
 import com.dorai.ai.exitApp
 import com.dorai.ai.getBackgroundDispatcher
@@ -159,7 +160,7 @@ fun DoraiChatScreenConnected(
 
     val activeService = uiState.availableServices.firstOrNull()
     val currentModelName = activeService?.serviceName ?: "Free FAST"
-    val isModelLocal = activeService?.serviceId == "ollama" || activeService?.serviceId == "litert"
+    val isModelLocal = activeService?.executionLocation == ExecutionLocation.LOCAL
     val maxContextTokens = remember(activeService) {
         val modelId = activeService?.modelId ?: activeService?.serviceId ?: ""
         if (modelId.isNotBlank()) com.dorai.ai.data.ModelCatalog.estimateContextWindow(modelId) else null

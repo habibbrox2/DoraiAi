@@ -258,4 +258,73 @@ class ToolEventGrouperTest {
         assertEquals("read_file", agentMsg.toolExecutions[1].toolName)
         assertEquals(ToolExecutionState.Completed, agentMsg.toolExecutions[1].state)
     }
+
+    // ------------------------------------------------------------------
+    // Local/Cloud propagation (who-row badge must match the active service)
+    // ------------------------------------------------------------------
+
+    private fun assistantTextHistory(text: String) = listOf(
+        History(id = "u1", role = History.Role.USER, content = "hi"),
+        History(id = "a1", role = History.Role.ASSISTANT, content = text),
+    )
+
+    @Test
+    fun `messages inherit the active service's execution location`() {
+        val localEntry = ServiceEntry(
+            instanceId = "litert-1",
+            serviceId = Service.LiteRT.id,
+            serviceName = Service.LiteRT.displayName,
+            modelId = "gemma-3-1b",
+            icon = Service.LiteRT.icon,
+            executionLocation = com.dorai.ai.data.ExecutionLocation.LOCAL,
+        )
+        val local = groupHistoryToChatMessages(
+            history = assistantTextHistory("on-device answer"),
+            pendingToolConfirmations = emptyList(),
+            reasoningByAssistantId = emptyMap(),
+            isSpeaking = false,
+            isSpeakingContentId = null,
+            availableServices = listOf(localEntry),
+        )
+        val localMsg = local.first { !it.isUser }
+        assertTrue(localMsg.isModelLocal, "LOCAL service must propagate isModelLocal to assistant messages")
+
+        val cloud = groupHistoryToChatMessages(
+            history = assistantTextHistory("cloud answer"),
+            pendingToolConfirmations = emptyList(),
+            reasoningByAssistantId = emptyMap(),
+            isSpeaking = false,
+            isSpeakingContentId = null,
+            availableServices = listOf(sampleService),
+        )
+        val cloudMsg = cloud.first { !it.isUser }
+        assertFalse(cloudMsg.isModelLocal, "CLOUD service must not be flagged local")
+        assertEquals(sampleService.icon, cloudMsg.serviceIcon, "assistant messages carry the provider icon for the who-row")
+    }
+
+    @Test
+    fun `fallback-answered messages are cloud even when the active service is local`() {
+        val localEntry = ServiceEntry(
+            instanceId = "litert-1",
+            serviceId = Service.LiteRT.id,
+            serviceName = Service.LiteRT.displayName,
+            modelId = "gemma-3-1b",
+            icon = Service.LiteRT.icon,
+            executionLocation = com.dorai.ai.data.ExecutionLocation.LOCAL,
+        )
+        val history = listOf(
+            History(id = "u1", role = History.Role.USER, content = "hi"),
+            History(id = "a1", role = History.Role.ASSISTANT, content = "fallback answer", fallbackServiceName = "Kilo"),
+        )
+        val messages = groupHistoryToChatMessages(
+            history = history,
+            pendingToolConfirmations = emptyList(),
+            reasoningByAssistantId = emptyMap(),
+            isSpeaking = false,
+            isSpeakingContentId = null,
+            availableServices = listOf(localEntry),
+        )
+        val msg = messages.first { !it.isUser }
+        assertFalse(msg.isModelLocal, "keyless fallback targets are cloud-hosted; badge must say Cloud")
+    }
 }

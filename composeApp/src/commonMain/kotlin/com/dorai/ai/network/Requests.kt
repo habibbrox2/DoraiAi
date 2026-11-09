@@ -167,7 +167,9 @@ class Requests(
 
     class DebugKtorLogger : Logger {
         override fun log(message: String) {
-            println("[KTOR] $message")
+            // Redact credential headers before they reach logcat/stdout. Debug builds log
+            // bodies too, but provider credentials travel in headers, never in bodies.
+            println("[KTOR] ${HttpLogSanitizer.sanitize(message)}")
         }
     }
 
