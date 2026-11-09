@@ -1035,6 +1035,11 @@
     <string name="sponsors_show_all">Show all sponsors</string>
     <string name="sponsors_show_all_a11y">Show all sponsors, %1$d hidden</string>
     <string name="sponsors_collapse">Collapse sponsors</string>
+    <string name="chat_worked_for">Worked for %1$s</string>
+    <string name="chat_agent_activity_shell_one">Ran 1 command</string>
+    <string name="chat_agent_activity_shell_many">Ran %1$d commands</string>
+    <string name="chat_agent_activity_tools_one">Used 1 tool</string>
+    <string name="chat_agent_activity_tools_many">Used %1$d tools</string>
     <string name="setup_on_device">Runs on this device · downloads models</string>
     <string name="setup_custom_endpoint">Custom endpoint · base URL and API key</string>
     <string name="setup_cloudflare">Cloudflare AI · Account ID and API token</string>
