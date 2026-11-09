@@ -198,6 +198,12 @@ private fun AppContent(
                 val themeState by themeViewModel.state.collectAsStateWithLifecycle()
 
                 val shellState = rememberDoraiAppShellState(initialDestination = DoraiDestination.Home)
+
+                // Re-read configured services whenever the destination changes,
+                // so a renamed gateway (or edited key/model) shows up in chat without an app restart.
+                LaunchedEffect(shellState.currentDestination) {
+                    chatViewModel.refreshServices()
+                }
                 val pendingApprovalsCount = chatUiState.pendingToolConfirmations.size
                 var currentSettingsCategory by remember { mutableStateOf(SettingsCategory.General) }
 

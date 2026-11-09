@@ -19,6 +19,7 @@ data class SettingsActions(
     val onExpandService: (String?) -> Unit,
     val onChangeApiKey: (String, String) -> Unit,
     val onChangeBaseUrl: (String, String) -> Unit,
+    val onChangeDisplayName: (String, String) -> Unit = { _, _ -> },
     val onSelectModel: (String, String) -> Unit,
     val onRetryFetchModels: (String) -> Unit = {},
     val onToggleUseCustomModel: (String, Boolean) -> Unit,

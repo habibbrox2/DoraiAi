@@ -41,6 +41,8 @@ data class ConfiguredServiceEntry(
     /** OpenAI-Compatible only: when true, [customModelId] is used for chat instead of [selectedModel]. */
     val useCustomModel: Boolean = false,
     val customModelId: String = "",
+    /** Custom display name for this instance (custom gateways), e.g. "My LiteLLM proxy". Blank means show the service's own name. */
+    val customName: String = "",
 )
 
 enum class ConnectionStatus {

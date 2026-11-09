@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
+import com.dorai.ai.data.Service
 import com.dorai.ai.theme.data.ThemePalette
 import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.data.ThemeStyle
@@ -28,12 +29,19 @@ import com.dorai.ai.ui.home.DoraiHomeScreen
 import com.dorai.ai.ui.home.HomeChatSummary
 import com.dorai.ai.ui.home.HomeProjectSummary
 import com.dorai.ai.ui.home.HomeUiState
+import com.dorai.ai.ui.settings.ConfiguredServiceEntry
+import com.dorai.ai.ui.settings.ConnectionStatus
 import com.dorai.ai.ui.settings.DoraiSettingsScreen
+import com.dorai.ai.ui.settings.SettingsActions
 import com.dorai.ai.ui.settings.SettingsCategory
+import com.dorai.ai.ui.settings.SettingsModel
+import com.dorai.ai.ui.settings.SettingsTab
+import com.dorai.ai.ui.settings.SettingsUiState
 import com.dorai.ai.ui.workspace.DoraiWorkspaceScreen
 import com.dorai.ai.ui.workspace.ProjectFile
 import com.dorai.ai.ui.workspace.WorkspaceProjectItem
 import com.dorai.ai.ui.workspace.WorkspaceProjectsExplorer
+import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
 import org.junit.Before
@@ -299,6 +307,24 @@ class DoraiUiV2ScreenshotTest {
             onThemeSelected = {},
             currentThemeStyle = ThemeStyle.Flat,
             onThemeStyleSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_providers_custom_gateway_expanded_ogshine() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Providers,
+            onCategoryChanged = {},
+            selectedThemeId = "ogshine",
+            onThemeSelected = {},
+            currentThemeStyle = ThemeStyle.Flat,
+            onThemeStyleSelected = {},
+            uiState = customGatewayState(),
+            actions = SettingsActions.NoOp,
         )
     }
 
@@ -570,6 +596,26 @@ class DoraiUiV2ScreenshotTest {
                 isLocked = false,
             ),
         ),
+    )
+
+    private fun customGatewayState() = SettingsUiState(
+        currentTab = SettingsTab.Services,
+        configuredServices = persistentListOf(
+            ConfiguredServiceEntry(
+                instanceId = "custom-gateway",
+                service = Service.OpenAICompatible,
+                connectionStatus = ConnectionStatus.Connected,
+                apiKey = "sk-••••••••••••••••••••••",
+                baseUrl = "https://litellm.example.com/v1",
+                selectedModel = SettingsModel(id = "gpt-4o-mini", subtitle = "gpt-4o-mini", displayName = "gpt-4o-mini", isSelected = true),
+                models = persistentListOf(
+                    SettingsModel(id = "gpt-4o-mini", subtitle = "gpt-4o-mini"),
+                    SettingsModel(id = "gpt-4o", subtitle = "gpt-4o"),
+                ),
+                customName = "My LiteLLM proxy",
+            ),
+        ),
+        expandedServiceId = "custom-gateway",
     )
 
     @Composable

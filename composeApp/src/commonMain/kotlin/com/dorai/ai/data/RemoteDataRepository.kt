@@ -317,10 +317,11 @@ class RemoteDataRepository(
         val modelId = appSettings.getInstanceEffectiveModelId(instance.instanceId).ifEmpty {
             appSettings.getSelectedModelId(service)
         }
+        val customName = appSettings.getInstanceCustomName(instance.instanceId)
         ServiceEntry(
             instanceId = instance.instanceId,
             serviceId = service.id,
-            serviceName = service.displayName,
+            serviceName = customName.ifBlank { service.displayName },
             modelId = modelId,
             icon = service.icon,
         )
@@ -354,6 +355,14 @@ class RemoteDataRepository(
     override fun getInstanceBaseUrl(instanceId: String, service: Service): String {
         val url = appSettings.getInstanceBaseUrl(instanceId)
         return url.ifBlank { if (service is Service.OpenAICompatible) Service.DEFAULT_OPENAI_COMPATIBLE_BASE_URL else "" }
+    }
+
+    override fun getInstanceBaseUrlRaw(instanceId: String): String = appSettings.getInstanceBaseUrl(instanceId)
+
+    override fun getInstanceCustomName(instanceId: String): String = appSettings.getInstanceCustomName(instanceId)
+
+    override fun updateInstanceCustomName(instanceId: String, name: String) {
+        appSettings.setInstanceCustomName(instanceId, name)
     }
 
     override fun updateInstanceBaseUrl(instanceId: String, baseUrl: String) {
@@ -486,13 +495,12 @@ class RemoteDataRepository(
                             }
                             discovered
                         } else {
-                            try {
-                                requests.getOpenAICompatibleModels(service, creds).getOrNull()?.data
-                            } catch (_: Exception) {
-                                null
-                            }
+                            // A failed fetch must surface as a fetch error — never report the
+                            // endpoint as connected-with-zero-models, and never fall back to
+                            // the bundled catalog for providers that expose /models.
+                            requests.getOpenAICompatibleModels(service, creds).getOrThrow().data
                         }
-                        if (remoteModels != null && remoteModels.isNotEmpty()) {
+                        if (remoteModels.isNotEmpty()) {
                             mapOpenAICompatibleModels(remoteModels, service, selectedModelId)
                         } else {
                             // The provider exposes a /models endpoint, so its response is the

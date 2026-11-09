@@ -152,6 +152,7 @@ class SettingsViewModel(
         onExpandService = ::onExpandService,
         onChangeApiKey = ::onChangeApiKey,
         onChangeBaseUrl = ::onChangeBaseUrl,
+        onChangeDisplayName = ::onChangeDisplayName,
         onSelectModel = ::onSelectModel,
         onRetryFetchModels = ::onRetryFetchModels,
         onToggleUseCustomModel = ::onToggleUseCustomModel,
@@ -334,6 +335,7 @@ class SettingsViewModel(
             models = models.toImmutableList(),
             useCustomModel = dataRepository.getInstanceUseCustomModel(instance.instanceId),
             customModelId = dataRepository.getInstanceCustomModelId(instance.instanceId),
+            customName = dataRepository.getInstanceCustomName(instance.instanceId),
         )
     }
 
@@ -456,6 +458,21 @@ class SettingsViewModel(
             )
         }
         checkConnectionDebounced(instanceId, entry.service)
+    }
+
+    private fun onChangeDisplayName(instanceId: String, name: String) {
+        dataRepository.updateInstanceCustomName(instanceId, name)
+        _state.update { state ->
+            state.copy(
+                configuredServices = state.configuredServices.map { e ->
+                    if (e.instanceId == instanceId) {
+                        e.copy(customName = name)
+                    } else {
+                        e
+                    }
+                }.toImmutableList(),
+            )
+        }
     }
 
     private fun onChangeBaseUrl(instanceId: String, baseUrl: String) {
@@ -1206,6 +1223,13 @@ class SettingsViewModel(
             if (service.modelsUrl != null) {
                 updateModelFetchState(instanceId, isFetching = false, error = "Enter an API key to fetch this provider's models.")
             }
+            return
+        }
+        // OpenAI-compatible custom gateway with no endpoint configured yet: don't fire a request
+        // at the Ollama default — tell the user to enter the endpoint's base URL instead.
+        if (service is Service.OpenAICompatible && dataRepository.getInstanceBaseUrlRaw(instanceId).isBlank()) {
+            updateConnectionStatus(instanceId, ConnectionStatus.Unknown)
+            updateModelFetchState(instanceId, isFetching = false, error = "Enter the custom endpoint's base URL to fetch its models.")
             return
         }
         validateConnectionWithStatus(instanceId, service)
