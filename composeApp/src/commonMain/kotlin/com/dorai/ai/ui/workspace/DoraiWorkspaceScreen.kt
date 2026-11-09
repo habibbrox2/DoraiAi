@@ -27,23 +27,22 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Commit
 import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SmartToy
-import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,35 +54,35 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.theme.engine.doraiEdgeStyle
-import com.dorai.ai.theme.engine.doraiSurfaceStyle
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.adaptive.DoraiAdaptiveDefaults
-import com.dorai.ai.ui.adaptive.DoraiWindowWidthClass
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
-import com.dorai.ai.ui.components.v2.DoraiDiffBlock
 import com.dorai.ai.ui.components.v2.DoraiPillTabs
-import com.dorai.ai.ui.components.v2.DoraiShellBlock
 import com.dorai.ai.ui.components.v2.DoraiStatusBadge
-import com.dorai.ai.ui.components.v2.DoraiToolCard
-import com.dorai.ai.ui.components.v2.ToolExecutionModel
-import com.dorai.ai.ui.components.v2.ToolExecutionState
 import dorai.composeapp.generated.resources.Res
-import dorai.composeapp.generated.resources.nav_workspace
-import dorai.composeapp.generated.resources.workspace_commit_action
-import dorai.composeapp.generated.resources.workspace_commit_message_hint
-import dorai.composeapp.generated.resources.workspace_files_changed_count
-import dorai.composeapp.generated.resources.workspace_import_project
+import dorai.composeapp.generated.resources.workspace_agent_empty
+import dorai.composeapp.generated.resources.workspace_back_content_description
+import dorai.composeapp.generated.resources.workspace_changes_count
+import dorai.composeapp.generated.resources.workspace_editor_empty
+import dorai.composeapp.generated.resources.workspace_files_toggle
+import dorai.composeapp.generated.resources.workspace_finish_setup
+import dorai.composeapp.generated.resources.workspace_git_unavailable
+import dorai.composeapp.generated.resources.workspace_last_updated
 import dorai.composeapp.generated.resources.workspace_new_project
 import dorai.composeapp.generated.resources.workspace_ready_desc
 import dorai.composeapp.generated.resources.workspace_ready_title
+import dorai.composeapp.generated.resources.workspace_sandbox_running_badge
+import dorai.composeapp.generated.resources.workspace_sandbox_stopped_badge
 import dorai.composeapp.generated.resources.workspace_sandbox_stopped_title
 import dorai.composeapp.generated.resources.workspace_setup_desc
 import dorai.composeapp.generated.resources.workspace_setup_step_1
 import dorai.composeapp.generated.resources.workspace_setup_step_2
 import dorai.composeapp.generated.resources.workspace_setup_step_3
 import dorai.composeapp.generated.resources.workspace_start_sandbox_action
+import dorai.composeapp.generated.resources.workspace_terminal_unavailable
 import dorai.composeapp.generated.resources.workspace_v2_setup_title
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
 enum class WorkspaceProjectTab {
@@ -96,9 +95,12 @@ enum class WorkspaceProjectTab {
 data class WorkspaceProjectItem(
     val name: String,
     val path: String,
-    val branch: String,
-    val lastUpdatedText: String,
-    val changesCount: Int,
+    /** Null when the branch is unknown (project not opened yet / not a repo). */
+    val branch: String? = null,
+    /** Null when no host-side modification time is available. */
+    val lastUpdatedText: String? = null,
+    /** Null when the change count is unknown (project not opened yet). */
+    val changesCount: Int? = null,
 )
 
 data class GitChangeItem(
@@ -111,9 +113,11 @@ data class GitChangeItem(
  * - Setup state (first-run 3 steps).
  * - Project List / Ready state.
  * - Active Project:
- *   - Compact: Single tab at a time (Agent, Editor, Terminal, Git).
- *   - Medium/Expanded: Center tabs (Editor, Terminal, Git) + Right persistent Agent panel (320dp).
- *   - Large: Left File Tree (230dp) + Center tabs (Editor, Terminal, Git) + Right Agent panel (380dp).
+ *   - The file explorer (worktree files list) is shown by default whenever a project opens.
+ *   - Compact: file explorer opens as a left slide-in pane (open by default); tabs switch below.
+ *   - Medium/Expanded/Large: persistent left file panel (230dp) + center tabs + right Agent panel.
+ * - All project data shown is real (guest filesystem / git status); unknown values are omitted,
+ *   never faked.
  */
 @Composable
 fun DoraiWorkspaceScreen(
@@ -129,6 +133,8 @@ fun DoraiWorkspaceScreen(
     terminalContent: (@Composable () -> Unit)? = null,
     editorContent: (@Composable () -> Unit)? = null,
     gitContent: (@Composable () -> Unit)? = null,
+    /** Slot rendering the real guest file tree. [openFile] must be called with a file path so the center pane switches to the Editor tab. */
+    fileExplorerContent: (@Composable (openFile: (String) -> Unit) -> Unit)? = null,
     onCreateProject: ((String) -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
@@ -158,6 +164,7 @@ fun DoraiWorkspaceScreen(
                 terminalContent = terminalContent,
                 editorContent = editorContent,
                 gitContent = gitContent,
+                fileExplorerContent = fileExplorerContent,
             )
         }
     }
@@ -212,7 +219,7 @@ private fun WorkspaceSetupView(onCompleteSetup: () -> Unit) {
                     .doraiEdgeStyle(shape = RoundedCornerShape(12.dp), cornerRadius = 12.dp, edgeColor = colors.primary),
             ) {
                 Text(
-                    text = "Finish Setup & Launch",
+                    text = stringResource(Res.string.workspace_finish_setup),
                     fontWeight = FontWeight.SemiBold,
                 )
             }
@@ -254,7 +261,6 @@ private fun WorkspaceProjectsView(
     val colors = LocalDoraiColors.current
     val scrollState = rememberScrollState()
     var showNewProjectDialog by remember { mutableStateOf(false) }
-    var newProjectName by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -285,7 +291,7 @@ private fun WorkspaceProjectsView(
                     fontWeight = FontWeight.Bold,
                 )
                 DoraiStatusBadge(
-                    text = if (isSandboxRunning) "Sandbox Running" else "Sandbox Stopped",
+                    text = stringResource(if (isSandboxRunning) Res.string.workspace_sandbox_running_badge else Res.string.workspace_sandbox_stopped_badge),
                     color = if (isSandboxRunning) colors.ok else colors.muted,
                 )
             }
@@ -297,21 +303,16 @@ private fun WorkspaceProjectsView(
             )
             Spacer(modifier = Modifier.height(DoraiSpacing.MD))
             Row(horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.SM)) {
-                Button(
-                    onClick = {},
-                    colors = ButtonDefaults.buttonColors(containerColor = colors.primary, contentColor = colors.onPrimary),
-                    shape = RoundedCornerShape(10.dp),
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(stringResource(Res.string.workspace_new_project))
-                }
-                Button(
-                    onClick = {},
-                    colors = ButtonDefaults.buttonColors(containerColor = colors.surface2, contentColor = colors.text),
-                    shape = RoundedCornerShape(10.dp),
-                ) {
-                    Text(stringResource(Res.string.workspace_import_project))
+                if (onCreateProject != null) {
+                    Button(
+                        onClick = { showNewProjectDialog = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = colors.primary, contentColor = colors.onPrimary),
+                        shape = RoundedCornerShape(10.dp),
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(stringResource(Res.string.workspace_new_project))
+                    }
                 }
             }
         }
@@ -339,19 +340,43 @@ private fun WorkspaceProjectsView(
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                     )
-                    DoraiStatusBadge(
-                        text = "${proj.changesCount} changes",
-                        color = if (proj.changesCount > 0) colors.warn else colors.ok,
-                    )
+                    // Show the badge only when we actually know the count (open project).
+                    proj.changesCount?.let { count ->
+                        DoraiStatusBadge(
+                            text = stringResource(Res.string.workspace_changes_count, count),
+                            color = if (count > 0) colors.warn else colors.ok,
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
+                // Branch (when known) + real guest path.
+                val subtitle = listOfNotNull(proj.branch, proj.path).joinToString(" · ")
                 Text(
-                    text = "${proj.branch} · ${proj.path}",
+                    text = subtitle,
                     color = colors.muted,
                     fontSize = 12.5.sp,
                     fontFamily = FontFamily.Monospace,
                 )
+                proj.lastUpdatedText?.let { updated ->
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = stringResource(Res.string.workspace_last_updated, updated),
+                        color = colors.muted,
+                        fontSize = 11.sp,
+                    )
+                }
             }
+        }
+
+        if (showNewProjectDialog) {
+            CreateProjectDialog(
+                projects = projects.map { it.name },
+                onDismiss = { showNewProjectDialog = false },
+                onCreate = { name ->
+                    showNewProjectDialog = false
+                    onCreateProject?.invoke(name)
+                },
+            )
         }
     }
 }
@@ -365,13 +390,28 @@ private fun ActiveProjectView(
     terminalContent: (@Composable () -> Unit)? = null,
     editorContent: (@Composable () -> Unit)? = null,
     gitContent: (@Composable () -> Unit)? = null,
+    fileExplorerContent: (@Composable (openFile: (String) -> Unit) -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
     val widthClass = LocalDoraiWindowWidthClass.current
+    // The file explorer opens by default whenever a project opens; on Compact it is
+    // a left slide-in pane (Drawer), on Medium+ a permanent left panel.
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Open)
+    val scope = rememberCoroutineScope()
     var activeTab by remember { mutableStateOf(WorkspaceProjectTab.Editor) }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        // Project Top Bar
+    // The explorer calls this after opening a file: switch the center pane to the
+    // Editor tab (and close the drawer on compact).
+    val openFileInEditor: (String) -> Unit = {
+        activeTab = WorkspaceProjectTab.Editor
+        if (widthClass.isCompact) {
+            scope.launch { drawerState.close() }
+        }
+    }
+    val showFilesToggle = widthClass.isCompact && fileExplorerContent != null
+
+    // Top bar shared across width classes
+    val topBar: @Composable () -> Unit = {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -381,7 +421,11 @@ private fun ActiveProjectView(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = onCloseProject) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = colors.text)
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(Res.string.workspace_back_content_description),
+                    tint = colors.text,
+                )
             }
             Text(
                 text = project.name,
@@ -389,10 +433,26 @@ private fun ActiveProjectView(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
             )
-            Spacer(modifier = Modifier.width(DoraiSpacing.SM))
-            DoraiStatusBadge(text = project.branch, color = colors.info)
+            project.branch?.let { branch ->
+                Spacer(modifier = Modifier.width(DoraiSpacing.SM))
+                DoraiStatusBadge(text = branch, color = colors.info)
+            }
 
             Spacer(modifier = Modifier.weight(1f))
+
+            if (showFilesToggle) {
+                IconButton(onClick = {
+                    scope.launch {
+                        if (drawerState.isOpen) drawerState.close() else drawerState.open()
+                    }
+                }) {
+                    Icon(
+                        Icons.Default.Folder,
+                        contentDescription = stringResource(Res.string.workspace_files_toggle),
+                        tint = colors.text,
+                    )
+                }
+            }
 
             // Center tabs on medium & up
             if (!widthClass.isCompact) {
@@ -404,39 +464,80 @@ private fun ActiveProjectView(
                 )
             }
         }
+    }
 
-        // Active layout:
-        if (widthClass.isCompact) {
-            // Compact: 1 tab at a time with top tabs including Agent
-            DoraiPillTabs(
-                items = WorkspaceProjectTab.entries,
-                selectedItem = activeTab,
-                onItemSelected = { activeTab = it },
-                labelProvider = { it.name },
-                modifier = Modifier.padding(DoraiSpacing.SM),
-            )
-            Box(modifier = Modifier.weight(1f)) {
-                when (activeTab) {
-                    WorkspaceProjectTab.Agent -> AgentTabContent()
-                    WorkspaceProjectTab.Editor -> if (editorContent != null) editorContent() else EditorTabContent()
-                    WorkspaceProjectTab.Terminal -> if (terminalContent != null) terminalContent() else TerminalTabContent(isSandboxRunning, onStartSandbox)
-                    WorkspaceProjectTab.Git -> if (gitContent != null) gitContent() else GitTabContent(project)
+    val centerContent: @Composable () -> Unit = {
+        when (activeTab) {
+            WorkspaceProjectTab.Agent -> AgentPanelEmpty()
+            WorkspaceProjectTab.Editor -> if (editorContent != null) editorContent() else EditorTabEmpty()
+            WorkspaceProjectTab.Terminal -> if (terminalContent != null) terminalContent() else TerminalTabContent(isSandboxRunning, onStartSandbox)
+            WorkspaceProjectTab.Git -> if (gitContent != null) gitContent() else GitContentUnavailable()
+        }
+    }
+
+    if (widthClass.isCompact) {
+        // Compact: top bar + (optional) slide-in file explorer, open by default + tabs
+        if (fileExplorerContent == null) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                topBar()
+                DoraiPillTabs(
+                    items = WorkspaceProjectTab.entries,
+                    selectedItem = activeTab,
+                    onItemSelected = { activeTab = it },
+                    labelProvider = { it.name },
+                    modifier = Modifier.padding(DoraiSpacing.SM),
+                )
+                Box(modifier = Modifier.weight(1f)) {
+                    centerContent()
                 }
             }
-        } else {
-            // Medium+ & Large: 3-pane on Large or 2-pane on Medium
+            return
+        }
+        Column(modifier = Modifier.fillMaxSize()) {
+            topBar()
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    Column(
+                        modifier = Modifier
+                            .width(300.dp)
+                            .fillMaxHeight()
+                            .background(colors.surface)
+                            .padding(DoraiSpacing.SM),
+                    ) {
+                        fileExplorerContent?.invoke(openFileInEditor)
+                    }
+                },
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    DoraiPillTabs(
+                        items = WorkspaceProjectTab.entries,
+                        selectedItem = activeTab,
+                        onItemSelected = { activeTab = it },
+                        labelProvider = { it.name },
+                        modifier = Modifier.padding(DoraiSpacing.SM),
+                    )
+                    Box(modifier = Modifier.weight(1f)) {
+                        centerContent()
+                    }
+                }
+            }
+        }
+    } else {
+        // Medium/Expanded/Large: permanent left file panel + center + agent rail
+        Column(modifier = Modifier.fillMaxSize()) {
+            topBar()
             Row(modifier = Modifier.weight(1f)) {
-                // Large File Tree
-                if (widthClass == DoraiWindowWidthClass.Large) {
+                // Left File Explorer (worktree files list), shown by default on project open
+                if (fileExplorerContent != null) {
                     Box(
                         modifier = Modifier
                             .width(DoraiAdaptiveDefaults.FileTreeWidthLarge)
                             .fillMaxHeight()
                             .background(colors.surface)
-                            .border(1.dp, colors.line)
-                            .padding(DoraiSpacing.MD),
+                            .border(1.dp, colors.line),
                     ) {
-                        FileTreeColumn()
+                        fileExplorerContent.invoke(openFileInEditor)
                     }
                 }
 
@@ -446,11 +547,7 @@ private fun ActiveProjectView(
                         .weight(1f)
                         .fillMaxHeight(),
                 ) {
-                    when (activeTab) {
-                        WorkspaceProjectTab.Agent, WorkspaceProjectTab.Editor -> if (editorContent != null) editorContent() else EditorTabContent()
-                        WorkspaceProjectTab.Terminal -> if (terminalContent != null) terminalContent() else TerminalTabContent(isSandboxRunning, onStartSandbox)
-                        WorkspaceProjectTab.Git -> if (gitContent != null) gitContent() else GitTabContent(project)
-                    }
+                    centerContent()
                 }
 
                 // Right Agent Panel (320dp Medium/Expanded, 380dp Large)
@@ -461,7 +558,7 @@ private fun ActiveProjectView(
                         .background(colors.surface)
                         .border(1.dp, colors.line),
                 ) {
-                    AgentTabContent()
+                    AgentPanelEmpty()
                 }
             }
         }
@@ -469,58 +566,55 @@ private fun ActiveProjectView(
 }
 
 @Composable
-private fun AgentTabContent() {
+private fun AgentPanelEmpty() {
     val colors = LocalDoraiColors.current
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(DoraiSpacing.MD),
-        verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD),
+    Box(
+        modifier = Modifier.fillMaxSize().padding(DoraiSpacing.MD),
+        contentAlignment = Alignment.Center,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.SmartToy, contentDescription = null, tint = colors.primary, modifier = Modifier.size(20.dp))
-            Spacer(modifier = Modifier.width(6.dp))
-            Text("Agent Activity", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                Icons.Default.SmartToy,
+                contentDescription = null,
+                tint = colors.muted,
+                modifier = Modifier.size(32.dp),
+            )
+            Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+            Text(
+                text = stringResource(Res.string.workspace_agent_empty),
+                color = colors.muted,
+                fontSize = 13.sp,
+            )
         }
+    }
+}
 
-        DoraiToolCard(
-            model = ToolExecutionModel(
-                toolName = "git_status",
-                argsSummary = "--short --branch",
-                state = ToolExecutionState.Completed,
-                outputText = "## feature/ui-v2-migration\nM composeApp/src/commonMain/kotlin/com/dorai/ai/App.kt",
-            ),
-        )
-
-        DoraiToolCard(
-            model = ToolExecutionModel(
-                toolName = "edit_file",
-                argsSummary = "DoraiWorkspaceScreen.kt",
-                state = ToolExecutionState.PendingApproval,
-                diffText = "+ fun DoraiWorkspaceScreen()",
-            ),
-            onAllowOnce = {},
-            onAllowSession = {},
-            onDeny = {},
+@Composable
+private fun EditorTabEmpty() {
+    val colors = LocalDoraiColors.current
+    Box(
+        modifier = Modifier.fillMaxSize().background(colors.codeBackground),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = stringResource(Res.string.workspace_editor_empty),
+            color = colors.muted,
+            fontSize = 13.5.sp,
         )
     }
 }
 
 @Composable
-private fun EditorTabContent() {
+private fun GitContentUnavailable() {
     val colors = LocalDoraiColors.current
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.codeBackground)
-            .padding(DoraiSpacing.MD),
+    Box(
+        modifier = Modifier.fillMaxSize().padding(DoraiSpacing.MD),
+        contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = "1  package com.dorai.ai\n2  \n3  // Dorai AI Workspace Code Editor\n4  fun main() {\n5      println(\"Ready\")\n6  }",
-            fontFamily = FontFamily.Monospace,
-            color = colors.text,
+            text = stringResource(Res.string.workspace_git_unavailable),
+            color = colors.muted,
             fontSize = 13.sp,
-            lineHeight = 20.sp,
         )
     }
 }
@@ -555,72 +649,15 @@ private fun TerminalTabContent(
             }
         }
     } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(colors.codeBackground)
-                .padding(DoraiSpacing.MD),
+        Box(
+            modifier = Modifier.fillMaxSize().padding(DoraiSpacing.MD),
+            contentAlignment = Alignment.Center,
         ) {
-            DoraiShellBlock(
-                command = "ls -la",
-                output = "drwxr-xr-x  6 user user  4096 Nov 8 00:00 .\n-rw-r--r--  1 user user  1248 Nov 8 00:00 build.gradle.kts",
-                error = null,
+            Text(
+                text = stringResource(Res.string.workspace_terminal_unavailable),
+                color = colors.muted,
+                fontSize = 13.sp,
             )
         }
-    }
-}
-
-@Composable
-private fun GitTabContent(project: WorkspaceProjectItem) {
-    val colors = LocalDoraiColors.current
-    var commitMessage by remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(DoraiSpacing.MD),
-        verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD),
-    ) {
-        Text("Source Control (${project.changesCount} changes)", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-
-        DoraiDiffBlock(
-            diff = "--- a/App.kt\n+++ b/App.kt\n@@ -200,3 +200,4 @@\n+DoraiWorkspaceScreen()",
-        )
-
-        OutlinedTextField(
-            value = commitMessage,
-            onValueChange = { commitMessage = it },
-            placeholder = { Text(stringResource(Res.string.workspace_commit_message_hint), color = colors.muted, fontSize = 13.sp) },
-            modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = colors.text,
-                unfocusedTextColor = colors.text,
-                focusedBorderColor = colors.info,
-                unfocusedBorderColor = colors.line,
-            ),
-            shape = RoundedCornerShape(10.dp),
-        )
-
-        Button(
-            onClick = {},
-            enabled = commitMessage.isNotBlank(),
-            colors = ButtonDefaults.buttonColors(containerColor = colors.primary, contentColor = colors.onPrimary),
-            shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(stringResource(Res.string.workspace_commit_action))
-        }
-    }
-}
-
-@Composable
-private fun FileTreeColumn() {
-    val colors = LocalDoraiColors.current
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text("Files", color = colors.muted, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-        Text("▾ composeApp", color = colors.text, fontSize = 13.sp, fontFamily = FontFamily.Monospace)
-        Text("   ▾ src/commonMain", color = colors.text, fontSize = 13.sp, fontFamily = FontFamily.Monospace)
-        Text("      App.kt", color = colors.ok, fontSize = 13.sp, fontFamily = FontFamily.Monospace)
-        Text("      DoraiTheme.kt", color = colors.text, fontSize = 13.sp, fontFamily = FontFamily.Monospace)
     }
 }
