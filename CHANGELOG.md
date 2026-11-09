@@ -1,3 +1,16 @@
+## DORAI AI - Restore Last Chat on Launch Preference (Unreleased)
+
+### Added
+- **General → "Restore last chat on launch"** toggle (on by default). With the toggle on, the app keeps its previous behavior of reopening the last active conversation at launch; with it off, the app always starts a fresh empty chat. The underlying `ChatViewModel` restore is skipped while the toggle is off (share and assist cold-starts already bypassed restore and are unaffected).
+
+### Changed
+- **Static General settings screen in the fallback path now renders the real `GeneralContent`** (with the new toggle) instead of a hardcoded bilingual mock screen (language pills, haptics/notifications toggles); removed the mock.
+
+### Tests
+- New `ChatViewModelTest` assertions for the restore on/off gate, `SettingsViewModelTest` toggle round-trip, `AppSettingsTest` default/round-trip for `restore_last_chat`. Four screenshot goldens re-recorded to the real General surface.
+
+---
+
 ## DORAI AI - Chat Agent Activity Flow (Unreleased)
 
 ### Changed

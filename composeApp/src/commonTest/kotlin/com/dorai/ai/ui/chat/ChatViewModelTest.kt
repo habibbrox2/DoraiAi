@@ -112,6 +112,22 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun `restore-last-chat setting off skips restoring the last conversation`() = runTest {
+        fakeRepository.setRestoreLastChatEnabled(false)
+        createViewModel()
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(0, fakeRepository.restoreCurrentConversationCalls)
+    }
+
+    @Test
+    fun `restore-last-chat setting on (default) restores the last conversation`() = runTest {
+        fakeRepository.setRestoreLastChatEnabled(true)
+        createViewModel()
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals(1, fakeRepository.restoreCurrentConversationCalls)
+    }
+
+    @Test
     fun `shared text starts a new chat and prefills the composer without sending`() = runTest {
         fakeRepository.chatHistory.value = listOf(
             History(role = History.Role.USER, content = "old"),

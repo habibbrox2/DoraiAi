@@ -99,6 +99,8 @@ data class SettingsUiState(
     val tools: ImmutableList<ToolInfo> = persistentListOf(),
     val soulText: String = "",
     val isDynamicUiEnabled: Boolean = true,
+    /** true — reopen last conversation on launch; false — start a fresh chat. */
+    val isRestoreLastChatEnabled: Boolean = true,
     @Deprecated("Theme is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
     val themeMode: ThemeMode = ThemeMode.System,
     val appLanguage: AppLanguage = AppLanguage.Bengali,

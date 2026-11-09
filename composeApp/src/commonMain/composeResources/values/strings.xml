@@ -150,6 +150,8 @@
     <string name="settings_notifications_clear_queue">Clear queue</string>
     <string name="settings_dynamic_ui">Dynamic UI</string>
     <string name="settings_dynamic_ui_description">Allow the AI to create interactive UI elements like buttons, forms and cards inline in responses. Change applies to new conversations.</string>
+    <string name="settings_restore_last_chat">Restore last chat on launch</string>
+    <string name="settings_restore_last_chat_description">Reopen the conversation that was open when the app closed. Turn off to always start a new chat when the app opens.</string>
     <string name="bot_message_thinking_label">Thought Process</string>
     <string name="bot_message_thinking_expand_content_description">Expand or collapse thinking</string>
     <string name="settings_theme">Theme</string>

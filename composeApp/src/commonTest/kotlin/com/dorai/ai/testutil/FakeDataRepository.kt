@@ -418,6 +418,7 @@ class FakeDataRepository : DataRepository {
 
     // Memory management
     private var dynamicUiEnabled = true
+    private var restoreLastChatEnabled = true
 
     override fun getPendingEmailCount(): Int = 0
 
@@ -429,6 +430,12 @@ class FakeDataRepository : DataRepository {
 
     override fun setDynamicUiEnabled(enabled: Boolean) {
         dynamicUiEnabled = enabled
+    }
+
+    override fun isRestoreLastChatEnabled(): Boolean = restoreLastChatEnabled
+
+    override fun setRestoreLastChatEnabled(enabled: Boolean) {
+        restoreLastChatEnabled = enabled
     }
 
     @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository")

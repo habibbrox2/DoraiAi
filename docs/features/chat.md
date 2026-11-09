@@ -20,7 +20,7 @@ Auto-derived from the first user message when a conversation is saved for the fi
 
 ## Conversation Lifecycle
 
-- The "current conversation" pointer is persisted across launches: opening the app restores whichever conversation was last active, including an empty new chat the user explicitly started
+- The "current conversation" pointer is persisted across launches **by default**: opening the app restores whichever conversation was last active, including an empty new chat the user explicitly started. Settings → General → **"Restore last chat on launch"** (on by default) can disable this — with the toggle off, the app always starts a fresh empty chat on launch; share and assist cold-starts continue to bypass the restore regardless
 - If the persisted pointer references a conversation that no longer exists (or is null because the user started a new chat), the app opens to an empty new chat
 - "New Chat" clears history, unsets the current conversation pointer, and persists the empty state — so an unused new chat survives an app restart
 - A new conversation ID (UUID) is generated on first successful save (after the first assistant response) and immediately becomes the persisted current pointer
@@ -166,7 +166,8 @@ On compact screens the chat is wrapped in a modal navigation drawer; on expanded
 | `composeApp/src/commonMain/sqldelight/com/dorai/ai/db/conversation.sq` | Conversation and message table schema and queries |
 | `composeApp/src/commonMain/.../data/FileClassification.kt` | File category enum, MIME/extension classifier, size constants, file exceptions |
 | `composeApp/src/commonMain/.../data/RemoteDataRepository.kt` | History management, conversation save/restore/delete, title derivation, message sending |
-| `composeApp/src/commonMain/.../ui/chat/ChatViewModel.kt` | Chat UI state, send/retry/regenerate/cancel/loadConversation/deleteConversation actions |
+| `composeApp/src/commonMain/.../ui/chat/ChatViewModel.kt` | Chat UI state, send/retry/regenerate/cancel/loadConversation/deleteConversation actions; startup restore honored from the `restore_last_chat` General toggle |
+| `composeApp/src/commonMain/.../ui/settings/GeneralSettings.kt` | General settings (incl. "Restore last chat on launch" toggle) |
 | `composeApp/src/commonMain/.../ui/chat/DoraiChatScreen.kt` | UI v2 chat screen (active): adaptive list-detail scaffold, message timeline rendering (user bubbles, assistant who-row/markdown/tool cards, streaming typing indicator, jump-to-latest). who-row shows the active provider's icon from `ChatMessageItem.serviceIcon` |
 | `composeApp/src/commonMain/.../ui/chat/ToolEventGrouper.kt` | Groups conversation history into chat messages; propagates the active service's `executionLocation` (Local/Cloud) and provider icon onto assistant messages; fallback-answered messages are always Cloud; computes the agent-turn wall-clock span used by the "Worked for Xs" indicator |
 | `composeApp/src/commonMain/.../ui/chat/composables/ChatCommandPalette.kt` | Ctrl/Cmd+K command palette: jump actions + conversation search |

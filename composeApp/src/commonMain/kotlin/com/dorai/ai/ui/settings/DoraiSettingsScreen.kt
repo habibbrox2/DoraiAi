@@ -472,7 +472,7 @@ private fun SettingsCategoryContent(
             }
         } else {
             when (category) {
-                SettingsCategory.General -> GeneralSettingsContent()
+                SettingsCategory.General -> GeneralContent(uiState = SettingsUiState(), actions = SettingsActions.NoOp)
 
                 SettingsCategory.Appearance -> AppearanceSettingsContent(
                     selectedThemeId = selectedThemeId,
@@ -497,103 +497,6 @@ private fun SettingsCategoryContent(
                     AccountSettingsContent()
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun GeneralSettingsContent() {
-    val colors = LocalDoraiColors.current
-    var currentLang by remember { mutableStateOf("bn") }
-    var currentFontSize by remember { mutableStateOf(1.0f) }
-    var hapticsEnabled by remember { mutableStateOf(true) }
-    var notifEnabled by remember { mutableStateOf(true) }
-
-    // Language & Font Size Card (Prototype line 506)
-    SettingsSectionCard {
-        Text("ভাষা / Language", color = colors.text, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-        Spacer(modifier = Modifier.height(DoraiSpacing.XS))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            val isBn = currentLang == "bn"
-            Box(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(if (isBn) colors.primary else colors.surface2)
-                    .border(1.dp, if (isBn) colors.primary else colors.line, CircleShape)
-                    .clickable { currentLang = "bn" }
-                    .padding(horizontal = 16.dp, vertical = 7.dp),
-            ) {
-                Text("বাংলা", color = if (isBn) colors.onPrimary else colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-            }
-            Box(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(if (!isBn) colors.primary else colors.surface2)
-                    .border(1.dp, if (!isBn) colors.primary else colors.line, CircleShape)
-                    .clickable { currentLang = "en" }
-                    .padding(horizontal = 16.dp, vertical = 7.dp),
-            ) {
-                Text("English", color = if (!isBn) colors.onPrimary else colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(DoraiSpacing.MD))
-
-        Text("লেখার আকার / Text size", color = colors.text, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-        Spacer(modifier = Modifier.height(DoraiSpacing.XS))
-        val sizes = listOf(0.9f to "A−", 1.0f to "A", 1.15f to "A+", 1.3f to "A++")
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            sizes.forEach { (scale, label) ->
-                val isSelected = currentFontSize == scale
-                Box(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(if (isSelected) colors.primary else colors.surface2)
-                        .border(1.dp, if (isSelected) colors.primary else colors.line, CircleShape)
-                        .clickable { currentFontSize = scale }
-                        .padding(horizontal = 14.dp, vertical = 7.dp),
-                ) {
-                    Text(label, color = if (isSelected) colors.onPrimary else colors.text, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                }
-            }
-        }
-    }
-
-    // Haptics Card
-    SettingsSectionCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("হ্যাপটিক / Haptics", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                Text("বোতামে হালকা কাঁপুনি / Light vibration on taps", color = colors.muted, fontSize = 12.5.sp)
-            }
-            Switch(
-                checked = hapticsEnabled,
-                onCheckedChange = {
-                    hapticsEnabled = it
-                },
-            )
-        }
-    }
-
-    // Notifications Card
-    SettingsSectionCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("নোটিফিকেশন / Notifications", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                Text("দীর্ঘ কাজ শেষ বা অনুমতি চাইলে জানাবে", color = colors.muted, fontSize = 12.5.sp)
-            }
-            Switch(
-                checked = notifEnabled,
-                onCheckedChange = { notifEnabled = it },
-            )
         }
     }
 }

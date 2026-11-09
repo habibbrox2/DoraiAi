@@ -132,7 +132,8 @@ class ChatViewModel(
             // load cannot clobber startNewChat() when DORAI AI is cold-started from
             // ACTION_SEND or ACTION_ASSIST.
             val skipRestore = dataRepository.pendingShareText.value != null ||
-                dataRepository.openAssistRequested.value
+                dataRepository.openAssistRequested.value ||
+                !dataRepository.isRestoreLastChatEnabled()
             if (!skipRestore) {
                 dataRepository.restoreCurrentConversation()
                 presetInteractiveModeForCurrentConversation()
