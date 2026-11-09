@@ -1,3 +1,15 @@
+## DORAI AI - Chat Agent Activity Flow (Unreleased)
+
+### Changed
+- **Chronological agent-activity layout:** the assistant reply renders top→bottom as (1) a subtle "Worked for Xs" indicator, (2) chronological, collapsed-by-default processing accordions (reasoning / "Ran N commands" / "Used N tools"), (3) the final human-readable Markdown answer completely below them. Tool calls awaiting approval or failed tools are always rendered outside the accordion, since the agent turn blocks until the user answers.
+- **Contrast & touch targets:** quick-action pills and dynamic-UI options gained ≥48dp touch targets with painted borders and ≥12sp helper text; action row spacing raised; reasoning/activity accordion headers are 48dp button-role controls with expanded/collapsed state descriptions.
+- **Typography:** helper labels (mode badge, fallback note, thought-step counter) raised to a readable size.
+
+### Tests
+- `ToolEventGrouperTest` covers the "Worked for" span propagation; 3 conversation goldens re-recorded to the collapsed-processing-block layout.
+
+---
+
 ## DORAI AI - Provider System Remediation (Unreleased)
 
 Security hardening, provider integrity fixes and storefront cleanup for the LLM provider surface. Not yet released.

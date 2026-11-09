@@ -100,6 +100,15 @@ fun groupHistoryToChatMessages(
     fun flushAgentTurn() {
         if (currentTurnEntries.isEmpty()) return
 
+        // Wall-clock span of this agent turn, when every relevant entry carries a timestamp.
+        val timestamps = currentTurnEntries.mapNotNull { it.sentAt }
+        val turnDurationMs = if (timestamps.size >= 2) {
+            val span = timestamps.max() - timestamps.min()
+            span.takeIf { it > 0 }
+        } else {
+            null
+        }
+
         // 1. Consolidate tool executions within this turn by toolCallId
         val toolBuilders = linkedMapOf<String, ConsolidatedToolBuilder>()
 
@@ -215,6 +224,7 @@ fun groupHistoryToChatMessages(
                         isSpeaking = isSpeakingThis,
                         fallbackServiceName = asst.fallbackServiceName,
                         sentAt = asst.sentAt,
+                        agentWorkedDurationMs = turnDurationMs,
                     ),
                 )
             }
@@ -237,6 +247,7 @@ fun groupHistoryToChatMessages(
                         reasoningSegments = reasoning,
                         isThinking = isThinking,
                         sentAt = assistantEntries.firstNotNullOfOrNull { it.sentAt },
+                        agentWorkedDurationMs = turnDurationMs,
                     ),
                 )
             }

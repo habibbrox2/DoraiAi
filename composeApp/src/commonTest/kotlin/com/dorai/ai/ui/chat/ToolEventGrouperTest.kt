@@ -269,6 +269,39 @@ class ToolEventGrouperTest {
     )
 
     @Test
+    fun `assistant replies carry the agent turn wall-clock span from history timestamps`() {
+        val history = listOf(
+            History(id = "u1", role = History.Role.USER, content = "hi", sentAt = 1_000L),
+            History(id = "t1", role = History.Role.TOOL_EXECUTING, content = "ls", toolCallId = "c1", toolName = "execute_shell_command", sentAt = 2_000L),
+            History(id = "t2", role = History.Role.TOOL, content = """{"stdout":"file","exit_code":0,"success":true}""", toolCallId = "c1", toolName = "execute_shell_command", sentAt = 5_500L),
+            History(id = "a1", role = History.Role.ASSISTANT, content = "done", sentAt = 6_000L),
+        )
+        val messages = groupHistoryToChatMessages(
+            history = history,
+            pendingToolConfirmations = emptyList(),
+            reasoningByAssistantId = emptyMap(),
+            isSpeaking = false,
+            isSpeakingContentId = null,
+            availableServices = listOf(sampleService),
+        )
+        val msg = messages.first { !it.isUser }
+        assertEquals(4_000L, msg.agentWorkedDurationMs, "span must cover 2_000→6_000 across the turn")
+    }
+
+    @Test
+    fun `assistant replies without per-entry timestamps report no duration`() {
+        val messages = groupHistoryToChatMessages(
+            history = assistantTextHistory("hi"),
+            pendingToolConfirmations = emptyList(),
+            reasoningByAssistantId = emptyMap(),
+            isSpeaking = false,
+            isSpeakingContentId = null,
+            availableServices = listOf(sampleService),
+        )
+        assertEquals(null, messages.first { !it.isUser }.agentWorkedDurationMs)
+    }
+
+    @Test
     fun `messages inherit the active service's execution location`() {
         val localEntry = ServiceEntry(
             instanceId = "litert-1",

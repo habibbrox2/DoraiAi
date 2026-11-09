@@ -87,6 +87,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -111,8 +112,13 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -144,6 +150,7 @@ import com.dorai.ai.ui.components.v2.DoraiStatusBadge
 import com.dorai.ai.ui.components.v2.DoraiToolCard
 import com.dorai.ai.ui.components.v2.DynamicUiModel
 import com.dorai.ai.ui.components.v2.ToolExecutionModel
+import com.dorai.ai.ui.components.v2.ToolExecutionState
 import com.dorai.ai.ui.markdown.MarkdownContent
 import com.dorai.ai.ui.markdown.parseMarkdown
 import com.dorai.ai.ui.rememberCopyToClipboard
@@ -151,7 +158,10 @@ import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.bot_message_thinking_expand_content_description
 import dorai.composeapp.generated.resources.bot_message_thinking_label
 import dorai.composeapp.generated.resources.chat_account_settings
-import dorai.composeapp.generated.resources.chat_agent_activity
+import dorai.composeapp.generated.resources.chat_agent_activity_shell_many
+import dorai.composeapp.generated.resources.chat_agent_activity_shell_one
+import dorai.composeapp.generated.resources.chat_agent_activity_tools_many
+import dorai.composeapp.generated.resources.chat_agent_activity_tools_one
 import dorai.composeapp.generated.resources.chat_attachment_image
 import dorai.composeapp.generated.resources.chat_choose_model
 import dorai.composeapp.generated.resources.chat_clear_cd
@@ -206,6 +216,7 @@ import dorai.composeapp.generated.resources.chat_welcome_ask
 import dorai.composeapp.generated.resources.chat_welcome_build
 import dorai.composeapp.generated.resources.chat_welcome_plan
 import dorai.composeapp.generated.resources.chat_welcome_review
+import dorai.composeapp.generated.resources.chat_worked_for
 import dorai.composeapp.generated.resources.composer_stop
 import dorai.composeapp.generated.resources.fallback_answered_by
 import dorai.composeapp.generated.resources.ic_file
@@ -263,6 +274,8 @@ import dorai.composeapp.generated.resources.qp_review_4_tag
 import dorai.composeapp.generated.resources.qp_review_4_title
 import dorai.composeapp.generated.resources.settings_memories_edit_cancel
 import dorai.composeapp.generated.resources.settings_memories_edit_save
+import dorai.composeapp.generated.resources.state_collapsed
+import dorai.composeapp.generated.resources.state_expanded
 import dorai.composeapp.generated.resources.waiting_thinking
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.collections.immutable.ImmutableList
@@ -287,6 +300,8 @@ data class ChatMessageItem(
     val isModelLocal: Boolean = false,
     /** Provider identity icon for the who-row; null falls back to the app logo. */
     val serviceIcon: DrawableResource? = null,
+    /** Wall-clock span of the agent turn, when the history carries per-entry timestamps. */
+    val agentWorkedDurationMs: Long? = null,
     val toolExecutions: List<ToolExecutionModel> = emptyList(),
     val dynamicUi: DynamicUiModel? = null,
     val attachments: List<Attachment> = emptyList(),
@@ -1481,9 +1496,14 @@ private fun ChatMessageRow(
                 Text(
                     text = stringResource(Res.string.fallback_answered_by, message.fallbackServiceName),
                     color = colors.muted,
-                    fontSize = 11.5.sp,
+                    fontSize = 12.sp,
                     modifier = Modifier.padding(bottom = 6.dp),
                 )
+            }
+
+            // Time tracking — subtle indicator at the very top of the agent's response block
+            if (!message.isThinking && (message.agentWorkedDurationMs ?: 0L) >= 2_000L) {
+                WorkedForIndicator(durationMs = message.agentWorkedDurationMs!!)
             }
 
             // Reasoning / Thinking block
@@ -1497,7 +1517,63 @@ private fun ChatMessageRow(
                 )
             }
 
-            // Message text parsed with rich Markdown (code highlighting, math, tables)
+            // Approval-required and failed tools must stay visible outside the accordion —
+            // the agent turn is blocked until the user answers them.
+            val attentionTools = message.toolExecutions.filter {
+                it.state == ToolExecutionState.PendingApproval || it.state == ToolExecutionState.Failed
+            }
+            val backgroundTools = message.toolExecutions.filter {
+                it.state != ToolExecutionState.PendingApproval && it.state != ToolExecutionState.Failed
+            }
+            attentionTools.forEach { tool ->
+                Spacer(modifier = Modifier.height(DoraiSpacing.XS))
+                DoraiToolCard(
+                    model = tool,
+                    onAllowOnce = onAllowOnce?.let { cb -> { cb(tool.toolCallId) } },
+                    onAllowSession = onAllowSession?.let { cb -> { cb(tool.toolCallId) } },
+                    onDeny = onDeny?.let { cb -> { cb(tool.toolCallId) } },
+                    onRetry = onRetryTool?.let { cb -> { cb(tool.toolCallId) } },
+                    onAskFix = onAskFixTool?.let { cb -> { cb(tool.toolCallId) } },
+                )
+            }
+
+            // Collapsible processing blocks — chronological, collapsed by default; expandable for the raw logs
+            if (backgroundTools.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+                val allShells = backgroundTools.all { isShellToolName(it.toolName) }
+                val toolCount = backgroundTools.size
+                val title = if (allShells) {
+                    if (toolCount == 1) {
+                        stringResource(Res.string.chat_agent_activity_shell_one)
+                    } else {
+                        stringResource(Res.string.chat_agent_activity_shell_many, toolCount)
+                    }
+                } else {
+                    if (toolCount == 1) {
+                        stringResource(Res.string.chat_agent_activity_tools_one)
+                    } else {
+                        stringResource(Res.string.chat_agent_activity_tools_many, toolCount)
+                    }
+                }
+                DoraiAccordionBlock(
+                    title = title,
+                    icon = if (allShells) Icons.Default.Terminal else Icons.Default.Bolt,
+                ) {
+                    backgroundTools.forEach { tool ->
+                        DoraiToolCard(
+                            model = tool,
+                            onAllowOnce = onAllowOnce?.let { cb -> { cb(tool.toolCallId) } },
+                            onAllowSession = onAllowSession?.let { cb -> { cb(tool.toolCallId) } },
+                            onDeny = onDeny?.let { cb -> { cb(tool.toolCallId) } },
+                            onRetry = onRetryTool?.let { cb -> { cb(tool.toolCallId) } },
+                            onAskFix = onAskFixTool?.let { cb -> { cb(tool.toolCallId) } },
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+            }
+
+            // Final human-readable output (bottom) — rich Markdown, below the processing blocks
             if (message.text.isNotEmpty()) {
                 val document = remember(message.text) { parseMarkdown(message.text) }
                 SelectionContainer {
@@ -1533,45 +1609,6 @@ private fun ChatMessageRow(
                 )
             }
 
-            // Embedded Agent Activity / Tool cards
-            if (message.toolExecutions.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(DoraiSpacing.SM))
-                if (message.toolExecutions.size > 1) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 4.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Bolt,
-                            contentDescription = null,
-                            tint = colors.info,
-                            modifier = Modifier.size(15.dp),
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = stringResource(Res.string.chat_agent_activity, message.toolExecutions.size),
-                            color = colors.muted,
-                            fontSize = 11.sp,
-                            fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
-                }
-                message.toolExecutions.forEach { tool ->
-                    Spacer(modifier = Modifier.height(DoraiSpacing.XS))
-                    DoraiToolCard(
-                        model = tool,
-                        onAllowOnce = onAllowOnce?.let { cb -> { cb(tool.toolCallId) } },
-                        onAllowSession = onAllowSession?.let { cb -> { cb(tool.toolCallId) } },
-                        onDeny = onDeny?.let { cb -> { cb(tool.toolCallId) } },
-                        onRetry = onRetryTool?.let { cb -> { cb(tool.toolCallId) } },
-                        onAskFix = onAskFixTool?.let { cb -> { cb(tool.toolCallId) } },
-                    )
-                }
-            }
-
             // Embedded Dynamic UI block
             if (message.dynamicUi != null) {
                 Spacer(modifier = Modifier.height(DoraiSpacing.SM))
@@ -1587,7 +1624,7 @@ private fun ChatMessageRow(
                 Row(
                     modifier = Modifier
                         .padding(top = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     var isCopied by remember { mutableStateOf(false) }
@@ -1779,15 +1816,22 @@ private fun DoraiReasoningBlock(
             .background(colors.surface2.copy(alpha = 0.6f))
             .border(1.dp, colors.line.copy(alpha = 0.7f), blockShape),
     ) {
-        // Compact Activity Summary Bar (min-height 36dp)
+        // Compact Activity Summary Bar (min-height 48dp touch target)
+        val expandedStateDescription = stringResource(Res.string.state_expanded)
+        val collapsedStateDescription = stringResource(Res.string.state_collapsed)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
+                .heightIn(min = 48.dp)
+                .clickable(role = Role.Button) {
                     userToggled = true
                     expanded = !expanded
                 }
-                .padding(horizontal = 10.dp, vertical = 6.dp),
+                .semantics {
+                    liveRegion = LiveRegionMode.Polite
+                    stateDescription = if (expanded) expandedStateDescription else collapsedStateDescription
+                }
+                .padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
@@ -1826,7 +1870,7 @@ private fun DoraiReasoningBlock(
                         Text(
                             text = stringResource(Res.string.chat_thought_steps, segments.size),
                             color = colors.primary,
-                            fontSize = 10.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
                         )
                     }
@@ -1996,8 +2040,9 @@ private fun ActionShortcutPill(
             .clip(shape)
             .background(colors.surface2)
             .border(1.dp, colors.line, shape)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .clickable(onClick = onClick, role = Role.Button)
+            .minimumInteractiveComponentSize()
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (icon != null) {
@@ -2020,7 +2065,7 @@ private fun ActionShortcutPill(
         Text(
             text = label,
             color = colors.text,
-            fontSize = 12.sp,
+            fontSize = 12.5.sp,
             fontWeight = FontWeight.Medium,
         )
     }
@@ -2131,7 +2176,7 @@ private fun ChatEmptyState(
             Text(
                 text = modeBadge,
                 color = colors.primary,
-                fontSize = 11.5.sp,
+                fontSize = 12.5.sp,
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
@@ -2302,4 +2347,127 @@ private fun StreamingCaret(modifier: Modifier = Modifier) {
             .clip(RoundedCornerShape(3.dp))
             .background(colors.primary.copy(alpha = alpha)),
     )
+}
+
+/** Format an elapsed span like "45s" / "2m 32s" / "1h 5m". */
+private fun formatDuration(ms: Long): String {
+    val totalSeconds = (ms / 1000).coerceAtLeast(1L)
+    val hours = totalSeconds / 3600
+    val minutes = (totalSeconds % 3600) / 60
+    val seconds = totalSeconds % 60
+    return when {
+        hours > 0 -> "${hours}h ${minutes}m"
+        minutes > 0 -> "${minutes}m ${seconds}s"
+        else -> "${seconds}s"
+    }
+}
+
+/** True for tool names that represent shell/terminal execution. */
+private fun isShellToolName(name: String): Boolean {
+    val n = name.lowercase()
+    return n.contains("shell") || n.contains("bash") || n.contains("terminal") ||
+        n.contains("cmd") || n.contains("zsh") || n == "execute_shell_command"
+}
+
+/**
+ * Subtle, non-intrusive execution-time indicator shown at the very top of an agent's
+ * response block (e.g. "Worked for 2m 32s"). Hidden for fast/complete replies.
+ */
+@Composable
+private fun WorkedForIndicator(durationMs: Long, modifier: Modifier = Modifier) {
+    val colors = LocalDoraiColors.current
+    Row(
+        modifier = modifier.padding(bottom = DoraiSpacing.XS),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(Res.string.chat_worked_for, formatDuration(durationMs)),
+            color = colors.muted,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            fontFamily = FontFamily.Monospace,
+        )
+    }
+}
+
+/**
+ * Collapsible processing block (accordion) for agent background work: reasoning,
+ * tool calls, sandbox actions. Collapsed by default; header always shows the
+ * human-readable title and an expand chevron. Minimum 48dp header touch target,
+ * button-role semantics with expanded/collapsed state description.
+ */
+@Composable
+private fun DoraiAccordionBlock(
+    title: String,
+    icon: ImageVector,
+    defaultExpanded: Boolean = false,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    val colors = LocalDoraiColors.current
+    var expanded by remember { mutableStateOf(defaultExpanded) }
+    val expandedStateDescription = stringResource(Res.string.state_expanded)
+    val collapsedStateDescription = stringResource(Res.string.state_collapsed)
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(colors.surface2.copy(alpha = 0.6f))
+            .border(1.dp, colors.line.copy(alpha = 0.7f), RoundedCornerShape(12.dp)),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 48.dp)
+                .clickable(role = Role.Button) { expanded = !expanded }
+                .semantics {
+                    liveRegion = LiveRegionMode.Polite
+                    stateDescription = if (expanded) expandedStateDescription else collapsedStateDescription
+                }
+                .padding(horizontal = 12.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(22.dp)
+                    .clip(CircleShape)
+                    .background(colors.primary.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = colors.primary,
+                    modifier = Modifier.size(14.dp),
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = title,
+                color = colors.text,
+                fontSize = 12.5.sp,
+                fontWeight = FontWeight.SemiBold,
+                fontFamily = FontFamily.Monospace,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Icon(
+                imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                tint = colors.muted,
+                modifier = Modifier.size(18.dp),
+            )
+        }
+        if (expanded) {
+            HorizontalDivider(color = colors.line.copy(alpha = 0.4f), thickness = 1.dp)
+            Column(
+                modifier = Modifier.padding(10.dp),
+                verticalArrangement = Arrangement.spacedBy(DoraiSpacing.XS),
+            ) {
+                content()
+            }
+        }
+    }
 }

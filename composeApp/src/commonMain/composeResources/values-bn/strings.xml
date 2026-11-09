@@ -805,6 +805,11 @@
     <string name="sponsors_show_all">সব স্পন্সর দেখুন</string>
     <string name="sponsors_show_all_a11y">সব স্পন্সর দেখুন, %1$d জন লুকানো</string>
     <string name="sponsors_collapse">স্পন্সর ভাঁজ করুন</string>
+    <string name="chat_worked_for">%1$s ধরে কাজ হয়েছে</string>
+    <string name="chat_agent_activity_shell_one">১টি কমান্ড চালানো হয়েছে</string>
+    <string name="chat_agent_activity_shell_many">%1$dটি কমান্ড চালানো হয়েছে</string>
+    <string name="chat_agent_activity_tools_one">১টি টুল ব্যবহার হয়েছে</string>
+    <string name="chat_agent_activity_tools_many">%1$dটি টুল ব্যবহার হয়েছে</string>
     <string name="setup_on_device">এই ডিভাইসে চলে · মডেল ডাউনলোড হয়</string>
     <string name="setup_custom_endpoint">কাস্টম এন্ডপয়েন্ট · base URL ও API কী</string>
     <string name="setup_cloudflare">Cloudflare AI · Account ID ও API token</string>
