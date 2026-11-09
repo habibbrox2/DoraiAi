@@ -128,6 +128,95 @@ class ProcessManagerTest {
     }
 
     @Test
+    fun gitStatusIsAllowedAndStartsSession() {
+        val pm = ProcessManager()
+        val result = pm.startBackground("git status", 10, null, emptyMap())
+        assertEquals(true, result["success"])
+        assertTrue((result["session_id"] as String).startsWith("bg-"))
+        assertEquals("running", result["status"])
+    }
+
+    @Test
+    fun gitLogIsAllowedAndStartsSession() {
+        val pm = ProcessManager()
+        val result = pm.startBackground("git log --oneline -5", 10, null, emptyMap())
+        assertEquals(true, result["success"])
+    }
+
+    @Test
+    fun gitCloneDepthOneIsAllowedAndStartsSession() {
+        val pm = ProcessManager()
+        val result = pm.startBackground("git clone --depth=1 https://github.com/owner/repo.git", 10, null, emptyMap())
+        assertEquals(true, result["success"])
+    }
+
+    @Test
+    fun gitCommitIsRejectedByPolicy() {
+        val pm = ProcessManager()
+        val result = pm.startBackground("git commit -m \"x\"", 10, null, emptyMap())
+        assertEquals(false, result["success"])
+        assertTrue((result["error"] as String).contains("Rejected by GitCommandPolicy"))
+    }
+
+    @Test
+    fun gitPushIsRejectedByPolicy() {
+        val pm = ProcessManager()
+        val result = pm.startBackground("git push origin main", 10, null, emptyMap())
+        assertEquals(false, result["success"])
+        assertTrue((result["error"] as String).contains("Rejected by GitCommandPolicy"))
+    }
+
+    @Test
+    fun gitStatusWithForceFlagIsRejected() {
+        val pm = ProcessManager()
+        val result = pm.startBackground("git status --force", 10, null, emptyMap())
+        assertEquals(false, result["success"])
+        assertTrue((result["error"] as String).contains("Rejected by GitCommandPolicy"))
+    }
+
+    @Test
+    fun gitFetchClusteredShortFlagIsRejected() {
+        // `-pf` expands to `-p` + `-f`; `-f` is a denied short flag.
+        val pm = ProcessManager()
+        val result = pm.startBackground("git fetch -pf", 10, null, emptyMap())
+        assertEquals(false, result["success"])
+        assertTrue((result["error"] as String).contains("Rejected by GitCommandPolicy"))
+    }
+
+    @Test
+    fun gitFetchAbbreviatedDeniedLongFlagIsRejected() {
+        // `--upl` abbreviates `--upload-pack` (denied) and must be refused.
+        val pm = ProcessManager()
+        val result = pm.startBackground("git fetch --upl=origin", 10, null, emptyMap())
+        assertEquals(false, result["success"])
+        assertTrue((result["error"] as String).contains("Rejected by GitCommandPolicy"))
+    }
+
+    @Test
+    fun gitConfigInjectionIsRejected() {
+        val pm = ProcessManager()
+        val result = pm.startBackground("git -c core.autocrlf=false status", 10, null, emptyMap())
+        assertEquals(false, result["success"])
+        assertTrue((result["error"] as String).contains("Rejected by GitCommandPolicy"))
+    }
+
+    @Test
+    fun gitShellMetacharactersAreRejected() {
+        val pm = ProcessManager()
+        val result = pm.startBackground("git status; rm -rf /", 10, null, emptyMap())
+        assertEquals(false, result["success"])
+        assertTrue((result["error"] as String).contains("Rejected"))
+    }
+
+    @Test
+    fun nonGitCommandStillUsesShellPath() {
+        val pm = ProcessManager()
+        val result = pm.startBackground("echo hello", 10, null, emptyMap())
+        assertEquals(true, result["success"])
+        assertTrue((result["session_id"] as String).startsWith("bg-"))
+    }
+
+    @Test
     fun envVariablesArePassedThrough() {
         val pm = ProcessManager()
         val result = pm.startBackground(echoEnvCommand("MY_TEST_VAR"), 10, null, mapOf("MY_TEST_VAR" to "test_value_123"))
