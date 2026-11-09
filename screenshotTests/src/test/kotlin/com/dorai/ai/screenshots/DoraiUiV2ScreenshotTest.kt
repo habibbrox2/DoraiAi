@@ -38,7 +38,9 @@ import com.dorai.ai.ui.settings.SettingsModel
 import com.dorai.ai.ui.settings.SettingsTab
 import com.dorai.ai.ui.settings.SettingsUiState
 import com.dorai.ai.ui.workspace.DoraiWorkspaceScreen
+import com.dorai.ai.ui.workspace.ProjectFile
 import com.dorai.ai.ui.workspace.WorkspaceProjectItem
+import com.dorai.ai.ui.workspace.WorkspaceProjectsExplorer
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
@@ -232,6 +234,7 @@ class DoraiUiV2ScreenshotTest {
             onCompleteSetup = {},
             onOpenProject = {},
             onCloseProject = {},
+            fileExplorerContent = { _ -> SampleExplorerContent() },
         )
     }
 
@@ -251,6 +254,7 @@ class DoraiUiV2ScreenshotTest {
             onCompleteSetup = {},
             onOpenProject = {},
             onCloseProject = {},
+            fileExplorerContent = { _ -> SampleExplorerContent() },
         )
     }
 
@@ -613,6 +617,24 @@ class DoraiUiV2ScreenshotTest {
         ),
         expandedServiceId = "custom-gateway",
     )
+
+    @Composable
+    private fun SampleExplorerContent() {
+        WorkspaceProjectsExplorer(
+            currentProject = "dorai-notes",
+            projects = sampleProjects().map { it.name },
+            files = listOf(
+                ProjectFile(path = "/root/projects/dorai-notes", name = "dorai-notes", isDirectory = true, gitStatus = null),
+                ProjectFile(path = "/root/projects/dorai-notes/src", name = "src", isDirectory = true, gitStatus = com.dorai.ai.workspace.WorkspaceGitStatus.Untracked),
+                ProjectFile(path = "/root/projects/dorai-notes/src/Main.kt", name = "Main.kt", isDirectory = false, gitStatus = com.dorai.ai.workspace.WorkspaceGitStatus.Modified),
+                ProjectFile(path = "/root/projects/dorai-notes/README.md", name = "README.md", isDirectory = false, gitStatus = null),
+            ),
+            onOpenProject = {},
+            onCreateProject = {},
+            onOpenFile = {},
+            onRefresh = {},
+        )
+    }
 
     private fun sampleProjects() = listOf(
         WorkspaceProjectItem(
