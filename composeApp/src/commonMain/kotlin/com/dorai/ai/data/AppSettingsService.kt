@@ -125,12 +125,20 @@ fun AppSettings.setInstanceBaseUrl(instanceId: String, baseUrl: String) {
     settings.putString("instance_${instanceId}_base_url", baseUrl)
 }
 
+/** Per-instance custom display name — lets several custom gateways each carry their own label (e.g. "My LiteLLM proxy"). */
+fun AppSettings.getInstanceCustomName(instanceId: String): String = settings.getString("instance_${instanceId}_display_name", "")
+
+fun AppSettings.setInstanceCustomName(instanceId: String, name: String) {
+    settings.putString("instance_${instanceId}_display_name", name)
+}
+
 fun AppSettings.removeInstanceSettings(instanceId: String) {
     settings.remove("instance_${instanceId}_api_key")
     settings.remove("instance_${instanceId}_model_id")
     settings.remove("instance_${instanceId}_base_url")
     settings.remove("instance_${instanceId}_use_custom_model")
     settings.remove("instance_${instanceId}_custom_model_id")
+    settings.remove("instance_${instanceId}_display_name")
 }
 
 fun AppSettings.generateInstanceId(serviceId: String): String {

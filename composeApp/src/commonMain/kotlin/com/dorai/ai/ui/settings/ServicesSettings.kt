@@ -158,6 +158,8 @@ import dorai.composeapp.generated.resources.settings_custom_model_label
 import dorai.composeapp.generated.resources.settings_free_fallback
 import dorai.composeapp.generated.resources.settings_free_tier_description
 import dorai.composeapp.generated.resources.settings_free_tier_title
+import dorai.composeapp.generated.resources.settings_gateway_name_hint
+import dorai.composeapp.generated.resources.settings_gateway_name_label
 import dorai.composeapp.generated.resources.settings_model_label
 import dorai.composeapp.generated.resources.settings_open_app_settings
 import dorai.composeapp.generated.resources.settings_openai_compatible_or_other_service
@@ -658,6 +660,7 @@ internal fun ServicesContent(uiState: SettingsUiState, actions: SettingsActions)
                 onExpand = { actions.onExpandService(if (uiState.expandedServiceId == entry.instanceId) null else entry.instanceId) },
                 onChangeApiKey = { apiKey -> actions.onChangeApiKey(entry.instanceId, apiKey) },
                 onChangeBaseUrl = { baseUrl -> actions.onChangeBaseUrl(entry.instanceId, baseUrl) },
+                onChangeDisplayName = { name -> actions.onChangeDisplayName(entry.instanceId, name) },
                 onSelectModel = { modelId -> actions.onSelectModel(entry.instanceId, modelId) },
                 onRetryFetchModels = { actions.onRetryFetchModels(entry.instanceId) },
                 onToggleUseCustomModel = { use -> actions.onToggleUseCustomModel(entry.instanceId, use) },
@@ -915,6 +918,7 @@ private fun ConfiguredServiceCardContent(
     onExpand: () -> Unit,
     onChangeApiKey: (String) -> Unit,
     onChangeBaseUrl: (String) -> Unit,
+    onChangeDisplayName: (String) -> Unit,
     onSelectModel: (String) -> Unit,
     onRetryFetchModels: () -> Unit = {},
     onToggleUseCustomModel: (Boolean) -> Unit = {},
@@ -1003,7 +1007,7 @@ private fun ConfiguredServiceCardContent(
                 // Service name and model
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = entry.service.displayName,
+                        text = entry.customName.ifBlank { entry.service.displayName },
                         style = DoraiTypography.titleMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                     )
@@ -1067,6 +1071,8 @@ private fun ConfiguredServiceCardContent(
                 } else if (entry.service is Service.OpenAICompatible || entry.service is Service.Cloudflare || entry.service.modelsUrl != null || entry.service.chatUrl.isNotBlank()) {
                     OpenAICompatibleSettings(
                         isCloudflare = entry.service is Service.Cloudflare,
+                        displayName = entry.customName,
+                        onChangeDisplayName = onChangeDisplayName,
                         baseUrl = entry.baseUrl,
                         onChangeBaseUrl = onChangeBaseUrl,
                         apiKey = entry.apiKey,
@@ -1256,6 +1262,8 @@ private fun ModelFetchFeedback(
 @Composable
 private fun OpenAICompatibleSettings(
     isCloudflare: Boolean = false,
+    displayName: String = "",
+    onChangeDisplayName: (String) -> Unit = {},
     baseUrl: String,
     onChangeBaseUrl: (String) -> Unit,
     apiKey: String,
@@ -1273,6 +1281,31 @@ private fun OpenAICompatibleSettings(
     onRetryFetchModels: () -> Unit = {},
     onOpenAppPermissionSettings: () -> Unit = {},
 ) {
+    if (!isCloudflare) {
+        DoraiClearableTextField(
+            value = displayName,
+            onValueChange = onChangeDisplayName,
+            label = {
+                Text(
+                    stringResource(Res.string.settings_gateway_name_label),
+                    color = LocalDesignColorTokens.current.textPrimary,
+                )
+            },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next,
+            ),
+        )
+        Text(
+            text = stringResource(Res.string.settings_gateway_name_hint),
+            style = DoraiTypography.bodySmall,
+            color = LocalDesignColorTokens.current.textSecondary,
+            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 4.dp),
+        )
+        Spacer(Modifier.height(8.dp))
+    }
+
     DoraiClearableTextField(
         value = baseUrl,
         onValueChange = onChangeBaseUrl,

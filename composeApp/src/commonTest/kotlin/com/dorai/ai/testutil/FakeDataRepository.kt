@@ -141,8 +141,18 @@ class FakeDataRepository : DataRepository {
 
     override fun getInstanceBaseUrl(instanceId: String, service: Service): String = instanceBaseUrls[instanceId] ?: if (service is Service.OpenAICompatible) Service.DEFAULT_OPENAI_COMPATIBLE_BASE_URL else ""
 
+    override fun getInstanceBaseUrlRaw(instanceId: String): String = instanceBaseUrls[instanceId] ?: ""
+
     override fun updateInstanceBaseUrl(instanceId: String, baseUrl: String) {
         instanceBaseUrls[instanceId] = baseUrl
+    }
+
+    private val instanceDisplayNames = mutableMapOf<String, String>()
+
+    override fun getInstanceCustomName(instanceId: String): String = instanceDisplayNames[instanceId] ?: ""
+
+    override fun updateInstanceCustomName(instanceId: String, name: String) {
+        instanceDisplayNames[instanceId] = name
     }
 
     override fun getInstanceModels(instanceId: String, service: Service): StateFlow<List<SettingsModel>> = instanceModels.getOrPut(instanceId) {
