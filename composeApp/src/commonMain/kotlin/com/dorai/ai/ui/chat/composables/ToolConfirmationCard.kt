@@ -33,10 +33,9 @@ import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.*
-import org.jetbrains.compose.resources.stringResource
-
 import dorai.composeapp.generated.resources.ic_flag
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ToolConfirmationCard(

@@ -42,8 +42,8 @@ import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.*
-import org.jetbrains.compose.resources.stringResource
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Consistent agent-style message action row (Copy / Retry / Speech / Thumbs / Flag).

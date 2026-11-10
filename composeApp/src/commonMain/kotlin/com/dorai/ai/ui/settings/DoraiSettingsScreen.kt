@@ -98,6 +98,7 @@ import dorai.composeapp.generated.resources.settings_approval_ask_all
 import dorai.composeapp.generated.resources.settings_approval_ask_edits
 import dorai.composeapp.generated.resources.settings_approval_auto_read
 import dorai.composeapp.generated.resources.settings_approval_policy
+import dorai.composeapp.generated.resources.settings_build_environment
 import dorai.composeapp.generated.resources.settings_cat_account
 import dorai.composeapp.generated.resources.settings_cat_agent
 import dorai.composeapp.generated.resources.settings_cat_appearance
@@ -114,7 +115,6 @@ import dorai.composeapp.generated.resources.settings_mcp_add_server
 import dorai.composeapp.generated.resources.settings_mcp_invalid_url
 import dorai.composeapp.generated.resources.settings_mcp_test_connection
 import dorai.composeapp.generated.resources.settings_mcp_url_hint
-import dorai.composeapp.generated.resources.settings_build_environment
 import dorai.composeapp.generated.resources.settings_screen_title
 import dorai.composeapp.generated.resources.settings_theme_presets
 import dorai.composeapp.generated.resources.settings_timeline_desc
