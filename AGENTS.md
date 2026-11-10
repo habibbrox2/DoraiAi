@@ -71,6 +71,13 @@ Run the narrowest relevant command first. Android release builds may require sig
 - If the feature is deeply tied to KMP application execution, security-sensitive runtime access, lifecycle hooks, native capabilities, or privileged local operations, prefer Kotlin.
 - When both Kotlin and TypeScript are viable, choose the option that best matches the actual responsibility boundary: keep shared business logic and secure runtime operations in Kotlin, and keep browser/UI or integration-facing logic in TypeScript where appropriate.
 
+## Bengali Language, Unicode & Chat Rendering Policy
+
+- **Mandatory:** Before any work involving Bengali text, localization, language selection, AI/agent response language, chat/Markdown rendering, typography, IME/input, terminal encoding, or Unicode handling, read [`docs/development/bengali-language-and-rendering-policy.md`](docs/development/bengali-language-and-rendering-policy.md) in full.
+- Treat that document as the authoritative detailed policy for Bengali language quality, full-app localization coverage, UTF-8 integrity, Bengali IME composition, assistant response language, chat streaming/Markdown/rich rendering, accessibility, and regression tests.
+- Apply the policy to all active platforms and every user-facing surface; do not limit Bengali support to translated resource strings.
+- When changing relevant prompts, renderers, resources, typography, input paths, or process boundaries, update/add regression tests as required by the policy. Do not claim Bengali support based only on ASCII/English tests.
+
 ## Coding Conventions
 
 - **State:** Prefer state hoisting, unidirectional data flow (UDF), and Material 3 patterns.
