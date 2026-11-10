@@ -186,8 +186,11 @@ class PersistentSandboxShell(
         // them in-process (so cd/export/. preserve state), and inherits its
         // stdin to any foreground child (so ssh can read passwords typed via
         // writeInput).
+        // Chat Build mode shares the same /root/projects mount as DORAI Workspace.
+        // Start every fresh conversation shell there so relative project/file creation
+        // lands in the browsable workspace rather than the sandbox home directory.
         val h = executor.executeStreaming(
-            command = "exec bash --noprofile --norc",
+            command = "mkdir -p /root/projects && cd /root/projects && exec bash --noprofile --norc",
             onStdout = { line -> dispatchStdout(line) },
             onStderr = { line -> dispatchStderr(line) },
         )

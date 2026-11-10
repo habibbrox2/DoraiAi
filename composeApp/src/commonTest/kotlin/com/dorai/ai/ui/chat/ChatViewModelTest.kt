@@ -2,6 +2,7 @@ package com.dorai.ai.ui.chat
 
 import app.cash.turbine.test
 import com.dorai.ai.data.Service
+import com.dorai.ai.data.ServiceEntry
 import com.dorai.ai.data.TaskScheduler
 import com.dorai.ai.network.AnthropicInsufficientCreditsException
 import com.dorai.ai.network.AnthropicInvalidApiKeyException
@@ -50,6 +51,43 @@ class ChatViewModelTest {
     private fun createViewModel(): ChatViewModel {
         val noOpScheduler = TaskScheduler(fakeRepository, enabled = false)
         return ChatViewModel(fakeRepository, noOpScheduler, unconfinedDispatcher)
+    }
+
+    @Test
+    fun `configured provider models are refreshed automatically on startup`() = runTest {
+        fakeRepository.fakeServiceEntries = listOf(
+            ServiceEntry(
+                instanceId = "gemini",
+                serviceId = Service.Gemini.id,
+                serviceName = Service.Gemini.displayName,
+                modelId = "saved-model",
+                icon = Service.Gemini.icon,
+            ),
+        )
+        fakeRepository.setInstanceApiKey("gemini", "test-api-key")
+
+        createViewModel()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals<List<Pair<Service, String>>>(listOf(Service.Gemini to "gemini"), fakeRepository.validateConnectionCalls)
+    }
+
+    @Test
+    fun `startup does not validate provider when required API key is missing`() = runTest {
+        fakeRepository.fakeServiceEntries = listOf(
+            ServiceEntry(
+                instanceId = "gemini",
+                serviceId = Service.Gemini.id,
+                serviceName = Service.Gemini.displayName,
+                modelId = "saved-model",
+                icon = Service.Gemini.icon,
+            ),
+        )
+
+        createViewModel()
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertTrue(fakeRepository.validateConnectionCalls.isEmpty())
     }
 
     @Test

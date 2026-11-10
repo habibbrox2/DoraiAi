@@ -197,8 +197,10 @@ class FakeDataRepository : DataRepository {
     }
 
     var validateConnectionException: Exception? = null
+    val validateConnectionCalls = mutableListOf<Pair<Service, String>>()
 
     override suspend fun validateConnection(service: Service, instanceId: String) {
+        validateConnectionCalls += service to instanceId
         validateConnectionException?.let { throw it }
     }
 

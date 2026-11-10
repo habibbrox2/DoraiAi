@@ -177,7 +177,7 @@ The chat screen service toggle lists the **Auto** Free alias followed by configu
 
 The chat header carries the same control as a pill: the provider icon, the active service's name, and the model it is currently running — so the loaded model is visible without leaving the conversation. Tapping the pill opens one dropdown with two parts:
 
-- **Model** — the models the active service can run, with the loaded one highlighted. The provider's model list is fetched when the picker opens (not on every chat start), so the choices are complete; if the fetch fails, the curated defaults stay selectable.
+- **Model** — the models the active service can run, with the loaded one highlighted. The provider's model list is refreshed automatically on chat startup and when the picker opens, so a restart restores the available choices without requiring a manual Retry in Settings; if the fetch fails, the saved model selection remains available and the user can retry from the picker or provider settings.
 - **Services** — the same service list as the compact toggle, with the current primary highlighted.
 
 Picking a model stores it for that service instance, so it applies to the next message and survives a restart — the same choice the Services settings card makes. The pill then shows the new model. Free entries have no model list of their own, so only the service list is shown for them.

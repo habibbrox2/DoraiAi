@@ -112,6 +112,10 @@ class ChatViewModel(
 
     init {
         updateAvailableServices()
+        // Restore the configured provider's model list automatically after a cold start.
+        // The selected model id is persisted separately; this refresh repopulates the
+        // provider catalogue so users do not have to visit Settings and tap Retry.
+        loadModels()
 
         viewModelScope.launch(backgroundDispatcher) {
             runCatching { fileReviewController.initialize() }
@@ -570,6 +574,10 @@ class ChatViewModel(
      */
     private fun loadModels() {
         val (primary, service) = primaryServiceInstance() ?: return
+        // Missing credentials/configuration is a user setup state, not a transient
+        // connection failure. Avoid pointless startup requests until the provider is ready.
+        if (service.requiresApiKey && dataRepository.getInstanceApiKey(primary.instanceId).isBlank()) return
+        if (service is Service.OpenAICompatible && dataRepository.getInstanceBaseUrlRaw(primary.instanceId).isBlank()) return
         if (_state.value.modelsLoadedInstanceId == primary.instanceId) {
             refreshModelsForPrimary()
             return
