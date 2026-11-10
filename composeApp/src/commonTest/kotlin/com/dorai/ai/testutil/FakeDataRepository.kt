@@ -96,6 +96,7 @@ class FakeDataRepository : DataRepository {
         instanceApiKeys.remove(instanceId)
         instanceBaseUrls.remove(instanceId)
         instanceModels.remove(instanceId)
+        instanceConnectionStatuses.remove(instanceId)
     }
 
     override fun reorderConfiguredServices(orderedInstanceIds: List<String>) {
@@ -190,6 +191,18 @@ class FakeDataRepository : DataRepository {
 
     override fun updateInstanceCustomModelId(instanceId: String, modelId: String) {
         instanceCustomModelIds[instanceId] = modelId
+    }
+
+    private val instanceConnectionStatuses = mutableMapOf<String, String>()
+
+    override fun getInstanceConnectionStatus(instanceId: String): String = instanceConnectionStatuses[instanceId] ?: ""
+
+    override fun setInstanceConnectionStatus(instanceId: String, status: String) {
+        if (status.isBlank()) {
+            instanceConnectionStatuses.remove(instanceId)
+        } else {
+            instanceConnectionStatuses[instanceId] = status
+        }
     }
 
     override fun clearInstanceModels(instanceId: String, service: Service) {

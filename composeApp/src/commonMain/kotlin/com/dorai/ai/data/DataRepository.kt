@@ -42,6 +42,15 @@ interface DataRepository {
 
     /** Raw per-instance base URL without any provider-specific default (e.g. no Ollama localhost fallback). Blank when unset. */
     fun getInstanceBaseUrlRaw(instanceId: String): String = ""
+
+    /** Persisted last-known connection status string for an instance ("" when never validated). Terminal values only. */
+    fun getInstanceConnectionStatus(instanceId: String): String
+
+    /** Persists the observed connection status. Only terminal values should be written; use [clearInstanceConnectionStatus] to erase. */
+    fun setInstanceConnectionStatus(instanceId: String, status: String)
+
+    /** Erases any persisted connection status — call on credential/endpoint changes. */
+    fun clearInstanceConnectionStatus(instanceId: String) = setInstanceConnectionStatus(instanceId, "")
     fun getInstanceCustomName(instanceId: String): String
     fun updateInstanceCustomName(instanceId: String, name: String)
     fun getInstanceModels(instanceId: String, service: Service): StateFlow<List<SettingsModel>>

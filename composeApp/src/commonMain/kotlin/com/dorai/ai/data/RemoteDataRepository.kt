@@ -379,6 +379,12 @@ class RemoteDataRepository(
 
     override fun getInstanceBaseUrlRaw(instanceId: String): String = appSettings.getInstanceBaseUrl(instanceId)
 
+    override fun getInstanceConnectionStatus(instanceId: String): String = appSettings.getInstanceConnectionStatus(instanceId)
+
+    override fun setInstanceConnectionStatus(instanceId: String, status: String) {
+        appSettings.setInstanceConnectionStatus(instanceId, status)
+    }
+
     override fun getInstanceCustomName(instanceId: String): String = appSettings.getInstanceCustomName(instanceId)
 
     override fun updateInstanceCustomName(instanceId: String, name: String) {

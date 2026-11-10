@@ -132,6 +132,25 @@ fun AppSettings.setInstanceCustomName(instanceId: String, name: String) {
     settings.putString("instance_${instanceId}_display_name", name)
 }
 
+/**
+ * Last-known connection status of an AI provider instance. Persisted so the UI
+ * can show something truthful across app restarts before revalidation finishes.
+ *
+ * Values:
+ * - "Unknown" / "Checking" / "Connected"
+ * - "Error*" (mirrors [com.dorai.ai.ui.settings.ConnectionStatus] error cases)
+ */
+fun AppSettings.getInstanceConnectionStatus(instanceId: String): String = settings.getString("instance_${instanceId}_connection_status", "")
+
+fun AppSettings.setInstanceConnectionStatus(instanceId: String, status: String) {
+    settings.putString("instance_${instanceId}_connection_status", status)
+}
+
+/** Erase the persisted status — call when credentials/endpoint change so a stale value cannot leak into a fresh session. */
+fun AppSettings.clearInstanceConnectionStatus(instanceId: String) {
+    settings.remove("instance_${instanceId}_connection_status")
+}
+
 fun AppSettings.removeInstanceSettings(instanceId: String) {
     settings.remove("instance_${instanceId}_api_key")
     settings.remove("instance_${instanceId}_model_id")
@@ -139,6 +158,7 @@ fun AppSettings.removeInstanceSettings(instanceId: String) {
     settings.remove("instance_${instanceId}_use_custom_model")
     settings.remove("instance_${instanceId}_custom_model_id")
     settings.remove("instance_${instanceId}_display_name")
+    settings.remove("instance_${instanceId}_connection_status")
 }
 
 fun AppSettings.generateInstanceId(serviceId: String): String {

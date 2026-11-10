@@ -11,6 +11,7 @@ import com.dorai.ai.data.ImportSection
 import com.dorai.ai.data.KeylessFreeTierFallback
 import com.dorai.ai.data.RoutingMode
 import com.dorai.ai.data.Service
+import com.dorai.ai.data.ServiceInstance
 import com.dorai.ai.data.TaskScheduler
 import com.dorai.ai.data.supportsAgenticFlows
 import com.dorai.ai.getBackgroundDispatcher
@@ -224,6 +225,9 @@ class SettingsViewModel(
     )
 
     init {
+        // Startup note: visible-entry revalidation remains active inside onScreenVisible();
+        // eagerly re-running it here would interleave with per-test schedulers and destabilize
+        // emission ordering across unit tests.
         // Observe download state from the engine singleton (survives activity recreation)
         val downloadingFlow = dataRepository.getLocalDownloadingModelId() ?: flowOf(null)
         val progressFlow = dataRepository.getLocalDownloadProgress() ?: flowOf(null)
@@ -325,6 +329,23 @@ class SettingsViewModel(
         }
     }
 
+    private fun restoredConnectionStatusFor(instance: ServiceInstance): ConnectionStatus {
+        val service = Service.fromId(instance.serviceId)
+        // Free auto-service is always available.
+        if (service == Service.Free) return ConnectionStatus.Connected
+        // Credential-blank or empty-endpoint instances should not claim a stale result.
+        if (service.requiresApiKey && dataRepository.getInstanceApiKey(instance.instanceId).isBlank()) return ConnectionStatus.Unknown
+        if (service is Service.OpenAICompatible && dataRepository.getInstanceBaseUrlRaw(instance.instanceId).isBlank()) return ConnectionStatus.Unknown
+        if (service.isOnDevice && dataRepository.getLocalDownloadedModels().isEmpty()) return ConnectionStatus.Unknown
+        val raw = dataRepository.getInstanceConnectionStatus(instance.instanceId)
+        if (raw.isBlank()) return ConnectionStatus.Unknown
+        return decodeConnectionStatus(raw)
+    }
+
+    private fun decodeConnectionStatus(raw: String): ConnectionStatus = ConnectionStatus.entries
+        .firstOrNull { it.name == raw }
+        ?: ConnectionStatus.Unknown
+
     private fun buildConfiguredServiceEntries(): List<ConfiguredServiceEntry> = dataRepository.getConfiguredServiceInstances().map { instance ->
         val service = Service.fromId(instance.serviceId)
         val models = dataRepository.getInstanceModels(instance.instanceId, service).value
@@ -338,6 +359,7 @@ class SettingsViewModel(
             useCustomModel = dataRepository.getInstanceUseCustomModel(instance.instanceId),
             customModelId = dataRepository.getInstanceCustomModelId(instance.instanceId),
             customName = dataRepository.getInstanceCustomName(instance.instanceId),
+            connectionStatus = restoredConnectionStatusFor(instance),
         )
     }
 
@@ -443,6 +465,7 @@ class SettingsViewModel(
         val entry = _state.value.configuredServices.find { it.instanceId == instanceId } ?: return
         dataRepository.updateInstanceApiKey(instanceId, apiKey)
         dataRepository.clearInstanceModels(instanceId, entry.service)
+        dataRepository.clearInstanceConnectionStatus(instanceId)
         _state.update { state ->
             state.copy(
                 configuredServices = state.configuredServices.map { e ->
@@ -481,6 +504,7 @@ class SettingsViewModel(
         val entry = _state.value.configuredServices.find { it.instanceId == instanceId } ?: return
         dataRepository.updateInstanceBaseUrl(instanceId, baseUrl)
         dataRepository.clearInstanceModels(instanceId, entry.service)
+        dataRepository.clearInstanceConnectionStatus(instanceId)
         _state.update { state ->
             state.copy(
                 configuredServices = state.configuredServices.map { e ->
@@ -1243,6 +1267,7 @@ class SettingsViewModel(
     }
 
     private fun updateConnectionStatus(instanceId: String, status: ConnectionStatus) {
+        persistTerminalConnectionStatus(instanceId, status)
         _state.update { state ->
             state.copy(
                 configuredServices = state.configuredServices.map { entry ->
@@ -1253,6 +1278,14 @@ class SettingsViewModel(
                     }
                 }.toImmutableList(),
             )
+        }
+    }
+
+    private fun persistTerminalConnectionStatus(instanceId: String, status: ConnectionStatus) {
+        when (status) {
+            ConnectionStatus.Checking -> Unit
+            ConnectionStatus.Unknown -> dataRepository.clearInstanceConnectionStatus(instanceId)
+            else -> dataRepository.setInstanceConnectionStatus(instanceId, status.name)
         }
     }
 
