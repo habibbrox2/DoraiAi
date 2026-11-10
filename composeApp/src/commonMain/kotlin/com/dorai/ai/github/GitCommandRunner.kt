@@ -24,8 +24,13 @@ interface GitCommandRunner {
      *
      * [args] must already satisfy [GitCommandPolicy.isAllowedGitArgs]; the runner
      * rejects unsafe invocations before spawning.
+     *
+     * Write subcommands are only admitted when the caller explicitly passes
+     * `writeEnabled = true` (the maintainer opt-in); then exact write shapes are
+     * enforced (`add` explicit paths, `commit -m <msg>` only, `push origin HEAD`
+     * only). Defaults to `false`, so every unqualified call is read-only.
      */
-    suspend fun run(project: String, args: List<String>, timeoutSeconds: Long = 60): GitCommandResult
+    suspend fun run(project: String, args: List<String>, timeoutSeconds: Long = 60, writeEnabled: Boolean = false): GitCommandResult
 
     /** True when a usable `git` binary is available on this platform. */
     suspend fun isGitAvailable(): Boolean

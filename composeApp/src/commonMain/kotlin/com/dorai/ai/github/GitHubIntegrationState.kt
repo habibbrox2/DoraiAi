@@ -39,6 +39,7 @@ sealed class CloneState {
  * [cloneState] tracks the in-flight / completed / failed clone operation.
  * [lastSync] records when the selected project was last synced (fetch + fast-forward pull).
  * [lastError] holds a human-readable message for the most recent clone / sync / status failure.
+ * [lastPullRequestUrl] holds the html_url of the last successfully created pull request, if any.
  */
 data class GitHubIntegrationState(
     val connectionStatus: GitHubConnectionStatus = GitHubConnectionStatus.NotConnected,
@@ -50,6 +51,7 @@ data class GitHubIntegrationState(
     val cloneState: CloneState = CloneState.Idle,
     val lastSync: Instant? = null,
     val lastError: String? = null,
+    val lastPullRequestUrl: String? = null,
     val isLoading: Boolean = false,
     val error: GitHubDeviceFlowError? = null,
     val writeOperationsEnabled: Boolean = false,

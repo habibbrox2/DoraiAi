@@ -3,9 +3,20 @@ package com.dorai.ai.github
 /**
  * Single source of truth for which `git` invocations DORAI may run.
  *
- * The policy is deliberately read-only: write subcommands (`commit`, `push`, `add`, `restore`) are
+ * The default surface is read-only: write subcommands (`commit`, `push`, `add`, `restore`) are
  * absent from [allowedGitSubcommands] until a later opt-in phase, and destructive flags are
  * rejected everywhere.
+ *
+ * Write subcommands can be validated through [isAllowedGitArgs] only with the explicit
+ * `writeEnabled = true` parameter — the maintainer opt-in gate (`writeOperationsEnabled`).
+ * With `writeEnabled = false` (the default) the behavior is exactly the read-only policy.
+ * Even when enabled, writes are exact-shape: `git add` requires explicit positional paths
+ * (never `.`/`:/`, never flags), `git commit` is exactly `-m <message>` with a 1..200 char
+ * message and no other tokens, and `git push` accepts only `origin HEAD`. `GitCredentialBroker`
+ * is the only credential source for the network forms (`git push`, `clone`, `fetch`, `pull`).
+ *
+ * The policy lives in common code so every runner (desktop `ProcessBuilder`,
+ * Android proot) can share one definition when it is wired up.
  *
  * No production caller consumes this policy yet. `ProcessManager`/`ShellCommandTool` still own
  * their private executable allowlist for non-git commands; Task 6 is expected to route git
@@ -33,7 +44,12 @@ object GitCommandPolicy {
         "status", "log", "diff", "branch", "remote", "fetch", "clone", "pull", "rev-parse", "ls-remote",
     )
 
-    // Write subcommands (commit, push, add, restore) are intentionally absent in Phases 1-3.
+    /**
+     * Gated write subcommands. Absent from [allowedGitSubcommands]; accepted only through
+     * [isAllowedGitArgs] with `writeEnabled = true`, and only in their exact write shapes
+     * (`add` with explicit paths, `commit -m <msg>` only, `push origin HEAD` only).
+     */
+    val writeGitSubcommands: Set<String> = setOf("add", "commit", "push")
     val rejectedFlags: Set<String> = setOf("--force", "--hard", "--delete", "--prune", "--mirror", "--no-ff")
 
     /** Short forms of the rejected long flags, plus `-f`/`-D`/`-d` force/delete aliases. */
@@ -124,12 +140,16 @@ object GitCommandPolicy {
     private val safeArgPattern = Regex("[A-Za-z0-9_@%+=:,./-]+")
 
     /**
-     * Returns true only when [args] is a read-only `git` invocation this app may execute.
+     * Returns true only when [args] is a `git` invocation this app may execute.
      *
      * Checks, in order: no empty/control-character tokens, an accepted global-option prefix, an
      * allowed subcommand, the normalized deny list, then the per-subcommand rules.
+     *
+     * With the default `writeEnabled = false` this is the read-only surface and every write
+     * subcommand is refused. With `writeEnabled = true` the gated write subcommands
+     * ([writeGitSubcommands]) are additionally admitted, but only in their exact write shapes.
      */
-    fun isAllowedGitArgs(args: List<String>): Boolean {
+    fun isAllowedGitArgs(args: List<String>, writeEnabled: Boolean = false): Boolean {
         val tokens = if (args.isNotEmpty() && isGitExecutable(args.first())) args.drop(1) else args
         if (tokens.isEmpty()) return false
         if (tokens.any { token -> token.isEmpty() || token.any { it == '\n' || it == '\r' || it == '\u0000' } }) {
@@ -137,8 +157,18 @@ object GitCommandPolicy {
         }
 
         val (subcommand, rest) = splitGlobalOptions(tokens) ?: return false
-        if (subcommand !in allowedGitSubcommands) return false
         if (rest.any { isRejectedFlag(it) }) return false
+
+        if (subcommand in writeGitSubcommands) {
+            if (!writeEnabled) return false
+            return when (subcommand) {
+                "add" -> isAllowedAdd(rest)
+                "commit" -> isAllowedCommit(rest)
+                "push" -> isAllowedPush(rest)
+                else -> false
+            }
+        }
+        if (subcommand !in allowedGitSubcommands) return false
 
         return when (subcommand) {
             "pull" -> isAllowedPull(rest)
@@ -239,6 +269,28 @@ object GitCommandPolicy {
         if ("--ff-only" !in rest) return false
         return rest.all { it == "--ff-only" || !it.startsWith("-") }
     }
+
+    /**
+     * `git add` requires 1+ explicit positional paths and no flags: never `.`, never `:/`,
+     * never `-A`/`--all`/`-p`. Path tokens are checked for traversal by the caller
+     * ([com.dorai.ai.github.GitUrlValidator] for project names; the workspace layer for
+     * per-file paths).
+     */
+    private fun isAllowedAdd(rest: List<String>): Boolean {
+        if (rest.isEmpty()) return false
+        return rest.all { token -> !token.startsWith("-") && token != "." && token != ":/" }
+    }
+
+    /** `git commit` is exactly `-m <message>` with a 1..200 char message and no other tokens. */
+    private fun isAllowedCommit(rest: List<String>): Boolean {
+        if (rest.size != 2) return false
+        if (rest[0] != "-m" && rest[0] != "--message") return false
+        val message = rest[1]
+        return message.isNotEmpty() && message.length <= 200
+    }
+
+    /** `git push` is only `git push origin HEAD` — never force, never another remote or refspec. */
+    private fun isAllowedPush(rest: List<String>): Boolean = rest == listOf("origin", "HEAD")
 
     /** `git clone` is allowed only as `clone --depth=1 <single-url>`. */
     private fun isAllowedClone(rest: List<String>): Boolean {

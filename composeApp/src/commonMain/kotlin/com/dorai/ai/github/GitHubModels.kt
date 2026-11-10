@@ -68,3 +68,20 @@ data class GitHubRepoPermissions(
     val contents: String,
     @SerialName("pull_requests") val pullRequests: String,
 )
+
+@Serializable
+data class GitHubPullRequest(
+    val id: Long,
+    val number: Long,
+    val title: String,
+    val state: String,
+    @SerialName("html_url") val htmlUrl: String,
+)
+
+@Serializable
+data class CreatePullRequestBody(
+    val title: String,
+    val head: String,
+    val base: String,
+    val body: String,
+)

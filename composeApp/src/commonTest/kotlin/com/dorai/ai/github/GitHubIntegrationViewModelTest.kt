@@ -74,19 +74,44 @@ class GitHubIntegrationViewModelTest {
 
     /** API client that returns canned results. */
     private class FakeApiClient : GitHubApiClient(vault = FakeVault()) {
-        var listInstallationsResult: GitHubApiResult<List<GitHubInstallation>> =
+        var installations: List<GitHubInstallation>? = null
+        var createPullRequestResult: GitHubApiResult<GitHubPullRequest> =
             GitHubApiResult.Success(
-                listOf(
-                    GitHubInstallation(
-                        id = 1,
-                        account = GitHubInstallationAccount(login = "org-a", id = 10, type = "Organization"),
-                    ),
+                GitHubPullRequest(
+                    id = 42,
+                    number = 7,
+                    title = "My PR",
+                    state = "open",
+                    htmlUrl = "https://github.com/owner/repo/pull/7",
                 ),
             )
+        var createPullRequestCalls = 0
+
+        override suspend fun listInstallations(): GitHubApiResult<List<GitHubInstallation>> = GitHubApiResult.Success(installations ?: defaultInstallations())
+
+        private fun defaultInstallations() = listOf(
+            GitHubInstallation(
+                id = 1,
+                account = GitHubInstallationAccount(login = "org-a", id = 10, type = "Organization"),
+            ),
+        )
+
+        /** Records the call and returns the canned result. */
+        override suspend fun createPullRequest(
+            owner: String,
+            repo: String,
+            title: String,
+            head: String,
+            base: String,
+            body: String,
+            writeEnabled: Boolean,
+        ): GitHubApiResult<GitHubPullRequest> {
+            createPullRequestCalls += 1
+            return createPullRequestResult
+        }
+
         var listRepositoriesResult: GitHubApiResult<List<GitHubRepository>> =
             GitHubApiResult.Success(emptyList())
-
-        override suspend fun listInstallations(): GitHubApiResult<List<GitHubInstallation>> = listInstallationsResult
 
         override suspend fun listInstallationRepositories(
             installationId: Long,
@@ -99,10 +124,14 @@ class GitHubIntegrationViewModelTest {
         val gitStatusCalls = mutableListOf<String>()
         val gitFetchCalls = mutableListOf<String>()
         val gitPullCalls = mutableListOf<String>()
+        val gitCommitCalls = mutableListOf<Triple<String, List<String>, String>>()
+        val gitPushCalls = mutableListOf<String>()
         var cloneResult: WorkspaceGitResult = WorkspaceGitResult(isRepository = true)
         var gitStatusResult: WorkspaceGitResult = WorkspaceGitResult()
         var fetchResult: WorkspaceGitResult = WorkspaceGitResult(isRepository = true)
         var pullResult: WorkspaceGitResult = WorkspaceGitResult(isRepository = true)
+        var commitResult: WorkspaceGitResult = WorkspaceGitResult(isRepository = true)
+        var pushResult: WorkspaceGitResult = WorkspaceGitResult(isRepository = true)
 
         override suspend fun gitClone(project: String, url: String): WorkspaceGitResult {
             gitCloneCalls += project to url
@@ -119,6 +148,14 @@ class GitHubIntegrationViewModelTest {
         override suspend fun gitPullFfOnly(project: String): WorkspaceGitResult {
             gitPullCalls += project
             return pullResult
+        }
+        override suspend fun gitCommit(project: String, files: List<String>, message: String): WorkspaceGitResult {
+            gitCommitCalls += Triple(project, files, message)
+            return commitResult
+        }
+        override suspend fun gitPush(project: String): WorkspaceGitResult {
+            gitPushCalls += project
+            return pushResult
         }
     }
 
@@ -339,5 +376,138 @@ class GitHubIntegrationViewModelTest {
 
         assertEquals(listOf("repo"), controller.gitStatusCalls)
         assertEquals("NotRepository", vm.state.value.lastError)
+    }
+
+    private fun writeVm(
+        writePermission: Boolean,
+    ): Triple<GitHubIntegrationViewModel, FakeApiClient, FakeWorkspaceController> {
+        val vault = FakeVault().apply {
+            accessToken = "ghs_tok_123"
+            login = "dorai-user"
+        }
+        val api = FakeApiClient().apply {
+            installations = listOf(
+                GitHubInstallation(
+                    id = 1,
+                    account = GitHubInstallationAccount(login = "org-a", id = 10, type = "Organization"),
+                    permissions = if (writePermission) {
+                        mapOf("pull_requests" to "write")
+                    } else {
+                        mapOf("pull_requests" to "read")
+                    },
+                ),
+            )
+        }
+        val controller = FakeWorkspaceController()
+        val vm = buildVm(vault = vault, apiClient = api, workspaceController = controller)
+        return Triple(vm, api, controller)
+    }
+
+    @Test
+    fun `write operations are refused by default`() {
+        val (vm, controller) = connectedVm()
+        vm.selectAndClone(testRepo(), "myproject")
+
+        vm.gitCommit(listOf("file.txt"), "fix")
+        vm.gitPush()
+
+        assertTrue(controller.gitCommitCalls.isEmpty())
+        assertTrue(controller.gitPushCalls.isEmpty())
+        assertEquals("Write operations are disabled", vm.state.value.lastError)
+    }
+
+    @Test
+    fun `gitCommit stages only explicit files after opt-in`() {
+        val (vm, controller) = connectedVm()
+        vm.selectAndClone(testRepo(), "myproject")
+        vm.setWriteOperationsEnabled(true)
+
+        vm.gitCommit(listOf("file.txt", "src/Main.kt"), "feat: thing")
+
+        assertEquals(listOf(Triple("repo", listOf("file.txt", "src/Main.kt"), "feat: thing")), controller.gitCommitCalls)
+        assertNull(vm.state.value.lastError)
+    }
+
+    @Test
+    fun `gitPush pushes after opt-in`() {
+        val (vm, controller) = connectedVm()
+        vm.selectAndClone(testRepo(), "myproject")
+        vm.setWriteOperationsEnabled(true)
+
+        vm.gitPush()
+
+        assertEquals(listOf("repo"), controller.gitPushCalls)
+    }
+
+    @Test
+    fun `commit with blank message refused even when enabled`() {
+        val (vm, controller) = connectedVm()
+        vm.selectAndClone(testRepo(), "myproject")
+        vm.setWriteOperationsEnabled(true)
+
+        vm.gitCommit(listOf("file.txt"), "   ")
+
+        assertTrue(controller.gitCommitCalls.isEmpty())
+        assertNotNull(vm.state.value.lastError)
+    }
+
+    @Test
+    fun `commit with over-200-char message refused`() {
+        val (vm, controller) = connectedVm()
+        vm.selectAndClone(testRepo(), "myproject")
+        vm.setWriteOperationsEnabled(true)
+
+        vm.gitCommit(listOf("file.txt"), "x".repeat(201))
+
+        assertTrue(controller.gitCommitCalls.isEmpty())
+        assertNotNull(vm.state.value.lastError)
+    }
+
+    @Test
+    fun `createPullRequest refused by default`() {
+        val (vm, api, _) = writeVm(writePermission = true)
+        vm.selectAndClone(testRepo(), "myproject")
+
+        vm.createPullRequest("Title", "feat/branch", "main", "body")
+
+        assertEquals(0, api.createPullRequestCalls)
+        assertEquals("Write operations are disabled", vm.state.value.lastError)
+    }
+
+    @Test
+    fun `createPullRequest refused without installation write permission`() {
+        val (vm, api, _) = writeVm(writePermission = false)
+        vm.selectAndClone(testRepo(), "myproject")
+        vm.setWriteOperationsEnabled(true)
+
+        vm.createPullRequest("Title", "feat/branch", "main", "body")
+
+        assertEquals(0, api.createPullRequestCalls)
+        assertNotNull(vm.state.value.lastError)
+        assertTrue(vm.state.value.lastError!!.contains("Grant write permission"))
+    }
+
+    @Test
+    fun `createPullRequest posts when enabled and permitted`() {
+        val (vm, api, _) = writeVm(writePermission = true)
+        vm.selectAndClone(testRepo(), "myproject")
+        vm.setWriteOperationsEnabled(true)
+
+        vm.createPullRequest("My PR", "feat/branch", "main", "body")
+
+        assertEquals(1, api.createPullRequestCalls)
+        assertEquals("https://github.com/owner/repo/pull/7", vm.state.value.lastPullRequestUrl)
+        assertNull(vm.state.value.lastError)
+    }
+
+    @Test
+    fun `createPullRequest without repository selection refuses`() {
+        val (vm, api, _) = writeVm(writePermission = true)
+        vm.setWriteOperationsEnabled(true)
+
+        vm.createPullRequest("Title", "feat/branch", "main", "body")
+
+        assertEquals(0, api.createPullRequestCalls)
+        assertEquals("Select a repository first", vm.state.value.lastError)
     }
 }

@@ -330,4 +330,73 @@ class GitCommandPolicyTest {
         assertEquals("'a;b'", GitCommandPolicy.quoteArg("a;b"))
         assertEquals("'$(rm -rf /)'", GitCommandPolicy.quoteArg("\$(rm -rf /)"))
     }
+
+    @Test
+    fun `write subcommands are rejected without the maintainer opt-in`() {
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("add", "file.txt")))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("commit", "-m", "fix")))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("push", "origin", "HEAD")))
+        // Default `writeEnabled = false` must not admit them
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("commit", "-m", "fix"), writeEnabled = false))
+    }
+
+    @Test
+    fun `gated write subcommands are exactly add commit push`() {
+        assertEquals(setOf("add", "commit", "push"), GitCommandPolicy.writeGitSubcommands)
+    }
+
+    @Test
+    fun `git add allows only explicit positional paths`() {
+        assertTrue(GitCommandPolicy.isAllowedGitArgs(listOf("add", "file.txt"), writeEnabled = true))
+        assertTrue(GitCommandPolicy.isAllowedGitArgs(listOf("add", "src/Main.kt", "README.md"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("add", "."), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("add", ":/"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("add", "-A"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("add", "--all"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("add"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("add", "-p", "file.txt"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("add", "--force", "file.txt"), writeEnabled = true))
+    }
+
+    @Test
+    fun `git commit requires exactly -m and a 1 to 200 char message`() {
+        assertTrue(GitCommandPolicy.isAllowedGitArgs(listOf("commit", "-m", "fix the thing"), writeEnabled = true))
+        assertTrue(GitCommandPolicy.isAllowedGitArgs(listOf("commit", "--message", "fix the thing"), writeEnabled = true))
+        assertTrue(GitCommandPolicy.isAllowedGitArgs(listOf("commit", "-m", "x".repeat(200)), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("commit", "-m", ""), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("commit", "-m", "x".repeat(201)), writeEnabled = true))
+        // No amend, no --no-verify, no other tokens at all
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("commit", "--amend", "-m", "x"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("commit", "--no-verify", "-m", "x"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("commit", "-m", "x", "--", "file.txt"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("commit", "-m"), writeEnabled = true))
+        // Direct flag injection / dangerous flags still refused
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("commit", "--hard", "-m", "x"), writeEnabled = true))
+    }
+
+    @Test
+    fun `git push is only origin HEAD`() {
+        assertTrue(GitCommandPolicy.isAllowedGitArgs(listOf("push", "origin", "HEAD"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("push"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("push", "origin", "main"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("push", "upstream", "HEAD"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("push", "origin", "main:main"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("push", "--force", "origin", "HEAD"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("push", "-f", "origin", "HEAD"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("push", "--mirror", "origin"), writeEnabled = true))
+        assertFalse(GitCommandPolicy.isAllowedGitArgs(listOf("push", "--set-upstream", "origin", "HEAD"), writeEnabled = true))
+    }
+
+    @Test
+    fun `isSafeRelativePath accepts explicit relative paths only`() {
+        assertTrue(GitUrlValidator.isSafeRelativePath("file.txt"))
+        assertTrue(GitUrlValidator.isSafeRelativePath("src/main/kotlin/Foo.kt"))
+        assertFalse(GitUrlValidator.isSafeRelativePath("../escape.txt"))
+        assertFalse(GitUrlValidator.isSafeRelativePath("/abs/path.txt"))
+        assertFalse(GitUrlValidator.isSafeRelativePath("-m"))
+        assertFalse(GitUrlValidator.isSafeRelativePath(""))
+        assertFalse(GitUrlValidator.isSafeRelativePath(null))
+        assertFalse(GitUrlValidator.isSafeRelativePath("C:\\Windows\\system32"))
+        assertFalse(GitUrlValidator.isSafeRelativePath("a/../../b"))
+    }
 }

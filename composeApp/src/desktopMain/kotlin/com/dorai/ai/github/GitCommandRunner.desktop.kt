@@ -6,7 +6,7 @@ import java.io.InputStream
 import java.util.concurrent.TimeUnit
 
 private const val PROJECTS_ROOT_NAME = ".dorai/projects"
-private val NETWORK_COMMANDS = setOf("clone", "fetch", "pull")
+private val NETWORK_COMMANDS = setOf("clone", "fetch", "pull", "push")
 
 /**
  * Desktop implementation of [GitCommandRunner]. Spawns `git` directly via
@@ -26,8 +26,9 @@ class DesktopGitCommandRunner(
         project: String,
         args: List<String>,
         timeoutSeconds: Long,
+        writeEnabled: Boolean,
     ): GitCommandResult {
-        if (!GitCommandPolicy.isAllowedGitArgs(args)) {
+        if (!GitCommandPolicy.isAllowedGitArgs(args, writeEnabled)) {
             return GitCommandResult(false, "", "Rejected by GitCommandPolicy: ${args.joinToString(" ")}", -1)
         }
 

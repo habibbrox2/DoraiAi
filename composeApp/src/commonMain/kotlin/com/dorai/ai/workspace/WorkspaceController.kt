@@ -50,6 +50,21 @@ interface WorkspaceController {
     /** Pulls from origin with --ff-only for `projects/<project>`. */
     suspend fun gitPullFfOnly(project: String): WorkspaceGitResult
 
+    /**
+     * Stages the explicit relative [files] (`git add -- <files>`) and creates a commit with
+     * [message] (1..200 chars, non-blank). Refused entirely unless the caller has enabled
+     * write operations (`GitHubIntegrationState.writeOperationsEnabled`) — the maintainer
+     * opt-in gate. Never stages anything outside [files].
+     */
+    suspend fun gitCommit(project: String, files: List<String>, message: String): WorkspaceGitResult
+
+    /**
+     * Pushes the current branch as `git push origin HEAD`. Never any force flags, never a
+     * custom remote or refspec. Refused entirely unless the caller has enabled write
+     * operations — see [gitCommit].
+     */
+    suspend fun gitPush(project: String): WorkspaceGitResult
+
     /** Reads staged + unstaged diffs for one guest-absolute [path] inside [project]. */
     suspend fun gitDiff(project: String, path: String): WorkspaceGitDiff
 
@@ -140,6 +155,8 @@ class NoOpWorkspaceController : WorkspaceController {
     override suspend fun gitLog(project: String, maxCount: Int): List<WorkspaceGitLogEntry> = emptyList()
     override suspend fun gitFetch(project: String): WorkspaceGitResult = WorkspaceGitResult(error = WorkspaceGitError.Failed, isRepository = false)
     override suspend fun gitPullFfOnly(project: String): WorkspaceGitResult = WorkspaceGitResult(error = WorkspaceGitError.Failed, isRepository = false)
+    override suspend fun gitCommit(project: String, files: List<String>, message: String): WorkspaceGitResult = WorkspaceGitResult(error = WorkspaceGitError.Failed, isRepository = false)
+    override suspend fun gitPush(project: String): WorkspaceGitResult = WorkspaceGitResult(error = WorkspaceGitError.Failed, isRepository = false)
     override suspend fun gitDiff(project: String, path: String): WorkspaceGitDiff = WorkspaceGitDiff(path = path, error = WorkspaceGitError.Failed)
     override suspend fun gitStage(project: String, path: String): Boolean = false
     override suspend fun gitUnstage(project: String, path: String): Boolean = false

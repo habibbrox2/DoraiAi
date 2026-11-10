@@ -48,4 +48,21 @@ object GitUrlValidator {
         if (name == null || name.isBlank()) return false
         return name.isNotEmpty() && !name.contains('/') && !name.contains('\\') && name != "." && name != ".."
     }
+
+    /**
+     * Returns true only when [path] is an explicit, non-traversing relative path, safe to hand to
+     * `git add -- <path>`: not absolute (no leading `/` or `\`, no drive letter), no `..` or
+     * empty segments, and never `-`-prefixed so it cannot be mistaken for a flag.
+     */
+    fun isSafeRelativePath(path: String?): Boolean {
+        if (path == null || path.isBlank()) return false
+        if (path.any { it == '\u0000' || it == '\n' || it == '\r' }) return false
+        if (path.startsWith("/") || path.startsWith("\\") || path.startsWith("-")) return false
+        if (path.length >= 3 && path[0].isLetter() && path[1] == ':' && (path[2] == '/' || path[2] == '\\')) {
+            return false // Windows drive-absolute path
+        }
+        val segments = path.split('/', '\\')
+        if (segments.any { it.isEmpty() || it == "." || it == ".." }) return false
+        return true
+    }
 }

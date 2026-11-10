@@ -60,6 +60,8 @@ class AndroidWorkspaceController : WorkspaceController {
     override suspend fun gitLog(project: String, maxCount: Int): List<com.dorai.ai.workspace.WorkspaceGitLogEntry> = manager.gitLog(project, maxCount)
     override suspend fun gitFetch(project: String): WorkspaceGitResult = manager.gitFetch(project)
     override suspend fun gitPullFfOnly(project: String): WorkspaceGitResult = manager.gitPullFfOnly(project)
+    override suspend fun gitCommit(project: String, files: List<String>, message: String): WorkspaceGitResult = manager.gitCommit(project, files, message)
+    override suspend fun gitPush(project: String): WorkspaceGitResult = manager.gitPush(project)
     override suspend fun gitDiff(project: String, path: String): WorkspaceGitDiff = manager.gitDiff(project, path)
     override suspend fun gitStage(project: String, path: String): Boolean = manager.gitStage(project, path)
     override suspend fun gitUnstage(project: String, path: String): Boolean = manager.gitUnstage(project, path)

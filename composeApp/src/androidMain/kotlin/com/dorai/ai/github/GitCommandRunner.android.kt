@@ -17,6 +17,7 @@ private object UnsupportedGitCommandRunner : GitCommandRunner {
         project: String,
         args: List<String>,
         timeoutSeconds: Long,
+        writeEnabled: Boolean,
     ): GitCommandResult = GitCommandResult(
         success = false,
         stdout = "",
