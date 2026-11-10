@@ -25,6 +25,7 @@ jobs:
       run_android: ${{ steps.filter.outputs.run_android }}
       run_screenshots: ${{ steps.filter.outputs.run_screenshots }}
       run_agent_tooling: ${{ steps.filter.outputs.run_agent_tooling }}
+      run_frontend: ${{ steps.filter.outputs.run_frontend }}
     steps:
       - name: Checkout history
         uses: actions/checkout@v4
@@ -40,13 +41,13 @@ jobs:
           HEAD_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
-          quality=false; desktop=false; android=false; screenshots=false; agent_tooling=false
+          quality=false; desktop=false; android=false; screenshots=false; agent_tooling=false; frontend=false
           if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
-            quality=true; desktop=true; android=true; screenshots=true; agent_tooling=true
+            quality=true; desktop=true; android=true; screenshots=true; agent_tooling=true; frontend=true
           else
             if [[ "$EVENT_NAME" == "pull_request" ]]; then base="$BASE_SHA"; else base="$BEFORE_SHA"; fi
             if [[ -z "$base" || "$base" =~ ^0+$ ]]; then
-              quality=true; desktop=true; android=true; screenshots=true; agent_tooling=true
+              quality=true; desktop=true; android=true; screenshots=true; agent_tooling=true; frontend=true
             else
               git diff --check "$base" "$HEAD_SHA"
               while IFS= read -r file; do
@@ -69,6 +70,10 @@ jobs:
                     screenshots=true ;;
                 esac
                 case "$file" in
+                  frontend/*|package.json|pnpm-lock.yaml|pnpm-workspace.yaml|hybrid/contracts/*)
+                    frontend=true ;;
+                esac
+                case "$file" in
                   site/img/*|scripts/*webp*|scripts/*Webp*) quality=true ;;
                 esac
                 case "$file" in
@@ -83,7 +88,8 @@ jobs:
           echo "run_android=$android" >> "$GITHUB_OUTPUT"
           echo "run_screenshots=$screenshots" >> "$GITHUB_OUTPUT"
           echo "run_agent_tooling=$agent_tooling" >> "$GITHUB_OUTPUT"
-          printf 'Selected jobs: quality=%s desktop=%s android=%s screenshots=%s agent_tooling=%s\n' "$quality" "$desktop" "$android" "$screenshots" "$agent_tooling"
+          echo "run_frontend=$frontend" >> "$GITHUB_OUTPUT"
+          printf 'Selected jobs: quality=%s desktop=%s android=%s screenshots=%s agent_tooling=%s frontend=%s\n' "$quality" "$desktop" "$android" "$screenshots" "$agent_tooling" "$frontend"
 
   agent_tooling:
     name: Agent Tooling Checks
@@ -97,6 +103,31 @@ jobs:
       - name: Validate agent scripts and native configuration
         shell: pwsh
         run: ./scripts/test-agent-tooling.ps1
+
+  frontend:
+    name: Frontend Validation
+    needs: changes
+    if: needs.changes.outputs.run_frontend == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.11.2
+          run_install: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Run frontend checks
+        run: pnpm run frontend:check
 
   quality:
     name: Quality and Web Assets
@@ -245,6 +276,7 @@ jobs:
     needs:
       - changes
       - agent_tooling
+      - frontend
       - quality
       - desktop
       - android
@@ -255,6 +287,7 @@ jobs:
         env:
           CHANGES_RESULT: ${{ needs.changes.result }}
           AGENT_TOOLING_RESULT: ${{ needs.agent_tooling.result }}
+          FRONTEND_RESULT: ${{ needs.frontend.result }}
           QUALITY_RESULT: ${{ needs.quality.result }}
           DESKTOP_RESULT: ${{ needs.desktop.result }}
           ANDROID_RESULT: ${{ needs.android.result }}
@@ -262,7 +295,7 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$CHANGES_RESULT" == "success" ]] || { echo "Change classification failed: $CHANGES_RESULT"; exit 1; }
-          for result in "$AGENT_TOOLING_RESULT" "$QUALITY_RESULT" "$DESKTOP_RESULT" "$ANDROID_RESULT" "$SCREENSHOTS_RESULT"; do
+          for result in "$AGENT_TOOLING_RESULT" "$FRONTEND_RESULT" "$QUALITY_RESULT" "$DESKTOP_RESULT" "$ANDROID_RESULT" "$SCREENSHOTS_RESULT"; do
             if [[ "$result" != "success" && "$result" != "skipped" ]]; then
               echo "A selected validation job failed or was cancelled: $result"
               exit 1

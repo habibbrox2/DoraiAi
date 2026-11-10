@@ -69,9 +69,30 @@ switch ($Action) {
     if (!$branch) { throw 'Refusing to remove a detached worktree automatically.' }
     Invoke-Git @('fetch','origin',$Base)
     & git -C $target merge-base --is-ancestor HEAD "origin/$Base"
-    if ($LASTEXITCODE -ne 0) { throw "Refusing to remove unmerged worktree branch '$branch'. Preserve it or merge it first." }
+    $isAncestor = $LASTEXITCODE -eq 0
+    & git -C $target diff --quiet HEAD "origin/$Base"
+    $sameTree = $LASTEXITCODE -eq 0
+    $mergedPullRequest = $false
+    $gh = Get-Command gh -ErrorAction SilentlyContinue
+    if ($gh) {
+      $ghStdout = [IO.Path]::GetTempFileName()
+      $ghStderr = [IO.Path]::GetTempFileName()
+      try {
+        $ghProcess = Start-Process -FilePath $gh.Source -ArgumentList @('pr','list','--head',$branch,'--state','merged','--json','baseRefName','--limit','10') -NoNewWindow -Wait -PassThru -RedirectStandardOutput $ghStdout -RedirectStandardError $ghStderr
+        if ($ghProcess.ExitCode -eq 0) {
+          $mergedPrJson = Get-Content -LiteralPath $ghStdout -Raw
+          if ($mergedPrJson) {
+            $mergedPullRequests = @($mergedPrJson | ConvertFrom-Json)
+            $mergedPullRequest = @($mergedPullRequests | Where-Object { $_.baseRefName -eq $Base }).Count -gt 0
+          }
+        }
+      } finally {
+        Remove-Item -LiteralPath $ghStdout,$ghStderr -Force -ErrorAction SilentlyContinue
+      }
+    }
+    if (!$isAncestor -and !$sameTree -and !$mergedPullRequest) { throw "Refusing to remove worktree branch '$branch': no merged ancestry, identical tree, or merged PR targeting '$Base' could be verified. Preserve it or merge it first." }
     Invoke-Git @('worktree','remove',$target)
-    Write-Output "Removed clean, merged worktree: $target"
+    Write-Output "Removed clean, verified merged worktree: $target"
     break
   }
 }
