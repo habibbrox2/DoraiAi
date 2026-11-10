@@ -1,6 +1,6 @@
 # System Prompts
 
-**Last verified:** 2026-10-02
+**Last verified:** 2026-11-10
 
 DORAI AI has several distinct prompt-construction paths. Each one is built by a **pure function** with explicit inputs (no DI, no suspend, no resource loading, no clocks) and is covered by a unit-test suite so future edits don't silently break unrelated variations.
 
@@ -47,7 +47,7 @@ The on-device tool allowlist (`LOCAL_TOOL_ALLOWLIST` in `RemoteDataRepository.kt
 - `CHAT_REMOTE` — full chat prompt for remote services. No limits.
 - `CHAT_LOCAL` — trimmed chat prompt for on-device LiteRT. Small Gemma models (2-4B params) can't coherently attend to the full remote prompt, so Structured Learning, Automation, Email Accounts, Scheduled Tasks, Heartbeat Additions, and dorai-ui sections are dropped, and memory sections are char-capped. The model still gets soul + basic memory guidance + memories (up to the cap) + runtime Context — memories matter because `memory_store` / `memory_forget` / `memory_reinforce` are all in the local tool allowlist, and a memory might have been learned via a remote model in an earlier turn.
 
-Interactive UI mode is **not** available on on-device services — the dorai-ui component schema is too large for small Gemma models to coherently attend to, and in practice the model can't produce valid dorai-ui JSON. The "Start interactive mode" button in the empty-state UI is hidden when the primary service is on-device (see `ChatScreen.kt`). If you have LiteRT selected and need interactive UI mode, switch to a remote service first.
+Interactive UI mode is **not** available on on-device services — the dorai-ui component schema is too large for small Gemma models to coherently attend to, and in practice the model can't produce valid dorai-ui JSON. The prompt builder only appends the interactive-UI section for the `CHAT_REMOTE` variant (see `ChatSystemPromptBuilder.kt`); on-device `CHAT_LOCAL` prompts never contain it. If you have LiteRT selected and need interactive UI mode, switch to a remote service first.
 
 ## Heartbeat sections
 

@@ -26,7 +26,6 @@ data class SettingsActions(
     val onChangeCustomModelId: (String, String) -> Unit,
     val onToggleTool: (String, Boolean) -> Unit,
     val onSaveSoul: (String) -> Unit,
-    val onToggleDynamicUi: (Boolean) -> Unit,
     val onToggleRestoreLastChat: (Boolean) -> Unit,
     @Deprecated("Theme is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
     val onChangeThemeMode: (ThemeMode) -> Unit = {},
@@ -97,7 +96,6 @@ data class SettingsActions(
             onChangeCustomModelId = { _, _ -> },
             onToggleTool = { _, _ -> },
             onSaveSoul = {},
-            onToggleDynamicUi = {},
             onToggleRestoreLastChat = {},
             onChangeAppLanguage = {},
             onToggleMemory = {},

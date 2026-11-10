@@ -8,6 +8,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.dorai.ai.ui.handCursor
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_cancel_replace_all
+import dorai.composeapp.generated.resources.a11y_confirm_replace_all
+import dorai.composeapp.generated.resources.action_cancel
+import dorai.composeapp.generated.resources.find_replace_replace_all
+import dorai.composeapp.generated.resources.find_replace_replace_all_body_many
+import dorai.composeapp.generated.resources.find_replace_replace_all_body_one
+import dorai.composeapp.generated.resources.find_replace_replace_all_confirm_title
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Confirmation before Replace all rewrites the buffer (Plan 3, Phase 5).
@@ -22,15 +31,17 @@ internal fun ReplaceAllConfirmDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val confirmDescription = stringResource(Res.string.a11y_confirm_replace_all)
+    val cancelDescription = stringResource(Res.string.a11y_cancel_replace_all)
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Replace all matches?") },
+        title = { Text(stringResource(Res.string.find_replace_replace_all_confirm_title)) },
         text = {
             Text(
                 text = if (matchCount == 1) {
-                    "This will replace the 1 match in this file."
+                    stringResource(Res.string.find_replace_replace_all_body_one)
                 } else {
-                    "This will replace all $matchCount matches in this file."
+                    stringResource(Res.string.find_replace_replace_all_body_many, matchCount)
                 },
             )
         },
@@ -39,9 +50,9 @@ internal fun ReplaceAllConfirmDialog(
                 onClick = onConfirm,
                 modifier = Modifier
                     .handCursor()
-                    .semantics { contentDescription = "Confirm replace all" },
+                    .semantics { contentDescription = confirmDescription },
             ) {
-                Text("Replace all")
+                Text(stringResource(Res.string.find_replace_replace_all))
             }
         },
         dismissButton = {
@@ -49,9 +60,9 @@ internal fun ReplaceAllConfirmDialog(
                 onClick = onDismiss,
                 modifier = Modifier
                     .handCursor()
-                    .semantics { contentDescription = "Cancel replace all" },
+                    .semantics { contentDescription = cancelDescription },
             ) {
-                Text("Cancel")
+                Text(stringResource(Res.string.action_cancel))
             }
         },
     )

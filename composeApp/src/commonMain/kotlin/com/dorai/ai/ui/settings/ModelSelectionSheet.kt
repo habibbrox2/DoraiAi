@@ -65,6 +65,9 @@ import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.ic_arrow_drop_down
+import dorai.composeapp.generated.resources.model_discovery_empty
+import dorai.composeapp.generated.resources.model_discovery_fetching
+import dorai.composeapp.generated.resources.model_discovery_retry
 import dorai.composeapp.generated.resources.model_filter_free
 import dorai.composeapp.generated.resources.model_free_badge
 import dorai.composeapp.generated.resources.model_free_empty
@@ -268,16 +271,16 @@ internal fun ModelSelection(
             if (isLoading) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     CircularProgressIndicator(modifier = Modifier.width(18.dp), strokeWidth = 2.dp)
-                    Text("Fetching models from provider…", style = DoraiTypography.bodySmall, color = LocalDesignColorTokens.current.textSecondary)
+                    Text(stringResource(Res.string.model_discovery_fetching), style = DoraiTypography.bodySmall, color = LocalDesignColorTokens.current.textSecondary)
                 }
             } else {
                 Text(
-                    text = errorMessage ?: "No models have been loaded yet. Retry model discovery.",
+                    text = errorMessage ?: stringResource(Res.string.model_discovery_empty),
                     style = DoraiTypography.bodySmall,
                     color = if (errorMessage != null) DesignTokens.Error else LocalDesignColorTokens.current.textSecondary,
                 )
                 OutlinedButton(onClick = onRetry, enabled = canRetry) {
-                    Text("Retry model discovery")
+                    Text(stringResource(Res.string.model_discovery_retry))
                 }
             }
         }

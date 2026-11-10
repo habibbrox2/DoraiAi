@@ -55,7 +55,7 @@ import dorai.composeapp.generated.resources.settings_sandbox_uninstall_confirm_s
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-internal fun SandboxSettingsCard(
+fun SandboxSettingsCard(
     sandboxState: SandboxUiState,
     onToggleSandbox: (Boolean) -> Unit,
     onSelectDistro: (LinuxDistro) -> Unit,

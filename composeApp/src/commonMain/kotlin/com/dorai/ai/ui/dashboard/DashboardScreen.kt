@@ -78,6 +78,21 @@ import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.settings.SettingsTab
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_back_to_chat
+import dorai.composeapp.generated.resources.a11y_project
+import dorai.composeapp.generated.resources.dash_card_chat
+import dorai.composeapp.generated.resources.dash_card_chat_desc
+import dorai.composeapp.generated.resources.dash_card_design
+import dorai.composeapp.generated.resources.dash_card_design_desc
+import dorai.composeapp.generated.resources.dash_card_tools
+import dorai.composeapp.generated.resources.dash_card_tools_desc
+import dorai.composeapp.generated.resources.dash_card_workspace
+import dorai.composeapp.generated.resources.dash_card_workspace_desc
+import dorai.composeapp.generated.resources.dash_checking_services
+import dorai.composeapp.generated.resources.dash_coming_soon
+import dorai.composeapp.generated.resources.dash_no_service_configured
+import dorai.composeapp.generated.resources.dash_shared_free_service
+import dorai.composeapp.generated.resources.dash_workspace_android_only
 import dorai.composeapp.generated.resources.dashboard_recent_conversations
 import dorai.composeapp.generated.resources.dashboard_recent_projects
 import dorai.composeapp.generated.resources.dashboard_setup_service
@@ -85,6 +100,7 @@ import dorai.composeapp.generated.resources.dashboard_subtitle
 import dorai.composeapp.generated.resources.dashboard_title
 import dorai.composeapp.generated.resources.dashboard_view_all
 import dorai.composeapp.generated.resources.logo
+import dorai.composeapp.generated.resources.status_ready
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -141,6 +157,13 @@ internal fun dashboardColumnsFor(width: Dp): Int = when {
     width < 600.dp -> 1
     width < 1000.dp -> 2
     else -> 4
+}
+
+@Composable
+private fun FactText.resolve(): String = when (this) {
+    is FactText.Raw -> text
+    is FactText.Localized -> stringResource(resource)
+    is FactText.LocalizedWithParam -> stringResource(resource, param)
 }
 
 @Composable
@@ -215,7 +238,7 @@ private fun DashboardHeader(
                 ) {
                     Icon(
                         imageVector = BackIcon,
-                        contentDescription = "Back to chat",
+                        contentDescription = stringResource(Res.string.a11y_back_to_chat),
                         tint = LocalDesignColorTokens.current.textPrimary,
                     )
                 }
@@ -283,7 +306,7 @@ private fun ReadinessCard(
             when (val service = state.service) {
                 null -> if (state.isCheckingServices) {
                     StatusBadge(
-                        label = "Checking services",
+                        label = stringResource(Res.string.dash_checking_services),
                         status = OperationalStatus.Connecting,
                     )
                 } else {
@@ -293,7 +316,7 @@ private fun ReadinessCard(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         StatusBadge(
-                            label = "No service configured",
+                            label = stringResource(Res.string.dash_no_service_configured),
                             status = OperationalStatus.NeedsSetup,
                         )
                         Spacer(modifier = Modifier.weight(1f))
@@ -316,7 +339,11 @@ private fun ReadinessCard(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     StatusBadge(
-                        label = if (service.isSharedKey) "Shared free service" else "Ready",
+                        label = if (service.isSharedKey) {
+                            stringResource(Res.string.dash_shared_free_service)
+                        } else {
+                            stringResource(Res.string.status_ready)
+                        },
                         status = if (service.isSharedKey) {
                             OperationalStatus.NeedsSetup
                         } else {
@@ -363,12 +390,12 @@ private fun ReadinessCard(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         Text(
-                            text = fact.label,
+                            text = fact.label.resolve(),
                             style = DoraiTypography.bodyMedium,
                             color = LocalDesignColorTokens.current.textSecondary,
                             modifier = Modifier.weight(1f),
                         )
-                        StatusBadge(label = fact.value, status = fact.status)
+                        StatusBadge(label = fact.value.resolve(), status = fact.status)
                     }
                 }
             }
@@ -398,8 +425,8 @@ private fun DashboardActionGrid(
 ) {
     val actions = listOf(
         DashboardAction(
-            title = "Chat",
-            subtitle = "Ask, plan, and write with your AI services",
+            title = stringResource(Res.string.dash_card_chat),
+            subtitle = stringResource(Res.string.dash_card_chat_desc),
             icon = Icons.AutoMirrored.Filled.Chat,
             isPrimary = true,
             isEnabled = true,
@@ -407,26 +434,26 @@ private fun DashboardActionGrid(
             onClick = onNavigateToChat,
         ),
         DashboardAction(
-            title = "Workspace",
-            subtitle = "Create apps in a Linux workspace on this device",
+            title = stringResource(Res.string.dash_card_workspace),
+            subtitle = stringResource(Res.string.dash_card_workspace_desc),
             icon = Icons.Filled.Build,
             isPrimary = false,
             isEnabled = state.isBuildAvailable,
-            disabledNote = "Workspace runs on Android devices",
+            disabledNote = stringResource(Res.string.dash_workspace_android_only),
             onClick = { onOpenBuild("") },
         ),
         DashboardAction(
-            title = "Design",
-            subtitle = "Start a guided design conversation",
+            title = stringResource(Res.string.dash_card_design),
+            subtitle = stringResource(Res.string.dash_card_design_desc),
             icon = Icons.Filled.Palette,
             isPrimary = false,
             isEnabled = state.isDesignAvailable,
-            disabledNote = "Coming soon",
+            disabledNote = stringResource(Res.string.dash_coming_soon),
             onClick = { onStartDesign(DESIGN_STARTER_PROMPT) },
         ),
         DashboardAction(
-            title = "Tools",
-            subtitle = "Configure services, tools, and the sandbox",
+            title = stringResource(Res.string.dash_card_tools),
+            subtitle = stringResource(Res.string.dash_card_tools_desc),
             icon = Icons.Filled.Tune,
             isPrimary = false,
             isEnabled = true,
@@ -814,7 +841,7 @@ private fun ProjectRow(
             ) {
                 Icon(
                     imageVector = Icons.Filled.Build,
-                    contentDescription = "Project",
+                    contentDescription = stringResource(Res.string.a11y_project),
                     tint = LocalDesignColorTokens.current.textPrimary,
                     modifier = Modifier.size(20.dp),
                 )

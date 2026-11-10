@@ -56,7 +56,7 @@ class DoraiUiV2ReachabilityTest {
     }
 
     @Test
-    fun `settings categories are strictly 9 ordered categories`() {
+    fun `settings categories are strictly 8 ordered categories`() {
         val expected = listOf(
             "general",
             "appearance",
@@ -65,7 +65,6 @@ class DoraiUiV2ReachabilityTest {
             "tools",
             "mcp",
             "github",
-            "sandbox",
             "account",
         )
         assertEquals(expected, SettingsCategory.entries.map { it.id })

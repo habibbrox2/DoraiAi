@@ -49,7 +49,11 @@ import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.rememberCopyToClipboard
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.chat_action_copied
+import dorai.composeapp.generated.resources.tool_output_label
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * ChatGPT-style Shell & Command Execution Window.
@@ -201,8 +205,8 @@ fun ShellExecutionCard(
                             horizontalArrangement = Arrangement.spacedBy(3.dp),
                             modifier = Modifier.padding(horizontal = 4.dp),
                         ) {
-                            Icon(Icons.Default.Check, contentDescription = "Copied", tint = successGreen, modifier = Modifier.size(13.dp))
-                            Text("Copied", style = DoraiTypography.labelSmall, fontFamily = FontFamily.Monospace, color = successGreen, fontSize = 11.sp)
+                            Icon(Icons.Default.Check, contentDescription = stringResource(Res.string.chat_action_copied), tint = successGreen, modifier = Modifier.size(13.dp))
+                            Text(stringResource(Res.string.chat_action_copied), style = DoraiTypography.labelSmall, fontFamily = FontFamily.Monospace, color = successGreen, fontSize = 11.sp)
                         }
                     } else {
                         IconButton(
@@ -499,13 +503,13 @@ fun ToolExecutionCard(
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    text = "Output:",
+                                    text = "${stringResource(Res.string.tool_output_label)}:",
                                     style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
                                     fontFamily = FontFamily.Monospace,
                                     color = textMuted,
                                 )
                                 if (isCopied) {
-                                    Text("Copied!", style = DoraiTypography.labelSmall, color = successGreen, fontSize = 11.sp)
+                                    Text(stringResource(Res.string.chat_action_copied), style = DoraiTypography.labelSmall, color = successGreen, fontSize = 11.sp)
                                 } else {
                                     IconButton(
                                         onClick = {

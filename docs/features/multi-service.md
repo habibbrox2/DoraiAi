@@ -222,6 +222,5 @@ Users manage services through the settings screen:
 | `composeApp/src/commonMain/.../ui/settings/SettingsViewModel.kt` | Connection validation, service management UI logic |
 | `composeApp/src/commonMain/.../tools/PermissionController.kt` | Runtime permission requests, including the local network gate for LAN server URLs (Android 17+) |
 | `composeApp/src/commonMain/.../tools/LocalNetworkUrl.kt` | Detects LAN base URLs that need the local network permission |
-| `composeApp/src/commonMain/.../ui/chat/ChatScreen.kt` | Chat screen, renders ServiceSelector |
-| `composeApp/src/commonMain/.../ui/chat/composables/ServiceSelector.kt` | Service/model dropdown: the loaded model in the header pill, the model list and the service list in the popup |
+| `composeApp/src/commonMain/.../ui/chat/composables/ServiceSelector.kt` | Service/model dropdown: the loaded model in the header pill, the model list and the service list in the popup (used by the chat composer HUD agents `AgentHud`/`QuestionInput`) |
 | `composeApp/src/commonMain/.../ui/chat/ChatViewModel.kt` | Wires service selection and reordering, and the chat model list and model choice |

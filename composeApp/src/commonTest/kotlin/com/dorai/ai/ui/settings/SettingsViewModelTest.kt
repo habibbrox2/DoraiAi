@@ -543,21 +543,6 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun `onToggleDynamicUi persists and reflects in state`() = runTest {
-        val viewModel = SettingsViewModel(fakeRepository, fakeDaemonController, fakeNotificationPermissionController, noOpScheduler, testDispatcher)
-
-        viewModel.state.test {
-            val initialState = awaitItem()
-            assertTrue(initialState.isDynamicUiEnabled)
-            viewModel.actions.onToggleDynamicUi(false)
-            val updated = awaitItem()
-            assertFalse(updated.isDynamicUiEnabled)
-            assertFalse(fakeRepository.isDynamicUiEnabled())
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
     fun `onToggleMemory persists and reflects in state`() = runTest {
         val viewModel = SettingsViewModel(fakeRepository, fakeDaemonController, fakeNotificationPermissionController, noOpScheduler, testDispatcher)
 

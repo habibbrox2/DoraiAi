@@ -28,6 +28,9 @@ import androidx.compose.ui.unit.sp
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.rememberCopyToClipboard
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_copy
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun DoraiShellBlock(
@@ -74,7 +77,7 @@ fun DoraiShellBlock(
                     ) {
                         Icon(
                             imageVector = Icons.Default.ContentCopy,
-                            contentDescription = "Copy command and output",
+                            contentDescription = stringResource(Res.string.a11y_copy),
                             tint = colors.muted,
                             modifier = Modifier.size(14.dp),
                         )

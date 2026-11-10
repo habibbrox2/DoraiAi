@@ -118,7 +118,6 @@ fun SettingsNavRail(
                     SettingsTab.Services -> Icons.Outlined.Cloud
                     SettingsTab.Tools -> Icons.Outlined.Build
                     SettingsTab.GitHub -> Icons.Outlined.Code
-                    SettingsTab.Sandbox -> Icons.Outlined.Computer
                     SettingsTab.Account -> Icons.Outlined.AccountCircle
                 }
                 val label = when (tab) {
@@ -128,7 +127,6 @@ fun SettingsNavRail(
                     SettingsTab.Services -> stringResource(Res.string.settings_tab_services)
                     SettingsTab.Tools -> stringResource(Res.string.settings_tab_tools)
                     SettingsTab.GitHub -> stringResource(Res.string.settings_tab_github)
-                    SettingsTab.Sandbox -> stringResource(Res.string.settings_tab_sandbox)
                     SettingsTab.Account -> stringResource(Res.string.settings_tab_account)
                 }
 
@@ -215,6 +213,5 @@ private fun settingsTabGroup(tab: SettingsTab): String = when (tab) {
     SettingsTab.General, SettingsTab.Appearance, SettingsTab.Agent -> "Assistant"
     SettingsTab.Services -> "Models & services"
     SettingsTab.Tools, SettingsTab.GitHub -> "Connections"
-    SettingsTab.Sandbox -> "Workspace"
     SettingsTab.Account -> "Account"
 }

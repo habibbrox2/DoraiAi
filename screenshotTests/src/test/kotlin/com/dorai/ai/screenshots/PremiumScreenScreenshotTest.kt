@@ -18,6 +18,7 @@ import com.dorai.ai.ui.chat.composables.ToolExecutionCard
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.dashboard.DashboardScreenContent
 import com.dorai.ai.ui.dashboard.DashboardUiState
+import com.dorai.ai.ui.dashboard.FactText
 import com.dorai.ai.ui.dashboard.ReadinessFact
 import com.dorai.ai.ui.dashboard.ServiceReadiness
 import com.dorai.ai.ui.theme.DesignTokens
@@ -85,8 +86,16 @@ class PremiumScreenScreenshotTest {
                         isSharedKey = false,
                     ),
                     facts = persistentListOf(
-                        ReadinessFact("Workspace", "Ready", OperationalStatus.Ready),
-                        ReadinessFact("Sandbox", "Ready", OperationalStatus.Ready),
+                        ReadinessFact(
+                            FactText.Raw("Workspace"),
+                            FactText.Raw("Ready"),
+                            OperationalStatus.Ready,
+                        ),
+                        ReadinessFact(
+                            FactText.Raw("Sandbox"),
+                            FactText.Raw("Ready"),
+                            OperationalStatus.Ready,
+                        ),
                     ),
                     recentProjects = persistentListOf("brox-kai-2.0"),
                     isBuildAvailable = true,

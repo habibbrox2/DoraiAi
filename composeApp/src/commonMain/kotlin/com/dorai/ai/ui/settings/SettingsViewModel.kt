@@ -83,7 +83,6 @@ class SettingsViewModel(
         availableServicesToAdd = computeAvailableServices().toImmutableList(),
         tools = dataRepository.getToolDefinitions().toImmutableList(),
         soulText = dataRepository.getSoulText(),
-        isDynamicUiEnabled = dataRepository.isDynamicUiEnabled(),
         isRestoreLastChatEnabled = dataRepository.isRestoreLastChatEnabled(),
         appLanguage = dataRepository.getAppLanguage(),
         isMemoryEnabled = dataRepository.isMemoryEnabled(),
@@ -160,7 +159,6 @@ class SettingsViewModel(
         onChangeCustomModelId = ::onChangeCustomModelId,
         onToggleTool = ::onToggleTool,
         onSaveSoul = ::onSaveSoul,
-        onToggleDynamicUi = ::onToggleDynamicUi,
         onToggleRestoreLastChat = ::onToggleRestoreLastChat,
         onChangeAppLanguage = ::onChangeAppLanguage,
         onToggleMemory = ::onToggleMemory,
@@ -557,11 +555,6 @@ class SettingsViewModel(
     private fun onSaveSoul(text: String) {
         dataRepository.setSoulText(text)
         _state.update { it.copy(soulText = text) }
-    }
-
-    private fun onToggleDynamicUi(enabled: Boolean) {
-        dataRepository.setDynamicUiEnabled(enabled)
-        _state.update { it.copy(isDynamicUiEnabled = enabled) }
     }
 
     private fun onToggleRestoreLastChat(enabled: Boolean) {

@@ -21,10 +21,10 @@ import com.dorai.ai.Home
 import com.dorai.ai.Settings
 import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.engine.DoraiTheme
-import com.dorai.ai.ui.chat.ChatScreenContent
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.dashboard.DashboardScreenContent
 import com.dorai.ai.ui.dashboard.DashboardUiState
+import com.dorai.ai.ui.dashboard.FactText
 import com.dorai.ai.ui.dashboard.ReadinessFact
 import com.dorai.ai.ui.dashboard.ServiceReadiness
 import com.dorai.ai.ui.settings.SettingsScreenContent
@@ -111,8 +111,16 @@ private fun AppNavigationGraph(startDestination: Any) {
                         isSharedKey = false,
                     ),
                     facts = kotlinx.collections.immutable.persistentListOf(
-                        ReadinessFact("Workspace", "Ready", OperationalStatus.Ready),
-                        ReadinessFact("Sandbox", "Ready", OperationalStatus.Ready),
+                        ReadinessFact(
+                            FactText.Raw("Workspace"),
+                            FactText.Raw("Ready"),
+                            OperationalStatus.Ready,
+                        ),
+                        ReadinessFact(
+                            FactText.Raw("Sandbox"),
+                            FactText.Raw("Ready"),
+                            OperationalStatus.Ready,
+                        ),
                     ),
                     recentProjects = kotlinx.collections.immutable.persistentListOf("brox-kai-2.0"),
                     isBuildAvailable = true,
@@ -127,12 +135,12 @@ private fun AppNavigationGraph(startDestination: Any) {
             )
         }
         composable<Home> {
-            ChatScreenContent(
-                uiState = ScreenshotTestData.chatWithMessages,
+            DoraiChatScreenV2(
+                messages = ScreenshotTestData.v2Messages,
+                conversations = ScreenshotTestData.v2Conversations,
+                selectedModeId = "build",
+                onOpenConversation = { navController.navigate(Home) },
                 onNavigateToSettings = { navController.navigate(Settings()) },
-                onNavigateToDashboard = { navController.navigate(Dashboard) },
-                isSandboxAvailable = true,
-                isWorkspaceAvailable = true,
             )
         }
         composable<Settings> { entry ->
@@ -150,8 +158,6 @@ private fun AppNavigationGraph(startDestination: Any) {
 
                     // Not yet snapshotted — stand-in until a GitHub fixture is recorded.
                     SettingsTab.GitHub -> ScreenshotTestData.settingsTools
-
-                    SettingsTab.Sandbox -> ScreenshotTestData.settingsSandbox
 
                     SettingsTab.Account -> ScreenshotTestData.settingsAccountState
 

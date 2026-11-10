@@ -19,14 +19,8 @@ import com.dorai.ai.ui.adaptive.DoraiAdaptiveScaffold
 import com.dorai.ai.ui.adaptive.DoraiDestination
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
 import com.dorai.ai.ui.adaptive.calculateDoraiWindowWidthClass
-import com.dorai.ai.ui.chat.ChatConversationSummary
-import com.dorai.ai.ui.chat.ChatMessageItem
 import com.dorai.ai.ui.chat.DoraiChatScreen
 import com.dorai.ai.ui.components.v2.DoraiComponentsPreviewContent
-import com.dorai.ai.ui.components.v2.DynamicUiModel
-import com.dorai.ai.ui.components.v2.DynamicUiOption
-import com.dorai.ai.ui.components.v2.ToolExecutionModel
-import com.dorai.ai.ui.components.v2.ToolExecutionState
 import com.dorai.ai.ui.home.DoraiHomeScreen
 import com.dorai.ai.ui.home.HomeChatSummary
 import com.dorai.ai.ui.home.HomeProjectSummary
@@ -131,7 +125,7 @@ class DoraiUiV2ScreenshotTest {
     ) {
         DoraiChatScreen(
             messages = emptyList(),
-            conversations = sampleConversations(),
+            conversations = ScreenshotTestData.v2Conversations,
             currentModelName = "Google Gemini",
             isModelLocal = false,
             selectedModeId = "ask",
@@ -149,8 +143,8 @@ class DoraiUiV2ScreenshotTest {
         palette = ThemePresets.ogShine,
     ) {
         DoraiChatScreen(
-            messages = sampleMessages(),
-            conversations = sampleConversations(),
+            messages = ScreenshotTestData.v2Messages,
+            conversations = ScreenshotTestData.v2Conversations,
             currentModelName = "Google Gemini",
             isModelLocal = false,
             selectedModeId = "build",
@@ -169,8 +163,8 @@ class DoraiUiV2ScreenshotTest {
         fontScale = 1.4f,
     ) {
         DoraiChatScreen(
-            messages = sampleMessages(),
-            conversations = sampleConversations(),
+            messages = ScreenshotTestData.v2Messages,
+            conversations = ScreenshotTestData.v2Conversations,
             currentModelName = "Google Gemini",
             isModelLocal = false,
             selectedModeId = "build",
@@ -188,8 +182,8 @@ class DoraiUiV2ScreenshotTest {
         palette = ThemePresets.ogShine,
     ) {
         DoraiChatScreen(
-            messages = sampleMessages(),
-            conversations = sampleConversations(),
+            messages = ScreenshotTestData.v2Messages,
+            conversations = ScreenshotTestData.v2Conversations,
             currentModelName = "Google Gemini",
             isModelLocal = false,
             selectedModeId = "build",
@@ -399,22 +393,6 @@ class DoraiUiV2ScreenshotTest {
     }
 
     @Test
-    fun settings_sandbox_compact_ogshine() = snap(
-        destination = DoraiDestination.Settings,
-        device = DeviceConfig.PIXEL_9A,
-        palette = ThemePresets.ogShine,
-    ) {
-        DoraiSettingsScreen(
-            activeCategory = SettingsCategory.Sandbox,
-            onCategoryChanged = {},
-            selectedThemeId = "ogshine",
-            onThemeSelected = {},
-            currentThemeStyle = ThemeStyle.Flat,
-            onThemeStyleSelected = {},
-        )
-    }
-
-    @Test
     fun settings_account_compact_ogshine() = snap(
         destination = DoraiDestination.Settings,
         device = DeviceConfig.PIXEL_9A,
@@ -553,74 +531,6 @@ class DoraiUiV2ScreenshotTest {
                 id = "3",
                 title = "ব্যর্থ টেস্ট ঠিক করা",
                 snippet = "টেস্ট ফেইল করছে, দেখো তো।",
-            ),
-        ),
-    )
-
-    private fun sampleConversations() = listOf(
-        ChatConversationSummary(
-            id = "1",
-            title = "ডার্ক-মোড সুইচ",
-            preview = "সেটিংস স্ক্রিনে ডার্ক-মোড সুইচ যোগ করো।",
-            isToday = true,
-        ),
-        ChatConversationSummary(
-            id = "2",
-            title = "কোন ডেটাবেস নেব",
-            preview = "লোকাল স্টোরেজে কোন ডেটাবেস ব্যবহার করব?",
-            isToday = true,
-        ),
-        ChatConversationSummary(
-            id = "3",
-            title = "ব্যর্থ টেস্ট ঠিক করা",
-            preview = "টেস্ট ফেইল করছে, দেখো তো।",
-            isToday = false,
-        ),
-    )
-
-    private fun sampleMessages() = listOf(
-        ChatMessageItem(
-            id = "1",
-            isUser = true,
-            text = "সেটিংস স্ক্রিনে ডার্ক-মোড সুইচ যোগ করো।",
-        ),
-        ChatMessageItem(
-            id = "2",
-            isUser = false,
-            text = "আগে থিমের কোড পড়ছি, তারপর সুইচটি যোগ করব।",
-            modelName = "Google Gemini",
-            isModelLocal = false,
-            toolExecutions = listOf(
-                ToolExecutionModel(
-                    toolName = "read_file",
-                    argsSummary = "ThemeState.kt",
-                    state = ToolExecutionState.Completed,
-                    outputText = "42 lines",
-                    durationText = "0.4s",
-                ),
-                ToolExecutionModel(
-                    toolName = "search",
-                    argsSummary = "\"isDarkTheme\"",
-                    state = ToolExecutionState.Completed,
-                    outputText = "3 matches",
-                    durationText = "0.9s",
-                ),
-                ToolExecutionModel(
-                    toolName = "edit_file",
-                    argsSummary = "SettingsScreen.kt",
-                    state = ToolExecutionState.PendingApproval,
-                    diffText = "@@ SettingsScreen.kt\n- SwitchRow(\"Dark mode\", false) {}\n+ SwitchRow(\"Dark mode\", state.dark, state::toggleDark)",
-                ),
-            ),
-            dynamicUi = DynamicUiModel(
-                title = "Kotlin Multiplatform-এ কাজ করে এমন তিনটি অপশন নিচে। একটি বেছে নিন:",
-                options = listOf(
-                    DynamicUiOption("sq", "SQLDelight", "SQL আগে লিখুন, টাইপ-সেফ কোড তৈরি হবে"),
-                    DynamicUiOption("room", "Room", "Android-এ পরিচিত, KMP সমর্থন বাড়ছে"),
-                    DynamicUiOption("kv", "Key-value store", "সহজ সেটিংস ও ক্যাশের জন্য"),
-                ),
-                selectedOptionId = "sq",
-                isLocked = false,
             ),
         ),
     )

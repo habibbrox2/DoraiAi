@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalVoiceApi::class)
-
 package com.dorai.ai.screenshots
 
 import android.graphics.BitmapFactory
@@ -16,10 +14,8 @@ import app.cash.paparazzi.Paparazzi
 import com.dorai.ai.theme.data.ThemePalette
 import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.engine.DoraiTheme
-import com.dorai.ai.ui.chat.ChatScreenContent
 import com.dorai.ai.ui.dynamicui.LocalPreviewImages
 import com.dorai.ai.ui.settings.SettingsScreenContent
-import nl.marc_apps.tts.experimental.ExperimentalVoiceApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
 import org.junit.After
@@ -120,9 +116,8 @@ class StoreScreenshotTest(
     @Test
     fun chatEmptyState() {
         snap("01", ThemePresets.light) {
-            ChatScreenContent(
-                uiState = ScreenshotTestData.chatEmptyState,
-                FakeTextToSpeechInstance(),
+            DoraiChatScreenV2(
+                conversations = ScreenshotTestData.v2Conversations,
             )
         }
     }
@@ -130,9 +125,10 @@ class StoreScreenshotTest(
     @Test
     fun chatWithMessages() {
         snap("02", ThemePresets.dark) {
-            ChatScreenContent(
-                uiState = ScreenshotTestData.localizedChatWithMessages(locale),
-                FakeTextToSpeechInstance(),
+            DoraiChatScreenV2(
+                messages = ScreenshotTestData.localizedV2Messages(locale),
+                conversations = ScreenshotTestData.v2Conversations,
+                selectedModeId = "build",
             )
         }
     }
@@ -140,9 +136,10 @@ class StoreScreenshotTest(
     @Test
     fun chatWithDynamicUi() {
         snap("03", ThemePresets.light) {
-            ChatScreenContent(
-                uiState = ScreenshotTestData.localizedChatWithDynamicUi(locale),
-                FakeTextToSpeechInstance(),
+            DoraiChatScreenV2(
+                messages = ScreenshotTestData.localizedV2DynamicUiMessages(locale),
+                conversations = ScreenshotTestData.v2Conversations,
+                selectedModeId = "build",
             )
         }
     }
@@ -174,12 +171,8 @@ class StoreScreenshotTest(
     @Test
     fun settingsSandbox() {
         snap("07", ThemePresets.dark) {
-            ChatScreenContent(
-                uiState = ScreenshotTestData.chatEmptyState,
-                isSandboxAvailable = true,
-                initialSandboxOpen = true,
-                previewSandboxState = ScreenshotTestData.sandboxState,
-                previewSandboxLines = ScreenshotTestData.sandboxTerminalLines,
+            DoraiWorkspaceScreenSnapshot(
+                sandboxState = ScreenshotTestData.sandboxState,
             )
         }
     }

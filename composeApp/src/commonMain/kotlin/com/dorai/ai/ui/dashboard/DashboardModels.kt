@@ -7,9 +7,19 @@ import com.dorai.ai.ui.chat.ChatUiState
 import com.dorai.ai.ui.chat.ConversationSummary
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.workspace.WorkspaceState
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.dash_projects_count
+import dorai.composeapp.generated.resources.dash_sandbox_fact
+import dorai.composeapp.generated.resources.dash_workspace_fact
+import dorai.composeapp.generated.resources.status_installing
+import dorai.composeapp.generated.resources.status_needs_attention
+import dorai.composeapp.generated.resources.status_not_set_up
+import dorai.composeapp.generated.resources.status_ready
+import dorai.composeapp.generated.resources.status_starting
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import org.jetbrains.compose.resources.StringResource
 
 /**
  * Design destination contract (Plan 6, Phase 1). Design has no dedicated
@@ -30,9 +40,25 @@ data class ServiceReadiness(
 
 /** One operational fact about sandbox or Workspace readiness. */
 @Immutable
+sealed interface FactText {
+    /** Localized via Compose Resources — used by the production mapper. */
+    @Immutable
+    data class Localized(val resource: StringResource) : FactText
+
+    /** [Localized] with a single Int format parameter — e.g. project counts. */
+    @Immutable
+    data class LocalizedWithParam(val resource: StringResource, val param: Int) : FactText
+
+    /** Raw literal — screenshot fixtures only; never emitted by production code. */
+    @Immutable
+    data class Raw(val text: String) : FactText
+}
+
+/** One operational fact about sandbox or Workspace readiness. */
+@Immutable
 data class ReadinessFact(
-    val label: String,
-    val value: String,
+    val label: FactText,
+    val value: FactText,
     val status: OperationalStatus,
 )
 
@@ -101,17 +127,17 @@ fun buildDashboardUiState(
 }
 
 private fun SandboxStatus.toReadinessFact(): ReadinessFact = when {
-    error -> ReadinessFact("Sandbox", "Needs attention", OperationalStatus.Error)
-    working -> ReadinessFact("Sandbox", "Installing", OperationalStatus.Installing)
-    ready -> ReadinessFact("Sandbox", "Ready", OperationalStatus.Ready)
-    installed -> ReadinessFact("Sandbox", "Starting", OperationalStatus.Connecting)
-    else -> ReadinessFact("Sandbox", "Not set up", OperationalStatus.NeedsSetup)
+    error -> ReadinessFact(FactText.Localized(Res.string.dash_sandbox_fact), FactText.Localized(Res.string.status_needs_attention), OperationalStatus.Error)
+    working -> ReadinessFact(FactText.Localized(Res.string.dash_sandbox_fact), FactText.Localized(Res.string.status_installing), OperationalStatus.Installing)
+    ready -> ReadinessFact(FactText.Localized(Res.string.dash_sandbox_fact), FactText.Localized(Res.string.status_ready), OperationalStatus.Ready)
+    installed -> ReadinessFact(FactText.Localized(Res.string.dash_sandbox_fact), FactText.Localized(Res.string.status_starting), OperationalStatus.Connecting)
+    else -> ReadinessFact(FactText.Localized(Res.string.dash_sandbox_fact), FactText.Localized(Res.string.status_not_set_up), OperationalStatus.NeedsSetup)
 }
 
 private fun WorkspaceState.toReadinessFact(): ReadinessFact = when {
-    isReady && projects.isEmpty() -> ReadinessFact("Workspace", "Ready", OperationalStatus.Ready)
-    isReady -> ReadinessFact("Workspace", "${projects.size} project(s)", OperationalStatus.Ready)
-    isInstalling -> ReadinessFact("Workspace", "Installing", OperationalStatus.Installing)
-    lastError != null -> ReadinessFact("Workspace", "Needs attention", OperationalStatus.Error)
-    else -> ReadinessFact("Workspace", "Not set up", OperationalStatus.NeedsSetup)
+    isReady && projects.isEmpty() -> ReadinessFact(FactText.Localized(Res.string.dash_workspace_fact), FactText.Localized(Res.string.status_ready), OperationalStatus.Ready)
+    isReady -> ReadinessFact(FactText.Localized(Res.string.dash_workspace_fact), FactText.LocalizedWithParam(Res.string.dash_projects_count, projects.size), OperationalStatus.Ready)
+    isInstalling -> ReadinessFact(FactText.Localized(Res.string.dash_workspace_fact), FactText.Localized(Res.string.status_installing), OperationalStatus.Installing)
+    lastError != null -> ReadinessFact(FactText.Localized(Res.string.dash_workspace_fact), FactText.Localized(Res.string.status_needs_attention), OperationalStatus.Error)
+    else -> ReadinessFact(FactText.Localized(Res.string.dash_workspace_fact), FactText.Localized(Res.string.status_not_set_up), OperationalStatus.NeedsSetup)
 }

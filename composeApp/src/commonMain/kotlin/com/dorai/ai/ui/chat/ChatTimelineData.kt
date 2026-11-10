@@ -6,7 +6,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
 /**
- * Immutable, precomputed indexes consumed by [ChatTimeline].
+ * Immutable, precomputed conversation-message indexes derived from history.
  *
  * All history-wide relationships are derived in linear passes instead of
  * rescanning the complete history for every message during composition.

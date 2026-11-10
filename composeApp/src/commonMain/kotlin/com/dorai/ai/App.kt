@@ -276,6 +276,9 @@ private fun AppContent(
                             currentThemeStyle = themeState.activeStyle,
                             onThemeStyleSelected = { themeViewModel.setThemeStyle(it) },
                             androidUpdateContent = androidUpdateContent,
+                            onNavigateToWorkspace = {
+                                shellState.navigateTo(DoraiDestination.Workspace)
+                            },
                         )
                     },
                 )

@@ -26,11 +26,15 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.dorai.ai.linux.LinuxDistro
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.components.VerticalScrollbarForList
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.conversations_clear_all
+import dorai.composeapp.generated.resources.conversations_clear_all_confirm_action
+import dorai.composeapp.generated.resources.conversations_clear_all_confirm_body
+import dorai.composeapp.generated.resources.conversations_clear_all_confirm_title
+import dorai.composeapp.generated.resources.data_manage_description
 import dorai.composeapp.generated.resources.settings_tab_appearance
 import dorai.composeapp.generated.resources.settings_tab_data
 import org.jetbrains.compose.resources.stringResource
@@ -45,13 +49,6 @@ fun SettingsDetailPane(
     uiState: SettingsUiState,
     actions: SettingsActions,
     sandboxState: SandboxUiState,
-    onToggleSandbox: (Boolean) -> Unit,
-    onSelectDistro: (LinuxDistro) -> Unit,
-    onSetupSandbox: () -> Unit,
-    onCancelSandbox: () -> Unit,
-    onResetSandbox: () -> Unit,
-    onInstallPackages: () -> Unit,
-    onMigrateHome: () -> Unit,
     androidUpdateContent: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
@@ -123,23 +120,6 @@ fun SettingsDetailPane(
                                 GitHubSection()
                             }
 
-                            SettingsTab.Sandbox -> {
-                                if (sandboxState.showSandbox) {
-                                    SandboxSettingsCard(
-                                        sandboxState = sandboxState,
-                                        onToggleSandbox = onToggleSandbox,
-                                        onSelectDistro = onSelectDistro,
-                                        onSetupSandbox = onSetupSandbox,
-                                        onCancelSandbox = onCancelSandbox,
-                                        onResetSandbox = onResetSandbox,
-                                        onInstallPackages = onInstallPackages,
-                                        onMigrateHome = onMigrateHome,
-                                    )
-                                } else {
-                                    SandboxUnavailableContent()
-                                }
-                            }
-
                             SettingsTab.Account -> {
                                 DataControlContent(uiState = uiState, actions = actions)
                                 AccountPlanContent(uiState = uiState)
@@ -158,26 +138,6 @@ fun SettingsDetailPane(
         VerticalScrollbarForList(
             listState = settingsListState,
             modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
-        )
-    }
-}
-
-@Composable
-internal fun SandboxUnavailableContent() {
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text(
-            text = "Linux Sandbox",
-            style = DoraiTypography.titleMedium,
-            color = LocalDesignColorTokens.current.textPrimary,
-        )
-        Text(
-            text = "The Linux sandbox is only available on Android devices.",
-            style = DoraiTypography.bodySmall,
-            color = LocalDesignColorTokens.current.textSecondary,
         )
     }
 }
@@ -205,12 +165,12 @@ fun DataControlContent(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
-                    text = "Manage your chat history and stored data.",
+                    text = stringResource(Res.string.data_manage_description),
                     style = DoraiTypography.bodyMedium,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
                 Button(onClick = { showClearAllConfirmationDialog = true }) {
-                    Text("Clear all conversations")
+                    Text(stringResource(Res.string.conversations_clear_all))
                 }
             }
         }
@@ -218,9 +178,9 @@ fun DataControlContent(
 
     if (showClearAllConfirmationDialog) {
         SettingsConfirmDialog(
-            title = "Clear all conversations?",
-            message = "All conversation history will be permanently deleted. This action cannot be undone.",
-            confirmLabel = "Clear all",
+            title = stringResource(Res.string.conversations_clear_all_confirm_title),
+            message = stringResource(Res.string.conversations_clear_all_confirm_body),
+            confirmLabel = stringResource(Res.string.conversations_clear_all_confirm_action),
             onConfirm = {
                 showClearAllConfirmationDialog = false
                 actions.onClearAllConversations()
@@ -272,7 +232,6 @@ private fun SettingsPageHeading(
         SettingsTab.Services -> "Services"
         SettingsTab.Tools -> "Tools"
         SettingsTab.GitHub -> "GitHub"
-        SettingsTab.Sandbox -> "Linux Sandbox"
         SettingsTab.Account -> "Account & Data"
     }
     val description = when (tab) {
@@ -282,7 +241,6 @@ private fun SettingsPageHeading(
         SettingsTab.Services -> "Connect providers and manage the models available to DORAI AI."
         SettingsTab.Tools -> "Connect your agent to the tools, services and skills you trust."
         SettingsTab.GitHub -> "Connect GitHub, browse repositories and clone them into your workspace."
-        SettingsTab.Sandbox -> "Configure the isolated Linux workspace and its lifecycle."
         SettingsTab.Account -> "Review your account, application and data controls."
     }
     Column(

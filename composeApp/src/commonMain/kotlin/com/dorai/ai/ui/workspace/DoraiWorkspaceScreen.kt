@@ -8,6 +8,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -60,8 +61,11 @@ import com.dorai.ai.ui.adaptive.DoraiAdaptiveDefaults
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
 import com.dorai.ai.ui.components.v2.DoraiPillTabs
 import com.dorai.ai.ui.components.v2.DoraiStatusBadge
+import com.dorai.ai.workspace.WorkspaceAgents
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.workspace_agent_empty
+import dorai.composeapp.generated.resources.workspace_agents_section_subtitle
+import dorai.composeapp.generated.resources.workspace_agents_section_title
 import dorai.composeapp.generated.resources.workspace_back_content_description
 import dorai.composeapp.generated.resources.workspace_changes_count
 import dorai.composeapp.generated.resources.workspace_editor_empty
@@ -70,11 +74,13 @@ import dorai.composeapp.generated.resources.workspace_finish_setup
 import dorai.composeapp.generated.resources.workspace_git_unavailable
 import dorai.composeapp.generated.resources.workspace_last_updated
 import dorai.composeapp.generated.resources.workspace_new_project
+import dorai.composeapp.generated.resources.workspace_open_with
 import dorai.composeapp.generated.resources.workspace_ready_desc
 import dorai.composeapp.generated.resources.workspace_ready_title
 import dorai.composeapp.generated.resources.workspace_sandbox_running_badge
 import dorai.composeapp.generated.resources.workspace_sandbox_stopped_badge
 import dorai.composeapp.generated.resources.workspace_sandbox_stopped_title
+import dorai.composeapp.generated.resources.workspace_session_shell
 import dorai.composeapp.generated.resources.workspace_setup_desc
 import dorai.composeapp.generated.resources.workspace_setup_step_1
 import dorai.composeapp.generated.resources.workspace_setup_step_2
@@ -136,6 +142,15 @@ fun DoraiWorkspaceScreen(
     /** Slot rendering the real guest file tree. [openFile] must be called with a file path so the center pane switches to the Editor tab. */
     fileExplorerContent: (@Composable (openFile: (String) -> Unit) -> Unit)? = null,
     onCreateProject: ((String) -> Unit)? = null,
+    /** The guest Debian's installed coding agents (ids); drives "Open with" and the agents card. Empty hides agent UI. */
+    installedAgentIds: Set<String> = emptySet(),
+    /** Preference for what a fresh project opens with; null is a plain shell. */
+    launchAgentId: String? = null,
+    onLaunchAgentSelected: (String?) -> Unit = {},
+    /** Installs a missing agent into the guest (deb system must be ready). */
+    onInstallAgent: (String) -> Unit = {},
+    /** Embeds the real Linux Sandbox management surface (install/switch/uninstall) — the same card that used to live in Settings → Sandbox. */
+    sandboxSlot: (@Composable () -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
     val widthClass = LocalDoraiWindowWidthClass.current
@@ -154,6 +169,11 @@ fun DoraiWorkspaceScreen(
                 onOpenProject = onOpenProject,
                 onStartSandbox = onStartSandbox,
                 onCreateProject = onCreateProject,
+                installedAgentIds = installedAgentIds,
+                launchAgentId = launchAgentId,
+                onLaunchAgentSelected = onLaunchAgentSelected,
+                onInstallAgent = onInstallAgent,
+                sandboxSlot = sandboxSlot,
             )
         } else {
             ActiveProjectView(
@@ -257,10 +277,21 @@ private fun WorkspaceProjectsView(
     onOpenProject: (WorkspaceProjectItem) -> Unit,
     onStartSandbox: () -> Unit,
     onCreateProject: ((String) -> Unit)? = null,
+    installedAgentIds: Set<String> = emptySet(),
+    launchAgentId: String? = null,
+    onLaunchAgentSelected: (String?) -> Unit = {},
+    onInstallAgent: (String) -> Unit = {},
+    sandboxSlot: (@Composable () -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
     val scrollState = rememberScrollState()
     var showNewProjectDialog by remember { mutableStateOf(false) }
+    val installedAgents = remember(installedAgentIds) {
+        WorkspaceAgents.all.filter { it.id in installedAgentIds }
+    }
+    val missingAgents = remember(installedAgentIds) {
+        WorkspaceAgents.all.filterNot { it.id in installedAgentIds }
+    }
 
     Column(
         modifier = Modifier
@@ -315,6 +346,34 @@ private fun WorkspaceProjectsView(
                     }
                 }
             }
+
+            // Which agent a fresh project opens with — remembered preference, default is a plain shell.
+            if (installedAgents.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+                Row(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.SM),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(Res.string.workspace_open_with),
+                        color = colors.muted,
+                        fontSize = 12.5.sp,
+                    )
+                    LaunchAgentChip(
+                        text = stringResource(Res.string.workspace_session_shell),
+                        selected = launchAgentId == null,
+                        onClick = { onLaunchAgentSelected(null) },
+                    )
+                    installedAgents.forEach { agent ->
+                        LaunchAgentChip(
+                            text = agent.title,
+                            selected = launchAgentId == agent.id,
+                            onClick = { onLaunchAgentSelected(agent.id) },
+                        )
+                    }
+                }
+            }
         }
 
         // Project Cards
@@ -366,6 +425,57 @@ private fun WorkspaceProjectsView(
                     )
                 }
             }
+        }
+
+        // Coding agents the guest Debian can host (Claude Code, OpenCode, Grok) — install missing ones.
+        if (isSandboxRunning && missingAgents.isNotEmpty()) {
+            val agentsShape = RoundedCornerShape(16.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(agentsShape)
+                    .background(colors.surface)
+                    .border(1.dp, colors.line, agentsShape)
+                    .padding(DoraiSpacing.MD),
+            ) {
+                Text(
+                    text = stringResource(Res.string.workspace_agents_section_title),
+                    color = colors.text,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = stringResource(Res.string.workspace_agents_section_subtitle),
+                    color = colors.muted,
+                    fontSize = 12.5.sp,
+                )
+                Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.SM),
+                ) {
+                    missingAgents.forEach { agent ->
+                        Button(
+                            onClick = { onInstallAgent(agent.id) },
+                            colors = ButtonDefaults.buttonColors(containerColor = colors.surface2, contentColor = colors.text),
+                            shape = RoundedCornerShape(10.dp),
+                            contentPadding = PaddingValues(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.SM),
+                        ) {
+                            Icon(Icons.Default.SmartToy, contentDescription = null, modifier = Modifier.size(15.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(text = agent.title, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                }
+            }
+        }
+
+        // The Linux Sandbox management card — used to live at Settings → Sandbox.
+        if (sandboxSlot != null) {
+            sandboxSlot()
         }
 
         if (showNewProjectDialog) {
@@ -659,5 +769,31 @@ private fun TerminalTabContent(
                 fontSize = 13.sp,
             )
         }
+    }
+}
+
+@Composable
+private fun LaunchAgentChip(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    val colors = LocalDoraiColors.current
+    val shape = RoundedCornerShape(999.dp)
+    Box(
+        modifier = Modifier
+            .clip(shape)
+            .background(if (selected) colors.primary.copy(alpha = 0.16f) else colors.surface2)
+            .border(1.dp, if (selected) colors.primary.copy(alpha = 0.5f) else colors.line, shape)
+            .clickable(role = androidx.compose.ui.semantics.Role.Button, onClick = onClick)
+            .padding(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.SM),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            color = if (selected) colors.primary else colors.text,
+            fontSize = 12.5.sp,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+        )
     }
 }

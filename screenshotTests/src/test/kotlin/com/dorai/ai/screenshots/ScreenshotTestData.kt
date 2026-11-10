@@ -8,12 +8,13 @@ import com.dorai.ai.data.Service
 import com.dorai.ai.getPlatformToolDefinitions
 import com.dorai.ai.linux.LinuxDistro
 import com.dorai.ai.ui.chat.ChatActions
+import com.dorai.ai.ui.chat.ChatConversationSummary
+import com.dorai.ai.ui.chat.ChatMessageItem
 import com.dorai.ai.ui.chat.ChatUiState
-import com.dorai.ai.ui.chat.History
-import com.dorai.ai.ui.chat.activities.ActivityDetails
-import com.dorai.ai.ui.chat.activities.ActivityStatus
-import com.dorai.ai.ui.chat.activities.ActivityType
-import com.dorai.ai.ui.chat.activities.AgentActivity
+import com.dorai.ai.ui.components.v2.DynamicUiModel
+import com.dorai.ai.ui.components.v2.DynamicUiOption
+import com.dorai.ai.ui.components.v2.ToolExecutionModel
+import com.dorai.ai.ui.components.v2.ToolExecutionState
 import com.dorai.ai.ui.settings.ConfiguredServiceEntry
 import com.dorai.ai.ui.settings.ConnectionStatus
 import com.dorai.ai.ui.settings.McpConnectionStatus
@@ -22,6 +23,7 @@ import com.dorai.ai.ui.settings.SandboxUiState
 import com.dorai.ai.ui.settings.SettingsModel
 import com.dorai.ai.ui.settings.SettingsTab
 import com.dorai.ai.ui.settings.SettingsUiState
+import com.dorai.ai.ui.workspace.WorkspaceProjectItem
 import com.dorai.ai.ui.workspace.WorkspaceUiState
 import com.dorai.ai.workspace.WorkspaceEnvironmentState
 import com.dorai.ai.workspace.WorkspaceState
@@ -72,43 +74,6 @@ object ScreenshotTestData {
         showPrivacyInfo = false,
     )
 
-    private val survivalGameContent =
-        "```dorai-ui\n" +
-            "{\"type\":\"column\",\"spacing\":8,\"children\":[" +
-            "{\"type\":\"text\",\"value\":\"\u2694\ufe0f The Goblin Tunnels\",\"style\":\"headline\",\"bold\":true}," +
-            "{\"type\":\"text\",\"value\":\"Chapter 1 \u2022 The Beginning\",\"style\":\"caption\",\"color\":\"secondary\"}," +
-            "{\"type\":\"row\",\"spacing\":16,\"children\":[" +
-            "{\"type\":\"stat\",\"value\":\"20/20\",\"label\":\"HP\"}," +
-            "{\"type\":\"stat\",\"value\":\"Lv 1\",\"label\":\"Level\"}," +
-            "{\"type\":\"stat\",\"value\":\"50g\",\"label\":\"Gold\"}," +
-            "{\"type\":\"stat\",\"value\":\"2\",\"label\":\"DEF\"}" +
-            "]}," +
-            "{\"type\":\"image\",\"url\":\"resource://orc_survival.png\"}," +
-            "{\"type\":\"text\",\"value\":\"The tunnel forks. To the left, faint firelight flickers. To the right, silence \u2014 and a cold draft that makes your torch sputter.\",\"style\":\"body\"}," +
-            "{\"type\":\"divider\"}," +
-            "{\"type\":\"alert\",\"severity\":\"warning\",\"message\":\"\uD83D\uDC7A Two orcs block the left passage! They haven't noticed you yet.\"}," +
-            "{\"type\":\"spacer\",\"height\":4}," +
-            "{\"type\":\"button\",\"label\":\"\u2694\ufe0f Attack with sword\",\"variant\":\"filled\",\"action\":{\"type\":\"callback\",\"event\":\"attack\"}}," +
-            "{\"type\":\"button\",\"label\":\"\uD83E\uDD2B Sneak past in the shadows\",\"variant\":\"outlined\",\"action\":{\"type\":\"callback\",\"event\":\"sneak\"}}" +
-            "]}\n" +
-            "```"
-
-    val chatWithMessages = ChatUiState(
-        actions = noOpChatActions,
-        history = persistentListOf(
-            History(
-                id = "1",
-                role = History.Role.USER,
-                content = "lets play a game",
-            ),
-            History(
-                id = "2",
-                role = History.Role.ASSISTANT,
-                content = survivalGameContent,
-            ),
-        ),
-    )
-
     private val recipeContent =
         "```dorai-ui\n" +
             "{\"type\":\"column\",\"spacing\":8,\"children\":[" +
@@ -129,22 +94,6 @@ object ScreenshotTestData {
             "{\"type\":\"accordion\",\"title\":\"Step 3: Combine\",\"children\":[{\"type\":\"text\",\"value\":\"Toss hot pasta with pepper off heat. Add Pecorino cream and toss until silky.\",\"style\":\"body\"}]}" +
             "]}\n" +
             "```"
-
-    val chatWithDynamicUi = ChatUiState(
-        actions = noOpChatActions,
-        history = persistentListOf(
-            History(
-                id = "1",
-                role = History.Role.USER,
-                content = "suggest Cacio e Pepe recipe for 2 servings",
-            ),
-            History(
-                id = "2",
-                role = History.Role.ASSISTANT,
-                content = recipeContent,
-            ),
-        ),
-    )
 
     val freeConnected = SettingsUiState(
         currentTab = SettingsTab.Services,
@@ -185,10 +134,6 @@ object ScreenshotTestData {
                 updatedAt = 1709310000000,
             ),
         ),
-    )
-
-    val settingsSandbox = SettingsUiState(
-        currentTab = SettingsTab.Sandbox,
     )
 
     val sandboxState = SandboxUiState(
@@ -431,121 +376,88 @@ object ScreenshotTestData {
         openProject = "kai-project",
     )
 
-    // --- Agent Activity states ---
+    // --- UI v2 chat fixtures ---
 
-    val agentActivitiesMixed = persistentListOf(
-        AgentActivity(
-            id = "act-1",
-            type = ActivityType.AGENT_STARTED,
-            title = "Research quantum computing",
-            status = ActivityStatus.COMPLETED,
-            details = ActivityDetails.Generic(content = "Initialized agent with quantum computing research goal."),
+    val v2Conversations = listOf(
+        ChatConversationSummary(
+            id = "1",
+            title = "ডার্ক-মোড সুইচ",
+            preview = "সেটিংস স্ক্রিনে ডার্ক-মোড সুইচ যোগ করো।",
+            isToday = true,
         ),
-        AgentActivity(
-            id = "act-2",
-            type = ActivityType.TOOL_CALL,
-            title = "web_search",
-            status = ActivityStatus.COMPLETED,
-            details = ActivityDetails.ToolCall(
-                toolName = "web_search",
-                toolDisplayName = "Web Search",
-                arguments = "{\"query\":\"quantum computing 2027\"}",
-                result = "Quantum computing is advancing rapidly with error-corrected qubits...",
+        ChatConversationSummary(
+            id = "2",
+            title = "কোন ডেটাবেস নেব",
+            preview = "লোকাল স্টোরেজে কোন ডেটাবেস ব্যবহার করব?",
+            isToday = true,
+        ),
+        ChatConversationSummary(
+            id = "3",
+            title = "ব্যর্থ টেস্ট ঠিক করা",
+            preview = "টেস্ট ফেইল করছে, দেখো তো।",
+            isToday = false,
+        ),
+    )
+
+    val v2Messages = listOf(
+        ChatMessageItem(
+            id = "1",
+            isUser = true,
+            text = "সেটিংস স্ক্রিনে ডার্ক-মোড সুইচ যোগ করো।",
+        ),
+        ChatMessageItem(
+            id = "2",
+            isUser = false,
+            text = "আগে থিমের কোড পড়ছি, তারপর সুইচটি যোগ করব।",
+            modelName = "Google Gemini",
+            isModelLocal = false,
+            toolExecutions = listOf(
+                ToolExecutionModel(
+                    toolName = "read_file",
+                    argsSummary = "ThemeState.kt",
+                    state = ToolExecutionState.Completed,
+                    outputText = "42 lines",
+                    durationText = "0.4s",
+                ),
+                ToolExecutionModel(
+                    toolName = "search",
+                    argsSummary = "\"isDarkTheme\"",
+                    state = ToolExecutionState.Completed,
+                    outputText = "3 matches",
+                    durationText = "0.9s",
+                ),
+                ToolExecutionModel(
+                    toolName = "edit_file",
+                    argsSummary = "SettingsScreen.kt",
+                    state = ToolExecutionState.PendingApproval,
+                    diffText = "@@ SettingsScreen.kt\n- SwitchRow(\"Dark mode\", false) {}\n+ SwitchRow(\"Dark mode\", state.dark, state::toggleDark)",
+                ),
             ),
-        ),
-        AgentActivity(
-            id = "act-3",
-            type = ActivityType.SHELL_COMMAND,
-            title = "npm install",
-            status = ActivityStatus.RUNNING,
-            details = ActivityDetails.ShellCommand(
-                command = "npm install",
-                workingDirectory = "/home/user/project",
-            ),
-        ),
-        AgentActivity(
-            id = "act-4",
-            type = ActivityType.FILE_WRITE,
-            title = "Write README.md",
-            status = ActivityStatus.FAILED,
-            details = ActivityDetails.FileOperation(
-                path = "/home/user/project/README.md",
-                operation = "Write",
-                changeSummary = "Added project documentation",
-            ),
-        ),
-        AgentActivity(
-            id = "act-5",
-            type = ActivityType.PERMISSION_REQUEST,
-            title = "File system access",
-            status = ActivityStatus.PENDING,
-            details = ActivityDetails.Permission(
-                action = "read",
-                target = "/home/user/project",
-                scope = "project files",
+            dynamicUi = DynamicUiModel(
+                title = "Kotlin Multiplatform-এ কাজ করে এমন তিনটি অপশন নিচে। একটি বেছে নিন:",
+                options = listOf(
+                    DynamicUiOption("sq", "SQLDelight", "SQL আগে লিখুন, টাইপ-সেফ কোড তৈরি হবে"),
+                    DynamicUiOption("room", "Room", "Android-এ পরিচিত, KMP সমর্থন বাড়ছে"),
+                    DynamicUiOption("kv", "Key-value store", "সহজ সেটিংস ও ক্যাশের জন্য"),
+                ),
+                selectedOptionId = "sq",
+                isLocked = false,
             ),
         ),
     )
 
-    val agentActivitiesToolCall = persistentListOf(
-        AgentActivity(
-            id = "act-tool",
-            type = ActivityType.TOOL_CALL,
-            title = "file_read",
-            status = ActivityStatus.COMPLETED,
-            details = ActivityDetails.ToolCall(
-                toolName = "file_read",
-                toolDisplayName = "Read File",
-                arguments = "{\"path\":\"/home/user/README.md\"}",
-                result = "# DORAI AI\n\nPremium AI Agent Workspace.",
-            ),
+    val v2DynamicUiMessages = listOf(
+        ChatMessageItem(
+            id = "1",
+            isUser = true,
+            text = "suggest Cacio e Pepe recipe for 2 servings",
         ),
-    )
-
-    val agentActivitiesShellCommand = persistentListOf(
-        AgentActivity(
-            id = "act-shell",
-            type = ActivityType.SHELL_COMMAND,
-            title = "fastfetch",
-            status = ActivityStatus.COMPLETED,
-            details = ActivityDetails.ShellCommand(
-                command = "fastfetch",
-                workingDirectory = "~",
-                stdout = "OS: Alpine Linux v3.22 aarch64\nKernel: Linux 6.1.145\nPackages: 65 (apk)",
-                stderr = null,
-                exitCode = 0,
-            ),
-        ),
-    )
-
-    val agentActivitiesFileOperation = persistentListOf(
-        AgentActivity(
-            id = "act-file",
-            type = ActivityType.FILE_EDIT,
-            title = "Edit config.yaml",
-            status = ActivityStatus.RUNNING,
-            details = ActivityDetails.FileOperation(
-                path = "/home/user/project/config.yaml",
-                operation = "Edit",
-                changeSummary = "Updated API endpoint",
-                oldContent = "endpoint: https://api.example.com/v1",
-                newContent = "endpoint: https://api.example.com/v2",
-            ),
-        ),
-    )
-
-    val agentActivitiesPermission = persistentListOf(
-        AgentActivity(
-            id = "act-perm",
-            type = ActivityType.PERMISSION_REQUEST,
-            title = "Access microphone",
-            status = ActivityStatus.PENDING,
-            details = ActivityDetails.Permission(
-                action = "record",
-                target = "microphone",
-                scope = "voice input",
-                allowed = null,
-            ),
+        ChatMessageItem(
+            id = "2",
+            isUser = false,
+            text = recipeContent,
+            modelName = "Google Gemini",
+            isModelLocal = false,
         ),
     )
 
@@ -579,6 +491,28 @@ object ScreenshotTestData {
         SettingsModel(id = "entry-model", subtitle = "Entry Level", displayName = "Entry Model", isFreeTier = true, arenaScore = 800, contextWindow = 32000),
     )
 
+    // --- Workspace v2 preview fixtures (projects list + agents + sandbox section) ---
+
+    val workspaceV2Projects = listOf(
+        WorkspaceProjectItem(
+            name = "dorai-notes",
+            path = "/root/projects/dorai-notes",
+            branch = "main",
+            lastUpdatedText = "2026-11-01",
+            changesCount = 3,
+        ),
+        WorkspaceProjectItem(
+            name = "kai-project",
+            path = "/root/projects/kai-project",
+            branch = "main",
+            changesCount = 1,
+        ),
+        WorkspaceProjectItem(
+            name = "research-bot",
+            path = "/root/projects/research-bot",
+        ),
+    )
+
     // --- Sandbox states ---
 
     val sandboxEmptyState = SandboxUiState(
@@ -610,43 +544,25 @@ object ScreenshotTestData {
         return Json.parseToJsonElement(text).jsonObject
     }
 
-    fun localizedChatWithMessages(locale: String): ChatUiState {
-        val json = loadJson(locale)
-        val chat = json["chatWithMessages"]!!.jsonObject
-        return ChatUiState(
-            actions = noOpChatActions,
-            history = persistentListOf(
-                History(
-                    id = "1",
-                    role = History.Role.USER,
-                    content = chat["userMessage"]!!.jsonPrimitive.content,
-                ),
-                History(
-                    id = "2",
-                    role = History.Role.ASSISTANT,
-                    content = chat["assistantMessage"]!!.jsonPrimitive.content,
-                ),
+    private fun localizedV2MessagesFrom(locale: String, key: String): List<ChatMessageItem> {
+        val chat = loadJson(locale)[key]!!.jsonObject
+        return listOf(
+            ChatMessageItem(
+                id = "1",
+                isUser = true,
+                text = chat["userMessage"]!!.jsonPrimitive.content,
+            ),
+            ChatMessageItem(
+                id = "2",
+                isUser = false,
+                text = chat["assistantMessage"]!!.jsonPrimitive.content,
+                modelName = "Google Gemini",
+                isModelLocal = false,
             ),
         )
     }
 
-    fun localizedChatWithDynamicUi(locale: String): ChatUiState {
-        val json = loadJson(locale)
-        val chat = json["chatWithDynamicUi"]!!.jsonObject
-        return ChatUiState(
-            actions = noOpChatActions,
-            history = persistentListOf(
-                History(
-                    id = "1",
-                    role = History.Role.USER,
-                    content = chat["userMessage"]!!.jsonPrimitive.content,
-                ),
-                History(
-                    id = "2",
-                    role = History.Role.ASSISTANT,
-                    content = chat["assistantMessage"]!!.jsonPrimitive.content,
-                ),
-            ),
-        )
-    }
+    fun localizedV2Messages(locale: String): List<ChatMessageItem> = localizedV2MessagesFrom(locale, "chatWithMessages")
+
+    fun localizedV2DynamicUiMessages(locale: String): List<ChatMessageItem> = localizedV2MessagesFrom(locale, "chatWithDynamicUi")
 }

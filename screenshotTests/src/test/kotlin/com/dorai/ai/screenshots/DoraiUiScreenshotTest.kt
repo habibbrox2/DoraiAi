@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalVoiceApi::class)
-
 package com.dorai.ai.screenshots
 
 import android.graphics.BitmapFactory
@@ -17,15 +15,12 @@ import app.cash.paparazzi.Paparazzi
 import com.dorai.ai.theme.data.ThemePalette
 import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.engine.DoraiTheme
-import com.dorai.ai.ui.chat.ChatScreenContent
-import com.dorai.ai.ui.chat.ChatUiState
-import com.dorai.ai.ui.chat.History
+import com.dorai.ai.ui.chat.ChatMessageItem
 import com.dorai.ai.ui.dynamicui.DoraiUiParser
 import com.dorai.ai.ui.dynamicui.DoraiUiParser.UiBlockResult
 import com.dorai.ai.ui.dynamicui.DoraiUiRenderer
 import com.dorai.ai.ui.dynamicui.LocalPreviewImages
 import kotlinx.collections.immutable.persistentListOf
-import nl.marc_apps.tts.experimental.ExperimentalVoiceApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
 import org.junit.Before
@@ -495,16 +490,22 @@ class DoraiUiScreenshotTest {
             "\n```"
 
         paparazzi.snapFullScreen(ThemePresets.light) {
-            ChatScreenContent(
-                uiState = ChatUiState(
-                    actions = ScreenshotTestData.chatEmptyState.actions,
-                    history = persistentListOf(
-                        History(id = "1", role = History.Role.USER, content = "Give me a brain teaser quiz"),
-                        History(id = "2", role = History.Role.ASSISTANT, content = doraiUiContent),
+            DoraiChatScreenV2(
+                messages = listOf(
+                    ChatMessageItem(
+                        id = "1",
+                        isUser = true,
+                        text = "Give me a brain teaser quiz",
                     ),
-                    isInteractiveMode = true,
+                    ChatMessageItem(
+                        id = "2",
+                        isUser = false,
+                        text = doraiUiContent,
+                        modelName = "Google Gemini",
+                    ),
                 ),
-                FakeTextToSpeechInstance(),
+                conversations = ScreenshotTestData.v2Conversations,
+                selectedModeId = "build",
             )
         }
     }

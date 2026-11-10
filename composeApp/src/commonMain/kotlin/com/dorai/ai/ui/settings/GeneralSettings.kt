@@ -37,11 +37,16 @@ import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.settings_daemon_mode
 import dorai.composeapp.generated.resources.settings_daemon_mode_description
-import dorai.composeapp.generated.resources.settings_dynamic_ui
-import dorai.composeapp.generated.resources.settings_dynamic_ui_description
 import dorai.composeapp.generated.resources.settings_restore_last_chat
 import dorai.composeapp.generated.resources.settings_restore_last_chat_description
 import dorai.composeapp.generated.resources.settings_ui_scale
+import dorai.composeapp.generated.resources.tts_description
+import dorai.composeapp.generated.resources.tts_speech_speed
+import dorai.composeapp.generated.resources.tts_tip
+import dorai.composeapp.generated.resources.tts_title
+import dorai.composeapp.generated.resources.tts_value_format
+import dorai.composeapp.generated.resources.tts_voice_pitch
+import dorai.composeapp.generated.resources.tts_volume
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import kotlin.math.roundToInt
@@ -61,12 +66,6 @@ internal fun GeneralContent(
                         onToggleDaemon = actions.onToggleDaemon,
                     )
                 }
-            }
-            SettingsCard {
-                DynamicUiToggle(
-                    isDynamicUiEnabled = uiState.isDynamicUiEnabled,
-                    onToggleDynamicUi = actions.onToggleDynamicUi,
-                )
             }
             SettingsCard {
                 RestoreLastChatToggle(
@@ -116,21 +115,6 @@ private fun DaemonModeToggle(
             description = stringResource(Res.string.settings_daemon_mode_description),
             checked = isDaemonEnabled,
             onCheckedChange = onToggleDaemon,
-        )
-    }
-}
-
-@Composable
-private fun DynamicUiToggle(
-    isDynamicUiEnabled: Boolean,
-    onToggleDynamicUi: (Boolean) -> Unit,
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        ToggleableHeadline(
-            title = stringResource(Res.string.settings_dynamic_ui),
-            description = stringResource(Res.string.settings_dynamic_ui_description),
-            checked = isDynamicUiEnabled,
-            onCheckedChange = onToggleDynamicUi,
         )
     }
 }
@@ -270,18 +254,18 @@ private fun TtsSettingsSection(appLanguage: AppLanguage) {
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = if (appLanguage == AppLanguage.Bengali) "লেখা থেকে কণ্ঠ (TTS)" else "Text-to-Speech (TTS)",
+            text = stringResource(Res.string.tts_title),
             style = DoraiTypography.titleMedium,
             color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
-            text = if (appLanguage == AppLanguage.Bengali) "উত্তরের কণ্ঠের গতি, স্বর ও শব্দের মাত্রা নিয়ন্ত্রণ করুন।" else "Control the speech speed, voice pitch, and volume of spoken responses.",
+            text = stringResource(Res.string.tts_description),
             style = DoraiTypography.bodyMedium,
             color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
         )
 
-        Text(text = "${if (appLanguage == AppLanguage.Bengali) "কথার গতি (Speed)" else "Speech speed (Speed)"}: ${(rate * 100).roundToInt()}%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        Text(text = stringResource(Res.string.tts_value_format, stringResource(Res.string.tts_speech_speed), (rate * 100).roundToInt()), style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         DoraiSlider(
             value = rate,
             onValueChange = { rate = it },
@@ -290,7 +274,7 @@ private fun TtsSettingsSection(appLanguage: AppLanguage) {
         )
 
         Spacer(Modifier.height(8.dp))
-        Text(text = "${if (appLanguage == AppLanguage.Bengali) "কণ্ঠের স্বর (Pitch)" else "Voice pitch (Pitch)"}: ${(pitch * 100).roundToInt()}%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        Text(text = stringResource(Res.string.tts_value_format, stringResource(Res.string.tts_voice_pitch), (pitch * 100).roundToInt()), style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         DoraiSlider(
             value = pitch,
             onValueChange = { pitch = it },
@@ -299,7 +283,7 @@ private fun TtsSettingsSection(appLanguage: AppLanguage) {
         )
 
         Spacer(Modifier.height(8.dp))
-        Text(text = "${if (appLanguage == AppLanguage.Bengali) "শব্দের মাত্রা (Volume)" else "Volume"}: ${(volume * 100).roundToInt()}%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        Text(text = stringResource(Res.string.tts_value_format, stringResource(Res.string.tts_volume), (volume * 100).roundToInt()), style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         DoraiSlider(
             value = volume,
             onValueChange = { volume = it },
@@ -309,7 +293,7 @@ private fun TtsSettingsSection(appLanguage: AppLanguage) {
 
         Spacer(Modifier.height(8.dp))
         Text(
-            text = if (appLanguage == AppLanguage.Bengali) "পরামর্শ: কথার গতি 0.70-1.30, কণ্ঠের স্বর 0.80-1.20 এবং প্রয়োজন অনুযায়ী ভলিউম রাখুন।" else "Tip: Keep speed between 0.70–1.30, pitch between 0.80–1.20, and adjust volume to your preference.",
+            text = stringResource(Res.string.tts_tip),
             style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
         )

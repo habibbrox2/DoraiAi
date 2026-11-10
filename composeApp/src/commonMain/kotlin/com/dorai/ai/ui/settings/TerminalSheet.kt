@@ -72,6 +72,7 @@ import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.terminal_command_failed
+import dorai.composeapp.generated.resources.terminal_command_input
 import dorai.composeapp.generated.resources.terminal_help_text
 import dorai.composeapp.generated.resources.terminal_input_placeholder
 import dorai.composeapp.generated.resources.terminal_run_content_description
@@ -413,7 +414,7 @@ fun TerminalContent(
                 ),
                 enabled = isInputEnabled,
                 textStyle = monoStyle(14.sp, colors.text),
-                label = { Text("Command input", style = monoStyle(12.sp, colors.dimText)) },
+                label = { Text(stringResource(Res.string.terminal_command_input), style = monoStyle(12.sp, colors.dimText)) },
                 placeholder = {
                     Text(
                         text = stringResource(Res.string.terminal_input_placeholder),
