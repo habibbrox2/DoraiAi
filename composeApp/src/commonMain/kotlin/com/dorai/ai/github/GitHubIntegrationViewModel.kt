@@ -47,7 +47,11 @@ class GitHubIntegrationViewModel(
     private var pollingJob: Job? = null
 
     init {
-        if (vault.isConnected()) {
+        // A platform vault can fail during first access (for example, Android Keystore
+        // state can be invalidated after backup/restore). Never let that failure escape
+        // ViewModel construction: opening Settings must remain safe and recoverable.
+        val connected = runCatching { vault.isConnected() }.getOrDefault(false)
+        if (connected) {
             _state.value = _state.value.copy(connectionStatus = GitHubConnectionStatus.Connected)
             scope.launch { refreshInstallations() }
         }
@@ -163,7 +167,10 @@ class GitHubIntegrationViewModel(
         if (_state.value.connectionStatus != GitHubConnectionStatus.Connected) return
         _state.value = _state.value.copy(isLoading = true, error = null)
         scope.launch {
-            val result = apiClient.listInstallations()
+            // Network/serialization failures are represented as UI state rather than
+            // uncaught exceptions on the main dispatcher (which would close the app).
+            val result = runCatching { apiClient.listInstallations() }
+                .getOrDefault(GitHubApiResult.Failed)
             _state.value = when (result) {
                 is GitHubApiResult.Success -> _state.value.copy(
                     installations = result.data,
@@ -202,7 +209,8 @@ class GitHubIntegrationViewModel(
             ?: return
         _state.value = _state.value.copy(isLoading = true, error = null)
         scope.launch {
-            val result = apiClient.listInstallationRepositories(installationId)
+            val result = runCatching { apiClient.listInstallationRepositories(installationId) }
+                .getOrDefault(GitHubApiResult.Failed)
             _state.value = when (result) {
                 is GitHubApiResult.Success -> _state.value.copy(
                     repositories = result.data,
