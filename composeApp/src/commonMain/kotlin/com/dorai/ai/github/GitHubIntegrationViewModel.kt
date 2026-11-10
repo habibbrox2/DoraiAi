@@ -1,7 +1,11 @@
 package com.dorai.ai.github
 
 import androidx.lifecycle.ViewModel
+import com.dorai.ai.NoOpWorkspaceController
+import com.dorai.ai.WorkspaceController
 import com.dorai.ai.httpClient
+import com.dorai.ai.workspace.WorkspaceGitError
+import com.dorai.ai.workspace.WorkspaceGitResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -11,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -28,6 +33,7 @@ class GitHubIntegrationViewModel(
     private val vault: GitHubTokenVault,
     private val deviceFlow: GitHubDeviceFlow,
     private val apiClient: GitHubApiClient = GitHubApiClient(vault, httpClient()),
+    private val workspaceController: WorkspaceController = NoOpWorkspaceController(),
     private val dispatcher: CoroutineContext = Dispatchers.Main,
 ) : ViewModel() {
 
@@ -223,6 +229,93 @@ class GitHubIntegrationViewModel(
             }
         }
     }
+
+    /**
+     * Selects [repository] and clones it into `projects/<projectName>` (depth=1, read-only).
+     *
+     * The project name is validated with [GitUrlValidator.isValidProjectName] before any guest
+     * call. On success the repository is recorded as selected, [cloneState] becomes
+     * [CloneState.Success], and [lastSync] is stamped. On failure [cloneState] becomes
+     * [CloneState.Failure] and [lastError] holds the message.
+     */
+    fun selectAndClone(repository: GitHubRepository, projectName: String) {
+        if (!GitUrlValidator.isValidProjectName(projectName)) {
+            val message = "Invalid project name: $projectName"
+            _state.value = _state.value.copy(
+                selectedRepository = null,
+                cloneState = CloneState.Failure(message),
+                lastError = message,
+            )
+            return
+        }
+        if (_state.value.connectionStatus != GitHubConnectionStatus.Connected) {
+            val message = "Not connected to GitHub"
+            _state.value = _state.value.copy(
+                selectedRepository = null,
+                cloneState = CloneState.Failure(message),
+                lastError = message,
+            )
+            return
+        }
+        val cloneUrl = repository.htmlUrl.takeIf { it.endsWith(".git") } ?: repository.htmlUrl + ".git"
+        _state.value = _state.value.copy(
+            selectedRepository = repository,
+            cloneState = CloneState.Cloning(projectName, cloneUrl),
+            lastError = null,
+        )
+        scope.launch {
+            val result: WorkspaceGitResult = workspaceController.gitClone(projectName, cloneUrl)
+            _state.value = when (result.error) {
+                null -> _state.value.copy(
+                    cloneState = CloneState.Success(projectName),
+                    lastSync = Clock.System.now(),
+                )
+
+                else -> _state.value.copy(
+                    selectedRepository = null,
+                    cloneState = CloneState.Failure(result.error.toString()),
+                    lastError = result.error.toString(),
+                )
+            }
+        }
+    }
+
+    /** Refreshes `git status` for the selected project, recording any failure in [lastError]. */
+    fun refreshGitStatus() {
+        val project = projectNameForSelected()
+        if (project.isNullOrBlank()) return
+        _state.value = _state.value.copy(lastError = null)
+        scope.launch {
+            val result: WorkspaceGitResult = workspaceController.gitStatus(project)
+            if (result.error != null) {
+                _state.value = _state.value.copy(lastError = result.error.toString())
+            }
+        }
+    }
+
+    /**
+     * Syncs the selected project: `git fetch --quiet --prune` then `git pull --ff-only --quiet`.
+     * Stamps [lastSync] on success, records [lastError] on failure.
+     */
+    fun sync() {
+        val project = projectNameForSelected()
+        if (project.isNullOrBlank()) return
+        _state.value = _state.value.copy(lastError = null)
+        scope.launch {
+            val fetch = workspaceController.gitFetch(project)
+            if (fetch.error != null) {
+                _state.value = _state.value.copy(lastError = fetch.error.toString())
+                return@launch
+            }
+            val pull = workspaceController.gitPullFfOnly(project)
+            _state.value = when (pull.error) {
+                null -> _state.value.copy(lastSync = Clock.System.now())
+                else -> _state.value.copy(lastError = pull.error.toString())
+            }
+        }
+    }
+
+    private fun projectNameForSelected(): String? = _state.value.selectedRepository?.name?.takeIf { it.isNotBlank() }
 
     /** Retries from an error state by restarting the Device Flow. */
     fun retry() {

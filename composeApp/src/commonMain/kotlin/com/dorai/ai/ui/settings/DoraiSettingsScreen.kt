@@ -431,6 +431,7 @@ private fun SettingsCategoryContent(
                             onBrowseSkills = actions.onBrowseSkills,
                         )
                     }
+                    GitHubSection()
                 }
 
                 SettingsCategory.Mcp -> {
