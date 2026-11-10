@@ -5,4 +5,9 @@
     <string name="download_channel_name">মডেল ডাউনলোড</string>
     <string name="download_channel_description">AI মডেল ডাউনলোড করার সময় অগ্রগতি দেখায়</string>
     <string name="download_notification_text">মডেল ডাউনলোড করা হচ্ছে…</string>
+    <string name="app_name">DORAI AI</string>
+    <string name="tool_gallery_status_name">গ্যালারির অবস্থা</string>
+    <string name="tool_gallery_status_description">গ্যালারি বা মিডিয়ার বর্তমান অ্যাক্সেস অনুমতি ও পরিধি যাচাই করুন</string>
+    <string name="tool_downloads_status_name">ডাউনলোডের অবস্থা</string>
+    <string name="tool_downloads_status_description">ডাউনলোড অ্যাক্সেস, উপলভ্য সোর্স এবং কভারেজের সীমাবদ্ধতা যাচাই করুন</string>
 </resources>

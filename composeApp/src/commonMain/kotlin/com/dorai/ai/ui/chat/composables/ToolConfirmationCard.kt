@@ -32,9 +32,10 @@ import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
-import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.*
 import dorai.composeapp.generated.resources.ic_flag
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ToolConfirmationCard(
@@ -51,7 +52,10 @@ fun ToolConfirmationCard(
         .split(" ")
         .joinToString(" ") { it.replaceFirstChar { c -> if (c.isLowerCase()) c.titlecase() else c.toString() } }
 
-    val targetInfo = extractTargetInfo(toolName, arguments)
+    val target = extractTargetInfo(toolName, arguments)
+    val targetInfo = target?.let {
+        if (it.argument != null) stringResource(it.resource, it.argument) else stringResource(it.resource)
+    }.orEmpty()
 
     Column(
         modifier = modifier
@@ -85,7 +89,7 @@ fun ToolConfirmationCard(
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Tool Request: $displayName",
+                    text = stringResource(Res.string.tool_request_title, displayName),
                     style = DoraiTypography.labelMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -118,7 +122,7 @@ fun ToolConfirmationCard(
                     ),
                     border = BorderStroke(1.dp, DesignTokens.Error.copy(alpha = 0.5f)),
                 ) {
-                    Text("Deny", style = DoraiTypography.labelMedium)
+                    Text(stringResource(Res.string.tool_action_deny), style = DoraiTypography.labelMedium)
                 }
                 Button(
                     onClick = onAllowOnce,
@@ -128,7 +132,7 @@ fun ToolConfirmationCard(
                         containerColor = AccentPrimary.copy(alpha = 0.88f),
                     ),
                 ) {
-                    Text("Allow once", style = DoraiTypography.labelMedium)
+                    Text(stringResource(Res.string.tool_action_allow_once), style = DoraiTypography.labelMedium)
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -140,7 +144,7 @@ fun ToolConfirmationCard(
                         containerColor = DesignTokens.AgentViolet,
                     ),
                 ) {
-                    Text("Allow session", style = DoraiTypography.labelMedium)
+                    Text(stringResource(Res.string.tool_action_allow_session), style = DoraiTypography.labelMedium)
                 }
                 Button(
                     onClick = onAlwaysAllow,
@@ -150,43 +154,44 @@ fun ToolConfirmationCard(
                         containerColor = DesignTokens.Success,
                     ),
                 ) {
-                    Text("Always allow", style = DoraiTypography.labelMedium)
+                    Text(stringResource(Res.string.tool_action_always_allow), style = DoraiTypography.labelMedium)
                 }
             }
         }
     }
 }
 
-private fun extractTargetInfo(toolName: String, arguments: String): String = try {
+private data class ToolTarget(
+    val resource: org.jetbrains.compose.resources.StringResource,
+    val argument: String? = null,
+)
+
+private fun extractTargetInfo(toolName: String, arguments: String): ToolTarget? = try {
     when (toolName) {
         "fetch_url" -> {
-            val urlMatch = Regex("\"url\"\\s*:\\s*\"([^\"]+)\"").find(arguments)
-            val url = urlMatch?.groupValues?.get(1) ?: ""
-            if (url.isNotEmpty()) "Fetch: $url" else ""
+            val url = Regex("\"url\"\\s*:\\s*\"([^\"]+)\"").find(arguments)?.groupValues?.get(1)
+            url?.takeIf(String::isNotEmpty)?.let { ToolTarget(Res.string.tool_target_fetch, it) }
         }
 
         "web_search" -> {
-            val queryMatch = Regex("\"query\"\\s*:\\s*\"([^\"]+)\"").find(arguments)
-            val query = queryMatch?.groupValues?.get(1) ?: ""
-            if (query.isNotEmpty()) "Search: $query" else ""
+            val query = Regex("\"query\"\\s*:\\s*\"([^\"]+)\"").find(arguments)?.groupValues?.get(1)
+            query?.takeIf(String::isNotEmpty)?.let { ToolTarget(Res.string.tool_target_search, it) }
         }
 
         "execute_shell_command" -> {
-            val cmdMatch = Regex("\"command\"\\s*:\\s*\"([^\"]+)\"").find(arguments)
-            val cmd = cmdMatch?.groupValues?.get(1) ?: ""
-            if (cmd.isNotEmpty()) "Command: $cmd" else "Shell command"
+            val command = Regex("\"command\"\\s*:\\s*\"([^\"]+)\"").find(arguments)?.groupValues?.get(1)
+            if (command.isNullOrEmpty()) {
+                ToolTarget(Res.string.tool_target_shell_command)
+            } else {
+                ToolTarget(Res.string.tool_target_command, command)
+            }
         }
 
         else -> {
-            // Try to find url or common params
-            val urlMatch = Regex("\"url\"\\s*:\\s*\"([^\"]+)\"").find(arguments)
-            if (urlMatch != null) {
-                "Target: ${urlMatch.groupValues[1]}"
-            } else {
-                ""
-            }
+            val url = Regex("\"url\"\\s*:\\s*\"([^\"]+)\"").find(arguments)?.groupValues?.get(1)
+            url?.let { ToolTarget(Res.string.tool_target_generic, it) }
         }
     }
 } catch (_: Exception) {
-    ""
+    null
 }

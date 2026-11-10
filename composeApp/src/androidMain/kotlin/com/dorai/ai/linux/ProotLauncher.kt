@@ -186,10 +186,10 @@ class ProotLauncher(
     ): ProotResult = try {
         val process = start(command, workingDir, extraEnv)
         val stdout = CompletableFuture.supplyAsync {
-            readBounded(process.inputStream.bufferedReader(), maxOutputChars)
+            readBounded(process.inputStream.bufferedReader(Charsets.UTF_8), maxOutputChars)
         }
         val stderr = CompletableFuture.supplyAsync {
-            readBounded(process.errorStream.bufferedReader(), maxOutputChars)
+            readBounded(process.errorStream.bufferedReader(Charsets.UTF_8), maxOutputChars)
         }
         if (process.waitFor(timeoutSeconds, TimeUnit.SECONDS)) {
             ProotResult(
@@ -248,6 +248,7 @@ class ProotLauncher(
             "PATH" to DEFAULT_GUEST_PATH,
             "TERM" to "xterm-256color",
             "LANG" to "C.UTF-8",
+            "LC_ALL" to "C.UTF-8",
             "LD_LIBRARY_PATH" to libDir,
             "PROOT_TMP_DIR" to tmpPath,
             "PROOT_LOADER" to loaderPath,

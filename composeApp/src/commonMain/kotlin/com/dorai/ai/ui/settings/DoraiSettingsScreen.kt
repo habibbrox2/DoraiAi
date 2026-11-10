@@ -98,6 +98,7 @@ import dorai.composeapp.generated.resources.settings_approval_ask_all
 import dorai.composeapp.generated.resources.settings_approval_ask_edits
 import dorai.composeapp.generated.resources.settings_approval_auto_read
 import dorai.composeapp.generated.resources.settings_approval_policy
+import dorai.composeapp.generated.resources.settings_build_environment
 import dorai.composeapp.generated.resources.settings_cat_account
 import dorai.composeapp.generated.resources.settings_cat_agent
 import dorai.composeapp.generated.resources.settings_cat_appearance
@@ -114,6 +115,8 @@ import dorai.composeapp.generated.resources.settings_mcp_add_server
 import dorai.composeapp.generated.resources.settings_mcp_invalid_url
 import dorai.composeapp.generated.resources.settings_mcp_test_connection
 import dorai.composeapp.generated.resources.settings_mcp_url_hint
+import dorai.composeapp.generated.resources.settings_screen_title
+import dorai.composeapp.generated.resources.settings_theme_presets
 import dorai.composeapp.generated.resources.settings_timeline_desc
 import dorai.composeapp.generated.resources.settings_timeline_toggle
 import org.jetbrains.compose.resources.StringResource
@@ -313,7 +316,7 @@ private fun SettingsCategoryListPane(
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Text(
-            text = "Settings",
+            text = stringResource(Res.string.settings_screen_title),
             color = colors.text,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
@@ -394,7 +397,7 @@ private fun SettingsCategoryContent(
                 SettingsCategory.General -> {
                     if (debugBuildStamp != null) {
                         SettingsSectionCard {
-                            Text("Build & Environment", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                            Text(stringResource(Res.string.settings_build_environment), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(DoraiSpacing.XS))
                             Text(debugBuildStamp, color = colors.muted, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
                         }
@@ -520,7 +523,7 @@ private fun AppearanceSettingsContent(
     val widthClass = LocalDoraiWindowWidthClass.current
 
     SettingsSectionCard {
-        Text("Theme Presets (13)", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(Res.string.settings_theme_presets, ThemePresets.all.size), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(DoraiSpacing.SM))
 
         val cols = if (widthClass == DoraiWindowWidthClass.Compact) 3 else 4
