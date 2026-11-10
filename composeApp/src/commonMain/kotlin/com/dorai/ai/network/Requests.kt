@@ -431,7 +431,9 @@ class Requests(
                 delta.toolCalls.orEmpty().forEach { fragment ->
                     val call = toolCalls.getOrPut(fragment.index) { StreamingToolCall() }
                     fragment.id?.takeIf { it.isNotBlank() }?.let { call.id = it }
-                    fragment.function?.name?.takeIf { it.isNotBlank() }?.let { call.name = it }
+                    fragment.function?.name?.takeIf { it.isNotBlank() }?.let { piece ->
+                        call.name = call.name.orEmpty() + piece
+                    }
                     fragment.function?.arguments?.let { call.arguments.append(it) }
                 }
             }
@@ -441,7 +443,9 @@ class Requests(
             OpenAICompatibleCompletion(
                 content = answer.toString(),
                 reasoning = reasoning.toString().takeIf { it.isNotBlank() },
-                toolCalls = toolCalls.toSortedMap().map { (index, call) ->
+                toolCalls = toolCalls.entries.sortedBy { it.key }.map { entry ->
+                    val index = entry.key
+                    val call = entry.value
                     OpenAICompatibleChatResponseDto.ToolCall(
                         id = call.id ?: "stream-$index",
                         function = OpenAICompatibleChatResponseDto.FunctionCall(
