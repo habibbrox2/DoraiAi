@@ -18,12 +18,14 @@ import com.dorai.ai.data.runMigrations
 import com.dorai.ai.email.EmailPoller
 import com.dorai.ai.filereview.FileReviewController
 import com.dorai.ai.filereview.NoOpFileReviewController
+import com.dorai.ai.github.GitCommandRunner
 import com.dorai.ai.github.GitCredentialBroker
 import com.dorai.ai.github.GitHubApiClient
 import com.dorai.ai.github.GitHubAppConfig
 import com.dorai.ai.github.GitHubDeviceFlow
 import com.dorai.ai.github.GitHubIntegrationViewModel
 import com.dorai.ai.github.GitHubTokenVault
+import com.dorai.ai.github.createGitCommandRunner
 import com.dorai.ai.github.createGitCredentialBroker
 import com.dorai.ai.github.createGitHubTokenVault
 import com.dorai.ai.inference.LocalRuntimeRegistry
@@ -189,6 +191,7 @@ val appModule = module {
     // the owner registers a GitHub App, so connect() fails closed with MissingClientId).
     single<GitHubTokenVault> { createGitHubTokenVault() }
     single<GitCredentialBroker> { createGitCredentialBroker() }
+    single<GitCommandRunner> { createGitCommandRunner() }
     single<GitHubDeviceFlow> { GitHubDeviceFlow(GitHubAppConfig.clientId) }
     single<GitHubApiClient> { GitHubApiClient(get(), httpClient()) }
     viewModel { GitHubIntegrationViewModel(get(), get(), get()) }
