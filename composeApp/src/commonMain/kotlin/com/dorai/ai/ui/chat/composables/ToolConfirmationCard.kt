@@ -32,7 +32,9 @@ import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
-import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
+
 import dorai.composeapp.generated.resources.ic_flag
 import org.jetbrains.compose.resources.painterResource
 
@@ -85,7 +87,7 @@ fun ToolConfirmationCard(
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Tool Request: $displayName",
+                    text = stringResource(Res.string.tool_request_title, displayName),
                     style = DoraiTypography.labelMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -118,7 +120,7 @@ fun ToolConfirmationCard(
                     ),
                     border = BorderStroke(1.dp, DesignTokens.Error.copy(alpha = 0.5f)),
                 ) {
-                    Text("Deny", style = DoraiTypography.labelMedium)
+                    Text(stringResource(Res.string.tool_action_deny), style = DoraiTypography.labelMedium)
                 }
                 Button(
                     onClick = onAllowOnce,
@@ -128,7 +130,7 @@ fun ToolConfirmationCard(
                         containerColor = AccentPrimary.copy(alpha = 0.88f),
                     ),
                 ) {
-                    Text("Allow once", style = DoraiTypography.labelMedium)
+                    Text(stringResource(Res.string.tool_action_allow_once), style = DoraiTypography.labelMedium)
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -140,7 +142,7 @@ fun ToolConfirmationCard(
                         containerColor = DesignTokens.AgentViolet,
                     ),
                 ) {
-                    Text("Allow session", style = DoraiTypography.labelMedium)
+                    Text(stringResource(Res.string.tool_action_allow_session), style = DoraiTypography.labelMedium)
                 }
                 Button(
                     onClick = onAlwaysAllow,
@@ -150,38 +152,39 @@ fun ToolConfirmationCard(
                         containerColor = DesignTokens.Success,
                     ),
                 ) {
-                    Text("Always allow", style = DoraiTypography.labelMedium)
+                    Text(stringResource(Res.string.tool_action_always_allow), style = DoraiTypography.labelMedium)
                 }
             }
         }
     }
 }
 
+@Composable
 private fun extractTargetInfo(toolName: String, arguments: String): String = try {
     when (toolName) {
         "fetch_url" -> {
             val urlMatch = Regex("\"url\"\\s*:\\s*\"([^\"]+)\"").find(arguments)
             val url = urlMatch?.groupValues?.get(1) ?: ""
-            if (url.isNotEmpty()) "Fetch: $url" else ""
+            if (url.isNotEmpty()) stringResource(Res.string.tool_target_fetch, url) else ""
         }
 
         "web_search" -> {
             val queryMatch = Regex("\"query\"\\s*:\\s*\"([^\"]+)\"").find(arguments)
             val query = queryMatch?.groupValues?.get(1) ?: ""
-            if (query.isNotEmpty()) "Search: $query" else ""
+            if (query.isNotEmpty()) stringResource(Res.string.tool_target_search, query) else ""
         }
 
         "execute_shell_command" -> {
             val cmdMatch = Regex("\"command\"\\s*:\\s*\"([^\"]+)\"").find(arguments)
             val cmd = cmdMatch?.groupValues?.get(1) ?: ""
-            if (cmd.isNotEmpty()) "Command: $cmd" else "Shell command"
+            if (cmd.isNotEmpty()) stringResource(Res.string.tool_target_command, cmd) else stringResource(Res.string.tool_target_shell_command)
         }
 
         else -> {
             // Try to find url or common params
             val urlMatch = Regex("\"url\"\\s*:\\s*\"([^\"]+)\"").find(arguments)
             if (urlMatch != null) {
-                "Target: ${urlMatch.groupValues[1]}"
+                stringResource(Res.string.tool_target_generic, urlMatch.groupValues[1])
             } else {
                 ""
             }

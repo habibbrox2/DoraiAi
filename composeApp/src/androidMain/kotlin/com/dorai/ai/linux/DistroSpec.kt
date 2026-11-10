@@ -131,7 +131,7 @@ object DebianSpec : DistroSpec {
      */
     override fun rootfsUrls(): List<String> {
         val arch = arch()
-        val index = URL(LXC_INDEX).openStream().bufferedReader().use { it.readText() }
+        val index = URL(LXC_INDEX).openStream().bufferedReader(Charsets.UTF_8).use { it.readText() }
         val line = index.lineSequence()
             .filter { it.startsWith("debian;$DEBIAN_RELEASE;$arch;default;") }
             .maxOrNull()

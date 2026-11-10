@@ -52,6 +52,8 @@ import com.dorai.ai.ui.chat.activities.formatAgentRunDuration
 import com.dorai.ai.ui.chat.activities.summarizeAgentRun
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import dorai.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
 
 private val secretAssignment = Regex(
@@ -78,14 +80,14 @@ internal fun AgentActivityDisclosure(
     val running = runSummary.running
     val failed = runSummary.failed
     val summary = buildList {
-        add("${runSummary.total} steps")
-        if (runSummary.fileCount > 0) add("${runSummary.fileCount} files")
-        if (runSummary.terminalCount > 0) add("${runSummary.terminalCount} terminal")
+        add(stringResource(Res.string.agent_activity_steps, runSummary.total))
+        if (runSummary.fileCount > 0) add(stringResource(Res.string.agent_activity_files, runSummary.fileCount))
+        if (runSummary.terminalCount > 0) add(stringResource(Res.string.agent_activity_terminal, runSummary.terminalCount))
         add(formatAgentRunDuration(runSummary.durationMs))
-        if (running > 0) add("$running running")
-        if (completed > 0) add("$completed done")
-        if (failed > 0) add("$failed failed")
-    }.joinToString(" � ")
+        if (running > 0) add(stringResource(Res.string.agent_activity_running_count, running))
+        if (completed > 0) add(stringResource(Res.string.agent_activity_done_count, completed))
+        if (failed > 0) add(stringResource(Res.string.agent_activity_failed_count, failed))
+    }.joinToString(" · ")
     val overallColor = when {
         failed > 0 -> DesignTokens.Error
         running > 0 -> DesignTokens.BrandCyan
@@ -109,13 +111,13 @@ internal fun AgentActivityDisclosure(
             ) {
                 Box(Modifier.size(9.dp).clip(CircleShape).background(overallColor))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Agent run", style = DoraiTypography.labelLarge.copy(fontWeight = FontWeight.SemiBold), color = LocalDesignColorTokens.current.textPrimary)
+                    Text(stringResource(Res.string.agent_activity_title), style = DoraiTypography.labelLarge.copy(fontWeight = FontWeight.SemiBold), color = LocalDesignColorTokens.current.textPrimary)
                     Text(summary, style = DoraiTypography.labelSmall, color = LocalDesignColorTokens.current.textSecondary)
                 }
                 Text(activities.size.toString(), style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Bold), color = LocalDesignColorTokens.current.textTertiary)
                 Icon(
                     imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = if (expanded) "Collapse activity" else "Expand activity",
+                    contentDescription = stringResource(if (expanded) Res.string.agent_activity_collapse else Res.string.agent_activity_expand),
                     tint = LocalDesignColorTokens.current.textTertiary,
                 )
             }
@@ -162,14 +164,14 @@ private fun AgentActivityRow(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(activity.title, style = DoraiTypography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = LocalDesignColorTokens.current.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(
-                        activityStatusLabel(activity.status) + (activity.durationMs?.let { " � ${formatDuration(it)}" } ?: ""),
+                        activityStatusLabel(activity.status) + (activity.durationMs?.let { " · ${formatDuration(it)}" } ?: ""),
                         style = DoraiTypography.labelSmall,
                         color = statusColor,
                     )
                 }
                 Icon(
                     imageVector = if (detailsExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = if (detailsExpanded) "Hide details" else "Show details",
+                    contentDescription = stringResource(if (detailsExpanded) Res.string.agent_activity_hide_details else Res.string.agent_activity_show_details),
                     tint = LocalDesignColorTokens.current.textTertiary,
                 )
             }
@@ -181,25 +183,25 @@ private fun AgentActivityRow(
                     when (val details = activity.details) {
                         is ActivityDetails.ToolCall -> {
                             Text(details.toolDisplayName ?: details.toolName, style = DoraiTypography.labelSmall, color = DesignTokens.BrandCyan)
-                            details.arguments?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview("Input", it) }
-                            details.error?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview("Error", it, DesignTokens.Error) }
-                            details.result?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview("Result", it) }
+                            details.arguments?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview(stringResource(Res.string.agent_activity_input), it) }
+                            details.error?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview(stringResource(Res.string.agent_activity_error), it, DesignTokens.Error) }
+                            details.result?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview(stringResource(Res.string.agent_activity_result), it) }
                         }
 
                         is ActivityDetails.ShellCommand -> {
-                            ActivityCodePreview("Command", details.command)
+                            ActivityCodePreview(stringResource(Res.string.agent_activity_command), details.command)
                             details.workingDirectory?.takeIf { it.isNotBlank() }?.let {
-                                Text("Working directory � ${safeActivityPreview(it, 240)}", style = DoraiTypography.labelSmall, color = LocalDesignColorTokens.current.textTertiary)
+                                Text(stringResource(Res.string.agent_activity_working_directory, safeActivityPreview(it, 240)), style = DoraiTypography.labelSmall, color = LocalDesignColorTokens.current.textTertiary)
                             }
-                            details.stdout?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview("Output", it) }
-                            details.stderr?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview("Stderr", it, DesignTokens.Error) }
+                            details.stdout?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview(stringResource(Res.string.agent_activity_output), it) }
+                            details.stderr?.takeIf { it.isNotBlank() }?.let { ActivityCodePreview(stringResource(Res.string.agent_activity_stderr), it, DesignTokens.Error) }
                             details.exitCode?.let {
-                                Text("Exit code � $it", style = DoraiTypography.labelSmall, color = if (it == 0) DesignTokens.Success else DesignTokens.Error)
+                                Text(stringResource(Res.string.agent_activity_exit_code, it), style = DoraiTypography.labelSmall, color = if (it == 0) DesignTokens.Success else DesignTokens.Error)
                             }
                         }
 
                         is ActivityDetails.FileOperation -> {
-                            Text("${details.operation} � ${safeActivityPreview(details.path, 240)}", style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Medium), color = DesignTokens.BrandCyan)
+                            Text("${details.operation} · ${safeActivityPreview(details.path, 240)}", style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Medium), color = DesignTokens.BrandCyan)
                             FileChangeReviewCard(
                                 activityId = activity.id,
                                 details = details,
@@ -212,7 +214,7 @@ private fun AgentActivityRow(
                             )
                         }
 
-                        is ActivityDetails.Generic -> details.content?.let { ActivityCodePreview("Details", it) }
+                        is ActivityDetails.Generic -> details.content?.let { ActivityCodePreview(stringResource(Res.string.agent_activity_details), it) }
 
                         is ActivityDetails.Skill -> {
                             Text(details.skillName, style = DoraiTypography.labelSmall, color = LocalDesignColorTokens.current.textPrimary)
@@ -220,7 +222,7 @@ private fun AgentActivityRow(
                         }
 
                         is ActivityDetails.Permission -> {
-                            Text("${details.action} � ${details.target}", style = DoraiTypography.labelSmall, color = LocalDesignColorTokens.current.textSecondary)
+                            Text("${details.action} · ${details.target}", style = DoraiTypography.labelSmall, color = LocalDesignColorTokens.current.textSecondary)
                         }
                     }
                 }
@@ -245,7 +247,7 @@ internal fun ActivityCodePreview(label: String, value: String, valueColor: Color
 
 internal fun safeActivityPreview(value: String, maxLength: Int = 1200): String {
     val redacted = value.replace(secretAssignment, "$1$2[REDACTED]").replace(bearerToken, "$1[REDACTED]")
-    return if (redacted.length > maxLength) redacted.take(maxLength) + "�" else redacted
+    return if (redacted.length > maxLength) redacted.take(maxLength) + "…" else redacted
 }
 
 @Composable private fun activityStatusColor(status: ActivityStatus): Color = when (status) {
@@ -257,15 +259,18 @@ internal fun safeActivityPreview(value: String, maxLength: Int = 1200): String {
     ActivityStatus.DENIED -> DesignTokens.Warning
 }
 
-private fun activityStatusLabel(status: ActivityStatus): String = when (status) {
-    ActivityStatus.PENDING -> "Queued"
-    ActivityStatus.RUNNING -> "Running"
-    ActivityStatus.COMPLETED -> "Completed"
-    ActivityStatus.FAILED -> "Failed"
-    ActivityStatus.CANCELLED -> "Cancelled"
-    ActivityStatus.DENIED -> "Denied"
-    ActivityStatus.TIMEOUT -> "Timed out"
-}
+@Composable
+private fun activityStatusLabel(status: ActivityStatus): String = stringResource(
+    when (status) {
+        ActivityStatus.PENDING -> Res.string.agent_activity_status_queued
+        ActivityStatus.RUNNING -> Res.string.agent_activity_status_running
+        ActivityStatus.COMPLETED -> Res.string.agent_activity_status_completed
+        ActivityStatus.FAILED -> Res.string.agent_activity_status_failed
+        ActivityStatus.CANCELLED -> Res.string.agent_activity_status_cancelled
+        ActivityStatus.DENIED -> Res.string.agent_activity_status_denied
+        ActivityStatus.TIMEOUT -> Res.string.agent_activity_status_timeout
+    },
+)
 
 private fun formatDuration(durationMs: Long): String = when {
     durationMs < 1_000 -> "${durationMs}ms"

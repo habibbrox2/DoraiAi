@@ -85,7 +85,7 @@ class GitExecutableLocator {
         val process = ProcessBuilder(listOf(gitPath, "--version"))
             .redirectErrorStream(true)
             .start()
-        val output = process.inputStream.bufferedReader().readText()
+        val output = process.inputStream.bufferedReader(Charsets.UTF_8).readText()
         process.waitFor()
         output
     }.getOrNull()?.let { parseVersionString(it) }

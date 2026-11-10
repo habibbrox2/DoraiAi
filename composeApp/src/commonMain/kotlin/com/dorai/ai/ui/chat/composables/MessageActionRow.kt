@@ -41,6 +41,8 @@ import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import dorai.composeapp.generated.resources.*
+import org.jetbrains.compose.resources.stringResource
 import kotlinx.coroutines.delay
 
 /**
@@ -80,7 +82,7 @@ fun MessageActionRow(
     ) {
         ActionButton(
             icon = if (isCopied) Icons.Default.Check else Icons.Default.ContentCopy,
-            contentDescription = if (isCopied) "Copied" else "Copy message",
+            contentDescription = stringResource(if (isCopied) Res.string.chat_action_copied else Res.string.chat_action_copy_message),
             selected = isCopied,
             onClick = {
                 onCopy()
@@ -90,21 +92,21 @@ fun MessageActionRow(
         if (onRetry != null) {
             ActionButton(
                 icon = Icons.Default.Refresh,
-                contentDescription = "Regenerate / Retry",
+                contentDescription = stringResource(Res.string.chat_action_regenerate_retry),
                 onClick = onRetry,
             )
         }
         if (onSpeak != null) {
             ActionButton(
                 icon = Icons.AutoMirrored.Filled.VolumeUp,
-                contentDescription = "Read aloud",
+                contentDescription = stringResource(Res.string.chat_read_aloud),
                 onClick = onSpeak,
             )
         }
         if (onThumbsUp != null) {
             ActionButton(
                 icon = if (thumbsUpSelected) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
-                contentDescription = "Thumbs up",
+                contentDescription = stringResource(Res.string.chat_action_thumbs_up),
                 selected = thumbsUpSelected,
                 onClick = onThumbsUp,
             )
@@ -112,7 +114,7 @@ fun MessageActionRow(
         if (onThumbsDown != null) {
             ActionButton(
                 icon = if (thumbsDownSelected) Icons.Filled.ThumbDown else Icons.Outlined.ThumbDown,
-                contentDescription = "Thumbs down",
+                contentDescription = stringResource(Res.string.chat_action_thumbs_down),
                 selected = thumbsDownSelected,
                 onClick = onThumbsDown,
             )
@@ -120,14 +122,14 @@ fun MessageActionRow(
         if (onFlag != null) {
             ActionButton(
                 icon = Icons.Default.Flag,
-                contentDescription = "Report",
+                contentDescription = stringResource(Res.string.chat_action_report),
                 onClick = onFlag,
             )
         }
         if (onShare != null) {
             ActionButton(
                 icon = Icons.Default.Share,
-                contentDescription = "Share",
+                contentDescription = stringResource(Res.string.chat_action_share),
                 onClick = onShare,
             )
         }

@@ -94,12 +94,13 @@ class DesktopGitCommandRunner(
         env["PATH"] = System.getenv("PATH") ?: ""
         env["HOME"] = System.getProperty("user.home") ?: ""
         env["LANG"] = "C.UTF-8"
+        env["LC_ALL"] = "C.UTF-8"
         if (System.getProperty("os.name").lowercase().contains("win")) {
             env["SystemRoot"] = System.getenv("SystemRoot") ?: ""
         }
     }
 
-    private fun readFully(stream: InputStream): String = stream.bufferedReader().use { it.readText() }
+    private fun readFully(stream: InputStream): String = stream.bufferedReader(Charsets.UTF_8).use { it.readText() }
 }
 
 /**

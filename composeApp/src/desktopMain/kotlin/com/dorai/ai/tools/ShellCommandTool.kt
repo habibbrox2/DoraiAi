@@ -84,7 +84,7 @@ private val streamReaders = Executors.newCachedThreadPool { runnable ->
 private class StreamCollector(stream: InputStream) {
     private val sb = StringBuilder()
     private val done: CompletableFuture<Unit> = CompletableFuture.runAsync({
-        val reader = stream.bufferedReader()
+        val reader = stream.bufferedReader(Charsets.UTF_8)
         val buf = CharArray(8192)
         var read: Int
         while (reader.read(buf).also { read = it } != -1) {

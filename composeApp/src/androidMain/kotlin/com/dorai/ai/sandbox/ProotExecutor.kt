@@ -58,10 +58,10 @@ class ProotExecutor(private val launcher: ProotLauncher) {
     ) { process, cancelled ->
         listOf(
             CompletableFuture.runAsync {
-                streamLines(process.inputStream.bufferedReader(), cancelled, onStdout)
+                streamLines(process.inputStream.bufferedReader(Charsets.UTF_8), cancelled, onStdout)
             },
             CompletableFuture.runAsync {
-                streamLines(process.errorStream.bufferedReader(), cancelled, onStderr)
+                streamLines(process.errorStream.bufferedReader(Charsets.UTF_8), cancelled, onStderr)
             },
         )
     }

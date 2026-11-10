@@ -11,6 +11,7 @@ import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
+import com.dorai.ai.workspace.terminal.TerminalImeTextBuffer
 import com.dorai.ai.workspace.terminal.TerminalKey
 import com.dorai.ai.workspace.terminal.TerminalModifiers
 
@@ -18,11 +19,10 @@ import com.dorai.ai.workspace.terminal.TerminalModifiers
  * Invisible, focusable view over the terminal grid whose only job is IME
  * plumbing — it draws nothing, since the grid underneath is Compose.
  *
- * It asks the keyboard for a null input type, which is what makes a keyboard
- * stop composing text and deliver raw key events instead. That is the only way
- * Enter, Backspace and the arrows reach a terminal at all. Not every keyboard
- * honors it, so committed text and surrounding-text deletions are handled as
- * well; between the two paths every keyboard lands somewhere sensible.
+ * It asks the keyboard for a null input type so control keys can reach the
+ * terminal as raw key events. IMEs may still send composing updates for complex
+ * scripts; those are buffered and forwarded only when committed, preserving
+ * Bengali/Indic composition without echoing intermediate text into the shell.
  */
 @SuppressLint("ViewConstructor")
 internal class TerminalInputView(context: Context) : View(context) {
@@ -99,21 +99,35 @@ internal class TerminalInputView(context: Context) : View(context) {
         val unicode = event.getUnicodeChar(event.metaState and CharacterMetaMask)
         // Dead keys carry a flag instead of a character; wait for the combined one.
         if (unicode == 0 || unicode and KeyCharacterMap.COMBINING_ACCENT != 0) return false
-        onText(unicode.toChar().toString(), modifiers)
+        // getUnicodeChar() returns a Unicode code point, not necessarily a BMP Char.
+        onText(String(Character.toChars(unicode)), modifiers)
         return true
     }
 
     private inner class TerminalInputConnection : BaseInputConnection(this@TerminalInputView, true) {
+        private val imeTextBuffer = TerminalImeTextBuffer()
 
         override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean {
-            if (!text.isNullOrEmpty()) onText(text.toString(), TerminalModifiers.None)
+            val committed = imeTextBuffer.commitText(text)
+            if (committed.isNotEmpty()) onText(committed, TerminalModifiers.None)
             return true
         }
 
-        /** A terminal has no composing region — wait for the commit rather than echo twice. */
-        override fun setComposingText(text: CharSequence?, newCursorPosition: Int): Boolean = true
+        /**
+         * Keep the latest IME composition locally. A terminal has no editable
+         * composing region, so sending each intermediate update would duplicate
+         * text and break Bengali/Indic input methods that replace compositions.
+         */
+        override fun setComposingText(text: CharSequence?, newCursorPosition: Int): Boolean {
+            imeTextBuffer.updateComposingText(text)
+            return true
+        }
 
-        override fun finishComposingText(): Boolean = true
+        override fun finishComposingText(): Boolean {
+            val committed = imeTextBuffer.finishComposingText()
+            if (committed.isNotEmpty()) onText(committed, TerminalModifiers.None)
+            return true
+        }
 
         override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
             repeat(beforeLength) { onKey(TerminalKey.Backspace, TerminalModifiers.None) }

@@ -126,7 +126,7 @@ class ProcessManager {
 
         // Drain stdout/stderr in background threads with bounded buffers
         val stdoutDrain = CompletableFuture.runAsync {
-            process.inputStream.bufferedReader().forEachLine { line ->
+            process.inputStream.bufferedReader(Charsets.UTF_8).forEachLine { line ->
                 synchronized(session.stdoutBuffer) {
                     if (session.stdoutBuffer.length < MAX_OUTPUT_LENGTH) {
                         session.stdoutBuffer.appendLine(line)
@@ -135,7 +135,7 @@ class ProcessManager {
             }
         }
         val stderrDrain = CompletableFuture.runAsync {
-            process.errorStream.bufferedReader().forEachLine { line ->
+            process.errorStream.bufferedReader(Charsets.UTF_8).forEachLine { line ->
                 synchronized(session.stderrBuffer) {
                     if (session.stderrBuffer.length < MAX_OUTPUT_LENGTH) {
                         session.stderrBuffer.appendLine(line)
