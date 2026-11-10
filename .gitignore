@@ -22,8 +22,23 @@ fastlane/play-store-key.json
 fastlane/report.xml
 fastlane/README.md
 .build-native/
-.claude
-.opencode
+# Track shared Claude Code project config; keep per-user settings/session data private.
+.claude/**
+!.claude/
+!.claude/settings.json
+!.claude/agents/
+!.claude/agents/*.md
+!.claude/rules/
+!.claude/rules/*.md
+!.claude/skills/
+!.claude/skills/*/
+!.claude/skills/*/SKILL.md
+.claude/settings.local.json
+# Track OpenCode project agent definitions; ignore local state and caches.
+.opencode/**
+!.opencode/
+!.opencode/agents/
+!.opencode/agents/*.md
 .grok/
 
 # Freebuff agent workspace
@@ -48,3 +63,7 @@ node_modules/
 frontend/dist/
 frontend/coverage/
 frontend/.vite/
+
+# Local multi-agent runtime metadata and coordination files
+.agent-task.json
+.agent-runtime/

@@ -20,6 +20,6 @@ Read `AGENTS.md`, `skills/cross-platform-validation/SKILL.md`, and `agents/build
 
 ## CI safety
 - Inspect workflow behavior before triggering anything.
-- `.github/workflows/test.yml` may run formatters, update screenshots, convert images, and push generated changes. Do not trigger it casually.
+- `.github/workflows/test.yml` uses read-only checks, path-aware jobs, and never commits or pushes generated changes.
 - Do not commit, push, tag, release, deploy, or upload artifacts.
 - Finish with a target-by-target table: command, result, evidence, blocker.

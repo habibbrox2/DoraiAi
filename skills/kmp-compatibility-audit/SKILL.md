@@ -1,6 +1,6 @@
 ---
 name: kmp-compatibility-audit
-description: Audit Kotlin Multiplatform source-set errors and platform API leakage in Brox Kai v2.0 before proposing a minimal repair.
+description: Audit Kotlin Multiplatform source-set errors and platform API leakage in DORAI AI before proposing a minimal repair.
 ---
 
 # KMP Compatibility Audit

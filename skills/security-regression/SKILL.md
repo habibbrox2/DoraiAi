@@ -1,6 +1,6 @@
 ---
 name: security-regression
-description: Review Brox Kai v2.0 code changes for regressions in MCP SSRF protection, shell hardening, network policy, encrypted storage and release integrity.
+description: Review DORAI AI code changes for regressions in MCP SSRF protection, shell hardening, network policy, encrypted storage and release integrity.
 ---
 
 # Security Regression Review

@@ -20,10 +20,11 @@ Run from repository root (use `./gradlew` on Unix/macOS, `.\gradlew.bat` on Wind
 
 ## Existing CI behavior
 
-- `.github/workflows/test.yml` runs on pushes and pull requests to `main`.
-- It runs `spotlessApply`, screenshot updates, WebP conversion and desktop tests. If generated changes exist, it can commit and push them for non-fork runs.
-- `.github/workflows/apk.yml` supports `workflow_dispatch` and `workflow_call`, uses Java 21 and builds `:androidApp:assembleFossRelease`.
-- CI behavior is not automatically read-only. Do not trigger workflows or push changes without the user's explicit authorization.
+- `.github/workflows/test.yml` runs a change-classification job, then selects quality, desktop, Android, screenshot, and agent-tooling validation according to changed paths.
+- Docs-only changes skip Gradle jobs; the stable `Run Unit Tests` aggregate check still runs and verifies that every selected job succeeded.
+- CI uses `spotlessCheck` (never `spotlessApply`) and does not commit or push generated files. Screenshot verification is conditional and uploads artifacts for manual review only when a selected UI change requires it.
+- `.github/workflows/apk.yml` supports `workflow_dispatch` and `workflow_call`, uses Java 21, and builds `:androidApp:assembleFossRelease`.
+- Use `scripts/validate-changes.ps1` locally to select a conservative validation profile. A local targeted pass does not replace the required PR checks.
 
 ## Error triage
 

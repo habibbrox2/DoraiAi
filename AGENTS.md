@@ -151,5 +151,15 @@ Knowledge lives under `docs/knowledge/` as OKF-style markdown (YAML frontmatter 
 - **Pre-commit formatting gate:** Before creating any git commit or push, `spotlessCheck` must be confirmed green **for the current tree content** — but run it only once per change-set: after the final edit (and any `spotlessApply`), not repeatedly across successive workflow steps. If a `BUILD SUCCESSFUL` `spotlessCheck` already covers the exact tree being committed/pushed (no source files changed since that run), treat it as the confirmation and do **not** re-run it just because another commit/push ceremony is happening. Re-run only when source files changed after the last green run. (`./gradlew spotlessCheck` / `gradlew.bat spotlessCheck` on Windows.)
 - **Screenshot & Visual Regression Gate:** When modifying UI themes, color tokens, typography, spacing, global defaults (`ThemeState`, `ThemePresets`), or shared components that affect rendered screens, always run `./gradlew :screenshotTests:verifyPaparazziDebug` (`gradlew.bat :screenshotTests:verifyPaparazziDebug` on Windows) before committing or pushing. If intentional visual updates cause a golden diff, re-record the affected golden files with `./gradlew :screenshotTests:recordPaparazziDebug --tests "..."` and commit the updated golden PNGs in the same PR.
 - **State Isolation in Tests:** Never rely on ambient singleton defaults (e.g., Koin singletons without explicit test initialization) in screenshot tests. Always explicitly initialize deterministic test state (e.g., `repo.setSelectedThemeId(...)`) so that future changes to global defaults do not cause unintended visual diffs in unaffected tests.
-- **CI:** `.github/workflows/test.yml` runs formatting/screenshot/asset steps and may push changes. Don't trigger it casually.
+- **CI:** `.github/workflows/test.yml` is read-only: it checks formatting/assets, runs platform tests and verifies screenshots. Its one-time screenshot bootstrap only uploads artifacts for review; CI does not commit or push generated files.
 - **Preserve changes:** Never use destructive git commands or overwrite unrelated user changes.
+
+## Multi-Agent Development
+
+- `AGENTS.md` is the sole canonical repository-wide policy for every coding agent. `CLAUDE.md` is only the Claude Code entry point and may add Claude-specific behavior; it does not override this file.
+- Read `agents/task-protocol.md`, `agents/file-ownership.md`, and `agents/validation-policy.md` before parallel or multi-agent work.
+- Use one isolated Git worktree and branch per concurrent task. Create/list/inspect them with `scripts/agent-worktree.ps1`; do not branch-switch inside a worktree owned by another task.
+- Reserve allowed paths before editing with `scripts/agent-lock.ps1`. One task owner per file; shared hotspots require explicit approval.
+- Run `scripts/verify-agent-scope.ps1` and the narrowest suitable `scripts/validate-changes.ps1` profile before handoff.
+- Local worktree metadata and lock files live in the shared Git directory or ignored local files; never commit credentials, agent session data, local settings, or runtime state.
+- Worktree and path-lock tooling is coordination, not a security sandbox. Use OS/container isolation for untrusted agents.
