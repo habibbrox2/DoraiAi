@@ -17,32 +17,34 @@ private class AndroidGitCredentialBroker : GitCredentialBroker {
     @Volatile
     private var tokenFile: File? = null
 
-    override fun credentialGitConfigArgs(command: List<String>): CredentialContext {
+    override fun credentialGitConfigArgs(command: List<String>): GitCredentialBroker.CredentialContext {
         val vault = createGitHubTokenVault()
         val token = vault.readAccessToken() ?: error("No GitHub access token in vault")
 
         val dir = context.cacheDir
         val random = UUID.randomUUID().toString().substring(0, 8)
 
-        tokenFile = File(dir, "git-credential-token-$random")
-        ownerOnly(tokenFile)
-        tokenFile.writeText(token)
+        val tFile = File(dir, "git-credential-token-$random")
+        ownerOnly(tFile)
+        tFile.writeText(token)
+        tokenFile = tFile
 
-        helperScript = File(dir, "git-credential-helper-$random.sh")
-        helperScript.writeText(
+        val hFile = File(dir, "git-credential-helper-$random.sh")
+        hFile.writeText(
             """#!/bin/sh
 printf 'username=x-access-token\n'
-printf 'password=%s\n' "$(cat '${tokenFile.absolutePath}')"
+printf 'password=%s\n' "$(cat '${tFile.absolutePath}')"
             """.trimIndent(),
         )
 
         // chmod 0600 equivalent: owner read/write/execute only.
-        ownerOnly(helperScript)
-        helperScript?.setExecutable(true, false)
+        ownerOnly(hFile)
+        hFile.setExecutable(true, false)
+        helperScript = hFile
 
-        val gitArgs = listOf("-c", "credential.helper=!${helperScript!!.absolutePath}")
+        val gitArgs = listOf("-c", "credential.helper=!${hFile.absolutePath}")
 
-        return CredentialContext(
+        return GitCredentialBroker.CredentialContext(
             gitArgs = gitArgs,
             release = {
                 helperScript?.delete()
