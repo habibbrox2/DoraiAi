@@ -69,7 +69,7 @@ class ChatViewModelTest {
         createViewModel()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        assertEquals(listOf(Service.Gemini to "gemini"), fakeRepository.validateConnectionCalls)
+        assertEquals<List<Pair<Service, String>>>(listOf(Service.Gemini to "gemini"), fakeRepository.validateConnectionCalls)
     }
 
     @Test
