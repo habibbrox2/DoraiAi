@@ -167,6 +167,30 @@ class GitHubIntegrationViewModelTest {
     ): GitHubIntegrationViewModel = GitHubIntegrationViewModel(vault, deviceFlow, apiClient, workspaceController, Dispatchers.Unconfined)
 
     @Test
+    fun `vault initialization failure does not crash settings ViewModel`() {
+        val brokenVault = object : GitHubTokenVault {
+            override fun readAccessToken(): String? = null
+            override fun readRefreshToken(): String? = null
+            override fun readLogin(): String? = null
+            override fun store(
+                accessToken: String,
+                refreshToken: String?,
+                expiresAtEpochMs: Long?,
+                refreshExpiresAtEpochMs: Long?,
+                login: String,
+                installationIds: List<Long>,
+            ) = Unit
+            override fun clear() = Unit
+            override fun isConnected(): Boolean = error("Keystore unavailable")
+        }
+
+        val vm = buildVm(vault = brokenVault)
+
+        assertEquals(GitHubConnectionStatus.NotConnected, vm.state.value.connectionStatus)
+        assertNull(vm.state.value.error)
+    }
+
+    @Test
     fun `connect starts device flow and advances past NotConnected`() {
         val vault = FakeVault()
         val deviceFlow = FakeDeviceFlow()
