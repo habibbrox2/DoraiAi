@@ -204,8 +204,8 @@ Do not introduce a generic plugin loader or runtime code generation system for t
 | `composeApp/src/commonMain/.../ui/dynamicui/DoraiUiTts.kt` | Speakable text extraction |
 | `composeApp/src/commonMain/.../ui/markdown/MarkdownParser.kt` | Markdown/dorai-ui AST parsing |
 | `composeApp/src/commonMain/.../ui/markdown/MarkdownRenderer.kt` | Block dispatch |
-| `composeApp/src/commonMain/.../ui/chat/composables/BotMessage.kt` | Message integration |
-| `composeApp/src/commonMain/.../ui/chat/ChatScreen.kt` | Chat/interactive mode integration |
+| `composeApp/src/commonMain/.../ui/chat/ToolEventGrouper.kt` | Message integration (groups tool events + UI submissions into assistant turns) |
+| `composeApp/src/commonMain/.../ui/chat/DoraiChatScreen.kt` | Chat/interactive mode integration |
 | `composeApp/src/commonMain/.../ui/chat/ChatActions.kt` | UI callbacks and interactive-mode actions |
 | `composeApp/src/commonMain/.../data/AppSettings.kt` | Dynamic UI preference |
 

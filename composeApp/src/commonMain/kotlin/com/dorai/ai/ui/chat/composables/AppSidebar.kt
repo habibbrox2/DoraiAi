@@ -69,7 +69,14 @@ import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignTokens
 import com.dorai.ai.ui.workspace.CreateProjectDialog
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.action_cancel
+import dorai.composeapp.generated.resources.action_delete
+import dorai.composeapp.generated.resources.action_rename
+import dorai.composeapp.generated.resources.action_save
 import dorai.composeapp.generated.resources.chat_history_heartbeat_label
+import dorai.composeapp.generated.resources.chat_today
+import dorai.composeapp.generated.resources.chat_untitled
+import dorai.composeapp.generated.resources.chat_yesterday
 import dorai.composeapp.generated.resources.dashboard_title
 import dorai.composeapp.generated.resources.ic_settings
 import dorai.composeapp.generated.resources.sidebar_nav_dashboard
@@ -80,6 +87,12 @@ import dorai.composeapp.generated.resources.sidebar_new_chat
 import dorai.composeapp.generated.resources.sidebar_new_project
 import dorai.composeapp.generated.resources.sidebar_no_chats
 import dorai.composeapp.generated.resources.sidebar_no_matches
+import dorai.composeapp.generated.resources.sidebar_older
+import dorai.composeapp.generated.resources.sidebar_options
+import dorai.composeapp.generated.resources.sidebar_pin
+import dorai.composeapp.generated.resources.sidebar_pinned_group
+import dorai.composeapp.generated.resources.sidebar_previous_30_days
+import dorai.composeapp.generated.resources.sidebar_previous_7_days
 import dorai.composeapp.generated.resources.sidebar_projects
 import dorai.composeapp.generated.resources.sidebar_projects_empty
 import dorai.composeapp.generated.resources.sidebar_projects_setup
@@ -87,11 +100,13 @@ import dorai.composeapp.generated.resources.sidebar_recent_chats
 import dorai.composeapp.generated.resources.sidebar_rename_chat
 import dorai.composeapp.generated.resources.sidebar_search_chats
 import dorai.composeapp.generated.resources.sidebar_tagline
+import dorai.composeapp.generated.resources.sidebar_unpin
 import dorai.composeapp.generated.resources.sidebar_version
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import kotlin.time.Clock
@@ -142,6 +157,7 @@ fun AppSidebar(
 
     // Time-based grouping. Pinned conversations always float to the top group.
     val groups = remember(visibleConversations) { groupConversations(visibleConversations) }
+    // (group header strings are rendered as stringResources at the row below)
 
     Column(
         modifier = modifier
@@ -275,11 +291,11 @@ fun AppSidebar(
             modifier = Modifier.weight(1f).fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(ChatSpacing.xxs),
         ) {
-            groups.forEach { (label, conversations) ->
-                if (conversations.isEmpty()) return@forEach
-                item(key = "header_$label") {
+            groups.forEachIndexed { groupIndex, (labelRes, conversations) ->
+                if (conversations.isEmpty()) return@forEachIndexed
+                item(key = "header_$groupIndex") {
                     Text(
-                        text = label.uppercase(),
+                        text = stringResource(labelRes).uppercase(),
                         style = DoraiTypography.labelSmall.copy(letterSpacing = 1.sp),
                         fontWeight = FontWeight.Bold,
                         color = tokens.MutedText.copy(alpha = 0.7f),
@@ -626,7 +642,7 @@ private fun ConversationRow(
                     }
                 }
                 Text(
-                    text = conversation.title.ifBlank { "Untitled" },
+                    text = conversation.title.ifBlank { stringResource(Res.string.chat_untitled) },
                     style = DoraiTypography.bodySmall,
                     fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
                     color = if (isSelected) tokens.PrimaryText else tokens.SecondaryText,
@@ -642,7 +658,7 @@ private fun ConversationRow(
                 ) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Options",
+                        contentDescription = stringResource(Res.string.sidebar_options),
                         tint = if (isSelected) tokens.SecondaryText else tokens.MutedText,
                         modifier = Modifier.size(15.dp),
                     )
@@ -656,7 +672,7 @@ private fun ConversationRow(
                         .border(BorderStroke(1.dp, tokens.BorderSubtle), RoundedCornerShape(8.dp)),
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Rename", color = tokens.PrimaryText) },
+                        text = { Text(stringResource(Res.string.action_rename), color = tokens.PrimaryText) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Edit,
@@ -671,7 +687,7 @@ private fun ConversationRow(
                         },
                     )
                     DropdownMenuItem(
-                        text = { Text(if (conversation.isPinned) "Unpin" else "Pin", color = tokens.PrimaryText) },
+                        text = { Text(if (conversation.isPinned) stringResource(Res.string.sidebar_unpin) else stringResource(Res.string.sidebar_pin), color = tokens.PrimaryText) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.PushPin,
@@ -686,7 +702,7 @@ private fun ConversationRow(
                         },
                     )
                     DropdownMenuItem(
-                        text = { Text("Delete", color = DesignTokens.Error) },
+                        text = { Text(stringResource(Res.string.action_delete), color = DesignTokens.Error) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Delete,
@@ -747,7 +763,7 @@ private fun RenameDialog(
                     contentColor = tokens.PrimaryCyan,
                 ),
             ) {
-                Text("Save", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(Res.string.action_save), fontWeight = FontWeight.SemiBold)
             }
         },
         dismissButton = {
@@ -757,7 +773,7 @@ private fun RenameDialog(
                     contentColor = tokens.MutedText,
                 ),
             ) {
-                Text("Cancel")
+                Text(stringResource(Res.string.action_cancel))
             }
         },
         containerColor = tokens.SurfaceElevated,
@@ -853,7 +869,7 @@ private fun SidebarLink(
 
 private fun groupConversations(
     conversations: ImmutableList<ConversationSummary>,
-): List<Pair<String, List<ConversationSummary>>> {
+): List<Pair<StringResource, List<ConversationSummary>>> {
     val pinned = conversations.filter { it.isPinned }
     val unpinned = conversations.filter { !it.isPinned }
 
@@ -880,12 +896,12 @@ private fun groupConversations(
         }
     }
 
-    val result = mutableListOf<Pair<String, List<ConversationSummary>>>()
-    if (pinned.isNotEmpty()) result.add("Pinned" to pinned)
-    if (todayList.isNotEmpty()) result.add("Today" to todayList)
-    if (yesterdayList.isNotEmpty()) result.add("Yesterday" to yesterdayList)
-    if (weekList.isNotEmpty()) result.add("Previous 7 Days" to weekList)
-    if (monthList.isNotEmpty()) result.add("Previous 30 Days" to monthList)
-    if (olderList.isNotEmpty()) result.add("Older" to olderList)
+    val result = mutableListOf<Pair<StringResource, List<ConversationSummary>>>()
+    if (pinned.isNotEmpty()) result.add(Res.string.sidebar_pinned_group to pinned)
+    if (todayList.isNotEmpty()) result.add(Res.string.chat_today to todayList)
+    if (yesterdayList.isNotEmpty()) result.add(Res.string.chat_yesterday to yesterdayList)
+    if (weekList.isNotEmpty()) result.add(Res.string.sidebar_previous_7_days to weekList)
+    if (monthList.isNotEmpty()) result.add(Res.string.sidebar_previous_30_days to monthList)
+    if (olderList.isNotEmpty()) result.add(Res.string.sidebar_older to olderList)
     return result
 }

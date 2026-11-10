@@ -1,6 +1,6 @@
 # Chat & Conversations
 
-**Last verified:** 2026-11-09
+**Last verified:** 2026-11-10
 
 DORAI AI's chat system manages the message history, conversation persistence, file attachments, and speech output. Conversations are service-independent — switching providers does not affect which conversation is loaded or restored. Multiple conversations are persisted and browsable via a history sheet.
 
@@ -173,7 +173,6 @@ On compact screens the chat is wrapped in a modal navigation drawer; on expanded
 | `composeApp/src/commonMain/.../ui/chat/DoraiChatScreen.kt` | UI v2 chat screen (active): adaptive list-detail scaffold, message timeline rendering (user bubbles, assistant who-row/markdown/tool cards, streaming typing indicator, jump-to-latest). who-row shows the active provider's icon from `ChatMessageItem.serviceIcon` |
 | `composeApp/src/commonMain/.../ui/chat/ToolEventGrouper.kt` | Groups conversation history into chat messages; propagates the active service's `executionLocation` (Local/Cloud) and provider icon onto assistant messages; fallback-answered messages are always Cloud; computes the agent-turn wall-clock span used by the "Worked for Xs" indicator |
 | `composeApp/src/commonMain/.../ui/chat/composables/ChatCommandPalette.kt` | Ctrl/Cmd+K command palette: jump actions + conversation search |
-| `composeApp/src/commonMain/.../ui/chat/ChatScreen.kt` | Legacy chat entry — superseded by UI v2; kept for reference |
 | `composeApp/src/commonMain/.../ui/chat/composables/AppSidebar.kt` | Navigation sidebar: header/search, New Chat/New Project, grouped history, bottom nav, footer |
 | `composeApp/src/commonMain/.../ui/chat/composables/EmptyState.kt` | Centered logo, "Your AI. Your World." welcome copy, wrapping quick-start chips |
 | `composeApp/src/commonMain/.../ui/chat/composables/AgentHud.kt` | Compact HUD with direct Settings/Speech actions (no overflow menu) |

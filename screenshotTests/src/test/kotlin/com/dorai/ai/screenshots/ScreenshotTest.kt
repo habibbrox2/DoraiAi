@@ -1,9 +1,8 @@
-@file:OptIn(ExperimentalVoiceApi::class)
-
 package com.dorai.ai.screenshots
 
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,8 +22,9 @@ import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.data.ThemeSettingsRepository
 import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.theme.ui.DoraiAppearanceSettings
-import com.dorai.ai.ui.chat.ChatScreenContent
-import com.dorai.ai.ui.chat.composables.AgentActivityTimeline
+import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
+import com.dorai.ai.ui.adaptive.calculateDoraiWindowWidthClass
+import com.dorai.ai.ui.chat.DoraiChatScreen
 import com.dorai.ai.ui.chat.composables.ChatComposer
 import com.dorai.ai.ui.chat.composables.ShellExecutionCard
 import com.dorai.ai.ui.chat.composables.ToolConfirmationCard
@@ -35,7 +35,6 @@ import com.dorai.ai.ui.workspace.WorkspaceActions
 import com.dorai.ai.ui.workspace.WorkspaceScreenContent
 import com.dorai.ai.ui.workspace.WorkspaceStatusKind
 import com.dorai.ai.ui.workspace.WorkspaceStatusPill
-import nl.marc_apps.tts.experimental.ExperimentalVoiceApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
 import org.junit.Before
@@ -120,10 +119,9 @@ class ScreenshotTest {
     @Test
     fun chatEmptyState_premiumDark() {
         paparazzi.snap(ThemePresets.dark) {
-            ChatScreenContent(
-                uiState = ScreenshotTestData.chatEmptyState,
-                FakeTextToSpeechInstance(),
-                isSandboxAvailable = true,
+            DoraiChatScreenV2(
+                messages = emptyList(),
+                conversations = ScreenshotTestData.v2Conversations,
             )
         }
     }
@@ -131,9 +129,10 @@ class ScreenshotTest {
     @Test
     fun chatWithMessages_dark() {
         paparazzi.snap(ThemePresets.dark) {
-            ChatScreenContent(
-                uiState = ScreenshotTestData.chatWithMessages,
-                FakeTextToSpeechInstance(),
+            DoraiChatScreenV2(
+                messages = ScreenshotTestData.v2Messages,
+                conversations = ScreenshotTestData.v2Conversations,
+                selectedModeId = "build",
             )
         }
     }
@@ -141,9 +140,10 @@ class ScreenshotTest {
     @Test
     fun chatWithDynamicUi_light() {
         paparazzi.snap(ThemePresets.light) {
-            ChatScreenContent(
-                uiState = ScreenshotTestData.chatWithDynamicUi,
-                FakeTextToSpeechInstance(),
+            DoraiChatScreenV2(
+                messages = ScreenshotTestData.v2DynamicUiMessages,
+                conversations = ScreenshotTestData.v2Conversations,
+                selectedModeId = "build",
             )
         }
     }
@@ -181,12 +181,8 @@ class ScreenshotTest {
     @Test
     fun settingsSandbox_dark() {
         paparazzi.snap(ThemePresets.dark) {
-            ChatScreenContent(
-                uiState = ScreenshotTestData.chatEmptyState,
-                isSandboxAvailable = true,
-                initialSandboxOpen = true,
-                previewSandboxState = ScreenshotTestData.sandboxState,
-                previewSandboxLines = ScreenshotTestData.sandboxTerminalLines,
+            DoraiWorkspaceScreenSnapshot(
+                sandboxState = ScreenshotTestData.sandboxState,
             )
         }
     }
@@ -388,9 +384,10 @@ class ScreenshotTest {
     @Test
     fun chatWithDynamicUi_dark() {
         paparazzi.snap(ThemePresets.dark) {
-            ChatScreenContent(
-                uiState = ScreenshotTestData.chatWithDynamicUi,
-                FakeTextToSpeechInstance(),
+            DoraiChatScreenV2(
+                messages = ScreenshotTestData.v2DynamicUiMessages,
+                conversations = ScreenshotTestData.v2Conversations,
+                selectedModeId = "build",
             )
         }
     }
@@ -455,53 +452,6 @@ class ScreenshotTest {
                 WorkspaceStatusPill(label = "Warning", kind = WorkspaceStatusKind.Warning)
                 WorkspaceStatusPill(label = "Failed", kind = WorkspaceStatusKind.Failed)
             }
-        }
-    }
-
-    // --- Phase C: Agent Activity states ---
-
-    @Test
-    fun agentActivityTimelineMixed_dark() {
-        paparazzi.snap(ThemePresets.dark) {
-            AgentActivityTimeline(
-                activities = ScreenshotTestData.agentActivitiesMixed,
-            )
-        }
-    }
-
-    @Test
-    fun agentActivityTimelineToolCall_dark() {
-        paparazzi.snap(ThemePresets.dark) {
-            AgentActivityTimeline(
-                activities = ScreenshotTestData.agentActivitiesToolCall,
-            )
-        }
-    }
-
-    @Test
-    fun agentActivityTimelineShellCommand_dark() {
-        paparazzi.snap(ThemePresets.dark) {
-            AgentActivityTimeline(
-                activities = ScreenshotTestData.agentActivitiesShellCommand,
-            )
-        }
-    }
-
-    @Test
-    fun agentActivityTimelineFileOperation_dark() {
-        paparazzi.snap(ThemePresets.dark) {
-            AgentActivityTimeline(
-                activities = ScreenshotTestData.agentActivitiesFileOperation,
-            )
-        }
-    }
-
-    @Test
-    fun agentActivityTimelinePermission_dark() {
-        paparazzi.snap(ThemePresets.dark) {
-            AgentActivityTimeline(
-                activities = ScreenshotTestData.agentActivitiesPermission,
-            )
         }
     }
 

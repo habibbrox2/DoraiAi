@@ -17,6 +17,8 @@ import com.dorai.ai.WORKSPACE_FILES
 import com.dorai.ai.WorkspaceController
 import com.dorai.ai.ui.sandbox.EditorState
 import com.dorai.ai.ui.sandbox.SandboxFileBrowserViewModel
+import com.dorai.ai.ui.settings.SandboxSettingsCard
+import com.dorai.ai.ui.settings.SandboxViewModel
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.workspace_editor_binary
 import dorai.composeapp.generated.resources.workspace_editor_empty
@@ -48,11 +50,13 @@ private const val WORKSPACE_EDITOR_KEY = "WorkspaceEditor"
 fun DoraiWorkspaceScreenConnected(
     modifier: Modifier = Modifier,
     viewModel: WorkspaceViewModel = koinViewModel(),
+    sandboxViewModel: SandboxViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val gitState by viewModel.gitState.collectAsStateWithLifecycle()
     val gitDiff by viewModel.gitDiff.collectAsStateWithLifecycle()
     val gitActionInProgress by viewModel.gitActionInProgress.collectAsStateWithLifecycle()
+    val sandboxState by sandboxViewModel.state.collectAsStateWithLifecycle()
     val openProjectName = uiState.openProject
 
     // Real guest-fs browser instance dedicated to the workspace explorer (drawer key pattern).
@@ -131,6 +135,26 @@ fun DoraiWorkspaceScreenConnected(
         onOpenProject = { proj -> viewModel.openProject(proj.name) },
         onCloseProject = { viewModel.closeProject() },
         onCreateProject = { name -> viewModel.createProject(name) },
+        installedAgentIds = uiState.build.installedAgents,
+        launchAgentId = uiState.launchAgentId,
+        onLaunchAgentSelected = viewModel::setLaunchAgent,
+        onInstallAgent = viewModel::installAgent,
+        sandboxSlot = if (sandboxState.showSandbox) {
+            {
+                SandboxSettingsCard(
+                    sandboxState = sandboxState,
+                    onToggleSandbox = sandboxViewModel::onToggleSandbox,
+                    onSelectDistro = sandboxViewModel::onSelectDistro,
+                    onSetupSandbox = sandboxViewModel::onSetupSandbox,
+                    onCancelSandbox = sandboxViewModel::onCancelSandbox,
+                    onResetSandbox = sandboxViewModel::onResetSandbox,
+                    onInstallPackages = sandboxViewModel::onInstallPackages,
+                    onMigrateHome = sandboxViewModel::onMigrateHome,
+                )
+            }
+        } else {
+            null
+        },
         terminalContent = if (uiState.build.activeSession != null) {
             {
                 Box(modifier = Modifier.fillMaxSize()) {

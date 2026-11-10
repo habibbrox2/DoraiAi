@@ -22,6 +22,10 @@ import androidx.compose.ui.window.rememberWindowState
 import androidx.navigation.compose.rememberNavController
 import com.dorai.ai.updater.AutoUpdater
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.auto_update_body
+import dorai.composeapp.generated.resources.auto_update_install
+import dorai.composeapp.generated.resources.auto_update_later
+import dorai.composeapp.generated.resources.auto_update_title
 import dorai.composeapp.generated.resources.logo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +35,7 @@ import nl.marc_apps.tts.TextToSpeechInstance
 import nl.marc_apps.tts.experimental.ExperimentalDesktopTarget
 import nl.marc_apps.tts.rememberTextToSpeechOrNull
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 fun main() {
     System.setProperty("apple.awt.application.appearance", "system")
@@ -90,20 +95,20 @@ private fun AutoUpdateDialog(
         is AutoUpdater.UpdateState.UpdateAvailable -> {
             AlertDialog(
                 onDismissRequest = onDismiss,
-                title = { Text("Update Available") },
+                title = { Text(stringResource(Res.string.auto_update_title)) },
                 text = {
                     Text(
-                        "DORAI AI ${updateState.version} is ready.\n\n${updateState.releaseNotes.take(500)}",
+                        stringResource(Res.string.auto_update_body, updateState.version, updateState.releaseNotes.take(500)),
                     )
                 },
                 confirmButton = {
                     Button(onClick = {
                         java.awt.Desktop.getDesktop().browse(java.net.URI(updateState.downloadUrl))
                         onDismiss()
-                    }) { Text("Download & Install") }
+                    }) { Text(stringResource(Res.string.auto_update_install)) }
                 },
                 dismissButton = {
-                    Button(onClick = onDismiss) { Text("Later") }
+                    Button(onClick = onDismiss) { Text(stringResource(Res.string.auto_update_later)) }
                 },
             )
         }

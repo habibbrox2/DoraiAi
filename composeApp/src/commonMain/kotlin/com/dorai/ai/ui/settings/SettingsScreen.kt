@@ -92,7 +92,6 @@ import com.dorai.ai.BackIcon
 import com.dorai.ai.Version
 import com.dorai.ai.data.EmailAccount
 import com.dorai.ai.data.Service
-import com.dorai.ai.linux.LinuxDistro
 import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.BorderSoft
@@ -105,6 +104,7 @@ import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_navigate_back
 import dorai.composeapp.generated.resources.settings_ai_mistakes_warning
 import dorai.composeapp.generated.resources.settings_licenses
 import dorai.composeapp.generated.resources.settings_licenses_close
@@ -114,7 +114,6 @@ import dorai.composeapp.generated.resources.settings_tab_appearance
 import dorai.composeapp.generated.resources.settings_tab_data
 import dorai.composeapp.generated.resources.settings_tab_general
 import dorai.composeapp.generated.resources.settings_tab_github
-import dorai.composeapp.generated.resources.settings_tab_sandbox
 import dorai.composeapp.generated.resources.settings_tab_services
 import dorai.composeapp.generated.resources.settings_tab_tools
 import dorai.composeapp.generated.resources.snackbar_email_removed
@@ -171,13 +170,6 @@ fun SettingsScreen(
         uiState = uiState,
         actions = viewModel.actions,
         sandboxState = sandboxState,
-        onToggleSandbox = sandboxViewModel::onToggleSandbox,
-        onSelectDistro = sandboxViewModel::onSelectDistro,
-        onSetupSandbox = sandboxViewModel::onSetupSandbox,
-        onCancelSandbox = sandboxViewModel::onCancelSandbox,
-        onResetSandbox = sandboxViewModel::onResetSandbox,
-        onInstallPackages = sandboxViewModel::onInstallPackages,
-        onMigrateHome = sandboxViewModel::onMigrateHome,
         onNavigateBack = onNavigateBack,
         navigationTabBar = navigationTabBar,
         androidUpdateContent = androidUpdateContent,
@@ -189,13 +181,6 @@ fun SettingsScreenContent(
     uiState: SettingsUiState,
     actions: SettingsActions = SettingsActions.NoOp,
     sandboxState: SandboxUiState = SandboxUiState(),
-    onToggleSandbox: (Boolean) -> Unit = {},
-    onSelectDistro: (LinuxDistro) -> Unit = {},
-    onSetupSandbox: () -> Unit = {},
-    onCancelSandbox: () -> Unit = {},
-    onResetSandbox: () -> Unit = {},
-    onInstallPackages: () -> Unit = {},
-    onMigrateHome: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
     navigationTabBar: (@Composable () -> Unit)? = null,
     androidUpdateContent: (@Composable () -> Unit)? = null,
@@ -270,12 +255,8 @@ fun SettingsScreenContent(
     Box(Modifier.fillMaxSize().background(backgroundColor).navigationBarsPadding().statusBarsPadding().imePadding()) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val expanded = maxWidth >= 840.dp
-            // The sandbox tab only exists where the sandbox does; on every other
-            // platform it would open on an empty page.
-            val visibleTabs = remember(sandboxState.showSandbox) {
-                SettingsTab.entries
-                    .filter { it != SettingsTab.Sandbox || sandboxState.showSandbox }
-                    .toImmutableList()
+            val visibleTabs = remember {
+                SettingsTab.entries.toImmutableList()
             }
             if (expanded) {
                 Row(Modifier.fillMaxSize()) {
@@ -300,13 +281,6 @@ fun SettingsScreenContent(
                             uiState = filteredUiState,
                             actions = actions,
                             sandboxState = sandboxState,
-                            onToggleSandbox = onToggleSandbox,
-                            onSelectDistro = onSelectDistro,
-                            onSetupSandbox = onSetupSandbox,
-                            onCancelSandbox = onCancelSandbox,
-                            onResetSandbox = onResetSandbox,
-                            onInstallPackages = onInstallPackages,
-                            onMigrateHome = onMigrateHome,
                             androidUpdateContent = androidUpdateContent,
                             modifier = Modifier.weight(1f),
                         )
@@ -334,13 +308,6 @@ fun SettingsScreenContent(
                         uiState = filteredUiState,
                         actions = actions,
                         sandboxState = sandboxState,
-                        onToggleSandbox = onToggleSandbox,
-                        onSelectDistro = onSelectDistro,
-                        onSetupSandbox = onSetupSandbox,
-                        onCancelSandbox = onCancelSandbox,
-                        onResetSandbox = onResetSandbox,
-                        onInstallPackages = onInstallPackages,
-                        onMigrateHome = onMigrateHome,
                         androidUpdateContent = androidUpdateContent,
                         modifier = Modifier.weight(1f),
                     )
@@ -383,7 +350,7 @@ private fun TopBar(onNavigateBack: () -> Unit) {
             ) {
                 Icon(
                     imageVector = BackIcon,
-                    contentDescription = "Navigate back",
+                    contentDescription = stringResource(Res.string.a11y_navigate_back),
                     tint = LocalDesignColorTokens.current.textPrimary,
                 )
             }
@@ -503,7 +470,6 @@ private fun SettingsTabSelector(
                     SettingsTab.Services -> stringResource(Res.string.settings_tab_services)
                     SettingsTab.Tools -> stringResource(Res.string.settings_tab_tools)
                     SettingsTab.GitHub -> stringResource(Res.string.settings_tab_github)
-                    SettingsTab.Sandbox -> stringResource(Res.string.settings_tab_sandbox)
                     SettingsTab.Account -> stringResource(Res.string.settings_tab_account)
                 }
 

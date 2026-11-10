@@ -100,7 +100,7 @@ internal fun SkillsSection(
     isBrowsing: Boolean,
     browseFailed: Boolean,
     isSandboxInstalled: Boolean,
-    onNavigateToSandbox: () -> Unit,
+    onNavigateToSandbox: (() -> Unit)? = null,
     onBrowseSkills: () -> Unit = {},
 ) {
     var scope by remember { mutableStateOf(ConnectorLibraryScope.Yours) }
@@ -182,12 +182,14 @@ internal fun SkillsSection(
                 )
                 StatusBadge(label = "Needs setup", status = OperationalStatus.NeedsSetup)
             }
-            Spacer(Modifier.height(8.dp))
-            OutlinedButton(
-                onClick = onNavigateToSandbox,
-                modifier = Modifier.align(Alignment.CenterHorizontally).handCursor(),
-            ) {
-                Text(stringResource(Res.string.settings_skills_setup_sandbox))
+            if (onNavigateToSandbox != null) {
+                Spacer(Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = onNavigateToSandbox,
+                    modifier = Modifier.align(Alignment.CenterHorizontally).handCursor(),
+                ) {
+                    Text(stringResource(Res.string.settings_skills_setup_sandbox))
+                }
             }
         } else {
             when (scope) {

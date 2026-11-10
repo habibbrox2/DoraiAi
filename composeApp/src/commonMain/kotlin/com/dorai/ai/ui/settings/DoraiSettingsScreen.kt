@@ -41,7 +41,6 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.SmartToy
 import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.Button
@@ -78,7 +77,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.Version
 import com.dorai.ai.data.AppSettings
-import com.dorai.ai.linux.LinuxDistro
 import com.dorai.ai.theme.data.ThemePalette
 import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.data.ThemeStyle
@@ -94,6 +92,20 @@ import com.dorai.ai.ui.components.v2.DoraiProviderBadge
 import com.dorai.ai.ui.components.v2.DoraiStatusBadge
 import com.dorai.ai.ui.components.v2.DoraiThemePresetTile
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.action_cancel
+import dorai.composeapp.generated.resources.action_delete
+import dorai.composeapp.generated.resources.agent_activity_timeline
+import dorai.composeapp.generated.resources.agent_activity_timeline_desc
+import dorai.composeapp.generated.resources.agent_approval_policy
+import dorai.composeapp.generated.resources.agent_auto_run_readonly
+import dorai.composeapp.generated.resources.agent_auto_run_readonly_desc
+import dorai.composeapp.generated.resources.agent_default_mode
+import dorai.composeapp.generated.resources.agent_local_only_storage
+import dorai.composeapp.generated.resources.agent_local_only_storage_desc
+import dorai.composeapp.generated.resources.mode_ask
+import dorai.composeapp.generated.resources.mode_build
+import dorai.composeapp.generated.resources.mode_plan
+import dorai.composeapp.generated.resources.mode_review
 import dorai.composeapp.generated.resources.settings_approval_ask_all
 import dorai.composeapp.generated.resources.settings_approval_ask_edits
 import dorai.composeapp.generated.resources.settings_approval_auto_read
@@ -106,7 +118,6 @@ import dorai.composeapp.generated.resources.settings_cat_general
 import dorai.composeapp.generated.resources.settings_cat_github
 import dorai.composeapp.generated.resources.settings_cat_mcp
 import dorai.composeapp.generated.resources.settings_cat_providers
-import dorai.composeapp.generated.resources.settings_cat_sandbox
 import dorai.composeapp.generated.resources.settings_cat_tools
 import dorai.composeapp.generated.resources.settings_delete_all_chats
 import dorai.composeapp.generated.resources.settings_delete_chats_confirm
@@ -119,6 +130,48 @@ import dorai.composeapp.generated.resources.settings_screen_title
 import dorai.composeapp.generated.resources.settings_theme_presets
 import dorai.composeapp.generated.resources.settings_timeline_desc
 import dorai.composeapp.generated.resources.settings_timeline_toggle
+import dorai.composeapp.generated.resources.status_connected
+import dorai.composeapp.generated.resources.tools_group_title
+import dorai.composeapp.generated.resources.v2_account_local_title
+import dorai.composeapp.generated.resources.v2_account_offline_desc
+import dorai.composeapp.generated.resources.v2_api_header
+import dorai.composeapp.generated.resources.v2_asks_first
+import dorai.composeapp.generated.resources.v2_authorization_system
+import dorai.composeapp.generated.resources.v2_auto
+import dorai.composeapp.generated.resources.v2_d1_account
+import dorai.composeapp.generated.resources.v2_delete_all_chats
+import dorai.composeapp.generated.resources.v2_delete_all_chats_confirm_body
+import dorai.composeapp.generated.resources.v2_delete_all_chats_confirm_title
+import dorai.composeapp.generated.resources.v2_edit_file
+import dorai.composeapp.generated.resources.v2_export
+import dorai.composeapp.generated.resources.v2_export_data
+import dorai.composeapp.generated.resources.v2_https_in_use
+import dorai.composeapp.generated.resources.v2_https_required
+import dorai.composeapp.generated.resources.v2_local_sqlite_bridge
+import dorai.composeapp.generated.resources.v2_local_vault
+import dorai.composeapp.generated.resources.v2_mcp_bridge_summary
+import dorai.composeapp.generated.resources.v2_mode_ask_desc
+import dorai.composeapp.generated.resources.v2_mode_build_desc
+import dorai.composeapp.generated.resources.v2_mode_plan_desc
+import dorai.composeapp.generated.resources.v2_mode_review_desc
+import dorai.composeapp.generated.resources.v2_no_auth
+import dorai.composeapp.generated.resources.v2_oauth_2
+import dorai.composeapp.generated.resources.v2_private_blocked
+import dorai.composeapp.generated.resources.v2_read_file
+import dorai.composeapp.generated.resources.v2_redirects_rechecked
+import dorai.composeapp.generated.resources.v2_run_commands
+import dorai.composeapp.generated.resources.v2_search_code
+import dorai.composeapp.generated.resources.v2_skill_code_review_desc
+import dorai.composeapp.generated.resources.v2_skill_code_review_title
+import dorai.composeapp.generated.resources.v2_skill_compose_tips_desc
+import dorai.composeapp.generated.resources.v2_skill_compose_tips_title
+import dorai.composeapp.generated.resources.v2_skill_git_commit_desc
+import dorai.composeapp.generated.resources.v2_skill_git_commit_title
+import dorai.composeapp.generated.resources.v2_skills_title
+import dorai.composeapp.generated.resources.v2_sync_desc
+import dorai.composeapp.generated.resources.v2_sync_title
+import dorai.composeapp.generated.resources.v2_test
+import dorai.composeapp.generated.resources.v2_web_search
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -136,7 +189,6 @@ enum class SettingsCategory(
     Tools("tools", Res.string.settings_cat_tools, Icons.Default.Build),
     Mcp("mcp", Res.string.settings_cat_mcp, Icons.Default.Extension),
     GitHub("github", Res.string.settings_cat_github, Icons.Default.Code),
-    Sandbox("sandbox", Res.string.settings_cat_sandbox, Icons.Default.Terminal),
     Account("account", Res.string.settings_cat_account, Icons.Default.AccountCircle),
 }
 
@@ -158,15 +210,10 @@ fun DoraiSettingsScreen(
     uiState: SettingsUiState? = null,
     actions: SettingsActions? = null,
     sandboxState: SandboxUiState? = null,
-    onToggleSandbox: ((Boolean) -> Unit)? = null,
-    onSelectDistro: ((LinuxDistro) -> Unit)? = null,
-    onSetupSandbox: (() -> Unit)? = null,
-    onCancelSandbox: (() -> Unit)? = null,
-    onResetSandbox: (() -> Unit)? = null,
-    onInstallPackages: (() -> Unit)? = null,
-    onMigrateHome: (() -> Unit)? = null,
     androidUpdateContent: (@Composable () -> Unit)? = null,
     debugBuildStamp: String? = null,
+    /** Navigates to the Workspace screen's Linux Sandbox section (skills CTA); null hides the CTA. */
+    onNavigateToWorkspace: (() -> Unit)? = null,
 ) {
     val widthClass = LocalDoraiWindowWidthClass.current
     val colors = LocalDoraiColors.current
@@ -203,15 +250,9 @@ fun DoraiSettingsScreen(
                     uiState = uiState,
                     actions = actions,
                     sandboxState = sandboxState,
-                    onToggleSandbox = onToggleSandbox,
-                    onSelectDistro = onSelectDistro,
-                    onSetupSandbox = onSetupSandbox,
-                    onCancelSandbox = onCancelSandbox,
-                    onResetSandbox = onResetSandbox,
-                    onInstallPackages = onInstallPackages,
-                    onMigrateHome = onMigrateHome,
                     androidUpdateContent = androidUpdateContent,
                     debugBuildStamp = debugBuildStamp,
+                    onNavigateToWorkspace = onNavigateToWorkspace,
                     onNavigateToCategory = {
                         selectedCat = it
                         onCategoryChanged(it)
@@ -240,15 +281,9 @@ fun DoraiSettingsScreen(
                     uiState = uiState,
                     actions = actions,
                     sandboxState = sandboxState,
-                    onToggleSandbox = onToggleSandbox,
-                    onSelectDistro = onSelectDistro,
-                    onSetupSandbox = onSetupSandbox,
-                    onCancelSandbox = onCancelSandbox,
-                    onResetSandbox = onResetSandbox,
-                    onInstallPackages = onInstallPackages,
-                    onMigrateHome = onMigrateHome,
                     androidUpdateContent = androidUpdateContent,
                     debugBuildStamp = debugBuildStamp,
+                    onNavigateToWorkspace = onNavigateToWorkspace,
                     onNavigateToCategory = {
                         selectedCat = it
                         onCategoryChanged(it)
@@ -262,6 +297,9 @@ fun DoraiSettingsScreen(
 
 /**
  * Production-connected wrapper for UI v2 Settings, binding [SettingsViewModel] and [SandboxViewModel].
+ *
+ * [onNavigateToWorkspace] is passed through from the caller (App.kt) so the Skills CTA
+ * can jump to the Workspace screen, where Linux Sandbox now lives.
  */
 @Composable
 fun DoraiSettingsScreenConnected(
@@ -274,6 +312,7 @@ fun DoraiSettingsScreenConnected(
     settingsViewModel: SettingsViewModel = koinViewModel(),
     sandboxViewModel: SandboxViewModel = koinViewModel(),
     androidUpdateContent: (@Composable () -> Unit)? = null,
+    onNavigateToWorkspace: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val uiState by settingsViewModel.state.collectAsStateWithLifecycle()
@@ -289,15 +328,9 @@ fun DoraiSettingsScreenConnected(
         uiState = uiState,
         actions = settingsViewModel.actions,
         sandboxState = sandboxState,
-        onToggleSandbox = sandboxViewModel::onToggleSandbox,
-        onSelectDistro = sandboxViewModel::onSelectDistro,
-        onSetupSandbox = sandboxViewModel::onSetupSandbox,
-        onCancelSandbox = sandboxViewModel::onCancelSandbox,
-        onResetSandbox = sandboxViewModel::onResetSandbox,
-        onInstallPackages = sandboxViewModel::onInstallPackages,
-        onMigrateHome = sandboxViewModel::onMigrateHome,
         androidUpdateContent = androidUpdateContent,
         debugBuildStamp = "v${Version.appVersion} · uiV2=on",
+        onNavigateToWorkspace = onNavigateToWorkspace,
         modifier = modifier,
     )
 }
@@ -364,15 +397,9 @@ private fun SettingsCategoryContent(
     uiState: SettingsUiState? = null,
     actions: SettingsActions? = null,
     sandboxState: SandboxUiState? = null,
-    onToggleSandbox: ((Boolean) -> Unit)? = null,
-    onSelectDistro: ((LinuxDistro) -> Unit)? = null,
-    onSetupSandbox: (() -> Unit)? = null,
-    onCancelSandbox: (() -> Unit)? = null,
-    onResetSandbox: (() -> Unit)? = null,
-    onInstallPackages: (() -> Unit)? = null,
-    onMigrateHome: (() -> Unit)? = null,
     androidUpdateContent: (@Composable () -> Unit)? = null,
     debugBuildStamp: String? = null,
+    onNavigateToWorkspace: (() -> Unit)? = null,
     onNavigateToCategory: (SettingsCategory) -> Unit = {},
 ) {
     val colors = LocalDoraiColors.current
@@ -434,7 +461,7 @@ private fun SettingsCategoryContent(
                             isBrowsing = uiState.isBrowsingSkills,
                             browseFailed = uiState.browseSkillsFailed,
                             isSandboxInstalled = sandboxState?.sandboxInstalled ?: false,
-                            onNavigateToSandbox = { onNavigateToCategory(SettingsCategory.Sandbox) },
+                            onNavigateToSandbox = onNavigateToWorkspace,
                             onBrowseSkills = actions.onBrowseSkills,
                         )
                     }
@@ -456,23 +483,6 @@ private fun SettingsCategoryContent(
 
                 SettingsCategory.GitHub -> {
                     GitHubSection()
-                }
-
-                SettingsCategory.Sandbox -> {
-                    if (sandboxState != null && sandboxState.showSandbox) {
-                        SandboxSettingsCard(
-                            sandboxState = sandboxState,
-                            onToggleSandbox = onToggleSandbox ?: {},
-                            onSelectDistro = onSelectDistro ?: {},
-                            onSetupSandbox = onSetupSandbox ?: {},
-                            onCancelSandbox = onCancelSandbox ?: {},
-                            onResetSandbox = onResetSandbox ?: {},
-                            onInstallPackages = onInstallPackages ?: {},
-                            onMigrateHome = onMigrateHome ?: {},
-                        )
-                    } else {
-                        SandboxUnavailableContent()
-                    }
                 }
 
                 SettingsCategory.Account -> {
@@ -502,8 +512,6 @@ private fun SettingsCategoryContent(
                 SettingsCategory.Mcp -> McpSettingsContent()
 
                 SettingsCategory.GitHub -> GitHubSettingsContent()
-
-                SettingsCategory.Sandbox -> SandboxSettingsContent()
 
                 SettingsCategory.Account -> {
                     AccountProfileCard()
@@ -585,7 +593,7 @@ private fun ToolsSettingsContent() {
     }
 
     Text(
-        text = "টুল / Tools",
+        text = stringResource(Res.string.tools_group_title),
         color = colors.muted,
         fontSize = 12.5.sp,
         fontWeight = FontWeight.Bold,
@@ -593,11 +601,11 @@ private fun ToolsSettingsContent() {
     )
     SettingsSectionCard {
         val toolList = listOf(
-            Triple("read_file", "ফাইল পড়া / Read files", "read_file"),
-            Triple("search", "কোডে খোঁজা / Search code", "search"),
-            Triple("edit_file", "ফাইল বদলানো / Edit files", "edit_file"),
-            Triple("shell", "কমান্ড চালানো / Run commands", "shell"),
-            Triple("web_search", "ওয়েবে খোঁজা / Search the web", "web_search"),
+            Triple("read_file", stringResource(Res.string.v2_read_file), "read_file"),
+            Triple("search", stringResource(Res.string.v2_search_code), "search"),
+            Triple("edit_file", stringResource(Res.string.v2_edit_file), "edit_file"),
+            Triple("shell", stringResource(Res.string.v2_run_commands), "shell"),
+            Triple("web_search", stringResource(Res.string.v2_web_search), "web_search"),
         )
         toolList.forEachIndexed { idx, (id, label, _) ->
             val isRisky = toolPolicies[id] == true
@@ -618,7 +626,7 @@ private fun ToolsSettingsContent() {
                     Text(label, color = colors.muted, fontSize = 12.sp)
                 }
                 DoraiStatusBadge(
-                    text = if (isRisky) "Asks first" else "Auto",
+                    text = if (isRisky) stringResource(Res.string.v2_asks_first) else stringResource(Res.string.v2_auto),
                     color = if (isRisky) colors.warn else colors.ok,
                 )
             }
@@ -629,7 +637,7 @@ private fun ToolsSettingsContent() {
     }
 
     Text(
-        text = "স্কিল / Skills",
+        text = stringResource(Res.string.v2_skills_title),
         color = colors.muted,
         fontSize = 12.5.sp,
         fontWeight = FontWeight.Bold,
@@ -637,9 +645,9 @@ private fun ToolsSettingsContent() {
     )
     SettingsSectionCard {
         val skills = listOf(
-            Triple("code_review", "Code review", "Analyze syntax and safety regressions"),
-            Triple("git_commit", "Git commit messages", "Generate conventional commit descriptions"),
-            Triple("compose_tips", "Compose UI tips", "State hoisting and recomposition audits"),
+            Triple("code_review", stringResource(Res.string.v2_skill_code_review_title), stringResource(Res.string.v2_skill_code_review_desc)),
+            Triple("git_commit", stringResource(Res.string.v2_skill_git_commit_title), stringResource(Res.string.v2_skill_git_commit_desc)),
+            Triple("compose_tips", stringResource(Res.string.v2_skill_compose_tips_title), stringResource(Res.string.v2_skill_compose_tips_desc)),
         )
         skills.forEachIndexed { idx, (id, title, desc) ->
             val isChecked = skillStates[id] == true
@@ -700,15 +708,15 @@ private fun McpSettingsContent() {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Extension, contentDescription = null, tint = colors.primary, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Local SQLite Bridge", color = colors.text, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(Res.string.v2_local_sqlite_bridge), color = colors.text, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
-                Text("https://localhost:8080/mcp · 7 tools connected", color = colors.muted, fontSize = 12.sp)
+                Text(stringResource(Res.string.v2_mcp_bridge_summary), color = colors.muted, fontSize = 12.sp)
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                DoraiStatusBadge("Connected", colors.ok)
+                DoraiStatusBadge(stringResource(Res.string.status_connected), colors.ok)
                 Spacer(modifier = Modifier.width(8.dp))
                 TextButton(onClick = {}) {
-                    Text("Test", color = colors.primary, fontSize = 13.sp)
+                    Text(stringResource(Res.string.v2_test), color = colors.primary, fontSize = 13.sp)
                 }
             }
         }
@@ -736,9 +744,13 @@ private fun AddMcpServerModalSheet(onDismiss: () -> Unit) {
             Text(stringResource(Res.string.settings_mcp_add_server), color = colors.text, fontSize = 18.sp, fontWeight = FontWeight.Bold)
 
             // Auth Selector (Supports OAuth 2.0 system)
-            Text("Authorization System", color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(Res.string.v2_authorization_system), color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf("oauth" to "OAuth 2.0", "header" to "API Header", "none" to "No Auth").forEach { (type, label) ->
+                listOf(
+                    "oauth" to stringResource(Res.string.v2_oauth_2),
+                    "header" to stringResource(Res.string.v2_api_header),
+                    "none" to stringResource(Res.string.v2_no_auth),
+                ).forEach { (type, label) ->
                     val isSel = authType == type
                     Box(
                         modifier = Modifier
@@ -777,15 +789,19 @@ private fun AddMcpServerModalSheet(onDismiss: () -> Unit) {
                 Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     SecurityCheckItem(
                         passed = isHttps,
-                        label = if (isHttps) "HTTPS ব্যবহার হচ্ছে / Uses HTTPS" else "HTTPS প্রয়োজন / HTTPS required",
+                        label = if (isHttps) {
+                            stringResource(Res.string.v2_https_in_use)
+                        } else {
+                            stringResource(Res.string.v2_https_required)
+                        },
                     )
                     SecurityCheckItem(
                         passed = isPrivateBlocked,
-                        label = "প্রাইভেট নেটওয়ার্ক ব্লক / Private networks blocked",
+                        label = stringResource(Res.string.v2_private_blocked),
                     )
                     SecurityCheckItem(
                         passed = true,
-                        label = "রিডাইরেক্ট সীমিত ও যাচাই হবে / Redirects re-checked",
+                        label = stringResource(Res.string.v2_redirects_rechecked),
                     )
                 }
             }
@@ -839,105 +855,6 @@ private fun GitHubSettingsContent() {
 }
 
 @Composable
-private fun SandboxSettingsContent(
-    sandboxState: SandboxUiState? = null,
-    onToggleSandbox: ((Boolean) -> Unit)? = null,
-    onResetSandbox: (() -> Unit)? = null,
-) {
-    val colors = LocalDoraiColors.current
-    var isRunning by remember { mutableStateOf(sandboxState?.sandboxReady ?: true) }
-    var allowInternet by remember { mutableStateOf(true) }
-
-    // Card 1: Status & Start/Stop
-    SettingsSectionCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Terminal, contentDescription = null, tint = colors.primary, modifier = Modifier.size(22.dp))
-                Spacer(modifier = Modifier.width(10.dp))
-                Column {
-                    Text("Linux Sandbox", color = colors.text, fontSize = 14.5.sp, fontWeight = FontWeight.Bold)
-                    Text(if (isRunning) "চলছে · Running" else "বন্ধ · Stopped", color = colors.muted, fontSize = 12.sp)
-                }
-            }
-            Button(
-                onClick = {
-                    val next = !isRunning
-                    isRunning = next
-                    onToggleSandbox?.invoke(next)
-                },
-                shape = RoundedCornerShape(10.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isRunning) colors.err.copy(alpha = 0.15f) else colors.primary,
-                    contentColor = if (isRunning) colors.err else colors.onPrimary,
-                ),
-            ) {
-                Text(if (isRunning) "Stop" else "Start", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-            }
-        }
-    }
-
-    // Card 2: Storage Meter Bar (Prototype line 513)
-    SettingsSectionCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text("স্টোরেজ / Storage", color = colors.text, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-            Text("1.2 / 4.0 GB", color = colors.muted, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-        }
-        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp)
-                .clip(CircleShape)
-                .background(colors.surface2),
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.30f)
-                    .fillMaxHeight()
-                    .clip(CircleShape)
-                    .background(colors.primary),
-            )
-        }
-    }
-
-    // Card 3: Network isolation policy
-    SettingsSectionCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("নেটওয়ার্ক / Network", color = colors.text, fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
-                Text("Allow internet for package installs", color = colors.muted, fontSize = 12.sp)
-            }
-            Switch(checked = allowInternet, onCheckedChange = { allowInternet = it })
-        }
-    }
-
-    // Card 4: Run workspace setup again
-    Button(
-        onClick = { onResetSandbox?.invoke() },
-        shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = colors.surface2, contentColor = colors.text),
-        border = BorderStroke(1.dp, colors.line),
-        modifier = Modifier.fillMaxWidth().height(44.dp),
-    ) {
-        Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
-        Spacer(modifier = Modifier.width(6.dp))
-        Text("Run workspace setup again", fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold)
-    }
-}
-
-@Composable
 private fun AccountSettingsContent() {
     val colors = LocalDoraiColors.current
     var syncEnabled by remember { mutableStateOf(false) }
@@ -952,8 +869,8 @@ private fun AccountSettingsContent() {
             LogoAnimation(size = 40.dp, animate = false)
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text("DORAI Local Account", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text("dorai-local · on-device encrypted vault", color = colors.muted, fontSize = 12.5.sp)
+                Text(stringResource(Res.string.v2_d1_account), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.v2_local_vault), color = colors.muted, fontSize = 12.5.sp)
             }
         }
     }
@@ -966,8 +883,8 @@ private fun AccountSettingsContent() {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("সিঙ্ক / Sync", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-                Text("বন্ধ থাকলে সব ডেটা শুধু এই ডিভাইসে / Stays on this device", color = colors.muted, fontSize = 12.5.sp)
+                Text(stringResource(Res.string.v2_sync_title), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(Res.string.v2_sync_desc), color = colors.muted, fontSize = 12.5.sp)
             }
             Switch(checked = syncEnabled, onCheckedChange = { syncEnabled = it })
         }
@@ -980,9 +897,9 @@ private fun AccountSettingsContent() {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("ডেটা এক্সপোর্ট / Export data", color = colors.text, fontSize = 14.sp)
+            Text(stringResource(Res.string.v2_export_data), color = colors.text, fontSize = 14.sp)
             TextButton(onClick = {}) {
-                Text("Export", color = colors.primary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.v2_export), color = colors.primary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             }
         }
         HorizontalDivider(color = colors.line.copy(alpha = 0.4f), thickness = 1.dp)
@@ -991,14 +908,14 @@ private fun AccountSettingsContent() {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("সব চ্যাট মুছুন / Delete all chats", color = colors.text, fontSize = 14.sp)
+            Text(stringResource(Res.string.v2_delete_all_chats), color = colors.text, fontSize = 14.sp)
             Button(
                 onClick = { showDeleteConfirm = true },
                 colors = ButtonDefaults.buttonColors(containerColor = colors.err.copy(alpha = 0.15f), contentColor = colors.err),
                 shape = RoundedCornerShape(8.dp),
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp),
             ) {
-                Text("Delete", fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.action_delete), fontSize = 12.5.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -1009,8 +926,8 @@ private fun AccountSettingsContent() {
                 modifier = Modifier.fillMaxWidth().padding(DoraiSpacing.LG),
                 verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD),
             ) {
-                Text("সব চ্যাট মুছবেন? / Delete all chats?", color = colors.text, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Text("এটি ফেরানো যাবে না। প্রজেক্ট ফাইল মুছবে না। / This cannot be undone. Project files are not deleted.", color = colors.muted, fontSize = 13.sp)
+                Text(stringResource(Res.string.v2_delete_all_chats_confirm_title), color = colors.text, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.v2_delete_all_chats_confirm_body), color = colors.muted, fontSize = 13.sp)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -1021,7 +938,7 @@ private fun AccountSettingsContent() {
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.weight(1f).height(44.dp),
                     ) {
-                        Text("বাতিল / Cancel")
+                        Text(stringResource(Res.string.action_cancel))
                     }
                     Button(
                         onClick = { showDeleteConfirm = false },
@@ -1029,7 +946,7 @@ private fun AccountSettingsContent() {
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.weight(1f).height(44.dp),
                     ) {
-                        Text("মুছুন / Delete")
+                        Text(stringResource(Res.string.action_delete))
                     }
                 }
             }
@@ -1048,21 +965,21 @@ private fun AgentPolicyHeader(
     var autoReadEnabled by remember { mutableStateOf(appSettings.isAutoReadEnabled()) }
 
     val modes = listOf(
-        Triple("ask", "Ask", "Q&A only. No tools run."),
-        Triple("plan", "Plan", "Reads files and writes a plan. Changes nothing."),
-        Triple("build", "Build", "Edits files and runs commands, asking before risky steps."),
-        Triple("review", "Review", "Reads code and provides comments."),
+        Triple("ask", stringResource(Res.string.mode_ask), stringResource(Res.string.v2_mode_ask_desc)),
+        Triple("plan", stringResource(Res.string.mode_plan), stringResource(Res.string.v2_mode_plan_desc)),
+        Triple("build", stringResource(Res.string.mode_build), stringResource(Res.string.v2_mode_build_desc)),
+        Triple("review", stringResource(Res.string.mode_review), stringResource(Res.string.v2_mode_review_desc)),
     )
 
     val policies = listOf(
-        "all" to "Ask for everything",
-        "edits" to "Ask for edits and shell",
-        "read" to "Auto read-only",
+        "all" to stringResource(Res.string.settings_approval_ask_all),
+        "edits" to stringResource(Res.string.settings_approval_ask_edits),
+        "read" to stringResource(Res.string.settings_approval_auto_read),
     )
 
     // Card 1: Default Mode
     SettingsSectionCard {
-        Text("Default mode", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(Res.string.agent_default_mode), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(DoraiSpacing.SM))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1099,7 +1016,7 @@ private fun AgentPolicyHeader(
 
     // Card 2: Approval Policy
     SettingsSectionCard {
-        Text("Approval policy", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        Text(stringResource(Res.string.agent_approval_policy), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(DoraiSpacing.SM))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1137,8 +1054,8 @@ private fun AgentPolicyHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("Activity timeline", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text("Show steps as a rail in the Agent activity view", color = colors.muted, fontSize = 12.5.sp)
+                Text(stringResource(Res.string.agent_activity_timeline), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.agent_activity_timeline_desc), color = colors.muted, fontSize = 12.5.sp)
             }
             Switch(
                 checked = timelineEnabled,
@@ -1162,8 +1079,8 @@ private fun AgentPolicyHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("Auto-run read-only tools", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text("read_file and search run without asking for approval", color = colors.muted, fontSize = 12.5.sp)
+                Text(stringResource(Res.string.agent_auto_run_readonly), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.agent_auto_run_readonly_desc), color = colors.muted, fontSize = 12.5.sp)
             }
             Switch(
                 checked = autoReadEnabled,
@@ -1207,13 +1124,13 @@ private fun AccountProfileCard() {
             Spacer(modifier = Modifier.width(DoraiSpacing.MD))
             Column {
                 Text(
-                    text = "Local Device Account",
+                    text = stringResource(Res.string.v2_account_local_title),
                     color = colors.text,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    text = "Offline-first · Zero remote tracking",
+                    text = stringResource(Res.string.v2_account_offline_desc),
                     color = colors.muted,
                     fontSize = 13.sp,
                 )
@@ -1228,8 +1145,8 @@ private fun AccountProfileCard() {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("Local-only storage", color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text("When active, all chat data and keys stay strictly on this device", color = colors.muted, fontSize = 12.5.sp)
+                Text(stringResource(Res.string.agent_local_only_storage), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.agent_local_only_storage_desc), color = colors.muted, fontSize = 12.5.sp)
             }
             Switch(
                 checked = !syncEnabled,

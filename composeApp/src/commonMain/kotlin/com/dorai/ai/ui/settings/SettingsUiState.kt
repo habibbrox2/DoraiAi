@@ -61,7 +61,7 @@ enum class ConnectionStatus {
  * The settings tabs, one per feature category.
  *
  * Every category owns its own tab: the app-level preferences stay in [General], while the agent
- * behaviour, the tool surface, the third-party integrations and the Linux sandbox each live in
+ * behaviour, the tool surface and the third-party integrations each live in
  * their own tab instead of being folded into a single long page.
  */
 enum class SettingsTab {
@@ -86,9 +86,6 @@ enum class SettingsTab {
     /** GitHub App connection: Device Flow sign-in, repository clone and sync. */
     GitHub,
 
-    /** The Linux sandbox. Android only; the tab is hidden where the sandbox does not exist. */
-    Sandbox,
-
     /** Account and plan information. */
     Account,
 }
@@ -101,7 +98,6 @@ data class SettingsUiState(
     val availableServicesToAdd: ImmutableList<Service> = persistentListOf(),
     val tools: ImmutableList<ToolInfo> = persistentListOf(),
     val soulText: String = "",
-    val isDynamicUiEnabled: Boolean = true,
     /** true — reopen last conversation on launch; false — start a fresh chat. */
     val isRestoreLastChatEnabled: Boolean = true,
     @Deprecated("Theme is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)

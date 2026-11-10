@@ -70,8 +70,48 @@ import com.dorai.ai.ui.icons.Visibility
 import com.dorai.ai.ui.icons.VisibilityOff
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_reorder
+import dorai.composeapp.generated.resources.action_cancel
+import dorai.composeapp.generated.resources.action_clear
+import dorai.composeapp.generated.resources.action_close
+import dorai.composeapp.generated.resources.sp_add_account
+import dorai.composeapp.generated.resources.sp_add_another_service
+import dorai.composeapp.generated.resources.sp_add_service
+import dorai.composeapp.generated.resources.sp_auto
+import dorai.composeapp.generated.resources.sp_battle_activity
+import dorai.composeapp.generated.resources.sp_defeat
+import dorai.composeapp.generated.resources.sp_done
+import dorai.composeapp.generated.resources.sp_hide_password
+import dorai.composeapp.generated.resources.sp_hive_username
+import dorai.composeapp.generated.resources.sp_model_rankings
+import dorai.composeapp.generated.resources.sp_phase_checking_energy
+import dorai.composeapp.generated.resources.sp_phase_fetching_collection
+import dorai.composeapp.generated.resources.sp_phase_finding_match
+import dorai.composeapp.generated.resources.sp_phase_logging_in
+import dorai.composeapp.generated.resources.sp_phase_picking_team
+import dorai.composeapp.generated.resources.sp_phase_submitting_team
+import dorai.composeapp.generated.resources.sp_phase_waiting_opponent
+import dorai.composeapp.generated.resources.sp_phase_waiting_result
+import dorai.composeapp.generated.resources.sp_posting_key
+import dorai.composeapp.generated.resources.sp_posting_key_disclaimer
+import dorai.composeapp.generated.resources.sp_recent_battles
+import dorai.composeapp.generated.resources.sp_remove
+import dorai.composeapp.generated.resources.sp_remove_account
+import dorai.composeapp.generated.resources.sp_remove_account_confirm
+import dorai.composeapp.generated.resources.sp_show_more
+import dorai.composeapp.generated.resources.sp_show_password
+import dorai.composeapp.generated.resources.sp_start
+import dorai.composeapp.generated.resources.sp_stop
+import dorai.composeapp.generated.resources.sp_stopping
+import dorai.composeapp.generated.resources.sp_test_and_add
+import dorai.composeapp.generated.resources.sp_testing
+import dorai.composeapp.generated.resources.sp_victory
+import dorai.composeapp.generated.resources.sp_view_battle
+import dorai.composeapp.generated.resources.status_error
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
+import org.jetbrains.compose.resources.stringResource
 import sh.calvin.reorderable.ReorderableColumn
 import kotlin.time.Duration.Companion.seconds
 
@@ -144,7 +184,7 @@ internal fun SplinterlandsSection(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Recent Battles",
+                        text = stringResource(Res.string.sp_recent_battles),
                         style = DoraiTypography.labelMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f),
@@ -153,7 +193,7 @@ internal fun SplinterlandsSection(
                         onClick = onClearBattleLog,
                         modifier = Modifier.handCursor(),
                     ) {
-                        Text("Clear", style = DoraiTypography.labelSmall)
+                        Text(stringResource(Res.string.action_clear), style = DoraiTypography.labelSmall)
                     }
                 }
                 var showAll by remember { mutableStateOf(false) }
@@ -166,7 +206,7 @@ internal fun SplinterlandsSection(
                         onClick = { showAll = true },
                         modifier = Modifier.handCursor(),
                     ) {
-                        Text("Show more (${battleLog.size - 5})")
+                        Text(stringResource(Res.string.sp_show_more, battleLog.size - 5))
                     }
                 }
             }
@@ -222,7 +262,7 @@ private fun SplinterlandsServiceList(
                         if (instanceIds.size >= 2) {
                             Icon(
                                 imageVector = Icons.Rounded.DragIndicator,
-                                contentDescription = "Reorder",
+                                contentDescription = stringResource(Res.string.a11y_reorder),
                                 modifier = Modifier.draggableHandle().handCursor(),
                                 tint = LocalDesignColorTokens.current.textSecondary,
                             )
@@ -269,7 +309,7 @@ private fun SplinterlandsServiceList(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
-                                contentDescription = "Remove",
+                                contentDescription = stringResource(Res.string.sp_remove),
                                 tint = LocalDesignColorTokens.current.textSecondary,
                             )
                         }
@@ -293,7 +333,13 @@ private fun SplinterlandsServiceList(
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(4.dp))
-                Text(if (instanceIds.isEmpty()) "Add Service" else "Add Another Service")
+                Text(
+                    text = if (instanceIds.isEmpty()) {
+                        stringResource(Res.string.sp_add_service)
+                    } else {
+                        stringResource(Res.string.sp_add_another_service)
+                    },
+                )
             }
             androidx.compose.material3.DropdownMenu(
                 expanded = showDropdown,
@@ -332,7 +378,7 @@ private fun SplinterlandsServiceList(
 @Composable
 private fun SplinterlandsModelRankings(modelStats: ImmutableList<ModelStats>) {
     Text(
-        text = "Model Rankings",
+        text = stringResource(Res.string.sp_model_rankings),
         style = DoraiTypography.labelMedium,
         color = LocalDesignColorTokens.current.textPrimary,
     )
@@ -426,7 +472,11 @@ private fun SplinterlandsBattleLogRow(entry: BattleLogEntry) {
             ) {
                 // W/L badge
                 Text(
-                    text = if (entry.won) "Victory" else "Defeat",
+                    text = if (entry.won) {
+                        stringResource(Res.string.sp_victory)
+                    } else {
+                        stringResource(Res.string.sp_defeat)
+                    },
                     style = DoraiTypography.labelMedium,
                     color = if (entry.won) DesignTokens.Success else DangerAlert,
                 )
@@ -503,7 +553,7 @@ private fun SplinterlandsActivityDialog(
     val uriHandler = LocalUriHandler.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Battle Activity") },
+        title = { Text(stringResource(Res.string.sp_battle_activity)) },
         text = {
             val activityScrollState = rememberScrollState()
             Box {
@@ -530,12 +580,12 @@ private fun SplinterlandsActivityDialog(
                         uriHandler.openUri("https://splinterlands.com/battle/${entry.battleId}")
                     },
                     modifier = Modifier.handCursor(),
-                ) { Text("View Battle") }
+                ) { Text(stringResource(Res.string.sp_view_battle)) }
             }
             TextButton(
                 onClick = onDismiss,
                 modifier = Modifier.handCursor(),
-            ) { Text("Close") }
+            ) { Text(stringResource(Res.string.action_close)) }
         },
     )
 }
@@ -583,11 +633,11 @@ private fun SplinterlandsAddAccountForm(
         ) {
             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(4.dp))
-            Text("Add Account")
+            Text(stringResource(Res.string.sp_add_account))
         }
     } else {
         Text(
-            text = "Your posting key is stored securely on this device and is never sent to the LLM. It is only used to sign battle transactions on the Hive blockchain.",
+            text = stringResource(Res.string.sp_posting_key_disclaimer),
             style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
         )
@@ -595,7 +645,7 @@ private fun SplinterlandsAddAccountForm(
         DoraiOutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text("Hive Username") },
+            label = { Text(stringResource(Res.string.sp_hive_username)) },
             singleLine = true,
             enabled = !isTesting,
             modifier = Modifier.fillMaxWidth(),
@@ -606,7 +656,7 @@ private fun SplinterlandsAddAccountForm(
         DoraiOutlinedTextField(
             value = postingKey,
             onValueChange = { postingKey = it },
-            label = { Text("Posting Key") },
+            label = { Text(stringResource(Res.string.sp_posting_key)) },
             singleLine = true,
             enabled = !isTesting,
             visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
@@ -617,7 +667,11 @@ private fun SplinterlandsAddAccountForm(
                 ) {
                     Icon(
                         imageVector = if (showKey) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                        contentDescription = if (showKey) "Hide" else "Show",
+                        contentDescription = if (showKey) {
+                            stringResource(Res.string.sp_hide_password)
+                        } else {
+                            stringResource(Res.string.sp_show_password)
+                        },
                     )
                 }
             },
@@ -643,9 +697,9 @@ private fun SplinterlandsAddAccountForm(
                         color = AccentPrimary,
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text("Testing...")
+                    Text(stringResource(Res.string.sp_testing))
                 } else {
-                    Text("Test & Add")
+                    Text(stringResource(Res.string.sp_test_and_add))
                 }
             }
             OutlinedButton(
@@ -657,7 +711,7 @@ private fun SplinterlandsAddAccountForm(
                 modifier = Modifier.handCursor(),
                 enabled = !isTesting,
             ) {
-                Text("Cancel")
+                Text(stringResource(Res.string.action_cancel))
             }
         }
 
@@ -741,7 +795,7 @@ private fun SplinterlandsAccountRow(
             // Error indicator
             if (bs.phase == BattlePhase.Error) {
                 Text(
-                    text = "Error",
+                    text = stringResource(Res.string.status_error),
                     style = DoraiTypography.bodySmall,
                     color = DangerAlert,
                 )
@@ -756,7 +810,14 @@ private fun SplinterlandsAccountRow(
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = DangerAlert),
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                 ) {
-                    Text(if (bs.isStopping) "Stopping..." else "Stop", style = DoraiTypography.bodySmall)
+                    Text(
+                        text = if (bs.isStopping) {
+                            stringResource(Res.string.sp_stopping)
+                        } else {
+                            stringResource(Res.string.sp_stop)
+                        },
+                        style = DoraiTypography.bodySmall,
+                    )
                 }
             } else {
                 Button(
@@ -765,7 +826,7 @@ private fun SplinterlandsAccountRow(
                     enabled = hasServices,
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                 ) {
-                    Text("Start", style = DoraiTypography.bodySmall)
+                    Text(stringResource(Res.string.sp_start), style = DoraiTypography.bodySmall)
                 }
             }
 
@@ -777,15 +838,15 @@ private fun SplinterlandsAccountRow(
             ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Remove",
+                    contentDescription = stringResource(Res.string.sp_remove),
                     tint = LocalDesignColorTokens.current.textSecondary,
                 )
             }
             if (showConfirm) {
                 AlertDialog(
                     onDismissRequest = { showConfirm = false },
-                    title = { Text("Remove Account") },
-                    text = { Text("Remove ${account.username} from Splinterlands?") },
+                    title = { Text(stringResource(Res.string.sp_remove_account)) },
+                    text = { Text(stringResource(Res.string.sp_remove_account_confirm, account.username)) },
                     confirmButton = {
                         TextButton(
                             onClick = {
@@ -794,14 +855,14 @@ private fun SplinterlandsAccountRow(
                             },
                             modifier = Modifier.handCursor(),
                         ) {
-                            Text("Remove", color = DangerAlert)
+                            Text(stringResource(Res.string.sp_remove), color = DangerAlert)
                         }
                     },
                     dismissButton = {
                         TextButton(
                             onClick = { showConfirm = false },
                             modifier = Modifier.handCursor(),
-                        ) { Text("Cancel") }
+                        ) { Text(stringResource(Res.string.action_cancel)) }
                     },
                 )
             }
@@ -810,15 +871,15 @@ private fun SplinterlandsAccountRow(
         // Battle details (below player row)
         if (bs.isRunning) {
             val phaseText = when (bs.phase) {
-                BattlePhase.LoggingIn -> "Logging in..."
-                BattlePhase.CheckingEnergy -> "Checking energy..."
-                BattlePhase.FindingMatch -> "Finding match..."
-                BattlePhase.WaitingForOpponent -> "Waiting for opponent..."
-                BattlePhase.FetchingCollection -> "Fetching cards..."
-                BattlePhase.PickingTeam -> "Picking team..."
-                BattlePhase.SubmittingTeam -> "Submitting team..."
-                BattlePhase.WaitingForResult -> "Waiting for result..."
-                BattlePhase.Finished -> "Done"
+                BattlePhase.LoggingIn -> stringResource(Res.string.sp_phase_logging_in)
+                BattlePhase.CheckingEnergy -> stringResource(Res.string.sp_phase_checking_energy)
+                BattlePhase.FindingMatch -> stringResource(Res.string.sp_phase_finding_match)
+                BattlePhase.WaitingForOpponent -> stringResource(Res.string.sp_phase_waiting_opponent)
+                BattlePhase.FetchingCollection -> stringResource(Res.string.sp_phase_fetching_collection)
+                BattlePhase.PickingTeam -> stringResource(Res.string.sp_phase_picking_team)
+                BattlePhase.SubmittingTeam -> stringResource(Res.string.sp_phase_submitting_team)
+                BattlePhase.WaitingForResult -> stringResource(Res.string.sp_phase_waiting_result)
+                BattlePhase.Finished -> stringResource(Res.string.sp_done)
                 else -> ""
             }
 
@@ -875,7 +936,11 @@ private fun SplinterlandsAccountRow(
                     BattlePhase.WaitingForResult,
                 )
                 if (showLlmIndicator) {
-                    val label = if (bs.llmPickedTeam == true) bs.winningServiceName.ifBlank { "LLM" } else "Auto"
+                    val label = if (bs.llmPickedTeam == true) {
+                        bs.winningServiceName.ifBlank { "LLM" }
+                    } else {
+                        stringResource(Res.string.sp_auto)
+                    }
                     Text(
                         text = label,
                         style = DoraiTypography.labelSmall,

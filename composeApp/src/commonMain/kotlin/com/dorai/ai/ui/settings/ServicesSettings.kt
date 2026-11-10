@@ -124,6 +124,8 @@ import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.icons.DragIndicator
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_delete_downloaded_model
+import dorai.composeapp.generated.resources.a11y_open_on_github
 import dorai.composeapp.generated.resources.ic_arrow_drop_down
 import dorai.composeapp.generated.resources.litert_cancel
 import dorai.composeapp.generated.resources.litert_context_size
@@ -147,6 +149,8 @@ import dorai.composeapp.generated.resources.litert_performance_poor
 import dorai.composeapp.generated.resources.litert_recommended
 import dorai.composeapp.generated.resources.litert_tool_support
 import dorai.composeapp.generated.resources.logo
+import dorai.composeapp.generated.resources.model_discovery_fetching
+import dorai.composeapp.generated.resources.model_discovery_retry
 import dorai.composeapp.generated.resources.services_all_connected
 import dorai.composeapp.generated.resources.services_checking_connections
 import dorai.composeapp.generated.resources.services_configured_many
@@ -472,6 +476,7 @@ private fun OwnerProfileCard(profile: SupportProfile) {
 private fun SponsorTile(profile: SupportProfile, tileWidth: Dp) {
     val uriHandler = LocalUriHandler.current
     val destination = profile.destinationUrl
+    val openContentDescription = stringResource(Res.string.a11y_open_on_github, profile.name)
     Column(
         horizontalAlignment = CenterHorizontally,
         modifier = Modifier
@@ -485,7 +490,7 @@ private fun SponsorTile(profile: SupportProfile, tileWidth: Dp) {
                         .semantics {
                             // Link action is part of the name so screen readers
                             // announce where the tap goes (Plan 5, Phase 4).
-                            contentDescription = "Open ${profile.name} on GitHub"
+                            contentDescription = openContentDescription
                         }
                 } else {
                     Modifier
@@ -1257,7 +1262,7 @@ private fun ModelFetchFeedback(
                     strokeWidth = 2.dp,
                 )
                 Text(
-                    text = "Fetching available models…",
+                    text = stringResource(Res.string.model_discovery_fetching),
                     style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
@@ -1276,7 +1281,7 @@ private fun ModelFetchFeedback(
                     enabled = canRetry,
                     modifier = Modifier.align(Alignment.End).handCursor(),
                 ) {
-                    Text("Retry model discovery")
+                    Text(stringResource(Res.string.model_discovery_retry))
                 }
             }
         }
@@ -1756,7 +1761,7 @@ private fun LocalModelCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete downloaded model",
+                            contentDescription = stringResource(Res.string.a11y_delete_downloaded_model),
                             tint = LocalDesignColorTokens.current.textSecondary,
                         )
                     }

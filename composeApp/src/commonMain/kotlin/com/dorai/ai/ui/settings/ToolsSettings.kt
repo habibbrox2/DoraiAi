@@ -80,7 +80,7 @@ internal fun ToolsContent(
     browseSkillsFailed: Boolean,
     showSkills: Boolean,
     isSandboxInstalled: Boolean,
-    onNavigateToSandbox: () -> Unit,
+    onNavigateToSandbox: (() -> Unit)? = null,
 ) {
     var section by remember { mutableStateOf(ConnectorLibrarySection.Connectors) }
     val sections = remember(showSkills) {
@@ -178,7 +178,6 @@ internal fun ToolsTabContent(
         // Skills run inside the sandbox, so they only exist where the sandbox does.
         showSkills = sandboxState.showSandbox,
         isSandboxInstalled = sandboxState.sandboxInstalled,
-        onNavigateToSandbox = { actions.onSelectTab(SettingsTab.Sandbox) },
     )
 }
 

@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalVoiceApi::class)
-
 package com.dorai.ai.screenshots
 
 import androidx.compose.foundation.background
@@ -34,9 +32,7 @@ import com.dorai.ai.inference.MODEL_CATALOG
 import com.dorai.ai.theme.data.ThemePalette
 import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.engine.DoraiTheme
-import com.dorai.ai.ui.chat.ChatScreenContent
-import com.dorai.ai.ui.chat.ChatUiState
-import com.dorai.ai.ui.chat.History
+import com.dorai.ai.ui.chat.ChatMessageItem
 import com.dorai.ai.ui.settings.ConfiguredServiceEntry
 import com.dorai.ai.ui.settings.ConnectionStatus
 import com.dorai.ai.ui.settings.SettingsModel
@@ -47,7 +43,6 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
-import nl.marc_apps.tts.experimental.ExperimentalVoiceApi
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
 import org.jetbrains.compose.resources.vectorResource
@@ -174,9 +169,23 @@ class GemmaLocalScreenshotTest {
     @Test
     fun gemmaLocal_chat_dark() {
         paparazzi.snap(ThemePresets.dark) {
-            ChatScreenContent(
-                uiState = GemmaLocalTestData.chatInitializing,
-                FakeTextToSpeechInstance(),
+            DoraiChatScreenV2(
+                messages = listOf(
+                    ChatMessageItem(
+                        id = "u1",
+                        isUser = true,
+                        text = "Summarize the last book I read in one paragraph.",
+                    ),
+                    ChatMessageItem(
+                        id = "t1",
+                        isUser = false,
+                        text = "",
+                        isThinking = true,
+                    ),
+                ),
+                conversations = ScreenshotTestData.v2Conversations,
+                currentModelName = MODEL_E2B.displayName,
+                isModelLocal = true,
             )
         }
     }
@@ -311,23 +320,4 @@ private object GemmaLocalTestData {
             modelContextTokens = modelContextTokens.toImmutableMap(),
         )
     }
-
-    val chatInitializing = ChatUiState(
-        actions = ScreenshotTestData.noOpChatActions,
-        history = persistentListOf(
-            History(
-                id = "u1",
-                role = History.Role.USER,
-                content = "Summarize the last book I read in one paragraph.",
-            ),
-            History(
-                id = "t1",
-                role = History.Role.TOOL_EXECUTING,
-                content = "",
-                toolName = "Initializing ${MODEL_E2B.displayName}",
-                isStatusMessage = true,
-            ),
-        ),
-        isLoading = true,
-    )
 }

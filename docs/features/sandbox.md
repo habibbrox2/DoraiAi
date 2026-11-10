@@ -1,16 +1,18 @@
 # Linux Sandbox
 
-**Last verified:** 2026-11-03
+**Last verified:** 2026-11-11
 
 DORAI AI ships a self-contained Linux environment on Android so the assistant — and the user, via the in-app Terminal — can run real shell commands. The agent can install packages, write and run scripts, hit the network, and reach external servers over SSH/SFTP/FTP. The sandbox runs the user-space `proot` runtime against a rootfs extracted into the app's private storage; no root or system access is required.
 
 The sandbox is **Android-only**. iOS, desktop, and web have no-op stubs — sandbox operations are simply unavailable on those platforms.
 
+> **Where the sandbox is managed:** the sandbox card lives on the **Workspace screen** (projects list, below the projects). The former **Settings → Sandbox** tab was removed — the same card, one tap away, with the same actions. The v2 Workspace also offers an **Open with** row for opening fresh projects with an installed agent (Claude Code / OpenCode / Grok instead of a plain shell) and a chip row to install missing guest agents.
+
 ## Concepts
 
 ### Choosing a distribution
 
-The Settings card offers two, and the choice is always open — before the first install and at any point afterwards:
+The card offers two, and the choice is always open — before the first install and at any point afterwards:
 
 - **Debian 12** — the recommended default. ~150 MB, apt, glibc, and the same Linux [DORAI Build](kai-build.md) runs in.
 - **Alpine Linux** — the small option. ~4 MB, apk, musl. DORAI Build cannot use it, so picking Alpine means DORAI Build installs a Debian of its own alongside.
@@ -42,17 +44,17 @@ Four kinds of thing are deliberately left behind:
 - **`.cache`** — regenerable, and often larger than everything that matters.
 - **Coding-agent directories** — the binaries there are compiled against the source distribution's libc and cannot run on the target, and DORAI Build only ever runs in Debian anyway.
 
-Packages are not migrated either, and cannot be: the two distributions have different package managers and different package names. The Settings **Install Packages** action covers the standard bundle on whichever system is selected.
+Packages are not migrated either, and cannot be: the two distributions have different package managers and different package names. The Workspace card's **Install Packages** action covers the standard bundle on whichever system is selected.
 
 The full move is therefore: switch to the distribution you want, install it if it is not there, **Copy Files**, then select the old one and **Uninstall** it. Nothing is destroyed until that last step, which is the only one that removes anything.
 
 ### One Linux, or two
 
-Debian has one install on this device, so whenever the shell integration is pointed at Debian the chat sandbox and DORAI Build are the **same install**. One download, one rootfs, one uninstall: setting up Linux from Settings means opening DORAI Build lands straight on the project list, and installing from DORAI Build's setup screen leaves Settings reporting the sandbox as ready. Uninstalling from either surface removes it for both, and both confirmation dialogs say so. Project folders survive it.
+Debian has one install on this device, so whenever the shell integration is pointed at Debian the chat sandbox and DORAI Build are the **same install**. One download, one rootfs, one uninstall: setting up Linux from the Workspace card means opening DORAI Build lands straight on the project list, and installing from DORAI Build's setup screen leaves the Workspace card reporting the sandbox as ready. Uninstalling from either surface removes it for both, and both confirmation dialogs say so. Project folders survive it.
 
 Pointing the shell integration at Alpine instead splits them: the chat sandbox runs in its Alpine, and DORAI Build keeps (or bootstraps) its own Debian. Both exist at once, which is exactly what makes switching back and forth free.
 
-Package installs are serialized across the two, because a shared rootfs means the Settings "Install Packages" action and a DORAI Build agent install could otherwise reach `dpkg` at the same moment and both fail on its lock.
+Package installs are serialized across the two, because a shared rootfs means the Workspace card's "Install Packages" action and a DORAI Build agent install could otherwise reach `dpkg` at the same moment and both fail on its lock.
 
 DORAI Build itself is never re-pointed by a switch. Its Linux is wherever Debian lives, whether or not the chat sandbox is currently sharing it, so a running project terminal is unaffected by anything the Settings picker does.
 
@@ -80,7 +82,7 @@ Packages split into two tiers, and each distribution names its own.
 
 **Base** — installed as the last step of setup, with no separate action and no way to opt out. The install is not considered finished until they are in, so an interrupted setup can never present itself as ready. On Alpine that is just `bash`: every persistent shell session (the agent's shell tool, the Terminal tab, the Packages tab's own commands) is literally an `exec bash` process, so the sandbox cannot function without it. On Debian it is the wider set every coding project needs — bash, ca-certificates, curl, wget, git, nano, less, unzip, python3, tar and coreutils — because that install doubles as DORAI Build's.
 
-**Optional** — `jq`, `nodejs` (plus `npm` on Debian), a Python package installer, plus remote-server tooling: `openssh-client` (provides `ssh`/`scp`/`sftp`), `lftp` (FTP and FTPS) and `rsync`. Alpine adds `curl`, `wget`, `git` and `python3` here since they are not in its base. These install only when the user taps **Install Packages** in Settings — a deliberate, separate action, never automatic.
+**Optional** — `jq`, `nodejs` (plus `npm` on Debian), a Python package installer, plus remote-server tooling: `openssh-client` (provides `ssh`/`scp`/`sftp`), `lftp` (FTP and FTPS) and `rsync`. Alpine adds `curl`, `wget`, `git` and `python3` here since they are not in its base. These install only when the user taps **Install Packages** on the Workspace card — a deliberate, separate action, never automatic.
 
 Anything beyond the two tiers is one install away via the Packages tab. The tab never offers to uninstall a base package: those rows simply have no uninstall action.
 
@@ -125,9 +127,9 @@ The shell session can break — the user types `exit`, a command crashes bash, t
 ## Behavior
 
 - **Tool availability follows install state**: the assistant's sandbox tools (shell command, `manage_process`, and the SSH-host config tool) are advertised to the model only when the sandbox is actually installed (Ready) *and* the sandbox toggle is on. Before the sandbox is installed they are not sent at all — there is no point offering tools that can only return "not installed," and the enable/disable toggle is itself hidden until install completes. Once installed, the switch on the distribution's card is the on/off control.
-- **Switching distribution mid-life**: selecting the other distribution in the Settings card re-points the shell integration at that distribution's install without touching either one. When it is already there the card is showing the new system — its size, its packages, its Terminal — within a moment; when it is not, the card offers to install it and the previous one is still on disk, one tap away. The agent's sandbox tools follow: they are withdrawn while the selected distribution has no install and come back describing the new distribution's package manager once it does.
+- **Switching distribution mid-life**: selecting the other distribution in the Workspace card re-points the shell integration at that distribution's install without touching either one. When it is already there the card is showing the new system — its size, its packages, its Terminal — within a moment; when it is not, the card offers to install it and the previous one is still on disk, one tap away. The agent's sandbox tools follow: they are withdrawn while the selected distribution has no install and come back describing the new distribution's package manager once it does.
 - **Copying files between the two**: the offer appears on the card only when the other install actually has something the selected one lacks, so it is a statement of fact rather than a standing button. The count and size are measured off the main thread and patched into the card when they land, never blocking the first paint or a switch. During the copy the card shows a running `n/total`, and afterwards the offer is gone because a second look finds nothing left.
-- **First run**: Settings → Sandbox picks a distribution and downloads its rootfs — a few MB for Alpine, around 150 MB for Debian, varying by architecture. After extraction the package index is refreshed (Alpine walks its mirror list rewriting `repositories` until one answers; Debian has a single index) and the base packages install automatically — no further action needed. The sandbox reaches Ready at that point, with the optional package set not yet installed; the Settings card shows a separate **Install Packages** button for those until the user taps it. The whole flow surfaces progress in the Settings sheet.
+- **First run**: the Workspace card picks a distribution and downloads its rootfs — a few MB for Alpine, around 150 MB for Debian, varying by architecture. After extraction the package index is refreshed (Alpine walks its mirror list rewriting `repositories` until one answers; Debian has a single index) and the base packages install automatically — no further action needed. The sandbox reaches Ready at that point, with the optional package set not yet installed; the Workspace card shows a separate **Install Packages** button for those until the user taps it. The whole flow surfaces progress on the Workspace screen.
 - **The status line is translated**: every word the card shows about the install — not installed, downloading, extracting, configuring, installing base packages, installing a named package, copying files with its running count, ready, and each way any of those can fail — is a translated string, in all the languages the app ships. The install itself runs outside the UI, so it reports which step it is on and the card is what puts that into words. Only the underlying error text an OS call or a download mirror hands back stays as it arrived, inside a translated sentence; when there is none, the sentence says so rather than trailing off. The same goes for the Terminal, whose "sandbox is not ready" and failed-command notices are translated too, while real command output is not.
 - **State across the app**: each chat conversation has its own shell, and the Terminal tab has another. Files in `/root` and the rest of the rootfs are shared between them; live shell state (cwd, exports) is not. The Packages UI uses a separate "system" shell so its operations don't interfere with chats.
 - **Network access**: outbound IP works (DNS is configured against `8.8.8.8` / `8.8.4.4`). SSH/SFTP/FTP/HTTP all work; the user's Wi-Fi/mobile-data permission applies as normal.
@@ -191,6 +193,7 @@ The shell session can break — the user types `exit`, a command crashes bash, t
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/sandbox/SandboxTabsContent.kt` | The inline sandbox surface: Terminal / Files / Packages sub-tabs, the Session / Temporary chips, and the not-installed install prompt. |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/sandbox/SandboxSessionViewModel.kt` | Terminal-tab ViewModel: line buffer, run/cancel state, stream draining. |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/settings/TerminalSheet.kt` | Visible terminal UI with command echo, color-coded streams, and an interactive input row. |
-| `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/settings/SandboxSettings.kt` | The Sandbox tab card: distribution picker, install progress, package install, file migration, uninstall. |
-| `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/settings/SettingsDetailPane.kt` | Routes the Sandbox tab to that card; the tab is hidden where the sandbox does not exist. |
+| `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/settings/SandboxSettings.kt` | The Linux Sandbox card (now embedded on the Workspace screen): distribution picker, install progress, package install, file migration, uninstall. |
+| `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/workspace/DoraiWorkspaceScreenConnected.kt` / `DoraiWorkspaceScreen.kt` | Workspace screen: embeds the sandbox card, the Open-with agent preference row, and the coding-agents install section. |
+| `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/settings/SettingsDetailPane.kt` | Settings detail routing (no longer routes any sandbox content; the tab was removed). |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/SandboxController.kt` (`NoOpSandboxController`) | The single no-op every non-Android target returns; iOS, desktop and wasm each supply only a one-line factory. |

@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 class DoraiSettingsScreenTest {
 
     @Test
-    fun `nine categories are strictly ordered`() {
+    fun `eight categories are strictly ordered`() {
         val expected = listOf(
             "general",
             "appearance",
@@ -15,7 +15,6 @@ class DoraiSettingsScreenTest {
             "tools",
             "mcp",
             "github",
-            "sandbox",
             "account",
         )
         assertEquals(expected, SettingsCategory.entries.map { it.id })

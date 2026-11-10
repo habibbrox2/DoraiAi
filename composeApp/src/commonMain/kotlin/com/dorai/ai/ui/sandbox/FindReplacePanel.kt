@@ -20,6 +20,16 @@ import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.action_close
+import dorai.composeapp.generated.resources.find_replace_find
+import dorai.composeapp.generated.resources.find_replace_match_many
+import dorai.composeapp.generated.resources.find_replace_match_one
+import dorai.composeapp.generated.resources.find_replace_no_matches
+import dorai.composeapp.generated.resources.find_replace_replace_all
+import dorai.composeapp.generated.resources.find_replace_replace_with
+import dorai.composeapp.generated.resources.find_replace_type_prompt
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * File-scoped Find and Replace panel (Plan 3, Phase 5).
@@ -56,17 +66,17 @@ internal fun FindReplacePanel(
                 onValueChange = { query = it },
                 modifier = Modifier.weight(1f),
                 singleLine = true,
-                label = { Text("Find") },
+                label = { Text(stringResource(Res.string.find_replace_find)) },
             )
             OutlinedTextField(
                 value = replacement,
                 onValueChange = onReplacementChange,
                 modifier = Modifier.weight(1f),
                 singleLine = true,
-                label = { Text("Replace with") },
+                label = { Text(stringResource(Res.string.find_replace_replace_with)) },
             )
             TextButton(onClick = onClose, modifier = Modifier.handCursor()) {
-                Text("Close")
+                Text(stringResource(Res.string.action_close))
             }
         }
         Row(
@@ -76,10 +86,10 @@ internal fun FindReplacePanel(
         ) {
             Text(
                 text = when {
-                    query.isEmpty() -> "Type to search this file"
-                    matchCount == 0 -> "No matches"
-                    matchCount == 1 -> "1 match"
-                    else -> "$matchCount matches"
+                    query.isEmpty() -> stringResource(Res.string.find_replace_type_prompt)
+                    matchCount == 0 -> stringResource(Res.string.find_replace_no_matches)
+                    matchCount == 1 -> stringResource(Res.string.find_replace_match_one)
+                    else -> stringResource(Res.string.find_replace_match_many, matchCount)
                 },
                 style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
@@ -91,7 +101,7 @@ internal fun FindReplacePanel(
                 modifier = Modifier.handCursor(),
             ) {
                 Text(
-                    text = "Replace all",
+                    text = stringResource(Res.string.find_replace_replace_all),
                     fontWeight = FontWeight.Medium,
                 )
             }

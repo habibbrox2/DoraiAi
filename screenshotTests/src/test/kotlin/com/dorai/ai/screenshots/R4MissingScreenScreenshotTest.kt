@@ -10,8 +10,6 @@ import app.cash.paparazzi.Paparazzi
 import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.ui.sandbox.EditorState
-import com.dorai.ai.ui.settings.SettingsScreenContent
-import com.dorai.ai.ui.settings.SettingsTab
 import com.dorai.ai.ui.workspace.WorkspaceActions
 import com.dorai.ai.ui.workspace.WorkspaceScreenContent
 import com.dorai.ai.ui.workspace.WorkspaceTab
@@ -36,12 +34,6 @@ class R4MissingScreenScreenshotTest {
     }
 
     @Test
-    fun settings_sandbox_dark() = snapshotSettings(SettingsTab.Sandbox)
-
-    @Test
-    fun settings_sandbox_light() = snapshotSettings(SettingsTab.Sandbox, light = true)
-
-    @Test
     fun workspace_editor_dark() = snapshotWorkspace(WorkspaceTab.Editor, editor = sampleEditor)
 
     @Test
@@ -55,25 +47,6 @@ class R4MissingScreenScreenshotTest {
 
     @Test
     fun workspace_git_light() = snapshotWorkspace(WorkspaceTab.Git, light = true)
-
-    private fun snapshotSettings(tab: SettingsTab, light: Boolean = false) {
-        val palette = if (light) ThemePresets.light else ThemePresets.dark
-        paparazzi.unsafeUpdateConfig(
-            theme = if (light) "android:Theme.Material.Light.NoActionBar" else "android:Theme.Material.NoActionBar",
-        )
-        paparazzi.snapshot {
-            Box(Modifier.fillMaxSize()) {
-                CompositionLocalProvider(LocalInspectionMode provides true) {
-                    DoraiTheme(repository = screenshotThemeRepository(palette)) {
-                        SettingsScreenContent(
-                            uiState = ScreenshotTestData.settingsSandbox,
-                            sandboxState = ScreenshotTestData.sandboxState,
-                        )
-                    }
-                }
-            }
-        }
-    }
 
     private fun snapshotWorkspace(
         tab: WorkspaceTab,

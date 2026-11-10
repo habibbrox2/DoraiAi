@@ -60,6 +60,8 @@ import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.rememberCopyToClipboard
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_copy
+import dorai.composeapp.generated.resources.a11y_copy_details
 import dorai.composeapp.generated.resources.tool_action_ask_fix
 import dorai.composeapp.generated.resources.tool_action_retry
 import dorai.composeapp.generated.resources.tool_status_completed
@@ -351,7 +353,7 @@ fun DoraiToolCard(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.ContentCopy,
-                                        contentDescription = "Copy command",
+                                        contentDescription = stringResource(Res.string.a11y_copy),
                                         tint = colors.muted,
                                         modifier = Modifier.size(13.dp),
                                     )
@@ -419,7 +421,7 @@ fun DoraiToolCard(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.ContentCopy,
-                                        contentDescription = "Copy error details",
+                                        contentDescription = stringResource(Res.string.a11y_copy_details),
                                         tint = colors.err.copy(alpha = 0.8f),
                                         modifier = Modifier.size(13.dp),
                                     )
@@ -548,7 +550,7 @@ fun DoraiToolCard(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.ContentCopy,
-                                            contentDescription = "Copy output",
+                                            contentDescription = stringResource(Res.string.a11y_copy),
                                             tint = colors.muted,
                                             modifier = Modifier.size(13.dp),
                                         )

@@ -91,7 +91,8 @@ Provider / Agent runtime
 ChatUiState / presentation state
         │
         ▼
-AgentActivityDisclosure in the assistant turn
+Tool event cards + thinking blocks in the assistant turn
+(DoraiChatScreen, grouped by ToolEventGrouper)
 ```
 
 Provider adapters remain responsible for provider-specific request/response formats. Runtime services remain responsible for tool execution and permissions. Composables only render immutable activity state and invoke typed user actions.
@@ -178,8 +179,8 @@ The repository has existing reasoning-related handling. Re-check these files on 
 | `composeApp/src/commonMain/.../network/dtos/openaicompatible/OpenAICompatibleChatResponseDto.kt` | Incoming reasoning metadata normalization |
 | `composeApp/src/commonMain/.../network/dtos/openairesponses/OpenAIResponsesResponseDto.kt` | Responses API reasoning output parsing |
 | `composeApp/src/commonMain/.../data/Conversation.kt` | Persisted message data |
-| `composeApp/src/commonMain/.../ui/chat/composables/BotMessage.kt` | Assistant response presentation |
-| `composeApp/src/commonMain/.../ui/chat/ChatScreen.kt` | Turn grouping and timeline coordination |
+| `composeApp/src/commonMain/.../ui/chat/DoraiChatScreen.kt` | Assistant response presentation (reasoning segments in collapsible thinking blocks) |
+| `composeApp/src/commonMain/.../ui/chat/ToolEventGrouper.kt` | Turn grouping (derives reasoning segments + agent-run duration from history) |
 
 The map describes previously observed responsibilities; verify exact symbols and current behavior before implementation.
 
