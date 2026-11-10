@@ -180,8 +180,11 @@ private fun extractTargetInfo(toolName: String, arguments: String): ToolTarget? 
 
         "execute_shell_command" -> {
             val command = Regex("\"command\"\\s*:\\s*\"([^\"]+)\"").find(arguments)?.groupValues?.get(1)
-            if (command.isNullOrEmpty()) ToolTarget(Res.string.tool_target_shell_command)
-            else ToolTarget(Res.string.tool_target_command, command)
+            if (command.isNullOrEmpty()) {
+                ToolTarget(Res.string.tool_target_shell_command)
+            } else {
+                ToolTarget(Res.string.tool_target_command, command)
+            }
         }
 
         else -> {
