@@ -441,7 +441,7 @@ class Requests(
             OpenAICompatibleCompletion(
                 content = answer.toString(),
                 reasoning = reasoning.toString().takeIf { it.isNotBlank() },
-                toolCalls = toolCalls.toSortedMap().map { (index, call) ->
+                toolCalls = toolCalls.entries.sortedBy { it.key }.map { (index, call) ->
                     OpenAICompatibleChatResponseDto.ToolCall(
                         id = call.id ?: "stream-$index",
                         function = OpenAICompatibleChatResponseDto.FunctionCall(

@@ -426,7 +426,9 @@ class SandboxFileBrowserViewModel(
                 if (entry.isDirectory) {
                     val deleted = _state.value.editor as? EditorState.Loaded
                     if (deleted != null && deleted.path.startsWith(entry.path)) {
-                        pendingBuffers.entries.removeIf { it.key.startsWith(entry.path) }
+                        pendingBuffers.keys
+                            .filter { it.startsWith(entry.path) }
+                            .forEach { pendingBuffers.remove(it) }
                         undoStack.clear()
                         loadSequence++
                         _state.update { it.copy(editor = null, canUndoEditor = false) }
