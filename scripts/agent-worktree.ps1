@@ -80,7 +80,32 @@ switch ($Action) {
       if ($LASTEXITCODE -ne 0) { throw "Unable to inspect origin/$Base history." }
       $isMerged = $baseTrees -contains $targetTree
     }
-    if (!$isMerged) { throw "Refusing to remove unmerged worktree branch '$branch'. Preserve it or merge it first." }
+
+    # Squash merges can require conflict-resolution edits, so the final tree may
+    # differ from the feature branch. When available, verify a merged PR targeting
+    # this base through the authenticated GitHub CLI before refusing cleanup.
+    $mergedPullRequest = $false
+    if (!$isMerged) {
+      $gh = Get-Command gh -ErrorAction SilentlyContinue
+      if ($gh) {
+        $ghOutput = @(& $gh.Source pr list --head $branch --state merged --json baseRefName --limit 10 2>$null)
+        $ghExitCode = $LASTEXITCODE
+        if ($ghExitCode -eq 0 -and $ghOutput.Count -gt 0) {
+          try {
+            $mergedPullRequests = @(($ghOutput -join "`n") | ConvertFrom-Json -ErrorAction Stop)
+            $mergedPullRequest = @($mergedPullRequests | Where-Object { $_.baseRefName -eq $Base }).Count -gt 0
+          }
+          catch {
+            # Invalid or unavailable CLI output is not merge evidence.
+            $mergedPullRequest = $false
+          }
+        }
+      }
+    }
+
+    if (!$isMerged -and !$mergedPullRequest) {
+      throw "Refusing to remove unmerged worktree branch '$branch': no merged ancestry, identical tree, or merged PR targeting '$Base' could be verified. Preserve it or merge it first."
+    }
     Invoke-Git @('worktree','remove',$target)
     Write-Output "Removed clean, merged worktree: $target"
     break
