@@ -68,17 +68,17 @@ Commit only task-owned files when authorized. Push and open a PR only when expli
 
 - `List` and `Status` are read-only.
 - `Create` fetches `origin/<base>` and refuses to overwrite existing paths or branches.
-- `Remove` only removes a clean branch already merged into the selected `origin/<base>`. Dirty/unmerged worktrees must be preserved and reviewed manually.
+- `Remove` only removes a clean branch already merged into the selected `origin/<base>`. Ancestry covers merge commits; squash merges are accepted only when the worktree tree exactly matches a commit reachable from the selected base. Dirty, divergent, or otherwise unproven worktrees must be preserved and reviewed manually.
 - The helper never commits, pushes, merges, stashes, resets, or cleans.
 - Do not run `git worktree prune` as routine cleanup while agents may be active.
 
 ## Validation tiers
 
-See `agents/validation-policy.md`. `Auto` selects docs-only, fast, feature, or full validation from changed paths. Gradle/version catalog/wrapper, SQLDelight schema, shared contract, CI, security, and high-contention architecture changes are treated conservatively. A local targeted pass never replaces the PR's required checks.
+See `agents/validation-policy.md`. `Auto` selects docs-only, fast, feature, full, Wasm diagnostic, or frontend validation from changed paths. Screenshot-only changes select `Feature` and run Paparazzi verification. Frontend changes run `pnpm frontend:check`; install the pinned workspace dependencies with `pnpm install --frozen-lockfile` first. Explicit `Full` and `Wasm` profiles still execute on a clean tree; only `Auto` is a no-op when nothing changed. Gradle/version catalog/wrapper, SQLDelight schema, shared contract, CI, security, and high-contention architecture changes are treated conservatively. A local targeted pass never replaces the PR's required checks.
 
 ## GitHub CI behavior
 
-`.github/workflows/test.yml` first classifies changed paths, then runs only applicable quality, Desktop, Android, and screenshot jobs. The stable `Run Unit Tests` aggregate job always runs. It accepts an intentionally skipped job only when the classifier says that job is irrelevant; every selected job must pass. `workflow_dispatch` requests the full validation set. CI uses read-only repository permissions and never commits/pushes generated artifacts.
+`.github/workflows/test.yml` first classifies changed paths, then runs only applicable agent tooling, frontend, quality, Desktop, Android, and screenshot jobs. The frontend job installs the pinned pnpm workspace and runs `pnpm frontend:check`. The stable `Run Unit Tests` aggregate job always runs. It accepts an intentionally skipped job only when the classifier says that job is irrelevant; every selected job must pass. `workflow_dispatch` requests the full validation set. CI uses read-only repository permissions and never commits/pushes generated artifacts.
 
 ## Known platform limits
 

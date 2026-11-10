@@ -69,7 +69,18 @@ switch ($Action) {
     if (!$branch) { throw 'Refusing to remove a detached worktree automatically.' }
     Invoke-Git @('fetch','origin',$Base)
     & git -C $target merge-base --is-ancestor HEAD "origin/$Base"
-    if ($LASTEXITCODE -ne 0) { throw "Refusing to remove unmerged worktree branch '$branch'. Preserve it or merge it first." }
+    $isMerged = $LASTEXITCODE -eq 0
+    if (!$isMerged) {
+      # Squash merges do not preserve branch ancestry. Accept only an exact tree
+      # match with a commit already reachable from the selected base; this remains
+      # conservative when the PR required conflict-resolution edits or has unique work.
+      $targetTree = (& git -C $target rev-parse 'HEAD^{tree}').Trim()
+      if ($LASTEXITCODE -ne 0 -or !$targetTree) { throw 'Unable to inspect the worktree tree.' }
+      $baseTrees = @(& git -C $repo log -r --format=%T "origin/$Base")
+      if ($LASTEXITCODE -ne 0) { throw "Unable to inspect origin/$Base history." }
+      $isMerged = $baseTrees -contains $targetTree
+    }
+    if (!$isMerged) { throw "Refusing to remove unmerged worktree branch '$branch'. Preserve it or merge it first." }
     Invoke-Git @('worktree','remove',$target)
     Write-Output "Removed clean, merged worktree: $target"
     break

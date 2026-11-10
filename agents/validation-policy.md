@@ -9,6 +9,7 @@ The objective is fast feedback without weakening the merge gate. Select tests fr
 | `feature` / L2 | Feature/UI/resource change | Affected module compile/tests; screenshot verification for visual changes |
 | `full` / L4 | Gradle/dependency/schema/shared-contract/security/merge | Full required CI matrix and relevant supported-platform checks |
 | `wasm` | Explicit Wasm-only task or investigation | `:composeApp:compileKotlinWasmJs` (opt-in diagnostic; target is not release-ready) |
+| `frontend` | Frontend-only or hybrid contract change | `pnpm frontend:check` (typecheck, schema compatibility, unit tests, formatting) |
 
 ## Change classification
 
@@ -18,9 +19,10 @@ The objective is fast feedback without weakening the merge gate. Select tests fr
 - Desktop-only: desktop tests.
 - UI/theme/global resource: affected compile/tests plus Paparazzi verification.
 - Gradle/plugin/version catalog/wrapper, SQLDelight schema, `expect`/`actual`, security, CI, or cross-platform contracts: broaden to full validation.
-- Website/frontend: run the corresponding pnpm/site checks, not Gradle unless shared build configuration also changed.
+- Website/frontend: run `pnpm frontend:check`; frontend-only changes use the `Frontend` profile, while shared build/configuration changes retain the broader `Full` profile and also run frontend checks when applicable.
+- Screenshot-only changes under `screenshotTests/`: select `Feature` and run `:screenshotTests:verifyPaparazziDebug`.
 
-`scripts/validate-changes.ps1` is a conservative local selector. It prints the selected profile/tasks and supports `-WhatIf`/`-NoGradle`. It must never downgrade explicit `-Profile Full` or a high-risk change. Use `-Profile Wasm` only for an explicit Wasm diagnostic.
+`scripts/validate-changes.ps1` is a conservative local selector. It prints the selected profile/tasks and supports `-WhatIf`/`-NoGradle`. A clean tree is a no-op only for `Auto`; explicit `Full` and `Wasm` profiles still run. It must never downgrade explicit `-Profile Full` or a high-risk change. Use `-Profile Wasm` only for an explicit Wasm diagnostic.
 
 ## CI contract
 
