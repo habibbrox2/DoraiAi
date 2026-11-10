@@ -52,7 +52,7 @@ Limits and behavior:
 
 Install extra packages with: $install
 
-To show a file you produced in /root to the user, call open_file with the path relative to /root (e.g. open_file path="projects/my-app/index.html"). File needs to be self-contained."""
+To show a file you produced in /root/projects to the user, call open_file with the path relative to /root (e.g. open_file path="projects/my-app/index.html"). File needs to be self-contained."""
 }
 
 object ShellCommandTool : Tool {
@@ -107,7 +107,7 @@ object ShellCommandTool : Tool {
         val fresh = args["fresh"] as? Boolean ?: false
         if (fresh) {
             val executor = sandboxManager.createProotExecutor()
-            return executor.execute(command, timeoutSeconds, workingDir ?: "/root", envMap)
+            return executor.execute(command, timeoutSeconds, workingDir ?: "/root/projects", envMap)
         }
 
         // Persistent shell path. Each conversation gets its own bash session so
