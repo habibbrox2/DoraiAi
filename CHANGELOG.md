@@ -1,3 +1,26 @@
+## DORAI AI - GitHub Integration (Unreleased)
+
+Connect an embedded GitHub App to the app with read-only access by default. Not yet released.
+
+### Added
+- **New GitHub settings category** (Settings → GitHub, icon: code) for the dedicated `DORAI AI GitHub` App: sign in with GitHub App Device Flow (user authorizes at https://github.com/login/device), see the installations and repositories the app can access (read-only, from the first installation in v1), select one, and clone it into a local `projects/<name>` folder (`--depth=1`, project folder name validated) via native `git` — Android's proot Debian guest does the cloning/status/fetch/pull-sync (fast-forward only). iOS/Web show a "not supported" notice; desktop shows the screen but clone/sync are not wired yet (pending desktop WorkspaceController).
+- **Repository browsing UI**: connected state shows the account's installations and repositories (private/internal badges are on the data model); clone button appears only after a repository is selected; clone confirmation dialog shows the full repository name and target folder; status/sync display last-sync time and errors.
+- **Write operations behind an explicit opt-in** (not reachable from any UI, off by default): `github_commit`, `github_push`, `github_create_pull_request` tool-names are classified OTHER / ASK-ALWAYS and scoped to the repository fullName; `git add` (explicit relative paths only), `git commit` (exactly `-m <msg>`, 1–200 chars, single line) and `git push` (exactly `git push origin HEAD`, no force) are admitted only when `writeOperationsEnabled` is flipped on by a maintainer via `GitHubIntegrationViewModel.setWriteOperationsEnabled(true)`; `git commit`/`push` validate paths and message; pull requests are created only with `pull_requests: write` installation permission (otherwise the UI points at App settings and does nothing). Approval reuses the existing `confirmToolExecution` flow — no new approval UI.
+- **Bengali strings** for the new GitHub settings surface.
+
+### Security
+- **Tokens stay on the device**: Android `EncryptedSharedPreferences` (`dorai_github_vault_v1`), desktop AES-256-GCM file under `~/.dorai`, iOS Keychain, WasmJs no-op. Tokens are never placed in tool arguments, logs, crash reports or the agent timeline; Ktor debug logging redacts GitHub token literals (`ghp_`, `ghu_`, `ghs_`, `github_pat_`).
+- **Fail-closed git policy** (`GitCommandPolicy`): only read-only subcommands in the default surface, dangerous flags rejected everywhere, abbreviated-long-option and short-cluster rejection, `-C <dir>` prefix handling; write subcommands require the explicit opt-in and exact write shapes.
+- **Ephemeral credential helper** (desktop): token lives only in an owner-only sidecar for one command, then both files are deleted; the token never appears in argv, env or shell echo. Android guest git operations authenticate anonymously only — authenticated Android git (private repos, push) is not wired until guest-visible credential plumbing and Phase 0 (GitHub App registration) land.
+- **No background polling**; refresh happens only on user action.
+
+### Known limitations
+- Desktop clone/sync is not functional yet (desktop `WorkspaceController` is a no-op; the desktop CLI layer exists but is unwired).
+- Android authenticated git (private repos, push) is not wired yet.
+- PR creation requires `Pull requests: Write` on the App registration — off in the default P0 registration.
+
+---
+
 ## DORAI AI - Live Chat Streaming (Unreleased)
 
 ### Added

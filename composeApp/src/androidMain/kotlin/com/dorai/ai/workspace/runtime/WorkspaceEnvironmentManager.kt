@@ -2,6 +2,7 @@ package com.dorai.ai.workspace.runtime
 
 import android.os.StatFs
 import android.util.Log
+import com.dorai.ai.github.GitUrlValidator
 import com.dorai.ai.linux.DEFAULT_GUEST_PATH
 import com.dorai.ai.linux.DebianSpec
 import com.dorai.ai.linux.InstallStep
@@ -15,12 +16,14 @@ import com.dorai.ai.workspace.WorkspaceAgents
 import com.dorai.ai.workspace.WorkspaceEnvironmentState
 import com.dorai.ai.workspace.WorkspaceGitDiff
 import com.dorai.ai.workspace.WorkspaceGitError
+import com.dorai.ai.workspace.WorkspaceGitLogEntry
 import com.dorai.ai.workspace.WorkspaceGitResult
 import com.dorai.ai.workspace.WorkspaceState
 import com.dorai.ai.workspace.WorkspaceStep
 import com.dorai.ai.workspace.WorkspaceSystemInfo
 import com.dorai.ai.workspace.WorkspaceTerminalSession
 import com.dorai.ai.workspace.gitRelativePath
+import com.dorai.ai.workspace.parseGitLogOneline
 import com.dorai.ai.workspace.parseGitStatusPorcelain
 import com.dorai.ai.workspace.shellQuote
 import com.dorai.ai.workspace.terminal.DEFAULT_COLUMNS
@@ -1166,6 +1169,265 @@ class WorkspaceEnvironmentManager(
         )
     }
 
+    /**
+     * Clones a GitHub repository into `/root/projects/<project>` (depth=1, quiet).
+     * Refuses to overwrite an existing destination. The URL must be a valid GitHub.com URL.
+     */
+    suspend fun gitClone(project: String, url: String): WorkspaceGitResult = withContext(Dispatchers.IO) {
+        if (!GitUrlValidator.isValidProjectName(project)) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.NotRepository,
+                isRepository = false,
+            )
+        }
+        if (!GitUrlValidator.isValidGitHubUrl(url)) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.NotRepository,
+                isRepository = false,
+            )
+        }
+        val root = "/root/projects/$project"
+        val dest = File(root)
+        if (dest.exists()) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        }
+        dest.mkdirs()
+        val result = try {
+            executor().execute(
+                command = "git clone --depth=1 --quiet $url .",
+                timeoutSeconds = 120,
+                workingDir = root,
+            )
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        }
+        if (!result.success) {
+            WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        } else {
+            WorkspaceGitResult(isRepository = true)
+        }
+    }
+
+    /**
+     * Reads `git log --oneline` for `projects/<project>`, up to [maxCount] entries.
+     */
+    suspend fun gitLog(project: String, maxCount: Int): List<WorkspaceGitLogEntry> = withContext(Dispatchers.IO) {
+        if (!GitUrlValidator.isValidProjectName(project)) {
+            return@withContext emptyList()
+        }
+        val root = "/root/projects/$project"
+        val result = try {
+            executor().execute(
+                command = "git log --oneline -$maxCount",
+                timeoutSeconds = 30,
+                workingDir = root,
+            )
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            return@withContext emptyList()
+        }
+        if (!result.success) {
+            emptyList()
+        } else {
+            parseGitLogOneline(result.stdout as? String ?: "")
+        }
+    }
+
+    /**
+     * Fetches from origin for `projects/<project>` (read-only).
+     */
+    suspend fun gitFetch(project: String): WorkspaceGitResult = withContext(Dispatchers.IO) {
+        if (!GitUrlValidator.isValidProjectName(project)) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.NotRepository,
+                isRepository = false,
+            )
+        }
+        val root = "/root/projects/$project"
+        val result = try {
+            executor().execute(
+                command = "git fetch --quiet --prune",
+                timeoutSeconds = 120,
+                workingDir = root,
+            )
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        }
+        if (!result.success) {
+            WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        } else {
+            WorkspaceGitResult(isRepository = true)
+        }
+    }
+
+    /**
+     * Pulls from origin with --ff-only for `projects/<project>`.
+     */
+    suspend fun gitPullFfOnly(project: String): WorkspaceGitResult = withContext(Dispatchers.IO) {
+        if (!GitUrlValidator.isValidProjectName(project)) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.NotRepository,
+                isRepository = false,
+            )
+        }
+        val root = "/root/projects/$project"
+        val result = try {
+            executor().execute(
+                command = "git pull --ff-only --quiet",
+                timeoutSeconds = 120,
+                workingDir = root,
+            )
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        }
+        if (!result.success) {
+            WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        } else {
+            WorkspaceGitResult(isRepository = true)
+        }
+    }
+
+    /**
+     * Stages the explicit relative [files] (`git add -- <files>`) and creates a commit with
+     * [message]. The message is single-line, non-blank, ≤ 200 chars. Explicit paths only —
+     * never `.`/`:/`, never flags. Refused unless [files] are safe relative paths and the
+     * message is valid, regardless of the write opt-in on the caller side.
+     */
+    suspend fun gitCommit(project: String, files: List<String>, message: String): WorkspaceGitResult = withContext(Dispatchers.IO) {
+        if (!GitUrlValidator.isValidProjectName(project)) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.NotRepository,
+                isRepository = false,
+            )
+        }
+        if (files.isEmpty() || files.any { !GitUrlValidator.isSafeRelativePath(it) }) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        }
+        val trimmed = message.trim()
+        if (trimmed.isEmpty() || trimmed.length > 200 ||
+            trimmed.any { it == '\n' || it == '\r' || it == '\u0000' }
+        ) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        }
+        val root = "/root/projects/$project"
+        val quotedPaths = files.joinToString(" ") { shellQuote(it) }
+
+        val add = try {
+            executor().execute(
+                command = "git add -- $quotedPaths",
+                timeoutSeconds = 60,
+                workingDir = root,
+            )
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        }
+        if (!add.success) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        }
+
+        val commit = try {
+            executor().execute(
+                command = "git commit -m ${shellQuote(trimmed)}",
+                timeoutSeconds = 60,
+                workingDir = root,
+            )
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        }
+        if (!commit.success) {
+            WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        } else {
+            WorkspaceGitResult(isRepository = true)
+        }
+    }
+
+    /**
+     * `git push origin HEAD` — no force flags, no custom remote or refspec.
+     * Anonymous write access does not exist: private pushes require the credential
+     * broker, which is only wired for the desktop runner today (see [GitCredentialBroker]).
+     */
+    suspend fun gitPush(project: String): WorkspaceGitResult = withContext(Dispatchers.IO) {
+        if (!GitUrlValidator.isValidProjectName(project)) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.NotRepository,
+                isRepository = false,
+            )
+        }
+        val root = "/root/projects/$project"
+        val result = try {
+            executor().execute(
+                command = "git push origin HEAD",
+                timeoutSeconds = 300,
+                workingDir = root,
+            )
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        }
+        if (!result.success) {
+            WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        } else {
+            WorkspaceGitResult(isRepository = true)
+        }
+    }
+
     /** Stages one file (`git add -- <path>`). Never stages anything else. */
     suspend fun gitStage(project: String, path: String): Boolean = gitAction(project, path) { root, quoted ->
         "git add -- $quoted"
@@ -1279,7 +1541,7 @@ class WorkspaceEnvironmentManager(
 }
 
 /** Project folder names are a single path segment — reject traversal before any guest call. */
-private fun isValidProjectName(project: String): Boolean = project.isNotEmpty() && !project.contains('/') && !project.contains('\\') && project != "." && project != ".."
+private fun isValidProjectName(project: String): Boolean = GitUrlValidator.isValidProjectName(project)
 
 private fun WorkspaceProotExecutor.hasBinary(binary: String): Boolean = execute("command -v $binary >/dev/null 2>&1", timeoutSeconds = 20).success
 

@@ -83,6 +83,9 @@ enum class SettingsTab {
      */
     Tools,
 
+    /** GitHub App connection: Device Flow sign-in, repository clone and sync. */
+    GitHub,
+
     /** The Linux sandbox. Android only; the tab is hidden where the sandbox does not exist. */
     Sandbox,
 

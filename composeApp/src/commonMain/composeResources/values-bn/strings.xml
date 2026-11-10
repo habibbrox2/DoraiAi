@@ -821,4 +821,25 @@
     <string name="setup_no_key_required">API কী প্রয়োজন নেই</string>
     <string name="state_expanded">প্রসারিত</string>
     <string name="state_collapsed">ভাঁজ করা</string>
+    <string name="settings_tab_github">GitHub</string>
+    <string name="settings_cat_github">GitHub</string>
+    <string name="settings_github_not_supported">গিটহাব ইন্টিগ্রেশন শুধুমাত্র অ্যান্ড্রয়েড এবং ডেস্কটপে উপলব্ধ।</string>
+    <string name="settings_github_section_title">গিটহাব</string>
+    <string name="settings_github_description">গিটহাব থেকে রিপোজিটরি ক্লোন করে আপনার লোকাল ওয়ার্কস্পেসে রাখুন (ডিফল্টভাবে শুধুমাত্র পঠনযোগ্য)।</string>
+    <string name="settings_github_connect">গিটহাবে সংযুক্ত করুন</string>
+    <string name="settings_github_connected">সংযুক্ত</string>
+    <string name="settings_github_not_connected">সংযুক্ত নয়</string>
+    <string name="settings_github_repositories">রিপোজিটরি</string>
+    <string name="settings_github_project_name_label">প্রজেক্ট ফোল্ডার নাম</string>
+    <string name="settings_github_project_name_hint">যেমন my-project</string>
+    <string name="settings_github_clone_button">ক্লোন</string>
+    <string name="settings_github_clone_cancel">বাতিল</string>
+    <string name="settings_github_confirm_clone_title">রিপোজিটরি ক্লোন করুন</string>
+    <string name="settings_github_confirm_clone_message">&quot;%1$s&quot; রিপোজিটরিটি &quot;%2$s&quot; ফোল্ডারে ক্লোন করবেন?</string>
+    <string name="settings_github_cloning">ক্লোন হচ্ছে…</string>
+    <string name="settings_github_cloned">ক্লোন হয়েছে</string>
+    <string name="settings_github_sync">সিঙ্ক</string>
+    <string name="settings_github_refresh_status">স্ট্যাটাস রিফ্রেশ</string>
+    <string name="settings_github_last_sync">শেষ সিঙ্ক: %1$s</string>
+    <string name="settings_github_error">ত্রুটি: %1$s</string>
 </resources>

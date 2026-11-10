@@ -1,5 +1,6 @@
 package com.dorai.ai.tools
 
+import com.dorai.ai.github.GitCommandPolicy
 import java.io.File
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
@@ -7,6 +8,9 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 private const val MAX_OUTPUT_LENGTH = 30_000
+
+/** Shell metacharacters that must never reach a git subprocess (defense in depth). */
+private val SHELL_METACHARS = setOf('|', '&', ';', '<', '>', '(', ')', '$', '`', '"', '\'', '\\')
 
 class ProcessManager {
 
@@ -31,15 +35,77 @@ class ProcessManager {
         workingDir: File?,
         envMap: Map<String, String>,
     ): Map<String, Any> {
-        val sessionId = "bg-${nextId.getAndIncrement()}"
+        val tokens = command.trim().split("\\s+".toRegex()).filter { it.isNotEmpty() }
 
+        // Git allowlist gate: route git invocations through GitCommandPolicy and spawn
+        // directly via ProcessBuilder (no shell), so shell metacharacters cannot bypass
+        // the read-only policy. Non-git commands keep their existing shell path.
+        if (tokens.isNotEmpty() && GitCommandPolicy.isGitExecutable(tokens.first())) {
+            return startGitProcess(tokens, timeoutSeconds, workingDir, envMap)
+        }
+
+        return startShellProcess(command, timeoutSeconds, workingDir, envMap)
+    }
+
+    /**
+     * Spawns a validated `git` invocation directly (no shell). Returns a rejected
+     * result when [GitCommandPolicy] denies the arguments.
+     */
+    private fun startGitProcess(
+        tokens: List<String>,
+        timeoutSeconds: Long,
+        workingDir: File?,
+        envMap: Map<String, String>,
+    ): Map<String, Any> {
+        val gitArgs = tokens.drop(1)
+
+        if (!GitCommandPolicy.isAllowedGitArgs(gitArgs)) {
+            return mapOf(
+                "success" to false,
+                "error" to "Rejected by GitCommandPolicy: ${tokens.joinToString(" ")}",
+            )
+        }
+
+        // Defense in depth: even though we bypass the shell, refuse any shell
+        // metacharacters in git arguments so a future shell-based caller cannot
+        // inject through this path.
+        if (gitArgs.any { it.any { it in SHELL_METACHARS } }) {
+            return mapOf(
+                "success" to false,
+                "error" to "Rejected: shell metacharacters in git arguments",
+            )
+        }
+
+        val processBuilder = ProcessBuilder(*tokens.toTypedArray())
+        return registerSession(processBuilder, tokens.joinToString(" "), timeoutSeconds, workingDir, envMap)
+    }
+
+    private fun startShellProcess(
+        command: String,
+        timeoutSeconds: Long,
+        workingDir: File?,
+        envMap: Map<String, String>,
+    ): Map<String, Any> {
         val isWindows = System.getProperty("os.name").lowercase().contains("win")
         val processBuilder = if (isWindows) {
             ProcessBuilder("cmd", "/c", command)
         } else {
             ProcessBuilder("sh", "-c", command)
         }
+        return registerSession(processBuilder, command, timeoutSeconds, workingDir, envMap)
+    }
 
+    /**
+     * Starts [processBuilder], registers a [Session], drains stdout/stderr, and monitors
+     * completion/timeout. Shared by the git (direct) and shell code paths.
+     */
+    private fun registerSession(
+        processBuilder: ProcessBuilder,
+        command: String,
+        timeoutSeconds: Long,
+        workingDir: File?,
+        envMap: Map<String, String>,
+    ): Map<String, Any> {
         processBuilder.redirectErrorStream(false)
         if (workingDir != null && workingDir.isDirectory) {
             processBuilder.directory(workingDir)
@@ -48,6 +114,7 @@ class ProcessManager {
             processBuilder.environment().putAll(envMap)
         }
 
+        val sessionId = "bg-${nextId.getAndIncrement()}"
         val process = processBuilder.start()
         val session = Session(
             id = sessionId,
@@ -87,8 +154,6 @@ class ProcessManager {
             } else {
                 session.exitCode = process.exitValue()
             }
-            // Ensure stdout/stderr are fully drained before publishing the finished state,
-            // otherwise callers reading the log immediately after can miss trailing output.
             try {
                 stdoutDrain.get(5, TimeUnit.SECONDS)
             } catch (_: Exception) {

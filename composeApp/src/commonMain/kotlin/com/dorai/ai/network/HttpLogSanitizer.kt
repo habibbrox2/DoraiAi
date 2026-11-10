@@ -20,7 +20,7 @@ internal object HttpLogSanitizer {
 
     /** Standalone bearer/key tokens that can appear in header dumps or error messages. */
     private val INLINE_TOKEN = Regex(
-        pattern = """(?i)(bearer|key)\s+[A-Za-z0-9._~+/=-]{12,}""",
+        pattern = """(?i)(bearer|key|ghs_|ghu_|ghp_|github_pat_)\s*[A-Za-z0-9._~+/=-]{10,}""",
     )
 
     fun sanitize(message: String): String = message

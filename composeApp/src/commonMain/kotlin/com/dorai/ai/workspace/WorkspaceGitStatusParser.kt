@@ -73,6 +73,29 @@ private fun gitStatusOf(x: Char, y: Char): WorkspaceGitStatus = when {
 }
 
 /**
+ * Parses `git log --oneline` output. Each line is `<hash> <subject>`.
+ * Only the hash is required; subject may be empty.
+ */
+internal fun parseGitLogOneline(raw: String): List<WorkspaceGitLogEntry> {
+    if (raw.isBlank()) return emptyList()
+    return raw.lines()
+        .filter { it.isNotBlank() }
+        .mapNotNull { line ->
+            val spaceIdx = line.indexOf(' ')
+            if (spaceIdx <= 0) {
+                null
+            } else {
+                WorkspaceGitLogEntry(
+                    hash = line.substring(0, spaceIdx),
+                    subject = line.substring(spaceIdx + 1),
+                    authorName = "",
+                    dateIso = "",
+                )
+            }
+        }
+}
+
+/**
  * Converts a guest-absolute change path back to the repository-relative path
  * `git` expects, or null when the path is not under the project (traversal
  * attempts like `../` are rejected — write operations must never leave the

@@ -141,11 +141,20 @@ private fun AppNavigationGraph(startDestination: Any) {
             SettingsScreenContent(
                 uiState = when (selectedTab) {
                     SettingsTab.Agent -> ScreenshotTestData.settingsAgent
+
                     SettingsTab.Appearance -> ScreenshotTestData.settingsAppearanceState
+
                     SettingsTab.Services -> ScreenshotTestData.freeConnected
+
                     SettingsTab.Tools -> ScreenshotTestData.settingsTools
+
+                    // Not yet snapshotted — stand-in until a GitHub fixture is recorded.
+                    SettingsTab.GitHub -> ScreenshotTestData.settingsTools
+
                     SettingsTab.Sandbox -> ScreenshotTestData.settingsSandbox
+
                     SettingsTab.Account -> ScreenshotTestData.settingsAccountState
+
                     SettingsTab.General -> ScreenshotTestData.settingsGeneralState
                 },
                 sandboxState = ScreenshotTestData.sandboxState,

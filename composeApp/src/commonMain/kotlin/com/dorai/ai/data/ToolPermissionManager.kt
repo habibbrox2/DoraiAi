@@ -70,6 +70,13 @@ class ToolPermissionManager(
             "mcp_connect_server",
             -> ToolRiskLevel.OTHER
 
+            // GitHub write tools — explicit approval-gated operations. OTHER means
+            // ASK_ALWAYS by default (classifyToolRisk feeds shouldAskForPermission).
+            "github_commit",
+            "github_push",
+            "github_create_pull_request",
+            -> ToolRiskLevel.OTHER
+
             // File operations - check args for delete/write
             "write_file",
             "save_file",
@@ -144,6 +151,11 @@ class ToolPermissionManager(
         "fetch_url", "web_search", "scrape_url", "crawl" -> {
             val url = args["url"]?.toString() ?: args["query"]?.toString()
             url?.let { extractDomain(it) }
+        }
+
+        // GitHub write tools are scoped to the target repository (owner/repo).
+        "github_commit", "github_push", "github_create_pull_request" -> {
+            args["fullName"]?.toString() ?: args["repo"]?.toString()
         }
 
         else -> null
