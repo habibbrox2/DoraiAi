@@ -1298,6 +1298,11 @@ class RemoteDataRepository(
                 }
             }
             successfulTurn ?: throw AllServicesFailedException()
+        } catch (failure: Throwable) {
+            // A terminal failure or cancellation has no next provider to replace this partial
+            // answer. Remove any streamed row so an incomplete response is never left in history.
+            stream.discard()
+            throw failure
         } finally {
             _fallbackStatus.value = null
         }

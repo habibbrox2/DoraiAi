@@ -98,11 +98,11 @@ class GitHubIntegrationViewModel(
         expiresIn: Long,
         initialInterval: Long,
     ) {
-        val deadlineMs = System.currentTimeMillis() + expiresIn * 1000
+        val deadlineMs = Clock.System.now().toEpochMilliseconds() + expiresIn * 1000
         pollingJob = scope.launch {
             var interval = initialInterval
             while (coroutineContext.isActive) {
-                if (System.currentTimeMillis() >= deadlineMs) {
+                if (Clock.System.now().toEpochMilliseconds() >= deadlineMs) {
                     _state.value = _state.value.copy(
                         connectionStatus = GitHubConnectionStatus.Error,
                         error = GitHubDeviceFlowError.ExpiredToken,
