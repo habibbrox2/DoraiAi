@@ -1,0 +1,103 @@
+name: Optional iOS Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/ios-optional.yml'
+      - 'iosApp/**'
+      - 'composeApp/build.gradle.kts'
+      - 'gradle/libs.versions.toml'
+      - 'gradle/wrapper/**'
+      - 'gradlew'
+      - 'gradle.properties'
+      - 'settings.gradle.kts'
+      - 'build.gradle.kts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: optional-ios-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios-validation:
+    name: Optional iOS Configuration and Simulator Build
+    # This is intentionally advisory: its failure must never block other CI or PR merges.
+    continue-on-error: true
+    runs-on: macos-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate iOS version configuration
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import plistlib
+          import re
+          import tomllib
+          from pathlib import Path
+
+          root = Path.cwd()
+          config_text = (root / 'iosApp/Configuration/Config.xcconfig').read_text(encoding='utf-8')
+          project_text = (root / 'iosApp/iosApp.xcodeproj/project.pbxproj').read_text(encoding='utf-8')
+          plist = plistlib.loads((root / 'iosApp/iosApp/Info.plist').read_bytes())
+          versions = tomllib.loads((root / 'gradle/libs.versions.toml').read_text(encoding='utf-8'))['versions']
+
+          def setting(name):
+              matches = re.findall(rf'^{re.escape(name)}\s*=\s*(.*?)\s*$', config_text, re.MULTILINE)
+              if len(matches) != 1:
+                  raise SystemExit(f'Expected exactly one {name} assignment; found {len(matches)}')
+              return matches[0]
+
+          app_version = setting('APP_VERSION')
+          if app_version != versions['appVersion']:
+              raise SystemExit(f'APP_VERSION {app_version!r} does not match Gradle appVersion {versions["appVersion"]!r}')
+          if plist.get('CFBundleShortVersionString') != '$(APP_VERSION)':
+              raise SystemExit('Info.plist CFBundleShortVersionString is not wired to $(APP_VERSION)')
+          if project_text.count('baseConfigurationReference = AB3632DC29227652001CCB65 /* Config.xcconfig */;') != 2:
+              raise SystemExit('Debug and Release must both reference Config.xcconfig')
+          if setting('BUNDLE_ID') == '':
+              raise SystemExit('BUNDLE_ID must not be empty')
+          print(f'iOS version configuration passed: {app_version}')
+          PY
+
+      - name: Report Xcode and iOS SDK versions
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks | grep -E 'iOS|Simulator' || true
+
+      - name: Resolve Xcode package dependencies
+        run: xcodebuild -resolvePackageDependencies -project iosApp/iosApp.xcodeproj -scheme iosApp
+
+      - name: Build iOS Simulator app without code signing
+        run: >-
+          xcodebuild
+          -project iosApp/iosApp.xcodeproj
+          -scheme iosApp
+          -configuration Debug
+          -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath build/ios-derived-data
+          CODE_SIGNING_ALLOWED=NO
+          build
