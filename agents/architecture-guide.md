@@ -11,7 +11,7 @@
 ## Dependency and toolchain policy
 - Check exact versions in `gradle/libs.versions.toml`; do not copy API examples from another Compose/Kotlin version without checking compatibility.
 - Current catalog versions include Kotlin 2.4.21, Compose Multiplatform 1.12.2, Material 3 1.10.0-alpha05, Ktor 3.6.0, and SQLDelight 2.4.1. These values may change; always re-read the checked-out catalog.
-- Existing CI uses JDK 21. The office machine reported Java 8 during this audit, so local Gradle builds need a verified JDK 21 setup before their result is meaningful. Do not change machine configuration without approval.
+- Existing CI uses JDK 21. Verify the active local JDK with `java -version` before interpreting Gradle results. Do not change machine configuration without approval.
 
 ## Product and feature documentation
 - Product name shown to users: DORAI AI; navy and cyan are the current brand colors.

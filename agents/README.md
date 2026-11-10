@@ -38,7 +38,7 @@ These guides describe this repository's current structure and workflows, not a g
 6. [Security and regression checklist](security-guide.md)
 
 ## Skills
-Portable reference copies live in `skills/<skill-name>/SKILL.md`. Matching Claude Code-discoverable copies are in `.claude/skills/<skill-name>/SKILL.md`.
+Canonical portable skills live in `skills/<skill-name>/SKILL.md`. Claude-discoverable copies are generated into `.claude/skills/` by the sync script. Other agents use `.agents/skills/` where supported.
 - `kmp-compatibility-audit`
 - `compose-ui-repair`
 - `gradle-build-diagnostics`
@@ -52,4 +52,8 @@ Portable reference copies live in `skills/<skill-name>/SKILL.md`. Matching Claud
 - `commonMain` includes Compose, Navigation, Lifecycle, Ktor, Koin, FileKit, Coil, multiplatform settings, kotlinx-datetime/serialization, and SQLDelight runtime (verify current deps in `gradle/libs.versions.toml`).
 - Shared expect/actual platform contracts are in `composeApp/src/commonMain/kotlin/com/dorai/ai/Platform.kt` and matching platform `actual` files.
 - The version catalog is the source of truth for plugin/library versions: `gradle/libs.versions.toml`. The Gradle root project name is `dorai`; namespaces/packages use `com.dorai.ai` (do not rename identifiers without explicit approval).
-- `AGENTS.md` is the root agent/contributor guide; `CLAUDE.md` remains authoritative for feature specs and `docs/knowledge/` bundles.
+- `AGENTS.md` is the sole repository-wide agent/contributor policy. `CLAUDE.md` is the Claude Code entry point and must not redefine project-wide rules. Product feature specs remain in `docs/features/`; curated knowledge bundles remain in `docs/knowledge/`.
+
+## Multi-agent workflow
+
+Read [task protocol](task-protocol.md), [file ownership](file-ownership.md), and [validation policy](validation-policy.md). Use the worktree, lock, scope-check, and validation scripts in `../scripts/`. See [the full development workflow](../docs/development/multi-agent-workflow.md).

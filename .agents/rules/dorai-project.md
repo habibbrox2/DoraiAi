@@ -1,0 +1,3 @@
+# DORAI AI — Always-on project rule
+
+`AGENTS.md` is the canonical project-wide policy. Read it first, then read the relevant specialist guide under `agents/` and skill under `skills/`. Follow `agents/task-protocol.md`, `agents/file-ownership.md`, and `agents/validation-policy.md` for parallel tasks. Use one Git worktree per task and reserve changed paths with `scripts/agent-lock.ps1`. Do not edit outside approved paths, overwrite other agents' work, weaken security, alter dependencies without approval, or perform destructive Git operations. Run scope verification and the selected validation profile before handoff. Commit, push, PR, merge, release, and deploy actions require explicit authorization.

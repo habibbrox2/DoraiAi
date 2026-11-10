@@ -1,6 +1,6 @@
 ---
 name: compose-resources
-description: Fix missing Compose Resources strings and localization issues in Brox Kai v2.0 without editing generated output or damaging translations.
+description: Fix missing Compose Resources strings and localization issues in DORAI AI without editing generated output or damaging translations.
 ---
 
 # Compose Resources
