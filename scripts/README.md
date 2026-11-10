@@ -44,8 +44,10 @@ Use `bash scripts/agent-worktree.sh create <agent> <task> [base]` or `list/statu
 - One worktree and branch per concurrently running task.
 - Acquire non-overlapping path reservations before editing. Locks are shared by linked worktrees in the same local Git common directory.
 - Locks do not auto-expire; inspect and release stale locks only after confirming the owner task is inactive.
-- Removal is refused for dirty or unmerged worktrees. Preserve unmerged work rather than forcing cleanup.
+- Removal is refused for dirty or unmerged worktrees. An ancestry check handles merge commits; squash merges are accepted only when the worktree tree exactly matches a commit already reachable from the selected base. Branches with conflict-resolution differences or unique content remain protected.
 - These tools coordinate cooperative agents; they are not a security sandbox. Use container/OS permissions for untrusted code.
 - Worktree creation fetches `origin/<base>` but never changes the current branch or working tree.
 
-Wasm is not part of the required CI matrix while the target remains non-release-ready; use `scripts/validate-changes.ps1 -Profile Wasm` only for an explicit diagnostic. A local targeted pass never replaces the PR's required checks.
+Frontend-only changes select the `Frontend` profile and run `pnpm frontend:check`; install the pinned workspace dependencies first with `pnpm install --frozen-lockfile`. Explicit `Full` and `Wasm` profiles run even when the worktree has no changed files; only `Auto` treats a clean tree as a no-op.
+
+Wasm is not part of the required CI matrix while the target remains non-release-ready; use `scripts/validate-changes.ps1 -Profile Wasm` for an explicit diagnostic. A local targeted pass never replaces the PR's required checks.

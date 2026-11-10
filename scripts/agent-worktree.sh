@@ -23,7 +23,15 @@ case "$action" in
     [[ -f "$path/.git" || -d "$path/.git" ]] || { echo 'Not a Git worktree.' >&2; exit 2; }
     [[ -z "$(git -C "$path" status --porcelain)" ]] || { echo 'Refusing to remove dirty worktree.' >&2; exit 2; }
     git -C "$repo" fetch origin "$base"
-    git -C "$path" merge-base --is-ancestor HEAD "origin/$base" || { echo 'Refusing to remove unmerged worktree.' >&2; exit 2; }
+    if ! git -C "$path" merge-base --is-ancestor HEAD "origin/$base"; then
+      # Squash merges lose branch ancestry. Accept only an exact tree match with
+      # a commit reachable from the selected base; otherwise preserve the worktree.
+      target_tree="$(git -C "$path" rev-parse 'HEAD^{tree}')" || { echo 'Unable to inspect worktree tree.' >&2; exit 2; }
+      if ! git -C "$repo" log -r --format='%T' "origin/$base" | grep -Fxq "$target_tree"; then
+        echo 'Refusing to remove unmerged or divergent worktree.' >&2
+        exit 2
+      fi
+    fi
     git -C "$repo" worktree remove "$path"
     ;;
   *) usage; exit 2 ;;
