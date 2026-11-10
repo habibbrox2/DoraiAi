@@ -66,6 +66,7 @@
     <string name="settings_tab_agent">Agent</string>
     <string name="settings_tab_services">AI Providers</string>
     <string name="settings_tab_tools">Tools</string>
+    <string name="settings_tab_github">GitHub</string>
     <string name="settings_tab_sandbox">Linux Sandbox</string>
     <string name="settings_tab_integrations">Integrations</string>
     <string name="tools_count">%1$d\u00A0Tools</string>
@@ -309,6 +310,7 @@
     <string name="settings_github_refresh_status">Refresh status</string>
     <string name="settings_github_last_sync">Last synced: %1$s</string>
     <string name="settings_github_error">Error: %1$s</string>
+    <string name="settings_github_not_supported">GitHub integration is available on Android and desktop only.</string>
     <string name="settings_skills_install">Install</string>
     <string name="settings_skills_cancel">Cancel</string>
     <string name="settings_skills_installing">Installing…</string>
@@ -1001,6 +1003,7 @@
     <string name="settings_cat_providers">AI Providers</string>
     <string name="settings_cat_tools">Tools / Skills</string>
     <string name="settings_cat_mcp">Integrations / MCP</string>
+    <string name="settings_cat_github">GitHub</string>
     <string name="settings_cat_sandbox">Linux Sandbox</string>
     <string name="settings_cat_account">Account &amp; Data</string>
     <string name="settings_approval_policy">Approval Policy</string>

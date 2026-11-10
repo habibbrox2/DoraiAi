@@ -119,6 +119,10 @@ fun SettingsDetailPane(
                                 )
                             }
 
+                            SettingsTab.GitHub -> {
+                                GitHubSection()
+                            }
+
                             SettingsTab.Sandbox -> {
                                 if (sandboxState.showSandbox) {
                                     SandboxSettingsCard(
@@ -267,6 +271,7 @@ private fun SettingsPageHeading(
         SettingsTab.Agent -> "Agent"
         SettingsTab.Services -> "Services"
         SettingsTab.Tools -> "Tools"
+        SettingsTab.GitHub -> "GitHub"
         SettingsTab.Sandbox -> "Linux Sandbox"
         SettingsTab.Account -> "Account & Data"
     }
@@ -276,6 +281,7 @@ private fun SettingsPageHeading(
         SettingsTab.Agent -> "Configure agent behavior, reasoning, and model defaults."
         SettingsTab.Services -> "Connect providers and manage the models available to DORAI AI."
         SettingsTab.Tools -> "Connect your agent to the tools, services and skills you trust."
+        SettingsTab.GitHub -> "Connect GitHub, browse repositories and clone them into your workspace."
         SettingsTab.Sandbox -> "Configure the isolated Linux workspace and its lifecycle."
         SettingsTab.Account -> "Review your account, application and data controls."
     }

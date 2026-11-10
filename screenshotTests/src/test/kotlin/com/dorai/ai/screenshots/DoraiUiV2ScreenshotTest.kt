@@ -281,7 +281,7 @@ class DoraiUiV2ScreenshotTest {
     }
 
     // -------------------------------------------------------------------------
-    // 4. Settings Screen (All 8 Categories on Compact Phone + Tablet)
+    // 4. Settings Screen (All 9 Categories on Compact Phone + Tablet)
     // -------------------------------------------------------------------------
 
     @Test

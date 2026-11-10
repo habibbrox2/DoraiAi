@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Cloud
+import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Computer
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Settings
@@ -60,6 +61,7 @@ import dorai.composeapp.generated.resources.settings_tab_agent
 import dorai.composeapp.generated.resources.settings_tab_appearance
 import dorai.composeapp.generated.resources.settings_tab_data
 import dorai.composeapp.generated.resources.settings_tab_general
+import dorai.composeapp.generated.resources.settings_tab_github
 import dorai.composeapp.generated.resources.settings_tab_sandbox
 import dorai.composeapp.generated.resources.settings_tab_services
 import dorai.composeapp.generated.resources.settings_tab_tools
@@ -115,6 +117,7 @@ fun SettingsNavRail(
                     SettingsTab.Agent -> Icons.Outlined.SmartToy
                     SettingsTab.Services -> Icons.Outlined.Cloud
                     SettingsTab.Tools -> Icons.Outlined.Build
+                    SettingsTab.GitHub -> Icons.Outlined.Code
                     SettingsTab.Sandbox -> Icons.Outlined.Computer
                     SettingsTab.Account -> Icons.Outlined.AccountCircle
                 }
@@ -124,6 +127,7 @@ fun SettingsNavRail(
                     SettingsTab.Agent -> stringResource(Res.string.settings_tab_agent)
                     SettingsTab.Services -> stringResource(Res.string.settings_tab_services)
                     SettingsTab.Tools -> stringResource(Res.string.settings_tab_tools)
+                    SettingsTab.GitHub -> stringResource(Res.string.settings_tab_github)
                     SettingsTab.Sandbox -> stringResource(Res.string.settings_tab_sandbox)
                     SettingsTab.Account -> stringResource(Res.string.settings_tab_account)
                 }
@@ -210,7 +214,7 @@ fun SettingsNavRail(
 private fun settingsTabGroup(tab: SettingsTab): String = when (tab) {
     SettingsTab.General, SettingsTab.Appearance, SettingsTab.Agent -> "Assistant"
     SettingsTab.Services -> "Models & services"
-    SettingsTab.Tools -> "Connections"
+    SettingsTab.Tools, SettingsTab.GitHub -> "Connections"
     SettingsTab.Sandbox -> "Workspace"
     SettingsTab.Account -> "Account"
 }

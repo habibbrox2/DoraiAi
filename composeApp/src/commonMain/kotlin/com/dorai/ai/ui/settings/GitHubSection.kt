@@ -26,6 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dorai.ai.Platform
+import com.dorai.ai.currentPlatform
 import com.dorai.ai.github.CloneState
 import com.dorai.ai.github.GitHubConnectionStatus
 import com.dorai.ai.github.GitHubIntegrationViewModel
@@ -45,6 +47,7 @@ import dorai.composeapp.generated.resources.settings_github_description
 import dorai.composeapp.generated.resources.settings_github_error
 import dorai.composeapp.generated.resources.settings_github_last_sync
 import dorai.composeapp.generated.resources.settings_github_not_connected
+import dorai.composeapp.generated.resources.settings_github_not_supported
 import dorai.composeapp.generated.resources.settings_github_project_name_hint
 import dorai.composeapp.generated.resources.settings_github_project_name_label
 import dorai.composeapp.generated.resources.settings_github_refresh_status
@@ -57,9 +60,31 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun GitHubSection() {
+    val colors = LocalDesignColorTokens.current
+
+    // GitHub integration is Android + desktop only; iOS/Web show an unsupported notice.
+    if (currentPlatform !is Platform.Mobile.Android && currentPlatform !is Platform.Desktop) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+        ) {
+            Text(
+                text = stringResource(Res.string.settings_github_section_title),
+                style = DoraiTypography.titleLarge,
+                color = colors.textPrimary,
+            )
+            Text(
+                text = stringResource(Res.string.settings_github_not_supported),
+                style = DoraiTypography.bodyMedium,
+                color = colors.textSecondary,
+            )
+        }
+        return
+    }
+
     val vm: GitHubIntegrationViewModel = koinViewModel()
     val state by vm.state.collectAsStateWithLifecycle()
-    val colors = LocalDesignColorTokens.current
 
     val showConfirm = remember { mutableStateOf(false) }
     val projectName = remember { mutableStateOf("") }

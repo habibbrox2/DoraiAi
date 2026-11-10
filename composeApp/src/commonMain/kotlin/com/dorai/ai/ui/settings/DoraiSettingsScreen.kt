@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Folder
@@ -101,12 +102,14 @@ import dorai.composeapp.generated.resources.settings_cat_account
 import dorai.composeapp.generated.resources.settings_cat_agent
 import dorai.composeapp.generated.resources.settings_cat_appearance
 import dorai.composeapp.generated.resources.settings_cat_general
+import dorai.composeapp.generated.resources.settings_cat_github
 import dorai.composeapp.generated.resources.settings_cat_mcp
 import dorai.composeapp.generated.resources.settings_cat_providers
 import dorai.composeapp.generated.resources.settings_cat_sandbox
 import dorai.composeapp.generated.resources.settings_cat_tools
 import dorai.composeapp.generated.resources.settings_delete_all_chats
 import dorai.composeapp.generated.resources.settings_delete_chats_confirm
+import dorai.composeapp.generated.resources.settings_github_description
 import dorai.composeapp.generated.resources.settings_mcp_add_server
 import dorai.composeapp.generated.resources.settings_mcp_invalid_url
 import dorai.composeapp.generated.resources.settings_mcp_test_connection
@@ -129,13 +132,14 @@ enum class SettingsCategory(
     Providers("providers", Res.string.settings_cat_providers, Icons.Default.VpnKey),
     Tools("tools", Res.string.settings_cat_tools, Icons.Default.Build),
     Mcp("mcp", Res.string.settings_cat_mcp, Icons.Default.Extension),
+    GitHub("github", Res.string.settings_cat_github, Icons.Default.Code),
     Sandbox("sandbox", Res.string.settings_cat_sandbox, Icons.Default.Terminal),
     Account("account", Res.string.settings_cat_account, Icons.Default.AccountCircle),
 }
 
 /**
  * UI v2 Settings screen:
- * - 8 categories, strictly ordered.
+ * - 9 categories, strictly ordered.
  * - Compact: scrollable pill tab bar at top + content below.
  * - Medium+: category list in the list pane + content in detail pane.
  */
@@ -431,7 +435,6 @@ private fun SettingsCategoryContent(
                             onBrowseSkills = actions.onBrowseSkills,
                         )
                     }
-                    GitHubSection()
                 }
 
                 SettingsCategory.Mcp -> {
@@ -446,6 +449,10 @@ private fun SettingsCategoryContent(
                         onShowAddDialog = actions.onShowAddMcpServerDialog,
                         onAddPopularMcpServer = actions.onAddPopularMcpServer,
                     )
+                }
+
+                SettingsCategory.GitHub -> {
+                    GitHubSection()
                 }
 
                 SettingsCategory.Sandbox -> {
@@ -490,6 +497,8 @@ private fun SettingsCategoryContent(
                 SettingsCategory.Tools -> ToolsSettingsContent()
 
                 SettingsCategory.Mcp -> McpSettingsContent()
+
+                SettingsCategory.GitHub -> GitHubSettingsContent()
 
                 SettingsCategory.Sandbox -> SandboxSettingsContent()
 
@@ -803,6 +812,26 @@ private fun SecurityCheckItem(passed: Boolean, label: String) {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(label, color = if (passed) colors.text else colors.err, fontSize = 12.5.sp)
+    }
+}
+
+@Composable
+private fun GitHubSettingsContent() {
+    val colors = LocalDoraiColors.current
+
+    SettingsSectionCard {
+        Text(
+            text = stringResource(Res.string.settings_cat_github),
+            color = colors.text,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+        )
+        Spacer(modifier = Modifier.height(DoraiSpacing.XS))
+        Text(
+            text = stringResource(Res.string.settings_github_description),
+            color = colors.muted,
+            fontSize = 12.sp,
+        )
     }
 }
 

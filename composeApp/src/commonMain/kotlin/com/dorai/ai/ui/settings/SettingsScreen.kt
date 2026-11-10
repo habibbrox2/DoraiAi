@@ -113,6 +113,7 @@ import dorai.composeapp.generated.resources.settings_tab_agent
 import dorai.composeapp.generated.resources.settings_tab_appearance
 import dorai.composeapp.generated.resources.settings_tab_data
 import dorai.composeapp.generated.resources.settings_tab_general
+import dorai.composeapp.generated.resources.settings_tab_github
 import dorai.composeapp.generated.resources.settings_tab_sandbox
 import dorai.composeapp.generated.resources.settings_tab_services
 import dorai.composeapp.generated.resources.settings_tab_tools
@@ -501,6 +502,7 @@ private fun SettingsTabSelector(
                     SettingsTab.Agent -> stringResource(Res.string.settings_tab_agent)
                     SettingsTab.Services -> stringResource(Res.string.settings_tab_services)
                     SettingsTab.Tools -> stringResource(Res.string.settings_tab_tools)
+                    SettingsTab.GitHub -> stringResource(Res.string.settings_tab_github)
                     SettingsTab.Sandbox -> stringResource(Res.string.settings_tab_sandbox)
                     SettingsTab.Account -> stringResource(Res.string.settings_tab_account)
                 }
