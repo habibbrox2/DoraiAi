@@ -2,6 +2,8 @@ package com.dorai.ai
 
 import com.dorai.ai.workspace.WorkspaceGitChange
 import com.dorai.ai.workspace.WorkspaceGitDiff
+import com.dorai.ai.workspace.WorkspaceGitError
+import com.dorai.ai.workspace.WorkspaceGitLogEntry
 import com.dorai.ai.workspace.WorkspaceGitResult
 import com.dorai.ai.workspace.WorkspaceState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,6 +37,18 @@ interface WorkspaceController {
      * a repository it could not read.
      */
     suspend fun gitStatus(project: String): WorkspaceGitResult
+
+    /** Clones a GitHub repository into `projects/<project>` (read-only, depth=1). */
+    suspend fun gitClone(project: String, url: String): WorkspaceGitResult
+
+    /** Reads `git log --oneline` for `projects/<project>`, up to [maxCount] entries. */
+    suspend fun gitLog(project: String, maxCount: Int = 20): List<WorkspaceGitLogEntry>
+
+    /** Fetches from origin for `projects/<project>` (fast-forward only). */
+    suspend fun gitFetch(project: String): WorkspaceGitResult
+
+    /** Pulls from origin with --ff-only for `projects/<project>`. */
+    suspend fun gitPullFfOnly(project: String): WorkspaceGitResult
 
     /** Reads staged + unstaged diffs for one guest-absolute [path] inside [project]. */
     suspend fun gitDiff(project: String, path: String): WorkspaceGitDiff
@@ -122,7 +136,11 @@ class NoOpWorkspaceController : WorkspaceController {
     override fun uninstall() {}
     override fun refresh() {}
     override suspend fun gitStatus(project: String): WorkspaceGitResult = WorkspaceGitResult()
-    override suspend fun gitDiff(project: String, path: String): WorkspaceGitDiff = WorkspaceGitDiff(path = path, error = com.dorai.ai.workspace.WorkspaceGitError.Failed)
+    override suspend fun gitClone(project: String, url: String): WorkspaceGitResult = WorkspaceGitResult(error = WorkspaceGitError.Failed, isRepository = false)
+    override suspend fun gitLog(project: String, maxCount: Int): List<WorkspaceGitLogEntry> = emptyList()
+    override suspend fun gitFetch(project: String): WorkspaceGitResult = WorkspaceGitResult(error = WorkspaceGitError.Failed, isRepository = false)
+    override suspend fun gitPullFfOnly(project: String): WorkspaceGitResult = WorkspaceGitResult(error = WorkspaceGitError.Failed, isRepository = false)
+    override suspend fun gitDiff(project: String, path: String): WorkspaceGitDiff = WorkspaceGitDiff(path = path, error = WorkspaceGitError.Failed)
     override suspend fun gitStage(project: String, path: String): Boolean = false
     override suspend fun gitUnstage(project: String, path: String): Boolean = false
     override suspend fun gitDiscard(project: String, path: String): Boolean = false

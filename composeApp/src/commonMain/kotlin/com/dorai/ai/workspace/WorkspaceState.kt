@@ -40,6 +40,15 @@ enum class WorkspaceGitError {
     Failed,
 }
 
+/** One entry from `git log --oneline` output. */
+@Immutable
+data class WorkspaceGitLogEntry(
+    val hash: String,
+    val subject: String,
+    val authorName: String,
+    val dateIso: String,
+)
+
 /**
  * One `git status` read: the changed paths plus the repository facts the UI shows
  * (current branch, whether this is a repository at all). [branch] is null for a

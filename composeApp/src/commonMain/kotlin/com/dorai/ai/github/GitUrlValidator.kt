@@ -42,4 +42,10 @@ object GitUrlValidator {
         // Must match the GitHub.com host pattern
         return githubHostPattern.matches(url)
     }
+
+    /** Returns true only when [name] is a safe project folder name (no path traversal). */
+    fun isValidProjectName(name: String?): Boolean {
+        if (name == null || name.isBlank()) return false
+        return name.isNotEmpty() && !name.contains('/') && !name.contains('\\') && name != "." && name != ".."
+    }
 }

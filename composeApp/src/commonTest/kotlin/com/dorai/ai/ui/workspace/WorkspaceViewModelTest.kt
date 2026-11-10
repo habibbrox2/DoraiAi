@@ -81,6 +81,10 @@ class WorkspaceViewModelTest {
             gitStatusCalls += 1
             return WorkspaceGitResult()
         }
+        override suspend fun gitClone(project: String, url: String): WorkspaceGitResult = WorkspaceGitResult()
+        override suspend fun gitLog(project: String, maxCount: Int): List<com.dorai.ai.workspace.WorkspaceGitLogEntry> = emptyList()
+        override suspend fun gitFetch(project: String): WorkspaceGitResult = WorkspaceGitResult()
+        override suspend fun gitPullFfOnly(project: String): WorkspaceGitResult = WorkspaceGitResult()
         override suspend fun gitDiff(project: String, path: String): com.dorai.ai.workspace.WorkspaceGitDiff = com.dorai.ai.workspace.WorkspaceGitDiff(path = path, unstagedDiff = "unstaged", stagedDiff = "staged")
         override suspend fun gitStage(project: String, path: String): Boolean {
             staged += project to path
