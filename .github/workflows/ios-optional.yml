@@ -2,10 +2,12 @@ name: Optional iOS Validation
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feature/optional-ios-validation-2.1.27]
     paths:
       - '.github/workflows/ios-optional.yml'
       - 'iosApp/**'
+      - 'composeApp/src/commonMain/**'
+      - 'composeApp/src/iosMain/**'
       - 'composeApp/build.gradle.kts'
       - 'gradle/libs.versions.toml'
       - 'gradle/wrapper/**'
