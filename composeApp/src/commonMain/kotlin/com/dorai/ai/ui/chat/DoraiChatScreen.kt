@@ -15,6 +15,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -92,12 +93,13 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -937,22 +939,72 @@ private fun ChatDetailPane(
     var paletteVisible by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    val isAtBottom by remember {
-        derivedStateOf {
-            val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            val total = listState.layoutInfo.totalItemsCount
-            total == 0 || lastVisible >= total - 2
-        }
+    // Follow-the-tail state. `pinnedToTail` is durable "the user is following the newest output"
+    // state rather than a layout snapshot sampled at a single instant
+    // (docs/audit/chat-streaming-ui-invalidation-audit-2026-11-09.md, finding 3): dragging away from
+    // the bottom unpins it, coming back (or tapping jump-to-latest) pins it again, and a prompt the
+    // user just sent always re-pins. An answer therefore cannot be generated below the fold while
+    // the user believes they are at the bottom.
+    var pinnedToTail by remember { mutableStateOf(true) }
+    // Opening a chat must not jump away from the restored position, so the follow effect skips its
+    // first run and only starts following on the next content change (new prompt, new stream).
+    var followingArmed by remember { mutableStateOf(false) }
+    val lastMessage = messages.lastOrNull()
+    // First-token card visibility, derived once and shared with the follow effect so both agree on
+    // whether a trailing item exists below the messages.
+    val showStreamingTail = isStreaming &&
+        (
+            lastMessage == null || lastMessage.isUser ||
+                (
+                    lastMessage.text.isEmpty() && lastMessage.reasoningSegments.isEmpty() &&
+                        !lastMessage.isThinking && lastMessage.toolExecutions.isEmpty() &&
+                        lastMessage.dynamicUi == null && lastMessage.planItems.isEmpty()
+                    )
+            )
+    val followTextLength = lastMessage?.text?.length ?: 0
+    // Reasoning and tool blocks change the newest item's height too (attached when the turn ends).
+    val followExtraHeight = (lastMessage?.reasoningSegments?.size ?: 0) + (lastMessage?.toolExecutions?.size ?: 0)
+    val lastUserId = messages.lastOrNull { it.isUser }?.id
+
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            val info = listState.layoutInfo
+            val total = info.totalItemsCount
+            val lastVisible = info.visibleItemsInfo.lastOrNull()?.index ?: return@snapshotFlow true
+            total == 0 || lastVisible >= total - 1
+        }.collect { atBottom -> pinnedToTail = atBottom }
     }
 
-    // Follow the streaming tail while the user stays pinned to the bottom.
-    // Keyed on the last message's text length so token-by-token growth also
-    // keeps the list scrolled, not just message count changes.
-    val lastMessageTextLength = messages.lastOrNull()?.text?.length ?: 0
-    LaunchedEffect(messages.size, lastMessageTextLength) {
-        if (messages.isNotEmpty() && isAtBottom) {
-            listState.scrollToItem(messages.lastIndex)
+    // Sending (or restoring) a prompt re-pins: the reply to it must be followed.
+    LaunchedEffect(lastUserId) {
+        if (lastUserId != null) pinnedToTail = true
+    }
+
+    // Follow the streaming tail while pinned. Keyed on the newest text length (not just message
+    // count) so token-by-token growth keeps the list scrolled, and aligned to the newest item's end
+    // so a message taller than the viewport shows its latest text instead of its first line.
+    // Never scrolls while the list is being dragged or flung: the gesture wins, and the pin above
+    // decides afterwards whether following continues.
+    LaunchedEffect(messages.size, followTextLength, followExtraHeight, showStreamingTail) {
+        if (!followingArmed) {
+            followingArmed = true
+            return@LaunchedEffect
         }
+        if (messages.isEmpty() || !pinnedToTail || listState.isScrollInProgress) return@LaunchedEffect
+        val targetIndex = if (showStreamingTail) messages.size else messages.lastIndex
+        val info = listState.layoutInfo
+        val viewport = (info.viewportEndOffset - info.viewportStartOffset).coerceAtLeast(0)
+        val target = info.visibleItemsInfo.firstOrNull { it.index == targetIndex }
+        val endOffset = target?.let { (it.size - viewport).coerceAtLeast(0) } ?: 0
+        listState.scrollToItem(targetIndex, endOffset)
+        // Layout is one frame behind composition, so the item measured above may have grown since.
+        // Settle once so text that arrived in the same frame is not left below the fold.
+        withFrameNanos { }
+        val settled = listState.layoutInfo
+        val overflow = settled.visibleItemsInfo.firstOrNull { it.index == targetIndex }
+            ?.let { it.offset + it.size - settled.viewportEndOffset }
+            ?: 0
+        if (overflow > 0) listState.scrollBy(overflow.toFloat())
     }
 
     // imePadding is provided by DoraiAdaptiveScaffold at the shell level.
@@ -1160,15 +1212,7 @@ private fun ChatDetailPane(
                             )
                         }
                         if (isStreaming) {
-                            val last = messages.lastOrNull()
-                            val tailVisible = last == null || last.isUser ||
-                                (
-                                    !last.isUser && last.text.isEmpty() &&
-                                        last.reasoningSegments.isEmpty() && !last.isThinking &&
-                                        last.toolExecutions.isEmpty() && last.dynamicUi == null &&
-                                        last.planItems.isEmpty()
-                                    )
-                            if (tailVisible) {
+                            if (showStreamingTail) {
                                 item(key = "streaming-tail") {
                                     // First-token "thinking" card: model name + stop, replacing a bare spinner
                                     Surface(
@@ -1214,7 +1258,7 @@ private fun ChatDetailPane(
 
             // Jump to latest button
             androidx.compose.animation.AnimatedVisibility(
-                visible = !isAtBottom && messages.isNotEmpty(),
+                visible = !pinnedToTail && messages.isNotEmpty(),
                 enter = fadeIn(),
                 exit = fadeOut(),
                 modifier = Modifier
@@ -1223,6 +1267,10 @@ private fun ChatDetailPane(
             ) {
                 FloatingActionButton(
                     onClick = {
+                        // Follow from here on, and let the next content change settle the scroll
+                        // position; animating straight to the last index would hide the newest text
+                        // of a message taller than the viewport.
+                        pinnedToTail = true
                         scope.launch {
                             if (messages.isNotEmpty()) listState.animateScrollToItem(messages.lastIndex)
                         }

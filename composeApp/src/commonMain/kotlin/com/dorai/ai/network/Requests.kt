@@ -17,8 +17,10 @@ import com.dorai.ai.network.dtos.gemini.GeminiChatResponseDto
 import com.dorai.ai.network.dtos.gemini.GeminiModelsResponseDto
 import com.dorai.ai.network.dtos.gemini.GeminiTool
 import com.dorai.ai.network.dtos.gemini.PropertySchema
+import com.dorai.ai.network.dtos.openaicompatible.OpenAICompatibleChatChunkDto
 import com.dorai.ai.network.dtos.openaicompatible.OpenAICompatibleChatRequestDto
 import com.dorai.ai.network.dtos.openaicompatible.OpenAICompatibleChatResponseDto
+import com.dorai.ai.network.dtos.openaicompatible.OpenAICompatibleCompletion
 import com.dorai.ai.network.dtos.openaicompatible.OpenAICompatibleModelResponseDto
 import com.dorai.ai.network.dtos.openairesponses.OpenAIResponsesRequestDto
 import com.dorai.ai.network.dtos.openairesponses.OpenAIResponsesResponseDto
@@ -38,14 +40,17 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
+import io.ktor.client.request.preparePost
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.content.TextContent
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.utils.io.readUTF8Line
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -78,6 +83,19 @@ private fun HttpRequestBuilder.applyTimeout(requestTimeoutMs: Long?) {
  * silent asks that run before a chat exists. Stable for the lifetime of the process.
  */
 private val processSessionId: String by lazy { Uuid.random().toString() }
+
+/**
+ * Streaming needs an overall deadline long enough for a slow model to finish, while the socket
+ * (idle) timeout stays short so a stalled connection fails instead of hanging the turn forever.
+ */
+private const val STREAM_REQUEST_TIMEOUT_MS = 15 * 60 * 1000L
+private const val STREAM_SOCKET_TIMEOUT_MS = 120_000L
+
+/** Tolerant parser for SSE payloads: providers add fields the DTO does not model. */
+private val streamingJson = Json {
+    ignoreUnknownKeys = true
+    isLenient = true
+}
 
 /**
  * OpenCode identifies the calling client by an `x-opencode-session` header and rejects
@@ -294,6 +312,164 @@ class Requests(
         throw e
     } catch (e: Exception) {
         Result.failure(mapOpenAICompatibleException(e))
+    }
+
+    /**
+     * Streaming variant of [openAICompatibleChat] over server-sent events (`"stream": true`).
+     *
+     * Answer deltas are handed to [onDelta] the moment they arrive so the chat can render the
+     * reply in place instead of waiting for the whole turn. Protocol details:
+     *
+     * - `delta.content` is the visible answer; `delta.reasoning_content` / `delta.reasoning` is
+     *   the thinking trace, accumulated but never passed to [onDelta] (it renders separately).
+     * - `delta.tool_calls` arrive as fragments joined by their `index`; the assembled calls are
+     *   returned so the existing tool loop keeps working unchanged.
+     * - `data: [DONE]` ends the stream; `:` comment lines and undecodable keep-alive payloads are
+     *   skipped.
+     *
+     * Providers that ignore `stream` (or sit behind a buffering proxy) answer with a plain JSON
+     * body; that message is delivered as a single [onDelta] call, so callers need no fallback
+     * branch of their own.
+     *
+     * Deliberately **not** retried on failure: a replay after tokens were already rendered would
+     * duplicate text in the transcript. The caller moves on to the next provider instead.
+     */
+    suspend fun openAICompatibleChatStream(
+        service: Service,
+        credentials: ServiceCredentials,
+        messages: List<OpenAICompatibleChatRequestDto.Message>,
+        tools: List<Tool> = emptyList(),
+        sessionId: String? = null,
+        requestTimeoutMs: Long? = null,
+        onDelta: suspend (String) -> Unit,
+    ): Result<OpenAICompatibleCompletion> = try {
+        val apiKey = getApiKeyOrThrow(service, credentials)
+        val model = credentials.modelId.ifEmpty { null }
+        val url = resolveUrl(service, credentials, service.chatUrl)
+
+        val completion = defaultClient.preparePost(url) {
+            timeout {
+                requestTimeoutMillis = requestTimeoutMs ?: STREAM_REQUEST_TIMEOUT_MS
+                socketTimeoutMillis = STREAM_SOCKET_TIMEOUT_MS
+            }
+            contentType(ContentType.Application.Json)
+            // Ask intermediaries not to buffer the event stream.
+            header("Accept", "text/event-stream")
+            apiKey?.let { bearerAuth(it) }
+            applySessionHeader(service, credentials, sessionId)
+            setBody(
+                OpenAICompatibleChatRequestDto(
+                    messages = messages,
+                    model = model,
+                    tools = tools.toRequestTools { it.toRequestTool() },
+                    stream = true,
+                ),
+            )
+        }.execute { response ->
+            if (!response.status.isSuccess()) {
+                handleOpenAICompatibleError(service, credentials, response)
+            }
+
+            if (response.contentType()?.withoutParameters() != ContentType.Text.EventStream) {
+                // Streaming was ignored: the body is a normal completion document.
+                val text = response.bodyAsText()
+                val message = runCatching {
+                    streamingJson.decodeFromString(OpenAICompatibleChatResponseDto.serializer(), text)
+                }.getOrNull()?.choices?.firstOrNull()?.message
+                    ?: throw OpenAICompatibleEmptyResponseException()
+                message.effectiveContent?.takeIf { it.isNotEmpty() }?.let { onDelta(it) }
+                return@execute OpenAICompatibleCompletion(
+                    content = message.effectiveContent.orEmpty(),
+                    reasoning = message.effectiveReasoning,
+                    toolCalls = message.toolCalls.orEmpty(),
+                )
+            }
+
+            val answer = StringBuilder()
+            val reasoning = StringBuilder()
+            val toolCalls = linkedMapOf<Int, StreamingToolCall>()
+            var finishReason: String? = null
+            var sawEvent = false
+
+            val channel = response.bodyAsChannel()
+            while (true) {
+                // readUTF8Line caps at Int.MAX_VALUE by default: a provider may send a whole
+                // tool-call argument blob (or a large content delta) as one `data:` line.
+                val line = channel.readUTF8Line() ?: break
+                if (line.isEmpty() || line.startsWith(":")) continue
+                if (!line.startsWith("data:")) continue
+                val payload = line.removePrefix("data:").trim()
+                if (payload.isEmpty()) continue
+                sawEvent = true
+                if (payload == "[DONE]") break
+
+                val chunk = runCatching {
+                    streamingJson.decodeFromString(OpenAICompatibleChatChunkDto.serializer(), payload)
+                }.getOrNull()
+                if (chunk == null || chunk.choices.isEmpty()) {
+                    // Some providers stream their errors as an event instead of an HTTP status.
+                    val errorMessage = runCatching {
+                        streamingJson.parseToJsonElement(payload).jsonObject["error"]?.jsonObject
+                            ?.get("message")?.jsonPrimitive?.contentOrNull
+                    }.getOrNull()
+                    if (errorMessage != null) {
+                        throw OpenAICompatibleGenericException("${service.displayName}: $errorMessage")
+                    }
+                    continue
+                }
+
+                val choice = chunk.choices.firstOrNull() ?: continue
+                choice.finishReason?.let { finishReason = it }
+                val delta = choice.delta ?: continue
+
+                delta.reasoningContent?.let { reasoning.append(it) }
+                if (delta.reasoningContent == null) delta.reasoning?.let { reasoning.append(it) }
+                delta.content?.takeIf { it.isNotEmpty() }?.let { piece ->
+                    answer.append(piece)
+                    onDelta(piece)
+                }
+                delta.toolCalls.orEmpty().forEach { fragment ->
+                    val call = toolCalls.getOrPut(fragment.index) { StreamingToolCall() }
+                    fragment.id?.takeIf { it.isNotBlank() }?.let { call.id = it }
+                    fragment.function?.name?.takeIf { it.isNotBlank() }?.let { call.name = it }
+                    fragment.function?.arguments?.let { call.arguments.append(it) }
+                }
+            }
+
+            if (!sawEvent) throw OpenAICompatibleEmptyResponseException()
+
+            OpenAICompatibleCompletion(
+                content = answer.toString(),
+                reasoning = reasoning.toString().takeIf { it.isNotBlank() },
+                toolCalls = toolCalls.toSortedMap().map { (index, call) ->
+                    OpenAICompatibleChatResponseDto.ToolCall(
+                        id = call.id ?: "stream-$index",
+                        function = OpenAICompatibleChatResponseDto.FunctionCall(
+                            name = call.name.orEmpty(),
+                            arguments = call.arguments.toString().ifEmpty { "{}" },
+                        ),
+                    )
+                },
+                finishReason = finishReason,
+            )
+        }
+
+        Result.success(completion)
+    } catch (e: OpenAICompatibleApiException) {
+        Result.failure(e)
+    } catch (e: io.ktor.client.plugins.HttpRequestTimeoutException) {
+        Result.failure(OpenAICompatibleConnectionException())
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Result.failure(mapOpenAICompatibleException(e))
+    }
+
+    /** Mutable accumulator for one `delta.tool_calls[index]` spread over several chunks. */
+    private class StreamingToolCall {
+        var id: String? = null
+        var name: String? = null
+        val arguments = StringBuilder()
     }
 
     /**
