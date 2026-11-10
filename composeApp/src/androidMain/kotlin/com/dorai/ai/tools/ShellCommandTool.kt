@@ -25,7 +25,7 @@ private const val MAX_TIMEOUT_SECONDS = 60L
  */
 private fun toolDescription(distro: LinuxDistro): String {
     val install = distro.packageManager.installCommand("<package>")
-    return """Execute a shell command in a ${distro.displayName} sandbox and return stdout, stderr, exit code, and current working directory. The environment is a full ${distro.displayName} system running via proot.
+    return """Execute a shell command in a ${distro.displayName} sandbox and return stdout, stderr, exit code, and current working directory. The environment is a full ${distro.displayName} system running via proot. A fresh chat shell starts in /root/projects, the shared DORAI Workspace directory.
 
 Shell session is PERSISTENT across calls within THIS conversation: cwd, exported environment variables, and any in-shell state carry from one call to the next, just like a normal terminal. So "cd /tmp" in one call, then "pwd" in the next, returns "/tmp". You do NOT need to chain "cd dir && command" unless you want directory changes to be one-shot. Other conversations and the in-app Terminal tab each have their own isolated shells; the rootfs and /root are still shared on disk, so files persist across all of them.
 
@@ -37,6 +37,12 @@ Note: SSH multiplexing (ControlMaster) is intentionally NOT enabled — Android'
 
 Password-only servers (no key auth): this shell can't answer interactive password prompts directly (no PTY, ssh reads from /dev/tty). Heredoc stdin will NOT deliver a password. Install sshpass once with `${distro.packageManager.installCommand("sshpass")}`, then drive the connection as `sshpass -p '<password>' ssh <alias> '<remote-cmd>'` — or `sshpass -f <password-file> ssh <alias>` to keep the password off the command line. sshpass fakes a PTY internally, which is the only path that actually works.
 
+Workspace rules for Build mode:
+- Treat /root/projects as the only workspace root for project source files. Never create or modify project files directly in /root, /tmp, or another location outside /root/projects.
+- For a new project, create a dedicated folder such as /root/projects/<project-name> and put every project file inside it. For an existing project, work inside its existing /root/projects/<project-name> folder.
+- Use working_dir with the absolute project folder when starting a command for a project; once cd is used in the persistent shell, its working directory remains changed for subsequent calls.
+- Keep agent/configuration files in their normal home locations only when they are not part of the user's project.
+
 Limits and behavior:
 - Output is capped at 15000 characters per stream; for large output, pipe through head/tail.
 - Default timeout: 30s, max: 60s. Long-running interactive commands (e.g. ssh sessions held across messages) work because the shell is persistent — but a SINGLE call still hits the timeout if it doesn't return.
@@ -46,7 +52,7 @@ Limits and behavior:
 
 Install extra packages with: $install
 
-To show a file you produced in /root to the user, call open_file with the path relative to /root (e.g. open_file path="page.html"). File needs to be self-contained."""
+To show a file you produced in /root to the user, call open_file with the path relative to /root (e.g. open_file path="projects/my-app/index.html"). File needs to be self-contained."""
 }
 
 object ShellCommandTool : Tool {
@@ -93,7 +99,7 @@ object ShellCommandTool : Tool {
             return ProcessManagerTool.processManager.startBackground(
                 command,
                 timeoutSeconds,
-                workingDir ?: "/root",
+                workingDir ?: "/root/projects",
                 envMap,
             )
         }
