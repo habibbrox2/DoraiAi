@@ -219,6 +219,11 @@ class TaskScheduler(
             notificationStore?.sweep()
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
+            // Advance the watermark on failure too: without this a persistently
+            // failing heartbeat stays due on every 60 s scheduler tick and
+            // hammers the user's quota with no backoff. A failed attempt now
+            // waits a full interval before the next one, same as a successful run.
+            manager.markHeartbeatExecuted()
             manager.recordHeartbeat(success = false, error = e.message ?: e.toString())
         }
     }

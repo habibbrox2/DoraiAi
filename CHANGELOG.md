@@ -1,3 +1,16 @@
+## DORAI AI - Chat Backend Integrity (Unreleased)
+
+### Fixed
+- **On-device/local failures no longer abort the provider fallback chain**: a LiteRT/on-device error now falls through to the next configured service (LOCAL_FIRST / hybrid routing). Previously any on-device failure rethrew immediately, bypassing the fallback chain — cloud providers never got a chance to answer. Re-running on another provider remains vetoed when the failed attempt already executed tools.
+- **Heartbeat / scheduled runs no longer hang forever on tool confirmations**: tools that require user approval are refused immediately (with a tool error fed back to the model) in background runs instead of awaiting a confirmation UI that can never appear, which permanently wedged the whole scheduler loop (heartbeat, tasks, email/SMS polls). The visible chat is unaffected.
+- **Persistently failing heartbeats no longer hot-loop**: the heartbeat watermark (`lastHeartbeatEpochMs`) advances on failed attempts too, so a failure waits a full interval before the next attempt instead of retrying every 60 s scheduler tick and burning the user's quota.
+- **Tool calls survive conversation save/restore**: assistant `tool_calls` (id, name, arguments, `thoughtSignature`) and tool-result pairing (`toolCallId`, `toolName`) are persisted and restored, so tool-round conversations restored after an app restart keep provider pairing (including DeepSeek/Gemini thought signatures) instead of degrading to bare text.
+- **Oversized tool-call argument payloads are shrunk instead of failing the save**: persistence now progressively drops tool-call arguments (then the tool calls) for messages exceeding the 1 MB row budget instead of failing the write.
+- **A tool row is never persisted without its initiating tool_call**: compaction and conversation-trimming cut history only on assistant/user boundaries (never leaving an orphaned tool result at the start of the kept window).
+- **The user's message is persisted even when the reply fails**: a terminal provider failure now saves the conversation (best-effort) so an app restart cannot lose the message the user already sent.
+
+---
+
 ## DORAI AI - Chat UI Wiring and Attachment Protection (Unreleased)
 
 ### Fixed

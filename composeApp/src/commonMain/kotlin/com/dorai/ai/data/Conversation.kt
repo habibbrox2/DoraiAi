@@ -18,6 +18,23 @@ data class Attachment(
     val fileName: String? = null,
 )
 
+/**
+ * A persisted tool call on an assistant message, or the id pairing on a tool result.
+ * Mirrors the in-memory `ToolCallInfo` (ui layer) without making the data layer depend on it.
+ * thoughtSignature carries the provider round-trip signature some models (Gemini, DeepSeek)
+ * require to be echoed back on subsequent tool requests.
+ */
+@OptIn(ExperimentalSerializationApi::class)
+@Immutable
+@Serializable
+data class ConversationToolCall(
+    val id: String,
+    val name: String,
+    val arguments: String,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val thoughtSignature: String? = null,
+)
+
 @Serializable
 data class Conversation(
     val id: String,
@@ -48,6 +65,15 @@ data class Conversation(
         // Most messages have no reasoning trace; skip the null to keep the persisted blob lean.
         @EncodeDefault(EncodeDefault.Mode.NEVER)
         val reasoningContent: String? = null,
+        // Tool calls requested by the assistant (role = "assistant"), so a restored conversation
+        // can round-trip OpenAI tool_calls pairing, and DeepSeek/Gemini thought signatures.
+        @EncodeDefault(EncodeDefault.Mode.NEVER)
+        val toolCalls: List<ConversationToolCall>? = null,
+        // Pairing for tool result rows (role = "tool").
+        @EncodeDefault(EncodeDefault.Mode.NEVER)
+        val toolCallId: String? = null,
+        @EncodeDefault(EncodeDefault.Mode.NEVER)
+        val toolName: String? = null,
         // Milliseconds since epoch when the message was sent. Null for messages saved before
         // this field existed (shown without a timestamp in the UI).
         @EncodeDefault(EncodeDefault.Mode.NEVER)

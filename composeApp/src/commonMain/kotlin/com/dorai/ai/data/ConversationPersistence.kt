@@ -23,6 +23,9 @@ private const val MAX_MESSAGE_JSON_BYTES = 1_000_000L
 /** Head of the text kept when a message is still oversized after its files are dropped. */
 private const val MAX_MESSAGE_TEXT_CHARS = 200_000
 
+/** Cap on a persisted tool-call argument payload (e.g. a shell heredoc) before giving up on it. */
+private const val MAX_TOOL_CALL_ARGUMENT_CHARS = 8_000
+
 /**
  * Persistence backend for [ConversationStorage]. SQL-capable platforms store one
  * row per conversation and one row per message, so a save costs one conversation,
@@ -177,7 +180,19 @@ class SqlConversationPersistence(
             reasoningContent = null,
             uiSubmission = null,
         )
-        return ConversationJson.encodeToString(trimmed)
+        val trimmedJson = ConversationJson.encodeToString(trimmed)
+        if (!trimmedJson.exceedsUtf8Budget(MAX_MESSAGE_JSON_BYTES)) return trimmedJson
+
+        // Tool-call argument payloads are unbounded (a shell command can carry a whole
+        // heredoc). Shrink them, then drop them, so the row always fits eventually.
+        val argumentsTrimmed = trimmed.copy(
+            toolCalls = trimmed.toolCalls?.map {
+                it.copy(arguments = it.arguments.take(MAX_TOOL_CALL_ARGUMENT_CHARS), thoughtSignature = null)
+            },
+        )
+        val argumentsJson = ConversationJson.encodeToString(argumentsTrimmed)
+        if (!argumentsJson.exceedsUtf8Budget(MAX_MESSAGE_JSON_BYTES)) return argumentsJson
+        return ConversationJson.encodeToString(argumentsTrimmed.copy(toolCalls = null))
     }
 
     private fun decodeMessage(json: String): Conversation.Message? = try {

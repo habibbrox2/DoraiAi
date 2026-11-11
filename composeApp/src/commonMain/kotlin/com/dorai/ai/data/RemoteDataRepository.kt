@@ -762,6 +762,34 @@ class RemoteDataRepository(
             val argsMap = parseArgsToMap(arguments)
             val scope = toolPermissionManager.getScope(name, argsMap)
             if (toolPermissionManager.shouldAskForPermission(name, argsMap)) {
+                // A confirmation deferred is answered only by the visible chat's UI (pendingToolExecutions
+                // is drained by confirmToolExecution/denyToolExecution, shown from chatHistory). A detached
+                // run (heartbeat, scheduled task, silent ask) would sit here forever and wedge the single
+                // scheduler loop — refuse fast instead of awaiting a user who is never asked.
+                val headless = history !== chatHistory
+                if (headless) {
+                    val result = toolErrorJson("Tool requires user approval, which is unavailable in background runs")
+                    val refusalElapsed = Clock.System.now().toEpochMilliseconds() - startTime
+                    if (refusalElapsed < MIN_TOOL_DISPLAY_MS) {
+                        delay(MIN_TOOL_DISPLAY_MS.milliseconds - refusalElapsed.milliseconds)
+                    }
+                    history.update { h ->
+                        buildList(h.size) {
+                            for (entry in h) {
+                                if (entry.id != executingId) add(entry)
+                            }
+                            add(
+                                History(
+                                    role = History.Role.TOOL,
+                                    content = result,
+                                    toolCallId = callId,
+                                    toolName = name,
+                                ),
+                            )
+                        }
+                    }
+                    return result
+                }
                 val deferred = CompletableDeferred<ToolConfirmationResult>()
                 pendingToolExecutions[callId] = PendingToolExecution(
                     deferred = deferred,
@@ -1324,8 +1352,11 @@ class RemoteDataRepository(
                 } catch (failure: Exception) {
                     if (failure is kotlinx.coroutines.CancellationException) throw failure
                     val nextEntry = entries.getOrNull(index + 1)
+                    // On-device failures fall through to the next chain entry exactly like any
+                    // other provider's failures: LOCAL_FIRST/hybrid routing must not become a
+                    // dead end. canContinueAfterFailure still vetoes a fallback when the failed
+                    // attempt already ran tools (don't re-run them on another provider).
                     if (
-                        entry.service.isOnDevice ||
                         nextEntry == null ||
                         !KeylessFreeTierFallback.canContinueAfterFailure(historyBeforeAttempt, chatHistory.value)
                     ) {
@@ -1350,6 +1381,10 @@ class RemoteDataRepository(
             // A terminal failure or cancellation has no next provider to replace this partial
             // answer. Remove any streamed row so an incomplete response is never left in history.
             stream.discard()
+            // Persist the user turn even though the reply failed — otherwise an app restart
+            // loses the message the user already sent (and saw the error for). Best-effort:
+            // a persistence failure must not mask the original provider error.
+            runCatching { saveCurrentConversation() }
             throw failure
         } finally {
             _fallbackStatus.value = null
@@ -1812,6 +1847,11 @@ class RemoteDataRepository(
                         val argsMap = parseArgsToMap(arguments)
                         val scope = toolPermissionManager.getScope(name, argsMap)
                         if (toolPermissionManager.shouldAskForPermission(name, argsMap)) {
+                            // Detached runs (heartbeat, scheduled task, silent ask) have no UI to answer a
+                            // confirmation — awaiting here hangs forever and wedges the scheduler loop.
+                            if (history !== chatHistory) {
+                                return@async Triple(callId, name, toolErrorJson("Tool requires user approval, which is unavailable in background runs"))
+                            }
                             val deferred = CompletableDeferred<ToolConfirmationResult>()
                             pendingToolExecutions[callId] = PendingToolExecution(
                                 deferred = deferred,
@@ -2061,7 +2101,12 @@ class RemoteDataRepository(
             if (h.role == History.Role.USER) index else null
         }
         if (userIndices.size <= COMPACTION_KEEP_RECENT) return
-        val cutoffIndex = userIndices[userIndices.size - COMPACTION_KEEP_RECENT]
+        // Never start the kept window mid-tool-round: a TOOL row without the assistant
+        // tool_calls that initiated it violates the provider pairing contract.
+        var cutoffIndex = userIndices[userIndices.size - COMPACTION_KEEP_RECENT]
+        while (cutoffIndex < history.size && history[cutoffIndex].role == History.Role.TOOL) {
+            cutoffIndex++
+        }
         val olderMessages = history.subList(0, cutoffIndex)
         val recentMessages = history.subList(cutoffIndex, history.size)
 
@@ -2104,7 +2149,12 @@ class RemoteDataRepository(
             if (h.role == History.Role.USER) index else null
         }
         if (userIndices.size <= maxExchanges) return history
-        val cutoffIndex = userIndices[userIndices.size - maxExchanges]
+        var cutoffIndex = userIndices[userIndices.size - maxExchanges]
+        // Never start mid-tool-round: a TOOL row kept without the ASSISTANT(tool_calls)
+        // that initiated it violates the provider pairing contract on restore.
+        while (cutoffIndex < history.size && history[cutoffIndex].role == History.Role.TOOL) {
+            cutoffIndex++
+        }
         return history.subList(cutoffIndex, history.size)
     }
 
@@ -2146,6 +2196,11 @@ class RemoteDataRepository(
                         isThinking = h.isThinking,
                         reasoningContent = h.reasoningContent,
                         sentAt = h.sentAt,
+                        toolCalls = h.toolCalls?.map { tc ->
+                            ConversationToolCall(id = tc.id, name = tc.name, arguments = tc.arguments, thoughtSignature = tc.thoughtSignature)
+                        },
+                        toolCallId = h.toolCallId,
+                        toolName = h.toolName,
                     )
                 },
             createdAt = existingConversation?.createdAt ?: now,
@@ -2226,6 +2281,11 @@ class RemoteDataRepository(
                 isThinking = m.isThinking,
                 reasoningContent = m.reasoningContent,
                 sentAt = m.sentAt,
+                toolCalls = m.toolCalls?.map { t ->
+                    ToolCallInfo(id = t.id, name = t.name, arguments = t.arguments, thoughtSignature = t.thoughtSignature)
+                }?.toImmutableList(),
+                toolCallId = m.toolCallId,
+                toolName = m.toolName,
             )
         }
     }

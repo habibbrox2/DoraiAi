@@ -37,6 +37,85 @@ class SqlConversationPersistenceTest {
     )
 
     @Test
+    fun `save and loadAll round-trips tool calls, tool result pairing, and thought signatures`() {
+        val persistence = createPersistence()
+        val toolMessage = Conversation.Message(
+            id = "assistant-tool",
+            role = "assistant",
+            content = "",
+            toolCalls = listOf(
+                ConversationToolCall(
+                    id = "call_1",
+                    name = "execute_shell_command",
+                    arguments = """{"command":"ls -la"}""",
+                    thoughtSignature = "sig-abc-123",
+                ),
+            ),
+        )
+        val toolResult = Conversation.Message(
+            id = "tool-result-1",
+            role = "tool",
+            content = "file-a\nfile-b",
+            toolCallId = "call_1",
+            toolName = "execute_shell_command",
+        )
+        val c = Conversation(
+            id = "toolchat",
+            messages = listOf(
+                Conversation.Message(id = "u1", role = "user", content = "list files"),
+                toolMessage,
+                toolResult,
+                Conversation.Message(id = "a1", role = "assistant", content = "Done."),
+            ),
+            createdAt = 1000L,
+            updatedAt = 2000L,
+            title = "Tool chat",
+            type = Conversation.TYPE_CHAT,
+        )
+
+        persistence.save(c, listOf(c))
+
+        val loaded = persistence.loadAll().single()
+        assertEquals(listOf("u1", "assistant-tool", "tool-result-1", "a1"), loaded.messages.map { it.id })
+        val assistantTool = loaded.messages[1]
+        assertEquals(1, assistantTool.toolCalls?.size)
+        assertEquals("call_1", assistantTool.toolCalls!!.single().id)
+        assertEquals("execute_shell_command", assistantTool.toolCalls!!.single().name)
+        assertEquals("""{"command":"ls -la"}""", assistantTool.toolCalls!!.single().arguments)
+        assertEquals("sig-abc-123", assistantTool.toolCalls!!.single().thoughtSignature)
+        val result = loaded.messages[2]
+        assertEquals("call_1", result.toolCallId)
+        assertEquals("execute_shell_command", result.toolName)
+    }
+
+    @Test
+    fun `oversized tool-call arguments shrink instead of failing the whole save`() {
+        val persistence = createPersistence()
+        val hugeArguments = "A".repeat(2_000_000)
+        val c = Conversation(
+            id = "huge-args",
+            messages = listOf(
+                Conversation.Message(
+                    id = "assistant-huge",
+                    role = "assistant",
+                    content = "",
+                    toolCalls = listOf(ConversationToolCall(id = "call_h", name = "execute_shell_command", arguments = hugeArguments)),
+                ),
+            ),
+            createdAt = 1000L,
+            updatedAt = 2000L,
+            title = "Huge",
+            type = Conversation.TYPE_CHAT,
+        )
+
+        persistence.save(c, listOf(c))
+
+        val loaded = persistence.loadAll().single()
+        val toolCall = loaded.messages.single().toolCalls?.single()
+        assertTrue(toolCall == null || toolCall.arguments.length <= 8_000, "arguments must be shrunk or the tool call dropped entirely, got: ${toolCall?.arguments?.length}")
+    }
+
+    @Test
     fun `save and loadAll round-trips conversations with messages and transcript`() {
         val persistence = createPersistence()
         val c1 = conversation("c1", 1000L, "Hello", "Hi!")
