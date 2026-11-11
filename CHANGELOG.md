@@ -1,3 +1,21 @@
+## DORAI AI - Settings Architecture Improvements (Unreleased)
+
+### Added
+- **Memory Instructions setting** (Settings → Agent → Memory Instructions): edit persistent guidance text that shapes how the AI stores and retrieves memories across conversations. Previously read-only with no UI.
+- **Atomic tool permission API**: `AppSettings.setToolPermission(toolName, scope, enabled)` avoids read-modify-write cycles for single-permission changes.
+
+### Changed
+- **Unified theme system**: removed deprecated `AppSettings.themeModeFlow` / `getThemeMode()` / `setThemeMode()` / `ThemeMode` enum / `KEY_THEME_MODE` constant. `ThemeSettingsRepository` (premium presets, Match Device, Flat/3D style, custom themes) is now the single authoritative source; legacy `theme_mode` key is kept in sync for Android system bars.
+- **Migration code refactored to typed API**: added typed setters for all migration flags (`setMigrationComplete()`, `setServicesMigrationComplete()`, `setInstanceMigrationComplete()`, `setBaseUrlV1MigrationComplete()`, `setCustomModelMigrationComplete()`). `migrateFromLegacyIfNeeded()` and other migrations now use `setEmailAccountsJson()`, `setSplinterlandsAccountJson()`, `setEmailPassword()`, `setSplinterlandsPostingKey()`, `setBaseUrl()` instead of raw `settings.put*()` calls.
+
+### Localization
+- Added Bengali strings for Memory Instructions UI (`settings_memory_instructions`, `settings_memory_instructions_description`, `settings_memory_instructions_placeholder`, `settings_memory_instructions_save`).
+
+### Security
+- `getEncryptionKey()` confirmed read-only (set once during install/migration); no setter exists and none will be added.
+
+---
+
 ## DORAI AI - GitHub Integration (Unreleased)
 
 Connect an embedded GitHub App to the app with read-only access by default. Not yet released.

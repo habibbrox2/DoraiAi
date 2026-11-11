@@ -60,16 +60,32 @@ fun AppSettings.migrateFromLegacyIfNeeded(legacySettings: Settings?) {
     // Secrets that may predate the encrypted store. Account-scoped keys are discovered
     // from the account JSONs because the common Settings API cannot enumerate keys.
     migrateString(legacySettings, KEY_ENCRYPTION_KEY)
-    migrateString(legacySettings, KEY_EMAIL_ACCOUNTS)
-    migrateString(legacySettings, KEY_SPLINTERLANDS_ACCOUNT)
+    val emailAccountsJson = legacySettings.getStringOrNull(KEY_EMAIL_ACCOUNTS)
+    if (emailAccountsJson != null && settings.getStringOrNull(KEY_EMAIL_ACCOUNTS) == null) {
+        setEmailAccountsJson(emailAccountsJson)
+        migratedKeys.add(KEY_EMAIL_ACCOUNTS)
+    }
+    val splinterlandsAccountJson = legacySettings.getStringOrNull(KEY_SPLINTERLANDS_ACCOUNT)
+    if (splinterlandsAccountJson != null && settings.getStringOrNull(KEY_SPLINTERLANDS_ACCOUNT) == null) {
+        setSplinterlandsAccountJson(splinterlandsAccountJson)
+        migratedKeys.add(KEY_SPLINTERLANDS_ACCOUNT)
+    }
     migrateString(legacySettings, KEY_SPLINTERLANDS_POSTING_KEY)
     val accountIds = buildList {
         addAll(settings.getStringOrNull(KEY_EMAIL_ACCOUNTS).extractAccountIds())
         addAll(settings.getStringOrNull(KEY_SPLINTERLANDS_ACCOUNT).extractAccountIds())
     }
     for (accountId in accountIds) {
-        migrateString(legacySettings, "${KEY_EMAIL_PASSWORD_PREFIX}$accountId")
-        migrateString(legacySettings, "${KEY_SPLINTERLANDS_POSTING_KEY}_$accountId")
+        val emailPassword = legacySettings.getStringOrNull("${KEY_EMAIL_PASSWORD_PREFIX}$accountId")
+        if (emailPassword != null && settings.getStringOrNull("${KEY_EMAIL_PASSWORD_PREFIX}$accountId") == null) {
+            setEmailPassword(accountId, emailPassword)
+            migratedKeys.add("${KEY_EMAIL_PASSWORD_PREFIX}$accountId")
+        }
+        val splKey = legacySettings.getStringOrNull("${KEY_SPLINTERLANDS_POSTING_KEY}_$accountId")
+        if (splKey != null && settings.getStringOrNull("${KEY_SPLINTERLANDS_POSTING_KEY}_$accountId") == null) {
+            setSplinterlandsPostingKey(accountId, splKey)
+            migratedKeys.add("${KEY_SPLINTERLANDS_POSTING_KEY}_$accountId")
+        }
     }
 
     if (verifiedMigratedKeys(legacySettings, migratedKeys)) {
@@ -78,7 +94,7 @@ fun AppSettings.migrateFromLegacyIfNeeded(legacySettings: Settings?) {
         for (key in migratedKeys) legacySettings.remove(key)
     }
 
-    settings.putBoolean(KEY_MIGRATION_COMPLETE, true)
+    setMigrationComplete(true)
 }
 
 /**
@@ -121,7 +137,7 @@ fun AppSettings.migrateConfiguredServicesIfNeeded() {
         setConfiguredServiceInstances(instances)
     }
 
-    settings.putBoolean(KEY_SERVICES_MIGRATION_COMPLETE, true)
+    setServicesMigrationComplete(true)
 }
 
 /**
@@ -152,7 +168,7 @@ fun AppSettings.migrateInstanceSettingsIfNeeded() {
         }
     }
 
-    settings.putBoolean(KEY_INSTANCE_MIGRATION_COMPLETE, true)
+    setInstanceMigrationComplete(true)
 }
 
 /**
@@ -175,10 +191,10 @@ fun AppSettings.migrateBaseUrlsToV1PathIfNeeded() {
 
     val legacyBaseUrl = settings.getString(Service.OpenAICompatible.baseUrlKey, "")
     if (legacyBaseUrl.isNotBlank()) {
-        settings.putString(Service.OpenAICompatible.baseUrlKey, ensureBaseUrlHasVersionPath(legacyBaseUrl))
+        setBaseUrl(Service.OpenAICompatible, ensureBaseUrlHasVersionPath(legacyBaseUrl))
     }
 
-    settings.putBoolean(KEY_BASE_URL_V1_MIGRATION_COMPLETE, true)
+    setBaseUrlV1MigrationComplete(true)
 }
 
 internal fun ensureBaseUrlHasVersionPath(url: String): String {
@@ -208,5 +224,5 @@ fun AppSettings.migrateCustomModelSettingsIfNeeded() {
         // use_custom_model defaults to false when the key is absent — no write needed.
     }
 
-    settings.putBoolean(KEY_CUSTOM_MODEL_MIGRATION_COMPLETE, true)
+    setCustomModelMigrationComplete(true)
 }

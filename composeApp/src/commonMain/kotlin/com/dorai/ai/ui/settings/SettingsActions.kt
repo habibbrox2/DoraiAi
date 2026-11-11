@@ -5,7 +5,6 @@ import com.dorai.ai.data.AppLanguage
 import com.dorai.ai.data.ImportSection
 import com.dorai.ai.data.RoutingMode
 import com.dorai.ai.data.Service
-import com.dorai.ai.data.ThemeMode
 import com.dorai.ai.inference.LocalModel
 import com.dorai.ai.mcp.PopularMcpServer
 import io.github.vinceglb.filekit.PlatformFile
@@ -27,13 +26,11 @@ data class SettingsActions(
     val onToggleTool: (String, Boolean) -> Unit,
     val onSaveSoul: (String) -> Unit,
     val onToggleRestoreLastChat: (Boolean) -> Unit,
-    @Deprecated("Theme is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
-    val onChangeThemeMode: (ThemeMode) -> Unit = {},
     val onChangeAppLanguage: (AppLanguage) -> Unit,
     val onToggleMemory: (Boolean) -> Unit,
     val onDeleteMemory: (String) -> Unit,
     val onUpdateMemory: (String, String) -> Unit,
-    val onToggleScheduling: (Boolean) -> Unit,
+    val onChangeMemoryInstructions: (String) -> Unit,
     val onCancelTask: (String) -> Unit,
     val onToggleDaemon: (Boolean) -> Unit,
     val onToggleHeartbeat: (Boolean) -> Unit,
@@ -101,6 +98,7 @@ data class SettingsActions(
             onToggleMemory = {},
             onDeleteMemory = {},
             onUpdateMemory = { _, _ -> },
+            onChangeMemoryInstructions = {},
             onToggleScheduling = {},
             onCancelTask = {},
             onToggleDaemon = {},

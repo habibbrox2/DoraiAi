@@ -80,6 +80,10 @@
     <string name="settings_memories_edit_title">স্মৃতি সম্পাদনা</string>
     <string name="settings_memories_edit_save">সংরক্ষণ করুন</string>
     <string name="settings_memories_edit_cancel">বাতিল</string>
+    <string name="settings_memory_instructions">মেমরি নির্দেশনা</string>
+    <string name="settings_memory_instructions_description">কথোপকথনের জুড়ে AI কীভাবে মেমরি ব্যবহার ও পরিচালনা করবে সেটি নির্দেশকারী নির্দেশনা।</string>
+    <string name="settings_memory_instructions_placeholder">মেমরি নির্দেশনা লিখুন…</string>
+    <string name="settings_memory_instructions_save">নির্দেশনা সংরক্ষণ করুন</string>
     <string name="settings_soul">আত্মা</string>
     <string name="settings_soul_description">সিস্টেম প্রম্পটের মাধ্যমে AI কীভাবে আচরণ করবে তা নির্ধারণ করুন। AI তার সংরক্ষিত স্মৃতিতেও অ্যাক্সেস পাবে।</string>
     <string name="settings_soul_save">সংরক্ষণ করুন</string>

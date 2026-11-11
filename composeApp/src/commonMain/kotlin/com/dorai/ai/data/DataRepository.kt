@@ -115,6 +115,8 @@ interface DataRepository {
     // Memory management
     fun isMemoryEnabled(): Boolean
     fun setMemoryEnabled(enabled: Boolean)
+    fun getMemoryInstructions(): String
+    fun setMemoryInstructions(instructions: String)
     fun getMemories(): List<MemoryEntry>
     suspend fun deleteMemory(key: String)
     suspend fun updateMemoryContent(key: String, content: String)
@@ -132,13 +134,6 @@ interface DataRepository {
     // Chat restore behavior: true (default) — reopen last conversation on app launch
     fun isRestoreLastChatEnabled(): Boolean
     fun setRestoreLastChatEnabled(enabled: Boolean)
-
-    // Theme mode
-    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
-    fun getThemeMode(): ThemeMode = ThemeMode.System
-
-    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
-    fun setThemeMode(mode: ThemeMode) {}
 
     // App language
     fun getAppLanguage(): AppLanguage

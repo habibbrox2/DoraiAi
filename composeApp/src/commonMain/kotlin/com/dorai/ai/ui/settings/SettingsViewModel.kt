@@ -87,6 +87,7 @@ class SettingsViewModel(
         isRestoreLastChatEnabled = dataRepository.isRestoreLastChatEnabled(),
         appLanguage = dataRepository.getAppLanguage(),
         isMemoryEnabled = dataRepository.isMemoryEnabled(),
+        memoryInstructions = dataRepository.getMemoryInstructions(),
         memories = dataRepository.getMemories().toImmutableList(),
         isSchedulingEnabled = dataRepository.isSchedulingEnabled(),
         scheduledTasks = dataRepository.getScheduledTasks().toImmutableList(),
@@ -165,6 +166,7 @@ class SettingsViewModel(
         onToggleMemory = ::onToggleMemory,
         onDeleteMemory = ::onDeleteMemory,
         onUpdateMemory = ::onUpdateMemory,
+        onChangeMemoryInstructions = ::onChangeMemoryInstructions,
         onToggleScheduling = ::onToggleScheduling,
         onCancelTask = ::onCancelTask,
         onToggleDaemon = ::onToggleDaemon,
@@ -599,6 +601,11 @@ class SettingsViewModel(
     private fun onToggleMemory(enabled: Boolean) {
         dataRepository.setMemoryEnabled(enabled)
         _state.update { it.copy(isMemoryEnabled = enabled) }
+    }
+
+    private fun onChangeMemoryInstructions(instructions: String) {
+        dataRepository.setMemoryInstructions(instructions)
+        _state.update { it.copy(memoryInstructions = instructions) }
     }
 
     private fun onDeleteMemory(key: String) {

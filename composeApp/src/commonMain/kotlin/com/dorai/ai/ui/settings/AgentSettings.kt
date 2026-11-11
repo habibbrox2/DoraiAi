@@ -115,6 +115,12 @@ internal fun AgentContent(uiState: SettingsUiState, actions: SettingsActions) {
                     onToggleMemory = actions.onToggleMemory,
                 )
             }
+            SettingsCard {
+                MemoryInstructionsEditor(
+                    instructions = uiState.memoryInstructions,
+                    onSaveInstructions = actions.onChangeMemoryInstructions,
+                )
+            }
         },
         end = {
             SettingsCard {
@@ -290,6 +296,74 @@ private fun SoulEditor(
                 }
             },
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+private fun MemoryInstructionsEditor(
+    instructions: String,
+    onSaveInstructions: (String) -> Unit,
+) {
+    var editedInstructions by remember { mutableStateOf(instructions) }
+    val hasChanges = editedInstructions != instructions
+    val maxChars = 5000
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = stringResource(Res.string.settings_memory_instructions),
+                style = DoraiTypography.titleMedium,
+                color = LocalDesignColorTokens.current.textPrimary,
+                modifier = Modifier.weight(1f),
+            )
+        }
+        Text(
+            text = stringResource(Res.string.settings_memory_instructions_description),
+            style = DoraiTypography.bodySmall,
+            color = LocalDesignColorTokens.current.textSecondary,
+        )
+        Spacer(Modifier.height(12.dp))
+
+        DoraiOutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = editedInstructions,
+            onValueChange = { if (it.length <= maxChars) editedInstructions = it },
+            minLines = 6,
+            maxLines = 8,
+            label = {
+                Text(
+                    stringResource(Res.string.settings_memory_instructions),
+                    color = LocalDesignColorTokens.current.textPrimary,
+                )
+            },
+            placeholder = {
+                Text(
+                    stringResource(Res.string.settings_memory_instructions_placeholder),
+                    color = LocalDesignColorTokens.current.textSecondary,
+                )
+            },
+        )
+
+        Text(
+            text = "${editedInstructions.length}/$maxChars",
+            style = DoraiTypography.bodySmall,
+            color = LocalDesignColorTokens.current.textSecondary,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.End,
+        )
+
+        if (hasChanges) {
+            Spacer(Modifier.height(8.dp))
+            Button(
+                onClick = { onSaveInstructions(editedInstructions.trim()) },
+                modifier = Modifier.align(CenterHorizontally).handCursor(),
+            ) {
+                Text(stringResource(Res.string.settings_memory_instructions_save))
+            }
+        }
     }
 }
 
