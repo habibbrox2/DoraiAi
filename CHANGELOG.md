@@ -1,3 +1,19 @@
+## DORAI AI - Chat UI Wiring and Attachment Protection (Unreleased)
+
+### Fixed
+- **Interactive dorai-ui blocks are now interactive**: the AI's inline interactive answers (buttons, forms, quiz choices) call back into the chat when the app is in interactive mode. Previously the callbacks were never wired — every interactive block rendered as read-only, so interactive replies could not be submitted at all. The block on the newest answer is active while a turn is not streaming; once the user submits, the answered block freezes showing the submitted values, and historical interactive blocks render read-only.
+- **Free-tier upsell panel is reachable**: when a request fails because no services are configured, the free-provider suggestions panel (provider signup chips + retry) is now rendered in place of the error badge. Previously the panel was never instantiated anywhere and the error badge was suppressed when the upsell flag was set, so the error surface vanished entirely.
+- **Share / Assist / Dashboard Design composer prefills are honored**: a prompt passed to a new chat (Share intent, Assist cold start, Design card) is typed into the composer instead of being dropped silently; the prefill is consumed exactly once.
+- **Attachment abuse is rejected at add time**: at most 5 attachments per message; each file is checked against its category size limit (image 50 MB, PDF 20 MB, text 200 KB) before being read, and the queue is capped at 40 MB total — previously files of any size or count could be queued until the send path eventually failed.
+- **Base64 image attachments decode off the main thread** during composition instead of blocking it.
+- **"Waiting approval" badge now reflects reality**: the app-level approval badge derives from the transient tool-confirmation entries actually pending in the conversation instead of an always-empty state list.
+- **ViewModel clear-time flush is supervised**: the pending conversation deletion flushed from `onCleared` runs on a supervised background scope and logs failures instead of being lost.
+
+### Changed
+- **Removed the invisible follow-up-suggestions LLM call** that ran after every non-interactive answer and was never rendered anywhere (a paid, unused request per answer).
+
+---
+
 ## DORAI AI - Settings Architecture Improvements (Unreleased)
 
 ### Added

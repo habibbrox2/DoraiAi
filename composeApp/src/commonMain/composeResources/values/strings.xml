@@ -402,6 +402,8 @@
     <string name="interactive_ui_parsing_failed">UI parsing failed, trying again…</string>
     <string name="conversation_untitled">Untitled</string>
     <string name="error_unsupported_file_type">This file type is not supported. You can attach images, text files, and PDFs.</string>
+    <string name="error_too_many_attachments">Too many attachments — up to 5 per message.</string>
+    <string name="error_attachment_too_large">Attachment is too large. Reduce the file size and try again.</string>
     <string name="error_file_too_large">File is too large. Text files must be under 100\u00A0KB.</string>
     <string name="error_image_too_large">Image is too large. Try a smaller image.</string>
     <string name="error_context_window_exceeded">Context window too large for fallback service. Try starting a new chat or using a model with a larger context window.</string>

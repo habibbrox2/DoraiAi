@@ -333,6 +333,16 @@ fun DoraiChatScreenConnected(
             showFreeProviderSuggestions = uiState.showFreeProviderSuggestions,
             onRetryError = { uiState.actions.retry() },
             onDismissError = { uiState.actions.clearError() },
+            isInteractiveMode = uiState.isInteractiveMode,
+            frozenByAssistantId = timelineData.frozenByAssistantId,
+            composerPrefill = uiState.composerPrefill,
+            onConsumeComposerPrefill = { uiState.actions.consumeComposerPrefill() },
+            // dorai-ui blocks in interactive answers call back here; the action routes to the
+            // VM with the submission so it can be recorded and the answer regenerated.
+            onUiCallback = { event, data -> uiState.actions.submitUiCallback(event, data) },
+            onDynamicUiSubmit = { optionId ->
+                uiState.actions.submitUiCallback(optionId, mapOf("action" to optionId))
+            },
             modifier = Modifier.fillMaxSize(),
         )
 
