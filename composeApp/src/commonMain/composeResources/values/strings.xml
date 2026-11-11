@@ -170,6 +170,10 @@
     <string name="settings_memories_edit_title">Edit memory</string>
     <string name="settings_memories_edit_save">Save</string>
     <string name="settings_memories_edit_cancel">Cancel</string>
+    <string name="settings_memory_instructions">Memory Instructions</string>
+    <string name="settings_memory_instructions_description">Instructions that guide how the AI uses and manages memories across conversations.</string>
+    <string name="settings_memory_instructions_placeholder">Enter memory instructions…</string>
+    <string name="settings_memory_instructions_save">Save Instructions</string>
     <string name="settings_scheduled_tasks">Scheduled Tasks</string>
     <string name="settings_scheduled_tasks_description">Tasks scheduled by the AI for future execution. Ask the AI to remind you or run something later to create scheduled tasks.</string>
     <string name="settings_scheduled_tasks_cancel">Cancel task</string>

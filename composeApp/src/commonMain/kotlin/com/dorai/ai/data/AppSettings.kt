@@ -27,12 +27,6 @@ enum class ImportSection {
     CONVERSATIONS,
 }
 
-enum class ThemeMode {
-    System,
-    Light,
-    Dark,
-}
-
 enum class AppLanguage(val code: String, val displayName: String) {
     Bengali("bn", "বাংলা"),
     English("en", "English"),
@@ -215,6 +209,19 @@ class AppSettings(internal val settings: Settings) {
         setToolPermissions(permissions)
     }
 
+    /**
+     * Writes a single tool permission in one call, so callers never have to assemble a
+     * [ToolPermission] by hand.
+     *
+     * [enabled] maps onto the policy enum: `true` means the tool may run without asking
+     * ([ToolPermissionPolicy.ALWAYS_ALLOW]), `false` restores the default "ask every time"
+     * behaviour ([ToolPermissionPolicy.ASK_ALWAYS]).
+     */
+    fun setToolPermission(toolName: String, scope: String?, enabled: Boolean) {
+        val policy = if (enabled) ToolPermissionPolicy.ALWAYS_ALLOW else ToolPermissionPolicy.ASK_ALWAYS
+        setToolPermission(ToolPermission(toolName = toolName, scope = scope, policy = policy))
+    }
+
     fun getConversationsJson(): String? = settings.getStringOrNull(KEY_CONVERSATIONS)
 
     fun setConversationsJson(json: String) {
@@ -308,6 +315,10 @@ class AppSettings(internal val settings: Settings) {
 
     fun getMemoryInstructions(): String = settings.getString(KEY_MEMORY_INSTRUCTIONS, DEFAULT_MEMORY_INSTRUCTIONS)
 
+    fun setMemoryInstructions(instructions: String) {
+        settings.putString(KEY_MEMORY_INSTRUCTIONS, instructions)
+    }
+
     // Agent memories
     fun getMemoriesJson(): String = settings.getString(KEY_AGENT_MEMORIES, "[]")
 
@@ -359,23 +370,6 @@ class AppSettings(internal val settings: Settings) {
         settings.putLong(KEY_LAST_AUTO_UPDATE_CHECK_MS, value)
     }
 
-    private val _themeModeFlow = MutableStateFlow(loadInitialThemeMode())
-
-    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
-    val themeModeFlow: StateFlow<ThemeMode> = _themeModeFlow
-
-    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
-    fun getThemeMode(): ThemeMode = _themeModeFlow.value
-
-    @Deprecated(
-        "Theme configuration is managed authoritatively by ThemeSettingsRepository. Modifying this directly causes persistence divergence.",
-        level = DeprecationLevel.WARNING,
-    )
-    fun setThemeMode(mode: ThemeMode) {
-        settings.putString(KEY_THEME_MODE, mode.name)
-        _themeModeFlow.value = mode
-    }
-
     private val _appLanguageFlow = MutableStateFlow(loadInitialAppLanguage())
     val appLanguageFlow: StateFlow<AppLanguage> = _appLanguageFlow
 
@@ -389,6 +383,37 @@ class AppSettings(internal val settings: Settings) {
     private fun loadInitialAppLanguage(): AppLanguage {
         val raw = settings.getString(KEY_APP_LANGUAGE, "")
         return AppLanguage.entries.firstOrNull { it.name == raw } ?: AppLanguage.Bengali
+    }
+
+    // Migration flags
+    fun isMigrationComplete(): Boolean = settings.getBoolean(KEY_MIGRATION_COMPLETE, false)
+
+    fun setMigrationComplete(complete: Boolean) {
+        settings.putBoolean(KEY_MIGRATION_COMPLETE, complete)
+    }
+
+    fun isServicesMigrationComplete(): Boolean = settings.getBoolean(KEY_SERVICES_MIGRATION_COMPLETE, false)
+
+    fun setServicesMigrationComplete(complete: Boolean) {
+        settings.putBoolean(KEY_SERVICES_MIGRATION_COMPLETE, complete)
+    }
+
+    fun isInstanceMigrationComplete(): Boolean = settings.getBoolean(KEY_INSTANCE_MIGRATION_COMPLETE, false)
+
+    fun setInstanceMigrationComplete(complete: Boolean) {
+        settings.putBoolean(KEY_INSTANCE_MIGRATION_COMPLETE, complete)
+    }
+
+    fun isBaseUrlV1MigrationComplete(): Boolean = settings.getBoolean(KEY_BASE_URL_V1_MIGRATION_COMPLETE, false)
+
+    fun setBaseUrlV1MigrationComplete(complete: Boolean) {
+        settings.putBoolean(KEY_BASE_URL_V1_MIGRATION_COMPLETE, complete)
+    }
+
+    fun isCustomModelMigrationComplete(): Boolean = settings.getBoolean(KEY_CUSTOM_MODEL_MIGRATION_COMPLETE, false)
+
+    fun setCustomModelMigrationComplete(complete: Boolean) {
+        settings.putBoolean(KEY_CUSTOM_MODEL_MIGRATION_COMPLETE, complete)
     }
 
     fun getTtsRate(): Float = settings.getFloat(KEY_TTS_RATE, 1.0f)
@@ -419,19 +444,6 @@ class AppSettings(internal val settings: Settings) {
     fun getTtsAutoPlay(): Boolean = settings.getBoolean(KEY_TTS_AUTO_PLAY, false)
     fun setTtsAutoPlay(enabled: Boolean) {
         settings.putBoolean(KEY_TTS_AUTO_PLAY, enabled)
-    }
-
-    private fun loadInitialThemeMode(): ThemeMode {
-        val raw = settings.getString(KEY_THEME_MODE, "")
-        if (raw.isNotEmpty()) {
-            return try {
-                ThemeMode.valueOf(raw)
-            } catch (_: IllegalArgumentException) {
-                return ThemeMode.System
-            }
-        }
-        // Default to System theme when no theme mode is set
-        return ThemeMode.System
     }
 
     // Daemon mode
@@ -741,7 +753,6 @@ class AppSettings(internal val settings: Settings) {
         const val KEY_RESTORE_LAST_CHAT = "restore_last_chat"
         const val KEY_AUTO_UPDATE_ENABLED = "auto_update_enabled"
         const val KEY_LAST_AUTO_UPDATE_CHECK_MS = "last_auto_update_check_ms"
-        const val KEY_THEME_MODE = "theme_mode"
         const val KEY_APP_LANGUAGE = "app_language"
         const val KEY_DAEMON_ENABLED = "daemon_enabled"
         const val KEY_HEARTBEAT_CONFIG = "heartbeat_config"

@@ -11,7 +11,6 @@ import com.dorai.ai.data.ScheduledTask
 import com.dorai.ai.data.Service
 import com.dorai.ai.data.ServiceEntry
 import com.dorai.ai.data.SmsSyncState
-import com.dorai.ai.data.ThemeMode
 import com.dorai.ai.inference.DownloadError
 import com.dorai.ai.inference.LocalModel
 import com.dorai.ai.inference.ModelImportError
@@ -100,10 +99,9 @@ data class SettingsUiState(
     val soulText: String = "",
     /** true — reopen last conversation on launch; false — start a fresh chat. */
     val isRestoreLastChatEnabled: Boolean = true,
-    @Deprecated("Theme is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
-    val themeMode: ThemeMode = ThemeMode.System,
     val appLanguage: AppLanguage = AppLanguage.Bengali,
     val isMemoryEnabled: Boolean = true,
+    val memoryInstructions: String = "",
     val memories: ImmutableList<MemoryEntry> = persistentListOf(),
     val isSchedulingEnabled: Boolean = true,
     val scheduledTasks: ImmutableList<ScheduledTask> = persistentListOf(),

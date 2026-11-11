@@ -62,6 +62,10 @@ import dorai.composeapp.generated.resources.settings_memories_edit_cancel
 import dorai.composeapp.generated.resources.settings_memories_edit_save
 import dorai.composeapp.generated.resources.settings_memories_edit_title
 import dorai.composeapp.generated.resources.settings_memories_show_all
+import dorai.composeapp.generated.resources.settings_memory_instructions
+import dorai.composeapp.generated.resources.settings_memory_instructions_description
+import dorai.composeapp.generated.resources.settings_memory_instructions_placeholder
+import dorai.composeapp.generated.resources.settings_memory_instructions_save
 import dorai.composeapp.generated.resources.settings_scheduled_tasks
 import dorai.composeapp.generated.resources.settings_scheduled_tasks_cancel
 import dorai.composeapp.generated.resources.settings_scheduled_tasks_description
@@ -113,6 +117,12 @@ internal fun AgentContent(uiState: SettingsUiState, actions: SettingsActions) {
                     onUpdateMemory = actions.onUpdateMemory,
                     isMemoryEnabled = uiState.isMemoryEnabled,
                     onToggleMemory = actions.onToggleMemory,
+                )
+            }
+            SettingsCard {
+                MemoryInstructionsEditor(
+                    instructions = uiState.memoryInstructions,
+                    onSaveInstructions = actions.onChangeMemoryInstructions,
                 )
             }
         },
@@ -290,6 +300,76 @@ private fun SoulEditor(
                 }
             },
         )
+    }
+}
+
+@Composable
+private fun MemoryInstructionsEditor(
+    instructions: String,
+    onSaveInstructions: (String) -> Unit,
+) {
+    // Keyed on `instructions` so a save (which trims the value) resyncs the field and the
+    // Save button disappears instead of staying enabled on stale text.
+    var editedInstructions by remember(instructions) { mutableStateOf(instructions) }
+    val hasChanges = editedInstructions != instructions
+    val maxChars = 5000
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = stringResource(Res.string.settings_memory_instructions),
+                style = DoraiTypography.titleMedium,
+                color = LocalDesignColorTokens.current.textPrimary,
+                modifier = Modifier.weight(1f),
+            )
+        }
+        Text(
+            text = stringResource(Res.string.settings_memory_instructions_description),
+            style = DoraiTypography.bodySmall,
+            color = LocalDesignColorTokens.current.textSecondary,
+        )
+        Spacer(Modifier.height(12.dp))
+
+        DoraiOutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = editedInstructions,
+            onValueChange = { if (it.length <= maxChars) editedInstructions = it },
+            minLines = 6,
+            maxLines = 8,
+            label = {
+                Text(
+                    stringResource(Res.string.settings_memory_instructions),
+                    color = LocalDesignColorTokens.current.textPrimary,
+                )
+            },
+            placeholder = {
+                Text(
+                    stringResource(Res.string.settings_memory_instructions_placeholder),
+                    color = LocalDesignColorTokens.current.textSecondary,
+                )
+            },
+        )
+
+        Text(
+            text = "${editedInstructions.length}/$maxChars",
+            style = DoraiTypography.bodySmall,
+            color = LocalDesignColorTokens.current.textSecondary,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.End,
+        )
+
+        if (hasChanges) {
+            Spacer(Modifier.height(8.dp))
+            Button(
+                onClick = { onSaveInstructions(editedInstructions.trim()) },
+                modifier = Modifier.align(CenterHorizontally).handCursor(),
+            ) {
+                Text(stringResource(Res.string.settings_memory_instructions_save))
+            }
+        }
     }
 }
 

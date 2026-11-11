@@ -1,3 +1,22 @@
+## DORAI AI - Settings Architecture Improvements (Unreleased)
+
+### Added
+- **Memory Instructions setting** (Settings → Agent → Memory Instructions): edit persistent guidance text that shapes how the AI stores and retrieves memories across conversations. Previously read-only with no UI.
+- **Atomic tool permission API**: `AppSettings.setToolPermission(toolName, scope, enabled)` writes a single permission in one call (`enabled = true` → always allow, `enabled = false` → ask every time) instead of callers hand-assembling a `ToolPermission`.
+
+### Changed
+- **Unified theme system**: removed deprecated `AppSettings.themeModeFlow` / `getThemeMode()` / `setThemeMode()` / `ThemeMode` enum / `KEY_THEME_MODE` constant. `ThemeSettingsRepository` (premium presets, Match Device, Flat/3D style, custom themes) is now the single authoritative source; legacy `theme_mode` key is kept in sync for Android system bars.
+- **Migration code refactored to typed API**: added typed setters for all migration flags (`setMigrationComplete()`, `setServicesMigrationComplete()`, `setInstanceMigrationComplete()`, `setBaseUrlV1MigrationComplete()`, `setCustomModelMigrationComplete()`). `migrateFromLegacyIfNeeded()` and other migrations now use `setEmailAccountsJson()`, `setSplinterlandsAccountJson()`, `setEmailPassword()`, `setSplinterlandsPostingKey()`, `setBaseUrl()` instead of raw `settings.put*()` calls.
+
+### Localization
+- Added Bengali strings for Memory Instructions UI (`settings_memory_instructions`, `settings_memory_instructions_description`, `settings_memory_instructions_placeholder`, `settings_memory_instructions_save`).
+
+### Security
+- `getEncryptionKey()` confirmed read-only (set once during install/migration); no setter exists and none will be added.
+- Legacy → encrypted settings migration keeps clearing the plaintext originals for account JSON and account-scoped secrets (email passwords, Splinterlands posting keys) even when the encrypted store already holds a newer value, so secrets don't survive unencrypted on disk.
+
+---
+
 ## DORAI AI - GitHub Integration (Unreleased)
 
 Connect an embedded GitHub App to the app with read-only access by default. Not yet released.

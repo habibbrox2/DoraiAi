@@ -658,15 +658,17 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun `deprecated onChangeThemeMode does not alter data repository theme`() = runTest {
+    fun `onChangeMemoryInstructions persists and reflects in state`() = runTest {
         val viewModel = SettingsViewModel(fakeRepository, fakeDaemonController, fakeNotificationPermissionController, noOpScheduler, testDispatcher)
 
-        @Suppress("DEPRECATION")
-        val initialTheme = fakeRepository.getThemeMode()
-        @Suppress("DEPRECATION")
-        viewModel.actions.onChangeThemeMode(com.dorai.ai.data.ThemeMode.Dark)
-        testDispatcher.scheduler.advanceUntilIdle()
-        @Suppress("DEPRECATION")
-        assertEquals(initialTheme, fakeRepository.getThemeMode())
+        viewModel.state.test {
+            awaitItem()
+            viewModel.actions.onChangeMemoryInstructions("Remember the user's cat is called Milo.")
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertEquals("Remember the user's cat is called Milo.", fakeRepository.getMemoryInstructions())
+            assertEquals("Remember the user's cat is called Milo.", awaitItem().memoryInstructions)
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 }

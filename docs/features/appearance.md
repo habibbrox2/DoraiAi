@@ -1,6 +1,6 @@
 # Appearance
 
-**Last verified:** 2026-11-08
+**Last verified:** 2026-11-11
 
 DORAI AI ships a 2027 premium dynamic theme engine that runs identically on Android, iOS, Desktop (JVM) and Web (Wasm/JS). Appearance is configured from **Settings → Appearance** with a grid of live preview swatches; changes apply immediately — no restart, no Gradle rebuild.
 
@@ -81,6 +81,8 @@ Engine state lives in `multiplatform-settings` (same store as the rest of app se
 | `custom_themes_json` | JSON array of custom palettes |
 
 An existing legacy `theme_mode` (`System` / `Light` / `Dark`) migrates one-time into the new keys on first launch after the upgrade. `System` maps to Match Device **on**; `Light`/`Dark` map to the matching preset with Match Device off. The engine also writes `theme_mode` in tandem so Android system-bar icons keep their correct style — dark selection → dark bars, light selection → light bars, Match Device → system-driven.
+
+`ThemeSettingsRepository` is the single authoritative owner of theme configuration. The older `AppSettings` theme accessors (`themeModeFlow`, `getThemeMode()`, `setThemeMode()`, the `ThemeMode` enum, and the `KEY_THEME_MODE` constant) have been removed so there is exactly one writer for the theme keys and no second source of truth that can drift from the engine state.
 
 ## Behavior
 

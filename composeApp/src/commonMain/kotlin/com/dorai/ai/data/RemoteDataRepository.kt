@@ -2425,15 +2425,6 @@ class RemoteDataRepository(
         appSettings.setRestoreLastChatEnabled(enabled)
     }
 
-    @Suppress("DEPRECATION")
-    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
-    override fun getThemeMode(): ThemeMode = appSettings.getThemeMode()
-
-    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository", level = DeprecationLevel.WARNING)
-    override fun setThemeMode(mode: ThemeMode) {
-        // No-op: ThemeSettingsRepository is the authoritative writer of theme configuration.
-    }
-
     override fun getAppLanguage(): AppLanguage = appSettings.getAppLanguage()
 
     override fun setAppLanguage(language: AppLanguage) {
@@ -2453,6 +2444,12 @@ class RemoteDataRepository(
 
     override fun setMemoryEnabled(enabled: Boolean) {
         appSettings.setMemoryEnabled(enabled)
+    }
+
+    override fun getMemoryInstructions(): String = appSettings.getMemoryInstructions()
+
+    override fun setMemoryInstructions(instructions: String) {
+        appSettings.setMemoryInstructions(instructions)
     }
 
     override fun getMemories(): List<MemoryEntry> = memoryStore.getAllMemories()

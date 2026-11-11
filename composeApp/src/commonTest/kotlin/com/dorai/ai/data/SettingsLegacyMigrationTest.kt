@@ -105,4 +105,34 @@ class SettingsLegacyMigrationTest {
         appSettings.migrateFromLegacyIfNeeded(null)
         assertFalse(store.getBoolean(KEY_MIGRATION_COMPLETE, false))
     }
+
+    @Test
+    fun `typed account setters still clear the plaintext copy when the destination already has a value`() {
+        // The account JSON and its scoped secrets are migrated through typed setters
+        // (setEmailAccountsJson / setEmailPassword / setSplinterlandsPostingKey). Even when
+        // the encrypted store already holds a newer value, the plaintext legacy copy must
+        // still be removed so secrets don't survive unencrypted on disk.
+        val legacy = MapSettings().apply {
+            putString(KEY_EMAIL_ACCOUNTS, """[{"id":"user@example.com","host":"imap.example.com"}]""")
+            putString("email_password_user@example.com", "mail-secret")
+            putString(KEY_SPLINTERLANDS_ACCOUNT, """[{"id":"alice"}]""")
+            putString("splinterlands_posting_key_alice", "posting-secret")
+        }
+        val encryptedStore = MapSettings()
+        encryptedStore.putString(KEY_EMAIL_ACCOUNTS, """[{"id":"user@example.com","host":"imap.new.example.com"}]""")
+        val appSettings = AppSettings(encryptedStore)
+
+        appSettings.migrateFromLegacyIfNeeded(legacy)
+
+        // Destination keeps the newer value.
+        assertEquals(
+            """[{"id":"user@example.com","host":"imap.new.example.com"}]""",
+            encryptedStore.getString(KEY_EMAIL_ACCOUNTS, ""),
+        )
+        // Plaintext copies are gone regardless.
+        assertFalse(legacy.hasKey(KEY_EMAIL_ACCOUNTS))
+        assertFalse(legacy.hasKey("email_password_user@example.com"))
+        assertFalse(legacy.hasKey(KEY_SPLINTERLANDS_ACCOUNT))
+        assertFalse(legacy.hasKey("splinterlands_posting_key_alice"))
+    }
 }
