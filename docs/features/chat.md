@@ -2,7 +2,7 @@
 
 **Last verified:** 2026-11-12
 
-DORAI AI's chat system manages the message history, conversation persistence, file attachments, and speech output. Conversations are service-independent — switching providers does not affect which conversation is loaded or restored. Multiple conversations are persisted and browsable via a history sheet.
+DORAI AI's chat system manages the message history, conversation persistence, file attachments, and speech output. Conversations are service-independent — switching providers does not affect which conversation is loaded or restored. Multiple conversations are persisted and browsable via the chat drawer (compact) or an inline history pane (expanded).
 
 ## Concepts
 
@@ -37,14 +37,12 @@ Auto-derived from the first user message when a conversation is saved for the fi
 
 ## Chat History
 
-- A history icon appears in the top bar when saved conversations other than the current one exist
-- Tapping it opens a bottom sheet listing all chat conversations sorted by last updated (newest first)
-- Each item shows the title and formatted date
-- Non-interactive conversations are outlined with a primary-colored border; interactive-mode conversations get an animated gradient border. The active conversation's title is rendered in the primary color (inactive titles use onBackground)
-- Tapping an item loads that conversation and dismisses the sheet
-- Each item has a delete button that defers deletion with a snackbar "Undo" option (~4 seconds) before the conversation is permanently removed. The snackbar appears inside the history sheet so it remains visible while the sheet is open, and the sheet stays open so multiple conversations can be deleted in sequence
+- A hamburger menu appears in the top bar on compact screens; tapping it opens the conversation drawer over the chat. On expanded screens the same list is shown inline beside the conversation
+- The drawer/pane is the primary way to browse past conversations; the keyboard palette (`Ctrl/Cmd+K`) can also jump directly to a conversation by title
+- The pane shows a search field plus your conversations grouped as "Today" and "Earlier" (pinned first), each with title, date, and preview snippet; search filters by title and preview
+- Each item supports pin, rename, and delete. Delete defers with an "Undo" snackbar (~4 seconds); the snackbar appears in the chat surface and the conversation list stays open so multiple deletions can be done in sequence
 - Deleting the active conversation clears the chat
-- Heartbeat conversations are included in the history list with a "Heartbeat" label badge, and can also be accessed via the heartbeat banner
+- Heartbeat conversations are included in the list with a "Heartbeat" label badge, and can also be accessed via the heartbeat banner
 
 ## Message Sending
 
@@ -151,18 +149,17 @@ Multiple files can be attached to a single prompt. Each file is added one at a t
 - **Input**: text field, send/stop button, attachment button, file chip. A composer prefill (from the Share intent, the Assist cold start, or the Dashboard Design card) opens the chat with the prompt already typed into the input; the prefill is consumed exactly once and does not linger across conversations. When the Free-tier rate limit is hit with no services configured, the free-provider suggestions panel (provider signup chips + retry) is shown in place of the error badge. The shell's "waiting approval" badge reflects tools that are actually blocked on user confirmation (derived from the transient tool-confirmation entries in the conversation), so it increments only while a tool is genuinely awaiting an answer
 - **Empty state**: animated logo centered above the welcome text "Your AI. Your World." on the premium dark backdrop, followed by wrapping quick-start chips
 - **Drag-and-drop**: supported for file attachments
-- **History sheet**: bottom sheet listing saved conversations with title, date, active highlight, and delete
+- **Drawer / history pane**: compact drawers and the expanded inline list show saved conversations with title, date, active highlight, and delete
 
-## Navigation Sidebar
+## Navigation Sidebar / Drawer
 
-On compact screens the chat is wrapped in a modal navigation drawer; on expanded screens the same sidebar is shown beside the conversation. The sidebar is ordered top to bottom:
+On compact screens the chat opens a modal navigation drawer from the top-bar hamburger; on expanded screens the same history pane is shown beside the conversation. The pane (an inline composable in `DoraiChatScreen.kt`) shows, top to bottom:
 
-1. **Header** — DORAI mark, product name, tagline, and the conversation search field
-2. **Primary actions** — New Chat and New Project
-3. **Chat history** — a "Recent chats" section grouped by date; search filters titles live, and empty states distinguish "No chats yet" from "No matches"
-4. **Scrollable area** — the history list takes the remaining space
-5. **Bottom navigation** — Dashboard, Interactive UI, Workspace, Settings
-6. **Footer** — logo and version
+1. **Header** — logo, product name, and a close button (compact only)
+2. **New Chat** action and a search field for conversations
+3. **History list** — grouped as "Today" and "Earlier" with pin/rename/delete actions per row
+
+A fuller sidebar prototype (`AppSidebar.kt` — header, grouped history with bottom navigation and footer) exists in the source but is **not wired into the v2 UI**; the current surfaces are the drawer/pane described above.
 
 ## Key Files
 
@@ -175,18 +172,17 @@ On compact screens the chat is wrapped in a modal navigation drawer; on expanded
 | `composeApp/src/commonMain/.../data/FileClassification.kt` | File category enum, MIME/extension classifier, size constants, file exceptions |
 | `composeApp/src/commonMain/.../data/RemoteDataRepository.kt` | History management, conversation save/restore/delete, title derivation, message sending |
 | `composeApp/src/commonMain/.../ui/chat/ChatViewModel.kt` | Chat UI state, send/retry/regenerate/cancel/loadConversation/deleteConversation actions; startup restore honored from the `restore_last_chat` General toggle |
+| `composeApp/src/commonMain/.../ui/chat/DoraiChatScreenConnected.kt` | UI v2 ↔ `ChatViewModel` bridge: injects services, timeline (reasoning/frozen indexes), speech, pickers, and refresh-on-navigation |
+| `composeApp/src/commonMain/.../ui/chat/ChatUiState.kt` + `ChatActions.kt` | Chat UI state (history, streaming, errors) and the immutable action surface (`ask`, `retry`, `confirmToolExecution`, `submitUiCallback`, …) |
 | `composeApp/src/commonMain/.../ui/settings/GeneralSettings.kt` | General settings (incl. "Restore last chat on launch" toggle) |
-| `composeApp/src/commonMain/.../ui/chat/DoraiChatScreen.kt` | UI v2 chat screen (active): adaptive list-detail scaffold, message timeline rendering (user bubbles, assistant who-row/markdown/tool cards, streaming typing indicator, jump-to-latest). who-row shows the active provider's icon from `ChatMessageItem.serviceIcon` |
+| `composeApp/src/commonMain/.../ui/chat/DoraiChatScreen.kt` | UI v2 chat screen (active): adaptive list-detail scaffold, inline history pane (`ChatHistoryPane`), message timeline rendering (user bubbles, assistant who-row/markdown/tool cards, streaming typing indicator, jump-to-latest). who-row shows the active provider's icon from `ChatMessageItem.serviceIcon` |
 | `composeApp/src/commonMain/.../ui/chat/ToolEventGrouper.kt` | Groups conversation history into chat messages; propagates the active service's `executionLocation` (Local/Cloud) and provider icon onto assistant messages; fallback-answered messages are always Cloud; computes the agent-turn wall-clock span used by the "Worked for Xs" indicator |
 | `composeApp/src/commonMain/.../ui/chat/composables/ChatCommandPalette.kt` | Ctrl/Cmd+K command palette: jump actions + conversation search |
-| `composeApp/src/commonMain/.../ui/chat/composables/AppSidebar.kt` | Navigation sidebar: header/search, New Chat/New Project, grouped history, bottom nav, footer |
-| `composeApp/src/commonMain/.../ui/chat/composables/EmptyState.kt` | Centered logo, "Your AI. Your World." welcome copy, wrapping quick-start chips |
-| `composeApp/src/commonMain/.../ui/chat/composables/AgentHud.kt` | Compact HUD with direct Settings/Speech actions (no overflow menu) |
-| `composeApp/src/commonMain/.../ui/chat/composables/ChatHistorySheet.kt` | Bottom sheet listing saved conversations |
+| `composeApp/src/commonMain/.../ui/chat/composables/AppSidebar.kt` | Sidebar prototype with header/search, grouped history, bottom nav and footer — **not wired into the v2 UI** (the compact drawer / expanded pane covers history navigation) |
+| `composeApp/src/commonMain/.../ui/chat/composables/EmptyState.kt` | Centered logo, "Your AI. Your World." welcome copy, wrapping quick-start chips — **not wired into the v2 UI** |
+| `composeApp/src/commonMain/.../ui/chat/composables/ChatHistorySheet.kt` | Bottom sheet listing saved conversations — **not wired into the v2 UI** |
 | `composeApp/src/commonMain/.../ui/chat/composables/HeartbeatBanner.kt` | Dismissable banner for heartbeat notifications |
-| `composeApp/src/commonMain/.../ui/chat/composables/TopBar.kt` | Top bar with the model pill, the interactive-UI toggle and back action, sandbox, TTS, and settings icons |
 | `composeApp/src/commonMain/.../ui/chat/composables/FreeProviderSuggestionsPanel.kt` | Free rate-limit upsell panel with provider chips |
 | `composeApp/src/commonMain/.../data/FreeProviderSuggestions.kt` | Providers offered in the Free rate-limit upsell panel |
-| `composeApp/src/commonMain/.../ui/chat/composables/QuestionInput.kt` | Text input with send/stop button |
 | `androidApp/src/main/AndroidManifest.xml` | Share-sheet registration for plain text (`ACTION_SEND`) |
 | `androidApp/src/main/kotlin/.../MainActivity.kt` | Reads shared text from `ACTION_SEND` and hands it to chat |
