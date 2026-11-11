@@ -16,6 +16,12 @@ const val MAX_IMAGE_BYTES = 15_000_000
 // from reading a multi-gigabyte file into memory.
 const val MAX_RAW_IMAGE_BYTES = 50_000_000
 
+// Composer attachment policy: at most this many files per chat turn, and at
+// most this much data buffered across all attachments of one message. The send
+// path enforces per-file limits (above) independently.
+const val MAX_ATTACHMENT_FILES = 5
+const val MAX_TOTAL_ATTACHMENT_BYTES = 40L * 1024 * 1024
+
 private val textMimeTypes = setOf(
     "application/json",
     "application/xml",

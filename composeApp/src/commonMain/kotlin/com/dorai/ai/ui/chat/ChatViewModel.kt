@@ -4,11 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dorai.ai.data.Conversation
 import com.dorai.ai.data.DataRepository
+import com.dorai.ai.data.FileCategory
 import com.dorai.ai.data.KeylessFreeTierFallback
+import com.dorai.ai.data.MAX_ATTACHMENT_FILES
+import com.dorai.ai.data.MAX_PDF_BYTES
+import com.dorai.ai.data.MAX_RAW_IMAGE_BYTES
+import com.dorai.ai.data.MAX_TEXT_FILE_BYTES
+import com.dorai.ai.data.MAX_TOTAL_ATTACHMENT_BYTES
 import com.dorai.ai.data.Service
 import com.dorai.ai.data.ServiceEntry
 import com.dorai.ai.data.TaskScheduler
 import com.dorai.ai.data.UiSubmission
+import com.dorai.ai.data.classifyFile
 import com.dorai.ai.filereview.FileReviewActionResult
 import com.dorai.ai.filereview.FileReviewController
 import com.dorai.ai.filereview.NoOpFileReviewController
@@ -24,16 +31,22 @@ import com.dorai.ai.ui.markdown.DoraiUiError
 import com.dorai.ai.ui.markdown.parseMarkdown
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.conversation_untitled
+import dorai.composeapp.generated.resources.error_attachment_too_large
 import dorai.composeapp.generated.resources.error_local_network_permission
+import dorai.composeapp.generated.resources.error_too_many_attachments
 import dorai.composeapp.generated.resources.error_unsupported_file_type
 import dorai.composeapp.generated.resources.litert_no_model_warning
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.extension
+import io.github.vinceglb.filekit.mimeType
+import io.github.vinceglb.filekit.name
+import io.github.vinceglb.filekit.size
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
@@ -216,6 +229,21 @@ class ChatViewModel(
                     isPinned = it.isPinned,
                 )
             }
+        // Derive pending tool confirmations from transient TOOL_CONFIRMATION history entries.
+        // The confirmation rows are added when a tool blocks on user approval and removed once
+        // the user answers (RemoteDataRepository), so this list is empty exactly when nothing
+        // needs attention — it drives the shell's "waiting approval" badge.
+        val pendingConfirmations = history
+            .filter { it.role == History.Role.TOOL_CONFIRMATION }
+            .map {
+                PendingToolConfirmation(
+                    id = it.id,
+                    toolCallId = it.toolCallId ?: it.id,
+                    toolName = it.toolName ?: "tool",
+                    arguments = it.content,
+                )
+            }
+            .toImmutableList()
         state.copy(
             history = history.toImmutableList(),
             supportedFileExtensions = dataRepository.supportedFileExtensions().toImmutableList(),
@@ -223,6 +251,7 @@ class ChatViewModel(
             currentConversationId = conversationId,
             hasUnreadHeartbeat = hasUnreadHeartbeat,
             installedSkills = dataRepository.getInstalledSkills().toImmutableList(),
+            pendingToolConfirmations = pendingConfirmations,
         )
     }.distinctUntilChanged().stateIn(
         scope = viewModelScope,
@@ -261,7 +290,6 @@ class ChatViewModel(
                     error = null,
                     showFreeProviderSuggestions = false,
                     files = persistentListOf(),
-                    followUpSuggestions = persistentListOf(),
                 )
             }
         }
@@ -293,10 +321,6 @@ class ChatViewModel(
                 _state.update {
                     it.copy(isLoading = false)
                 }
-
-                if (!_state.value.isInteractiveMode) {
-                    generateFollowUpSuggestions()
-                }
             } catch (exception: Exception) {
                 // CancellationException must be re-thrown to properly propagate coroutine cancellation
                 if (exception is CancellationException) throw exception
@@ -310,7 +334,6 @@ class ChatViewModel(
                         error = exception.toUiError(),
                         showFreeProviderSuggestions = showUpsell,
                         isLoading = false,
-                        followUpSuggestions = persistentListOf(),
                     )
                 }
             }
@@ -321,38 +344,6 @@ class ChatViewModel(
      * True unless the active service points at a local network host and the user
      * denied the local network permission. Cheap no-op on non-Android platforms.
      */
-    private suspend fun generateFollowUpSuggestions() {
-        val history = dataRepository.chatHistory.value
-        val lastAssistant = history.lastRenderedAssistant() ?: return
-        val lastUser = history.lastOrNull { it.role == History.Role.USER } ?: return
-        val prompt = buildString {
-            appendLine("Given this conversation:")
-            appendLine("User: ${lastUser.content.take(400)}")
-            appendLine("Assistant: ${lastAssistant.content.take(800)}")
-            appendLine()
-            appendLine("Suggest exactly 3 short follow-up questions the user might ask next.")
-            append("Return only the questions, one per line, no numbering, no extra text.")
-        }
-        val result = try {
-            dataRepository.askSilently(prompt)
-        } catch (_: Exception) {
-            return
-        }
-        val suggestions = result.lines()
-            .map { line ->
-                line.trim()
-                    .replace(Regex("^[0-9]+[.)]\\s*"), "")
-                    .replace(Regex("^[-*]\\s*"), "")
-                    .trim()
-            }
-            .filter { it.isNotBlank() && it.length in 3..120 }
-            .distinct()
-            .take(3)
-        if (suggestions.isNotEmpty()) {
-            _state.update { it.copy(followUpSuggestions = suggestions.toImmutableList()) }
-        }
-    }
-
     private suspend fun ensureLocalNetworkPermission(): Boolean {
         val instance = dataRepository.getConfiguredServiceInstances().firstOrNull() ?: return true
         val baseUrl = dataRepository.getInstanceBaseUrl(instance.instanceId, Service.fromId(instance.serviceId))
@@ -386,7 +377,7 @@ class ChatViewModel(
     private fun clearHistory() {
         dataRepository.clearHistory()
         _state.update {
-            it.copy(error = null, showFreeProviderSuggestions = false, followUpSuggestions = persistentListOf())
+            it.copy(error = null, showFreeProviderSuggestions = false)
         }
     }
 
@@ -432,8 +423,40 @@ class ChatViewModel(
             }
             return
         }
-        _state.update {
-            it.copy(files = (it.files + file).toImmutableList())
+        // Cheap count cap first (no IO needed).
+        if (_state.value.files.size >= MAX_ATTACHMENT_FILES) {
+            _state.update {
+                it.copy(snackbarMessage = Res.string.error_too_many_attachments)
+            }
+            return
+        }
+        // Size checks stat the filesystem, so keep them off the main thread.
+        viewModelScope.launch(backgroundDispatcher) {
+            val fileSize = runCatching { file.size() }.getOrDefault(-1L)
+            val perFileLimit = when (classifyFile(file.mimeType()?.toString(), file.name)) {
+                FileCategory.PDF -> MAX_PDF_BYTES.toLong()
+                FileCategory.IMAGE -> MAX_RAW_IMAGE_BYTES.toLong()
+                FileCategory.TEXT -> MAX_TEXT_FILE_BYTES.toLong()
+                FileCategory.UNSUPPORTED -> 0L
+            }
+            if (fileSize > perFileLimit) {
+                _state.update { it.copy(snackbarMessage = Res.string.error_attachment_too_large) }
+                return@launch
+            }
+            val bufferedTotal = _state.value.files.sumOf { f ->
+                runCatching { f.size() }.getOrDefault(0L)
+            }
+            if (fileSize >= 0 && bufferedTotal + fileSize > MAX_TOTAL_ATTACHMENT_BYTES) {
+                _state.update { it.copy(snackbarMessage = Res.string.error_attachment_too_large) }
+                return@launch
+            }
+            _state.update { current ->
+                if (current.files.size >= MAX_ATTACHMENT_FILES) {
+                    current.copy(snackbarMessage = Res.string.error_too_many_attachments)
+                } else {
+                    current.copy(files = (current.files + file).toImmutableList())
+                }
+            }
         }
     }
 
@@ -618,7 +641,6 @@ class ChatViewModel(
                 isInteractiveMode = isInteractive,
                 isLoading = false,
                 composerPrefill = null,
-                followUpSuggestions = persistentListOf(),
             )
         }
     }
@@ -669,12 +691,19 @@ class ChatViewModel(
     }
 
     override fun onCleared() {
-        // viewModelScope is cancelled before onCleared runs; use a background coroutine
-        // with its own scope so the pending deletion actually completes.
-        if (_state.value.pendingConversationDeletion != null) {
-            val pendingId = _state.value.pendingConversationDeletion!!
-            CoroutineScope(backgroundDispatcher).launch {
-                dataRepository.deleteConversation(pendingId)
+        // viewModelScope is cancelled before onCleared runs, so the pending-deletion
+        // job scheduled there would never complete. Flush it here with a dedicated
+        // supervisor scope that is independent of the ViewModel lifecycle; without a
+        // supervisor a failing delete would cancel every child of the scope, and an
+        // unhandled failure would crash the app instead of logging.
+        val pendingId = _state.value.pendingConversationDeletion
+        if (pendingId != null) {
+            CoroutineScope(SupervisorJob() + backgroundDispatcher).launch {
+                try {
+                    dataRepository.deleteConversation(pendingId)
+                } catch (e: Exception) {
+                    println("ChatViewModel: pending conversation deletion failed for $pendingId (" + e.message?.take(120) + ")")
+                }
             }
         }
         // The scheduler lives longer than this ViewModel (it's a singleton driving the
@@ -721,7 +750,6 @@ class ChatViewModel(
                 showFreeProviderSuggestions = false,
                 isLoading = false,
                 composerPrefill = composerPrefill,
-                followUpSuggestions = persistentListOf(),
             )
         }
     }

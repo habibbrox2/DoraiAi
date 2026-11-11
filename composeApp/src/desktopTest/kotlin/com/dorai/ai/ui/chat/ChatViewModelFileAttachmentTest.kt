@@ -153,6 +153,46 @@ class ChatViewModelFileAttachmentTest {
     }
 
     @Test
+    fun `addFile rejects more than 5 attachments with a snackbar`() = runTest {
+        fakeRepository.fileAttachmentSupported = true
+        val viewModel = createViewModel()
+        val files = (1..6).map { tempPlatformFile("png") }
+
+        viewModel.state.test {
+            skipItems(1)
+            files.take(5).forEach { file ->
+                viewModel.state.value.actions.addFile(file)
+                awaitItem()
+            }
+            assertEquals(5, viewModel.state.value.files.size)
+
+            viewModel.state.value.actions.addFile(files[5])
+            val state = awaitItem()
+            assertEquals(5, state.files.size)
+            assertNotNull(state.snackbarMessage)
+        }
+    }
+
+    @Test
+    fun `addFile rejects a text file that exceeds the per-category size limit`() = runTest {
+        fakeRepository.fileAttachmentSupported = true
+        val viewModel = createViewModel()
+        val oversized = File.createTempFile("dorai-test-", ".txt")
+        oversized.deleteOnExit()
+        // MAX_TEXT_FILE_BYTES is 200 KB; pad past it.
+        oversized.writeBytes(ByteArray(201_000) { 'a'.code.toByte() })
+        val oversizedFile = PlatformFile(oversized)
+
+        viewModel.state.test {
+            skipItems(1)
+            viewModel.state.value.actions.addFile(oversizedFile)
+            val state = awaitItem()
+            assertTrue(state.files.isEmpty())
+            assertNotNull(state.snackbarMessage)
+        }
+    }
+
+    @Test
     fun `truncateFileName returns short names unchanged`() {
         assertEquals("cat.png", com.dorai.ai.ui.chat.composables.truncateFileName("cat.png"))
     }

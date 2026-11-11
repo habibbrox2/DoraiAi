@@ -109,7 +109,6 @@ data class ChatUiState(
     val isRestoring: Boolean = true,
     val installedSkills: ImmutableList<com.dorai.ai.skills.SkillManifest> = persistentListOf(),
     val composerPrefill: String? = null,
-    val followUpSuggestions: ImmutableList<String> = persistentListOf(),
     val pendingToolConfirmations: ImmutableList<PendingToolConfirmation> = persistentListOf(),
     val fileReviewProposals: ImmutableList<FileReviewProposal> = persistentListOf(),
     val fileReviewPreviews: Map<String, FileReviewPreview> = emptyMap(),

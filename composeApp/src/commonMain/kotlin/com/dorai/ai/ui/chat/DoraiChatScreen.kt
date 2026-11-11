@@ -104,6 +104,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
@@ -131,6 +132,7 @@ import com.dorai.ai.currentPlatform
 import com.dorai.ai.data.Attachment
 import com.dorai.ai.data.SmsDraft
 import com.dorai.ai.decodeToImageBitmap
+import com.dorai.ai.getBackgroundDispatcher
 import com.dorai.ai.network.UiError
 import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.theme.tokens.DoraiSpacing
@@ -139,6 +141,7 @@ import com.dorai.ai.ui.adaptive.DoraiListDetailPaneScaffold
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
 import com.dorai.ai.ui.chat.composables.AnimatedTypingDots
 import com.dorai.ai.ui.chat.composables.ChatCommandPalette
+import com.dorai.ai.ui.chat.composables.FreeProviderSuggestionsPanel
 import com.dorai.ai.ui.chat.composables.HeartbeatBanner
 import com.dorai.ai.ui.chat.composables.PendingSmsBanners
 import com.dorai.ai.ui.chat.composables.uiErrorText
@@ -153,6 +156,7 @@ import com.dorai.ai.ui.components.v2.DoraiToolCard
 import com.dorai.ai.ui.components.v2.DynamicUiModel
 import com.dorai.ai.ui.components.v2.ToolExecutionModel
 import com.dorai.ai.ui.components.v2.ToolExecutionState
+import com.dorai.ai.ui.dynamicui.FrozenSubmission
 import com.dorai.ai.ui.markdown.MarkdownContent
 import com.dorai.ai.ui.markdown.parseMarkdown
 import com.dorai.ai.ui.rememberCopyToClipboard
@@ -284,6 +288,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -357,7 +362,12 @@ fun DoraiChatScreen(
     onRetryTool: ((String) -> Unit)? = null,
     onAskFixTool: ((String) -> Unit)? = null,
     onDynamicUiOptionSelected: ((String) -> Unit)? = null,
-    onDynamicUiSubmit: (() -> Unit)? = null,
+    onDynamicUiSubmit: ((String) -> Unit)? = null,
+    isInteractiveMode: Boolean = false,
+    frozenByAssistantId: Map<String, FrozenSubmission> = emptyMap(),
+    onUiCallback: ((String, Map<String, String>) -> Unit)? = null,
+    composerPrefill: String? = null,
+    onConsumeComposerPrefill: (() -> Unit)? = null,
     onRunPlan: (() -> Unit)? = null,
     onSpeak: ((String) -> Unit)? = null,
     files: ImmutableList<PlatformFile> = persistentListOf(),
@@ -439,6 +449,11 @@ fun DoraiChatScreen(
                 onAskFixTool = onAskFixTool,
                 onDynamicUiOptionSelected = onDynamicUiOptionSelected,
                 onDynamicUiSubmit = onDynamicUiSubmit,
+                isInteractiveMode = isInteractiveMode,
+                frozenByAssistantId = frozenByAssistantId,
+                onUiCallback = onUiCallback,
+                composerPrefill = composerPrefill,
+                onConsumeComposerPrefill = onConsumeComposerPrefill,
                 onRunPlan = onRunPlan,
                 onSpeak = onSpeak,
                 files = files,
@@ -499,6 +514,11 @@ fun DoraiChatScreen(
                     onAskFixTool = onAskFixTool,
                     onDynamicUiOptionSelected = onDynamicUiOptionSelected,
                     onDynamicUiSubmit = onDynamicUiSubmit,
+                    isInteractiveMode = isInteractiveMode,
+                    frozenByAssistantId = frozenByAssistantId,
+                    onUiCallback = onUiCallback,
+                    composerPrefill = composerPrefill,
+                    onConsumeComposerPrefill = onConsumeComposerPrefill,
                     onRunPlan = onRunPlan,
                     onSpeak = onSpeak,
                     files = files,
@@ -907,7 +927,12 @@ private fun ChatDetailPane(
     onRetryTool: ((String) -> Unit)? = null,
     onAskFixTool: ((String) -> Unit)? = null,
     onDynamicUiOptionSelected: ((String) -> Unit)? = null,
-    onDynamicUiSubmit: (() -> Unit)? = null,
+    onDynamicUiSubmit: ((String) -> Unit)? = null,
+    isInteractiveMode: Boolean = false,
+    frozenByAssistantId: Map<String, FrozenSubmission> = emptyMap(),
+    onUiCallback: ((String, Map<String, String>) -> Unit)? = null,
+    composerPrefill: String? = null,
+    onConsumeComposerPrefill: (() -> Unit)? = null,
     onRunPlan: (() -> Unit)? = null,
     onSpeak: ((String) -> Unit)? = null,
     files: ImmutableList<PlatformFile> = persistentListOf(),
@@ -935,7 +960,15 @@ private fun ChatDetailPane(
     val colors = LocalDoraiColors.current
     val widthClass = LocalDoraiWindowWidthClass.current
     val listState = rememberLazyListState()
-    var composerInput by remember { mutableStateOf("") }
+    // Share/Assist/Design-chat prefill: seed the composer from the incoming prompt.
+    var composerInput by remember { mutableStateOf(composerPrefill.orEmpty()) }
+    // Consume prefills that arrive after composition (e.g. a share intent that cold-started the app)
+    // exactly once per distinct prefill value.
+    LaunchedEffect(composerPrefill) {
+        val prefill = composerPrefill ?: return@LaunchedEffect
+        composerInput = prefill
+        onConsumeComposerPrefill?.invoke()
+    }
     var paletteVisible by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -1179,6 +1212,10 @@ private fun ChatDetailPane(
             } else {
                 // Centered max-width column for large windows (was unbounded).
                 val lastAssistantId = remember(messages) { messages.lastOrNull { !it.isUser }?.id }
+                // Only the newest assistant answer accepts dorai-ui callbacks; anything older is
+                // either read-only (batch replies) or already frozen by the user's recorded
+                // submission (frozenByAssistantId).
+                val lastAssistantIndex = remember(messages) { messages.indexOfLast { !it.isUser } }
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.TopCenter,
@@ -1195,6 +1232,7 @@ private fun ChatDetailPane(
                             // Consecutive assistant messages render as one continued block:
                             // hide the repeated logo + model header on follow-ups.
                             val showHeader = index == 0 || messages[index - 1].isUser
+                            val frozenForMessage = frozenByAssistantId[msg.id]
                             ChatMessageRow(
                                 message = msg,
                                 showHeader = showHeader,
@@ -1208,6 +1246,9 @@ private fun ChatDetailPane(
                                 onAskFixTool = onAskFixTool,
                                 onDynamicUiOptionSelected = onDynamicUiOptionSelected,
                                 onDynamicUiSubmit = onDynamicUiSubmit,
+                                isInteractive = isInteractiveMode && !isStreaming && index == lastAssistantIndex && frozenForMessage == null,
+                                frozen = frozenForMessage,
+                                onUiCallback = onUiCallback,
                                 onRunPlan = onRunPlan,
                             )
                         }
@@ -1288,8 +1329,23 @@ private fun ChatDetailPane(
                 }
             }
 
-            // Error toast badge (ported from legacy ChatScreen; hidden while free-tier upsell shows)
-            if (error != null && !showFreeProviderSuggestions) {
+            // Free-tier upsell: when the error qualifies (no configured services), show the
+            // free-provider suggestions panel instead of the generic error badge.
+            if (error != null && showFreeProviderSuggestions) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(horizontal = 16.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(colors.surface2)
+                        .border(1.dp, colors.line, RoundedCornerShape(16.dp)),
+                ) {
+                    FreeProviderSuggestionsPanel(
+                        error = error,
+                        retry = { onRetryError?.invoke() },
+                    )
+                }
+            } else if (error != null) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -1405,7 +1461,10 @@ private fun ChatMessageRow(
     onRetryTool: ((String) -> Unit)? = null,
     onAskFixTool: ((String) -> Unit)? = null,
     onDynamicUiOptionSelected: ((String) -> Unit)? = null,
-    onDynamicUiSubmit: (() -> Unit)? = null,
+    onDynamicUiSubmit: ((String) -> Unit)? = null,
+    isInteractive: Boolean = false,
+    frozen: FrozenSubmission? = null,
+    onUiCallback: ((String, Map<String, String>) -> Unit)? = null,
     onRunPlan: (() -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
@@ -1455,24 +1514,10 @@ private fun ChatMessageRow(
                     val images = message.attachments.filter { it.mimeType.startsWith("image/") }
                     val otherFiles = message.attachments.filter { !it.mimeType.startsWith("image/") }
                     for (att in images) {
-                        val imageBitmap = remember(att.data) {
-                            try {
-                                decodeToImageBitmap(Base64.decode(att.data))
-                            } catch (_: Exception) {
-                                null
-                            }
-                        }
-                        if (imageBitmap != null) {
-                            Image(
-                                bitmap = imageBitmap,
-                                contentDescription = stringResource(Res.string.chat_attachment_image),
-                                modifier = Modifier
-                                    .widthIn(max = 240.dp)
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .padding(bottom = 6.dp),
-                                contentScale = ContentScale.FillWidth,
-                            )
-                        }
+                        AttachmentImage(
+                            data = att.data,
+                            contentDescription = stringResource(Res.string.chat_attachment_image),
+                        )
                     }
                     if (otherFiles.isNotEmpty()) {
                         FlowRow(
@@ -1632,6 +1677,9 @@ private fun ChatMessageRow(
                         MarkdownContent(
                             document = document,
                             modifier = Modifier.fillMaxWidth(),
+                            isInteractive = isInteractive,
+                            onUiCallback = onUiCallback ?: { _, _ -> },
+                            frozen = frozen,
                         )
                     }
                 }
@@ -1663,7 +1711,7 @@ private fun ChatMessageRow(
                 DoraiDynamicUiBlock(
                     model = message.dynamicUi,
                     onOptionSelected = { onDynamicUiOptionSelected?.invoke(it) },
-                    onConfirm = { onDynamicUiSubmit?.invoke() },
+                    onConfirm = { selectedId -> onDynamicUiSubmit?.invoke(selectedId) },
                 )
             }
 
@@ -2518,4 +2566,37 @@ private fun DoraiAccordionBlock(
             }
         }
     }
+}
+
+/**
+ * Renders a base64-encoded image attachment. Decoding (Base64 -> bytes -> ImageBitmap) happens
+ * off the main thread via [getBackgroundDispatcher]; the composition only observes the result.
+ */
+@OptIn(ExperimentalEncodingApi::class)
+@Composable
+private fun AttachmentImage(
+    data: String,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+) {
+    var bitmap by remember(data) { mutableStateOf<ImageBitmap?>(null) }
+    LaunchedEffect(data) {
+        bitmap = withContext(getBackgroundDispatcher()) {
+            try {
+                decodeToImageBitmap(Base64.decode(data))
+            } catch (_: Exception) {
+                null
+            }
+        }
+    }
+    val image = bitmap ?: return
+    Image(
+        bitmap = image,
+        contentDescription = contentDescription,
+        modifier = modifier
+            .widthIn(max = 240.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .padding(bottom = 6.dp),
+        contentScale = ContentScale.FillWidth,
+    )
 }
