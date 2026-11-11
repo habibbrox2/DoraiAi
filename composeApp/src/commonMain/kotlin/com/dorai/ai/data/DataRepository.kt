@@ -71,6 +71,12 @@ interface DataRepository {
         files: List<PlatformFile>,
         uiSubmission: UiSubmission? = null,
         activeSkillId: String? = null,
+        /**
+         * Marks the resulting USER turn as hidden from the UI (and from persisted history).
+         * Used for the interactive-mode "[SYSTEM] ..." retry turn, which must reach the model
+         * but is not something the user authored or wants to see.
+         */
+        hiddenFromUi: Boolean = false,
     )
     fun clearHistory()
     fun currentService(): Service

@@ -1,6 +1,6 @@
 # Tools
 
-**Last verified:** 2026-11-06
+**Last verified:** 2026-11-12
 
 DORAI AI's tools feature allows the AI to execute external functions during conversations — web search, notifications, calendar events, shell commands, memory operations, and more. Tools are defined with a schema, executed with safety guards, and managed through per-tool toggles in settings.
 
@@ -246,6 +246,7 @@ Tool availability is controlled at multiple levels:
 - **Per-tool toggles** — individual tools can be enabled or disabled in settings, persisted with a `tool_enabled_` key prefix
 - **Default state** — most tools default to enabled; desktop's `execute_shell_command` defaults to disabled. On Android the shell has no per-tool switch — it follows the sandbox switch, which is on by default once the sandbox is installed
 - **Master-toggle-only** — memory, scheduling, heartbeat, email, SMS, and notification tools have no individual per-tool toggle; they are on whenever their master switch in Settings → Agent is on (heartbeat is bundled with the scheduling switch). The Android sandbox tools and desktop's `manage_process` are gated the same way — by the sandbox switch and the shell switch respectively — and likewise carry no switch of their own
+- **Approval classification** — memory tools (`memory_store`, `memory_forget`, `memory_learn`, `memory_reinforce`) never prompt per call; like the sandbox tools they are governed by the memory master switch. (An earlier build asked for approval on `memory_store`/`memory_learn`/`memory_reinforce` while accidentally permitting `memory_forget` — `forget` contains `get` — so the family now classifies consistently.)
 - **On-device (LiteRT) allowlist** — when the active model is an on-device LiteRT model, only a small allowlist of tools is exposed regardless of which other tools are enabled. The current allowlist is: `get_local_time`, `get_location_from_ip`, `web_search`, `open_url`, `memory_store`, `memory_forget`, `memory_reinforce`, and `execute_shell_command`. Memory tools beyond the three listed, email tools, scheduling tools, and heartbeat tools are not surfaced to local models even when their master switches are on.
 
 The platform layer assembles the final list of available tools by checking all gates and per-tool settings, and only enabled tools are sent to the AI provider.

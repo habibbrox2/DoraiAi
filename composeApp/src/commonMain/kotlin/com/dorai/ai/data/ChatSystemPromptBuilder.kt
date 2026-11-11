@@ -71,6 +71,14 @@ internal data class EmailAccountSummary(
 private const val LOCAL_MEMORY_BUDGET_CHARS = 2_000
 
 /**
+ * Char budget for memory sections on remote models. A large memory store would otherwise be
+ * dumped wholesale into every system prompt — paying token cost and attention rot on a
+ * context window that is shared with the conversation itself. Sized to cover a typical
+ * large memory set while staying well under a few thousand tokens.
+ */
+private const val REMOTE_MEMORY_BUDGET_CHARS = 8_000
+
+/**
  * One-line honesty guard composed into every chat variant. Targets the two observed
  * failure modes: (1) the model inventing tool outputs / file contents instead of
  * admitting a tool returned nothing readable, and (2) dorai-ui buttons whose labels
@@ -195,7 +203,10 @@ internal fun buildChatSystemPrompt(
     // (unlimited for remote; [LOCAL_MEMORY_BUDGET_CHARS] for local) prevents runaway growth
     // on small on-device context windows.
     val memoryBudget = when (variant) {
-        SystemPromptVariant.CHAT_REMOTE -> Int.MAX_VALUE
+        // Remote models also get a bounded budget: a large memory store would otherwise
+        // be dumped wholesale into every system prompt (token cost + context rot).
+        SystemPromptVariant.CHAT_REMOTE -> REMOTE_MEMORY_BUDGET_CHARS
+
         SystemPromptVariant.CHAT_LOCAL -> LOCAL_MEMORY_BUDGET_CHARS
     }
     var remaining = memoryBudget

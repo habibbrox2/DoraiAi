@@ -370,7 +370,10 @@ class ChatViewModel(
             val retryMessage = "[SYSTEM] Your previous response failed to render as interactive UI. $errorDetail " +
                 "Remember: respond with ONLY a single ```dorai-ui code fence containing valid JSON. No text outside the fence."
 
-            dataRepository.ask(retryMessage, emptyList())
+            // Hidden from the UI and from persistence: the retry prompt is scaffolding for the
+            // model, not something the user authored. It stays in the in-memory context so the
+            // retry itself is informed.
+            dataRepository.ask(retryMessage, emptyList(), uiSubmission = null, activeSkillId = null, hiddenFromUi = true)
         }
     }
 

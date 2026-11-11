@@ -93,6 +93,9 @@ fun groupHistoryToChatMessages(
     isSpeakingContentId: String?,
     availableServices: List<ServiceEntry>,
 ): List<ChatMessageItem> {
+    // Hidden system turns ([SYSTEM]-prefixed interactive retries) stay in the provider context
+    // but never render as user bubbles.
+    val visibleHistory = history.filterNot { it.hiddenFromUi }
     val result = mutableListOf<ChatMessageItem>()
     val currentTurnEntries = mutableListOf<History>()
     val activeServiceIsLocal = availableServices.firstOrNull()?.executionLocation == ExecutionLocation.LOCAL
@@ -256,7 +259,7 @@ fun groupHistoryToChatMessages(
         currentTurnEntries.clear()
     }
 
-    for (item in history) {
+    for (item in visibleHistory) {
         if (item.role == History.Role.USER) {
             flushAgentTurn()
             result.add(

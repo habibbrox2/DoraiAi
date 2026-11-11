@@ -38,7 +38,10 @@ internal fun deriveChatTimelineData(
     history: List<History>,
     isLoading: Boolean,
 ): ChatTimelineData {
-    val lastUserIndex = history.indexOfLast { it.role == History.Role.USER }
+    // Hidden system turns ([SYSTEM]-prefixed interactive retries) are not user-visible
+    // exchanges and must not shift the frozen/reasoning indexes either.
+    val visible = history.filterNot { it.hiddenFromUi }
+    val lastUserIndex = visible.indexOfLast { it.role == History.Role.USER }
     val frozenByAssistantId = linkedMapOf<String, FrozenSubmission>()
     val userIdByAssistantId = linkedMapOf<String, String>()
     val reasoningByAssistantId = linkedMapOf<String, ImmutableList<String>>()
@@ -47,7 +50,7 @@ internal fun deriveChatTimelineData(
     var latestAssistantId: String? = null
     var priorThinkingSegments = persistentListOf<String>()
 
-    history.forEachIndexed { index, entry ->
+    visible.forEachIndexed { index, entry ->
         when (entry.role) {
             History.Role.ASSISTANT -> {
                 if (entry.isThinking) {
@@ -101,8 +104,8 @@ internal fun deriveChatTimelineData(
     // Reverse scan replaces one forward scan per thinking entry.
     val suppressedThinkingIds = linkedSetOf<String>()
     var hasLaterAnswer = false
-    for (index in history.indices.reversed()) {
-        val entry = history[index]
+    for (index in visible.indices.reversed()) {
+        val entry = visible[index]
         if (entry.role != History.Role.ASSISTANT) continue
 
         if (!entry.isThinking && entry.content.isNotEmpty()) {
@@ -117,7 +120,7 @@ internal fun deriveChatTimelineData(
     val toolCallOrderById = mutableMapOf<String, Int>()
     var firstShellToolCall: IndexedValue<ToolCallInfo>? = null
     var toolCallOrder = 0
-    history.forEach { entry ->
+    visible.forEach { entry ->
         entry.toolCalls?.forEach { toolCall ->
             if (toolCall.id !in toolCallsById) {
                 toolCallsById[toolCall.id] = toolCall

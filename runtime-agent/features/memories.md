@@ -1,6 +1,6 @@
 # Memories
 
-**Last verified:** 2026-11-11
+**Last verified:** 2026-11-12
 
 DORAI AI's memory system allows the AI to learn and retain information across conversations. Memories are stored persistently, injected into every system prompt for context, and can be reinforced over time. Well-established memories can be promoted into permanent behavior (the soul/system prompt); the heartbeat surfaces candidates for promotion.
 
@@ -52,7 +52,7 @@ When memory is enabled, all memories are retrieved and grouped by category in th
 - Learning memories under "Learnings" with reinforcement count shown
 - Error memories under "Known Issues & Resolutions"
 
-For on-device (local) chat, the injected memory section is budgeted to a maximum of 2,000 characters. Entries are appended in category order until the budget is reached; if no entries fit, the header is dropped entirely. Remote chat has no such cap and includes all memories.
+For on-device (local) chat, the injected memory section is budgeted to a maximum of 2,000 characters. Entries are appended in category order until the budget is reached; if no entries fit, the header is dropped entirely. Remote chat is budgeted at 8,000 characters — a large memory store is not dumped wholesale into every system prompt (token cost and context rot), but a typical large memory set comfortably fits. If no entries fit, the header is dropped entirely either way.
 
 ## Default Instructions
 
@@ -96,7 +96,7 @@ The memories section lives in Settings → Agent and contains:
 | `composeApp/src/commonMain/.../data/SettingsJson.kt` | Shared settings-backed JSON persistence: decode-or-default, encode-and-write, locked read-modify-write |
 | `composeApp/src/commonMain/.../data/AppSettings.kt` | Persistence layer for memories JSON, enable flag, and memory instructions |
 | `composeApp/src/commonMain/.../data/RemoteDataRepository.kt` | Loads memories and memory instructions for the system prompt; on-device tool allowlist |
-| `composeApp/src/commonMain/.../data/ChatSystemPromptBuilder.kt` | Category-grouped memory sections, local 2,000-char budget, Structured Learning section |
+| `composeApp/src/commonMain/.../data/ChatSystemPromptBuilder.kt` | Category-grouped memory sections, local 2,000 / remote 8,000-char budgets, Structured Learning section |
 | `composeApp/src/commonMain/.../data/HeartbeatManager.kt` | Surfaces promotion candidates (5+ hits) in the heartbeat prompt |
 | `composeApp/src/commonMain/.../tools/AgentToolSet.kt` | Gates memory tools on the memory switch and `promote_learning` on the scheduling switch |
 | `composeApp/src/commonMain/.../tools/CommonTools.kt` | AI tool definitions for memory_store, memory_learn, memory_forget, memory_reinforce |
