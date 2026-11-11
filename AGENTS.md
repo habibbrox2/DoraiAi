@@ -164,6 +164,7 @@ Knowledge lives under `docs/knowledge/` as OKF-style markdown (YAML frontmatter 
 ## Multi-Agent Development
 
 - `AGENTS.md` is the sole canonical repository-wide policy for every coding agent. `CLAUDE.md` is only the Claude Code entry point and may add Claude-specific behavior; it does not override this file.
+- Agent instructions are centralized and separated by family — see [`docs/agents/README.md`](docs/agents/README.md): **Project Agent** instructions (this repository's coding agents/CI) map to `agents/`, `.agents/`, `AGENTS.md`, `CLAUDE.md`, and the **App Runtime Agent** instructions (the in-app Dorai AGENT) map to the app source (`ChatSystemPromptBuilder`, `HeartbeatPromptBuilder`, skills). Runtime-agent text never goes into root files; Project-Agent rules never ship in the app prompt.
 - Read `agents/task-protocol.md`, `agents/file-ownership.md`, and `agents/validation-policy.md` before parallel or multi-agent work.
 - Use one isolated Git worktree and branch per concurrent task. Create/list/inspect them with `scripts/agent-worktree.ps1`; do not branch-switch inside a worktree owned by another task.
 - Reserve allowed paths before editing with `scripts/agent-lock.ps1`. One task owner per file; shared hotspots require explicit approval.
