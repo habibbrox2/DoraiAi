@@ -17,6 +17,20 @@
 
 ---
 
+## DORAI AI - Chat Data Protection (Unreleased)
+
+### Fixed
+- **Unparseable pending import no longer wipes the conversation database**: a corrupt (non-blank) staged-import blob at the import inbox key is quarantined to a backup key and the database is left untouched; the importer's explicit blank-string "clear" signal is preserved.
+- **Corrupt settings-blob no longer silently yields an empty history**: loadAll quarantines an undecodable settings blob to a backup key instead of returning an empty list that could overwrite it on the next save.
+- **Legacy conversation file is kept on decode failure**: an unparseable legacy `conversations.enc` file is copied to a backup key and left on disk for manual recovery instead of being deleted.
+- **Persistence failures no longer leave diverged in-memory state**: `saveConversation`/`deleteConversation`/`renameConversation`/`togglePinConversation`/`updateShellTranscript` roll back the in-memory change when the persistence write fails, and surface the error to the caller instead of letting the UI show unsaved state.
+- Undecodable message rows no longer vanish silently — each is logged with the decoder error.
+
+### Security
+- Corrupt conversation payloads (pending imports, settings blobs, legacy files) are backed up under a quarantine key for manual inspection rather than being silently discarded.
+
+---
+
 ## DORAI AI - AI Provider System Fixes (Unreleased)
 
 ### Added

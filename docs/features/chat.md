@@ -1,6 +1,6 @@
 # Chat & Conversations
 
-**Last verified:** 2026-11-10
+**Last verified:** 2026-11-12
 
 DORAI AI's chat system manages the message history, conversation persistence, file attachments, and speech output. Conversations are service-independent — switching providers does not affect which conversation is loaded or restored. Multiple conversations are persisted and browsable via a history sheet.
 
@@ -131,10 +131,11 @@ Multiple files can be attached to a single prompt. Each file is added one at a t
 - The browser build has no persistent database and keeps the full conversation list as a JSON blob in the settings store (see [encryption.md](encryption.md))
 - Conversations are upserted — updating a conversation replaces the existing entry by ID, new conversations are appended; the list loads ordered by creation time
 - Each conversation also retains a rolling tail of its sandbox shell transcript (last ~10,000 characters) so that follow-up commands in a resumed conversation see the prior shell context; transcript updates write only that field
-- Migration chain, run once on first load: the legacy encrypted `conversations.enc` file (XOR with a 32-byte random key) migrates into the settings-store blob; a settings-store blob found on a database-capable platform is imported into the database and removed. Settings import reuses the same path — imported conversations are staged in the settings store and absorbed into the database on the next load, replacing its content
+- Migration chain, run once on first load: the legacy encrypted `conversations.enc` file (XOR with a 32-byte random key) migrates into the settings-store blob; a settings-store blob found on a database-capable platform is imported into the database and removed. Settings import reuses the same path — imported conversations are staged in the settings store and absorbed into the database on the next load, replacing its content. A corrupt (non-blank) import blob is quarantined to a backup key instead of wiping the existing database, and the database loads as usual
 - The database structure is versioned and lives on user devices: any future change to its tables or columns requires an accompanying migration step so existing installs upgrade in place (message contents are stored as JSON and tolerate unknown fields, so message-level additions do not need one)
 - A stored message is capped at roughly one megabyte, because Android reads database rows through a fixed-size window and a larger row would abort the whole load and crash the app on every launch. A message past the cap is stored without its file attachments; if it is still too large, its text is kept only up to a fixed head length. The in-memory message the model sees during the ongoing turn is untouched — only the persisted copy shrinks
 - Messages already stored above that cap by an earlier version are skipped when the conversation loads, so a database that used to crash the app opens with the rest of its history intact
+- Same-name write failures (e.g. disk full) are not silently swallowed: the affected in-memory update is rolled back and the error is surfaced to the caller instead of leaving the UI showing unsaved state
 
 ## UI Elements
 
