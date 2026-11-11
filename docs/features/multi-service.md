@@ -23,7 +23,8 @@ A configured connection to a service. Users can add multiple instances of the sa
 
 - API key
 - Selected model
-- Base URL (relevant for the OpenAI-Compatible API service)
+- Base URL (relevant for the OpenAI-Compatible API service and Cloudflare's account id). Only the OpenAI-Compatible gateway and Cloudflare honor a custom value; every hosted provider ignores a stale custom base URL so a previously entered value can never be spliced into its canonical endpoint URL
+- Free-fallback control: Settings → Services exposes a \"Use as fallback\" toggle for the built-in Free provider. When off, a failed primary provider fails visibly instead of silently routing the turn to the keyless Free service. Selecting Free as the primary (or having no configured services) is unaffected by the toggle
 
 ### Free Tier
 

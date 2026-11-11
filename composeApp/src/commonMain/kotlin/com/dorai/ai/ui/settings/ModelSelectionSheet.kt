@@ -71,6 +71,7 @@ import dorai.composeapp.generated.resources.model_discovery_retry
 import dorai.composeapp.generated.resources.model_filter_free
 import dorai.composeapp.generated.resources.model_free_badge
 import dorai.composeapp.generated.resources.model_free_empty
+import dorai.composeapp.generated.resources.model_search_empty
 import dorai.composeapp.generated.resources.model_sort_alpha
 import dorai.composeapp.generated.resources.model_sort_context
 import dorai.composeapp.generated.resources.model_sort_date
@@ -225,6 +226,13 @@ internal fun ModelSelection(
                     if (sortedModels.isEmpty() && freeFilterOnly) {
                         Text(
                             text = stringResource(Res.string.model_free_empty),
+                            style = DoraiTypography.bodyMedium,
+                            color = LocalDesignColorTokens.current.textSecondary,
+                            modifier = Modifier.padding(24.dp),
+                        )
+                    } else if (sortedModels.isEmpty() && searchQuery.isNotBlank()) {
+                        Text(
+                            text = stringResource(Res.string.model_search_empty),
                             style = DoraiTypography.bodyMedium,
                             color = LocalDesignColorTokens.current.textSecondary,
                             modifier = Modifier.padding(24.dp),

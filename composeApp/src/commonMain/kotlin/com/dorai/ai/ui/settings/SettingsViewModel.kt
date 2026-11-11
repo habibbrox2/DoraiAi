@@ -47,6 +47,7 @@ import io.ktor.client.request.get
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.collections.immutable.toPersistentSet
@@ -452,6 +453,7 @@ class SettingsViewModel(
                         e.copy(
                             models = models.toImmutableList(),
                             selectedModel = models.firstOrNull { it.isSelected },
+                            useCustomModel = dataRepository.getInstanceUseCustomModel(instanceId),
                         )
                     } else {
                         e
@@ -475,6 +477,10 @@ class SettingsViewModel(
                             connectionStatus = ConnectionStatus.Unknown,
                             isFetchingModels = false,
                             modelFetchError = null,
+                            // The old provider's list no longer applies to the new
+                            // credentials — don't keep showing it while re-validating.
+                            models = persistentListOf(),
+                            selectedModel = null,
                         )
                     } else {
                         e
@@ -514,6 +520,10 @@ class SettingsViewModel(
                             connectionStatus = ConnectionStatus.Unknown,
                             isFetchingModels = false,
                             modelFetchError = null,
+                            // A different endpoint means a different provider behind it —
+                            // the previous model list/selection is not applicable.
+                            models = persistentListOf(),
+                            selectedModel = null,
                         )
                     } else {
                         e
@@ -526,6 +536,11 @@ class SettingsViewModel(
 
     private fun onSelectModel(instanceId: String, modelId: String) {
         val entry = _state.value.configuredServices.find { it.instanceId == instanceId } ?: return
+        // A custom model id overrides the list selection (see getInstanceEffectiveModelId),
+        // so picking from the list has to switch that off — mirroring ChatViewModel.selectModel.
+        if (entry.useCustomModel) {
+            dataRepository.updateInstanceUseCustomModel(instanceId, false)
+        }
         dataRepository.updateInstanceSelectedModel(instanceId, entry.service, modelId)
         refreshInstanceModels(instanceId)
     }
@@ -1300,6 +1315,15 @@ class SettingsViewModel(
             val baseUrl = dataRepository.getInstanceBaseUrl(instanceId, service)
             if (isLocalNetworkUrl(baseUrl) && !localNetworkPermissionController.requestPermission()) {
                 updateConnectionStatus(instanceId, ConnectionStatus.ErrorLocalNetworkDenied)
+                // The fetch was armed above — clear it, or the card spins forever with
+                // no failure surfaced.
+                if (service.modelsUrl != null) {
+                    updateModelFetchState(
+                        instanceId,
+                        isFetching = false,
+                        error = null,
+                    )
+                }
                 return@launch
             }
             viewModelScope.launch(backgroundDispatcher) {

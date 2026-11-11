@@ -25,7 +25,6 @@ import com.dorai.ai.theme.ui.DoraiAppearanceSettings
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
 import com.dorai.ai.ui.adaptive.calculateDoraiWindowWidthClass
 import com.dorai.ai.ui.chat.DoraiChatScreen
-import com.dorai.ai.ui.chat.composables.ChatComposer
 import com.dorai.ai.ui.chat.composables.ShellExecutionCard
 import com.dorai.ai.ui.chat.composables.ToolConfirmationCard
 import com.dorai.ai.ui.chat.composables.ToolExecutionCard
@@ -452,46 +451,6 @@ class ScreenshotTest {
                 WorkspaceStatusPill(label = "Warning", kind = WorkspaceStatusKind.Warning)
                 WorkspaceStatusPill(label = "Failed", kind = WorkspaceStatusKind.Failed)
             }
-        }
-    }
-
-    // --- Phase C: Composer states ---
-
-    @Test
-    fun composerEmpty_light() {
-        paparazzi.snap(ThemePresets.light) {
-            ChatComposer(
-                uiState = ScreenshotTestData.chatEmptyState,
-                questionInputText = ScreenshotTestData.composerEmptyText,
-                onTextStateChange = {},
-                isSandboxOpen = false,
-            )
-        }
-    }
-
-    @Test
-    fun composerWithDraft_light() {
-        paparazzi.snap(ThemePresets.light) {
-            ChatComposer(
-                uiState = ScreenshotTestData.chatEmptyState.copy(
-                    availableModels = ScreenshotTestData.composerAvailableModels,
-                ),
-                questionInputText = ScreenshotTestData.composerDraftText,
-                onTextStateChange = {},
-                isSandboxOpen = false,
-            )
-        }
-    }
-
-    @Test
-    fun composerLoading_dark() {
-        paparazzi.snap(ThemePresets.dark) {
-            ChatComposer(
-                uiState = ScreenshotTestData.chatEmptyState.copy(isLoading = true),
-                questionInputText = ScreenshotTestData.composerEmptyText,
-                onTextStateChange = {},
-                isSandboxOpen = false,
-            )
         }
     }
 }

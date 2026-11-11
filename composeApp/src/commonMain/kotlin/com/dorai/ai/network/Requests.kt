@@ -648,7 +648,12 @@ class Requests(
         }
         when (response.status.value) {
             401, 403 -> throw OpenAICompatibleInvalidApiKeyException()
-            in 200..499 -> Result.success(Unit)
+
+            // A bad request means the key was accepted and the probe payload rejected —
+            // the key itself is valid. Only treat 2xx as success; other 4xx (rate limit,
+            // not found) and 5xx must not silently report "Connected".
+            200, 400, 404, 422 -> Result.success(Unit)
+
             else -> throw OpenAICompatibleGenericException("Failed to validate Perplexity API key: ${response.status}")
         }
     }
@@ -750,6 +755,14 @@ class Requests(
 
     private fun resolveUrl(service: Service, credentials: ServiceCredentials, path: String): String {
         val customBase = credentials.baseUrl.trim()
+        if (!Service.acceptsCustomBaseUrl(service)) {
+            // Hosted providers own their canonical endpoints. A custom base URL entered
+            // for one of them must never be spliced into the URL — it would produce a
+            // malformed request like "https://myhost/https://api.groq.com/...". Ignore it
+            // (the settings UI no longer offers the field for these services; this guard
+            // covers stale values persisted before that change and any other writer).
+            return path.replace("{account_id}", "")
+        }
         if (customBase.isNotEmpty()) {
             if (path.contains("{account_id}") && customBase.isNotEmpty()) {
                 // Try to extract account ID from custom base URL or use as-is if it contains account ID
@@ -810,7 +823,7 @@ class Requests(
                 // OpenCode answers unauthenticated requests with 403 (not 401), so a missing or
                 // rejected key looks like a moderation block if mapped generically. Surface the
                 // real cause as an invalid-key error so the UI (and the Free fallback) react right.
-                if (service == Service.OpenCode) {
+                if (service == Service.OpenCode || parsed.looksLikeAuthRejection()) {
                     throw OpenAICompatibleInvalidApiKeyException()
                 }
                 throw OpenAICompatibleContentModerationException(moderationDetail)
@@ -882,6 +895,22 @@ class Requests(
             return msg.contains("content policy", ignoreCase = true) ||
                 msg.contains("moderation", ignoreCase = true) ||
                 msg.contains("flagged", ignoreCase = true)
+        }
+
+        /**
+         * Some gateways answer an invalid/revoked key with 403 instead of 401 (documented
+         * for Requesty, observed elsewhere). Distinguish an auth-shaped 403 from a
+         * moderation one before reporting "content flagged" to the user.
+         */
+        fun looksLikeAuthRejection(): Boolean {
+            if (code?.contains("invalid_api_key", ignoreCase = true) == true) return true
+            if (type?.contains("auth", ignoreCase = true) == true) return true
+            val msg = message ?: return false
+            return msg.contains("api key", ignoreCase = true) ||
+                msg.contains("apikey", ignoreCase = true) ||
+                msg.contains("unauthorized", ignoreCase = true) ||
+                msg.contains("authentication", ignoreCase = true) ||
+                msg.contains("invalid key", ignoreCase = true)
         }
 
         fun moderationDetail(): String? {

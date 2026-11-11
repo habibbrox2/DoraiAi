@@ -681,6 +681,18 @@ sealed class Service(
         const val DEFAULT_OPENAI_COMPATIBLE_BASE_URL = "http://localhost:11434/v1"
 
         /**
+         * Whether [service] honors a user-supplied custom base URL / account id.
+         *
+         * Only the OpenAI-Compatible gateway re-points its endpoints to a user URL, and
+         * Cloudflare's "base URL" field actually stores the account id used to fill the
+         * `{account_id}` template. Every hosted provider owns a canonical endpoint; a
+         * custom base URL entered for one of them must never be spliced into its URLs
+         * (it would produce malformed requests). Callers that build request URLs and
+         * the settings UI both gate on this.
+         */
+        fun acceptsCustomBaseUrl(service: Service): Boolean = service is Service.OpenAICompatible || service is Service.Cloudflare
+
+        /**
          * Base URL for an OpenAI-Compatible instance, ready for an endpoint path to be appended.
          * Users often paste the full chat endpoint (`…/v1/chat/completions`); that suffix is dropped
          * so it isn't doubled, and so the models and responses paths resolve against the real base.
