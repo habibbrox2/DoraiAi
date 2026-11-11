@@ -2,7 +2,7 @@
 
 ### Added
 - **Memory Instructions setting** (Settings → Agent → Memory Instructions): edit persistent guidance text that shapes how the AI stores and retrieves memories across conversations. Previously read-only with no UI.
-- **Atomic tool permission API**: `AppSettings.setToolPermission(toolName, scope, enabled)` avoids read-modify-write cycles for single-permission changes.
+- **Atomic tool permission API**: `AppSettings.setToolPermission(toolName, scope, enabled)` writes a single permission in one call (`enabled = true` → always allow, `enabled = false` → ask every time) instead of callers hand-assembling a `ToolPermission`.
 
 ### Changed
 - **Unified theme system**: removed deprecated `AppSettings.themeModeFlow` / `getThemeMode()` / `setThemeMode()` / `ThemeMode` enum / `KEY_THEME_MODE` constant. `ThemeSettingsRepository` (premium presets, Match Device, Flat/3D style, custom themes) is now the single authoritative source; legacy `theme_mode` key is kept in sync for Android system bars.
@@ -13,6 +13,7 @@
 
 ### Security
 - `getEncryptionKey()` confirmed read-only (set once during install/migration); no setter exists and none will be added.
+- Legacy → encrypted settings migration keeps clearing the plaintext originals for account JSON and account-scoped secrets (email passwords, Splinterlands posting keys) even when the encrypted store already holds a newer value, so secrets don't survive unencrypted on disk.
 
 ---
 

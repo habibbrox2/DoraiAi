@@ -209,9 +209,17 @@ class AppSettings(internal val settings: Settings) {
         setToolPermissions(permissions)
     }
 
+    /**
+     * Writes a single tool permission in one call, so callers never have to assemble a
+     * [ToolPermission] by hand.
+     *
+     * [enabled] maps onto the policy enum: `true` means the tool may run without asking
+     * ([ToolPermissionPolicy.ALWAYS_ALLOW]), `false` restores the default "ask every time"
+     * behaviour ([ToolPermissionPolicy.ASK_ALWAYS]).
+     */
     fun setToolPermission(toolName: String, scope: String?, enabled: Boolean) {
-        val permission = ToolPermission(toolName, scope, enabled)
-        setToolPermission(permission)
+        val policy = if (enabled) ToolPermissionPolicy.ALWAYS_ALLOW else ToolPermissionPolicy.ASK_ALWAYS
+        setToolPermission(ToolPermission(toolName = toolName, scope = scope, policy = policy))
     }
 
     fun getConversationsJson(): String? = settings.getStringOrNull(KEY_CONVERSATIONS)

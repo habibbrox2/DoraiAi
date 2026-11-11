@@ -62,6 +62,10 @@ import dorai.composeapp.generated.resources.settings_memories_edit_cancel
 import dorai.composeapp.generated.resources.settings_memories_edit_save
 import dorai.composeapp.generated.resources.settings_memories_edit_title
 import dorai.composeapp.generated.resources.settings_memories_show_all
+import dorai.composeapp.generated.resources.settings_memory_instructions
+import dorai.composeapp.generated.resources.settings_memory_instructions_description
+import dorai.composeapp.generated.resources.settings_memory_instructions_placeholder
+import dorai.composeapp.generated.resources.settings_memory_instructions_save
 import dorai.composeapp.generated.resources.settings_scheduled_tasks
 import dorai.composeapp.generated.resources.settings_scheduled_tasks_cancel
 import dorai.composeapp.generated.resources.settings_scheduled_tasks_description
@@ -299,12 +303,14 @@ private fun SoulEditor(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun MemoryInstructionsEditor(
     instructions: String,
     onSaveInstructions: (String) -> Unit,
 ) {
-    var editedInstructions by remember { mutableStateOf(instructions) }
+    // Keyed on `instructions` so a save (which trims the value) resyncs the field and the
+    // Save button disappears instead of staying enabled on stale text.
+    var editedInstructions by remember(instructions) { mutableStateOf(instructions) }
     val hasChanges = editedInstructions != instructions
     val maxChars = 5000
 

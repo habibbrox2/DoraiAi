@@ -1,6 +1,6 @@
 # Memories
 
-**Last verified:** 2026-10-21
+**Last verified:** 2026-11-11
 
 DORAI AI's memory system allows the AI to learn and retain information across conversations. Memories are stored persistently, injected into every system prompt for context, and can be reinforced over time. Well-established memories can be promoted into permanent behavior (the soul/system prompt); the heartbeat surfaces candidates for promotion.
 
@@ -74,6 +74,7 @@ The memories section lives in Settings → Agent and contains:
 - **Show all button** — appears when more than five memories exist; opens a modal bottom sheet listing every memory
 - **Edit memory** — tapping any memory row (inline or inside the bottom sheet) opens an edit bottom sheet that lets the user modify the memory content. The key is shown but not editable. Saving updates the memory's content and timestamp
 - **Delete button** — per-memory trash icon to remove individual memories; deletion is deferred with a snackbar "Undo" option (~4 seconds) before the memory is permanently removed
+- **Memory Instructions editor** — a separate card below the memory list holding the persistent guidance text that shapes how the AI uses and manages memories. The text is saved on demand ("Save Instructions" appears only when the field differs from the stored value, max 5,000 characters) and is injected into the system prompt for every chat variant while the memory toggle is on. The stored value defaults to the built-in instructions described under [Default Instructions](#default-instructions)
 
 ## AI Tools
 
@@ -93,12 +94,12 @@ The memories section lives in Settings → Agent and contains:
 |---|---|
 | `composeApp/src/commonMain/.../data/MemoryStore.kt` | Core storage, retrieval, reinforcement, deletion, categorization |
 | `composeApp/src/commonMain/.../data/SettingsJson.kt` | Shared settings-backed JSON persistence: decode-or-default, encode-and-write, locked read-modify-write |
-| `composeApp/src/commonMain/.../data/AppSettings.kt` | Persistence layer for memories JSON and enable flag |
+| `composeApp/src/commonMain/.../data/AppSettings.kt` | Persistence layer for memories JSON, enable flag, and memory instructions |
 | `composeApp/src/commonMain/.../data/RemoteDataRepository.kt` | Loads memories and memory instructions for the system prompt; on-device tool allowlist |
 | `composeApp/src/commonMain/.../data/ChatSystemPromptBuilder.kt` | Category-grouped memory sections, local 2,000-char budget, Structured Learning section |
 | `composeApp/src/commonMain/.../data/HeartbeatManager.kt` | Surfaces promotion candidates (5+ hits) in the heartbeat prompt |
 | `composeApp/src/commonMain/.../tools/AgentToolSet.kt` | Gates memory tools on the memory switch and `promote_learning` on the scheduling switch |
 | `composeApp/src/commonMain/.../tools/CommonTools.kt` | AI tool definitions for memory_store, memory_learn, memory_forget, memory_reinforce |
 | `composeApp/src/commonMain/.../tools/HeartbeatTools.kt` | promote_learning tool |
-| `composeApp/src/commonMain/.../ui/settings/AgentSettings.kt` | Memory management UI (list, all-memories sheet, edit sheet) |
+| `composeApp/src/commonMain/.../ui/settings/AgentSettings.kt` | Memory management UI (list, all-memories sheet, edit sheet, memory instructions editor) |
 | `composeApp/src/commonMain/.../ui/settings/SettingsViewModel.kt` | Memory state management and user actions |

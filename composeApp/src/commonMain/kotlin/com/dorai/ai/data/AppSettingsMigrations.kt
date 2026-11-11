@@ -1,15 +1,10 @@
 package com.dorai.ai.data
 
 import com.dorai.ai.data.AppSettings.Companion.KEY_APP_OPENS
-import com.dorai.ai.data.AppSettings.Companion.KEY_BASE_URL_V1_MIGRATION_COMPLETE
 import com.dorai.ai.data.AppSettings.Companion.KEY_CURRENT_SERVICE_ID
-import com.dorai.ai.data.AppSettings.Companion.KEY_CUSTOM_MODEL_MIGRATION_COMPLETE
 import com.dorai.ai.data.AppSettings.Companion.KEY_EMAIL_ACCOUNTS
 import com.dorai.ai.data.AppSettings.Companion.KEY_EMAIL_PASSWORD_PREFIX
 import com.dorai.ai.data.AppSettings.Companion.KEY_ENCRYPTION_KEY
-import com.dorai.ai.data.AppSettings.Companion.KEY_INSTANCE_MIGRATION_COMPLETE
-import com.dorai.ai.data.AppSettings.Companion.KEY_MIGRATION_COMPLETE
-import com.dorai.ai.data.AppSettings.Companion.KEY_SERVICES_MIGRATION_COMPLETE
 import com.dorai.ai.data.AppSettings.Companion.KEY_SPLINTERLANDS_ACCOUNT
 import com.dorai.ai.data.AppSettings.Companion.KEY_SPLINTERLANDS_POSTING_KEY
 import com.russhwolf.settings.Settings
@@ -27,7 +22,7 @@ fun AppSettings.runMigrations(legacySettings: Settings?) {
 
 fun AppSettings.migrateFromLegacyIfNeeded(legacySettings: Settings?) {
     if (legacySettings == null) return
-    if (settings.getBoolean(KEY_MIGRATION_COMPLETE, false)) return
+    if (isMigrationComplete()) return
 
     val migratedKeys = mutableListOf<String>()
 
@@ -46,6 +41,19 @@ fun AppSettings.migrateFromLegacyIfNeeded(legacySettings: Settings?) {
         }
     }
 
+    /**
+     * Like [migrateString] but writes through a typed setter instead of a raw `put*` call.
+     *
+     * The key is registered in [migratedKeys] whenever the legacy store holds a value, even
+     * when the destination already had a newer one — that is what allows the plaintext
+     * original to be removed from the legacy store below.
+     */
+    fun migrateTypedString(legacy: Settings, key: String, write: (String) -> Unit) {
+        val value = legacy.getStringOrNull(key) ?: return
+        if (settings.getStringOrNull(key) == null) write(value)
+        migratedKeys.add(key)
+    }
+
     migrateString(legacySettings, KEY_CURRENT_SERVICE_ID)
     migrateInt(legacySettings, KEY_APP_OPENS)
 
@@ -60,32 +68,18 @@ fun AppSettings.migrateFromLegacyIfNeeded(legacySettings: Settings?) {
     // Secrets that may predate the encrypted store. Account-scoped keys are discovered
     // from the account JSONs because the common Settings API cannot enumerate keys.
     migrateString(legacySettings, KEY_ENCRYPTION_KEY)
-    val emailAccountsJson = legacySettings.getStringOrNull(KEY_EMAIL_ACCOUNTS)
-    if (emailAccountsJson != null && settings.getStringOrNull(KEY_EMAIL_ACCOUNTS) == null) {
-        setEmailAccountsJson(emailAccountsJson)
-        migratedKeys.add(KEY_EMAIL_ACCOUNTS)
-    }
-    val splinterlandsAccountJson = legacySettings.getStringOrNull(KEY_SPLINTERLANDS_ACCOUNT)
-    if (splinterlandsAccountJson != null && settings.getStringOrNull(KEY_SPLINTERLANDS_ACCOUNT) == null) {
-        setSplinterlandsAccountJson(splinterlandsAccountJson)
-        migratedKeys.add(KEY_SPLINTERLANDS_ACCOUNT)
-    }
+    migrateTypedString(legacySettings, KEY_EMAIL_ACCOUNTS) { setEmailAccountsJson(it) }
+    migrateTypedString(legacySettings, KEY_SPLINTERLANDS_ACCOUNT) { setSplinterlandsAccountJson(it) }
     migrateString(legacySettings, KEY_SPLINTERLANDS_POSTING_KEY)
     val accountIds = buildList {
         addAll(settings.getStringOrNull(KEY_EMAIL_ACCOUNTS).extractAccountIds())
         addAll(settings.getStringOrNull(KEY_SPLINTERLANDS_ACCOUNT).extractAccountIds())
     }
     for (accountId in accountIds) {
-        val emailPassword = legacySettings.getStringOrNull("${KEY_EMAIL_PASSWORD_PREFIX}$accountId")
-        if (emailPassword != null && settings.getStringOrNull("${KEY_EMAIL_PASSWORD_PREFIX}$accountId") == null) {
-            setEmailPassword(accountId, emailPassword)
-            migratedKeys.add("${KEY_EMAIL_PASSWORD_PREFIX}$accountId")
-        }
-        val splKey = legacySettings.getStringOrNull("${KEY_SPLINTERLANDS_POSTING_KEY}_$accountId")
-        if (splKey != null && settings.getStringOrNull("${KEY_SPLINTERLANDS_POSTING_KEY}_$accountId") == null) {
-            setSplinterlandsPostingKey(accountId, splKey)
-            migratedKeys.add("${KEY_SPLINTERLANDS_POSTING_KEY}_$accountId")
-        }
+        val emailPasswordKey = "${KEY_EMAIL_PASSWORD_PREFIX}$accountId"
+        migrateTypedString(legacySettings, emailPasswordKey) { setEmailPassword(accountId, it) }
+        val splinterlandsKey = "${KEY_SPLINTERLANDS_POSTING_KEY}_$accountId"
+        migrateTypedString(legacySettings, splinterlandsKey) { setSplinterlandsPostingKey(accountId, it) }
     }
 
     if (verifiedMigratedKeys(legacySettings, migratedKeys)) {
@@ -111,7 +105,7 @@ private fun AppSettings.verifiedMigratedKeys(legacy: Settings, keys: List<String
 private fun String?.extractAccountIds(): List<String> = this?.let { json -> Regex(""""id"\s*:\s*"([^"]+)"""").findAll(json).mapTo(mutableListOf()) { it.groupValues[1] } } ?: emptyList()
 
 fun AppSettings.migrateConfiguredServicesIfNeeded() {
-    if (settings.getBoolean(KEY_SERVICES_MIGRATION_COMPLETE, false)) return
+    if (isServicesMigrationComplete()) return
 
     val existing = getConfiguredServiceInstances()
     val existingServiceIds = existing.map { it.serviceId }.toSet()
@@ -146,7 +140,7 @@ fun AppSettings.migrateConfiguredServicesIfNeeded() {
  * legacy key prefix. This copies those values to the new instance_ keys.
  */
 fun AppSettings.migrateInstanceSettingsIfNeeded() {
-    if (settings.getBoolean(KEY_INSTANCE_MIGRATION_COMPLETE, false)) return
+    if (isInstanceMigrationComplete()) return
 
     val instances = getConfiguredServiceInstances()
     for (instance in instances) {
@@ -177,7 +171,7 @@ fun AppSettings.migrateInstanceSettingsIfNeeded() {
  * include it (following the OpenAI SDK convention).
  */
 fun AppSettings.migrateBaseUrlsToV1PathIfNeeded() {
-    if (settings.getBoolean(KEY_BASE_URL_V1_MIGRATION_COMPLETE, false)) return
+    if (isBaseUrlV1MigrationComplete()) return
 
     val instances = getConfiguredServiceInstances()
     for (instance in instances) {
@@ -212,7 +206,7 @@ internal fun ensureBaseUrlHasVersionPath(url: String): String {
  * "Custom model" checkbox. List selection stays in `model_id`.
  */
 fun AppSettings.migrateCustomModelSettingsIfNeeded() {
-    if (settings.getBoolean(KEY_CUSTOM_MODEL_MIGRATION_COMPLETE, false)) return
+    if (isCustomModelMigrationComplete()) return
 
     val instances = getConfiguredServiceInstances()
     for (instance in instances) {

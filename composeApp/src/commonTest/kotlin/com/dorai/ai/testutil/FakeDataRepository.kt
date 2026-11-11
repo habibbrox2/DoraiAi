@@ -20,7 +20,6 @@ import com.dorai.ai.data.ServiceInstance
 import com.dorai.ai.data.SmsDraft
 import com.dorai.ai.data.SmsSyncState
 import com.dorai.ai.data.SystemPromptVariant
-import com.dorai.ai.data.ThemeMode
 import com.dorai.ai.data.ensureSelectedModelPresent
 import com.dorai.ai.inference.DownloadError
 import com.dorai.ai.inference.DownloadedModel
@@ -453,19 +452,6 @@ class FakeDataRepository : DataRepository {
         restoreLastChatEnabled = enabled
     }
 
-    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository")
-    private var themeMode: ThemeMode = ThemeMode.System
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository")
-    override fun getThemeMode(): ThemeMode = themeMode
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Theme configuration is managed authoritatively by ThemeSettingsRepository")
-    override fun setThemeMode(mode: ThemeMode) {
-        themeMode = mode
-    }
-
     private var appLanguage: AppLanguage = AppLanguage.Bengali
 
     override fun getAppLanguage(): AppLanguage = appLanguage
@@ -489,6 +475,14 @@ class FakeDataRepository : DataRepository {
 
     override fun setMemoryEnabled(enabled: Boolean) {
         memoryEnabled = enabled
+    }
+
+    private var memoryInstructions = ""
+
+    override fun getMemoryInstructions(): String = memoryInstructions
+
+    override fun setMemoryInstructions(instructions: String) {
+        memoryInstructions = instructions
     }
 
     override fun getMemories(): List<MemoryEntry> = memories.toList()
