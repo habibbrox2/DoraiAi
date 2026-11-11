@@ -138,7 +138,7 @@ Plus a built-in **Free** tier that requires no API key.
 - **[On-Device Inference](features/on-device-inference.md)** — Local LiteRT models, downloads, and integrity checks
 - **[Reasoning](features/reasoning.md)** — How reasoning traces are sent back to providers and shown
 - **[Linux Sandbox](features/sandbox.md)** — On-device Debian/Alpine shell for the AI and the user (Android)
-- **[DORAI Build](features/kai-build.md)** — Coding environment with terminals and coding agents (Android)
+- **[DORAI Build](features/dorai-build.md)** — Coding environment with terminals and coding agents (Android)
 - **[Notifications](features/notifications.md)** — Reading other apps' notifications (Android, FOSS build)
 - **[SMS](features/sms.md)** — Reading SMS and drafting replies for the user to send (Android, FOSS build)
 - **[Appearance](features/appearance.md)** — Theme picker

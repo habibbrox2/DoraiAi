@@ -14,7 +14,7 @@ The sandbox is **Android-only**. iOS, desktop, and web have no-op stubs — sand
 
 The card offers two, and the choice is always open — before the first install and at any point afterwards:
 
-- **Debian 12** — the recommended default. ~150 MB, apt, glibc, and the same Linux [DORAI Build](kai-build.md) runs in.
+- **Debian 12** — the recommended default. ~150 MB, apt, glibc, and the same Linux [DORAI Build](dorai-build.md) runs in.
 - **Alpine Linux** — the small option. ~4 MB, apk, musl. DORAI Build cannot use it, so picking Alpine means DORAI Build installs a Debian of its own alongside.
 
 **Switching is not a reinstall.** Each distribution keeps its own install in its own directory, so picking the other one points the shell integration at it and leaves the one being left exactly as it was — same `/root`, same SSH keys, same skills, same installed packages. Switching back is instant. If the distribution picked has no install yet, the card simply offers to install it, and the other one still stays put. Nothing is ever downloaded or deleted by the act of switching; removing a Linux is only ever the explicit **Uninstall** action, which removes the one currently selected.

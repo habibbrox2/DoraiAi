@@ -62,7 +62,7 @@ Failing→re-recorded set: `settings_providers_compact_ogshine` (static Provider
 
 - [ai-provider-remediation-research.md](ai-provider-remediation-research.md) — official-source research and decision rationale
 - [ai-provider-remediation-implementation.md](ai-provider-remediation-implementation.md) — per-finding status (all 38) and verification notes
-- [CHANGELOG.md](../CHANGELOG.md) — unreleased section drafted (not committed)
+- [CHANGELOG.md](https://github.com/habibbrox2/DoraiAi/blob/main/CHANGELOG.md) — unreleased section drafted (not committed)
 - `docs/features/chat.md`, `docs/features/multi-service.md`, `docs/features/encryption.md`, `docs/release-procedure.md` — updated with “Last verified” 2026-11-09
 - `git status` — see final report; **no commit/push/tag/release performed**
 

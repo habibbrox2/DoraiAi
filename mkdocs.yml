@@ -45,7 +45,7 @@ nav:
     - On-Device Inference: features/on-device-inference.md
     - Reasoning: features/reasoning.md
     - Linux Sandbox: features/sandbox.md
-    - DORAI Build: features/kai-build.md
+    - DORAI Build: features/dorai-build.md
     - Notifications: features/notifications.md
     - SMS: features/sms.md
     - Appearance: features/appearance.md
