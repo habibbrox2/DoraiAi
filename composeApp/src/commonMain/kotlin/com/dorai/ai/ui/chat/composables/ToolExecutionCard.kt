@@ -50,6 +50,7 @@ import com.dorai.ai.ui.rememberCopyToClipboard
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_copy_code
 import dorai.composeapp.generated.resources.chat_action_copied
 import dorai.composeapp.generated.resources.tool_output_label
 import kotlinx.coroutines.delay
@@ -216,7 +217,7 @@ fun ShellExecutionCard(
                             },
                             modifier = Modifier.size(24.dp).handCursor(),
                         ) {
-                            Icon(Icons.Default.ContentCopy, contentDescription = "Copy command", tint = textMuted, modifier = Modifier.size(13.dp))
+                            Icon(Icons.Default.ContentCopy, contentDescription = stringResource(Res.string.a11y_copy_code), tint = textMuted, modifier = Modifier.size(13.dp))
                         }
                     }
 
@@ -518,7 +519,7 @@ fun ToolExecutionCard(
                                         },
                                         modifier = Modifier.size(20.dp).handCursor(),
                                     ) {
-                                        Icon(Icons.Default.ContentCopy, contentDescription = "Copy output", tint = textMuted, modifier = Modifier.size(12.dp))
+                                        Icon(Icons.Default.ContentCopy, contentDescription = stringResource(Res.string.a11y_copy_code), tint = textMuted, modifier = Modifier.size(12.dp))
                                     }
                                 }
                             }

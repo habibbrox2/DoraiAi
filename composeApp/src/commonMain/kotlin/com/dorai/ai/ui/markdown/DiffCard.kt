@@ -42,7 +42,11 @@ import com.dorai.ai.ui.rememberCopyToClipboard
 import com.dorai.ai.ui.theme.DesignColorTokens
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_copy_diff
+import dorai.composeapp.generated.resources.chat_action_copied
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Git-style unified diff card for chat code fences (Plan 7 polish).
@@ -286,12 +290,12 @@ internal fun DiffCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Copied",
+                        contentDescription = stringResource(Res.string.chat_action_copied),
                         modifier = Modifier.size(14.dp),
                         tint = DiffPalette.added,
                     )
                     Text(
-                        text = "Copied!",
+                        text = stringResource(Res.string.chat_action_copied),
                         style = DoraiTypography.labelSmall,
                         fontFamily = FontFamily.Monospace,
                         color = DiffPalette.added,
@@ -307,7 +311,7 @@ internal fun DiffCard(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.ContentCopy,
-                        contentDescription = "Copy diff",
+                        contentDescription = stringResource(Res.string.a11y_copy_diff),
                         modifier = Modifier.size(14.dp),
                         tint = tokens.textMuted,
                     )

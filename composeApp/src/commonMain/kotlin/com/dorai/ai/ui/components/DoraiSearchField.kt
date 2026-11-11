@@ -20,6 +20,9 @@ import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignTokens
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_search
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun DoraiSearchField(
@@ -44,7 +47,7 @@ fun DoraiSearchField(
         leadingIcon = {
             Icon(
                 imageVector = Icons.Filled.Search,
-                contentDescription = "Search",
+                contentDescription = stringResource(Res.string.a11y_search),
                 tint = tokens.MutedText,
             )
         },

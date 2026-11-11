@@ -513,28 +513,6 @@ class ChatViewModelTest {
     }
 
     @Test
-    fun `toggleSpeechOutput toggles isSpeechOutputEnabled`() = runTest {
-        val viewModel = createViewModel()
-
-        viewModel.state.test {
-            val initialState = awaitItem()
-            assertFalse(initialState.isSpeechOutputEnabled)
-
-            initialState.actions.toggleSpeechOutput()
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            val enabledState = awaitItem()
-            assertTrue(enabledState.isSpeechOutputEnabled)
-
-            enabledState.actions.toggleSpeechOutput()
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            val disabledState = awaitItem()
-            assertFalse(disabledState.isSpeechOutputEnabled)
-        }
-    }
-
-    @Test
     fun `setIsSpeaking updates speaking state`() = runTest {
         val viewModel = createViewModel()
 

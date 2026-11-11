@@ -194,6 +194,121 @@ class DoraiUiV2ScreenshotTest {
         )
     }
 
+    @Test
+    fun chat_compact_streaming_tail_ogshine() = snap(
+        destination = DoraiDestination.Chat,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+    ) {
+        DoraiChatScreen(
+            messages = listOf(
+                com.dorai.ai.ui.chat.ChatMessageItem(
+                    id = "user-1",
+                    isUser = true,
+                    text = "Summarize my build output.",
+                ),
+            ),
+            conversations = ScreenshotTestData.v2Conversations,
+            currentModelName = "Google Gemini",
+            isModelLocal = false,
+            selectedModeId = "ask",
+            onModeSelected = {},
+            onSendMessage = {},
+            onNewChat = {},
+            onOpenConversation = {},
+            isStreaming = true,
+        )
+    }
+
+    @Test
+    fun chat_compact_error_badge_ogshine() = snap(
+        destination = DoraiDestination.Chat,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+    ) {
+        DoraiChatScreen(
+            messages = ScreenshotTestData.v2Messages,
+            conversations = ScreenshotTestData.v2Conversations,
+            currentModelName = "Google Gemini",
+            isModelLocal = false,
+            selectedModeId = "build",
+            onModeSelected = {},
+            onSendMessage = {},
+            onNewChat = {},
+            onOpenConversation = {},
+            error = com.dorai.ai.network.UiError.Text("Rate limit exceeded. Please try again later."),
+            onRetryError = {},
+            onDismissError = {},
+        )
+    }
+
+    @Test
+    fun chat_compact_free_provider_suggestions_ogshine() = snap(
+        destination = DoraiDestination.Chat,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+    ) {
+        DoraiChatScreen(
+            messages = ScreenshotTestData.v2Messages,
+            conversations = ScreenshotTestData.v2Conversations,
+            currentModelName = "Google Gemini",
+            isModelLocal = false,
+            selectedModeId = "build",
+            onModeSelected = {},
+            onSendMessage = {},
+            onNewChat = {},
+            onOpenConversation = {},
+            error = com.dorai.ai.network.UiError.Text("Rate limit exceeded. Please try again later."),
+            showFreeProviderSuggestions = true,
+            onRetryError = {},
+            onDismissError = {},
+        )
+    }
+
+    @Test
+    fun chat_compact_frozen_interactive_ogshine() = snap(
+        destination = DoraiDestination.Chat,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+    ) {
+        val interactiveAnswer = """Here is the short version:
+
+```dorai-ui
+{"type":"column","children":[{"type":"text","value":"Pick one:","style":"title"},{"type":"button","label":"Keep it","action":{"type":"callback","event":"submit","data":{"choice":"keep"}}},{"type":"button","label":"Drop it","action":{"type":"callback","event":"submit","data":{"choice":"drop"}}}]}
+```"""
+        DoraiChatScreen(
+            messages = listOf(
+                com.dorai.ai.ui.chat.ChatMessageItem(
+                    id = "frozen-1",
+                    isUser = true,
+                    text = "Give me the short version.",
+                ),
+                com.dorai.ai.ui.chat.ChatMessageItem(
+                    id = "frozen-2",
+                    isUser = false,
+                    text = interactiveAnswer,
+                    modelName = "Google Gemini",
+                    isModelLocal = false,
+                ),
+            ),
+            conversations = ScreenshotTestData.v2Conversations,
+            currentModelName = "Google Gemini",
+            isModelLocal = false,
+            selectedModeId = "build",
+            onModeSelected = {},
+            onSendMessage = {},
+            onNewChat = {},
+            onOpenConversation = {},
+            isInteractiveMode = true,
+            frozenByAssistantId = mapOf(
+                "frozen-2" to com.dorai.ai.ui.dynamicui.FrozenSubmission(
+                    values = mapOf("choice" to "keep"),
+                    pressedEvent = "submit",
+                ),
+            ),
+        )
+    }
+
     // -------------------------------------------------------------------------
     // 3. Workspace Screen
     // -------------------------------------------------------------------------

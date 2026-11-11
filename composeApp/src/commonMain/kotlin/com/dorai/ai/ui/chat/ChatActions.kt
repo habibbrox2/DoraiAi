@@ -6,7 +6,6 @@ import io.github.vinceglb.filekit.PlatformFile
 @Immutable
 data class ChatActions(
     val ask: (String) -> Unit,
-    val toggleSpeechOutput: () -> Unit,
     val retry: () -> Unit,
     val clearHistory: () -> Unit,
     val setIsSpeaking: (Boolean, String) -> Unit,
@@ -33,8 +32,6 @@ data class ChatActions(
     val setInteractiveMode: (Boolean) -> Unit,
     /** Selects the UI v2 agent mode ("ask"/"plan"/"build"/"review") for the current chat. */
     val setAgentMode: (String) -> Unit = {},
-    /** Removes the last exchange — the interactive mode's back action. */
-    val goBackInteractiveMode: () -> Unit,
     val sendSmsDraft: (String) -> Unit,
     val discardSmsDraft: (String) -> Unit,
     val consumeComposerPrefill: () -> Unit,

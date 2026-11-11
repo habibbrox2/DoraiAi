@@ -75,7 +75,6 @@ class ChatViewModel(
     private val actions = ChatActions(
         ask = ::ask,
         retry = ::retry,
-        toggleSpeechOutput = ::toggleSpeechOutput,
         clearHistory = ::clearHistory,
         setIsSpeaking = ::setIsSpeaking,
         addFile = ::addFile,
@@ -97,7 +96,6 @@ class ChatViewModel(
         resubmit = ::resubmit,
         setInteractiveMode = ::setInteractiveMode,
         setAgentMode = ::setAgentMode,
-        goBackInteractiveMode = ::goBackInteractiveMode,
         sendSmsDraft = ::sendSmsDraft,
         discardSmsDraft = ::discardSmsDraft,
         consumeComposerPrefill = ::consumeComposerPrefill,
@@ -134,9 +132,7 @@ class ChatViewModel(
             runCatching { fileReviewController.initialize() }
             fileReviewController.proposals.collect { proposals ->
                 val visible = proposals.sortedByDescending { it.updatedAtMs }.take(20)
-                val previews = LinkedHashMap<String, com.dorai.ai.filereview.FileReviewPreview>()
-                visible.forEach { proposal -> fileReviewController.preview(proposal.id)?.let { previews[proposal.id] = it } }
-                _state.update { it.copy(fileReviewProposals = visible.toImmutableList(), fileReviewPreviews = previews) }
+                _state.update { it.copy(fileReviewProposals = visible.toImmutableList()) }
             }
         }
 
@@ -485,14 +481,6 @@ class ChatViewModel(
         ask(null)
     }
 
-    private fun toggleSpeechOutput() {
-        _state.update {
-            it.copy(
-                isSpeechOutputEnabled = !it.isSpeechOutputEnabled,
-            )
-        }
-    }
-
     private fun cancel() {
         currentJob?.cancel()
         currentJob = null
@@ -801,16 +789,6 @@ class ChatViewModel(
         if (_state.value.isLoading) return
         dataRepository.truncateFrom(messageId)
         submitUiCallback(event, data)
-    }
-
-    private fun goBackInteractiveMode() {
-        val userCount = dataRepository.chatHistory.value.count { it.role == History.Role.USER }
-        if (userCount <= 1) {
-            // Go back to initial prompt — clear history but stay in interactive mode
-            dataRepository.clearHistory()
-        } else {
-            dataRepository.popLastExchange()
-        }
     }
 
     fun refreshSettings() {

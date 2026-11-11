@@ -40,7 +40,6 @@ object ScreenshotTestData {
 
     val noOpChatActions = ChatActions(
         ask = {},
-        toggleSpeechOutput = {},
         retry = {},
         clearHistory = {},
         setIsSpeaking = { _, _ -> },
@@ -62,7 +61,6 @@ object ScreenshotTestData {
         submitUiCallback = { _, _ -> },
         resubmit = { _, _, _ -> },
         setInteractiveMode = { },
-        goBackInteractiveMode = { },
         sendSmsDraft = {},
         discardSmsDraft = {},
         consumeComposerPrefill = {},

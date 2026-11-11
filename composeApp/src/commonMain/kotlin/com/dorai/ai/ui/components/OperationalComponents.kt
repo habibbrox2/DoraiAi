@@ -37,6 +37,9 @@ import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.settings.SettingsSpacing
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_status_with_label
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Shared operational status vocabulary (Plan 4, Phase 1) so MCP, skills,
@@ -127,9 +130,11 @@ fun StatusBadge(
     val color = colors.forStatus(status)
     // Use neutral text color for status dot
     val dotColor = if (color == designColors.textSecondary) DesignTokens.MutedText else color
+    // a11y: announce the badge as one unit with the label in the user's language.
+    val statusDescription = stringResource(Res.string.a11y_status_with_label, label)
     Row(
         modifier = modifier.semantics {
-            contentDescription = "Status: $label"
+            contentDescription = statusDescription
         },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),

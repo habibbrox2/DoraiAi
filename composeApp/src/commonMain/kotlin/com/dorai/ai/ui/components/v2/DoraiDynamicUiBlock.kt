@@ -38,6 +38,7 @@ import com.dorai.ai.theme.engine.doraiEdgeStyle
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.chat_interactive_reply
 import dorai.composeapp.generated.resources.dynamic_ui_confirm
 import dorai.composeapp.generated.resources.dynamic_ui_submitted
 import org.jetbrains.compose.resources.stringResource
@@ -88,7 +89,7 @@ fun DoraiDynamicUiBlock(
             modifier = Modifier.padding(bottom = DoraiSpacing.XS),
         ) {
             DoraiStatusBadge(
-                text = "Interactive reply",
+                text = stringResource(Res.string.chat_interactive_reply),
                 color = colors.info,
             )
         }
