@@ -291,6 +291,9 @@ class Requests(
                 apiKey?.let { bearerAuth(it) }
                 applySessionHeader(service, credentials, sessionId)
                 customHeaders.forEach { (k, v) -> header(k, v) }
+                if (service == Service.CloudflareAIGateway) {
+                    header("cf-aig-gateway-id", "default")
+                }
                 setBody(
                     OpenAICompatibleChatRequestDto(
                         messages = messages,
@@ -357,6 +360,9 @@ class Requests(
             header("Accept", "text/event-stream")
             apiKey?.let { bearerAuth(it) }
             applySessionHeader(service, credentials, sessionId)
+            if (service == Service.CloudflareAIGateway) {
+                header("cf-aig-gateway-id", "default")
+            }
             setBody(
                 OpenAICompatibleChatRequestDto(
                     messages = messages,
@@ -526,7 +532,7 @@ class Requests(
     ): Result<OpenAICompatibleModelResponseDto> = openAICompatibleResult {
         val modelsUrl = service.modelsUrl
             ?: return Result.failure(OpenAICompatibleGenericException("Models URL not configured for ${service.displayName}"))
-        val apiKey = if (service == Service.Cloudflare) {
+        val apiKey = if (service == Service.Cloudflare || service == Service.CloudflareAIGateway) {
             getApiKeyOrThrow(service, credentials)
         } else {
             getOptionalApiKey(service, credentials)
@@ -534,7 +540,7 @@ class Requests(
 
         // Cloudflare Workers AI uses the Cloudflare v4 envelope (result/result_info), not
         // the OpenAI-compatible { data: [...] } model-list response. Fetch all pages explicitly.
-        if (service == Service.Cloudflare) {
+        if (service == Service.Cloudflare || service == Service.CloudflareAIGateway) {
             if (credentials.baseUrl.isBlank()) {
                 return Result.failure(
                     OpenAICompatibleGenericException("Cloudflare Account ID is required to discover Workers AI models."),
@@ -556,9 +562,12 @@ class Requests(
                 val response = defaultClient.get(pageUrl) {
                     apiKey?.let { bearerAuth(it) }
                     applySessionHeader(service, credentials, sessionId = null)
+                    if (service == Service.CloudflareAIGateway) {
+                        header("cf-aig-gateway-id", "default")
+                    }
                 }
                 if (!response.status.isSuccess()) {
-                    if (service == Service.Cloudflare) {
+                    if (service == Service.Cloudflare || service == Service.CloudflareAIGateway) {
                         val responseBody = response.bodyAsText()
                         val detail = parseCloudflareModelSearchError(responseBody)
                             ?: "HTTP ${response.status.value}"
