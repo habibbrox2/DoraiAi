@@ -1,6 +1,6 @@
 # Multi-Service
 
-**Last verified:** 2026-11-09
+**Last verified:** 2026-11-11
 
 DORAI AI supports 31 user-configurable LLM providers (plus a built-in Free tier). Each provider uses one of three API formats: **OpenAI-compatible** (most services), **Gemini native**, or **Anthropic native** -- plus **LiteRT on-device** for local inference. A handful of OpenAI models additionally require OpenAI's **Responses API**; DORAI AI switches to it per model, transparently. Users can configure multiple service instances, reorder them, and DORAI AI automatically falls back through the chain on failure.
 
@@ -130,7 +130,7 @@ The id is DORAI AI's own random conversation identifier; nothing about the user 
 
 ## Connection Validation
 
-When the user enters or changes an API key (or base URL), the app validates the connection after an 800 ms debounce and shows a status indicator: **checking**, **connected**, **invalid key**, **quota exhausted**, **rate limited**, **connection failed**, or **local network access denied**. Validation also runs for all services when the settings screen opens. Services validate by fetching their model list — Gemini, Anthropic, and OpenAI-compatible services (including LongCat) each call their respective models endpoint. **Perplexity** is an exception: Sonar has no authenticated models list, so validation probes the chat endpoint with an incomplete body to verify the API key, then loads the curated Sonar model list. **Requesty** answers a bad key with 403 on its models endpoint, which the shared error mapping would read as content moderation, so validation checks the key against that endpoint first and only then loads the model list. On a successful connection, the available model list is refreshed.
+When the user enters or changes an API key (or base URL), the app validates the connection after an 800 ms debounce and shows a status indicator: **checking**, **connected**, **invalid key**, **quota exhausted**, **rate limited**, **connection failed**, or **local network access denied**. Validation also runs for all services when the settings screen opens. Every successful or definitive result is **persisted per instance**: the next cold start builds its initial `ConfigurationServiceEntry` list from those stored statuses, so cards can show their last-known truthful state while awaiting fresh validation instead of defaulting to "not checked". Credentials or endpoint edits clear the persisted status. Services validate by fetching their model list — Gemini, Anthropic, and OpenAI-compatible services (including LongCat) each call their respective models endpoint. **Perplexity** is an exception: Sonar has no authenticated models list, so validation probes the chat endpoint with an incomplete body to verify the API key, then loads the curated Sonar model list. **Requesty** answers a bad key with 403 on its models endpoint, which the shared error mapping would read as content moderation, so validation checks the key against that endpoint first and only then loads the model list. On a successful connection, the available model list is refreshed.
 
 ### Local Network Servers (Android)
 
@@ -212,14 +212,14 @@ Users manage services through the settings screen:
 | `composeApp/src/commonMain/.../data/FreeProviderSuggestions.kt` | Providers recommended in chat when Free is rate-limited with no services configured |
 | `composeApp/src/commonMain/.../data/ModelTransformations.kt` | Maps provider model DTOs to `SettingsModel`, merges with catalog and free-tier flags |
 | `composeApp/src/commonMain/.../data/AppSettings.kt` | Service instance storage, credential persistence, migration |
-| `composeApp/src/commonMain/.../data/AppSettingsService.kt` | Per-instance settings and service configuration |
+| `composeApp/src/commonMain/.../data/AppSettingsService.kt` | Per-instance settings and service configuration (incl. persisted connection status) |
 | `composeApp/src/commonMain/.../data/RemoteDataRepository.kt` | Fallback chain, request orchestration |
 | `composeApp/src/commonMain/.../network/Requests.kt` | HTTP clients for all API formats |
 | `composeApp/src/commonMain/.../data/ModelCapabilities.kt` | Per-model gates: tool support, image support, Responses API routing |
 | `composeApp/src/commonMain/.../data/providers/OpenAIResponsesInput.kt` | Translates chat-completions messages into Responses API input items |
 | `composeApp/src/commonMain/.../network/dtos/openairesponses/` | OpenAI Responses API DTOs |
 | `composeApp/src/commonMain/.../network/dtos/anthropic/` | Anthropic Messages API DTOs |
-| `composeApp/src/commonMain/.../ui/settings/SettingsViewModel.kt` | Connection validation, service management UI logic |
+| `composeApp/src/commonMain/.../ui/settings/SettingsViewModel.kt` | Connection validation, service management UI logic, persisted connection status restore |
 | `composeApp/src/commonMain/.../tools/PermissionController.kt` | Runtime permission requests, including the local network gate for LAN server URLs (Android 17+) |
 | `composeApp/src/commonMain/.../tools/LocalNetworkUrl.kt` | Detects LAN base URLs that need the local network permission |
 | `composeApp/src/commonMain/.../ui/chat/composables/ServiceSelector.kt` | Service/model dropdown: the loaded model in the header pill, the model list and the service list in the popup (used by the chat composer HUD agents `AgentHud`/`QuestionInput`) |
