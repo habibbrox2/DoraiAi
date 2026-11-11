@@ -1,6 +1,6 @@
 # System Prompts
 
-**Last verified:** 2026-11-10
+**Last verified:** 2026-11-12
 
 DORAI AI has several distinct prompt-construction paths. Each one is built by a **pure function** with explicit inputs (no DI, no suspend, no resource loading, no clocks) and is covered by a unit-test suite so future edits don't silently break unrelated variations.
 
@@ -80,7 +80,8 @@ Interactive UI mode is **not** available on on-device services — the dorai-ui 
 | File | Purpose |
 |---|---|
 | `composeApp/src/commonMain/.../data/ChatSystemPromptBuilder.kt` | Pure builder + `SystemPromptVariant` + section helpers + `DEFAULT_STRUCTURED_LEARNING_SECTION` |
-| `composeApp/src/commonMain/.../data/HeartbeatPromptBuilder.kt` | Pure heartbeat builder + input data classes |
+| `composeApp/src/commonMain/.../data/HeartbeatPromptBuilder.kt` | Pure heartbeat builder + input data classes (fences untrusted third-party sections with `<untrusted:…>` delimiters) |
+| `composeApp/src/commonMain/.../data/PromptFences.kt` | `<untrusted:…>` fence helpers + angle-bracket neutralising for embedded third-party content |
 | `composeApp/src/commonMain/.../data/RemoteDataRepository.kt` | `getActiveSystemPrompt(variant)` wrapper that gathers inputs from `AppSettings` / `MemoryStore` / `TaskStore` and calls the pure builder |
 | `composeApp/src/commonMain/.../data/HeartbeatManager.kt` | `buildHeartbeatPrompt()` wrapper that gathers inputs and calls the pure builder |
 | `composeApp/src/commonMain/.../data/AppSettings.kt` | `DEFAULT_MEMORY_INSTRUCTIONS` (basic block, used by both variants). The advanced `## Structured Learning` block lives in `ChatSystemPromptBuilder.kt` and is remote-only |
