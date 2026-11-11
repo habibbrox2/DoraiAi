@@ -25,6 +25,9 @@ Auto-derived from the first user message when a conversation is saved for the fi
 - "New Chat" clears history, unsets the current conversation pointer, and persists the empty state — so an unused new chat survives an app restart
 - A new conversation ID (UUID) is generated on first successful save (after the first assistant response) and immediately becomes the persisted current pointer
 - Conversations are saved after each assistant response
+- A failed reply (provider exhausted, offline, context overflow, …) still persists the conversation, so the user's just-sent message survives an app restart
+- Tool-call data round-trips losslessly: assistant tool calls (id, name, arguments, thought signature) and tool-result pairing (`toolCallId`/`toolName`) are stored and restored, so tool-round conversations continue correctly after restore (including DeepSeek/Gemini signatures). Oversized argument payloads are shrunk rather than failing the save
+- Trimming to the 20-exchange cap and to the compaction window never leaves an orphaned tool-result row at the start of a conversation — the cut falls on an assistant/user boundary
 - Only the most recent 20 exchanges are persisted per chat conversation; heartbeat conversations have a separate, larger cap of 50 messages so longer automation runs are not truncated as aggressively
 - Multiple conversations are persisted — starting a new chat preserves previous conversations
 - Conversations are service-independent — switching services does not affect which conversation is loaded
