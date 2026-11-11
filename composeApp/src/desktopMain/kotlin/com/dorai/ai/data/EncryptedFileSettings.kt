@@ -51,15 +51,28 @@ class EncryptedFileSettings(
     private fun getOrCreateKey(): SecretKey {
         val keyFile = File(getAppFilesDirectory(), keyFileName)
         if (keyFile.exists()) {
-            val keyBytes = keyFile.readBytes()
-            if (keyBytes.size == 32) {
+            val bytes = keyFile.readBytes()
+            // New format: OS-protected blob (DPAPI on Windows). Legacy format: raw 32 bytes.
+            if (DesktopKeyProtector.isProtectedBlob(bytes)) {
+                runCatching { DesktopKeyProtector.unprotect(bytes) }.getOrNull()?.let { raw ->
+                    restrictToOwner(keyFile)
+                    return SecretKeySpec(raw, "AES")
+                }
+                // Can't decrypt (different user/machine) — keep the old blob aside, like an
+                // unreadable settings file.
+                keyFile.renameTo(File(keyFile.parentFile, "$keyFileName.unreadable-${System.currentTimeMillis()}"))
+            } else if (bytes.size == 32) {
                 restrictToOwner(keyFile)
-                return SecretKeySpec(keyBytes, "AES")
+                // Transparently migrate the legacy raw key to the protected format.
+                runCatching { writeAtomically(keyFile, DesktopKeyProtector.protect(bytes)) }
+                return SecretKeySpec(bytes, "AES")
+            } else {
+                keyFile.renameTo(File(keyFile.parentFile, "$keyFileName.unreadable-${System.currentTimeMillis()}"))
             }
         }
         val keyBytes = ByteArray(32)
         SecureRandom().nextBytes(keyBytes)
-        writeAtomically(keyFile, keyBytes)
+        writeAtomically(keyFile, DesktopKeyProtector.protect(keyBytes))
         return SecretKeySpec(keyBytes, "AES")
     }
 

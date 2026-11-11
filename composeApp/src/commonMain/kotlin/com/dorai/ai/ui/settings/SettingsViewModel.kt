@@ -160,6 +160,7 @@ class SettingsViewModel(
         onRetryFetchModels = ::onRetryFetchModels,
         onToggleUseCustomModel = ::onToggleUseCustomModel,
         onChangeCustomModelId = ::onChangeCustomModelId,
+        onChangeCloudflareGatewayId = ::onChangeCloudflareGatewayId,
         onToggleTool = ::onToggleTool,
         onSaveSoul = ::onSaveSoul,
         onToggleRestoreLastChat = ::onToggleRestoreLastChat,
@@ -360,6 +361,7 @@ class SettingsViewModel(
             useCustomModel = dataRepository.getInstanceUseCustomModel(instance.instanceId),
             customModelId = dataRepository.getInstanceCustomModelId(instance.instanceId),
             customName = dataRepository.getInstanceCustomName(instance.instanceId),
+            cloudflareGatewayId = dataRepository.getInstanceCloudflareGatewayId(instance.instanceId),
             connectionStatus = restoredConnectionStatusFor(instance),
         )
     }
@@ -498,6 +500,23 @@ class SettingsViewModel(
                 configuredServices = state.configuredServices.map { e ->
                     if (e.instanceId == instanceId) {
                         e.copy(customName = name)
+                    } else {
+                        e
+                    }
+                }.toImmutableList(),
+            )
+        }
+    }
+
+    private fun onChangeCloudflareGatewayId(instanceId: String, gatewayId: String) {
+        // Changing the gateway only changes which gateway routes the (unchanged) account
+        // Workers AI models — the model list is the same, so no re-fetch or connection reset.
+        dataRepository.updateInstanceCloudflareGatewayId(instanceId, gatewayId)
+        _state.update { state ->
+            state.copy(
+                configuredServices = state.configuredServices.map { e ->
+                    if (e.instanceId == instanceId) {
+                        e.copy(cloudflareGatewayId = gatewayId.trim())
                     } else {
                         e
                     }

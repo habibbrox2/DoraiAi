@@ -155,6 +155,14 @@ class FakeDataRepository : DataRepository {
         instanceDisplayNames[instanceId] = name
     }
 
+    private val instanceGatewayIds = mutableMapOf<String, String>()
+
+    override fun getInstanceCloudflareGatewayId(instanceId: String): String = instanceGatewayIds[instanceId] ?: ""
+
+    override fun updateInstanceCloudflareGatewayId(instanceId: String, gatewayId: String) {
+        instanceGatewayIds[instanceId] = gatewayId.trim()
+    }
+
     override fun getInstanceModels(instanceId: String, service: Service): StateFlow<List<SettingsModel>> = instanceModels.getOrPut(instanceId) {
         MutableStateFlow(
             service.defaultModels.map {

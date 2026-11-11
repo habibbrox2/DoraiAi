@@ -132,6 +132,13 @@ fun AppSettings.setInstanceCustomName(instanceId: String, name: String) {
     settings.putString("instance_${instanceId}_display_name", name)
 }
 
+/** Per-instance Cloudflare AI Gateway id. Blank means the account's gateway named "default" (auto-created by Cloudflare). Only read for Service.CloudflareAIGateway. */
+fun AppSettings.getInstanceCloudflareGatewayId(instanceId: String): String = settings.getString("instance_${instanceId}_cloudflare_gateway_id", "")
+
+fun AppSettings.setInstanceCloudflareGatewayId(instanceId: String, gatewayId: String) {
+    settings.putString("instance_${instanceId}_cloudflare_gateway_id", gatewayId)
+}
+
 /**
  * Last-known connection status of an AI provider instance. Persisted so the UI
  * can show something truthful across app restarts before revalidation finishes.

@@ -42,6 +42,8 @@ data class ConfiguredServiceEntry(
     val customModelId: String = "",
     /** Custom display name for this instance (custom gateways), e.g. "My LiteLLM proxy". Blank means show the service's own name. */
     val customName: String = "",
+    /** Cloudflare AI Gateway id for this instance. Blank means the account's gateway named "default" (auto-created by Cloudflare). Only surfaced for Service.CloudflareAIGateway. */
+    val cloudflareGatewayId: String = "",
 )
 
 enum class ConnectionStatus {
