@@ -10,7 +10,6 @@ import com.dorai.ai.data.ServiceEntry
 import com.dorai.ai.data.SharedJson
 import com.dorai.ai.data.SmsDraft
 import com.dorai.ai.data.UiSubmission
-import com.dorai.ai.filereview.FileReviewPreview
 import com.dorai.ai.filereview.FileReviewProposal
 import com.dorai.ai.network.UiError
 import com.dorai.ai.network.dtos.gemini.GeminiChatRequestDto
@@ -79,7 +78,6 @@ data class ConversationSummary(
 data class ChatUiState(
     val actions: ChatActions,
     val history: ImmutableList<History> = persistentListOf(),
-    val isSpeechOutputEnabled: Boolean = false,
     val isLoading: Boolean = false,
     val error: UiError? = null,
     val showFreeProviderSuggestions: Boolean = false,
@@ -111,7 +109,6 @@ data class ChatUiState(
     val composerPrefill: String? = null,
     val pendingToolConfirmations: ImmutableList<PendingToolConfirmation> = persistentListOf(),
     val fileReviewProposals: ImmutableList<FileReviewProposal> = persistentListOf(),
-    val fileReviewPreviews: Map<String, FileReviewPreview> = emptyMap(),
     val fileReviewActionMessage: String? = null,
 ) {
     val heartbeatConversationId: String?

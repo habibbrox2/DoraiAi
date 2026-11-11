@@ -14,7 +14,6 @@ class DashboardLayoutTest {
 
     private fun dummyActions() = ChatActions(
         ask = {},
-        toggleSpeechOutput = {},
         retry = {},
         clearHistory = {},
         setIsSpeaking = { _, _ -> },
@@ -36,7 +35,6 @@ class DashboardLayoutTest {
         submitUiCallback = { _, _ -> },
         resubmit = { _, _, _ -> },
         setInteractiveMode = {},
-        goBackInteractiveMode = {},
         sendSmsDraft = {},
         discardSmsDraft = {},
         consumeComposerPrefill = {},

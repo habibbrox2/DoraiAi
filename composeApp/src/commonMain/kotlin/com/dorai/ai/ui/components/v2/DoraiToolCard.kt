@@ -62,8 +62,14 @@ import com.dorai.ai.ui.rememberCopyToClipboard
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.a11y_copy
 import dorai.composeapp.generated.resources.a11y_copy_details
+import dorai.composeapp.generated.resources.chat_collapse_output
+import dorai.composeapp.generated.resources.chat_command_failed_with_exit
+import dorai.composeapp.generated.resources.chat_exit_code
+import dorai.composeapp.generated.resources.chat_expand_output
+import dorai.composeapp.generated.resources.chat_lines_label
 import dorai.composeapp.generated.resources.tool_action_ask_fix
 import dorai.composeapp.generated.resources.tool_action_retry
+import dorai.composeapp.generated.resources.tool_execution_error
 import dorai.composeapp.generated.resources.tool_status_completed
 import dorai.composeapp.generated.resources.tool_status_failed
 import dorai.composeapp.generated.resources.tool_status_running
@@ -312,7 +318,7 @@ fun DoraiToolCard(
             // Expand / Collapse Chevron
             Icon(
                 imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                contentDescription = if (isExpanded) "Collapse" else "Expand",
+                contentDescription = stringResource(if (isExpanded) Res.string.chat_collapse_output else Res.string.chat_expand_output),
                 tint = colors.muted,
                 modifier = Modifier.size(18.dp),
             )
@@ -379,6 +385,9 @@ fun DoraiToolCard(
 
                 // 2. Error-Focused Panel
                 if (model.state == ToolExecutionState.Failed || !model.errorText.isNullOrEmpty()) {
+                    val errorContent = model.errorText
+                        ?: model.exitCode?.let { stringResource(Res.string.chat_command_failed_with_exit, it) }
+                        ?: stringResource(Res.string.tool_status_failed)
                     Spacer(modifier = Modifier.height(DoraiSpacing.SM))
                     Box(
                         modifier = Modifier
@@ -403,8 +412,8 @@ fun DoraiToolCard(
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     val errorTitle = listOfNotNull(
-                                        "EXECUTION ERROR",
-                                        model.exitCode?.let { "EXIT $it" },
+                                        stringResource(Res.string.tool_execution_error),
+                                        model.exitCode?.let { stringResource(Res.string.chat_exit_code, it) },
                                     ).joinToString(" · ")
                                     Text(
                                         text = errorTitle,
@@ -414,10 +423,9 @@ fun DoraiToolCard(
                                         fontWeight = FontWeight.Bold,
                                     )
                                 }
-                                val errorContent = model.errorText ?: "Command failed with exit code ${model.exitCode}"
                                 IconButton(
                                     onClick = { copyToClipboard(errorContent) },
-                                    modifier = Modifier.size(22.dp),
+                                    modifier = Modifier.size(48.dp),
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.ContentCopy,
@@ -429,7 +437,7 @@ fun DoraiToolCard(
                             }
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = model.errorText ?: "Command failed with exit code ${model.exitCode}",
+                                text = errorContent,
                                 color = colors.err,
                                 fontFamily = FontFamily.Monospace,
                                 fontSize = 12.sp,
@@ -519,7 +527,7 @@ fun DoraiToolCard(
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = "${outputLines.size} lines",
+                                        text = stringResource(Res.string.chat_lines_label, outputLines.size),
                                         color = colors.muted,
                                         fontSize = 10.sp,
                                         fontFamily = FontFamily.Monospace,
@@ -533,7 +541,7 @@ fun DoraiToolCard(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     if (outputLines.size > 4) {
                                         Text(
-                                            text = if (isOutputExpanded) "Collapse" else "Expand",
+                                            text = stringResource(if (isOutputExpanded) Res.string.chat_collapse_output else Res.string.chat_expand_output),
                                             color = colors.info,
                                             fontSize = 11.sp,
                                             fontFamily = FontFamily.Monospace,

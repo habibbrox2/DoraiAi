@@ -243,6 +243,12 @@ import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.bot_message_copy_content_description
 import dorai.composeapp.generated.resources.dorai_ui_code_copy
 import dorai.composeapp.generated.resources.dorai_ui_render_failed
+import dorai.composeapp.generated.resources.state_checked
+import dorai.composeapp.generated.resources.state_not_selected
+import dorai.composeapp.generated.resources.state_off
+import dorai.composeapp.generated.resources.state_on
+import dorai.composeapp.generated.resources.state_selected
+import dorai.composeapp.generated.resources.state_unchecked
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
@@ -648,13 +654,14 @@ private fun RenderCheckbox(
     formState: SnapshotStateMap<String, String>,
 ) {
     val checked = formState[node.id]?.toBooleanStrictOrNull() ?: false
+    val checkedDescription = stringResource(if (checked) Res.string.state_checked else Res.string.state_unchecked)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .semantics(mergeDescendants = true) {
                 role = Role.Checkbox
-                stateDescription = if (checked) "Checked" else "Unchecked"
+                stateDescription = checkedDescription
             }
             .handCursor(),
     ) {
@@ -682,7 +689,11 @@ private fun RenderCheckbox(
             modifier = Modifier
                 .padding(start = 12.dp)
                 .fillMaxWidth()
-                .clickable(enabled = isInteractive, onClickLabel = null) {
+                .clickable(
+                    enabled = isInteractive,
+                    onClickLabel = null,
+                    role = Role.Checkbox,
+                ) {
                     formState[node.id] = (!checked).toString()
                 }
                 .handCursor(),
@@ -842,13 +853,14 @@ private fun RenderSwitch(
     formState: SnapshotStateMap<String, String>,
 ) {
     val checked = formState[node.id]?.toBooleanStrictOrNull() ?: false
+    val switchDescription = stringResource(if (checked) Res.string.state_on else Res.string.state_off)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .semantics(mergeDescendants = true) {
                 role = Role.Switch
-                stateDescription = if (checked) "On" else "Off"
+                stateDescription = switchDescription
             }
             .handCursor(),
     ) {
@@ -858,7 +870,11 @@ private fun RenderSwitch(
             modifier = Modifier
                 .weight(1f)
                 .padding(end = 12.dp)
-                .clickable(enabled = isInteractive, onClickLabel = null) {
+                .clickable(
+                    enabled = isInteractive,
+                    onClickLabel = null,
+                    role = Role.Switch,
+                ) {
                     formState[node.id] = (!checked).toString()
                 }
                 .handCursor(),
@@ -1000,6 +1016,7 @@ private fun RenderRadioGroup(
         for (option in node.options) {
             key(option) {
                 val isSelected = selected == option
+                val selectedDescription = stringResource(if (isSelected) Res.string.state_selected else Res.string.state_not_selected)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
@@ -1007,7 +1024,7 @@ private fun RenderRadioGroup(
                         .handCursor()
                         .semantics(mergeDescendants = true) {
                             role = Role.RadioButton
-                            stateDescription = if (isSelected) "Selected" else "Not selected"
+                            stateDescription = selectedDescription
                         },
                 ) {
                     RadioButton(
@@ -1028,7 +1045,11 @@ private fun RenderRadioGroup(
                         modifier = Modifier
                             .padding(start = 12.dp)
                             .fillMaxWidth()
-                            .clickable(enabled = isInteractive, onClickLabel = null) { formState[node.id] = option }
+                            .clickable(
+                                enabled = isInteractive,
+                                onClickLabel = null,
+                                role = Role.RadioButton,
+                            ) { formState[node.id] = option }
                             .handCursor(),
                     )
                 }

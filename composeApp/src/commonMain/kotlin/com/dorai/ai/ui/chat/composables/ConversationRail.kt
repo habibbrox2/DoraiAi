@@ -39,7 +39,10 @@ import com.dorai.ai.ui.chat.ChatUiState
 import com.dorai.ai.ui.chat.ConversationSummary
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignTokens
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_new_conversation
 import kotlinx.collections.immutable.ImmutableList
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Desktop conversation rail shown on expanded windows (Phase 2 of the chat UI
@@ -82,7 +85,7 @@ fun ConversationRail(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "New conversation",
+                    contentDescription = stringResource(Res.string.a11y_new_conversation),
                     tint = tokens.PrimaryCyan,
                     modifier = Modifier.size(20.dp),
                 )

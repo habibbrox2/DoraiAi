@@ -48,6 +48,9 @@ import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.rememberCopyToClipboard
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_copy_code
+import dorai.composeapp.generated.resources.a11y_run
+import dorai.composeapp.generated.resources.chat_action_copied
 import dorai.composeapp.generated.resources.code_block_show_less
 import dorai.composeapp.generated.resources.code_block_show_more
 import kotlinx.coroutines.delay
@@ -144,12 +147,12 @@ internal fun CodeFenceBlock(
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.PlayArrow,
-                                contentDescription = "Run",
+                                contentDescription = stringResource(Res.string.a11y_run),
                                 modifier = Modifier.size(14.dp),
                             )
                             Spacer(Modifier.width(4.dp))
                             Text(
-                                "Run",
+                                stringResource(Res.string.a11y_run),
                                 style = DoraiTypography.labelSmall,
                                 fontFamily = FontFamily.Monospace,
                                 color = AccentPrimary,
@@ -165,12 +168,12 @@ internal fun CodeFenceBlock(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Check,
-                                contentDescription = "Copied",
+                                contentDescription = stringResource(Res.string.chat_action_copied),
                                 modifier = Modifier.size(14.dp),
                                 tint = AccentPrimary,
                             )
                             Text(
-                                text = "Copied!",
+                                text = stringResource(Res.string.chat_action_copied),
                                 style = DoraiTypography.labelSmall,
                                 fontFamily = FontFamily.Monospace,
                                 color = AccentPrimary,
@@ -186,7 +189,7 @@ internal fun CodeFenceBlock(
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.ContentCopy,
-                                contentDescription = "Copy code",
+                                contentDescription = stringResource(Res.string.a11y_copy_code),
                                 modifier = Modifier.size(14.dp),
                                 tint = tokens.textMuted,
                             )

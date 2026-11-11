@@ -15,6 +15,7 @@ import com.dorai.ai.network.UiError
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.action_retry
 import dorai.composeapp.generated.resources.ic_refresh
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
@@ -47,7 +48,7 @@ internal fun ErrorMessage(
         ) {
             Icon(
                 imageVector = vectorResource(Res.drawable.ic_refresh),
-                contentDescription = "Retry",
+                contentDescription = stringResource(Res.string.action_retry),
                 tint = LocalDesignColorTokens.current.textPrimary,
             )
         }

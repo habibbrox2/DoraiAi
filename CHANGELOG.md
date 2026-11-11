@@ -1,3 +1,20 @@
+## DORAI AI - Chat UX, Accessibility and Performance Polish (Unreleased)
+
+### Fixed
+- **Tool cards show localized error details**: the failure panel, its copy-to-clipboard target, and the exit-code title/label now use localized strings instead of hardcoded English; the tool failed-panel copy button meets the 48dp touch target.
+- **Hardcoded English in v2 surfaces is now localized**: the "Interactive reply" dynamic-UI badge, tool-card expand/collapse/lines labels, markdown code blocks ("Run"/"Copied"/"Copy code"), diff blocks ("Copied"/"Copy diff"), the search field placeholder, status badge descriptions ("Status: …"), and the image alt fallback.
+- **Accessibility**: the agent timeline expander announces as a button; interactive dorai-ui checkbox/switch/radio rows now merge row semantics with proper role and Checked/On/Selected state descriptions (previously hardcoded English state hints); the model pill carries a button role; markdown image alt falls back to the localized "Image".
+
+### Changed
+- **Markdown tables render at most 100 rows**; longer model-emitted tables end with a "… and N more rows" footer instead of expanding into unbounded subtrees (responsiveness safeguard for very large tables).
+- **Removed dead chat-v2 state**: the never-called `toggleSpeechOutput` action and `isSpeechOutputEnabled` field, and the `goBackInteractiveMode` action (v2 has no interactive back affordance; the extended interactive-mode tests exercise `setInteractiveMode` directly, which stays).
+- **File-review previews are no longer retained in chat state**: the proposals list is still streamed, but the potentially large preview map is no longer built eagerly or kept in UI state.
+
+### Tooling
+- **Screenshot coverage for chat states**: streaming-tail, error-badge, free-provider suggestions panel, and frozen interactive answer cases added to the UI v2 Paparazzi suite.
+
+---
+
 ## DORAI AI - Chat Prompt and Agent Security (Unreleased)
 
 ### Fixed

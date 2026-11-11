@@ -50,9 +50,14 @@ import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.markdown.math.MathFormula
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_image
+import dorai.composeapp.generated.resources.chat_table_truncated_rows
 import dorai.composeapp.generated.resources.image_unavailable
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.stringResource
+
+/** Max table rows rendered inline before a "… and N more rows" footer truncates the rest. */
+private const val MAX_TABLE_ROWS = 100
 
 /**
  * Render a parsed [MarkdownDocument] as a Compose layout. Each block becomes one child of the
@@ -209,7 +214,7 @@ private fun ParagraphBlock(block: Paragraph) {
 private fun MarkdownImage(img: Image) {
     val tokens = LocalDesignColorTokens.current
     val showFullScreen = LocalShowFullScreenImageUrl.current
-    val alt = img.alt.ifBlank { "Image" }
+    val alt = img.alt.ifBlank { stringResource(Res.string.a11y_image) }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -274,7 +279,7 @@ private fun MarkdownImage(img: Image) {
 private fun MarkdownImageThumbnail(img: Image) {
     val tokens = LocalDesignColorTokens.current
     val showFullScreen = LocalShowFullScreenImageUrl.current
-    val alt = img.alt.ifBlank { "Image" }
+    val alt = img.alt.ifBlank { stringResource(Res.string.a11y_image) }
     SubcomposeAsyncImage(
         model = img.src,
         contentDescription = alt,
@@ -408,6 +413,7 @@ private fun ListItemRow(
 
 @Composable
 private fun TableBlock(block: Table) {
+    val tokens = LocalDesignColorTokens.current
     Column(Modifier.padding(vertical = 4.dp)) {
         if (block.headers.any { it.isNotEmpty() }) {
             Row {
@@ -422,7 +428,10 @@ private fun TableBlock(block: Table) {
             }
             HorizontalDivider()
         }
-        for (row in block.rows) {
+        // Cap rendered rows: a pathological model-emitted table would otherwise expand into
+        // thousands of InlineContent subtrees and stall composition on low-end devices.
+        val visibleRows = if (block.rows.size > MAX_TABLE_ROWS) block.rows.subList(0, MAX_TABLE_ROWS) else block.rows
+        for (row in visibleRows) {
             Row {
                 row.forEachIndexed { i, cell ->
                     InlineContent(
@@ -433,6 +442,14 @@ private fun TableBlock(block: Table) {
                     )
                 }
             }
+        }
+        if (block.rows.size > MAX_TABLE_ROWS) {
+            Text(
+                text = stringResource(Res.string.chat_table_truncated_rows, block.rows.size - MAX_TABLE_ROWS),
+                style = DoraiTypography.bodySmall,
+                color = tokens.textSecondary,
+                modifier = Modifier.fillMaxWidth().padding(4.dp),
+            )
         }
     }
 }

@@ -1084,7 +1084,7 @@ private fun ChatDetailPane(
                     .clip(CircleShape)
                     .background(colors.surface2)
                     .border(1.dp, colors.line, CircleShape)
-                    .clickable(onClickLabel = stringResource(Res.string.chat_choose_model)) { onOpenModelPicker?.invoke() }
+                    .clickable(onClickLabel = stringResource(Res.string.chat_choose_model), role = androidx.compose.ui.semantics.Role.Button) { onOpenModelPicker?.invoke() }
                     .padding(horizontal = 12.dp, vertical = 6.dp),
                 contentAlignment = Alignment.Center,
             ) {

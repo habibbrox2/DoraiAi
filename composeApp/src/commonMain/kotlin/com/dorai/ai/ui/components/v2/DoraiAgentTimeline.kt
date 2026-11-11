@@ -36,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -167,7 +168,10 @@ private fun TimelineRow(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .clickable(enabled = !item.details.isNullOrEmpty()) {
+                .clickable(
+                    enabled = !item.details.isNullOrEmpty(),
+                    role = Role.Button,
+                ) {
                     isExpanded = !isExpanded
                 }
                 .padding(bottom = if (isLast) 0.dp else DoraiSpacing.MD),
