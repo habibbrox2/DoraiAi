@@ -39,6 +39,8 @@ fastlane/README.md
 !.opencode/
 !.opencode/agents/
 !.opencode/agents/*.md
+# Track credential-free MCP endpoints and least-privilege rules; keep tokens in OAuth or environment storage.
+!.opencode/opencode.json
 .grok/
 
 # Freebuff agent workspace

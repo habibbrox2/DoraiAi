@@ -1,0 +1,34 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permissions": [
+    { "action": "github_*", "resource": "*", "effect": "deny" },
+    { "action": "cloudflare_*", "resource": "*", "effect": "deny" },
+    { "action": "supabase_*", "resource": "*", "effect": "deny" },
+    { "action": "context7_*", "resource": "*", "effect": "deny" },
+    { "action": "sentry_*", "resource": "*", "effect": "deny" }
+  ],
+  "mcp": {
+    "servers": {
+      "github": {
+        "type": "remote",
+        "url": "https://api.githubcopilot.com/mcp/"
+      },
+      "cloudflare": {
+        "type": "remote",
+        "url": "https://mcp.cloudflare.com/mcp"
+      },
+      "supabase": {
+        "type": "remote",
+        "url": "https://mcp.supabase.com/mcp"
+      },
+      "context7": {
+        "type": "remote",
+        "url": "https://mcp.context7.com/mcp"
+      },
+      "sentry": {
+        "type": "remote",
+        "url": "https://mcp.sentry.dev/mcp"
+      }
+    }
+  }
+}
