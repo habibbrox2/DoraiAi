@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -48,6 +49,8 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipBox
@@ -150,6 +153,7 @@ import dorai.composeapp.generated.resources.litert_recommended
 import dorai.composeapp.generated.resources.litert_tool_support
 import dorai.composeapp.generated.resources.logo
 import dorai.composeapp.generated.resources.model_discovery_fetching
+import dorai.composeapp.generated.resources.model_discovery_none
 import dorai.composeapp.generated.resources.model_discovery_retry
 import dorai.composeapp.generated.resources.services_all_connected
 import dorai.composeapp.generated.resources.services_checking_connections
@@ -168,9 +172,12 @@ import dorai.composeapp.generated.resources.settings_base_url_label
 import dorai.composeapp.generated.resources.settings_become_sponsor
 import dorai.composeapp.generated.resources.settings_business_partnerships
 import dorai.composeapp.generated.resources.settings_business_partnerships_description
+import dorai.composeapp.generated.resources.settings_cloudflare_account_id
 import dorai.composeapp.generated.resources.settings_contact_sponsorship
 import dorai.composeapp.generated.resources.settings_custom_model_hint
 import dorai.composeapp.generated.resources.settings_custom_model_label
+import dorai.composeapp.generated.resources.settings_free_fallback
+import dorai.composeapp.generated.resources.settings_free_fallback_description
 import dorai.composeapp.generated.resources.settings_free_tier_description
 import dorai.composeapp.generated.resources.settings_free_tier_title
 import dorai.composeapp.generated.resources.settings_gateway_name_hint
@@ -222,6 +229,7 @@ import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import sh.calvin.reorderable.ReorderableItem
@@ -668,40 +676,92 @@ internal fun ServicesContent(uiState: SettingsUiState, actions: SettingsActions)
         modifier = Modifier.fillMaxWidth(),
     ) {
         entries.forEach { entry ->
-            ConfiguredServiceCardContent(
-                entry = entry,
-                isExpanded = uiState.expandedServiceId == entry.instanceId,
-                onExpand = { actions.onExpandService(if (uiState.expandedServiceId == entry.instanceId) null else entry.instanceId) },
-                onChangeApiKey = { apiKey -> actions.onChangeApiKey(entry.instanceId, apiKey) },
-                onChangeBaseUrl = { baseUrl -> actions.onChangeBaseUrl(entry.instanceId, baseUrl) },
-                onChangeDisplayName = { name -> actions.onChangeDisplayName(entry.instanceId, name) },
-                onSelectModel = { modelId -> actions.onSelectModel(entry.instanceId, modelId) },
-                onRetryFetchModels = { actions.onRetryFetchModels(entry.instanceId) },
-                onToggleUseCustomModel = { use -> actions.onToggleUseCustomModel(entry.instanceId, use) },
-                onChangeCustomModelId = { id -> actions.onChangeCustomModelId(entry.instanceId, id) },
-                onRemove = { actions.onRemoveService(entry.instanceId) },
-                isDragging = false,
-                dragHandleModifier = null,
-                localAvailableModels = uiState.localAvailableModels,
-                localImportedModels = uiState.localImportedModels,
-                totalDeviceMemoryBytes = uiState.totalDeviceMemoryBytes,
-                localFreeSpaceBytes = uiState.localFreeSpaceBytes,
-                localDownloadingModelId = uiState.localDownloadingModelId,
-                localDownloadProgress = uiState.localDownloadProgress,
-                localDownloadError = uiState.localDownloadError,
-                localImportingFileName = uiState.localImportingFileName,
-                localImportProgress = uiState.localImportProgress,
-                localImportError = uiState.localImportError,
-                onDownloadLocalModel = actions.onDownloadLocalModel,
-                onCancelLocalModelDownload = actions.onCancelLocalModelDownload,
-                onImportLocalModel = actions.onImportLocalModel,
-                onCancelLocalModelImport = actions.onCancelLocalModelImport,
-                onDeleteLocalModel = actions.onDeleteLocalModel,
-                onChangeModelContextTokens = actions.onChangeModelContextTokens,
-                modelContextTokens = uiState.modelContextTokens,
-                onOpenAppPermissionSettings = actions.onOpenAppPermissionSettings,
-                onRecheckLocalNetworkPermission = { actions.onRecheckLocalNetworkPermission(entry.instanceId) },
-            )
+            key(entry.instanceId) {
+                ConfiguredServiceCardContent(
+                    entry = entry,
+                    isExpanded = uiState.expandedServiceId == entry.instanceId,
+                    onExpand = { actions.onExpandService(if (uiState.expandedServiceId == entry.instanceId) null else entry.instanceId) },
+                    onChangeApiKey = { apiKey -> actions.onChangeApiKey(entry.instanceId, apiKey) },
+                    onChangeBaseUrl = { baseUrl -> actions.onChangeBaseUrl(entry.instanceId, baseUrl) },
+                    onChangeDisplayName = { name -> actions.onChangeDisplayName(entry.instanceId, name) },
+                    onSelectModel = { modelId -> actions.onSelectModel(entry.instanceId, modelId) },
+                    onRetryFetchModels = { actions.onRetryFetchModels(entry.instanceId) },
+                    onToggleUseCustomModel = { use -> actions.onToggleUseCustomModel(entry.instanceId, use) },
+                    onChangeCustomModelId = { id -> actions.onChangeCustomModelId(entry.instanceId, id) },
+                    onRemove = { actions.onRemoveService(entry.instanceId) },
+                    isDragging = false,
+                    dragHandleModifier = null,
+                    localAvailableModels = uiState.localAvailableModels,
+                    localImportedModels = uiState.localImportedModels,
+                    totalDeviceMemoryBytes = uiState.totalDeviceMemoryBytes,
+                    localFreeSpaceBytes = uiState.localFreeSpaceBytes,
+                    localDownloadingModelId = uiState.localDownloadingModelId,
+                    localDownloadProgress = uiState.localDownloadProgress,
+                    localDownloadError = uiState.localDownloadError,
+                    localImportingFileName = uiState.localImportingFileName,
+                    localImportProgress = uiState.localImportProgress,
+                    localImportError = uiState.localImportError,
+                    onDownloadLocalModel = actions.onDownloadLocalModel,
+                    onCancelLocalModelDownload = actions.onCancelLocalModelDownload,
+                    onImportLocalModel = actions.onImportLocalModel,
+                    onCancelLocalModelImport = actions.onCancelLocalModelImport,
+                    onDeleteLocalModel = actions.onDeleteLocalModel,
+                    onChangeModelContextTokens = actions.onChangeModelContextTokens,
+                    modelContextTokens = uiState.modelContextTokens,
+                    onOpenAppPermissionSettings = actions.onOpenAppPermissionSettings,
+                    onRecheckLocalNetworkPermission = { actions.onRecheckLocalNetworkPermission(entry.instanceId) },
+                )
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        // Free-fallback control. With it off, a failed primary provider fails visibly
+        // instead of silently routing the turn to the keyless Free service — the
+        // routing layer gates its automatic Free fallback on this flag.
+        val fallbackShape = RoundedCornerShape(12.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(fallbackShape)
+                .background(CardFill, fallbackShape)
+                .border(BorderStroke(1.dp, BorderSoft), fallbackShape)
+                .toggleable(
+                    value = uiState.isFreeFallbackEnabled,
+                    role = Role.Switch,
+                    onValueChange = actions.onToggleFreeFallback,
+                ),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(Res.string.settings_free_fallback),
+                        style = DoraiTypography.titleSmall,
+                        color = LocalDesignColorTokens.current.textPrimary,
+                    )
+                    Text(
+                        text = stringResource(Res.string.settings_free_fallback_description),
+                        style = DoraiTypography.bodySmall,
+                        color = LocalDesignColorTokens.current.textSecondary,
+                    )
+                }
+
+                Spacer(Modifier.width(16.dp))
+
+                Switch(
+                    checked = uiState.isFreeFallbackEnabled,
+                    onCheckedChange = null,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = AccentPrimary,
+                        checkedTrackColor = AccentPrimary.copy(alpha = 0.3f),
+                        uncheckedThumbColor = LocalDesignColorTokens.current.textSecondary,
+                        uncheckedTrackColor = BorderSoft.copy(alpha = 0.5f),
+                    ),
+                )
+            }
         }
 
         if (uiState.availableServicesToAdd.isNotEmpty()) {
@@ -1113,6 +1173,7 @@ private fun ConfiguredServiceCardContent(
                         onChangeDisplayName = onChangeDisplayName,
                         baseUrl = entry.baseUrl,
                         onChangeBaseUrl = onChangeBaseUrl,
+                        showBaseUrl = Service.acceptsCustomBaseUrl(entry.service),
                         apiKey = entry.apiKey,
                         onChangeApiKey = onChangeApiKey,
                         selectedModel = entry.selectedModel,
@@ -1134,6 +1195,7 @@ private fun ConfiguredServiceCardContent(
                         onChangeApiKey = onChangeApiKey,
                         apiKeyUrl = entry.service.apiKeyUrl ?: "",
                         apiKeyUrlDisplay = entry.service.apiKeyUrlDisplay ?: "",
+                        apiKeyLabel = if (entry.service.requiresApiKey) Res.string.settings_api_key_label else Res.string.settings_api_key_optional_label,
                         selectedModel = entry.selectedModel,
                         models = entry.models,
                         onSelectModel = onSelectModel,
@@ -1174,6 +1236,7 @@ private fun ServiceSettings(
     onChangeApiKey: (String) -> Unit,
     apiKeyUrl: String,
     apiKeyUrlDisplay: String,
+    apiKeyLabel: StringResource = Res.string.settings_api_key_label,
     selectedModel: SettingsModel?,
     models: ImmutableList<SettingsModel>,
     onSelectModel: (String) -> Unit,
@@ -1187,7 +1250,7 @@ private fun ServiceSettings(
     ApiKeyField(
         apiKey = apiKey,
         onChangeApiKey = onChangeApiKey,
-        labelText = stringResource(Res.string.settings_api_key_label),
+        labelText = stringResource(apiKeyLabel),
         testTag = testTag,
         isPassword = true,
     )
@@ -1288,7 +1351,8 @@ private fun ModelFetchFeedback(
 
         showEmpty -> {
             Text(
-                text = "The provider is connected, but it returned no available models.",
+                text = stringResource(Res.string.model_discovery_none),
+
                 style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
@@ -1304,6 +1368,8 @@ private fun OpenAICompatibleSettings(
     onChangeDisplayName: (String) -> Unit = {},
     baseUrl: String,
     onChangeBaseUrl: (String) -> Unit,
+    /** Hosted providers own their endpoints; only the gateway (and Cloudflare's account id) edits this. */
+    showBaseUrl: Boolean,
     apiKey: String,
     onChangeApiKey: (String) -> Unit,
     selectedModel: SettingsModel?,
@@ -1344,33 +1410,35 @@ private fun OpenAICompatibleSettings(
         Spacer(Modifier.height(8.dp))
     }
 
-    DoraiClearableTextField(
-        value = baseUrl,
-        onValueChange = onChangeBaseUrl,
-        label = {
-            Text(
-                if (isCloudflare) "Cloudflare Account ID" else stringResource(Res.string.settings_base_url_label),
-                color = LocalDesignColorTokens.current.textPrimary,
-            )
-        },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Uri,
-            imeAction = ImeAction.Done,
-        ),
-    )
-    if (baseUrl.isNotBlank()) {
-        val endpointPreview = if (isCloudflare) {
-            "https://api.cloudflare.com/client/v4/accounts/${baseUrl.trim()}/ai/v1/chat/completions"
-        } else {
-            "${Service.normalizeOpenAICompatibleBaseUrl(baseUrl)}${Service.OpenAICompatible.chatUrl}"
-        }
-        Text(
-            text = endpointPreview,
-            style = DoraiTypography.bodySmall,
-            color = LocalDesignColorTokens.current.textSecondary,
-            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 4.dp),
+    if (showBaseUrl) {
+        DoraiClearableTextField(
+            value = baseUrl,
+            onValueChange = onChangeBaseUrl,
+            label = {
+                Text(
+                    if (isCloudflare) stringResource(Res.string.settings_cloudflare_account_id) else stringResource(Res.string.settings_base_url_label),
+                    color = LocalDesignColorTokens.current.textPrimary,
+                )
+            },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Uri,
+                imeAction = ImeAction.Done,
+            ),
         )
+        if (baseUrl.isNotBlank()) {
+            val endpointPreview = if (isCloudflare) {
+                "https://api.cloudflare.com/client/v4/accounts/${baseUrl.trim()}/ai/v1/chat/completions"
+            } else {
+                "${Service.normalizeOpenAICompatibleBaseUrl(baseUrl)}${Service.OpenAICompatible.chatUrl}"
+            }
+            Text(
+                text = endpointPreview,
+                style = DoraiTypography.bodySmall,
+                color = LocalDesignColorTokens.current.textSecondary,
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 4.dp),
+            )
+        }
     }
 
     Spacer(Modifier.height(8.dp))
@@ -1412,11 +1480,13 @@ private fun OpenAICompatibleSettings(
             }
         }
     }
-    Text(
-        annotatedString,
-        modifier = Modifier.fillMaxWidth(),
-        color = LocalDesignColorTokens.current.textPrimary,
-    )
+    if (!isCloudflare) {
+        Text(
+            annotatedString,
+            modifier = Modifier.fillMaxWidth(),
+            color = LocalDesignColorTokens.current.textPrimary,
+        )
+    }
 
     Spacer(Modifier.height(16.dp))
 
@@ -1445,13 +1515,17 @@ private fun OpenAICompatibleSettings(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onToggleUseCustomModel(!useCustomModel) }
+            .toggleable(
+                value = useCustomModel,
+                role = Role.Checkbox,
+                onValueChange = onToggleUseCustomModel,
+            )
             .handCursor(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Checkbox(
             checked = useCustomModel,
-            onCheckedChange = onToggleUseCustomModel,
+            onCheckedChange = null,
         )
         Spacer(Modifier.width(8.dp))
         Text(

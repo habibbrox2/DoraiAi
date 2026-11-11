@@ -18,6 +18,7 @@
     <string name="settings_model_label">Model</string>
     <string name="settings_model_loading">Loading models…</string>
     <string name="settings_model_search">Search models…</string>
+    <string name="model_search_empty">No models match your search.</string>
     <string name="settings_custom_model_label">Custom model</string>
     <string name="settings_custom_model_hint">Enter a model ID supported by your server, even if it is not listed above.</string>
     <string name="toggle_speech_output_content_description">Toggle speech output</string>
@@ -34,6 +35,7 @@
     <string name="settings_business_partnerships_description">Want to feature your company logo or discuss a strategic partnership?</string>
     <string name="settings_contact_sponsorship">Contact for Strategic Sponsorship</string>
     <string name="settings_base_url_label">Server URL</string>
+    <string name="settings_cloudflare_account_id">Cloudflare Account ID</string>
     <string name="settings_gateway_name_label">Display name</string>
     <string name="settings_gateway_name_hint">Optional — shown instead of “OpenAI-Compatible API”, e.g. “My LiteLLM proxy”</string>
     <string name="settings_status_checking">Checking connection…</string>
@@ -262,6 +264,7 @@
     <string name="settings_add_service">Add Service</string>
     <string name="settings_remove_service">Remove</string>
     <string name="settings_free_fallback">Use as fallback</string>
+    <string name="settings_free_fallback_description">When a provider fails, automatically try the built-in free service. Turn off to stop sending failed chats anywhere without your approval.</string>
     <string name="service_free_fast">Free Fast</string>
     <string name="service_free_expert">Free Expert</string>
     <string name="settings_ui_scale">UI Scale</string>
@@ -1170,6 +1173,7 @@
     <string name="model_discovery_fetching">Fetching models from provider…</string>
     <string name="model_discovery_retry">Retry model discovery</string>
     <string name="model_discovery_empty">No models have been loaded yet.</string>
+    <string name="model_discovery_none">The provider is connected, but it returned no available models.</string>
     <string name="terminal_command_input">Command input</string>
     <string name="conversations_clear_all">Clear all conversations</string>
     <string name="conversations_clear_all_confirm_title">Clear all conversations?</string>

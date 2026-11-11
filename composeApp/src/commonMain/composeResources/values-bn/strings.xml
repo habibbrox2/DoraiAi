@@ -46,6 +46,7 @@
     <string name="error_openai_compatible_connection">সার্ভারের সাথে সংযোগ করা যাচ্ছে না। নিশ্চিত করুন যে সার্ভার চলছে।</string>
     <string name="error_openai_compatible_model_not_found">মডেল পাওয়া যায়নি। অনুগ্রহ করে অন্য মডেল নির্বাচন করুন।</string>
     <string name="settings_base_url_label">সার্ভার URL</string>
+    <string name="settings_cloudflare_account_id">Cloudflare অ্যাকাউন্ট আইডি</string>
     <string name="settings_gateway_name_label">ডিসপ্লে নাম</string>
     <string name="settings_gateway_name_hint">ঐচ্ছিক — “OpenAI-Compatible API”-এর জায়গায় দেখাবে, যেমন “My LiteLLM proxy”</string>
     <string name="settings_status_checking">সংযোগ পরীক্ষা করা হচ্ছে...</string>
@@ -128,6 +129,7 @@
     <string name="settings_email_refresh">অ্যাকাউন্ট রিফ্রেশ করুন</string>
     <string name="settings_add_service">পরিষেবা যোগ করুন</string>
     <string name="settings_free_fallback">ফলব্যাক হিসেবে ব্যবহার করুন</string>
+    <string name="settings_free_fallback_description">কোনো প্রোভাইডার ব্যর্থ হলে স্বয়ংক্রিয়ভাবে বিল্ট-ইন ফ্রি সার্ভিস চেষ্টা করা হবে। বন্ধ করলে আপনার অনুমতি ছাড়া ব্যর্থ চ্যাট অন্য কোথাও পাঠানো হবে না।</string>
     <string name="service_free_fast">ফ্রি ফাস্ট</string>
     <string name="service_free_expert">ফ্রি এক্সপার্ট</string>
     <string name="settings_heartbeat">হৃৎস্পন্দন</string>
@@ -205,6 +207,7 @@
     <string name="settings_heartbeat_model_default">ডিফল্ট</string>
     <string name="settings_import_partial">%1$dটি বিভাগে ত্রুটি সহ সেটিংস আমদানি করা হয়েছে।</string>
     <string name="settings_model_search">মডেল খুঁজুন…</string>
+    <string name="model_search_empty">আপনার অনুসন্ধানের সাথে মেলে এমন কোনো মডেল নেই।</string>
     <string name="waiting_content_description">প্রতিক্রিয়ার জন্য অপেক্ষা করা হচ্ছে</string>
     <string name="chat_history_content_description">চ্যাট ইতিহাস</string>
     <string name="chat_history_title">চ্যাট ইতিহাস</string>
@@ -1140,6 +1143,7 @@
     <string name="model_discovery_fetching">প্রোভাইডার থেকে মডেল আনা হচ্ছে…</string>
     <string name="model_discovery_retry">মডেল আবিষ্কার আবার চেষ্টা করুন</string>
     <string name="model_discovery_empty">এখনো কোনো মডেল লোড হয়নি।</string>
+    <string name="model_discovery_none">প্রোভাইডার সংযুক্ত, কিন্তু কোনো উপলব্ধ মডেল ফেরত দেয়নি।</string>
     <string name="terminal_command_input">কমান্ড ইনপুট</string>
     <string name="conversations_clear_all">সব কথোপকথন মুছুন</string>
     <string name="conversations_clear_all_confirm_title">সব কথোপকথন মুছবেন?</string>

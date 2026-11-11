@@ -17,7 +17,26 @@
 
 ---
 
-## DORAI AI - GitHub Integration (Unreleased)
+## DORAI AI - AI Provider System Fixes (Unreleased)
+
+### Added
+- **Free-fallback toggle in Services UI**: Settings → Services now shows a \"Use as fallback\" switch (previously the flag had no UI). Routing honors it: with it off, a failed primary provider fails visibly instead of silently shipping the turn to the keyless Free service.
+- **Chat model picker now lists models**, not just providers: the \"Select AI Model\" sheet shows the active provider's models and lets the user switch model without leaving chat.
+
+### Changed
+- **Base URL field is shown only for OpenAI-Compatible and Cloudflare** (gateway + account id); every hosted provider's stale custom base URL is ignored by `resolveUrl`, so a previously entered value can no longer be spliced into a canonical endpoint URL.
+- **403 responses are mapped per provider**: an auth-shaped 403 (OpenCode, or a gateway reporting an invalid key) surfaces as an invalid-key error instead of a false \"content moderation\" block.
+- **Perplexity key validation** now accepts only the documented success statuses (200/400/404/422); other 4xx/5xx no longer report \"Connected\".
+- **OpenAI-Compatible instances with a blank base URL** are excluded from the fallback chain.
+- **Settings state hygiene**: changing an API key or base URL clears the stale model list/selection; selecting a model from the dropdown clears the custom-model override; a denied local-network permission no longer leaves the model fetch spinner spinning forever.
+- **Chat provider badge** now uses the entry's execution location instead of matching the non-existent \"ollama\" service id.
+- **Dead chat code removed** (TopBar/AgentHud/ChatComposer/QuestionInput/ServiceSelector) and the screenshot tests updated.
+
+### Fixed
+- Hardcoded English strings in provider surfaces localized (\"Cloudflare Account ID\", \"The provider is connected, but it returned no available models.\", permission-denied fetch error).
+- Model picker search empty state and custom-model checkbox accessibility (role = Checkbox).
+
+---
 
 Connect an embedded GitHub App to the app with read-only access by default. Not yet released.
 

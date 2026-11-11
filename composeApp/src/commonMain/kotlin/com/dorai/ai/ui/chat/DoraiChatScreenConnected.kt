@@ -67,6 +67,7 @@ import dorai.composeapp.generated.resources.chat_privacy_local
 import dorai.composeapp.generated.resources.chat_voice_unavailable
 import dorai.composeapp.generated.resources.ic_file
 import dorai.composeapp.generated.resources.ic_image
+import dorai.composeapp.generated.resources.settings_model_label
 import dorai.composeapp.generated.resources.snackbar_conversation_deleted
 import dorai.composeapp.generated.resources.snackbar_undo
 import io.github.vinceglb.filekit.dialogs.FileKitType
@@ -363,9 +364,9 @@ fun DoraiChatScreenConnected(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(DoraiSpacing.SM),
                 ) {
-                    items(uiState.availableServices, key = { it.instanceId }) { serviceEntry ->
+                    items(uiState.availableServices, key = { "service-" + it.instanceId }) { serviceEntry ->
                         val isSelected = serviceEntry.instanceId == activeService?.instanceId
-                        val isLocal = serviceEntry.serviceId == "ollama" || serviceEntry.serviceId == "litert"
+                        val isLocal = serviceEntry.executionLocation == ExecutionLocation.LOCAL
                         val shape = RoundedCornerShape(12.dp)
 
                         Row(
@@ -401,6 +402,58 @@ fun DoraiChatScreenConnected(
                             }
                             if (isSelected) {
                                 DoraiStatusBadge(text = stringResource(Res.string.chat_active_badge), color = colors.ok)
+                            }
+                        }
+                    }
+
+                    // Models of the active provider. The provider rows above switch
+                    // services; these switch the model within the active one so the
+                    // user never has to leave chat for a model change.
+                    if (uiState.availableModels.isNotEmpty()) {
+                        item(key = "models-header") {
+                            Text(
+                                text = stringResource(Res.string.settings_model_label),
+                                color = colors.muted,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                        items(uiState.availableModels, key = { "model-" + it.id }) { model ->
+                            val isActiveModel = model.id == activeService?.modelId
+                            val shape = RoundedCornerShape(12.dp)
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(shape)
+                                    .background(if (isActiveModel) colors.surface2 else colors.surface)
+                                    .border(1.dp, if (isActiveModel) colors.primary else colors.line, shape)
+                                    .clickable {
+                                        uiState.actions.selectModel(model.id)
+                                        showModelPicker = false
+                                    }
+                                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = model.displayName ?: model.id,
+                                        color = colors.text,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                    )
+                                    if (model.subtitle.isNotBlank() && model.subtitle != model.id) {
+                                        Text(
+                                            text = model.subtitle,
+                                            color = colors.muted,
+                                            fontSize = 12.sp,
+                                        )
+                                    }
+                                }
+                                if (isActiveModel) {
+                                    DoraiStatusBadge(text = stringResource(Res.string.chat_active_badge), color = colors.ok)
+                                }
                             }
                         }
                     }

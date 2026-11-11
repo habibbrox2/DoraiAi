@@ -1002,7 +1002,18 @@ class RemoteDataRepository(
             .filter { it.service != Service.Free }
             .filter { !it.service.isOnDevice || localInferenceEngine != null }
             .filter { hasValidInstanceApiKey(it.instanceId, it.service) }
+            // A custom-endpoint instance without a base URL would otherwise be routed to
+            // the localhost default the user never configured (the settings screen and
+            // chat both already refuse to fetch/route it).
+            .filter { it.service !is Service.OpenAICompatible || getInstanceBaseUrlRaw(it.instanceId).isNotBlank() }
         val freeEntry = FallbackEntry(instanceId = "free", service = Service.Free)
+        // The keyless Free provider is appended as an *automatic last-resort fallback*
+        // only when the user kept the free-fallback control enabled (default: on). With
+        // it disabled a failed primary turn must fail visibly instead of silently
+        // shipping the prompt to a third-party keyless endpoint. Selecting Free as the
+        // primary (isFreeServicePrimary) is an explicit user choice and stays unaffected.
+        val freeFallbackAllowed = appSettings.isFreeFallbackEnabled()
+        val freeAsPrimary = appSettings.isFreeServicePrimary()
 
         val localEntry = instances
             .mapNotNull { toEntry(it) }
@@ -1042,16 +1053,26 @@ class RemoteDataRepository(
                         usesCloud = false,
                     )
                     val cloudEntries = entries.filter { !it.service.isOnDevice }
-                    val fallbacks = if (appSettings.isFreeServicePrimary()) listOf(freeEntry) + cloudEntries else cloudEntries + freeEntry
+                    val fallbacks = if (freeAsPrimary) {
+                        listOf(freeEntry) + cloudEntries
+                    } else if (freeFallbackAllowed) {
+                        cloudEntries + freeEntry
+                    } else {
+                        cloudEntries
+                    }
                     return listOf(localEntry) + fallbacks
                 } else {
                     val cloudEntries = entries.filter { !it.service.isOnDevice }
-                    val orderedCloud = if (cloudEntries.isEmpty()) {
-                        listOf(freeEntry)
-                    } else if (appSettings.isFreeServicePrimary()) {
-                        listOf(freeEntry) + cloudEntries
-                    } else {
-                        cloudEntries + freeEntry
+                    val orderedCloud = when {
+                        // Free first is an explicit primary choice; with no configured
+                        // cloud services Free is the de-facto primary either way (the
+                        // picker shows it as the only option), so the fallback toggle
+                        // does not apply to that case.
+                        freeAsPrimary || cloudEntries.isEmpty() -> listOf(freeEntry) + cloudEntries
+
+                        freeFallbackAllowed -> cloudEntries + freeEntry
+
+                        else -> cloudEntries
                     }
                     _lastRouteDecision.value = RouteDecision(
                         mode = RoutingMode.LOCAL_FIRST,
@@ -1068,12 +1089,14 @@ class RemoteDataRepository(
 
             RoutingMode.CLOUD_FIRST -> {
                 val cloudEntries = entries.filter { !it.service.isOnDevice }
-                val orderedCloud = if (cloudEntries.isEmpty()) {
-                    listOf(freeEntry)
-                } else if (appSettings.isFreeServicePrimary()) {
-                    listOf(freeEntry) + cloudEntries
-                } else {
-                    cloudEntries + freeEntry
+                val orderedCloud = when {
+                    // Free first is an explicit primary choice; with no configured
+                    // cloud services Free is the de-facto primary either way.
+                    freeAsPrimary || cloudEntries.isEmpty() -> listOf(freeEntry) + cloudEntries
+
+                    freeFallbackAllowed -> cloudEntries + freeEntry
+
+                    else -> cloudEntries
                 }
                 _lastRouteDecision.value = RouteDecision(
                     mode = RoutingMode.CLOUD_FIRST,
@@ -1113,7 +1136,13 @@ class RemoteDataRepository(
                 )
                 _lastRouteDecision.value = decision
                 val cloudEntries = entries.filter { !it.service.isOnDevice }
-                val fallbacks = if (appSettings.isFreeServicePrimary()) listOf(freeEntry) + cloudEntries else cloudEntries + freeEntry
+                val fallbacks = if (freeAsPrimary) {
+                    listOf(freeEntry) + cloudEntries
+                } else if (freeFallbackAllowed) {
+                    cloudEntries + freeEntry
+                } else {
+                    cloudEntries
+                }
                 return if (decision.localEligible && localEntry != null) {
                     listOf(localEntry) + fallbacks
                 } else {
@@ -1122,12 +1151,15 @@ class RemoteDataRepository(
             }
 
             RoutingMode.MANUAL -> {
-                val ordered = if (entries.isEmpty()) {
-                    listOf(freeEntry)
-                } else if (appSettings.isFreeServicePrimary()) {
-                    listOf(freeEntry) + entries
-                } else {
-                    entries + freeEntry
+                val ordered = when {
+                    // Free first is an explicit primary choice; with no configured
+                    // services Free is the de-facto primary either way (the picker
+                    // shows it as the only option).
+                    freeAsPrimary || entries.isEmpty() -> listOf(freeEntry) + entries
+
+                    freeFallbackAllowed -> entries + freeEntry
+
+                    else -> entries
                 }
                 val manualOrdered = ordered.filterIndexed { index, entry -> index == 0 || !entry.service.isOnDevice }
                 val primaryService = manualOrdered.firstOrNull()?.service

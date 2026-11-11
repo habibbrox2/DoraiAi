@@ -461,20 +461,6 @@ object ScreenshotTestData {
         ),
     )
 
-    // --- Composer states ---
-
-    val composerEmptyText = TextFieldValue(text = "", selection = TextRange(0, 0))
-
-    val composerDraftText = TextFieldValue(
-        text = "Explain quantum computing in simple terms",
-        selection = TextRange(43, 43),
-    )
-
-    val composerAvailableModels = persistentListOf(
-        SettingsModel(id = "kimi-k2.5", subtitle = "Kimi K2.5", displayName = "Kimi K2.5", isSelected = true, isFreeTier = false, arenaScore = 1280, contextWindow = 131072),
-        SettingsModel(id = "claude-opus-4-6", subtitle = "Claude Opus 4.6", displayName = "Claude Opus 4.6", isSelected = false, isFreeTier = false, arenaScore = 1250, contextWindow = 200000),
-    )
-
     // --- Model selector models ---
 
     val modelSelectorModels = persistentListOf(
