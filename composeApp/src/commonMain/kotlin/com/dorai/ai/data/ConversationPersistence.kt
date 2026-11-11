@@ -106,15 +106,27 @@ class SqlConversationPersistence(
     /**
      * The settings key doubles as an import inbox: settings import (and the one-time
      * migration from the pre-database format) writes the full conversation set there.
-     * A present key always replaces the database content — including an unparseable
-     * or blank value, which import writes to mean "clear conversations".
+     * A present key replaces the database content; a blank key means "clear all".
+     * An *unparseable* non-blank value used to wipe the database with `emptyList()`;
+     * it is now quarantined and the database is left untouched instead.
      */
     private fun importPendingJson() {
         val pending = appSettings.getConversationsJson() ?: return
+        if (pending.isBlank()) {
+            // Explicit "clear conversations" signal from the importer.
+            replaceAll(emptyList())
+            appSettings.removeConversationsJson()
+            return
+        }
         val conversations = try {
             ConversationJson.decodeFromString<ConversationsData>(pending).conversations
-        } catch (_: Exception) {
-            emptyList()
+        } catch (e: Exception) {
+            // Keep the unparseable blob under its own key so a later inspection or
+            // import attempt can recover it instead of overwriting the database.
+            appSettings.backupCorruptJson("conversations_import_pending", pending)
+            println("ConversationPersistence: ignoring unparseable pending import (" + e.message?.take(120) + ") — database left untouched")
+            appSettings.removeConversationsJson()
+            return
         }
         replaceAll(conversations)
         appSettings.removeConversationsJson()
@@ -170,7 +182,8 @@ class SqlConversationPersistence(
 
     private fun decodeMessage(json: String): Conversation.Message? = try {
         ConversationJson.decodeFromString<Conversation.Message>(json)
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        println("ConversationPersistence: dropping an undecodable message row (" + e.message?.take(120) + ")")
         null
     }
 
@@ -198,7 +211,12 @@ class SettingsConversationPersistence(private val appSettings: AppSettings) : Co
         val data = appSettings.getConversationsJson() ?: return emptyList()
         return try {
             ConversationJson.decodeFromString<ConversationsData>(data).conversations
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            // A corrupt settings blob must not be silently overwritten with the
+            // current in-memory state on the next save — quarantine it first so
+            // the user's chat history survives for inspection/recovery.
+            appSettings.backupCorruptJson("conversations_settings_blob", data)
+            println("SettingsConversationPersistence: ignoring corrupt settings blob (" + e.message?.take(120) + ")")
             emptyList()
         }
     }

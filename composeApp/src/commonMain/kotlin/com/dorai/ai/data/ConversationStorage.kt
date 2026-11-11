@@ -20,7 +20,14 @@ class ConversationStorage(
     val conversations: StateFlow<List<Conversation>> = mutableConversations.asStateFlow()
 
     fun loadConversations() {
-        val loaded = persistence.loadAll()
+        val loaded = try {
+            persistence.loadAll()
+        } catch (e: Exception) {
+            // A persistence failure (e.g. corrupt SQL driver / OOM) must not crash
+            // the app at startup — start empty and log loudly instead.
+            println("ConversationStorage: failed to load conversations (" + e.message?.take(120) + "); starting with empty list")
+            return
+        }
         mutableConversations.value = loaded
         if (loaded.isEmpty()) {
             migrateLegacy()
@@ -28,6 +35,7 @@ class ConversationStorage(
     }
 
     fun saveConversation(conversation: Conversation) {
+        val previous = mutableConversations.value
         var saved = conversation
         mutableConversations.update { current ->
             val index = current.indexOfFirst { it.id == conversation.id }
@@ -46,7 +54,15 @@ class ConversationStorage(
                 current + conversation
             }
         }
-        persistence.save(saved, mutableConversations.value)
+        try {
+            persistence.save(saved, mutableConversations.value)
+        } catch (e: Exception) {
+            // Persistence failed — revert the in-memory change so the UI never
+            // shows state that wasn't saved, then surface the failure to the caller.
+            println("ConversationStorage: failed to persist conversation " + conversation.id + " (" + e.message?.take(120) + "); reverting in-memory state")
+            mutableConversations.value = previous
+            throw e
+        }
     }
 
     /**
@@ -58,6 +74,7 @@ class ConversationStorage(
      */
     fun updateShellTranscript(conversationId: String, lines: List<TerminalLine>) {
         val trimmed = trimToCharLimit(lines, MAX_SHELL_TRANSCRIPT_CHARS)
+        val previous = mutableConversations.value
         var changed: Conversation? = null
         mutableConversations.update { current ->
             val idx = current.indexOfFirst { it.id == conversationId }
@@ -71,7 +88,14 @@ class ConversationStorage(
                 current.toMutableList().apply { set(idx, updated) }
             }
         }
-        changed?.let { persistence.saveShellTranscript(it, mutableConversations.value) }
+        changed?.let {
+            try {
+                persistence.saveShellTranscript(it, mutableConversations.value)
+            } catch (e: Exception) {
+                println("ConversationStorage: failed to persist shell transcript for " + conversationId + " (" + e.message?.take(120) + "); reverting in-memory state")
+                mutableConversations.value = previous
+            }
+        }
     }
 
     private fun trimToCharLimit(lines: List<TerminalLine>, limit: Int): List<TerminalLine> {
@@ -97,13 +121,21 @@ class ConversationStorage(
     }
 
     fun deleteConversation(id: String) {
+        val previous = mutableConversations.value
         mutableConversations.update { current ->
             current.filter { it.id != id }
         }
-        persistence.delete(id, mutableConversations.value)
+        try {
+            persistence.delete(id, mutableConversations.value)
+        } catch (e: Exception) {
+            println("ConversationStorage: failed to delete " + id + " (" + e.message?.take(120) + "); reverting in-memory state")
+            mutableConversations.value = previous
+            throw e
+        }
     }
 
     fun renameConversation(id: String, title: String) {
+        val previous = mutableConversations.value
         var changed: Conversation? = null
         mutableConversations.update { current ->
             val index = current.indexOfFirst { it.id == id }
@@ -115,10 +147,19 @@ class ConversationStorage(
                 current.toMutableList().apply { set(index, updated) }
             }
         }
-        changed?.let { persistence.save(it, mutableConversations.value) }
+        changed?.let {
+            try {
+                persistence.save(it, mutableConversations.value)
+            } catch (e: Exception) {
+                println("ConversationStorage: failed to persist rename " + id + " (" + e.message?.take(120) + "); reverting in-memory state")
+                mutableConversations.value = previous
+                throw e
+            }
+        }
     }
 
     fun togglePinConversation(id: String) {
+        val previous = mutableConversations.value
         var changed: Conversation? = null
         mutableConversations.update { current ->
             val index = current.indexOfFirst { it.id == id }
@@ -135,7 +176,15 @@ class ConversationStorage(
                 current.toMutableList().apply { set(index, updated) }
             }
         }
-        changed?.let { persistence.save(it, mutableConversations.value) }
+        changed?.let {
+            try {
+                persistence.save(it, mutableConversations.value)
+            } catch (e: Exception) {
+                println("ConversationStorage: failed to persist pin toggle " + id + " (" + e.message?.take(120) + "); reverting in-memory state")
+                mutableConversations.value = previous
+                throw e
+            }
+        }
     }
 
     private fun migrateLegacy() {
@@ -145,10 +194,19 @@ class ConversationStorage(
         for (i in legacyData.indices) {
             decrypted[i] = (legacyData[i].toInt() xor key[i % key.size].toInt()).toByte()
         }
+        val decoded = decrypted.decodeToString()
         val conversations = try {
-            ConversationJson.decodeFromString<ConversationsData>(decrypted.decodeToString()).conversations
+            ConversationJson.decodeFromString<ConversationsData>(decoded).conversations
         } catch (_: Exception) {
-            emptyList()
+            // Unparseable legacy file: keep it (do NOT delete it) and leave the
+            // database untouched — the user can still recover the data by hand.
+            println("ConversationStorage: legacy file at ~/.dorai is undecodable; kept on disk for manual recovery")
+            try {
+                appSettings.backupCorruptJson("conversations_legacy_file", decoded)
+            } catch (_: Exception) {
+                // backup failed — but the file itself stays untouched
+            }
+            return
         }
         mutableConversations.value = conversations
         persistence.replaceAll(conversations)
