@@ -237,6 +237,24 @@ sealed class Service(
         apiKeyUrlDisplay = "dash.cloudflare.com/profile/api-tokens",
     )
 
+    data object CloudflareAIGateway : Service(
+        id = "cloudflare-ai-gateway",
+        displayName = "Cloudflare AI Gateway",
+        icon = Res.drawable.ic_service_cloudflare,
+        requiresApiKey = true,
+        defaultModel = null,
+        settingsKeyPrefix = "cloudflare_ai_gateway",
+        defaultModels = emptyList(),
+        // AI Gateway routes Workers AI models through the gateway for unified logging,
+        // caching, rate limiting and analytics. Uses the Cloudflare v4 chat endpoint with
+        // the `cf-aig-gateway-id` header (default gateway) so requests are attributed to
+        // the gateway instead of going direct to Workers AI.
+        chatUrl = "https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1/chat/completions",
+        modelsUrl = "https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/models/search",
+        apiKeyUrl = "https://dash.cloudflare.com/profile/api-tokens",
+        apiKeyUrlDisplay = "dash.cloudflare.com/profile/api-tokens",
+    )
+
     data object Nvidia : Service(
         id = "nvidia",
         displayName = "NVIDIA",
@@ -676,7 +694,7 @@ sealed class Service(
     )
 
     companion object {
-        val all: List<Service> get() = listOf(Free, AtlasCloud, Gemini, Anthropic, OpenAI, DeepSeek, Mistral, XAI, OpenRouter, Requesty, Cloudflare, Groq, Nvidia, Cerebras, OllamaCloud, LongCat, Together, HuggingFace, Venice, Moonshot, Zai, ZaiCodingPlan, Minimax, AiHubMix, DeepInfra, FireworksAI, OpenCode, Kilo, PublicAI, AIHorde, OneMinAI, Perplexity, OpenAICompatible, LiteRT)
+        val all: List<Service> get() = listOf(Free, AtlasCloud, Gemini, Anthropic, OpenAI, DeepSeek, Mistral, XAI, OpenRouter, Requesty, Cloudflare, CloudflareAIGateway, Groq, Nvidia, Cerebras, OllamaCloud, LongCat, Together, HuggingFace, Venice, Moonshot, Zai, ZaiCodingPlan, Minimax, AiHubMix, DeepInfra, FireworksAI, OpenCode, Kilo, PublicAI, AIHorde, OneMinAI, Perplexity, OpenAICompatible, LiteRT)
 
         const val DEFAULT_OPENAI_COMPATIBLE_BASE_URL = "http://localhost:11434/v1"
 
@@ -690,7 +708,7 @@ sealed class Service(
          * (it would produce malformed requests). Callers that build request URLs and
          * the settings UI both gate on this.
          */
-        fun acceptsCustomBaseUrl(service: Service): Boolean = service is Service.OpenAICompatible || service is Service.Cloudflare
+        fun acceptsCustomBaseUrl(service: Service): Boolean = service is Service.OpenAICompatible || service is Service.Cloudflare || service is Service.CloudflareAIGateway
 
         /**
          * Base URL for an OpenAI-Compatible instance, ready for an endpoint path to be appended.

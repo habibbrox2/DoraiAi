@@ -1168,7 +1168,7 @@ private fun ConfiguredServiceCardContent(
                     )
                 } else if (entry.service is Service.OpenAICompatible || entry.service is Service.Cloudflare || entry.service.modelsUrl != null || entry.service.chatUrl.isNotBlank()) {
                     OpenAICompatibleSettings(
-                        isCloudflare = entry.service is Service.Cloudflare,
+                        isCloudflare = entry.service is Service.Cloudflare || entry.service is Service.CloudflareAIGateway,
                         displayName = entry.customName,
                         onChangeDisplayName = onChangeDisplayName,
                         baseUrl = entry.baseUrl,

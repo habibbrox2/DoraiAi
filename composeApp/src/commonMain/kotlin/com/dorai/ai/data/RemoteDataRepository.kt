@@ -512,11 +512,11 @@ class RemoteDataRepository(
             else -> {
                 if (service.modelsUrl != null) {
                     fetchModelsForInstance(service, instanceId) { creds, selectedModelId ->
-                        val remoteModels = if (service == Service.Cloudflare) {
+                        val remoteModels = if (service == Service.Cloudflare || service == Service.CloudflareAIGateway) {
                             val discovered = requests.getOpenAICompatibleModels(service, creds).getOrThrow().data
                             if (discovered.isEmpty()) {
                                 throw IllegalStateException(
-                                    "Cloudflare returned no Workers AI models. Check the Account ID, API token permissions, and Workers AI availability.",
+                                    "${service.displayName} returned no models. Check the Account ID, API token permissions, and gateway availability.",
                                 )
                             }
                             discovered
