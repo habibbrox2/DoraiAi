@@ -7,7 +7,8 @@ including OpenCode sessions, Claude Code, and CI/CD systems. This document is th
 canonical map of where its instructions live and how to change them safely.
 
 > The App Runtime Agent (the in-app Dorai AGENT) has a separate map:
-> [runtime-agents.md](runtime-agents.md). Do not add runtime-agent content here.
+> The **App Runtime Agent** (the AI assistant that runs inside the app) has a separate map:
+> [`runtime-agent/runtime-agents.md`](https://github.com/habibbrox2/DoraiAi/blob/main/runtime-agent/runtime-agents.md). Do not add runtime-agent content here.
 
 ## Files, by path
 
@@ -64,6 +65,6 @@ Before merging a change to an agent-instruction file or `.github/workflows/`:
 ## See also
 
 - [README.md](README.md) — the two-family separation
-- [runtime-agents.md](runtime-agents.md) — the App Runtime Agent (in-app)
-- [`AGENTS.md`](../../AGENTS.md) — repository-wide policy (authoritative)
+- [`runtime-agent/runtime-agents.md`](https://github.com/habibbrox2/DoraiAi/blob/main/runtime-agent/runtime-agents.md) — the App Runtime Agent (in-app)
+- [`AGENTS.md`](https://github.com/habibbrox2/DoraiAi/blob/main/AGENTS.md) — repository-wide policy (authoritative)
 - [`docs/development/bengali-language-and-rendering-policy.md`](../development/bengali-language-and-rendering-policy.md) — Bengali/i18n policy

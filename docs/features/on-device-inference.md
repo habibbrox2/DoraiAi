@@ -54,7 +54,7 @@ The system prompt for on-device runs is composed from its own local-chat variant
 
 Interactive UI mode is **not supported** on-device: the dorai-ui component schema is too large and too structurally complex for 2-4B Gemma models to reliably produce valid dorai-ui JSON. The "Start interactive mode" button in the chat empty-state is hidden when the primary service is on-device, and on-device services are also filtered out of the quick-switch service selector while Interactive Mode is active so a user already in Interactive Mode can't switch to them. Users who need interactive UI should switch to a remote service.
 
-See [system-prompts.md](system-prompts.md) for the full contract.
+See [runtime-agent/features/system-prompts.md](https://github.com/habibbrox2/DoraiAi/blob/main/runtime-agent/features/system-prompts.md) for the full contract.
 
 ## Sampling
 
