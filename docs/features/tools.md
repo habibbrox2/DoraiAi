@@ -56,11 +56,11 @@ The `open_url` tool accepts both web URLs and `file://` URIs. Each platform open
 | `memory_learn` | Store a structured learning with a category |
 | `memory_reinforce` | Reinforce a stored memory by incrementing its hit count |
 
-Memory tools cannot be individually disabled. They are available whenever the memory feature is enabled (the default). See [memories.md](memories.md).
+Memory tools cannot be individually disabled. They are available whenever the memory feature is enabled (the default). See [runtime-agent/features/memories.md](https://github.com/habibbrox2/DoraiAi/blob/main/runtime-agent/features/memories.md).
 
 ### Scheduling & Heartbeat
 
-Scheduling tools and heartbeat tools are available when the scheduling feature is enabled (the default). See [tasks.md](tasks.md) and [heartbeat.md](heartbeat.md).
+Scheduling tools and heartbeat tools are available when the scheduling feature is enabled (the default). See [tasks.md](tasks.md) and [runtime-agent/features/heartbeat.md](https://github.com/habibbrox2/DoraiAi/blob/main/runtime-agent/features/heartbeat.md).
 
 | Tool | Description |
 |---|---|
@@ -262,7 +262,7 @@ The Plugins tab displays a responsive grid of toggle cards:
 
 Each card shows the tool name, a short description, and a toggle switch. Clicking anywhere on the card toggles the tool. Cards use a semi-transparent surface variant background (transparent with an outline border in the OLED theme). A search field appears once the list reaches eight tools and filters by name or description.
 
-The Plugins grid is its own tab, so MCP servers and Skills no longer stack above it (see [mcp.md](mcp.md) and [skills.md](skills.md)).
+The Plugins grid is its own tab, so MCP servers and Skills no longer stack above it (see [mcp.md](mcp.md) and [runtime-agent/features/skills.md](https://github.com/habibbrox2/DoraiAi/blob/main/runtime-agent/features/skills.md)).
 
 Only individually toggleable tools appear in the grid. Tools whose only control is a master toggle in Settings → Agent (memory, scheduling, heartbeat, email, SMS, notifications) are not listed here — they appear and disappear with their feature switch. The same applies to tools gated by a capability rather than a setting: the Android sandbox tools follow the sandbox switch, and desktop's `manage_process` follows the shell switch.
 

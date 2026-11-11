@@ -132,18 +132,13 @@ Plus a built-in **Free** tier that requires no API key.
 - **[Chat & Conversations](features/chat.md)** — Message history, conversation persistence, image attachments, and speech output
 - **[Multi-Service](features/multi-service.md)** — Provider configuration, fallback chain, and connection validation
 - **[Tools](features/tools.md)** — Available tools, execution flow, safety guards, and enablement
-- **[Memories](features/memories.md)** — Memory lifecycle, categories, reinforcement, and promotion
-- **[Heartbeat](features/heartbeat.md)** — Autonomous self-checks, active hours, and configuration
 - **[Tasks](features/tasks.md)** — Scheduled tasks, future execution, and task management
 - **[Daemon](features/daemon.md)** — Background service for scheduled tasks and heartbeat execution
 - **[MCP Servers](features/mcp.md)** — Remote tool servers over the Model Context Protocol
-- **[Dynamic UI](features/dynamic-ui.md)** — AI-generated interactive screens rendered inline in chat
 - **[On-Device Inference](features/on-device-inference.md)** — Local LiteRT models, downloads, and integrity checks
 - **[Reasoning](features/reasoning.md)** — How reasoning traces are sent back to providers and shown
-- **[System Prompts](features/system-prompts.md)** — How each prompt variant is composed
-- **[Skills](features/skills.md)** — Installable SKILL.md instruction bundles
 - **[Linux Sandbox](features/sandbox.md)** — On-device Debian/Alpine shell for the AI and the user (Android)
-- **[DORAI Build](features/kai-build.md)** — Coding environment with terminals and coding agents (Android)
+- **[DORAI Build](features/dorai-build.md)** — Coding environment with terminals and coding agents (Android)
 - **[Notifications](features/notifications.md)** — Reading other apps' notifications (Android, FOSS build)
 - **[SMS](features/sms.md)** — Reading SMS and drafting replies for the user to send (Android, FOSS build)
 - **[Appearance](features/appearance.md)** — Theme picker

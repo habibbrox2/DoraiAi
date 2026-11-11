@@ -8,17 +8,26 @@ DORAI AI has two distinct agent families. They are documented and maintained sep
 |---|---|---|
 | **What it is** | Coding agents and CI bots that change this repository | The in-app AI assistant (Dorai AGENT) that runs inside the app |
 | **Who it serves** | Developers, maintainers, CI (GitHub Actions) | App users (chat, heartbeat, scheduled tasks, Splinterlands) |
-| **Where instructions live** | [project-agents.md](project-agents.md) maps [`AGENTS.md`](../../AGENTS.md), [`CLAUDE.md`](../../CLAUDE.md), [`agents/`](../../agents/), [`.agents/`](../../.agents/) | [runtime-agents.md](runtime-agents.md) maps the in-app instruction sources (prompt builders, soul, skills) |
+| **Where instructions live** | [project-agents.md](project-agents.md) maps [`AGENTS.md`](https://github.com/habibbrox2/DoraiAi/blob/main/AGENTS.md), [`CLAUDE.md`](https://github.com/habibbrox2/DoraiAi/blob/main/CLAUDE.md), [`agents/`](../../agents/), [`.agents/`](../../.agents/) | [`runtime-agents.md`](https://github.com/habibbrox2/DoraiAi/blob/main/runtime-agent/runtime-agents.md) maps the in-app instruction sources (prompt builders, soul, skills) |
 | **Governed by** | Branch/PR policy, validation policy, file ownership | System-prompt invariants, prompt unit tests |
-| **Entry doc** | [project-agents.md](project-agents.md) | [runtime-agents.md](runtime-agents.md) |
+| **Entry doc** | [project-agents.md](project-agents.md) | [`runtime-agents.md`](https://github.com/habibbrox2/DoraiAi/blob/main/runtime-agent/runtime-agents.md) |
 
 ## Layout
 
 ```
-docs/agents/
-├── README.md            ← this index
-├── project-agents.md    ← Project Agent: paths, rules, ownership, verification
-└── runtime-agents.md    ← App Runtime Agent: source map, composition, update procedure
+docs/agents/                          ← Project Agent docs (this directory)
+├── README.md                       ← Project Agent index + family separation
+└── project-agents.md                ← Project Agent: paths, rules, ownership, verification
+
+runtime-agent/                        ← App Runtime Agent docs (repo root)
+├── README.md                        ← App Runtime Agent index
+├── runtime-agents.md               ← App Runtime Agent: source map, composition, update procedure
+└── features/                       ← App Runtime Agent feature docs
+    ├── system-prompts.md
+    ├── skills.md
+    ├── memories.md
+    ├── heartbeat.md
+    └── dynamic-ui.md
 ```
 
 ## Separation rules
@@ -39,12 +48,14 @@ docs/agents/
 ## Maintenance
 
 When a path, owner, rule, or verification command in this directory changes, update the
-matching file and its "Last verified" date. Feature behavior documentation stays in
-[`docs/features/`](../features/) (e.g. `system-prompts.md`, `skills.md`); this directory
+matching file and its "Last verified" date. App Runtime Agent behavior documentation lives
+in [`runtime-agent/features/`](https://github.com/habibbrox2/DoraiAi/blob/main/runtime-agent/features/) (e.g. `system-prompts.md`,
+`skills.md`); the App Runtime Agent instruction map lives at
+[`runtime-agent/runtime-agents.md`](https://github.com/habibbrox2/DoraiAi/blob/main/runtime-agent/runtime-agents.md) — this directory
 documents **who instructs what, and where**.
 
 ## See also
 
-- [Multi-Agent Development in `AGENTS.md`](../../AGENTS.md#multi-agent-development) — worktree/lock coordination
+- [Multi-Agent Development in `AGENTS.md`](https://github.com/habibbrox2/DoraiAi/blob/main/AGENTS.md#multi-agent-development) — worktree/lock coordination
 - [`docs/architecture/`](../architecture/) — system architecture
-- [`docs/features/system-prompts.md`](../features/system-prompts.md) — prompt section reference
+- [`runtime-agent/features/system-prompts.md`](https://github.com/habibbrox2/DoraiAi/blob/main/runtime-agent/features/system-prompts.md) — prompt section reference

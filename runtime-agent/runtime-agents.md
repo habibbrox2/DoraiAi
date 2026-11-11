@@ -8,7 +8,7 @@ This document is the central map of everything that instructs it, where the inst
 live, and how to change them.
 
 > The Project Agent (coding agents working on this repo) has a separate map:
-> [project-agents.md](project-agents.md). Do not add project-agent content here.
+> [project-agents.md](../docs/agents/project-agents.md). Do not add project-agent content here.
 
 ## Source map
 
@@ -28,7 +28,7 @@ prompt file" — every section is composed per request from settings, history an
 | `## Email Accounts` (+ Sending policy) | `EmailAccountSummary` list — connected email accounts | Remote-only. Send policy: present full draft and confirm before `compose_email` / `reply_email`. |
 | `## Scheduled Tasks` | `pendingTasks` | Remote-only. `execute_at` / `cron` tasks. |
 | `## Heartbeat Additions` | `heartbeatAdditions` | Remote-only. Standing `schedule_task(on_heartbeat = true)` instructions. |
-| `## Active skill: <name>` | `SkillManifest.body` + bundled files | Only when the user prefixed the turn with `/<skill-id>`. See [`docs/features/skills.md`](../features/skills.md). |
+| `## Active skill: <name>` | `SkillManifest.body` + bundled files | Only when the user prefixed the turn with `/<skill-id>`. See [`runtime-agent/features/skills.md`](features/skills.md). |
 | `## Context` | `ChatPromptRuntimeContext` | Local time with offset + IANA zone, UTC, platform, model, provider. |
 | `## Dynamic UI` | `appendDynamicUiSection()` | Remote-only; Dynamic UI setting enabled + model supports tools. |
 | `## Interactive UI Mode` | `appendInteractiveUiSection()` | Remote-only; interactive mode flag takes precedence over Dynamic UI. |
@@ -46,7 +46,7 @@ prompt file" — every section is composed per request from settings, history an
   Automation, Email Accounts, Scheduled Tasks, Heartbeat Additions, dorai-ui; memory
   sections are char-capped. Small Gemma models cannot coherently attend to the full prompt.
 
-See [`docs/features/system-prompts.md`](../features/system-prompts.md) for the
+See [`runtime-agent/features/system-prompts.md`](features/system-prompts.md) for the
 authoritative section-by-section reference and the Local budget semantics.
 
 ## Update procedure
@@ -58,13 +58,13 @@ authoritative section-by-section reference and the Local budget semantics.
    `./gradlew :composeApp:desktopTest --tests "*SystemPromptBuilder*"`
    (includes `ChatSystemPromptBuilderTest` and `HeartbeatPromptBuilderTest`)
    and, for Splinterlands, `--tests "*SplinterlandsTeamPickerPromptTest*"`.
-3. Update [`docs/features/system-prompts.md`](../features/system-prompts.md) (sections,
+3. Update [`runtime-agent/features/system-prompts.md`](features/system-prompts.md) (sections,
    budgets, gating) and its "Last verified" date.
 4. For user-visible wording in default soul/skills, keep Bengali parity per
-   `docs/development/bengali-language-and-rendering-policy.md` and re-verify
+   `../docs/development/bengali-language-and-rendering-policy.md` and re-verify
    `ChatSystemPromptBuilderTest`.
 5. Do not mirror runtime-agent text into `AGENTS.md`/`CLAUDE.md`; keep the two families
-   separate (see [README.md](README.md)).
+   separate (see [README.md](../docs/agents/README.md)).
 
 ## Prompt-behavior invariants
 
@@ -76,10 +76,10 @@ authoritative section-by-section reference and the Local budget semantics.
 
 ## See also
 
-- [README.md](README.md) — the two-family separation
-- [project-agents.md](project-agents.md) — the Project Agent (coding agents)
-- [`docs/features/system-prompts.md`](../features/system-prompts.md) — section-by-section reference
-- [`docs/features/skills.md`](../features/skills.md) — skills
-- [`docs/features/memories.md`](../features/memories.md) — memories
-- [`docs/features/dynamic-ui.md`](../features/dynamic-ui.md) — dorai-ui / dynamic UI
-- [`docs/features/heartbeat.md`](../features/heartbeat.md) — heartbeat
+- [README.md](../docs/agents/README.md) — the two-family separation
+- [project-agents.md](../docs/agents/project-agents.md) — the Project Agent (coding agents)
+- [`runtime-agent/features/system-prompts.md`](features/system-prompts.md) — section-by-section reference
+- [`runtime-agent/features/skills.md`](features/skills.md) — skills
+- [`runtime-agent/features/memories.md`](features/memories.md) — memories
+- [`runtime-agent/features/dynamic-ui.md`](features/dynamic-ui.md) — dorai-ui / dynamic UI
+- [`runtime-agent/features/heartbeat.md`](features/heartbeat.md) — heartbeat
