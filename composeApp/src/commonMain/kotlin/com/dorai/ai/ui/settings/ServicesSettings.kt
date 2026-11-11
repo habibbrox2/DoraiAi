@@ -173,6 +173,8 @@ import dorai.composeapp.generated.resources.settings_become_sponsor
 import dorai.composeapp.generated.resources.settings_business_partnerships
 import dorai.composeapp.generated.resources.settings_business_partnerships_description
 import dorai.composeapp.generated.resources.settings_cloudflare_account_id
+import dorai.composeapp.generated.resources.settings_cloudflare_gateway_id
+import dorai.composeapp.generated.resources.settings_cloudflare_gateway_id_hint
 import dorai.composeapp.generated.resources.settings_contact_sponsorship
 import dorai.composeapp.generated.resources.settings_custom_model_hint
 import dorai.composeapp.generated.resources.settings_custom_model_label
@@ -684,6 +686,7 @@ internal fun ServicesContent(uiState: SettingsUiState, actions: SettingsActions)
                     onChangeApiKey = { apiKey -> actions.onChangeApiKey(entry.instanceId, apiKey) },
                     onChangeBaseUrl = { baseUrl -> actions.onChangeBaseUrl(entry.instanceId, baseUrl) },
                     onChangeDisplayName = { name -> actions.onChangeDisplayName(entry.instanceId, name) },
+                    onChangeCloudflareGatewayId = { id -> actions.onChangeCloudflareGatewayId(entry.instanceId, id) },
                     onSelectModel = { modelId -> actions.onSelectModel(entry.instanceId, modelId) },
                     onRetryFetchModels = { actions.onRetryFetchModels(entry.instanceId) },
                     onToggleUseCustomModel = { use -> actions.onToggleUseCustomModel(entry.instanceId, use) },
@@ -996,6 +999,7 @@ private fun ConfiguredServiceCardContent(
     onChangeApiKey: (String) -> Unit,
     onChangeBaseUrl: (String) -> Unit,
     onChangeDisplayName: (String) -> Unit,
+    onChangeCloudflareGatewayId: (String) -> Unit = {},
     onSelectModel: (String) -> Unit,
     onRetryFetchModels: () -> Unit = {},
     onToggleUseCustomModel: (Boolean) -> Unit = {},
@@ -1171,6 +1175,9 @@ private fun ConfiguredServiceCardContent(
                         isCloudflare = entry.service is Service.Cloudflare || entry.service is Service.CloudflareAIGateway,
                         displayName = entry.customName,
                         onChangeDisplayName = onChangeDisplayName,
+                        isCloudflareGateway = entry.service is Service.CloudflareAIGateway,
+                        cloudflareGatewayId = entry.cloudflareGatewayId,
+                        onChangeCloudflareGatewayId = onChangeCloudflareGatewayId,
                         baseUrl = entry.baseUrl,
                         onChangeBaseUrl = onChangeBaseUrl,
                         showBaseUrl = Service.acceptsCustomBaseUrl(entry.service),
@@ -1366,6 +1373,10 @@ private fun OpenAICompatibleSettings(
     isCloudflare: Boolean = false,
     displayName: String = "",
     onChangeDisplayName: (String) -> Unit = {},
+    /** Only the Cloudflare AI Gateway shows this — blank means the account's auto-created "default" gateway. */
+    isCloudflareGateway: Boolean = false,
+    cloudflareGatewayId: String = "",
+    onChangeCloudflareGatewayId: (String) -> Unit = {},
     baseUrl: String,
     onChangeBaseUrl: (String) -> Unit,
     /** Hosted providers own their endpoints; only the gateway (and Cloudflare's account id) edits this. */
@@ -1439,6 +1450,31 @@ private fun OpenAICompatibleSettings(
                 modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 4.dp),
             )
         }
+    }
+
+    if (isCloudflareGateway) {
+        DoraiClearableTextField(
+            value = cloudflareGatewayId,
+            onValueChange = onChangeCloudflareGatewayId,
+            label = {
+                Text(
+                    stringResource(Res.string.settings_cloudflare_gateway_id),
+                    color = LocalDesignColorTokens.current.textPrimary,
+                )
+            },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done,
+            ),
+        )
+        Text(
+            text = stringResource(Res.string.settings_cloudflare_gateway_id_hint),
+            style = DoraiTypography.bodySmall,
+            color = LocalDesignColorTokens.current.textSecondary,
+            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, top = 4.dp),
+        )
+        Spacer(Modifier.height(8.dp))
     }
 
     Spacer(Modifier.height(8.dp))

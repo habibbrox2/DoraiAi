@@ -1,6 +1,6 @@
 # Encryption & Secure Storage
 
-**Last verified:** 2026-11-09
+**Last verified:** 2026-11-11
 
 All app settings — including sensitive ones such as API keys and email passwords — are stored in a single platform-specific secure settings store. Each platform uses the strongest available mechanism.
 
@@ -37,7 +37,7 @@ The following data is stored in secure settings:
 ### Desktop (macOS, Windows, Linux)
 - **Mechanism:** `EncryptedFileSettings` — custom file-backed `Settings` implementation
 - **Encryption:** AES-256-GCM via `javax.crypto`
-- **Key management:** 256-bit random key generated via `SecureRandom`, stored at `~/.dorai/settings.key`
+- **Key management:** 256-bit random key generated via `SecureRandom`. On Windows the key is stored DPAPI-protected (`CryptProtectData`, user scope) at `~/.dorai/settings.key` — the raw key never sits on disk. On macOS/Linux the owner-only key file is used as before (OS keystore integration is not yet available for those platforms). Legacy raw-key installs are transparently re-protected on first launch after update.
 - **IV:** 12-byte random IV per write, prepended to ciphertext
 - **Authentication tag:** 128-bit GCM tag (integrity + authenticity)
 - **File format:** `[12-byte IV][AES-GCM ciphertext + tag]`
@@ -75,6 +75,7 @@ The XOR encryption key is retained in settings for any devices that haven't migr
 | `composeApp/src/iosMain/.../Platform.ios.kt` | iOS KeychainSettings setup |
 | `composeApp/src/desktopMain/.../Platform.jvm.kt` | Desktop EncryptedFileSettings wiring |
 | `composeApp/src/desktopMain/.../data/EncryptedFileSettings.kt` | AES-256-GCM file-backed Settings implementation |
+| `composeApp/src/desktopMain/.../data/DesktopKeyProtector.kt` | DPAPI (Windows) protection of the desktop settings key |
 | `composeApp/src/wasmJsMain/.../Platform.wasmJs.kt` | Web localStorage setup |
 | `composeApp/src/commonMain/.../data/ConversationStorage.kt` | Legacy XOR migration logic |
 | `composeApp/src/commonMain/.../data/AppSettings.kt` | Settings access layer for all app data |

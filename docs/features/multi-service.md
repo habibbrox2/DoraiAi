@@ -2,9 +2,9 @@
 
 **Last verified:** 2026-11-11
 
-DORAI AI supports 31 user-configurable LLM providers (plus a built-in Free tier). Each provider uses one of three API formats: **OpenAI-compatible** (most services), **Gemini native**, or **Anthropic native** -- plus **LiteRT on-device** for local inference. A handful of OpenAI models additionally require OpenAI's **Responses API**; DORAI AI switches to it per model, transparently. Users can configure multiple service instances, reorder them, and DORAI AI automatically falls back through the chain on failure.
+DORAI AI supports 32 user-configurable LLM providers (plus a built-in Free tier). Each provider uses one of three API formats: **OpenAI-compatible** (most services), **Gemini native**, or **Anthropic native** -- plus **LiteRT on-device** for local inference. A handful of OpenAI models additionally require OpenAI's **Responses API**; DORAI AI switches to it per model, transparently. Users can configure multiple service instances, reorder them, and DORAI AI automatically falls back through the chain on failure.
 
-> Provider-count bookkeeping (verified 2026-11-09): `Service.all` holds **34** entries = 1 built-in Free tier + 31 shown in Settings → Services (LiteRT hidden on platforms without local inference) + 2 hidden keyless fallback targets (Kilo Gateway, OpenCode Zen) that are never offered in the add-service sheet.
+> Provider-count bookkeeping (verified 2026-11-11): `Service.all` holds **35** entries = 1 built-in Free tier + 32 shown in Settings → Services (LiteRT hidden on platforms without local inference) + 2 hidden keyless fallback targets (Kilo Gateway, OpenCode Zen) that are never offered in the add-service sheet. **Cloudflare AI Gateway** was added 2026-11-11 alongside Cloudflare Workers AI: it routes through the Cloudflare v4 endpoint with the `cf-aig-gateway-id` header so requests go through the account's gateway (unified logging, caching, rate limiting, analytics). Each gateway instance can override the gateway id (Settings → Services → the gateway entry, "AI Gateway ID" field); when blank, Cloudflare's account-default gateway (`default`, auto-created by Cloudflare) is used. The base URL field stores the Cloudflare Account ID, same as Workers AI.
 
 ## Concepts
 

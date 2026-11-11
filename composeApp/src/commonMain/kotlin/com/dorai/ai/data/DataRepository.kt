@@ -53,6 +53,10 @@ interface DataRepository {
     fun clearInstanceConnectionStatus(instanceId: String) = setInstanceConnectionStatus(instanceId, "")
     fun getInstanceCustomName(instanceId: String): String
     fun updateInstanceCustomName(instanceId: String, name: String)
+
+    /** Per-instance Cloudflare AI Gateway id. Blank means the account's gateway named "default" (auto-created by Cloudflare). */
+    fun getInstanceCloudflareGatewayId(instanceId: String): String
+    fun updateInstanceCloudflareGatewayId(instanceId: String, gatewayId: String)
     fun getInstanceModels(instanceId: String, service: Service): StateFlow<List<SettingsModel>>
     fun updateInstanceSelectedModel(instanceId: String, service: Service, modelId: String)
     fun getInstanceUseCustomModel(instanceId: String): Boolean

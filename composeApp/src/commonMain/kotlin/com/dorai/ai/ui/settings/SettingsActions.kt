@@ -23,6 +23,8 @@ data class SettingsActions(
     val onRetryFetchModels: (String) -> Unit = {},
     val onToggleUseCustomModel: (String, Boolean) -> Unit,
     val onChangeCustomModelId: (String, String) -> Unit,
+    /** Cloudflare AI Gateway id for this instance. Blank means the account's gateway named "default" (auto-created by Cloudflare). */
+    val onChangeCloudflareGatewayId: (String, String) -> Unit = { _, _ -> },
     val onToggleTool: (String, Boolean) -> Unit,
     val onSaveSoul: (String) -> Unit,
     val onToggleRestoreLastChat: (Boolean) -> Unit,
@@ -92,6 +94,7 @@ data class SettingsActions(
             onRetryFetchModels = {},
             onToggleUseCustomModel = { _, _ -> },
             onChangeCustomModelId = { _, _ -> },
+            onChangeCloudflareGatewayId = { _, _ -> },
             onToggleTool = { _, _ -> },
             onSaveSoul = {},
             onToggleRestoreLastChat = {},

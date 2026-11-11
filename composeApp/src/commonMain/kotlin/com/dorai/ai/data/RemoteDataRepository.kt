@@ -32,9 +32,11 @@ import com.dorai.ai.mcp.McpServerManager
 import com.dorai.ai.network.AllServicesFailedException
 import com.dorai.ai.network.AnthropicInsufficientCreditsException
 import com.dorai.ai.network.AnthropicInvalidApiKeyException
+import com.dorai.ai.network.AnthropicRateLimitExceededException
 import com.dorai.ai.network.ContextWindowExceededException
 import com.dorai.ai.network.FileTooLargeException
 import com.dorai.ai.network.GeminiInvalidApiKeyException
+import com.dorai.ai.network.GeminiRateLimitExceededException
 import com.dorai.ai.network.OpenAICompatibleBadRequestException
 import com.dorai.ai.network.OpenAICompatibleContentModerationException
 import com.dorai.ai.network.OpenAICompatibleEmptyResponseException
@@ -42,6 +44,7 @@ import com.dorai.ai.network.OpenAICompatibleGenericException
 import com.dorai.ai.network.OpenAICompatibleInvalidApiKeyException
 import com.dorai.ai.network.OpenAICompatibleModelNotFoundException
 import com.dorai.ai.network.OpenAICompatibleQuotaExhaustedException
+import com.dorai.ai.network.OpenAICompatibleRateLimitExceededException
 import com.dorai.ai.network.OpenAICompatibleRequestTooLargeException
 import com.dorai.ai.network.Requests
 import com.dorai.ai.network.ServiceCredentials
@@ -276,6 +279,7 @@ class RemoteDataRepository(
             appSettings.getInstanceEffectiveModelId(instanceId).ifEmpty { appSettings.getSelectedModelId(service) }
         },
         baseUrl = getInstanceBaseUrl(instanceId, service),
+        cloudflareGatewayId = if (service == Service.CloudflareAIGateway) appSettings.getInstanceCloudflareGatewayId(instanceId) else "",
     )
 
     override val chatHistory: MutableStateFlow<List<History>> = MutableStateFlow(emptyList())
@@ -389,6 +393,12 @@ class RemoteDataRepository(
 
     override fun updateInstanceCustomName(instanceId: String, name: String) {
         appSettings.setInstanceCustomName(instanceId, name)
+    }
+
+    override fun getInstanceCloudflareGatewayId(instanceId: String): String = appSettings.getInstanceCloudflareGatewayId(instanceId)
+
+    override fun updateInstanceCloudflareGatewayId(instanceId: String, gatewayId: String) {
+        appSettings.setInstanceCloudflareGatewayId(instanceId, gatewayId.trim())
     }
 
     override fun updateInstanceBaseUrl(instanceId: String, baseUrl: String) {
@@ -585,8 +595,8 @@ class RemoteDataRepository(
         if (defaultModel != null) {
             models.firstOrNull { it.id == defaultModel }?.let { return it }
         }
-        return models.firstOrNull { it.id.contains("kimi-k2.5", ignoreCase = true) }
-            ?: models.firstOrNull()
+        // Respect the provider's own ordering (the Free tier relies on it); no model-id guessing.
+        return models.firstOrNull()
     }
 
     private suspend fun askWithLocalEngine(
@@ -1890,7 +1900,11 @@ class RemoteDataRepository(
     }
 
     /**
-     * Retries an API call with simple exponential backoff.
+     * Retries an API call with simple exponential backoff (1s, 2s, capped by any Retry-After hint).
+     * Rate-limit errors carrying a `Retry-After` hint are honored: the delay becomes
+     * `max(backoff, retryAfter)` so a provider that says "wait 30s" isn't retried one second later.
+     * Streaming completions never reach this path (a truncated stream is not retried after
+     * tokens were already rendered).
      */
     private suspend fun <T> retryApiCall(block: suspend () -> T): T {
         var lastException: Exception? = null
@@ -1902,7 +1916,15 @@ class RemoteDataRepository(
                 if (isNonRetryableException(e)) throw e
                 lastException = e
                 if (attempt < MAX_API_RETRIES) {
-                    delay((attempt + 1).seconds)
+                    val backoffSeconds = (attempt + 1).toLong()
+                    val hintSeconds = when (e) {
+                        is OpenAICompatibleRateLimitExceededException -> e.retryAfterSeconds
+                        is GeminiRateLimitExceededException -> e.retryAfterSeconds
+                        is AnthropicRateLimitExceededException -> e.retryAfterSeconds
+                        else -> null
+                    }
+                    val delaySeconds = maxOf(backoffSeconds, hintSeconds ?: 0L)
+                    delay(delaySeconds.seconds)
                 }
             }
         }

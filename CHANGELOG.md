@@ -30,13 +30,23 @@
 - **OpenAI-Compatible instances with a blank base URL** are excluded from the fallback chain.
 - **Settings state hygiene**: changing an API key or base URL clears the stale model list/selection; selecting a model from the dropdown clears the custom-model override; a denied local-network permission no longer leaves the model fetch spinner spinning forever.
 - **Chat provider badge** now uses the entry's execution location instead of matching the non-existent \"ollama\" service id.
+- **Cloudflare AI Gateway provider** added alongside Cloudflare Workers AI: requests are gateway-routed via the `cf-aig-gateway-id` header. Each gateway instance can set **AI Gateway ID** (Settings → Services); blank uses the account's auto-created `default` gateway.
 - **Dead chat code removed** (TopBar/AgentHud/ChatComposer/QuestionInput/ServiceSelector) and the screenshot tests updated.
 
+### Security
+- **Desktop settings key is DPAPI-protected on Windows** (`CryptProtectData`, user scope, via JNA): the raw AES-GCM key no longer sits in the clear next to `~/.dorai/settings.aes`. Legacy raw-key installs are transparently re-protected on first launch. macOS/Linux keep the owner-only key file (OS keystore integration is pending).
+- **Cloudflare Account ID validation**: `resolveUrl` now splices only well-formed 32-hex account ids into Workers AI/AI Gateway URLs; anything else yields a deterministic rejection instead of an arbitrary-string-in-path URL.
+
 ### Fixed
-- Hardcoded English strings in provider surfaces localized (\"Cloudflare Account ID\", \"The provider is connected, but it returned no available models.\", permission-denied fetch error).
+- **Model auto-pick no longer hardcodes `kimi-k2.5`** — the provider's own model ordering is respected (curated defaults still take precedence).
+- **Truncated SSE streams are no longer reported as successful completions**: a stream that ends without `[DONE]` or a finish reason surfaces as an error, letting the fallback chain retry/fail visibly instead of silently rendering partial answers.
+- **`Retry-After` honored on 429**: rate-limit errors carry the server-provided hint (delta-seconds, capped at 300s) and `retryApiCall` waits `max(backoff, retryAfter)`. Streaming completions remain non-retried by design.
+- Hardcoded English strings in provider surfaces localized (\"Cloudflare Account ID\", \"Cloudflare AI Gateway ID\", \"The provider is connected, but it returned no available models.\", permission-denied fetch error).
 - Model picker search empty state and custom-model checkbox accessibility (role = Checkbox).
 
 ---
+
+## DORAI AI - GitHub Integration (Unreleased)
 
 Connect an embedded GitHub App to the app with read-only access by default. Not yet released.
 

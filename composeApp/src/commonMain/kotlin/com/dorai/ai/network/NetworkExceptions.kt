@@ -34,22 +34,25 @@ class GenericNetworkException(message: String, cause: Throwable? = null) : ApiEx
 
 sealed class GeminiApiException(message: String? = null, cause: Throwable? = null) : ApiException(message, cause)
 class GeminiGenericException(message: String, cause: Throwable? = null) : GeminiApiException(message, cause)
-class GeminiRateLimitExceededException : GeminiApiException()
+class GeminiRateLimitExceededException(val retryAfterSeconds: Long? = null) : GeminiApiException()
 class GeminiInvalidApiKeyException : GeminiApiException()
 
 sealed class AnthropicApiException(message: String? = null, cause: Throwable? = null) : ApiException(message, cause)
 class AnthropicGenericException(message: String, cause: Throwable? = null) : AnthropicApiException(message, cause)
 class AnthropicInvalidApiKeyException : AnthropicApiException()
-class AnthropicRateLimitExceededException : AnthropicApiException()
+class AnthropicRateLimitExceededException(val retryAfterSeconds: Long? = null) : AnthropicApiException()
 class AnthropicOverloadedException : AnthropicApiException()
 class AnthropicInsufficientCreditsException : AnthropicApiException()
 
 sealed class OpenAICompatibleApiException(message: String? = null, cause: Throwable? = null) : ApiException(message, cause)
 class OpenAICompatibleGenericException(message: String, cause: Throwable? = null) : OpenAICompatibleApiException(message, cause)
 class OpenAICompatibleInvalidApiKeyException : OpenAICompatibleApiException()
-class OpenAICompatibleRateLimitExceededException : OpenAICompatibleApiException()
+class OpenAICompatibleRateLimitExceededException(val retryAfterSeconds: Long? = null) : OpenAICompatibleApiException()
 class OpenAICompatibleQuotaExhaustedException : OpenAICompatibleApiException()
 class OpenAICompatibleConnectionException : OpenAICompatibleApiException()
+
+/** The provider closed the SSE stream without `[DONE]` or a finish reason — the completion is silently truncated. */
+class OpenAICompatibleTruncatedStreamException : OpenAICompatibleApiException()
 class OpenAICompatibleModelNotFoundException : OpenAICompatibleApiException()
 class OpenAICompatibleEmptyResponseException : OpenAICompatibleApiException()
 class OpenAICompatibleRequestTooLargeException : OpenAICompatibleApiException()

@@ -36,6 +36,8 @@
     <string name="settings_contact_sponsorship">Contact for Strategic Sponsorship</string>
     <string name="settings_base_url_label">Server URL</string>
     <string name="settings_cloudflare_account_id">Cloudflare Account ID</string>
+    <string name="settings_cloudflare_gateway_id">AI Gateway ID</string>
+    <string name="settings_cloudflare_gateway_id_hint">Blank uses the account&#39;s \"default\" gateway (auto-created by Cloudflare). Enter a gateway name to route through a custom one.</string>
     <string name="settings_gateway_name_label">Display name</string>
     <string name="settings_gateway_name_hint">Optional — shown instead of “OpenAI-Compatible API”, e.g. “My LiteLLM proxy”</string>
     <string name="settings_status_checking">Checking connection…</string>

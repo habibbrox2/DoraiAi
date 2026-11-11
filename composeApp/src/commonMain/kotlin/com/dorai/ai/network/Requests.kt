@@ -67,6 +67,8 @@ data class ServiceCredentials(
     val apiKey: String = "",
     val modelId: String = "",
     val baseUrl: String = "",
+    /** Cloudflare AI Gateway id for Service.CloudflareAIGateway — blank means the account's "default" gateway. */
+    val cloudflareGatewayId: String = "",
 )
 
 /** Applies a per-request override of the client-wide timeouts, when the caller supplied one. */
@@ -126,6 +128,19 @@ internal fun requestTooLargeException(service: Service, detail: String?): OpenAI
 
 private fun HttpRequestBuilder.applySessionHeader(service: Service, credentials: ServiceCredentials, sessionId: String?) {
     sessionHeadersFor(service, sessionId, credentials.baseUrl).forEach { (k, v) -> header(k, v) }
+}
+
+/**
+ * Parses a `Retry-After` delta-seconds value (capped at 5 minutes). HTTP-date values are not
+ * parsed in common code — callers fall back to their normal backoff in that case.
+ */
+internal fun parseRetryAfterSeconds(value: String?): Long? = value?.trim()?.toLongOrNull()?.coerceIn(0, 300)
+
+/** Gateway header for Service.CloudflareAIGateway — blank gateway id means the account's auto-created "default" gateway. */
+private fun HttpRequestBuilder.applyCloudflareGatewayHeader(service: Service, credentials: ServiceCredentials) {
+    if (service == Service.CloudflareAIGateway) {
+        header("cf-aig-gateway-id", credentials.cloudflareGatewayId.ifBlank { "default" })
+    }
 }
 
 /**
@@ -248,7 +263,7 @@ class Requests(
             Result.success(response.body())
         } else {
             when (response.status.value) {
-                429 -> throw GeminiRateLimitExceededException()
+                429 -> throw GeminiRateLimitExceededException(parseRetryAfterSeconds(response.headers["Retry-After"]))
 
                 403 -> throw GeminiInvalidApiKeyException()
 
@@ -291,9 +306,7 @@ class Requests(
                 apiKey?.let { bearerAuth(it) }
                 applySessionHeader(service, credentials, sessionId)
                 customHeaders.forEach { (k, v) -> header(k, v) }
-                if (service == Service.CloudflareAIGateway) {
-                    header("cf-aig-gateway-id", "default")
-                }
+                applyCloudflareGatewayHeader(service, credentials)
                 setBody(
                     OpenAICompatibleChatRequestDto(
                         messages = messages,
@@ -360,9 +373,7 @@ class Requests(
             header("Accept", "text/event-stream")
             apiKey?.let { bearerAuth(it) }
             applySessionHeader(service, credentials, sessionId)
-            if (service == Service.CloudflareAIGateway) {
-                header("cf-aig-gateway-id", "default")
-            }
+            applyCloudflareGatewayHeader(service, credentials)
             setBody(
                 OpenAICompatibleChatRequestDto(
                     messages = messages,
@@ -396,6 +407,7 @@ class Requests(
             val toolCalls = linkedMapOf<Int, StreamingToolCall>()
             var finishReason: String? = null
             var sawEvent = false
+            var sawDone = false
 
             val channel = response.bodyAsChannel()
             while (true) {
@@ -407,7 +419,10 @@ class Requests(
                 val payload = line.removePrefix("data:").trim()
                 if (payload.isEmpty()) continue
                 sawEvent = true
-                if (payload == "[DONE]") break
+                if (payload == "[DONE]") {
+                    sawDone = true
+                    break
+                }
 
                 val chunk = runCatching {
                     streamingJson.decodeFromString(OpenAICompatibleChatChunkDto.serializer(), payload)
@@ -445,6 +460,13 @@ class Requests(
             }
 
             if (!sawEvent) throw OpenAICompatibleEmptyResponseException()
+
+            if (!sawDone && finishReason == null) {
+                // The server hung up without a [DONE] terminator — a truncated stream is not a
+                // complete completion. Surface it as an error (not a silent partial success) so
+                // the caller can retry or fall back to the next provider.
+                throw OpenAICompatibleTruncatedStreamException()
+            }
 
             OpenAICompatibleCompletion(
                 content = answer.toString(),
@@ -562,9 +584,7 @@ class Requests(
                 val response = defaultClient.get(pageUrl) {
                     apiKey?.let { bearerAuth(it) }
                     applySessionHeader(service, credentials, sessionId = null)
-                    if (service == Service.CloudflareAIGateway) {
-                        header("cf-aig-gateway-id", "default")
-                    }
+                    applyCloudflareGatewayHeader(service, credentials)
                 }
                 if (!response.status.isSuccess()) {
                     if (service == Service.Cloudflare || service == Service.CloudflareAIGateway) {
@@ -688,7 +708,7 @@ class Requests(
             val dto = anthropicJson.decodeFromString(AnthropicModelsResponseDto.serializer(), responseBody)
             Result.success(dto)
         } else {
-            throwAnthropicError(response.status.value, responseBody)
+            throwAnthropicError(response.status.value, responseBody, response.headers["Retry-After"])
         }
     } catch (e: AnthropicApiException) {
         Result.failure(e)
@@ -727,7 +747,7 @@ class Requests(
             val dto = anthropicJson.decodeFromString(AnthropicChatResponseDto.serializer(), responseBody)
             Result.success(dto)
         } else {
-            throwAnthropicError(response.status.value, responseBody)
+            throwAnthropicError(response.status.value, responseBody, response.headers["Retry-After"])
         }
     } catch (e: AnthropicApiException) {
         Result.failure(e)
@@ -737,10 +757,10 @@ class Requests(
         Result.failure(AnthropicGenericException("Anthropic: ${e.message}", e))
     }
 
-    private fun throwAnthropicError(statusCode: Int, responseBody: String): Nothing {
+    private fun throwAnthropicError(statusCode: Int, responseBody: String, retryAfter: String? = null): Nothing {
         when (statusCode) {
             401, 403 -> throw AnthropicInvalidApiKeyException()
-            429 -> throw AnthropicRateLimitExceededException()
+            429 -> throw AnthropicRateLimitExceededException(parseRetryAfterSeconds(retryAfter))
             529 -> throw AnthropicOverloadedException()
         }
         val errorMessage = parseAnthropicErrorMessage(responseBody)
@@ -774,20 +794,17 @@ class Requests(
         }
         if (customBase.isNotEmpty()) {
             if (path.contains("{account_id}") && customBase.isNotEmpty()) {
-                // Try to extract account ID from custom base URL or use as-is if it contains account ID
-                val accountId = customBase
-                    .substringAfter("/accounts/", missingDelimiterValue = "")
-                    .substringBefore("/", missingDelimiterValue = customBase)
-                    .takeIf { it.isNotEmpty() && !it.contains(":") && !it.startsWith("http") } ?: ""
-                val resolved = if (accountId.isNotEmpty() && path.contains("{account_id}")) {
-                    path.replace("{account_id}", accountId)
-                } else if (path.contains("{account_id}")) {
-                    // Maybe customBase is just the account ID
-                    path.replace("{account_id}", customBase)
-                } else {
-                    path
+                // Accept either the raw account id or a full dashboard URL containing
+                // "/accounts/<id>/" — extract the id when it is a well-formed 32-hex value,
+                // and otherwise produce a deterministic request Cloudflare rejects instead
+                // of splicing arbitrary user input into the URL path.
+                val accountId = customBase.substringAfter("/accounts/", missingDelimiterValue = customBase)
+                    .substringBefore("/")
+                    .trim()
+                if (isValidCloudflareAccountId(accountId)) {
+                    return path.replace("{account_id}", accountId)
                 }
-                return resolved
+                return path.replace("{account_id}", "")
             }
             val base = Service.normalizeOpenAICompatibleBaseUrl(customBase)
             val relPath = if (path.startsWith("/")) path else "/$path"
@@ -844,7 +861,7 @@ class Requests(
 
             413 -> throw requestTooLargeException(service, parsed.message)
 
-            429 -> throw OpenAICompatibleRateLimitExceededException()
+            429 -> throw OpenAICompatibleRateLimitExceededException(parseRetryAfterSeconds(response.headers["Retry-After"]))
 
             500, 502 -> throw OpenAICompatibleProviderErrorException(parsed.message)
 

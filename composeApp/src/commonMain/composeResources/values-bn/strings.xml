@@ -47,6 +47,8 @@
     <string name="error_openai_compatible_model_not_found">মডেল পাওয়া যায়নি। অনুগ্রহ করে অন্য মডেল নির্বাচন করুন।</string>
     <string name="settings_base_url_label">সার্ভার URL</string>
     <string name="settings_cloudflare_account_id">Cloudflare অ্যাকাউন্ট আইডি</string>
+    <string name="settings_cloudflare_gateway_id">AI Gateway আইডি</string>
+    <string name="settings_cloudflare_gateway_id_hint">খালি রাখলে অ্যাকাউন্টের \"default\" গেটওয়ে ব্যবহৃত হবে (Cloudflare স্বয়ংক্রিয়ভাবে তৈরি করে)। নির্দিষ্ট গেটওয়ে দিয়ে রাউট করতে এর নাম লিখুন।</string>
     <string name="settings_gateway_name_label">ডিসপ্লে নাম</string>
     <string name="settings_gateway_name_hint">ঐচ্ছিক — “OpenAI-Compatible API”-এর জায়গায় দেখাবে, যেমন “My LiteLLM proxy”</string>
     <string name="settings_status_checking">সংযোগ পরীক্ষা করা হচ্ছে...</string>
