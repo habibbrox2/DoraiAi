@@ -77,6 +77,17 @@ class ToolPermissionManager(
             "github_create_pull_request",
             -> ToolRiskLevel.OTHER
 
+            // Agent memory tools are governed by the memory master switch (Settings → Agent),
+            // the same product decision as the sandbox tools — they do not prompt per call.
+            // The previous heuristic accidentally classified memory_forget as READ_ONLY
+            // ("forget" contains "get") while memory_store/learn/reinforce fell through to
+            // OTHER, so the same family behaved inconsistently.
+            "memory_store",
+            "memory_forget",
+            "memory_learn",
+            "memory_reinforce",
+            -> ToolRiskLevel.MEMORY_WRITE
+
             // File operations - check args for delete/write
             "write_file",
             "save_file",
@@ -118,8 +129,8 @@ class ToolPermissionManager(
 
     fun shouldAskForPermission(toolName: String, args: Map<String, Any> = emptyMap()): Boolean {
         val riskLevel = classifyToolRisk(toolName, args)
-        // Read-only tools run directly
-        if (riskLevel == ToolRiskLevel.READ_ONLY) {
+        // Read-only tools and master-toggle memory tools run directly.
+        if (riskLevel == ToolRiskLevel.READ_ONLY || riskLevel == ToolRiskLevel.MEMORY_WRITE) {
             return false
         }
         // Session-scoped allow: no prompt for the rest of this session

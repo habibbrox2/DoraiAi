@@ -138,6 +138,9 @@ data class History(
     val pendingToolConfirmation: Boolean = false,
     val toolConfirmationId: String? = null,
     val sentAt: Long? = null,
+    // System-initiated turns (the interactive "[SYSTEM] …" retry): kept in the in-memory
+    // context for the turn but never shown, confirmed on, or persisted.
+    val hiddenFromUi: Boolean = false,
 ) {
     enum class Role {
         USER,

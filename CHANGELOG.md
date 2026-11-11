@@ -1,3 +1,15 @@
+## DORAI AI - Chat Prompt and Agent Security (Unreleased)
+
+### Fixed
+- **Untrusted content in heartbeat prompts is fenced**: email/SMS/notification previews, prior heartbeat outputs, and memory promotion-candidate contents are wrapped in explicit `<untrusted:…>` delimiters with a standing rule that everything inside them is data to summarise — never instructions to follow, no matter how it frames itself. Previously these flows carried tool-enabled runs (the heartbeat can call shell, SMS, email, and scheduling tools), so an email/SMS/notification could inject commands the heartbeat would execute. Angle brackets inside embedded content are neutralised so embedded text can never terminate a fence. User-authored custom prompts and Heartbeat Additions are not fenced.
+- **Interactive-mode `[SYSTEM]` retry text no longer appears in the conversation**: the message the app sends the model when an interactive answer can't be rendered is hidden from the UI (no user bubble) and from persistence (not stored in the conversation); it exists only to seed the retry turn in memory. Previously it leaked as a visible, persisted `"[SYSTEM] Your previous response failed to render as interactive UI…"` user message that providers also re-received forever.
+- **Memory tools no longer prompt per call and now behave consistently**: `memory_store`/`memory_learn`/`memory_reinforce` were classified `OTHER` (ask-every-call) while `memory_forget` accidentally classified `READ_ONLY` (its name contains `get`). All four memory tools now share one risk class governed by the memory master switch, consistent with the sandbox tools and the documented product behavior.
+
+### Changed
+- **Remote chat memory injection is budgeted (8,000 chars)** instead of unlimited — a large memory store is no longer dumped wholesale into every system prompt (token cost and context rot). Local chat stays at 2,000 chars.
+
+---
+
 ## DORAI AI - Chat Backend Integrity (Unreleased)
 
 ### Fixed

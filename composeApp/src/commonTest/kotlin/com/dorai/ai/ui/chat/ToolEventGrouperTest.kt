@@ -92,6 +92,43 @@ class ToolEventGrouperTest {
     }
 
     @Test
+    fun testHiddenFromUiSystemTurnsDoNotRender() {
+        val history = listOf(
+            History(
+                id = "u1",
+                role = History.Role.USER,
+                content = "Build it",
+            ),
+            History(
+                id = "hidden1",
+                role = History.Role.USER,
+                content = "[SYSTEM] Your previous response failed to render as interactive UI.",
+                hiddenFromUi = true,
+            ),
+            History(
+                id = "a1",
+                role = History.Role.ASSISTANT,
+                content = "Done.",
+            ),
+        )
+
+        val messages = groupHistoryToChatMessages(
+            history = history,
+            pendingToolConfirmations = emptyList(),
+            reasoningByAssistantId = emptyMap(),
+            isSpeaking = false,
+            isSpeakingContentId = null,
+            availableServices = listOf(sampleService),
+        )
+
+        assertEquals(2, messages.size)
+        assertEquals("Build it", messages[0].text)
+        assertEquals("u1", messages[0].id)
+        assertEquals("a1", messages[1].id)
+        assertFalse(messages.any { it.id == "hidden1" })
+    }
+
+    @Test
     fun testToolPendingApprovalConsolidation() {
         val history = listOf(
             History(

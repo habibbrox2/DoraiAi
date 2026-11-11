@@ -253,6 +253,7 @@ class FakeDataRepository : DataRepository {
         files: List<PlatformFile>,
         uiSubmission: com.dorai.ai.data.UiSubmission?,
         activeSkillId: String?,
+        hiddenFromUi: Boolean,
     ) {
         askCalls.add(question to files)
         lastActiveSkillId = activeSkillId
@@ -260,7 +261,7 @@ class FakeDataRepository : DataRepository {
         askException?.let { throw it }
         if (question != null) {
             chatHistory.update { history ->
-                history + History(role = History.Role.USER, content = question, uiSubmission = uiSubmission)
+                history + History(role = History.Role.USER, content = question, uiSubmission = uiSubmission, hiddenFromUi = hiddenFromUi)
             }
         }
         chatHistory.update { history ->

@@ -24,4 +24,7 @@ enum class ToolRiskLevel {
     FILE_DELETE,
     SYSTEM_COMMAND,
     OTHER,
+
+    /** Agent memory writes. Governed by the memory master switch (Settings → Agent), not per-call approval. */
+    MEMORY_WRITE,
 }

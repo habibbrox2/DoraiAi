@@ -1215,7 +1215,13 @@ class RemoteDataRepository(
         }
     }
 
-    override suspend fun ask(question: String?, files: List<PlatformFile>, uiSubmission: UiSubmission?, activeSkillId: String?) {
+    override suspend fun ask(
+        question: String?,
+        files: List<PlatformFile>,
+        uiSubmission: UiSubmission?,
+        activeSkillId: String?,
+        hiddenFromUi: Boolean,
+    ) {
         // The active skill (if any) is consumed for this single turn only — stored in a
         // field rather than a parameter on getActiveSystemPrompt so the existing internal
         // callers (heartbeat, askWithTools, etc.) don't all need a new parameter. The
@@ -1224,7 +1230,7 @@ class RemoteDataRepository(
         val resolvedSkillId = activeSkillId?.takeIf { skillManager.getSkill(it) != null }
         pendingActiveSkillId = resolvedSkillId
         try {
-            askInternal(question, files, uiSubmission)
+            askInternal(question, files, uiSubmission, hiddenFromUi)
         } finally {
             pendingActiveSkillId = null
             // The create-skill flow writes a new /root/skills/<id>/SKILL.md via
@@ -1241,7 +1247,7 @@ class RemoteDataRepository(
     /** Built-in skill id; matches the bundled SKILL.md under composeResources. */
     private val createSkillId = "create-skill"
 
-    private suspend fun askInternal(question: String?, files: List<PlatformFile>, uiSubmission: UiSubmission?) {
+    private suspend fun askInternal(question: String?, files: List<PlatformFile>, uiSubmission: UiSubmission?, hiddenFromUi: Boolean = false) {
         // Allocate a conversation id immediately for fresh chats. Without this,
         // the very first tool call lands here with _currentConversationId.value
         // still null, so per-conversation routing (e.g. the sandbox shell)
@@ -1312,6 +1318,7 @@ class RemoteDataRepository(
                             attachments = attachments,
                             uiSubmission = uiSubmission,
                             sentAt = Clock.System.now().toEpochMilliseconds(),
+                            hiddenFromUi = hiddenFromUi,
                         ),
                     )
                 }
@@ -2159,7 +2166,9 @@ class RemoteDataRepository(
     }
 
     private suspend fun saveCurrentConversation() {
-        val history = trimToRecentExchanges(chatHistory.value, 20)
+        // Hidden system turns ([SYSTEM]-prefixed interactive retries) are context for the turn,
+        // not content the user authored — they must not be persisted or counted toward the cap.
+        val history = trimToRecentExchanges(chatHistory.value.filterNot { it.hiddenFromUi }, 20)
         if (history.isEmpty()) return
 
         val now = Clock.System.now().toEpochMilliseconds()
