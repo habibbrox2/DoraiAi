@@ -899,6 +899,13 @@
     <string name="settings_github_error_device_disabled">এই GitHub অ্যাপের Device Flow নিষ্ক্রিয়।</string>
     <string name="settings_github_error_unauthorized">GitHub সংরক্ষিত টোকেন বাতিল করেছে। বিচ্ছিন্ন করে আবার সংযুক্ত করুন।</string>
     <string name="settings_github_error_rate_limited">GitHub হারসীমায় পৌঁছেছে। পরে আবার চেষ্টা করুন।</string>
+    <string name="settings_github_clone_error_failed">ক্লোন ব্যর্থ হয়েছে। সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</string>
+    <string name="settings_github_clone_error_not_repository">এই ফোল্ডারটি গিট রিপোজিটরি নয়।</string>
+    <string name="settings_github_clone_error_missing_git">এই ডিভাইসে গিট পাওয়া যাচ্ছে না।</string>
+    <string name="settings_github_dismiss">উপেক্ষা করুন</string>
+    <string name="settings_github_signed_in">%1$s হিসেবে লগইন করেছেন</string>
+    <string name="settings_github_installations">ইনস্টলেশন</string>
+    <string name="settings_github_no_repositories_hint">রিপোজিটরি দেখতে আপনার অ্যাকাউন্টে DORAI AI GitHub অ্যাপটি ইনস্টল করুন।</string>
     <string name="settings_licenses">লাইসেন্সসমূহ</string>
     <string name="settings_licenses_close">বন্ধ করুন</string>
     <string name="settings_model_loading">মডেল লোড হচ্ছে…</string>

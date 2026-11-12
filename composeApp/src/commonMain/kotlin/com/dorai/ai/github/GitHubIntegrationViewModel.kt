@@ -189,7 +189,18 @@ class GitHubIntegrationViewModel(
                             userCode = null,
                             verificationUri = null,
                         )
-                        scope.launch { refreshInstallations() }
+                        scope.launch {
+                            // Best effort: load the authenticated user's profile for display.
+                            // A failure here must not break the connection — the token works.
+                            runCatching { apiClient.getAuthenticatedUser() }
+                                .getOrNull()
+                                ?.let { userResult ->
+                                    if (userResult is GitHubApiResult.Success) {
+                                        _state.value = _state.value.copy(user = userResult.data)
+                                    }
+                                }
+                            refreshInstallations()
+                        }
                         return@launch
                     }
 
@@ -230,9 +241,17 @@ class GitHubIntegrationViewModel(
         )
     }
 
-    /** Refreshes the list of GitHub installations for the connected account. */
+    /**
+     * Refreshes the list of GitHub installations for the connected account.
+     * Auth failures destroy the session (the token is dead); rate limits and transient
+     * network/serialization failures keep it — a valid session must not flip to Error
+     * because of a recoverable condition.
+     */
     fun refreshInstallations() {
-        if (_state.value.connectionStatus != GitHubConnectionStatus.Connected) return
+        // The vault is the source of truth for "do we have a token" — the UI status may
+        // lag behind (e.g. a previous failure), and refresh must work from Error too.
+        val hasToken = runCatching { vault.isConnected() }.getOrDefault(false)
+        if (!hasToken) return
         _state.value = _state.value.copy(isLoading = true, error = null)
         scope.launch {
             // CancellationException must propagate to the scope — a cancellation is not a
@@ -255,13 +274,13 @@ class GitHubIntegrationViewModel(
                 )
 
                 is GitHubApiResult.RateLimited -> _state.value.copy(
-                    connectionStatus = GitHubConnectionStatus.Error,
+                    // Recoverable and non-fatal — surface a dismissible banner, keep Connected.
                     error = GitHubDeviceFlowError.Network("rate limited"),
                     isLoading = false,
                 )
 
                 else -> _state.value.copy(
-                    connectionStatus = GitHubConnectionStatus.Error,
+                    // Network/serialization failure: keep the session too, be honest about it.
                     error = GitHubDeviceFlowError.Network("failed to list installations"),
                     isLoading = false,
                 )
@@ -279,10 +298,14 @@ class GitHubIntegrationViewModel(
         _state.value = _state.value.copy(selectedFullName = fullName)
     }
 
-    /** Refreshes repositories for the selected installation. */
+    /** Refreshes repositories for the selected installation (falls back to installations refresh). */
     fun refreshRepositories() {
         val installationId = _state.value.installations.firstOrNull()?.id
-            ?: return
+            ?: run {
+                // Nothing known yet — load installations first (which chains a repository refresh).
+                refreshInstallations()
+                return
+            }
         _state.value = _state.value.copy(isLoading = true, error = null)
         scope.launch {
             val result = runCatching { apiClient.listInstallationRepositories(installationId) }
@@ -303,13 +326,12 @@ class GitHubIntegrationViewModel(
                 )
 
                 is GitHubApiResult.RateLimited -> _state.value.copy(
-                    connectionStatus = GitHubConnectionStatus.Error,
+                    // Recoverable and non-fatal — surface a dismissible banner, keep Connected.
                     error = GitHubDeviceFlowError.Network("rate limited"),
                     isLoading = false,
                 )
 
                 else -> _state.value.copy(
-                    connectionStatus = GitHubConnectionStatus.Error,
                     error = GitHubDeviceFlowError.Network("failed to list repositories"),
                     isLoading = false,
                 )
@@ -408,6 +430,11 @@ class GitHubIntegrationViewModel(
     fun retry() {
         if (_state.value.connectionStatus == GitHubConnectionStatus.Connected) return
         connect()
+    }
+
+    /** Clears a dismissible non-fatal error banner (e.g. a rate limit on a background refresh). */
+    fun dismissError() {
+        _state.value = _state.value.copy(error = null)
     }
 
     /**

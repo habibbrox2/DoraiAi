@@ -325,6 +325,39 @@ class GitHubIntegrationViewModelTest {
     }
 
     @Test
+    fun `refreshRepositories falls back to installations load when none known`() {
+        val vault = FakeVault()
+        vault.accessToken = "stored-token"
+        vault.login = "dorai-user"
+        val vm = buildVm(vault = vault)
+
+        vm.refreshRepositories()
+
+        assertEquals(listOf("org-a"), vm.state.value.installations.map { it.account.login })
+        assertFalse(vm.state.value.isLoading)
+    }
+
+    @Test
+    fun `rate limited repository refresh keeps session Connected with a dismissible error`() {
+        val apiClient = FakeApiClient()
+        apiClient.listRepositoriesResult = GitHubApiResult.RateLimited(0L)
+        val deviceFlow = FakeDeviceFlow()
+        deviceFlow.pollForTokenResult = GitHubDeviceFlowState.Success(
+            login = "dorai-user",
+            accessToken = "ghs_tok",
+            refreshToken = null,
+        )
+        val vm = buildVm(apiClient = apiClient, deviceFlow = deviceFlow)
+
+        vm.connect()
+
+        assertEquals(GitHubConnectionStatus.Connected, vm.state.value.connectionStatus)
+        assertIs<GitHubDeviceFlowError.Network>(vm.state.value.error)
+        vm.dismissError()
+        assertNull(vm.state.value.error)
+    }
+
+    @Test
     fun `connect sets Error when device code request fails`() {
         val vault = FakeVault()
         val deviceFlow = FakeDeviceFlow()

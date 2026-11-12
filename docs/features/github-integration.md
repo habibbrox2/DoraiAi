@@ -31,7 +31,11 @@ The screen has two states:
 ### Connected
 
 - Shows the connection status; the connect button is replaced by a **Disconnect** button that clears the vault after a confirmation dialog.
-- The account's installations (`GET /user/installations`) are listed, and repositories (`GET /user/installations/{installation_id}/repositories`) load automatically right after installations are refreshed — read-only list from the **first installation** in v1. A repository can be selected for cloning; a Refresh button re-fetches the list.
+- The account's installations (`GET /user/installations`) are listed and rendered (account name + type), followed by their repositories (`GET /user/installations/{installation_id}/repositories`) — read-only list from the **first installation** in v1; a Refresh button re-fetches (falls back to installations when none is loaded).
+- **Refresh failures never destroy a valid session.** A missing/expired token (401) does end it; rate limits and transient network failures keep `Connected` and surface a dismissible banner instead of flipping to `Error`.
+- The authenticated user's `login` (`GET /user`) is fetched best-effort on connect and shown as "Signed in as …".
+- **Disconnect** clears the vault after a confirmation dialog.
+- Clone/sync failures render localized messages (git enum names → localized strings), never raw `error.toString()` leakage.
 - **Clone** is visible only after a repository is selected. Confirming the dialog clones into `projects/<projectName>` with `--depth=1` and stamps `lastSync` (local date-time formatting); `projectName` is validated by `GitUrlValidator.isValidProjectName` (no traversal, no slashes, no leading dot) before any guest call. On failure `cloneState` becomes `Failure` and the repository selection is rolled back.
 - **Refresh status** and **Sync** buttons run `git status` and `git fetch --prune` + `git pull --ff-only --quiet` for the selected project; failures are recorded as a human-readable `lastError`.
 
@@ -42,6 +46,7 @@ The screen has two states:
 - Vault writes are verified after `store()` — a throwing or silently no-op vault surfaces `Error("token could not be saved")`, never a fake `Connected`.
 - `GitUrlValidator.isValidGitHubUrl` is https-only with `[A-Za-z0-9._-]` path segments (this is what keeps shell metacharacters off the Android `/bin/sh` clone path, which also quotes the URL).
 - The desktop credential broker emits credentials only when git requests host `github.com`; any other host (repo `insteadOf` redirects, proxies) gets silence.
+- A token that exists in the vault is the source of truth for "refresh can run" — recoverable refresh failures (rate limit, transient network) keep `Connected` with a dismissible banner; only 401 ends the session.
 
 ## Platform support
 
@@ -67,8 +72,8 @@ The screen has two states:
 - Desktop clone/sync is not functional (no-op desktop `WorkspaceController`; the desktop CLI layer exists but is unwired).
 - iOS has no `GitCommandRunner`/`GitCredentialBroker` actuals yet (latent compile break for iOS; iOS not in CI).
 - `Pull requests: Read-only` keeps PR creation disabled until `writeOperationsEnabled` and the App is re-registered with `Pull requests: Write`.
-- The first installation is used for repository listing in v1.
-- Foreground refresh only; no background polling in v1.
+- The first installation is used for repository listing in v1; there is no installation selection UI yet (multi-installation accounts see only the first).
+- Foreground refresh only; no background polling in v1 — the device-flow wait is cancelled when the tab leaves composition.
 
 ## Key Files
 

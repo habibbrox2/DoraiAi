@@ -28,6 +28,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,6 +62,9 @@ import dorai.composeapp.generated.resources.settings_github_cancel_flow
 import dorai.composeapp.generated.resources.settings_github_clear_selection
 import dorai.composeapp.generated.resources.settings_github_clone_button
 import dorai.composeapp.generated.resources.settings_github_clone_cancel
+import dorai.composeapp.generated.resources.settings_github_clone_error_failed
+import dorai.composeapp.generated.resources.settings_github_clone_error_missing_git
+import dorai.composeapp.generated.resources.settings_github_clone_error_not_repository
 import dorai.composeapp.generated.resources.settings_github_cloned
 import dorai.composeapp.generated.resources.settings_github_cloning
 import dorai.composeapp.generated.resources.settings_github_code_copied
@@ -74,19 +78,21 @@ import dorai.composeapp.generated.resources.settings_github_description
 import dorai.composeapp.generated.resources.settings_github_disconnect
 import dorai.composeapp.generated.resources.settings_github_disconnect_confirm_message
 import dorai.composeapp.generated.resources.settings_github_disconnect_confirm_title
+import dorai.composeapp.generated.resources.settings_github_dismiss
 import dorai.composeapp.generated.resources.settings_github_error
 import dorai.composeapp.generated.resources.settings_github_error_access_denied
 import dorai.composeapp.generated.resources.settings_github_error_device_disabled
 import dorai.composeapp.generated.resources.settings_github_error_expired
-import dorai.composeapp.generated.resources.settings_github_error_generic
 import dorai.composeapp.generated.resources.settings_github_error_network
 import dorai.composeapp.generated.resources.settings_github_error_not_configured
 import dorai.composeapp.generated.resources.settings_github_error_rate_limited
 import dorai.composeapp.generated.resources.settings_github_error_section_title
 import dorai.composeapp.generated.resources.settings_github_error_unauthorized
+import dorai.composeapp.generated.resources.settings_github_installations
 import dorai.composeapp.generated.resources.settings_github_last_sync
 import dorai.composeapp.generated.resources.settings_github_loading
 import dorai.composeapp.generated.resources.settings_github_no_repositories
+import dorai.composeapp.generated.resources.settings_github_no_repositories_hint
 import dorai.composeapp.generated.resources.settings_github_not_connected
 import dorai.composeapp.generated.resources.settings_github_not_supported
 import dorai.composeapp.generated.resources.settings_github_open_github
@@ -97,6 +103,7 @@ import dorai.composeapp.generated.resources.settings_github_refresh_status
 import dorai.composeapp.generated.resources.settings_github_repositories
 import dorai.composeapp.generated.resources.settings_github_retry
 import dorai.composeapp.generated.resources.settings_github_section_title
+import dorai.composeapp.generated.resources.settings_github_signed_in
 import dorai.composeapp.generated.resources.settings_github_sync
 import dorai.composeapp.generated.resources.settings_github_user_code
 import dorai.composeapp.generated.resources.settings_github_waiting_description
@@ -201,7 +208,45 @@ internal fun GitHubSection() {
             }
         }
 
-        // Waiting-for-authorization card
+        // Signed-in identity + installations (Connected only)
+        if (state.connectionStatus == GitHubConnectionStatus.Connected) {
+            state.user?.let { user ->
+                Text(
+                    text = stringResource(Res.string.settings_github_signed_in, user.login),
+                    style = DoraiTypography.bodySmall,
+                    color = colors.textSecondary,
+                )
+            }
+            if (state.installations.isNotEmpty()) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = stringResource(Res.string.settings_github_installations),
+                        style = DoraiTypography.titleSmall,
+                        color = colors.textPrimary,
+                    )
+                    state.installations.forEach { installation ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = installation.account.login,
+                                style = DoraiTypography.bodyMedium,
+                                color = colors.textPrimary,
+                            )
+                            Text(
+                                text = installation.account.type,
+                                style = DoraiTypography.bodySmall,
+                                color = colors.textSecondary,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Waiting-for-authorization card (cancelled when this tab leaves composition)
         if (state.connectionStatus == GitHubConnectionStatus.WaitingForDevice && state.userCode != null) {
             DeviceFlowWaitingCard(
                 userCode = state.userCode!!,
@@ -210,8 +255,9 @@ internal fun GitHubSection() {
             )
         }
 
-        // Error card with retry
-        if (state.connectionStatus == GitHubConnectionStatus.Error && state.error != null) {
+        // Error banner: a dead session gets the full card with Retry; a recoverable
+        // failure (rate limit, transient network) stays a dismissible non-fatal banner.
+        if (state.error != null && state.connectionStatus == GitHubConnectionStatus.Error) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -233,6 +279,33 @@ internal fun GitHubSection() {
                 )
                 OutlinedButton(onClick = { vm.retry() }) {
                     Text(text = stringResource(Res.string.settings_github_retry))
+                }
+            }
+        } else if (state.error != null) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(colors.surfaceElevated)
+                    .border(1.dp, colors.borderSubtle, RoundedCornerShape(12.dp))
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = githubErrorMessage(state.error!!),
+                    style = DoraiTypography.bodySmall,
+                    color = colors.textSecondary,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                IconButton(
+                    onClick = { vm.dismissError() },
+                    modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = stringResource(Res.string.settings_github_dismiss),
+                    )
                 }
             }
         }
@@ -263,6 +336,13 @@ internal fun GitHubSection() {
                 style = DoraiTypography.bodySmall,
                 color = colors.textSecondary,
             )
+            if (state.connectionStatus == GitHubConnectionStatus.Connected && !state.isLoading) {
+                Text(
+                    text = stringResource(Res.string.settings_github_no_repositories_hint),
+                    style = DoraiTypography.labelSmall,
+                    color = colors.textSecondary,
+                )
+            }
         } else {
             state.repositories.forEach { repo ->
                 val isSelected = repositoryToClone.value == repo
@@ -363,7 +443,8 @@ internal fun GitHubSection() {
 
                     is CloneState.Failure -> {
                         Text(
-                            text = clone.error,
+                            text = cloneErrorMessage(clone.error)
+                                ?: stringResource(Res.string.settings_github_error, clone.error),
                             style = DoraiTypography.bodySmall,
                             color = colors.error,
                         )
@@ -387,7 +468,7 @@ internal fun GitHubSection() {
 
                 state.lastError?.let { error ->
                     Text(
-                        text = stringResource(Res.string.settings_github_error, error),
+                        text = cloneErrorMessage(error) ?: stringResource(Res.string.settings_github_error, error),
                         style = DoraiTypography.bodySmall,
                         color = colors.error,
                     )
@@ -484,6 +565,11 @@ private fun DeviceFlowWaitingCard(
             delay(2_000)
             copied = false
         }
+    }
+
+    // Leaving the GitHub tab must not leave a background poll loop running — abort the flow.
+    DisposableEffect(Unit) {
+        onDispose { onCancel() }
     }
 
     Column(
@@ -602,4 +688,17 @@ private fun githubErrorMessage(error: GitHubDeviceFlowError): String = when (err
             else -> stringResource(Res.string.settings_github_error_network)
         }
     }
+}
+
+/**
+ * Maps the internal git error vocabulary (enum names from WorkspaceGitResult/WorkspaceGitError,
+ * or a pre-existing user-facing message) to localized text. Returns null for messages that do
+ * not match a known key so callers can fall back to the generic wrapper.
+ */
+@Composable
+private fun cloneErrorMessage(raw: String): String? = when (raw) {
+    "NotRepository" -> stringResource(Res.string.settings_github_clone_error_not_repository)
+    "MissingGit" -> stringResource(Res.string.settings_github_clone_error_missing_git)
+    "Failed" -> stringResource(Res.string.settings_github_clone_error_failed)
+    else -> null
 }
