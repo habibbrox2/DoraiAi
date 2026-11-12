@@ -6,7 +6,7 @@ tags: [mcp, popular-servers]
 status: stable
 stale_after: 2026-08-26
 generated: { by: process:update-popular-mcp-servers, at: 2026-08-12T20:49:34Z }
-verified: { by: process:desktopTest-PopularMcpServers, at: 2026-08-12T20:51:16Z }
+verified: { by: process:desktopTest-PopularMcpServers, at: 2026-11-12T13:42:00Z }
 sources:
   - id: selection-policy
     resource: /selection-policy.md
@@ -28,9 +28,9 @@ A probe is **attested live** only when that initialize + tools/list handshake su
 
 Replace this snapshot only via the [refresh playbook](refresh-playbook.md).
 
-# Current set
+# Current set (attested live, no setup required)
 
-Snapshot mirrored into `popularMcpServers` (runtime). 13 hosts.
+Snapshot mirrored into `popularMcpServers` (runtime). 13 hosts. Plus Desktop Commander (OAuth preset, below).
 
 | Name | URL | Auth | Probe | Tools |
 |---|---|---|---|---|
@@ -48,14 +48,24 @@ Snapshot mirrored into `popularMcpServers` (runtime). 13 hosts.
 | Find-A-Domain | `https://api.findadomain.dev/mcp` | none | attested live | 2 — `check_domain`, `list_tlds` |
 | SubwayInfo NYC | `https://subwayinfo.nyc/mcp` | none | attested live | 25 — MTA / bus / ferry arrivals and alerts |
 
+# OAuth-capable presets (not probe-attested at runtime)
+
+| Name | URL | Auth | Notes |
+|---|---|---|---|
+| Desktop Commander | `https://mcp.desktopcommander.app/mcp` | OAuth (PKCE + DCR) | Added 2026-11-12. App performs RFC 7591 DCR (public client), RFC 6749 authorization code grant with S256 PKCE, loopback callback at `127.0.0.1:<ephemeral>/callback`, stores tokens in the encrypted MCP prefs. Relies on the server parked behind a Cloudflare WAF that rejects non-browser UAs with **Error 1010**; the app's HTTP client sends a browser-shaped `User-Agent` for the OAuth handshake. Re-probe at the next `update-popular-mcp-servers` run. |
+
 # Snapshot
 
 | Field | Value |
 |---|---|
-| Probed | 2026-08-12T20:49:34Z |
-| Handshake | `initialize` protocol `2024-11-05` + `notifications/initialized` + `tools/list` |
-| Current | 13 attested live |
+| Probed | 2026-08-12T20:49:34Z (13 hosts), Desktop Commander OAuth wired 2026-11-12 (live handshake not attested end-to-end) |
+| Handshake | RFC 6749 auth-code + PKCE (`authorization_code`), RFC 7591 DCR, RFC 9728 resource metadata, RFC 8414 AS metadata |
+| Current | 13 attested live + Desktop Commander (preset, OAuth-required; not probe-attested) |
 | Dropped this refresh | Manifold Markets (`https://api.manifold.markets/v0/mcp`) — Cloudflare **526** invalid origin TLS, `retryable: false` |
+
+# Trust boundary
+
+The OAuth workflow (dynamic client registration + authorization code + PKCE via loopback) is purpose-built for MCP hosts that require it — today only Desktop Commander. The authorization server lives on the resource's own origin (`mcp.desktopcommander.app`), tokens are stored encrypted per platform (EncryptedSharedPreferences on Android, DPAPI-backed AES-256-GCM on Desktop), and the browser's authorize page is responsible for user consent. The app never auto-approves; re-authorize after token expiry/rotation.
 
 # Notes
 

@@ -78,12 +78,15 @@ import dorai.composeapp.generated.resources.settings_mcp_add_header
 import dorai.composeapp.generated.resources.settings_mcp_add_server
 import dorai.composeapp.generated.resources.settings_mcp_api_key
 import dorai.composeapp.generated.resources.settings_mcp_api_key_help
+import dorai.composeapp.generated.resources.settings_mcp_authorize
+import dorai.composeapp.generated.resources.settings_mcp_authorized
 import dorai.composeapp.generated.resources.settings_mcp_header_key
 import dorai.composeapp.generated.resources.settings_mcp_header_value
 import dorai.composeapp.generated.resources.settings_mcp_no_tools
 import dorai.composeapp.generated.resources.settings_mcp_popular_servers
 import dorai.composeapp.generated.resources.settings_mcp_refresh
 import dorai.composeapp.generated.resources.settings_mcp_remove
+import dorai.composeapp.generated.resources.settings_mcp_revoke
 import dorai.composeapp.generated.resources.settings_mcp_server_name
 import dorai.composeapp.generated.resources.settings_mcp_server_url
 import dorai.composeapp.generated.resources.settings_mcp_status_connected
@@ -105,6 +108,8 @@ internal fun McpServersSection(
     showAddDialog: Boolean,
     onShowAddDialog: (Boolean) -> Unit,
     onAddPopularMcpServer: (PopularMcpServer) -> Unit,
+    onAuthorizeMcpServer: (String) -> Unit,
+    onRevokeMcpServerOAuth: (String) -> Unit,
 ) {
     var pendingRemoval by remember { mutableStateOf<McpServerUiState?>(null) }
     var scope by remember { mutableStateOf(ConnectorLibraryScope.Yours) }
@@ -198,6 +203,8 @@ internal fun McpServersSection(
                             onRemove = { pendingRemoval = server },
                             onRefresh = { onRefreshMcpServer(server.id) },
                             onToggleTool = onToggleTool,
+                            onAuthorize = { onAuthorizeMcpServer(server.id) },
+                            onRevoke = { onRevokeMcpServerOAuth(server.id) },
                         )
                         Spacer(Modifier.height(8.dp))
                     }
@@ -330,6 +337,8 @@ private fun McpServerCard(
     onRemove: () -> Unit,
     onRefresh: () -> Unit,
     onToggleTool: (String, Boolean) -> Unit,
+    onAuthorize: () -> Unit,
+    onRevoke: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -404,6 +413,40 @@ private fun McpServerCard(
 
             if (expanded) {
                 Spacer(Modifier.height(12.dp))
+
+                // OAuth status / actions
+                if (server.oauthAuthorized) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        StatusBadge(
+                            label = stringResource(Res.string.settings_mcp_authorized),
+                            status = OperationalStatus.Connected,
+                        )
+                        TextButton(onClick = onRevoke) {
+                            Text(
+                                text = stringResource(Res.string.settings_mcp_revoke),
+                                color = DangerAlert,
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(4.dp))
+                } else {
+                    Text(
+                        text = stringResource(Res.string.settings_connectors_setup_required),
+                        style = DoraiTypography.bodySmall,
+                        color = LocalDesignColorTokens.current.textSecondary,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    TextButton(onClick = onAuthorize) {
+                        Text(text = stringResource(Res.string.settings_mcp_authorize))
+                    }
+                    Spacer(Modifier.height(8.dp))
+                }
 
                 // Status text
                 val statusText = when (server.connectionStatus) {

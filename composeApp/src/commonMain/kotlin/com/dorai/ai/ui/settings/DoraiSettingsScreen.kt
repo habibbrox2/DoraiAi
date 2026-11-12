@@ -478,6 +478,8 @@ private fun SettingsCategoryContent(
                         showAddDialog = uiState.showAddMcpServerDialog,
                         onShowAddDialog = actions.onShowAddMcpServerDialog,
                         onAddPopularMcpServer = actions.onAddPopularMcpServer,
+                        onAuthorizeMcpServer = actions.onAuthorizeMcpServer,
+                        onRevokeMcpServerOAuth = actions.onRevokeMcpServerOAuth,
                     )
                 }
 

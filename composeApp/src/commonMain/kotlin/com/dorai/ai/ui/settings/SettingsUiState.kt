@@ -176,6 +176,8 @@ data class McpServerUiState(
     val isEnabled: Boolean,
     val connectionStatus: McpConnectionStatus,
     val tools: ImmutableList<ToolInfo>,
+    /** Non-null when the server carries an OAuth session (authorized); null until authorized. */
+    val oauthAuthorized: Boolean = false,
 )
 
 enum class McpConnectionStatus {

@@ -66,6 +66,8 @@ internal fun ToolsContent(
     showAddMcpServerDialog: Boolean,
     onShowAddMcpServerDialog: (Boolean) -> Unit,
     onAddPopularMcpServer: (PopularMcpServer) -> Unit,
+    onAuthorizeMcpServer: (String) -> Unit,
+    onRevokeMcpServerOAuth: (String) -> Unit,
     skills: ImmutableList<SkillManifest>,
     onUninstallSkill: (String) -> Unit,
     showAddSkillDialog: Boolean,
@@ -114,6 +116,8 @@ internal fun ToolsContent(
                 showAddDialog = showAddMcpServerDialog,
                 onShowAddDialog = onShowAddMcpServerDialog,
                 onAddPopularMcpServer = onAddPopularMcpServer,
+                onAuthorizeMcpServer = onAuthorizeMcpServer,
+                onRevokeMcpServerOAuth = onRevokeMcpServerOAuth,
             )
 
             ConnectorLibrarySection.Skills -> SkillsSection(
@@ -163,6 +167,8 @@ internal fun ToolsTabContent(
         showAddMcpServerDialog = uiState.showAddMcpServerDialog,
         onShowAddMcpServerDialog = actions.onShowAddMcpServerDialog,
         onAddPopularMcpServer = actions.onAddPopularMcpServer,
+        onAuthorizeMcpServer = actions.onAuthorizeMcpServer,
+        onRevokeMcpServerOAuth = actions.onRevokeMcpServerOAuth,
         skills = uiState.skills,
         onUninstallSkill = actions.onUninstallSkill,
         showAddSkillDialog = uiState.showAddSkillDialog,

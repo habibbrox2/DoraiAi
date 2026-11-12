@@ -411,6 +411,9 @@ class FakeDataRepository : DataRepository {
         return Result.success(mcpTools[serverId] ?: emptyList())
     }
 
+    override suspend fun authorizeMcpServer(serverId: String): Result<Unit> = Result.success(Unit)
+    override fun revokeMcpServerOAuth(serverId: String) {}
+
     override fun getMcpToolsForServer(serverId: String): List<ToolInfo> = mcpTools[serverId] ?: emptyList()
 
     override fun isMcpServerConnected(serverId: String): Boolean = serverId in mcpConnected

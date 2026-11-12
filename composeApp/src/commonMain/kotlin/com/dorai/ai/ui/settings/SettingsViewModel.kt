@@ -200,6 +200,8 @@ class SettingsViewModel(
         onRefreshMcpServer = ::onRefreshMcpServer,
         onShowAddMcpServerDialog = ::onShowAddMcpServerDialog,
         onAddPopularMcpServer = ::onAddPopularMcpServer,
+        onAuthorizeMcpServer = ::onAuthorizeMcpServer,
+        onRevokeMcpServerOAuth = ::onRevokeMcpServerOAuth,
         onUninstallSkill = ::onUninstallSkill,
         onShowAddSkillDialog = ::onShowAddSkillDialog,
         onInstallGitHubSkill = ::onInstallGitHubSkill,
@@ -994,6 +996,7 @@ class SettingsViewModel(
                 McpConnectionStatus.Unknown
             },
             tools = dataRepository.getMcpToolsForServer(config.id).toImmutableList(),
+            oauthAuthorized = config.oauth != null,
         )
     }
 
@@ -1054,6 +1057,23 @@ class SettingsViewModel(
 
     private fun onAddPopularMcpServer(server: PopularMcpServer) {
         onAddMcpServer(server.name, server.url, server.headers)
+    }
+
+    private fun onAuthorizeMcpServer(serverId: String) {
+        viewModelScope.launch(backgroundDispatcher) {
+            updateMcpConnectionStatus(serverId, McpConnectionStatus.Connecting)
+            val result = dataRepository.authorizeMcpServer(serverId)
+            if (result.isSuccess) {
+                connectMcpServerWithStatus(serverId)
+            } else {
+                updateMcpConnectionStatus(serverId, McpConnectionStatus.Error)
+            }
+        }
+    }
+
+    private fun onRevokeMcpServerOAuth(serverId: String) {
+        dataRepository.revokeMcpServerOAuth(serverId)
+        refreshMcpServers()
     }
 
     // Skills ---------------------------------------------------------------

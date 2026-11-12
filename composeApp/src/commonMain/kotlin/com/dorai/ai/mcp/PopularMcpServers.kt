@@ -120,6 +120,12 @@ val popularMcpServers = listOf(
         requiresAuth = true,
     ),
     PopularMcpServer(
+        name = "Desktop Commander",
+        url = "https://mcp.desktopcommander.app/mcp",
+        description = "Filesystem, shell, and process tools on the host device (OAuth required — authorize once in Connectors)",
+        requiresAuth = true,
+    ),
+    PopularMcpServer(
         name = "Supabase",
         url = "https://mcp.supabase.com/mcp",
         description = "Supabase projects, database, and auth (requires a Supabase access token)",

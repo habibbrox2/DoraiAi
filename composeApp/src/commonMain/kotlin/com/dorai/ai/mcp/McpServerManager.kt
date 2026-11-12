@@ -82,6 +82,29 @@ class McpServerManager(private val appSettings: AppSettings) {
         return config
     }
 
+    /** Run the OAuth flow against [serverId] and persist the resulting session on the server. */
+    suspend fun authorize(serverId: String): Result<Unit> {
+        val server = getServers().find { it.id == serverId }
+            ?: return Result.failure(McpException("Server not found: $serverId"))
+        val result = McpOAuthFlow.authorize(server) { com.dorai.ai.httpClient() }
+        return result.map { authorized ->
+            val updated = getServers().map { if (it.id == serverId) authorized else it }
+            saveServers(updated)
+        }
+    }
+
+    /** Clear the OAuth session for [serverId]; the server remains but tools will fail until re-authorized. */
+    fun revokeOAuth(serverId: String) {
+        val servers = getServers().map { server ->
+            if (server.id == serverId) server.copy(oauth = null) else server
+        }
+        saveServers(servers)
+        clients[serverId]?.close()
+        clients.remove(serverId)
+        discoveredTools.remove(serverId)
+        discoveredSkills.remove(serverId)
+    }
+
     fun removeServer(serverId: String) {
         val servers = getServers().toMutableList()
         servers.removeAll { it.id == serverId }
@@ -108,8 +131,22 @@ class McpServerManager(private val appSettings: AppSettings) {
     }
 
     suspend fun connectAndDiscoverTools(serverId: String): Result<List<McpToolMetadata>> {
-        val server = getServers().find { it.id == serverId }
+        var server = getServers().find { it.id == serverId }
             ?: return Result.failure(McpException("Server not found: $serverId"))
+
+        // If the server carries an OAuth session, ensure the token is fresh BEFORE connecting.
+        if (server.oauth != null) {
+            val result = McpOAuthFlow.refreshSessionIfExpired(server) { com.dorai.ai.httpClient() }
+            if (result.isSuccess) {
+                server = result.getOrThrow()
+                // Persist the refreshed token so the next launch doesn't re-request it.
+                saveServers(getServers().map { if (it.id == serverId) server else it })
+            } else {
+                // Keep the (expired) session; the 401 from the server will surface with a
+                // clear "re-authorize" message in the caller instead of silently failing.
+                println("McpServerManager: OAuth refresh failed for $serverId (${result.exceptionOrNull()?.message})")
+            }
+        }
 
         // Close existing client if any
         mutex.withLock { clients[serverId] }?.close()
@@ -119,7 +156,8 @@ class McpServerManager(private val appSettings: AppSettings) {
         if (!urlResult.isValid) {
             return Result.failure(McpException("Invalid server URL: ${urlResult.error}"))
         }
-        val client = McpClient(server.url, server.headers)
+        val effectiveHeaders = buildEffectiveHeaders(server)
+        val client = McpClient(server.url, effectiveHeaders)
         return try {
             client.initialize()
             val toolDefs = client.listTools()
@@ -237,6 +275,11 @@ class McpServerManager(private val appSettings: AppSettings) {
     }
 
     fun isConnected(serverId: String): Boolean = clients.containsKey(serverId)
+
+    private fun buildEffectiveHeaders(server: McpServerConfig): Map<String, String> {
+        val token = server.oauth?.accessToken
+        return if (token != null) server.headers + ("Authorization" to "Bearer $token") else server.headers
+    }
 
     private fun generateServerId(name: String, existing: List<McpServerConfig>): String {
         val base = name.lowercase().replace(serverIdRegex, "_").take(30)

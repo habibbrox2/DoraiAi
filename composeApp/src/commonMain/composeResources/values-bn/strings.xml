@@ -502,6 +502,9 @@
     <string name="workspace_terminal_key_right_content_description">ডান তীর</string>
     <string name="workspace_terminal_key_enter_content_description">Enter</string>
     <string name="settings_mcp_api_key">API কী (ঐচ্ছিক)</string>
+    <string name="settings_mcp_authorize">অনুমোদন দিন</string>
+    <string name="settings_mcp_revoke">OAuth বাতিল</string>
+    <string name="settings_mcp_authorized">অনুমোদিত</string>
     <string name="settings_mcp_api_key_help">ঐচ্ছিক। অনুসন্ধান টুলের জন্য jina.ai থেকে একটি বিনামূল্যের কী প্রয়োজন; অন্যান্য টুল কী ছাড়াই কাজ করে।</string>
     <string name="settings_sandbox_distro_title">ডিস্ট্রিবিউশন</string>
     <string name="settings_sandbox_distro_debian">Debian 12</string>
