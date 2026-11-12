@@ -270,7 +270,7 @@ private fun TtsSettingsSection(appLanguage: AppLanguage) {
             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
         )
 
-        Text(text = stringResource(Res.string.tts_value_format, stringResource(Res.string.tts_speech_speed), (rate * 100).roundToInt()), style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        Text(text = stringResource(Res.string.tts_value_format, stringResource(Res.string.tts_speech_speed), (rate * 100).roundToInt()) + "%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         DoraiSlider(
             value = rate,
             onValueChange = { rate = it },
@@ -279,7 +279,7 @@ private fun TtsSettingsSection(appLanguage: AppLanguage) {
         )
 
         Spacer(Modifier.height(8.dp))
-        Text(text = stringResource(Res.string.tts_value_format, stringResource(Res.string.tts_voice_pitch), (pitch * 100).roundToInt()), style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        Text(text = stringResource(Res.string.tts_value_format, stringResource(Res.string.tts_voice_pitch), (pitch * 100).roundToInt()) + "%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         DoraiSlider(
             value = pitch,
             onValueChange = { pitch = it },
@@ -288,7 +288,7 @@ private fun TtsSettingsSection(appLanguage: AppLanguage) {
         )
 
         Spacer(Modifier.height(8.dp))
-        Text(text = stringResource(Res.string.tts_value_format, stringResource(Res.string.tts_volume), (volume * 100).roundToInt()), style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        Text(text = stringResource(Res.string.tts_value_format, stringResource(Res.string.tts_volume), (volume * 100).roundToInt()) + "%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
         DoraiSlider(
             value = volume,
             onValueChange = { volume = it },
