@@ -1,6 +1,6 @@
 # GitHub Integration
 
-**Last verified:** 2026-11-10
+**Last verified:** 2026-11-12
 
 DORAI AI can connect to GitHub through a GitHub App using the **Device Flow** and browse the repositories an installation can see — read-only. The integration is local-first: authentication, token custody, repository browsing, cloning and git operations all happen on the device.
 
@@ -12,7 +12,7 @@ No client secret exists for this integration — the GitHub App is registered wi
 
 - App name: `DORAI AI GitHub`, owner `habibbrox2`, no webhook, no callback URL, webhooks disabled.
 - Installation scope: any GitHub account or organization; repository permissions **`Contents: Read-only`** (plus `Pull requests: Read-only`), `Metadata` implicit. The owner can restrict access to selected repositories by installing with "Only select repositories" for least privilege.
-- `client_id` is read at build time from a local `gradle.properties` property such as `dorai.githubAppClientId` (or a build-time constant supplied by the maintainer). It is never committed.
+- `client_id` is supplied at build time as a maintainer-provided constant in `GitHubAppConfig`; it is never committed. **Current state: `GitHubAppConfig.clientId = null`** — the source tree carries no client ID, so the integration fails closed (see "Fail-closed guarantees" below). Maintainers adding one should do it in a private build config, not by editing that file.
 
 Phase 0 registration is a manual owner step and is **not** part of the codebase. Phase 4 (write operations) additionally requires `Pull requests: Write` on the App registration.
 
@@ -35,6 +35,14 @@ The screen has two states:
 - **Refresh status** and **Sync** buttons run `git status` and `git fetch --prune` + `git pull --ff-only --quiet` for the selected project; failures are recorded as a human-readable `lastError`.
 - **Disconnect** clears the vault and resets all UI state.
 
+## Fail-closed guarantees (2026-11-12)
+
+- No client ID is checked in (`GitHubAppConfig.clientId = null`). Until a build-time client ID is supplied, `connect()` returns `MissingClientId` before any network I/O and a `Connected` state cannot be entered.
+- Device-token polling submits the OAuth `device_code` (never the user-facing `user_code`), so GitHub cannot answer `incorrect_device_code` forever; the `user_code` is display-only.
+- Vault writes are verified after `store()` — a throwing or silently no-op vault surfaces `Error("token could not be saved")`, never a fake `Connected`.
+- `GitUrlValidator.isValidGitHubUrl` is https-only with `[A-Za-z0-9._-]` path segments (this is what keeps shell metacharacters off the Android `/bin/sh` clone path, which also quotes the URL).
+- The desktop credential broker emits credentials only when git requests host `github.com`; any other host (repo `insteadOf` redirects, proxies) gets silence.
+
 ## Platform support
 
 | Platform | Token vault | Git CLI | Clone/sync | Notes |
@@ -48,13 +56,14 @@ The screen has two states:
 
 - **Tokens never leave the device and never reach tools, logs, crash reports, tool arguments or the agent timeline.** All GitHub API calls send `Authorization: Bearer <token>` only; the global Ktor request logger (`HttpLogSanitizer`) redacts the `Authorization` header before any log output, and the redaction tests pin GitHub token literals (`ghp_`, `ghu_`, `ghs_`, `github_pat_`).
 - **Vaults are dedicated files**: Android `dorai_github_vault_v1` (never shares keys with provider prefs), desktop `github-vault.aes`/`github-vault.key` with owner-only permissions.
-- **Git credential broker**: network git operations use an ephemeral helper (owner-only temp dir, deleted after each command) which answers the username/password challenge from a sidecar token file — the token never appears in argv, env or shell echo. Desktop git runs through `GitCommandRunner`/`GitCredentialBroker` for clone/fetch/pull/push. The Android guest has no guest-visible helper today (host `cacheDir` is not mounted into proot), so anonymous reads work for public repositories but **authenticated git operations on Android are not wired** (e.g. push, private-repo clone) — Phase 0 + guest credential plumbing must land first.
+- **Git credential broker**: network git operations use an ephemeral helper (owner-only temp dir, deleted after each command) which answers the username/password challenge from a sidecar token file — the token never appears in argv, env or shell echo. The helper parses git's stdin and emits credentials only when the requested host is exactly `github.com`; for any other host it exits silently, so repo `insteadOf`/proxy redirects cannot siphon the token. Desktop git runs through `GitCommandRunner`/`GitCredentialBroker` for clone/fetch/pull/push. The Android guest has no guest-visible helper today (host `cacheDir` is not mounted into proot), so anonymous reads work for public repositories but **authenticated git operations on Android are not wired** (e.g. push, private-repo clone) — Phase 0 + guest credential plumbing must land first.
 - **Fail-closed policy**: `GitCommandPolicy` allows only read-only subcommands and rejects dangerous flags (`--force`, `--hard`, `--delete`, `--prune`, `--mirror`, `--no-ff`, plus destructive/linkable aliases) everywhere, with exact `-C`-prefix handling and abbreviated-long-option rejection. `WorkspaceEnvironmentManager` additionally validates project names and relative paths on every git call.
 - **Write operations are gated twice**: `GitHubIntegrationState.writeOperationsEnabled` defaults to `false` and is flipped only by an explicit maintainer opt-in, and every write invocation additionally requires an explicit user confirmation through the existing `confirmToolExecution` approval flow (classification `OTHER`/ASK-ALWAYS, scoped to the repository fullName). Even then, `git push` accepts only `git push origin HEAD` with no force/mirror/set-upstream, `git commit` requires exactly `-m <msg>` with a 1..200-char single-line message, and `git add` requires explicit relative paths (never `.` or `:/`). No UI exposes the write actions yet.
 - `HttpLogSanitizer` does not change behavior for non-GitHub traffic.
 
 ## Known limitations
 
+- The settings UI does not yet render the `WaitingForDevice` state (user code + verification URI) or the error/retry states; the device-flow plumbing is fixed but the screen is not wired to it yet — step 2 of the GitHub critical remediation.
 - Desktop clone/sync is not functional (no-op desktop `WorkspaceController`; the desktop CLI layer exists but is unwired).
 - Android guest git operations authenticate anonymously only; private repositories and pushes need guest-visible credential helper support + GitHub App registration with write permissions.
 - `Pull requests: Read-only` keeps PR creation disabled until `writeOperationsEnabled` and the App is re-registered with `Pull requests: Write`.
@@ -77,7 +86,7 @@ The screen has two states:
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitHubIntegrationState.kt` | UI/domain state incl. `CloneState` and `writeOperationsEnabled` |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/settings/GitHubSection.kt` | Settings → GitHub screen (Android/desktop gate, clone/sync UI, confirmation dialog) |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitCommandPolicy.kt` | Read-only allowlist + flag deny-list + exact write shapes (gated by `writeEnabled`) |
-| `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitUrlValidator.kt` | `github.com` URL validation, project-name rules, safe relative paths |
+| `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitUrlValidator.kt` | `github.com` URL validation (https-only, shell-safe segment charset), project-name rules, safe relative paths |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitCredentialBroker.kt` | Ephemeral owner-only credential helper; token never in argv/logs |
 | `composeApp/src/desktopMain/kotlin/com/dorai/ai/github/GitCommandRunner.desktop.kt` | Desktop git runner (ProcessBuilder, policy-checked, broker for network commands) |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/workspace/WorkspaceController.kt` | Interface: clone/status/log/fetch/pull-ff-only + write methods; `NoOpWorkspaceController` default |

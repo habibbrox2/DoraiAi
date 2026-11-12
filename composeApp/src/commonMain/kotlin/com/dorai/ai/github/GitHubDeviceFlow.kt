@@ -21,7 +21,10 @@ sealed interface GitHubDeviceFlowState {
     data object Idle : GitHubDeviceFlowState
 
     data class AwaitingUser(
+        /** What the user types into the browser to authorise this app (displayed to the user). */
         val userCode: String,
+        /** OAuth device code; this is what must be polled for the token, NEVER shown to the user. */
+        val deviceCode: String,
         val verificationUri: String,
         val expiresIn: Long,
         val interval: Long,
@@ -60,6 +63,13 @@ open class GitHubDeviceFlow(
     private val clientId: String?,
     private val httpClient: HttpClient = httpClient(),
 ) {
+    /**
+     * True only when a device-flow client ID is configured for this build. Used to fail
+     * closed: no network call may be attempted, and no "connected" state may be reached,
+     * without a client ID.
+     */
+    val isConfigured: Boolean get() = !clientId.isNullOrBlank()
+
     private val json = Json { ignoreUnknownKeys = true }
 
     open suspend fun requestDeviceCode(): Result<GitHubDeviceFlowState.AwaitingUser> {
@@ -75,6 +85,7 @@ open class GitHubDeviceFlow(
             val parsed = json.decodeFromString(DeviceCodeResponse.serializer(), body)
             GitHubDeviceFlowState.AwaitingUser(
                 userCode = parsed.userCode,
+                deviceCode = parsed.deviceCode,
                 verificationUri = parsed.verificationUri,
                 expiresIn = parsed.expiresIn,
                 interval = parsed.interval,

