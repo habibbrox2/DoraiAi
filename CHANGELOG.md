@@ -1,3 +1,33 @@
+## DORAI AI - Workspace Runtime Agent and Critical Audit Remediation (Unreleased)
+
+### Added
+- **Runtime agent chat modes wired end-to-end**: Ask / Plan / Build / Review pill selection now reaches the runtime agent (`ChatSystemPromptBuilder.agentModeSection`), not just the UI. Each non-Build mode renders an explicit behavioural contract at the top of the system prompt (Ask = read-only Q&A, Plan = investigate then produce a plan before any change, Review = report with `file:line` evidence and never edit) and forces the agentic tool loop off; Build keeps the full tool set. The persisted "Default agent mode" setting now actually seeds new conversations instead of sitting unused, and `setAgentMode` keeps `ChatViewModel` and `RemoteDataRepository` in sync on every selection.
+
+### Fixed
+- **Workspace runtime agent crash (`IndexOutOfBoundsException`) in the session bar**: `tabFocusRequesters` is now keyed on tab count and all read sites clamp the focused index (sessions starting mid-composition used to grow the list after it was captured).
+- **Guest git `clone` always failed for fresh projects**: the overwrite guard checked a host path `/root/projects/<name>` that never exists and `mkdirs()` silently no-oped. The host check now uses `paths.projectsDir` (the real bind-mount source) so cloning into a brand-new project works and the overwrite guard actually guards.
+- **App runtime agent reported every agent missing even when installed**: the host-side probe checked `~/.local/bin/<binary>` for every agent. Per-agent launcher paths now live in `WorkspaceAgents` and the probe follows them with a dangling-symlink-safe check.
+- **Workspace agent mode badges and tab labels**: the "Install Sandbox" CTA and badge strings no longer claim a Debian install == "running sandbox"; tab pills show localized labels instead of raw enum names.
+- **One-shot proot commands leaked guest processes when the timeout fired**: `destroyForcibly()` alone left orphaned children (locks, agents). The guest now records a PID before `exec`, and the timeout path kills the recorded process tree via `/proc` (Android has no `Process.pid()`).
+- **Desktop/iOS/wasm Workspace reported a phantom clean repository**: `NoOpWorkspaceController.gitStatus` now returns `Failed/isRepository=false` instead of "clean".
+- **Tar extraction hardened against hostile archives**: regular-file containment now rejects prefix-collision escapes (`rootfs2/evil`); hardlink targets must stay inside the rootfs; symlink entries reject absolute host-roots and `..` escapes (Debian `/data`, `/storage`, `/system`, `/vendor`, `/proc`, `/sys`).
+- **Partial Debian/Alpine installs left a broken rootfs when the download, extract or configure step failed or was cancelled**: the whole bootstrap is now wrapped and wipes the partial rootfs on any Throwable.
+- **Workspace git diff flipped the wrong file's contents when requests overlapped**: `loadGitDiff` now uses a monotonic request token; only the newest request can repaint the diff.
+- **`refreshGitStatus` left `loading` stuck on cancellation/failure**: `loading` always clears in a `finally` block.
+- **Active-project top bar project name pushed tabs/badges off-screen**: the title is now bounded to one line with ellipsis.
+- **Workspace file explorer rows shifted right with nested project paths**: the indent was derived from the absolute path depth; it is now a fixed neutral spacer for the flat project listing.
+- **Removed unused Workspace pieces**: dead `Code` icon import, unused top-level `widthClass`, unused `GitChangeItem` (and its test), and the `workspaceTabAgentPanelWidth` adaptive token (and test) that only fed the unwired Agent tab.
+- **iOS builds latently broken by missing actuals**: `createGitCommandRunner` and `createGitCredentialBroker` now have iOS stubs.
+- **Agent installers are HTTPS-only with an SHA-256 audit log** (`/root/.local/state/dorai-agent-install.log`) so a swapped vendor URL or compromised mirror is tamper-evident.
+
+### Changed
+- **Workspace screen copy honesty**: the two "completed" setup checkmarks are no longer fake-done while no install is running; `isSandboxRunning` was renamed to `isSandboxReady` and wired to `build.isReady` (Debian present), and the setup screen is consistent with that.
+- **Terminal touch-scroll now emits TUI wheel events** (was touch-drag-only), and **OSC 8 hyperlink rows meet the 48dp touch target** with a button role.
+- **Agent installer detection verifies the binary by SHA-256 audit log** before confirming success (tamper-evidence for the supply chain).
+- **Workspace "Agent" tab removed** (was a permanent empty placeholder); the empty right-hand "Agent rail" on Compact screens is likewise gone.
+
+---
+
 ## DORAI AI - Chat UX, Accessibility and Performance Polish (Unreleased)
 
 ### Fixed
