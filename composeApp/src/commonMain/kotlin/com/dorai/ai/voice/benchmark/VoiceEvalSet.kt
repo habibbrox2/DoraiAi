@@ -15,8 +15,16 @@ package com.dorai.ai.voice.benchmark
  */
 
 enum class EvalCategory {
-    WEATHER_QUERY, TIME_QUERY, ALARM_SETTING, NEWS_REQUEST, MUSIC_PLAY,
-    CALL_REQUEST, MESSAGE_SEND, TRANSLATION, CALCULATION, GENERAL_QUESTION,
+    WEATHER_QUERY,
+    TIME_QUERY,
+    ALARM_SETTING,
+    NEWS_REQUEST,
+    MUSIC_PLAY,
+    CALL_REQUEST,
+    MESSAGE_SEND,
+    TRANSLATION,
+    CALCULATION,
+    GENERAL_QUESTION,
 }
 
 data class EvalSentence(
@@ -31,8 +39,7 @@ private fun sentence(
     number: Int,
     category: EvalCategory,
     text: String,
-): EvalSentence =
-    EvalSentence(id = P + "-" + number.toString().padStart(3, '0'), category = category, text = text)
+): EvalSentence = EvalSentence(id = P + "-" + number.toString().padStart(3, '0'), category = category, text = text)
 
 val VOICE_EVAL_SENTENCES: List<EvalSentence> = listOf(
     sentence(1, EvalCategory.WEATHER_QUERY, "দিনাজপুরে কুয়াশা আছে?"),
