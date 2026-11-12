@@ -426,11 +426,10 @@ private fun ProjectFileRow(
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Indent based on depth
-        val depth = file.path.count { it == '/' }
-        Spacer(
-            modifier = Modifier.width((depth * 16).dp),
-        )
+        // Flat list rendered for the currently-opened project — no inter-tree indentation.
+        // (An absolute-path depth here pushed every row's content off-screen when the
+        // project was nested deep in the guest filesystem.)
+        Spacer(modifier = Modifier.width(8.dp))
 
         // Icon
         Icon(

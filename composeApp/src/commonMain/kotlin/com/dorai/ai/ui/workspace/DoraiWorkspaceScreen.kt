@@ -27,7 +27,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SmartToy
@@ -150,7 +149,6 @@ fun DoraiWorkspaceScreen(
     sandboxSlot: (@Composable () -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
-    val widthClass = LocalDoraiWindowWidthClass.current
 
     Box(
         modifier = modifier
