@@ -18,7 +18,7 @@ numbers from real devices are in the table below.
 | Piece | Where | Role |
 |---|---|---|
 | CER/WER scorer | `composeApp/src/commonMain/kotlin/com/dorai/ai/voice/benchmark/SpeechScoring.kt` | Normalises (NFC, case-fold, punctuation-as-space) and computes code-point CER and word WER |
-| Bengali eval set | `composeApp/src/commonMain/kotlin/com/dorai/ai/voice/benchmark/VoiceEvalSet.kt` | 120 sentences, 20 per category: general, names, code-switch, numbers, conjuncts, long forms |
+| Bengali eval set | `composeApp/src/commonMain/kotlin/com/dorai/ai/voice/benchmark/VoiceEvalSet.kt` | 200 utterances, 20 per intent, taken from BengVoice (CC BY 4.0), DOI:10.17632/sr99ryf4ns.1 |
 | Scorer test suite | `composeApp/src/commonTest/kotlin/com/dorai/ai/voice/benchmark/` | Known pairs and eval-set integrity |
 
 The scorer is pure Kotlin and runs on every target. Bengali code points (not UTF-16 code units) are
@@ -59,13 +59,24 @@ println("${evalSentence.id}: CER=%.4f WER=%.4f".format(score.cer, score.wer))
 
 ## Eval set status
 
-`VoiceEvalSet.kt` is a **draft** — 120 sentences, 20 per category, but not yet reviewed by native
-Bengali speakers. Before the memo is signed off:
+`VoiceEvalSet.kt` holds 200 utterances (20 per intent) taken verbatim from **BengVoice —
+A Stratified Dataset of Code-Mixed Bengali-English Voice Commands for Intent Classification in
+Conversational AI Systems**, Md Shahriar Hossain, Mendeley Data, DOI:10.17632/sr99ryf4ns.1,
+**CC BY 4.0**. The subset was selected deterministically (every 6th utterance in file order,
+index 0, 6, … 114) and keeps the dataset's 24 % code-mixing rate. The utterances are natively
+generated Bangladeshi voice-assistant commands, not hand-written prose.
 
-- a native speaker reviews every sentence for naturalness and confirms both accents are fairly
-  represented;
-- a second pass removes any sentence that is ambiguous on a phone mic;
-- the reviewed set replaces the draft, and the integrity tests still gate it.
+Remaining caveats before the memo is signed off:
+
+- the selection is a fixed subset, not a random draw — confirm it is representative by intent;
+- accent balance (Bangladeshi vs West Bengali) is inherited from the dataset, not benchmarked
+  across both speaker populations;
+- utterance length is short command-style speech (10–54 chars); long-form prose coverage is
+  deliberately small — if long-pass recognition matters, extend the set from the full DOI data.
+
+The full 1,200-utterance dataset (plus fold splits) is at the DOI above; re-download it rather
+than committing it wholesale. Attribution is carried in `VoiceEvalSet.kt` and here; keep both in
+sync if the set is regenerated.
 
 ## Decision memo template
 

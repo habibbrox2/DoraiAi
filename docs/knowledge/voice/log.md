@@ -9,6 +9,19 @@ generated: { by: human:opencode, at: 2026-11-12T00:00:00Z }
 
 # Update log
 
+## 2026-11-12 — Phase 0 eval set replaced with BengVoice subset
+
+- Draft 120-sentence hand-written eval set **replaced** by 200 utterances (20 per intent,
+  deterministic even spread) taken verbatim from BengVoice — A Stratified Dataset of Code-Mixed
+  Bengali-English Voice Commands for Intent Classification in Conversational AI Systems,
+  Md Shahriar Hossain, Mendeley Data, DOI:10.17632/sr99ryf4ns.1, CC BY 4.0.
+- Selection: every 6th utterance in file order (index 0, 6, … 114); keeps ~24% code-mixed
+  utterances. Ids renumbered `bnv-001`…`bnv-200`.
+- Integrity tests updated: 200 sentences, 10 intents × 20, Bengali script present, code-mixed
+  utterance count ≥ 20.
+- Source of truth for the set is the DOI; attribution lives in `VoiceEvalSet.kt` and
+  `benchmark.md` — keep them in sync on regeneration.
+
 ## 2026-11-12 — Phase 0 harness (scorer, eval set, guide)
 
 - Bengali CER/WER scorer in `composeApp/src/commonMain/kotlin/com/dorai/ai/voice/benchmark/SpeechScoring.kt`:
