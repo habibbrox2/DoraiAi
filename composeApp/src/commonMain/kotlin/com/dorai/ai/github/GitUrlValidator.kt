@@ -8,14 +8,17 @@ package com.dorai.ai.github
  *
  * Accepted formats:
  *   - https://github.com/owner/repo
- *   - http://github.com/owner/repo
- *   - github.com/owner/repo         (scheme-relative / bare host)
  *   - https://github.com/owner/repo.git  (with .git suffix)
  *
  * Rejected:
- *   - Any host other than github.com (gitlab.com, bitbucket.org, git.example.com, etc.)
+ *   - Any host other than github.com (gitlab.com, bitbucket.org, www.github.com, etc.)
+ *   - Any scheme other than https (http, git, ssh, and scheme-relative are rejected; a clone
+ *     must never go over a plaintext transport)
  *   - URLs with embedded credentials (user:pass@)
- *   - Malformed URLs (missing host, missing path, invalid characters)
+ *   - Path segments outside `[A-Za-z0-9._-]` — this is what blocks shell metacharacters
+ *     (`|`, `;`, `$()`, backticks, spaces, quotes) from reaching `git clone` on the Android
+ *     /bin/sh path
+ *   - Malformed URLs (missing host, missing path)
  *   - Empty or null input
  *
  * The validation is intentionally strict: it does not attempt to resolve the URL or
@@ -26,7 +29,7 @@ package com.dorai.ai.github
 object GitUrlValidator {
 
     private val githubHostPattern = Regex(
-        pattern = """^((https?://)?(www\.)?github\.com(/[^/]+/[^/]+)?(\.git)?)$""",
+        pattern = """^https://github\.com/[A-Za-z0-9._-]+/[A-Za-z0-9._-]+(\.git)?$""",
         options = setOf(RegexOption.IGNORE_CASE),
     )
 

@@ -511,7 +511,7 @@ private fun SettingsCategoryContent(
 
                 SettingsCategory.Mcp -> McpSettingsContent()
 
-                SettingsCategory.GitHub -> GitHubSettingsContent()
+                SettingsCategory.GitHub -> GitHubSection()
 
                 SettingsCategory.Account -> {
                     AccountProfileCard()
@@ -831,26 +831,6 @@ private fun SecurityCheckItem(passed: Boolean, label: String) {
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(label, color = if (passed) colors.text else colors.err, fontSize = 12.5.sp)
-    }
-}
-
-@Composable
-private fun GitHubSettingsContent() {
-    val colors = LocalDoraiColors.current
-
-    SettingsSectionCard {
-        Text(
-            text = stringResource(Res.string.settings_cat_github),
-            color = colors.text,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Bold,
-        )
-        Spacer(modifier = Modifier.height(DoraiSpacing.XS))
-        Text(
-            text = stringResource(Res.string.settings_github_description),
-            color = colors.muted,
-            fontSize = 12.sp,
-        )
     }
 }
 

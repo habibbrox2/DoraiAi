@@ -54,5 +54,9 @@ data class GitHubIntegrationState(
     val lastPullRequestUrl: String? = null,
     val isLoading: Boolean = false,
     val error: GitHubDeviceFlowError? = null,
+    /** User-facing code shown only while [GitHubConnectionStatus.WaitingForDevice]; null otherwise. */
+    val userCode: String? = null,
+    /** URL where the user authorizes the device flow; null otherwise. */
+    val verificationUri: String? = null,
     val writeOperationsEnabled: Boolean = false,
 )

@@ -24,6 +24,9 @@ class GitHubIntegrationViewModelTest {
         var cleared = false
         var storeCalls = 0
 
+        /** When set, [store] throws this instead of persisting (simulates Keystore failure). */
+        var storeException: Exception? = null
+
         override fun readAccessToken(): String? = accessToken
         override fun readRefreshToken(): String? = refreshToken
         override fun readLogin(): String? = login
@@ -35,6 +38,7 @@ class GitHubIntegrationViewModelTest {
             login: String,
             installationIds: List<Long>,
         ) {
+            storeException?.let { throw it }
             this.accessToken = accessToken
             this.refreshToken = refreshToken
             this.login = login
@@ -55,6 +59,7 @@ class GitHubIntegrationViewModelTest {
             Result.success(
                 GitHubDeviceFlowState.AwaitingUser(
                     userCode = "ABCD-EFGH",
+                    deviceCode = "DC-SECRET-ABCD-EFGH",
                     verificationUri = "https://github.com/login/device",
                     expiresIn = 900,
                     interval = 5,
@@ -63,13 +68,23 @@ class GitHubIntegrationViewModelTest {
         var pollForTokenResult: GitHubDeviceFlowState =
             GitHubDeviceFlowState.Success(login = "dorai-user")
 
-        override suspend fun requestDeviceCode(): Result<GitHubDeviceFlowState.AwaitingUser> = requestDeviceCodeResult
+        var requestCalled = false
+
+        override suspend fun requestDeviceCode(): Result<GitHubDeviceFlowState.AwaitingUser> {
+            requestCalled = true
+            return requestDeviceCodeResult
+        }
+
+        var lastPolledDeviceCode: String? = null
 
         override suspend fun pollForToken(
             deviceCode: String,
             intervalSeconds: Long,
             expiresAtEpochMs: Long,
-        ): GitHubDeviceFlowState = pollForTokenResult
+        ): GitHubDeviceFlowState {
+            lastPolledDeviceCode = deviceCode
+            return pollForTokenResult
+        }
     }
 
     /** API client that returns canned results. */
@@ -222,6 +237,124 @@ class GitHubIntegrationViewModelTest {
         assertEquals("ghr_refresh_456", vault.refreshToken)
         assertEquals("dorai-user", vault.login)
         assertEquals(1, vault.storeCalls)
+        // The poll must use the OAuth device code, never the user-facing user code.
+        assertEquals("DC-SECRET-ABCD-EFGH", deviceFlow.lastPolledDeviceCode)
+        // Device-flow codes are cleared once the flow terminates.
+        assertNull(vm.state.value.userCode)
+        assertNull(vm.state.value.verificationUri)
+    }
+
+    @Test
+    fun `connect sets Error and stays unconnected when the vault write throws`() {
+        val vault = FakeVault()
+        vault.storeException = IllegalStateException("Keystore invalidated")
+        val deviceFlow = FakeDeviceFlow()
+        deviceFlow.pollForTokenResult = GitHubDeviceFlowState.Success(
+            login = "dorai-user",
+            accessToken = "ghs_token_123",
+            refreshToken = null,
+        )
+        val vm = buildVm(vault = vault, deviceFlow = deviceFlow)
+
+        vm.connect()
+
+        assertEquals(GitHubConnectionStatus.Error, vm.state.value.connectionStatus)
+        assertIs<GitHubDeviceFlowError.Network>(vm.state.value.error)
+        assertNull(vault.accessToken)
+    }
+
+    @Test
+    fun `connect fails closed and never reaches the network when client id is missing`() {
+        val deviceFlow = object : GitHubDeviceFlow(clientId = null) {
+            var called = false
+            override suspend fun requestDeviceCode(): Result<GitHubDeviceFlowState.AwaitingUser> {
+                called = true
+                return Result.failure(GitHubDeviceFlowException(GitHubDeviceFlowError.MissingClientId))
+            }
+        }
+        val vm = buildVm(deviceFlow = deviceFlow)
+
+        vm.connect()
+
+        assertEquals(GitHubConnectionStatus.Error, vm.state.value.connectionStatus)
+        assertIs<GitHubDeviceFlowError.MissingClientId>(vm.state.value.error)
+        assertFalse(vm.state.value.isLoading)
+        assertFalse(deviceFlow.called)
+    }
+
+    @Test
+    fun `cancel device flow resets waiting state to NotConnected`() {
+        val deviceFlow = FakeDeviceFlow()
+        deviceFlow.pollForTokenResult = GitHubDeviceFlowState.Polling(userCode = "", interval = 5)
+        val vm = buildVm(deviceFlow = deviceFlow)
+
+        vm.connect()
+        assertEquals(GitHubConnectionStatus.WaitingForDevice, vm.state.value.connectionStatus)
+
+        vm.cancelDeviceFlow()
+        assertEquals(GitHubConnectionStatus.NotConnected, vm.state.value.connectionStatus)
+        assertNull(vm.state.value.userCode)
+        assertNull(vm.state.value.verificationUri)
+    }
+
+    @Test
+    fun `successful installations load also loads repositories`() {
+        val repo = GitHubRepository(
+            id = 99,
+            name = "repo",
+            fullName = "org-a/repo",
+            owner = GitHubRepositoryOwner(login = "org-a", id = 10, type = "Organization"),
+            `private` = false,
+            defaultBranch = "main",
+            htmlUrl = "https://github.com/org-a/repo",
+        )
+        val apiClient = FakeApiClient()
+        apiClient.listRepositoriesResult = GitHubApiResult.Success(listOf(repo))
+        val deviceFlow = FakeDeviceFlow()
+        deviceFlow.pollForTokenResult = GitHubDeviceFlowState.Success(
+            login = "dorai-user",
+            accessToken = "ghs_tok",
+            refreshToken = null,
+        )
+        val vm = buildVm(apiClient = apiClient, deviceFlow = deviceFlow)
+
+        vm.connect()
+
+        assertEquals(GitHubConnectionStatus.Connected, vm.state.value.connectionStatus)
+        assertEquals(listOf("org-a/repo"), vm.state.value.repositories.map { it.fullName })
+    }
+
+    @Test
+    fun `refreshRepositories falls back to installations load when none known`() {
+        val vault = FakeVault()
+        vault.accessToken = "stored-token"
+        vault.login = "dorai-user"
+        val vm = buildVm(vault = vault)
+
+        vm.refreshRepositories()
+
+        assertEquals(listOf("org-a"), vm.state.value.installations.map { it.account.login })
+        assertFalse(vm.state.value.isLoading)
+    }
+
+    @Test
+    fun `rate limited repository refresh keeps session Connected with a dismissible error`() {
+        val apiClient = FakeApiClient()
+        apiClient.listRepositoriesResult = GitHubApiResult.RateLimited(0L)
+        val deviceFlow = FakeDeviceFlow()
+        deviceFlow.pollForTokenResult = GitHubDeviceFlowState.Success(
+            login = "dorai-user",
+            accessToken = "ghs_tok",
+            refreshToken = null,
+        )
+        val vm = buildVm(apiClient = apiClient, deviceFlow = deviceFlow)
+
+        vm.connect()
+
+        assertEquals(GitHubConnectionStatus.Connected, vm.state.value.connectionStatus)
+        assertIs<GitHubDeviceFlowError.Network>(vm.state.value.error)
+        vm.dismissError()
+        assertNull(vm.state.value.error)
     }
 
     @Test
@@ -282,6 +415,7 @@ class GitHubIntegrationViewModelTest {
         deviceFlow.requestDeviceCodeResult = Result.success(
             GitHubDeviceFlowState.AwaitingUser(
                 userCode = "NEW-CODE",
+                deviceCode = "DC-SECRET-NEW-CODE",
                 verificationUri = "https://github.com/login/device",
                 expiresIn = 900,
                 interval = 5,

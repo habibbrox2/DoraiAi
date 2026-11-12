@@ -1197,7 +1197,7 @@ class WorkspaceEnvironmentManager(
         dest.mkdirs()
         val result = try {
             executor().execute(
-                command = "git clone --depth=1 --quiet $url .",
+                command = "git clone --depth=1 --quiet ${shellQuote(url)} .",
                 timeoutSeconds = 120,
                 workingDir = root,
             )
