@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -54,6 +55,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextMeasurer
@@ -514,10 +518,15 @@ private fun TerminalHyperlinkBar(urls: ImmutableList<String>) {
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .heightIn(min = 48.dp)
                         .handCursor()
-                        .clickable {
+                        .clickable(role = Role.Button, onClickLabel = url) {
                             runCatching { uriHandler.openUri(url) }
-                        },
+                        }
+                        .semantics {
+                            contentDescription = url
+                        }
+                        .padding(vertical = 12.dp),
                 )
             }
         }
@@ -661,7 +670,40 @@ private fun terminalMouseInput(
                     ?.let { send.value(it) }
             }
         }
-    }
+    }.then(
+        // A physical wheel (desktop / Chromebooks) never fires awaitFirstDown, so
+        // gesture-based scrolling can't see it — emit TUI wheel events per notch.
+        Modifier.pointerInput(cell) {
+            // awaitEachGesture scope supplies awaitPointerEvent() — wheel events arrive
+            // with no button pressed, which is why the touch-drag path can't see them.
+            awaitEachGesture {
+                var wheelAccum = 0f
+                while (true) {
+                    val event = awaitPointerEvent()
+                    for (change in event.changes) {
+                        val dy = change.scrollDelta.y
+                        if (dy == 0f) continue
+                        wheelAccum += dy * cell.lineStep
+                        val state = current.value.mouse
+                        val col = cell.columnAt(change.position.x)
+                            .coerceIn(0, (current.value.columns - 1).coerceAtLeast(0))
+                        val row = cell.rowAt(change.position.y)
+                            .coerceIn(0, (current.value.rows - 1).coerceAtLeast(0))
+                        while (wheelAccum >= cell.lineStep) {
+                            wheelAccum -= cell.lineStep
+                            TerminalMouseEncoder.wheel(up = false, col = col, row = row, state = state)
+                                ?.let { send.value(it) }
+                        }
+                        while (wheelAccum <= -cell.lineStep) {
+                            wheelAccum += cell.lineStep
+                            TerminalMouseEncoder.wheel(up = true, col = col, row = row, state = state)
+                                ?.let { send.value(it) }
+                        }
+                    }
+                }
+            }
+        },
+    )
 }
 
 @Composable

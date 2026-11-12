@@ -71,8 +71,8 @@ class DoraiUiV2ReachabilityTest {
     }
 
     @Test
-    fun `workspace tabs contain agent editor terminal git`() {
-        val expected = listOf("Agent", "Editor", "Terminal", "Git")
+    fun `workspace tabs contain editor terminal git`() {
+        val expected = listOf("Editor", "Terminal", "Git")
         assertEquals(expected, WorkspaceProjectTab.entries.map { it.name })
     }
 

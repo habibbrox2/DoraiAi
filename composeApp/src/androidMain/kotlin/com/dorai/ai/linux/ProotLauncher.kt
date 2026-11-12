@@ -184,7 +184,13 @@ class ProotLauncher(
         extraEnv: Map<String, String> = emptyMap(),
         maxOutputChars: Int = DEFAULT_MAX_OUTPUT_CHARS,
     ): ProotResult = try {
-        val process = start(command, workingDir, extraEnv)
+        // The guest shell records its own pid before exec'ing into the command —
+        // Android's Process has no pid() API, and proot does not namespace pids, so
+        // this file (shared via the /tmp bind) is the only reliable handle for killing
+        // the guest's whole process tree when the waitFor deadline hits.
+        val pidFile = File(tmpPath, "oneshot-${java.util.UUID.randomUUID()}.pid")
+        val guestPidPath = "/tmp/${pidFile.name}"
+        val process = start("echo \$\$ > '$guestPidPath' && exec $command", workingDir, extraEnv)
         val stdout = CompletableFuture.supplyAsync {
             readBounded(process.inputStream.bufferedReader(Charsets.UTF_8), maxOutputChars)
         }
@@ -192,6 +198,7 @@ class ProotLauncher(
             readBounded(process.errorStream.bufferedReader(Charsets.UTF_8), maxOutputChars)
         }
         if (process.waitFor(timeoutSeconds, TimeUnit.SECONDS)) {
+            runCatching { pidFile.delete() }
             ProotResult(
                 success = process.exitValue() == 0,
                 stdout = stdout.get().smartTruncate(maxOutputChars),
@@ -199,6 +206,11 @@ class ProotLauncher(
                 exitCode = process.exitValue(),
             )
         } else {
+            // Destroying proot does not stop its guest children — they keep the dpkg/apt
+            // locks and agent processes alive as orphans. Kill the whole recorded tree
+            // (sh child = direct descendant of proot), then proot itself.
+            killProcessTree(pidFile.runCatching { readText().trim().toLongOrNull() }.getOrNull() ?: -1L)
+            runCatching { pidFile.delete() }
             process.destroyForcibly()
             ProotResult(
                 success = false,
@@ -222,6 +234,35 @@ class ProotLauncher(
         val process = start(command, workingDir, extraEnv)
         val cancelled = AtomicBoolean(false)
         return ProotHandle(process, cancelled, readers(process, cancelled), guestPidFile)
+    }
+
+    /**
+     * Kills [rootPid]'s descendants depth-first, then leaves [rootPid] for
+     * [Process.destroyForcibly]. proot does not namespace pids, so guest children
+     * (sh -c, apt, dpkg) are plain host pids with `/proc/<pid>/task/<pid>/children`
+     * readable. Anything unreadable/unsupported is silently skipped — the caller falls
+     * back to destroyForcibly, which is the pre-existing behavior.
+     */
+    private fun killProcessTree(rootPid: Long) {
+        if (rootPid <= 1) return
+        val descendants = mutableListOf<Long>()
+        fun collect(pid: Long) {
+            runCatching {
+                File("/proc/$pid/task/$pid/children").readText()
+                    .trim()
+                    .split(' ')
+                    .filter { it.isNotEmpty() }
+                    .forEach { child -> collect(child.toLongOrNull() ?: return@forEach) }
+            }
+            descendants.add(pid)
+        }
+        collect(rootPid)
+        // Children first, then root (destroyForcibly handles the root's own kill).
+        descendants.asReversed().forEach { pid ->
+            if (pid == rootPid) return@forEach
+            runCatching { android.os.Process.killProcess(pid.toInt()) }
+                .onSuccess { Log.w(TAG, "execute timeout: killed orphaned guest pid $pid") }
+        }
     }
 
     private fun buildArgs(command: String, workingDir: String): Array<String> = buildList {

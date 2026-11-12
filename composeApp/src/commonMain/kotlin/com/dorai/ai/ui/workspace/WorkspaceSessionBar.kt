@@ -93,8 +93,13 @@ internal fun WorkspaceSessionBar(
 
     // Focus management for session tabs
     val tabCount = sessions.size + 1 // sessions + files tab
-    val tabFocusRequesters = remember { List(tabCount) { FocusRequester() } }
+    // Keyed: sessions start/stop at runtime — an unkeyed list crashes with
+    // IndexOutOfBounds once tabCount grows after first composition.
+    val tabFocusRequesters = remember(tabCount) { List(tabCount) { FocusRequester() } }
     var focusedTabIndex by remember { mutableStateOf(0) }
+    // Clamp at read time as well — a stale index can point past the sessions list
+    // for one frame after a close, before the reset below runs.
+    val focusedTabSafe = focusedTabIndex.coerceIn(0, tabCount - 1)
 
     // Determine initial focused index based on selection
     LaunchedEffect(filesSelected, activeSessionId, sessions) {
@@ -119,7 +124,7 @@ internal fun WorkspaceSessionBar(
                 .onKeyEvent { event ->
                     when (event.key) {
                         Key.DirectionLeft -> {
-                            focusedTabIndex = (focusedTabIndex - 1).coerceIn(0, tabCount - 1)
+                            focusedTabIndex = (focusedTabSafe - 1).coerceIn(0, tabCount - 1)
                             if (focusedTabIndex < sessions.size) {
                                 onSelectSession(sessions[focusedTabIndex].id)
                             } else {
@@ -129,7 +134,7 @@ internal fun WorkspaceSessionBar(
                         }
 
                         Key.DirectionRight -> {
-                            focusedTabIndex = (focusedTabIndex + 1).coerceIn(0, tabCount - 1)
+                            focusedTabIndex = (focusedTabSafe + 1).coerceIn(0, tabCount - 1)
                             if (focusedTabIndex < sessions.size) {
                                 onSelectSession(sessions[focusedTabIndex].id)
                             } else {
@@ -139,8 +144,8 @@ internal fun WorkspaceSessionBar(
                         }
 
                         Key.Enter, Key.NumPadEnter -> {
-                            if (focusedTabIndex < sessions.size) {
-                                onSelectSession(sessions[focusedTabIndex].id)
+                            if (focusedTabSafe < sessions.size) {
+                                onSelectSession(sessions[focusedTabSafe].id)
                             } else {
                                 onSelectFiles()
                             }
@@ -186,7 +191,7 @@ internal fun WorkspaceSessionBar(
                         onSelect = { onSelectSession(session.id) },
                         onClose = { onCloseSession(session.id) },
                         focusRequester = tabFocusRequesters[index],
-                        isFocused = focusedTabIndex == index,
+                        isFocused = focusedTabSafe == index,
                         onFocus = { focusedTabIndex = index },
                     )
                 }
@@ -196,7 +201,7 @@ internal fun WorkspaceSessionBar(
                     selected = filesSelected,
                     onSelect = onSelectFiles,
                     focusRequester = tabFocusRequesters[sessions.size],
-                    isFocused = focusedTabIndex == sessions.size,
+                    isFocused = focusedTabSafe == sessions.size,
                     onFocus = { focusedTabIndex = sessions.size },
                 )
             }

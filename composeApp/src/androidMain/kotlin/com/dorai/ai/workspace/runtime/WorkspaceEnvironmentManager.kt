@@ -1036,18 +1036,33 @@ class WorkspaceEnvironmentManager(
     }
 
     /**
-     * Host-side guess at the installed agents: the symlink [detectAgents] leaves
-     * in the guest's bin dir. The link is checked without following it — its
-     * target is an absolute guest path that resolves only inside proot — so this
-     * costs one stat per agent where the real probe costs a process.
+     * Host-side guess at the installed agents. The guest launcher is checked without
+     * rounding to proot (cheaper than the real probe), per agent at its OWN install
+     * location — a naive `~/.local/bin/<binary>` check reports Grok (`~/.grok/bin/grok`)
+     * and OpenCode (`~/.opencode/bin/opencode`) as never installed.
+     *
+     * A dangling symlink counts as NOT installed: the target is resolved against this
+     * rootfs (absolute guest paths are rooted at it), not against the host.
      */
     private fun guessAgents(): ImmutableSet<String> = WorkspaceAgents.all
-        .filter {
-            val link = File(paths.rootfsDir, "root/.local/bin/${it.binary}").toPath()
-            Files.exists(link, LinkOption.NOFOLLOW_LINKS)
-        }
+        .filter { isAgentInstalled(it) }
         .map { it.id }
         .toImmutableSet()
+
+    private fun isAgentInstalled(agent: WorkspaceAgent): Boolean {
+        val launcher = File(paths.rootfsDir, "root/${agent.guestLauncherRelativePath}")
+        // exists() follows links, so a dangling launcher symlink reports absent — but a
+        // directory named like the binary is not an agent either.
+        if (!launcher.exists() || launcher.isDirectory) return false
+        val launcherTarget = runCatching { Files.readSymbolicLink(launcher.toPath()) }.getOrNull()
+            ?: return true // a real file (e.g. OpenCode installs the binary itself)
+        val resolved = if (launcherTarget.isAbsolute) {
+            File(paths.rootfsDir, launcherTarget.toString().removePrefix("/"))
+        } else {
+            File(launcher.parentFile, launcherTarget.toString())
+        }
+        return resolved.exists()
+    }
 
     /** Read straight off the rootfs — no proot round-trip, so it is cheap enough for every refresh. */
     private fun readSystemInfo(): WorkspaceSystemInfo {
@@ -1186,20 +1201,29 @@ class WorkspaceEnvironmentManager(
                 isRepository = false,
             )
         }
-        val root = "/root/projects/$project"
-        val dest = File(root)
+        // Guest cwd is /root/projects/<project>; the host side that maps to it is
+        // `paths.projectsDir/<project>` — a plain `File("/root/projects/...")` points at a
+        // path that never exists on the host (overwrite guard dead, mkdirs is a no-op,
+        // brand-new projects always failed).
+        val guestRoot = "/root/projects/$project"
+        val dest = File(paths.projectsDir, project)
         if (dest.exists()) {
             return@withContext WorkspaceGitResult(
                 error = WorkspaceGitError.Failed,
                 isRepository = false,
             )
         }
-        dest.mkdirs()
+        if (!dest.mkdirs()) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        }
         val result = try {
             executor().execute(
                 command = "git clone --depth=1 --quiet ${shellQuote(url)} .",
                 timeoutSeconds = 120,
-                workingDir = root,
+                workingDir = guestRoot,
             )
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e

@@ -29,7 +29,7 @@ internal fun DoraiWorkspaceScreenSnapshot(
                 isSetupCompleted = true,
                 activeProject = null,
                 projects = projects,
-                isSandboxRunning = true,
+                isSandboxReady = true,
                 onStartSandbox = {},
                 onCompleteSetup = {},
                 onOpenProject = {},

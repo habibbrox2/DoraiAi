@@ -8,6 +8,24 @@ import kotlinx.collections.immutable.persistentListOf
  * The coding agents Workspace can install on a fresh Debian. Each one ships a
  * self-contained installer, so the base system plus curl is all they need.
  *
+ * Trust model — please read before "hardening" further. The install runs INSIDE the
+ * guest over HTTPS only (the app forces `--proto '=https'`), and every vendor already
+ * self-verifies its payload:
+ *
+ * - Claude (`claude.ai/install.sh`): downloads the signed release manifest
+ *   (`manifest.json`) and refuses to execute unless the downloaded binary matches its
+ *   SHA-256 checksum.
+ * - Grok (`x.ai/cli/install.sh`): installs the `stable` channel by default, accepts an
+ *   explicit version (`bash -s X.Y.Z`), and sanity-runs `--version` before installing.
+ * - OpenCode (`opencode.ai/install`): pulls a versioned release from GitHub releases
+ *   (preflights a 404 so a half-published version never installs).
+ *
+ * Pinning the *installer scripts* by hash would break every legitimate vendor update
+ * (the script changes when the payload does), so the app instead logs the resolved
+ * SHA-256 of each downloaded installer into the guest audit trail
+ * (`/root/.local/state/dorai-agent-install.log`) — tamper-EVIDENT, not tamper-proof,
+ * but forensic without staleness.
+ *
  * Install locations (guest paths under `/root`):
  * - Claude → `~/.local/bin/claude` (versioned under `~/.local/share/claude/versions/`)
  * - Grok → `~/.grok/bin/grok`
@@ -24,7 +42,14 @@ data class WorkspaceAgent(
     val title: String,
     val binary: String,
     val installCommand: String,
+    /** Launcher path relative to the guest home (`root/`), used by the host-side probe. */
+    val guestLauncherRelativePath: String,
 )
+
+private fun httpsInstaller(url: String): String = "tmp=/tmp/dorai-install.\$\$.sh && mkdir -p /root/.local/state" +
+    " && curl -fsSL --proto '=https' -o \"\$tmp\" $url" +
+    " && { date -u +%Y-%m-%dT%H:%M:%SZ; sha256sum \"\$tmp\"; } >> /root/.local/state/dorai-agent-install.log" +
+    " && bash \"\$tmp\"; rc=\$?; rm -f \"\$tmp\"; exit \$rc"
 
 object WorkspaceAgents {
 
@@ -33,19 +58,22 @@ object WorkspaceAgents {
             id = "claude-code",
             title = "Claude Code",
             binary = "claude",
-            installCommand = "curl -fsSL https://claude.ai/install.sh | bash",
+            installCommand = httpsInstaller("https://claude.ai/install.sh"),
+            guestLauncherRelativePath = ".local/bin/claude",
         ),
         WorkspaceAgent(
             id = "grok",
             title = "Grok",
             binary = "grok",
-            installCommand = "curl -fsSL https://x.ai/cli/install.sh | bash",
+            installCommand = httpsInstaller("https://x.ai/cli/install.sh"),
+            guestLauncherRelativePath = ".grok/bin/grok",
         ),
         WorkspaceAgent(
             id = "opencode",
             title = "OpenCode",
             binary = "opencode",
-            installCommand = "curl -fsSL https://opencode.ai/install | bash",
+            installCommand = httpsInstaller("https://opencode.ai/install"),
+            guestLauncherRelativePath = ".opencode/bin/opencode",
         ),
     )
 
