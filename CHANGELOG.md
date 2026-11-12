@@ -10,6 +10,10 @@
 - **Voice model download infrastructure (Phase 2)**: a pinned catalog entry for the Coqui bn VITS model (`models/voice/<id>/`), `AndroidVoiceModelDownloadWorker` (foreground service, unique work with `KEEP`, Wi‑Fi-only by default with an optional mobile-data opt-in), `.part` resume with byte-Range, re-hashing of kept bytes to rebuild the streaming digest, per-file length + SHA-256 verification, atomic rename, `.sha256` markers next to verified files, and a pre-download free-space gate (model size plus 25 % headroom). The model's license is not declared upstream, so the catalog ships it as `licenseVerified = false` — **the download button stays disabled until license sign-off is recorded**.
 - **Voice model management in Settings → Voice**: per-model download, pause, resume, delete and re-download, plus the mobile-data opt-in toggle; a model is never usable before every file passes verification.
 
+### Fixed
+- **Bengali voice strings render as mojibake on device**: the `settings_voice_*` strings (and three English ellipsis/em-dash values) added in the Phase 2 infrastructure were double-encoded at insertion; they now display correct Bengali in Settings → Voice.
+- **TTS speed/pitch/volume labels showed "100%%"**: `tts_value_format` used `%%`, which Compose resource formatting does not unescape; the labels now show a single `%`.
+
 ### Changed
 - The composer's mic button becomes a stop button while a voice turn is running, with a short status line under the input (listening / transcribing / thinking / speaking). The resting composer is unchanged.
 
