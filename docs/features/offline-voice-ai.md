@@ -147,7 +147,7 @@ Official IndicWhisper-এর কোনো ব্যবহারযোগ্য �
 
 ### Phase 0 gate (blocking)
 
-1. Bengali eval set: **১০০–২০০টি** বাক্য — phoneme-সমৃদ্ধ বাক্য, নাম, বাংলা-ইংরেজি মিশ্রণ, সংখ্যা; বাংলাদেশ ও পশ্চিমবঙ্গ উচ্চারণ, একাধিক বক্তা। (মূল প্ল্যানের ৫০ statistically দুর্বল।) Harness তৈরি হয়েছে — CER/WER স্কোরার ও ১২০-বাক্য draft eval set `composeApp/src/commonMain/.../voice/benchmark/`-এ; draft বাক্যগুলো এখনো native Bengali review বাকি।
+1. Bengali eval set: **২০০টি** utterance — BengVoice (Md Shahriar Hossain, Mendeley Data, DOI:10.17632/sr99ryf4ns.1, CC BY 4.0) থেকে প্রতিটি intent থেকে ২০ করে, ১০ intent; native-generated code-mixed Bengali-English। Harness তৈরি হয়েছে — CER/WER স্কোরার ও eval set `composeApp/src/commonMain/.../voice/benchmark/`-এ।
 2. প্রতিটি STT প্রার্থীর CER ও WER on-device মাপা (flagship + mid-range, noise-সহ), Unicode NFC normalization-এর পর। লক্ষ্য (প্রস্তাবিত, মাপার পর পুনর্বিবেচ্য): clean CER ≤ 15%, noisy ≤ 25%।
 3. TTS বোধগম্যতা: বাংলাভাষী ≥ ৫ জন rater; ২–৩ বাক্যের chat উত্তরে শেষ পর্যন্ত বোঝা যাচ্ছে কিনা।
 4. **(নতুন)** On-device LLM-এর বাংলা উত্তরের মান যাচাই। STT/TTS ভালো হয়েও LLM দুর্বল বাংলা দিলে ফিচার কাজ করবে না।
@@ -338,7 +338,7 @@ Voice একটি আলাদা `com.dorai.ai.voice` module; এটি বি
 | Mimic3 লাইসেন্স | Apache-class | `espeak-ng-data` GPL-3.0 যাচাই |
 | Whisper-small লাইসেন্স | MIT ও "no tag" দুটোই | Whisper MIT; repo tag যাচাই বাকি |
 | STT অগ্রাধিকার | Whisper-small প্রথম | streaming zipformer-bn আগে মাপা |
-| Eval set | \~৫০ বাক্য | ১০০–২০০, বহু বক্তা, NFC normalization, CER+WER |
+| Eval set | ~৫০ বাক্য | ২০০টি BengVoice utterance, NFC normalization, CER+WER |
 | LLM-এর বাংলা মান | নেই | Phase 0 gate-এ |
 | Phase 0/1 | ক্রমিক, পরস্পর-নির্ভর | সমান্তরাল, একই harness |
 | TTS | শুধু চূড়ান্ত উত্তর, এক টানে | বাক্য-ভিত্তিক pipeline |

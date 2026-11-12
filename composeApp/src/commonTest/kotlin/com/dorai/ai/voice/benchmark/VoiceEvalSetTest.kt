@@ -8,18 +8,20 @@ class VoiceEvalSetTest {
 
     private fun containsBengali(text: String): Boolean = text.any { it.code in 0x0980..0x09FF }
 
+    private fun containsLatin(text: String): Boolean = text.any { it in 'a'..'z' || it in 'A'..'Z' }
+
     @Test
     fun `has the target size of sentences`() {
-        assertEquals(120, VOICE_EVAL_SENTENCES.size)
+        assertEquals(200, VOICE_EVAL_SENTENCES.size)
     }
 
     @Test
-    fun `every category carries the same number of sentences`() {
+    fun `every intent carries the same number of sentences`() {
         val counts = VOICE_EVAL_CATEGORY_COUNTS
         assertEquals(
             setOf(20),
             counts.values.toSet(),
-            "each category should carry 20 sentences",
+            "each intent should carry 20 sentences",
         )
         assertEquals(EvalCategory.entries.toSet(), counts.keys)
     }
@@ -41,21 +43,11 @@ class VoiceEvalSetTest {
     }
 
     @Test
-    fun `every sentence exercises its own category`() {
-        for (sentence in VOICE_EVAL_SENTENCES) {
-            when (sentence.category) {
-                EvalCategory.NUMBERS -> assertTrue(
-                    sentence.text.any { it.isDigit() } || sentence.text.any { it.code in 0x09E6..0x09EF },
-                    "${sentence.id} has no digits or Bengali numerals",
-                )
-
-                EvalCategory.MIXED_CODE_SWITCH -> assertTrue(
-                    sentence.text.any { it in 'a'..'z' || it in 'A'..'Z' },
-                    "${sentence.id} mixes no Latin text",
-                )
-
-                else -> Unit
-            }
-        }
+    fun `the set exercises the code-mixed case`() {
+        // The BengVoice dataset reports 24.2% of utterances mixing Bengali and English.
+        // The subset selection keeps that property, so a fair number of sentences must
+        // mix Latin in.
+        val mixed = VOICE_EVAL_SENTENCES.count { containsLatin(it.text) }
+        assertTrue(mixed >= 20, "expected at least 20 code-mixed sentences, got $mixed")
     }
 }
