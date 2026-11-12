@@ -7,7 +7,7 @@ Nov 12, 2026 · @Habib Brox
 এই নথি **Android অ্যাপের** জন্য বাংলা offline voice-এর বাস্তবায়ন পরিকল্পনা। **Phase 1 এখন implement করা হয়েছে** — নিচের "বাস্তবায়িত Phase 1" অংশটি shipped অবস্থা বর্ণনা করে; বাকি অংশগুলো এখনো পরিকল্পনা, বর্তমান ফিচারের বিবরণ নয়।
 
 - **Status:** Phase 1 IMPLEMENTED (Android; platform speech recognizer)। Phase 2 infrastructure (catalog, worker, integrity) implemented; model license sign-off pending, তাই Coqui মডেল ডাউনলোড নিষ্ক্রিয়।
-- **Last verified:** 2026-11-12 (HuggingFace API; সাইজ ও pin Phase 0-এ আবার যাচাই হবে)।
+- **Last verified:** 2026-11-13 (HuggingFace API; সাইজ ও pin Phase 0-এ আবার যাচাই হবে)।
 - **লক্ষ্য:** DORAI AI-এর সাথে বাংলায় কথোপকথন — mic input, spoken output — সম্পূর্ণ on-device, API key, network বা per-turn খরচ ছাড়া।
 - **পরিসর:** শুধু Android। iOS ও Desktop আলাদা পরিকল্পনা; `commonMain`-এ interface থাকবে যাতে পরে যোগ করা যায়, কিন্তু সেসব `actual` এই নথির বাইরে।
 - **ভাষা:** launch ভাষা `bn`; architecture অন্য ভাষা আটকাবে না; English পুরো সমর্থিত থাকবে।
@@ -157,7 +157,7 @@ Official IndicWhisper-এর কোনো ব্যবহারযোগ্য �
 
 ### Phase 0 gate (blocking)
 
-1. Bengali eval set: **২০০টি** utterance — BengVoice (Md Shahriar Hossain, Mendeley Data, DOI:10.17632/sr99ryf4ns.1, CC BY 4.0) থেকে প্রতিটি intent থেকে ২০ করে, ১০ intent; native-generated code-mixed Bengali-English। Harness তৈরি হয়েছে — CER/WER স্কোরার ও eval set `composeApp/src/commonMain/.../voice/benchmark/`-এ।
+1. Bengali eval set: **২০০টি** utterance — BengVoice (Md Shahriar Hossain, Mendeley Data, DOI:10.17632/sr99ryf4ns.1, CC BY 4.0) থেকে প্রতিটি intent থেকে ২০ করে, ১০ intent; native-generated code-mixed Bengali-English। এর সাথে BTSD (DOI:10.17632/4k964xyz65.2, CC BY 4.0) থেকে Simple/Compound/Complex প্রতিটি গঠনের ১০টি করে ৩০টি declarative বাক্য (`btsd-001…030`) যোগ হয়েছে — structure coverage। Harness তৈরি হয়েছে — CER/WER স্কোরার ও eval set `composeApp/src/commonMain/.../voice/benchmark/`-এ।
 2. প্রতিটি STT প্রার্থীর CER ও WER on-device মাপা (flagship + mid-range, noise-সহ), Unicode NFC normalization-এর পর। লক্ষ্য (প্রস্তাবিত, মাপার পর পুনর্বিবেচ্য): clean CER ≤ 15%, noisy ≤ 25%।
 3. TTS বোধগম্যতা: বাংলাভাষী ≥ ৫ জন rater; ২–৩ বাক্যের chat উত্তরে শেষ পর্যন্ত বোঝা যাচ্ছে কিনা।
 4. **(নতুন)** On-device LLM-এর বাংলা উত্তরের মান যাচাই। STT/TTS ভালো হয়েও LLM দুর্বল বাংলা দিলে ফিচার কাজ করবে না।
@@ -349,7 +349,7 @@ Voice একটি আলাদা `com.dorai.ai.voice` module; এটি বি
 | Mimic3 লাইসেন্স | Apache-class | `espeak-ng-data` GPL-3.0 যাচাই |
 | Whisper-small লাইসেন্স | MIT ও "no tag" দুটোই | Whisper MIT; repo tag যাচাই বাকি |
 | STT অগ্রাধিকার | Whisper-small প্রথম | streaming zipformer-bn আগে মাপা |
-| Eval set | ~৫০ বাক্য | ২০০টি BengVoice utterance, NFC normalization, CER+WER |
+| Eval set | ২৩০টি বাক্য | ২০০টি BengVoice command + ৩০টি BTSD structure বাক্য, NFC normalization, CER+WER |
 | LLM-এর বাংলা মান | নেই | Phase 0 gate-এ |
 | Phase 0/1 | ক্রমিক, পরস্পর-নির্ভর | সমান্তরাল, একই harness |
 | TTS | শুধু চূড়ান্ত উত্তর, এক টানে | বাক্য-ভিত্তিক pipeline |
