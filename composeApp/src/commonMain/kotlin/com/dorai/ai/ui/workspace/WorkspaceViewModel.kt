@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicInteger
 
 @Immutable
 data class WorkspaceUiState(
@@ -91,6 +92,7 @@ class WorkspaceViewModel(
         ),
     )
 
+    private val diffRequestId = AtomicInteger(0)
     private val _gitState = MutableStateFlow(WorkspaceGitState())
     val gitState: StateFlow<WorkspaceGitState> = _gitState.asStateFlow()
 
@@ -115,28 +117,35 @@ class WorkspaceViewModel(
             _gitState.update { it.copy(loading = true) }
         }
         viewModelScope.launch {
-            // The status runs a guest process; keep it off the main dispatcher.
-            val result = withContext(Dispatchers.Default) {
-                try {
-                    controller.gitStatus(project)
-                } catch (e: kotlinx.coroutines.CancellationException) {
-                    throw e
-                } catch (_: Exception) {
-                    WorkspaceGitResult(error = WorkspaceGitError.Failed, isRepository = false)
+            try {
+                // The status runs a guest process; keep it off the main dispatcher.
+                val result = withContext(Dispatchers.Default) {
+                    try {
+                        controller.gitStatus(project)
+                    } catch (e: kotlinx.coroutines.CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                        WorkspaceGitResult(error = WorkspaceGitError.Failed, isRepository = false)
+                    }
                 }
-            }
-            _gitState.update {
-                if (it.project != project) {
-                    it
-                } else {
-                    it.copy(
-                        changes = result.changes,
-                        branch = result.branch,
-                        error = result.error,
-                        isRepository = result.isRepository,
-                        loading = false,
-                        loaded = true,
-                    )
+                _gitState.update {
+                    if (it.project != project) {
+                        it
+                    } else {
+                        it.copy(
+                            changes = result.changes,
+                            branch = result.branch,
+                            error = result.error,
+                            isRepository = result.isRepository,
+                            loading = false,
+                            loaded = true,
+                        )
+                    }
+                }
+            } finally {
+                // Cancellation and exceptions both leave the spinner on — release it.
+                _gitState.update { state ->
+                    if (state.project == project && state.loading) state.copy(loading = false) else state
                 }
             }
         }
@@ -144,6 +153,9 @@ class WorkspaceViewModel(
 
     /** Loads staged + unstaged diffs for one changed file. */
     fun loadGitDiff(project: String, path: String) {
+        // Monotonic request id — only the newest request may repaint the diff surface;
+        // a slow one-shot guest read for file A must not clobber file B's fresh read.
+        val requestId = diffRequestId.incrementAndGet()
         viewModelScope.launch {
             val diff = withContext(Dispatchers.Default) {
                 try {
@@ -154,11 +166,7 @@ class WorkspaceViewModel(
                     WorkspaceGitDiff(path = path, error = WorkspaceGitError.Failed)
                 }
             }
-            // Only the latest requested file's diff is shown — a slow read for a
-            // previous file must not repaint a newer selection.
-            if (_gitDiff.value?.path != path) {
-                _gitDiff.value = diff
-            } else {
+            if (diffRequestId.get() == requestId) {
                 _gitDiff.value = diff
             }
         }
