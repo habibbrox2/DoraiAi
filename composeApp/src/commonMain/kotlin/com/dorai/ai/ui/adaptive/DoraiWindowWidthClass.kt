@@ -43,13 +43,6 @@ enum class DoraiWindowWidthClass {
             Medium, Expanded -> DoraiAdaptiveDefaults.NavRailWidth
             Large -> DoraiAdaptiveDefaults.LargeDrawerWidth
         }
-
-    /** Workspace agent panel width on the right. */
-    val workspaceAgentPanelWidth: Dp
-        get() = when (this) {
-            Large -> DoraiAdaptiveDefaults.AgentPanelWidthLarge
-            else -> DoraiAdaptiveDefaults.AgentPanelWidthMedium
-        }
 }
 
 object DoraiAdaptiveDefaults {
@@ -59,9 +52,6 @@ object DoraiAdaptiveDefaults {
     val ListPaneWidthMedium: Dp = 250.dp
     val ListPaneWidthExpanded: Dp = 270.dp
     val ListPaneWidthLarge: Dp = 300.dp
-
-    val AgentPanelWidthMedium: Dp = 320.dp
-    val AgentPanelWidthLarge: Dp = 380.dp
 
     val FileTreeWidthLarge: Dp = 230.dp
 }

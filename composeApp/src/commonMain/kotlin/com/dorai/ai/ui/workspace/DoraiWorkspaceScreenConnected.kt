@@ -129,7 +129,7 @@ fun DoraiWorkspaceScreenConnected(
         isSetupCompleted = setupComplete,
         activeProject = activeProject,
         projects = projects,
-        isSandboxRunning = setupComplete,
+        isSandboxReady = setupComplete,
         onStartSandbox = { viewModel.install() },
         onCompleteSetup = { viewModel.install() },
         onOpenProject = { proj -> viewModel.openProject(proj.name) },

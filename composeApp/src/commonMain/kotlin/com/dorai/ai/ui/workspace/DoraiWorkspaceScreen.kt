@@ -63,7 +63,6 @@ import com.dorai.ai.ui.components.v2.DoraiPillTabs
 import com.dorai.ai.ui.components.v2.DoraiStatusBadge
 import com.dorai.ai.workspace.WorkspaceAgents
 import dorai.composeapp.generated.resources.Res
-import dorai.composeapp.generated.resources.workspace_agent_empty
 import dorai.composeapp.generated.resources.workspace_agents_section_subtitle
 import dorai.composeapp.generated.resources.workspace_agents_section_title
 import dorai.composeapp.generated.resources.workspace_back_content_description
@@ -77,22 +76,24 @@ import dorai.composeapp.generated.resources.workspace_new_project
 import dorai.composeapp.generated.resources.workspace_open_with
 import dorai.composeapp.generated.resources.workspace_ready_desc
 import dorai.composeapp.generated.resources.workspace_ready_title
-import dorai.composeapp.generated.resources.workspace_sandbox_running_badge
-import dorai.composeapp.generated.resources.workspace_sandbox_stopped_badge
-import dorai.composeapp.generated.resources.workspace_sandbox_stopped_title
+import dorai.composeapp.generated.resources.workspace_sandbox_install_action
+import dorai.composeapp.generated.resources.workspace_sandbox_not_installed_title
+import dorai.composeapp.generated.resources.workspace_sandbox_not_ready_badge
+import dorai.composeapp.generated.resources.workspace_sandbox_ready_badge
 import dorai.composeapp.generated.resources.workspace_session_shell
 import dorai.composeapp.generated.resources.workspace_setup_desc
 import dorai.composeapp.generated.resources.workspace_setup_step_1
 import dorai.composeapp.generated.resources.workspace_setup_step_2
 import dorai.composeapp.generated.resources.workspace_setup_step_3
-import dorai.composeapp.generated.resources.workspace_start_sandbox_action
+import dorai.composeapp.generated.resources.workspace_tab_editor
+import dorai.composeapp.generated.resources.workspace_tab_git
+import dorai.composeapp.generated.resources.workspace_tab_terminal
 import dorai.composeapp.generated.resources.workspace_terminal_unavailable
 import dorai.composeapp.generated.resources.workspace_v2_setup_title
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
 enum class WorkspaceProjectTab {
-    Agent,
     Editor,
     Terminal,
     Git,
@@ -109,11 +110,6 @@ data class WorkspaceProjectItem(
     val changesCount: Int? = null,
 )
 
-data class GitChangeItem(
-    val path: String,
-    val statusLetter: String, // "M", "A", "D"
-)
-
 /**
  * UI v2 Workspace screen:
  * - Setup state (first-run 3 steps).
@@ -121,7 +117,7 @@ data class GitChangeItem(
  * - Active Project:
  *   - The file explorer (worktree files list) is shown by default whenever a project opens.
  *   - Compact: file explorer opens as a left slide-in pane (open by default); tabs switch below.
- *   - Medium/Expanded/Large: persistent left file panel (230dp) + center tabs + right Agent panel.
+ *   - Medium/Expanded/Large: persistent left file panel (230dp) + center tabs.
  * - All project data shown is real (guest filesystem / git status); unknown values are omitted,
  *   never faked.
  */
@@ -130,7 +126,7 @@ fun DoraiWorkspaceScreen(
     isSetupCompleted: Boolean,
     activeProject: WorkspaceProjectItem?,
     projects: List<WorkspaceProjectItem>,
-    isSandboxRunning: Boolean,
+    isSandboxReady: Boolean,
     onStartSandbox: () -> Unit,
     onCompleteSetup: () -> Unit,
     onOpenProject: (WorkspaceProjectItem) -> Unit,
@@ -165,7 +161,7 @@ fun DoraiWorkspaceScreen(
         } else if (activeProject == null) {
             WorkspaceProjectsView(
                 projects = projects,
-                isSandboxRunning = isSandboxRunning,
+                isSandboxReady = isSandboxReady,
                 onOpenProject = onOpenProject,
                 onStartSandbox = onStartSandbox,
                 onCreateProject = onCreateProject,
@@ -178,7 +174,7 @@ fun DoraiWorkspaceScreen(
         } else {
             ActiveProjectView(
                 project = activeProject,
-                isSandboxRunning = isSandboxRunning,
+                isSandboxReady = isSandboxReady,
                 onCloseProject = onCloseProject,
                 onStartSandbox = onStartSandbox,
                 terminalContent = terminalContent,
@@ -273,7 +269,7 @@ private fun SetupStepRow(number: String, text: String, isDone: Boolean) {
 @Composable
 private fun WorkspaceProjectsView(
     projects: List<WorkspaceProjectItem>,
-    isSandboxRunning: Boolean,
+    isSandboxReady: Boolean,
     onOpenProject: (WorkspaceProjectItem) -> Unit,
     onStartSandbox: () -> Unit,
     onCreateProject: ((String) -> Unit)? = null,
@@ -322,8 +318,8 @@ private fun WorkspaceProjectsView(
                     fontWeight = FontWeight.Bold,
                 )
                 DoraiStatusBadge(
-                    text = stringResource(if (isSandboxRunning) Res.string.workspace_sandbox_running_badge else Res.string.workspace_sandbox_stopped_badge),
-                    color = if (isSandboxRunning) colors.ok else colors.muted,
+                    text = stringResource(if (isSandboxReady) Res.string.workspace_sandbox_ready_badge else Res.string.workspace_sandbox_not_ready_badge),
+                    color = if (isSandboxReady) colors.ok else colors.muted,
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
@@ -428,7 +424,7 @@ private fun WorkspaceProjectsView(
         }
 
         // Coding agents the guest Debian can host (Claude Code, OpenCode, Grok) — install missing ones.
-        if (isSandboxRunning && missingAgents.isNotEmpty()) {
+        if (isSandboxReady && missingAgents.isNotEmpty()) {
             val agentsShape = RoundedCornerShape(16.dp)
             Column(
                 modifier = Modifier
@@ -494,7 +490,7 @@ private fun WorkspaceProjectsView(
 @Composable
 private fun ActiveProjectView(
     project: WorkspaceProjectItem,
-    isSandboxRunning: Boolean,
+    isSandboxReady: Boolean,
     onCloseProject: () -> Unit,
     onStartSandbox: () -> Unit,
     terminalContent: (@Composable () -> Unit)? = null,
@@ -570,7 +566,7 @@ private fun ActiveProjectView(
                     items = listOf(WorkspaceProjectTab.Editor, WorkspaceProjectTab.Terminal, WorkspaceProjectTab.Git),
                     selectedItem = activeTab,
                     onItemSelected = { activeTab = it },
-                    labelProvider = { it.name },
+                    labelProvider = { workspaceTabLabel(it) },
                 )
             }
         }
@@ -578,9 +574,8 @@ private fun ActiveProjectView(
 
     val centerContent: @Composable () -> Unit = {
         when (activeTab) {
-            WorkspaceProjectTab.Agent -> AgentPanelEmpty()
             WorkspaceProjectTab.Editor -> if (editorContent != null) editorContent() else EditorTabEmpty()
-            WorkspaceProjectTab.Terminal -> if (terminalContent != null) terminalContent() else TerminalTabContent(isSandboxRunning, onStartSandbox)
+            WorkspaceProjectTab.Terminal -> if (terminalContent != null) terminalContent() else TerminalTabContent(isSandboxReady, onStartSandbox)
             WorkspaceProjectTab.Git -> if (gitContent != null) gitContent() else GitContentUnavailable()
         }
     }
@@ -594,7 +589,7 @@ private fun ActiveProjectView(
                     items = WorkspaceProjectTab.entries,
                     selectedItem = activeTab,
                     onItemSelected = { activeTab = it },
-                    labelProvider = { it.name },
+                    labelProvider = { workspaceTabLabel(it) },
                     modifier = Modifier.padding(DoraiSpacing.SM),
                 )
                 Box(modifier = Modifier.weight(1f)) {
@@ -624,7 +619,7 @@ private fun ActiveProjectView(
                         items = WorkspaceProjectTab.entries,
                         selectedItem = activeTab,
                         onItemSelected = { activeTab = it },
-                        labelProvider = { it.name },
+                        labelProvider = { workspaceTabLabel(it) },
                         modifier = Modifier.padding(DoraiSpacing.SM),
                     )
                     Box(modifier = Modifier.weight(1f)) {
@@ -659,42 +654,7 @@ private fun ActiveProjectView(
                 ) {
                     centerContent()
                 }
-
-                // Right Agent Panel (320dp Medium/Expanded, 380dp Large)
-                Box(
-                    modifier = Modifier
-                        .width(widthClass.workspaceAgentPanelWidth)
-                        .fillMaxHeight()
-                        .background(colors.surface)
-                        .border(1.dp, colors.line),
-                ) {
-                    AgentPanelEmpty()
-                }
             }
-        }
-    }
-}
-
-@Composable
-private fun AgentPanelEmpty() {
-    val colors = LocalDoraiColors.current
-    Box(
-        modifier = Modifier.fillMaxSize().padding(DoraiSpacing.MD),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(
-                Icons.Default.SmartToy,
-                contentDescription = null,
-                tint = colors.muted,
-                modifier = Modifier.size(32.dp),
-            )
-            Spacer(modifier = Modifier.height(DoraiSpacing.SM))
-            Text(
-                text = stringResource(Res.string.workspace_agent_empty),
-                color = colors.muted,
-                fontSize = 13.sp,
-            )
         }
     }
 }
@@ -731,18 +691,18 @@ private fun GitContentUnavailable() {
 
 @Composable
 private fun TerminalTabContent(
-    isSandboxRunning: Boolean,
+    isSandboxReady: Boolean,
     onStartSandbox: () -> Unit,
 ) {
     val colors = LocalDoraiColors.current
-    if (!isSandboxRunning) {
+    if (!isSandboxReady) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = stringResource(Res.string.workspace_sandbox_stopped_title),
+                    text = stringResource(Res.string.workspace_sandbox_not_installed_title),
                     color = colors.muted,
                     fontSize = 15.sp,
                 )
@@ -754,7 +714,7 @@ private fun TerminalTabContent(
                 ) {
                     Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(stringResource(Res.string.workspace_start_sandbox_action))
+                    Text(stringResource(Res.string.workspace_sandbox_install_action))
                 }
             }
         }
@@ -796,4 +756,12 @@ private fun LaunchAgentChip(
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
         )
     }
+}
+
+/** Localized pill label for [WorkspaceProjectTab] — never show raw enum names to users. */
+@Composable
+private fun workspaceTabLabel(tab: WorkspaceProjectTab): String = when (tab) {
+    WorkspaceProjectTab.Editor -> stringResource(Res.string.workspace_tab_editor)
+    WorkspaceProjectTab.Terminal -> stringResource(Res.string.workspace_tab_terminal)
+    WorkspaceProjectTab.Git -> stringResource(Res.string.workspace_tab_git)
 }

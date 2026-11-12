@@ -2,7 +2,6 @@ package com.dorai.ai.ui.workspace
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class DoraiWorkspaceScreenTest {
 
@@ -21,23 +20,11 @@ class DoraiWorkspaceScreenTest {
 
         assertEquals(
             listOf(
-                WorkspaceProjectTab.Agent,
                 WorkspaceProjectTab.Editor,
                 WorkspaceProjectTab.Terminal,
                 WorkspaceProjectTab.Git,
             ),
             WorkspaceProjectTab.entries,
         )
-    }
-
-    @Test
-    fun `git change item status letters`() {
-        val changeM = GitChangeItem("App.kt", "M")
-        val changeA = GitChangeItem("NewFile.kt", "A")
-        val changeD = GitChangeItem("OldFile.kt", "D")
-
-        assertEquals("M", changeM.statusLetter)
-        assertEquals("A", changeA.statusLetter)
-        assertEquals("D", changeD.statusLetter)
     }
 }

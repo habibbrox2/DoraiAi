@@ -42,6 +42,8 @@ data class WorkspaceAgent(
     val title: String,
     val binary: String,
     val installCommand: String,
+    /** Launcher path relative to the guest home (`root/`), used by the host-side probe. */
+    val guestLauncherRelativePath: String,
 )
 
 private fun httpsInstaller(url: String): String = "tmp=/tmp/dorai-install.\$\$.sh && mkdir -p /root/.local/state" +
@@ -57,18 +59,21 @@ object WorkspaceAgents {
             title = "Claude Code",
             binary = "claude",
             installCommand = httpsInstaller("https://claude.ai/install.sh"),
+            guestLauncherRelativePath = ".local/bin/claude",
         ),
         WorkspaceAgent(
             id = "grok",
             title = "Grok",
             binary = "grok",
             installCommand = httpsInstaller("https://x.ai/cli/install.sh"),
+            guestLauncherRelativePath = ".grok/bin/grok",
         ),
         WorkspaceAgent(
             id = "opencode",
             title = "OpenCode",
             binary = "opencode",
             installCommand = httpsInstaller("https://opencode.ai/install"),
+            guestLauncherRelativePath = ".opencode/bin/opencode",
         ),
     )
 

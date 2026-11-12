@@ -36,11 +36,6 @@ class DoraiAdaptivePolicyTest {
         assertEquals(78.dp, DoraiWindowWidthClass.Medium.navigationWidth)
         assertEquals(78.dp, DoraiWindowWidthClass.Expanded.navigationWidth)
         assertEquals(224.dp, DoraiWindowWidthClass.Large.navigationWidth)
-
-        assertEquals(320.dp, DoraiWindowWidthClass.Compact.workspaceAgentPanelWidth)
-        assertEquals(320.dp, DoraiWindowWidthClass.Medium.workspaceAgentPanelWidth)
-        assertEquals(320.dp, DoraiWindowWidthClass.Expanded.workspaceAgentPanelWidth)
-        assertEquals(380.dp, DoraiWindowWidthClass.Large.workspaceAgentPanelWidth)
     }
 
     @Test
