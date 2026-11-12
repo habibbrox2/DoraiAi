@@ -2,7 +2,6 @@ package com.dorai.ai.voice
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class VoiceCatalogTest {
@@ -32,13 +31,16 @@ class VoiceCatalogTest {
     }
 
     @Test
-    fun `no catalog model is downloadable before license sign-off`() {
-        for (model in VOICE_MODEL_CATALOG) {
-            assertFalse(
-                model.isDownloadable(),
-                "${model.id} must stay undownloadable until its license is signed off",
-            )
-            assertTrue(model.licenseVerified.not(), "${model.id} must not carry licenseVerified=true before sign-off")
+    fun `coqui model is downloadable after license sign-off is recorded`() {
+        // The sign-off was recorded on 2026-11-13 by the project owner (all flavors,
+        // accepting the upstream repo's silence on licensing). A pin bump or a new entry
+        // must bring its own recorded sign-off.
+        val model = findCatalogVoiceModelById("coqui-vits-bn-custom-female")!!
+
+        assertTrue(model.licenseVerified, "sign-off must be recorded in the catalog")
+        assertTrue(model.isDownloadable(), "download must be enabled after sign-off")
+        for (entry in VOICE_MODEL_CATALOG) {
+            assertTrue(entry.licenseVerified, "${entry.id} needs a recorded sign-off to be downloadable")
         }
     }
 

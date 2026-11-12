@@ -6,7 +6,7 @@ Nov 12, 2026 · @Habib Brox
 
 এই নথি **Android অ্যাপের** জন্য বাংলা offline voice-এর বাস্তবায়ন পরিকল্পনা। **Phase 1 এখন implement করা হয়েছে** — নিচের "বাস্তবায়িত Phase 1" অংশটি shipped অবস্থা বর্ণনা করে; বাকি অংশগুলো এখনো পরিকল্পনা, বর্তমান ফিচারের বিবরণ নয়।
 
-- **Status:** Phase 1 IMPLEMENTED (Android; platform speech recognizer)। Phase 2 infrastructure (catalog, worker, integrity) implemented; model license sign-off pending, তাই Coqui মডেল ডাউনলোড নিষ্ক্রিয়।
+- **Status:** Phase 1 IMPLEMENTED (Android; platform speech recognizer)। Phase 2 infrastructure (catalog, worker, integrity) implemented; Coqui BN VITS-এ owner license sign-off recorded (2026-11-13, সব flavor) — ডাউনলোড enabled; pin/digest অপরিবর্তিত।
 - **Last verified:** 2026-11-13 (HuggingFace API; সাইজ ও pin Phase 0-এ আবার যাচাই হবে)।
 - **লক্ষ্য:** DORAI AI-এর সাথে বাংলায় কথোপকথন — mic input, spoken output — সম্পূর্ণ on-device, API key, network বা per-turn খরচ ছাড়া।
 - **পরিসর:** শুধু Android। iOS ও Desktop আলাদা পরিকল্পনা; `commonMain`-এ interface থাকবে যাতে পরে যোগ করা যায়, কিন্তু সেসব `actual` এই নথির বাইরে।
@@ -269,7 +269,7 @@ Voice একটি আলাদা `com.dorai.ai.voice` module; এটি বি
 
 1. **Phase 0 — Measurement (২–৪ সপ্তাহ, blocking):** ছোট benchmark harness (internal-only) দিয়ে eval set, STT-র CER/WER, TTS intelligibility panel, LLM-এর বাংলা মান, latency/RAM/তাপ/ব্যাটারি; লাইসেন্স sign-off (Coqui/Mimic3, `espeak-ng-data` GPL প্রভাব); `docs/knowledge/voice/` bundle। *Deliverable: একটি decision memo — মডেল বাছাই, অথবা "এখনো নয়"।*
 2. **Phase 1 — Android prototype (flag, internal-only; Phase 0-র সাথে সমান্তরাল):** mic button, `AudioRecord`, VAD, STT → বিদ্যমান `ask()`, চূড়ান্ত উত্তরে বাক্য-ভিত্তিক system-TTS, `RECORD_AUDIO` flow, audio focus। auto-download নেই; ডেভেলপাররা হাতে মডেল বসায়। *Deliverable: recordable demo, দুটি ডিভাইসে crash-free।*
-3. **Phase 2 — Infrastructure (shipped):** `VoiceCatalog`, `VoiceModelRepository`, manifest, `AndroidVoiceModelDownloadWorker` (foreground service, Range/If-Range-less resume, `.part` re-hash, length+SHA-256 verify, atomic rename, `.sha256` marker), Settings-এ মডেল download/pause/resume/delete/re-download, mobile-data opt-in, storage gate। Coqui bn VITS pin করা আছে কিন্তু `licenseVerified = false`, তাই ডাউনলোড বাটন নিষ্ক্রিয় — license sign-off-এর পর চালু হবে। STT এখনো system recognizer। *Deliverable: পুরো download chain কাজ করে, license sign-off-এর অপেক্ষায় gated।*
+3. **Phase 2 — Infrastructure (shipped):** `VoiceCatalog`, `VoiceModelRepository`, manifest, `AndroidVoiceModelDownloadWorker` (foreground service, Range/If-Range-less resume, `.part` re-hash, length+SHA-256 verify, atomic rename, `.sha256` marker), Settings-এ মডেল download/pause/resume/delete/re-download, mobile-data opt-in, storage gate। Coqui bn VITS pin করা আছে; 2026-11-13-এ owner sign-off রেকর্ড হয়েছে (সব flavor; upstream লাইসেন্স unverified) — ডাউনলোড বাটন চালু। STT এখনো system recognizer। *Deliverable: পুরো download chain কাজ করে এবং ডাউনলোড enabled।*
 4. **Phase 3 — Hardening:** fresh install থেকে airplane-mode-এ পূর্ণ offline পরীক্ষা, empty-state লেখা, বাংলা string coverage, নিম্নমানের ডিভাইস tier, ব্যাটারি/তাপ, AAB/APK size (flavor split বা dynamic feature delivery), golden-audio regression test (পিন বদলালে WER পুনরায় মাপা), pin-bump playbook।
 
 

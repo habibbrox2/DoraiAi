@@ -8,10 +8,11 @@ package com.dorai.ai.voice
  * the model is handed to anything. The digest is echoed in the `.sha256` marker next
  * to the model, following the LiteRT pattern.
  *
- * `licenseVerified` is false for every entry: no Bengali voice model has passed the
- * plan's license sign-off yet. A model with `licenseVerified = false` is downloadable
- * nowhere and shown as "sign-off pending" in Settings — the button stays disabled until
- * the sign-off is recorded here.
+ * `licenseVerified` reflects the plan's license sign-off. The Coqui bn VITS entry was
+ * signed off by the project owner on 2026-11-13 (see `docs/knowledge/voice/log.md`),
+ * accepting the upstream repo's silence on licensing (the model lineage is Coqui TTS,
+ * typically MPL-2.0, but the hosting repo declares none). Keep the pin, the digests and
+ * the sign-off in sync — a bump changes all three.
  */
 val VOICE_MODEL_CATALOG = listOf(
     VoiceModel(
@@ -38,8 +39,8 @@ val VOICE_MODEL_CATALOG = listOf(
                 sha256 = "9ccaed7559d4a70c3c773603b0d28461559e4f88cf4ea26678cc55c39feaaf69",
             ),
         ),
-        licenseId = "MPL-2.0 (claimed, unverified)",
-        licenseVerified = false,
+        licenseId = "MPL-2.0 (claimed, upstream unverified; signed off 2026-11-13)",
+        licenseVerified = true,
     ),
 )
 
