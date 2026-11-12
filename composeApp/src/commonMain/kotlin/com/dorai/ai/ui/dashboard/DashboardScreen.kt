@@ -93,6 +93,7 @@ import dorai.composeapp.generated.resources.dash_coming_soon
 import dorai.composeapp.generated.resources.dash_no_service_configured
 import dorai.composeapp.generated.resources.dash_shared_free_service
 import dorai.composeapp.generated.resources.dash_workspace_android_only
+import dorai.composeapp.generated.resources.dashboard_empty_no_saved_work
 import dorai.composeapp.generated.resources.dashboard_recent_conversations
 import dorai.composeapp.generated.resources.dashboard_recent_projects
 import dorai.composeapp.generated.resources.dashboard_setup_service
@@ -659,7 +660,7 @@ private fun RecentWorkSection(
                 contentAlignment = Alignment.Center,
             ) {
                 CollectionEmptyState(
-                    message = "No saved work yet — conversations and build projects will show up here.",
+                    message = stringResource(Res.string.dashboard_empty_no_saved_work),
                 )
             }
         }

@@ -66,6 +66,10 @@ import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_file
+import dorai.composeapp.generated.resources.a11y_folder
+import dorai.composeapp.generated.resources.find_replace_toggle_hide
+import dorai.composeapp.generated.resources.find_replace_toggle_show
 import dorai.composeapp.generated.resources.sandbox_files_action_delete
 import dorai.composeapp.generated.resources.sandbox_files_action_import
 import dorai.composeapp.generated.resources.sandbox_files_action_more
@@ -396,7 +400,9 @@ private fun FileRow(
             ) {
                 Icon(
                     imageVector = if (entry.isDirectory) Icons.Filled.Folder else Icons.AutoMirrored.Filled.InsertDriveFile,
-                    contentDescription = if (entry.isDirectory) "Folder" else "File",
+                    contentDescription = stringResource(
+                        if (entry.isDirectory) Res.string.a11y_folder else Res.string.a11y_file,
+                    ),
                     tint = if (entry.isDirectory) com.dorai.ai.ui.AccentPrimary else LocalDesignColorTokens.current.textTertiary,
                 )
                 Spacer(Modifier.width(12.dp))
@@ -584,7 +590,13 @@ private fun EditorBody(
                             onClick = { findOpen = !findOpen },
                             modifier = Modifier.handCursor(),
                         ) {
-                            Text(if (findOpen) "Hide find" else "Find / Replace")
+                            Text(
+                                if (findOpen) {
+                                    stringResource(Res.string.find_replace_toggle_hide)
+                                } else {
+                                    stringResource(Res.string.find_replace_toggle_show)
+                                },
+                            )
                         }
                     }
                     TextButton(

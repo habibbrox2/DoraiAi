@@ -15,7 +15,6 @@ import com.dorai.ai.ui.WarningAmber
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import com.dorai.ai.workspace.WorkspaceEnvironmentState
-import com.dorai.ai.workspace.WorkspaceStep
 
 /**
  * Build-specific design tokens for the Workspace workspace (Plan 3, Phase 1).
@@ -153,14 +152,3 @@ val WorkspaceTier.contentMaxWidth: Dp
 
         WorkspaceTier.Expanded -> 960.dp
     }
-
-/**
- * Human label for an install step, used by the setup surface and progress blocks.
- */
-fun WorkspaceStep.label(): String = when (this) {
-    WorkspaceStep.Download -> "Download"
-    WorkspaceStep.Extract -> "Extract"
-    WorkspaceStep.Configure -> "Configure"
-    WorkspaceStep.BasePackages -> "Base packages"
-    WorkspaceStep.Agent -> "Agent"
-}

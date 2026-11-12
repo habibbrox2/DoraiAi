@@ -75,6 +75,7 @@ import dorai.composeapp.generated.resources.a11y_reorder
 import dorai.composeapp.generated.resources.action_cancel
 import dorai.composeapp.generated.resources.action_clear
 import dorai.composeapp.generated.resources.action_close
+import dorai.composeapp.generated.resources.llm_services_priority_order
 import dorai.composeapp.generated.resources.sp_add_account
 import dorai.composeapp.generated.resources.sp_add_another_service
 import dorai.composeapp.generated.resources.sp_add_service
@@ -108,6 +109,7 @@ import dorai.composeapp.generated.resources.sp_test_and_add
 import dorai.composeapp.generated.resources.sp_testing
 import dorai.composeapp.generated.resources.sp_victory
 import dorai.composeapp.generated.resources.sp_view_battle
+import dorai.composeapp.generated.resources.splinterlands_description
 import dorai.composeapp.generated.resources.status_error
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -136,7 +138,7 @@ internal fun SplinterlandsSection(
     Column(modifier = Modifier.fillMaxWidth()) {
         ToggleableHeadline(
             title = "Splinterlands",
-            description = "Splinterlands is a blockchain-based trading card game. This experimental feature auto-battles Wild Ranked matches using an LLM to pick teams. Battle outcome heavily depends on the chosen model and its response speed (must respond within 180 seconds). Falls back to a simple greedy picker if the LLM fails.",
+            description = stringResource(Res.string.splinterlands_description),
             checked = isEnabled,
             onCheckedChange = onToggle,
         )
@@ -236,7 +238,7 @@ private fun SplinterlandsServiceList(
 
     if (instanceIds.isNotEmpty()) {
         Text(
-            text = "LLM Services (priority order)",
+            text = stringResource(Res.string.llm_services_priority_order),
             style = DoraiTypography.labelMedium,
             color = LocalDesignColorTokens.current.textPrimary,
         )

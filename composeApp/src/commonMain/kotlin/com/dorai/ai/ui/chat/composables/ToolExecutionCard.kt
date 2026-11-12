@@ -50,8 +50,17 @@ import com.dorai.ai.ui.rememberCopyToClipboard
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_collapse
 import dorai.composeapp.generated.resources.a11y_copy_code
+import dorai.composeapp.generated.resources.a11y_expand
 import dorai.composeapp.generated.resources.chat_action_copied
+import dorai.composeapp.generated.resources.chat_shell_label
+import dorai.composeapp.generated.resources.chat_tool_call_label
+import dorai.composeapp.generated.resources.chat_tool_done
+import dorai.composeapp.generated.resources.chat_tool_failed
+import dorai.composeapp.generated.resources.chat_tool_input_label
+import dorai.composeapp.generated.resources.chat_tool_running
+import dorai.composeapp.generated.resources.chat_tool_running_plain
 import dorai.composeapp.generated.resources.tool_output_label
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
@@ -147,7 +156,7 @@ fun ShellExecutionCard(
                         modifier = Modifier.size(14.dp),
                     )
                     Text(
-                        text = "Terminal / Shell",
+                        text = stringResource(Res.string.chat_shell_label),
                         style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
                         fontFamily = FontFamily.Monospace,
                         color = textSlate,
@@ -170,7 +179,7 @@ fun ShellExecutionCard(
                         ) {
                             AnimatedTypingDots(dotColor = accentCyan)
                             Text(
-                                text = "Running...",
+                                text = stringResource(Res.string.chat_tool_running),
                                 style = DoraiTypography.labelSmall,
                                 fontFamily = FontFamily.Monospace,
                                 color = accentCyan,
@@ -223,7 +232,9 @@ fun ShellExecutionCard(
 
                     Icon(
                         imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = if (isExpanded) "Collapse" else "Expand",
+                        contentDescription = stringResource(
+                            if (isExpanded) Res.string.a11y_collapse else Res.string.a11y_expand,
+                        ),
                         tint = textMuted,
                         modifier = Modifier.size(18.dp),
                     )
@@ -403,7 +414,7 @@ fun ToolExecutionCard(
                 ) {
                     Text(text = toolIcon, style = DoraiTypography.titleSmall)
                     Text(
-                        text = "Tool call",
+                        text = stringResource(Res.string.chat_tool_call_label),
                         style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                         fontFamily = FontFamily.Monospace,
                         color = textSlate,
@@ -427,7 +438,7 @@ fun ToolExecutionCard(
                         ) {
                             AnimatedTypingDots(dotColor = accentTeal)
                             Text(
-                                text = "Running",
+                                text = stringResource(Res.string.chat_tool_running_plain),
                                 style = DoraiTypography.labelSmall,
                                 fontFamily = FontFamily.Monospace,
                                 color = accentTeal,
@@ -435,7 +446,9 @@ fun ToolExecutionCard(
                             )
                         }
                     } else {
-                        val statusText = if (isError) "Failed" else "Done"
+                        val statusText = stringResource(
+                            if (isError) Res.string.chat_tool_failed else Res.string.chat_tool_done,
+                        )
                         val statusColor = if (isError) errorRed else successGreen
                         Text(
                             text = if (isError) "? $statusText" else "? $statusText",
@@ -452,7 +465,9 @@ fun ToolExecutionCard(
 
                     Icon(
                         imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = if (isExpanded) "Collapse" else "Expand",
+                        contentDescription = stringResource(
+                            if (isExpanded) Res.string.a11y_collapse else Res.string.a11y_expand,
+                        ),
                         tint = textMuted,
                         modifier = Modifier.size(18.dp),
                     )
@@ -475,7 +490,7 @@ fun ToolExecutionCard(
                     if (!arguments.isNullOrBlank()) {
                         Column {
                             Text(
-                                text = "Input:",
+                                text = stringResource(Res.string.chat_tool_input_label),
                                 style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
                                 fontFamily = FontFamily.Monospace,
                                 color = textMuted,

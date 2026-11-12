@@ -108,6 +108,7 @@ import dorai.composeapp.generated.resources.a11y_navigate_back
 import dorai.composeapp.generated.resources.settings_ai_mistakes_warning
 import dorai.composeapp.generated.resources.settings_licenses
 import dorai.composeapp.generated.resources.settings_licenses_close
+import dorai.composeapp.generated.resources.settings_screen_title
 import dorai.composeapp.generated.resources.settings_tab_account
 import dorai.composeapp.generated.resources.settings_tab_agent
 import dorai.composeapp.generated.resources.settings_tab_appearance
@@ -356,7 +357,7 @@ private fun TopBar(onNavigateBack: () -> Unit) {
             }
             Spacer(Modifier.width(8.dp))
             Text(
-                text = "Settings",
+                text = stringResource(Res.string.settings_screen_title),
                 style = DoraiTypography.titleMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
                 fontWeight = FontWeight.SemiBold,

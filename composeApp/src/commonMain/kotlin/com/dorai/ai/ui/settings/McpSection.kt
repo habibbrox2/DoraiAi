@@ -63,6 +63,9 @@ import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.ic_arrow_drop_down
+import dorai.composeapp.generated.resources.mcp_remove_confirm_action
+import dorai.composeapp.generated.resources.mcp_remove_confirm_message
+import dorai.composeapp.generated.resources.mcp_remove_confirm_title
 import dorai.composeapp.generated.resources.settings_connectors
 import dorai.composeapp.generated.resources.settings_connectors_add
 import dorai.composeapp.generated.resources.settings_connectors_description
@@ -92,6 +95,7 @@ import dorai.composeapp.generated.resources.settings_mcp_server_url
 import dorai.composeapp.generated.resources.settings_mcp_status_connected
 import dorai.composeapp.generated.resources.settings_mcp_status_connecting
 import dorai.composeapp.generated.resources.settings_mcp_status_error
+import dorai.composeapp.generated.resources.status_not_checked
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -276,9 +280,9 @@ internal fun McpServersSection(
 
     pendingRemoval?.let { target ->
         SettingsConfirmDialog(
-            title = "Remove ${target.name}?",
-            message = "This MCP server and its tools will be removed from your workspace. You can re-add it later.",
-            confirmLabel = "Remove",
+            title = stringResource(Res.string.mcp_remove_confirm_title, target.name),
+            message = stringResource(Res.string.mcp_remove_confirm_message),
+            confirmLabel = stringResource(Res.string.mcp_remove_confirm_action),
             onConfirm = {
                 onRemoveMcpServer(target.id)
                 pendingRemoval = null
@@ -377,7 +381,7 @@ private fun McpServerCard(
                     server.connectionStatus == McpConnectionStatus.Error ->
                         stringResource(Res.string.settings_mcp_status_error)
 
-                    else -> "Not checked"
+                    else -> stringResource(Res.string.status_not_checked)
                 }
                 StatusBadge(label = statusLabel, status = status)
                 Spacer(Modifier.width(12.dp))

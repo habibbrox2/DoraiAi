@@ -35,8 +35,24 @@ import dorai.composeapp.generated.resources.conversations_clear_all_confirm_acti
 import dorai.composeapp.generated.resources.conversations_clear_all_confirm_body
 import dorai.composeapp.generated.resources.conversations_clear_all_confirm_title
 import dorai.composeapp.generated.resources.data_manage_description
+import dorai.composeapp.generated.resources.settings_configured_services_format
+import dorai.composeapp.generated.resources.settings_page_account_description
+import dorai.composeapp.generated.resources.settings_page_agent_description
+import dorai.composeapp.generated.resources.settings_page_appearance_description
+import dorai.composeapp.generated.resources.settings_page_general_description
+import dorai.composeapp.generated.resources.settings_page_github_description
+import dorai.composeapp.generated.resources.settings_page_services_description
+import dorai.composeapp.generated.resources.settings_page_tools_description
+import dorai.composeapp.generated.resources.settings_section_header_prefix
+import dorai.composeapp.generated.resources.settings_tab_account
+import dorai.composeapp.generated.resources.settings_tab_agent
 import dorai.composeapp.generated.resources.settings_tab_appearance
 import dorai.composeapp.generated.resources.settings_tab_data
+import dorai.composeapp.generated.resources.settings_tab_general
+import dorai.composeapp.generated.resources.settings_tab_github
+import dorai.composeapp.generated.resources.settings_tab_services
+import dorai.composeapp.generated.resources.settings_tab_tools
+import dorai.composeapp.generated.resources.settings_version
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -207,12 +223,12 @@ fun AccountPlanContent(
                 color = LocalDesignColorTokens.current.textPrimary,
             )
             Text(
-                text = "Version " + com.dorai.ai.Version.appVersion,
+                text = stringResource(Res.string.settings_version, com.dorai.ai.Version.appVersion),
                 style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
             Text(
-                text = uiState.configuredServices.size.toString() + " configured services",
+                text = stringResource(Res.string.settings_configured_services_format, uiState.configuredServices.size),
                 style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
             )
@@ -226,31 +242,31 @@ private fun SettingsPageHeading(
     modifier: Modifier = Modifier,
 ) {
     val title = when (tab) {
-        SettingsTab.General -> "General"
+        SettingsTab.General -> stringResource(Res.string.settings_tab_general)
         SettingsTab.Appearance -> stringResource(Res.string.settings_tab_appearance)
-        SettingsTab.Agent -> "Agent"
-        SettingsTab.Services -> "Services"
-        SettingsTab.Tools -> "Tools"
-        SettingsTab.GitHub -> "GitHub"
-        SettingsTab.Account -> "Account & Data"
+        SettingsTab.Agent -> stringResource(Res.string.settings_tab_agent)
+        SettingsTab.Services -> stringResource(Res.string.settings_tab_services)
+        SettingsTab.Tools -> stringResource(Res.string.settings_tab_tools)
+        SettingsTab.GitHub -> stringResource(Res.string.settings_tab_github)
+        SettingsTab.Account -> stringResource(Res.string.settings_tab_account)
     }
     val description = when (tab) {
-        SettingsTab.General -> "Manage your workspace preferences and application behavior."
-        SettingsTab.Appearance -> "Tune the visual experience, theme, and accessibility."
-        SettingsTab.Agent -> "Configure agent behavior, reasoning, and model defaults."
-        SettingsTab.Services -> "Connect providers and manage the models available to DORAI AI."
-        SettingsTab.Tools -> "Connect your agent to the tools, services and skills you trust."
-        SettingsTab.GitHub -> "Connect GitHub, browse repositories and clone them into your workspace."
-        SettingsTab.Account -> "Review your account, application and data controls."
+        SettingsTab.General -> stringResource(Res.string.settings_page_general_description)
+        SettingsTab.Appearance -> stringResource(Res.string.settings_page_appearance_description)
+        SettingsTab.Agent -> stringResource(Res.string.settings_page_agent_description)
+        SettingsTab.Services -> stringResource(Res.string.settings_page_services_description)
+        SettingsTab.Tools -> stringResource(Res.string.settings_page_tools_description)
+        SettingsTab.GitHub -> stringResource(Res.string.settings_page_github_description)
+        SettingsTab.Account -> stringResource(Res.string.settings_page_account_description)
     }
     Column(
         modifier = modifier.semantics { heading() },
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
-            text = "SETTINGS / " + title.uppercase(),
+            text = stringResource(Res.string.settings_section_header_prefix) + title.uppercase(),
             style = DoraiTypography.labelSmall,
-            color = com.dorai.ai.ui.theme.DesignTokens.PrimaryCyan,
+            color = LocalDesignColorTokens.current.primary,
             fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
         )
         Text(

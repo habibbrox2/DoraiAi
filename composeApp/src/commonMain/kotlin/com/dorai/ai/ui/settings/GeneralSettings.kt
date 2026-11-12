@@ -37,6 +37,8 @@ import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.settings_daemon_mode
 import dorai.composeapp.generated.resources.settings_daemon_mode_description
+import dorai.composeapp.generated.resources.settings_language
+import dorai.composeapp.generated.resources.settings_language_description
 import dorai.composeapp.generated.resources.settings_restore_last_chat
 import dorai.composeapp.generated.resources.settings_restore_last_chat_description
 import dorai.composeapp.generated.resources.settings_ui_scale
@@ -147,12 +149,12 @@ internal fun LanguageSwitch(
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = "Language",
+            text = stringResource(Res.string.settings_language),
             style = DoraiTypography.titleMedium,
             color = LocalDesignColorTokens.current.textPrimary,
         )
         Text(
-            text = "App display language (default: Bengali)",
+            text = stringResource(Res.string.settings_language_description),
             style = DoraiTypography.bodyMedium,
             color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),

@@ -41,6 +41,8 @@ import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.a11y_new_conversation
+import dorai.composeapp.generated.resources.conversation_untitled
+import dorai.composeapp.generated.resources.conversations_section_title
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
 
@@ -73,7 +75,7 @@ fun ConversationRail(
             horizontalArrangement = Arrangement.spacedBy(ChatSpacing.xs),
         ) {
             Text(
-                text = "Conversations",
+                text = stringResource(Res.string.conversations_section_title),
                 style = DoraiTypography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = tokens.PrimaryText,
@@ -134,7 +136,7 @@ fun ConversationRail(
                             modifier = Modifier.size(16.dp),
                         )
                         Text(
-                            text = conversation.title.ifBlank { "Untitled" },
+                            text = conversation.title.ifBlank { stringResource(Res.string.conversation_untitled) },
                             style = DoraiTypography.bodySmall,
                             fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal,
                             color = if (selected) tokens.PrimaryText else tokens.SecondaryText,

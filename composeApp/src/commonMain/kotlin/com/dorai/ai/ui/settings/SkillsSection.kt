@@ -83,6 +83,9 @@ import dorai.composeapp.generated.resources.settings_skills_search_empty
 import dorai.composeapp.generated.resources.settings_skills_search_yours
 import dorai.composeapp.generated.resources.settings_skills_setup_sandbox
 import dorai.composeapp.generated.resources.settings_skills_top
+import dorai.composeapp.generated.resources.settings_skills_uninstall
+import dorai.composeapp.generated.resources.skills_uninstall_confirm_message
+import dorai.composeapp.generated.resources.skills_uninstall_confirm_title
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
 
@@ -180,7 +183,7 @@ internal fun SkillsSection(
                     color = LocalDesignColorTokens.current.textSecondary,
                     modifier = Modifier.weight(1f),
                 )
-                StatusBadge(label = "Needs setup", status = OperationalStatus.NeedsSetup)
+                StatusBadge(status = OperationalStatus.NeedsSetup)
             }
             if (onNavigateToSandbox != null) {
                 Spacer(Modifier.height(8.dp))
@@ -363,9 +366,9 @@ private fun SkillCard(
         // Uninstall now asks first (Plan 4, Phase 5), matching file delete and
         // package uninstall elsewhere in the workspace.
         SettingsConfirmDialog(
-            title = "Uninstall this skill?",
-            message = "\"/${skill.id}\" will be removed from the sandbox.",
-            confirmLabel = "Uninstall",
+            title = stringResource(Res.string.skills_uninstall_confirm_title),
+            message = stringResource(Res.string.skills_uninstall_confirm_message, "/${skill.id}"),
+            confirmLabel = stringResource(Res.string.settings_skills_uninstall),
             onConfirm = {
                 showRemoveConfirm = false
                 onRemove()

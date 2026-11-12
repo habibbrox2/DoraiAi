@@ -62,6 +62,7 @@ import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.chat_tool_thinking
 import dorai.composeapp.generated.resources.waiting_brewing
 import dorai.composeapp.generated.resources.waiting_content_description
 import dorai.composeapp.generated.resources.waiting_thinking
@@ -223,7 +224,7 @@ internal fun WaitingResponseRow(
             ) {
                 AnimatedTypingDots(dotColor = AccentPrimary)
                 Text(
-                    text = "Thinking",
+                    text = stringResource(Res.string.chat_tool_thinking),
                     style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
                     color = AccentPrimary,
                     fontFamily = FontFamily.Monospace,

@@ -13,6 +13,19 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.settings_overview_active_model
+import dorai.composeapp.generated.resources.settings_overview_active_service
+import dorai.composeapp.generated.resources.settings_overview_connectors_format
+import dorai.composeapp.generated.resources.settings_overview_connectors_label
+import dorai.composeapp.generated.resources.settings_overview_no_service
+import dorai.composeapp.generated.resources.settings_overview_sandbox
+import dorai.composeapp.generated.resources.settings_overview_sandbox_installed
+import dorai.composeapp.generated.resources.settings_overview_sandbox_not_installed
+import dorai.composeapp.generated.resources.settings_overview_title
+import dorai.composeapp.generated.resources.settings_overview_tools_format
+import dorai.composeapp.generated.resources.settings_overview_tools_label
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Concise settings overview surface (Plan 2, Phase 3). Summarizes the current
@@ -31,7 +44,7 @@ fun SettingsOverview(
     SettingsCard(modifier = modifier.fillMaxWidth()) {
         Column(verticalArrangement = Arrangement.spacedBy(SettingsSpacing.sm)) {
             Text(
-                text = "Overview",
+                text = stringResource(Res.string.settings_overview_title),
                 style = DoraiTypography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = LocalDesignColorTokens.current.textPrimary,
@@ -39,11 +52,11 @@ fun SettingsOverview(
             )
             val active = uiState.configuredServices.firstOrNull()
             SettingsKeyValueRow(
-                label = "Active service",
-                value = active?.service?.displayName ?: "None configured",
+                label = stringResource(Res.string.settings_overview_active_service),
+                value = active?.service?.displayName ?: stringResource(Res.string.settings_overview_no_service),
             )
             SettingsKeyValueRow(
-                label = "Active model",
+                label = stringResource(Res.string.settings_overview_active_model),
                 value = when {
                     active?.useCustomModel == true && active.customModelId.isNotBlank() -> active.customModelId
                     active?.selectedModel != null -> active.selectedModel.id
@@ -51,16 +64,22 @@ fun SettingsOverview(
                 },
             )
             SettingsKeyValueRow(
-                label = "Tools",
-                value = "${uiState.tools.count { it.isEnabled }} enabled of ${uiState.tools.size}",
+                label = stringResource(Res.string.settings_overview_tools_label),
+                value = stringResource(Res.string.settings_overview_tools_format, uiState.tools.count { it.isEnabled }, uiState.tools.size),
             )
             SettingsKeyValueRow(
-                label = "Connectors",
-                value = "${uiState.mcpServers.count { it.isEnabled }} MCP servers",
+                label = stringResource(Res.string.settings_overview_connectors_label),
+                value = stringResource(Res.string.settings_overview_connectors_format, uiState.mcpServers.count { it.isEnabled }),
             )
             SettingsKeyValueRow(
-                label = "Sandbox",
-                value = if (sandboxInstalled) "Installed" else "Not installed",
+                label = stringResource(Res.string.settings_overview_sandbox),
+                value = stringResource(
+                    if (sandboxInstalled) {
+                        Res.string.settings_overview_sandbox_installed
+                    } else {
+                        Res.string.settings_overview_sandbox_not_installed
+                    },
+                ),
             )
             Spacer(Modifier.height(SettingsSpacing.xxs))
         }

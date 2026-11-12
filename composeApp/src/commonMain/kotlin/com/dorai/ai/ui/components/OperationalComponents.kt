@@ -39,6 +39,14 @@ import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.a11y_status_with_label
+import dorai.composeapp.generated.resources.status_active
+import dorai.composeapp.generated.resources.status_connected
+import dorai.composeapp.generated.resources.status_installing
+import dorai.composeapp.generated.resources.status_needs_attention
+import dorai.composeapp.generated.resources.status_not_set_up
+import dorai.composeapp.generated.resources.status_ready
+import dorai.composeapp.generated.resources.status_some_disabled
+import dorai.composeapp.generated.resources.status_working
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -121,17 +129,27 @@ fun rememberOperationalStatusColors(): OperationalStatusColors {
  */
 @Composable
 fun StatusBadge(
-    label: String,
     status: OperationalStatus,
+    label: String? = null,
     modifier: Modifier = Modifier,
 ) {
+    val resolvedLabel = label ?: when (status) {
+        OperationalStatus.Connected -> stringResource(Res.string.status_connected)
+        OperationalStatus.Connecting -> stringResource(Res.string.status_working)
+        OperationalStatus.Disabled -> stringResource(Res.string.status_some_disabled)
+        OperationalStatus.Installing -> stringResource(Res.string.status_installing)
+        OperationalStatus.NeedsSetup -> stringResource(Res.string.status_not_set_up)
+        OperationalStatus.Error -> stringResource(Res.string.status_needs_attention)
+        OperationalStatus.Active -> stringResource(Res.string.status_active)
+        OperationalStatus.Ready -> stringResource(Res.string.status_ready)
+    }
     val designColors = LocalDesignColorTokens.current
     val colors = rememberOperationalStatusColors()
     val color = colors.forStatus(status)
     // Use neutral text color for status dot
     val dotColor = if (color == designColors.textSecondary) DesignTokens.MutedText else color
     // a11y: announce the badge as one unit with the label in the user's language.
-    val statusDescription = stringResource(Res.string.a11y_status_with_label, label)
+    val statusDescription = stringResource(Res.string.a11y_status_with_label, resolvedLabel)
     Row(
         modifier = modifier.semantics {
             contentDescription = statusDescription
@@ -146,7 +164,7 @@ fun StatusBadge(
                 .background(dotColor),
         )
         Text(
-            text = label,
+            text = resolvedLabel,
             style = DoraiTypography.labelSmall,
             color = color,
             fontWeight = FontWeight.Medium,
@@ -194,16 +212,6 @@ fun CapabilityCountCard(
             )
             if (status != null) {
                 StatusBadge(
-                    label = when (status) {
-                        OperationalStatus.Error -> "Needs attention"
-                        OperationalStatus.NeedsSetup -> "Needs setup"
-                        OperationalStatus.Disabled -> "Some disabled"
-                        OperationalStatus.Ready -> "Ready"
-                        OperationalStatus.Active -> "Active"
-                        OperationalStatus.Connected -> "Connected"
-                        OperationalStatus.Connecting -> "Working"
-                        OperationalStatus.Installing -> "Installing"
-                    },
                     status = status,
                 )
             }
