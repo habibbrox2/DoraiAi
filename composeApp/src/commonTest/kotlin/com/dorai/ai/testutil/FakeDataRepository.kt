@@ -451,6 +451,11 @@ class FakeDataRepository : DataRepository {
 
     override fun isDynamicUiEnabled(): Boolean = dynamicUiEnabled
 
+    override fun getActiveAgentMode(): String = "build"
+    override fun setActiveAgentMode(mode: String) {}
+
+    override fun getDefaultAgentMode(): String = "ask"
+
     override fun setDynamicUiEnabled(enabled: Boolean) {
         dynamicUiEnabled = enabled
     }

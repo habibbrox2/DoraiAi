@@ -144,6 +144,40 @@ internal const val DEFAULT_AUTOMATION_SECTION =
         "Heartbeat itself (on/off toggle, interval, active hours) is user-controlled in Settings → Agent → Heartbeat — you cannot enable, disable, or reschedule it. If the user asks for recurring updates and heartbeat seems off, either schedule a cron task or tell them to enable Heartbeat in settings — never claim to have \"enabled\" or \"turned on\" heartbeat."
 
 /**
+ * Agent work modes — the user picks Ask / Plan / Build / Review per chat. "build" is the
+ * default: Ask/Plan/Review render a section; Build renders nothing extra.
+ */
+private const val AGENT_MODE_ASK = "ask"
+private const val AGENT_MODE_PLAN = "plan"
+private const val AGENT_MODE_REVIEW = "review"
+
+private fun agentModeSection(mode: String): String? = when (mode) {
+    AGENT_MODE_ASK ->
+        "## Mode: Ask\n" +
+            "The user is asking a question, not issuing a work order. Answer it directly. " +
+            "Do not call tools that change files, the sandbox, email, tasks, or any remote service. " +
+            "Stay read-only: read files if you need to, then answer. No edits, no commits, no installs."
+
+    AGENT_MODE_PLAN ->
+        "## Mode: Plan\n" +
+            "The user wants a plan before any work happens. Investigate read-only first " +
+            "(read files, run read-only shell commands, check git status/diff). Then produce a " +
+            "concrete, ordered plan: what will change, which files, which commands, what risk. " +
+            "Do NOT edit, commit, install, delete, or run any state-changing command while in this mode — " +
+            "the user will confirm before any build begins."
+
+    AGENT_MODE_REVIEW ->
+        "## Mode: Review\n" +
+            "The user wants a code review of the current workspace state. Read the git diff and " +
+            "the changed files; report what you find — bugs, risks, missing tests, style — " +
+            "with file:line evidence. Do not edit files, do not apply fixes, do not commit. " +
+            "Suggestions only; the user decides what to apply."
+
+    else ->
+        null // Build (default): full behavior, no extra section.
+}
+
+/**
  * Composes the full chat system prompt for the given [variant].
  *
  * Returns an empty string when there is literally nothing to render (which the caller
@@ -167,7 +201,13 @@ internal fun buildChatSystemPrompt(
     runtime: ChatPromptRuntimeContext,
     uiMode: ChatPromptUiMode,
     activeSkill: SkillManifest? = null,
+    agentMode: String = "build",
 ): String = buildString {
+    agentModeSection(agentMode)?.let { section ->
+        append(section)
+        if (isNotEmpty()) append("\n\n")
+    }
+
     append(soul)
 
     if (isNotEmpty()) append("\n\n")
