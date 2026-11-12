@@ -18,7 +18,7 @@ numbers from real devices are in the table below.
 | Piece | Where | Role |
 |---|---|---|
 | CER/WER scorer | `composeApp/src/commonMain/kotlin/com/dorai/ai/voice/benchmark/SpeechScoring.kt` | Normalises (NFC, case-fold, punctuation-as-space) and computes code-point CER and word WER |
-| Bengali eval set | `composeApp/src/commonMain/kotlin/com/dorai/ai/voice/benchmark/VoiceEvalSet.kt` | 200 utterances, 20 per intent, taken from BengVoice (CC BY 4.0), DOI:10.17632/sr99ryf4ns.1 |
+| Bengali eval set | `composeApp/src/commonMain/kotlin/com/dorai/ai/voice/benchmark/VoiceEvalSet.kt` | 200 command utterances (20 per intent, BengVoice, CC BY 4.0, DOI:10.17632/sr99ryf4ns.1) + 30 declarative structure sentences (10 per Simple/Compound/Complex, BTSD, CC BY 4.0, DOI:10.17632/4k964xyz65.2) |
 | Scorer test suite | `composeApp/src/commonTest/kotlin/com/dorai/ai/voice/benchmark/` | Known pairs and eval-set integrity |
 
 The scorer is pure Kotlin and runs on every target. Bengali code points (not UTF-16 code units) are
@@ -66,13 +66,28 @@ Conversational AI Systems**, Md Shahriar Hossain, Mendeley Data, DOI:10.17632/sr
 index 0, 6, … 114) and keeps the dataset's 24 % code-mixing rate. The utterances are natively
 generated Bangladeshi voice-assistant commands, not hand-written prose.
 
+Alongside the command set, the file carries **30 declarative sentences** (`btsd-001`…`btsd-030`)
+in `VOICE_STRUCTURE_EVAL_SENTENCES` taken verbatim from **BTSD — Bangla Transformation of Sentence
+Dataset**, Rajesh Kumar Das, Mirajul Islam, sharun akter khushbu, Daffodil International University,
+Mendeley Data, DOI:10.17632/4k964xyz65.2, **CC BY 4.0**. Ten sentences each of Simple, Compound and
+Complex structure, selected deterministically (evenly spread across file order, indices 0 … n−1 in
+steps of n/10) and kept pure-script (no Latin), so the structure effect is isolated from code-mix.
+The triples are all declarative Bengali prose — the coverage BengVoice lacks. Measure the command
+score (200) and the structure score (30) separately; do not pool them into one headline number.
+
+The BTSD sentences cover literary declarative prose, not spontaneous speech; register mismatch is
+expected, and the per-structure gap should be read as a lower bound on domain shift, not as a
+deployable quality estimate.
+
 Remaining caveats before the memo is signed off:
 
 - the selection is a fixed subset, not a random draw — confirm it is representative by intent;
 - accent balance (Bangladeshi vs West Bengali) is inherited from the dataset, not benchmarked
   across both speaker populations;
-- utterance length is short command-style speech (10–54 chars); long-form prose coverage is
-  deliberately small — if long-pass recognition matters, extend the set from the full DOI data.
+- command utterance length is short (10–54 chars); BTSD extends coverage to declarative prose,
+  but long-form dictated speech is still not represented;
+- BTSD sentences are reference text for CER only — they were not speech-verified; TTS/ASR
+  naturalness on these sentences is unproven.
 
 The full 1,200-utterance dataset (plus fold splits) is at the DOI above; re-download it rather
 than committing it wholesale. Attribution is carried in `VoiceEvalSet.kt` and here; keep both in

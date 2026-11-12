@@ -9,6 +9,19 @@ generated: { by: human:opencode, at: 2026-11-12T00:00:00Z }
 
 # Update log
 
+## 2026-11-13 — BTSD structure coverage added to the eval set
+
+- `VOICE_STRUCTURE_EVAL_SENTENCES` (`btsd-001`…`btsd-030`) added alongside the 200 command
+  utterances: 10 each of Simple / Compound / Complex declarative sentences from **BTSD —
+  Bangla Transformation of Sentence Dataset**, Rajesh Kumar Das, Mirajul Islam, sharun akter
+  khushbu, Daffodil International University, Mendeley Data, DOI:10.17632/4k964xyz65.2, CC BY 4.0.
+- Selection: evenly spread across file order (step n/10 per structure), pure-script (no Latin)
+  so the structure effect is not confounded with code-mix; sentence length 10–120 chars;
+  Bengali script presence enforced by tests.
+- Source sentences were **not speech-verified**; measure structure CER separately from command CER.
+- Integrity tests updated: per-structure × 10, unique ids, no id collision with the command set,
+  pure-script assertion.
+
 ## 2026-11-12 — Phase 0 eval set replaced with BengVoice subset
 
 - Draft 120-sentence hand-written eval set **replaced** by 200 utterances (20 per intent,

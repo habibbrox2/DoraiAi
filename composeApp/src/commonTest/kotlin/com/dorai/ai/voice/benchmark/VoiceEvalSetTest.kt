@@ -50,4 +50,33 @@ class VoiceEvalSetTest {
         val mixed = VOICE_EVAL_SENTENCES.count { containsLatin(it.text) }
         assertTrue(mixed >= 20, "expected at least 20 code-mixed sentences, got $mixed")
     }
+
+    @Test
+    fun `structure set carries ten sentences per structure`() {
+        val counts = VOICE_STRUCTURE_EVAL_COUNTS
+
+        assertEquals(setOf(10), counts.values.toSet(), "each structure should carry 10 sentences")
+        assertEquals(SentenceStructure.entries.toSet(), counts.keys)
+    }
+
+    @Test
+    fun `structure ids are unique and distinct from the command ids`() {
+        val commandIds = VOICE_EVAL_SENTENCES.map { it.id }.toSet()
+        val ids = VOICE_STRUCTURE_EVAL_SENTENCES.map { it.id }
+
+        assertEquals(ids.size, ids.toSet().size)
+        assertTrue(ids.none { it in commandIds }, "structure ids must not collide with command ids")
+    }
+
+    @Test
+    fun `structure sentences are speakable Bengali text without code-mix`() {
+        // The structure subset was selected pure-script so the structure effect is not
+        // confounded with code-mixing.
+        for (sentence in VOICE_STRUCTURE_EVAL_SENTENCES) {
+            assertTrue(sentence.text.isNotBlank(), "${sentence.id} has blank text")
+            assertTrue(sentence.text.length in 5..200, "${sentence.id} has odd length ${sentence.text.length}")
+            assertTrue(containsBengali(sentence.text), "${sentence.id} contains no Bengali characters")
+            assertTrue(!containsLatin(sentence.text), "${sentence.id} should be pure-script")
+        }
+    }
 }

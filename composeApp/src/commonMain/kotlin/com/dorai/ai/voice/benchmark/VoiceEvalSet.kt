@@ -12,6 +12,13 @@ package com.dorai.ai.voice.benchmark
  * The utterances are native-generated code-mixed Bengali-English assistant commands
  * with Bangladeshi cultural context; Bengali script presence is enforced by the
  * integrity tests. Keep this file in sync with the dataset on re-download.
+ *
+ * Structure coverage comes from BTSD - Bangla Transformation of Sentence Dataset,
+ * Rajesh Kumar Das, Mirajul Islam, sharun akter khushbu. Mendeley Data,
+ * DOI:10.17632/4k964xyz65.2 - CC BY 4.0. 30 declarative sentences, 10 per syntactic
+ * structure (Simple, Compound, Complex), selected deterministically (evenly spread in
+ * file order) and kept pure-script so the structure effect is isolated from code-mix.
+ * See VOICE_STRUCTURE_EVAL_SENTENCES below; IDs are btsd-001..btsd-030.
  */
 
 enum class EvalCategory {
@@ -246,3 +253,64 @@ val VOICE_EVAL_SENTENCES: List<EvalSentence> = listOf(
 
 val VOICE_EVAL_CATEGORY_COUNTS: Map<EvalCategory, Int> =
     VOICE_EVAL_SENTENCES.groupingBy { it.category }.eachCount()
+// --- Structure coverage (BTSD) ----------------------------------------------
+
+enum class SentenceStructure {
+    SIMPLE,
+    COMPOUND,
+    COMPLEX,
+}
+
+data class VoiceStructureSentence(
+    val id: String,
+    val structure: SentenceStructure,
+    val text: String,
+)
+
+private const val BTSD_PREFIX = "btsd"
+
+private fun structureSentence(
+    number: Int,
+    structure: SentenceStructure,
+    text: String,
+): VoiceStructureSentence = VoiceStructureSentence(
+    id = BTSD_PREFIX + "-" + number.toString().padStart(3, '0'),
+    structure = structure,
+    text = text,
+)
+
+val VOICE_STRUCTURE_EVAL_SENTENCES: List<VoiceStructureSentence> = listOf(
+    structureSentence(1, SentenceStructure.SIMPLE, "সন্ধ্যায় পাখিরা বাসায় ফেরে"),
+    structureSentence(2, SentenceStructure.SIMPLE, "শাস্তি এড়াতে ওই কর্মকর্তারা চাকরি ছেড়ে দেন"),
+    structureSentence(3, SentenceStructure.SIMPLE, "আমি অসুস্থতার জন্য উপস্থিত থাকতে পারিনি"),
+    structureSentence(4, SentenceStructure.SIMPLE, "ভালো নম্বর পাওয়ার জন্য সে কষ্ট করে পড়াশোনা করেছে।"),
+    structureSentence(5, SentenceStructure.SIMPLE, "দাদার ভালো লাগেন স্বত্তেও আমাকে কখনো সাহায্য করে না।"),
+    structureSentence(6, SentenceStructure.SIMPLE, "সে আপেল-কলা খেতে পছন্দ করে"),
+    structureSentence(7, SentenceStructure.SIMPLE, "সে ভাঙা চেয়ার ঠিক করে"),
+    structureSentence(8, SentenceStructure.SIMPLE, "সে একটি ফুটো ছাদ ঠিক করেছে"),
+    structureSentence(9, SentenceStructure.SIMPLE, "তিনি গিটার বাজানো উপভোগ করেন"),
+    structureSentence(10, SentenceStructure.SIMPLE, "এটি একটি আরামদায়ক পর্বত লজ"),
+    structureSentence(11, SentenceStructure.COMPOUND, "সন্ধ্যা হয় এবং পাখিরা বাসায় ফেরে"),
+    structureSentence(12, SentenceStructure.COMPOUND, "আমরা তার অফিসে গিয়ে তাকে অনুপস্থিত দেখতে পাই"),
+    structureSentence(13, SentenceStructure.COMPOUND, "সে মরবে, তবুও এ কথা বলবে না।"),
+    structureSentence(14, SentenceStructure.COMPOUND, "এ গ্রামে একটি দরগাহ আছে এবং সেটি পাঠানযুগে নির্মিত হয়েছে"),
+    structureSentence(15, SentenceStructure.COMPOUND, "আপনি অবশ্যই দেরী করবেন না অন্যথায় আপনাকে মিটিংয়ে অংশগ্রহণের অনুমতি দেওয়া হবে না।"),
+    structureSentence(16, SentenceStructure.COMPOUND, "তুমিই সেই বন্ধু যে আমাকে সঠিক এবং থেকে ভুল শিখিয়েছ।"),
+    structureSentence(17, SentenceStructure.COMPOUND, "স্নানে থাকুন এবং ফোন বেজে না উঠা পর্যন্ত"),
+    structureSentence(18, SentenceStructure.COMPOUND, "আমি তাকে দেখলাম এবং সে সিঁড়ি দিয়ে দৌড়ালো"),
+    structureSentence(19, SentenceStructure.COMPOUND, "বিড়ালটি একটি গাছের উপরে উঠেছিল, তবে এটি নিজে থেকে নামতে পারে না"),
+    structureSentence(20, SentenceStructure.COMPOUND, "তিনি গভীর রাতে পড়াশোনা করেছেন, তবুও তিনি আসন্ন পরীক্ষা সম্পর্কে আত্মবিশ্বাসী বোধ করেছিলেন"),
+    structureSentence(21, SentenceStructure.COMPLEX, "যখন সন্ধ্যা হয় তখন পাখিরা বাসায় ফেরে"),
+    structureSentence(22, SentenceStructure.COMPLEX, "যখন সে বৃষ্টিতে পড়ে গিয়েছিল তখন সব ভিজে গিয়েছিল"),
+    structureSentence(23, SentenceStructure.COMPLEX, "সে যেমন চেষ্টা করেছে,তেমন সাফল্য লাভ করেছে"),
+    structureSentence(24, SentenceStructure.COMPLEX, "যিনি সুশিক্ষিত তিনি স্বশিক্ষিত"),
+    structureSentence(25, SentenceStructure.COMPLEX, "যত ভেবেছিলাম প্রচারটি আমার ছিল,তত আমার উপস্থিতি যথেষ্ট ভাল ছিল না।"),
+    structureSentence(26, SentenceStructure.COMPLEX, "আপনি যত আমার উদাহরণ অনুসরণ করেন তত আপনি ভাল বোধ করবে."),
+    structureSentence(27, SentenceStructure.COMPLEX, "যখন দরজা বন্ধ করলাম তখন স্কুলে ফিরে গেলাম।"),
+    structureSentence(28, SentenceStructure.COMPLEX, "যখন আমি আমার সব বন্ধু হারিয়েছিলাম তখন আমি একজন মানুষ-পরিদর্শক হয়েছিলাম।"),
+    structureSentence(29, SentenceStructure.COMPLEX, "যেহেতু প্রকল্পের হবে সেহেতু নতুন কমিটি গঠন করে।"),
+    structureSentence(30, SentenceStructure.COMPLEX, "তিনি তার কাজে মনোনিবেশ করতে পারেননি কারণ তার সহকর্মীরা উচ্চস্বরে কথা বলছিলেন"),
+)
+
+val VOICE_STRUCTURE_EVAL_COUNTS: Map<SentenceStructure, Int> =
+    VOICE_STRUCTURE_EVAL_SENTENCES.groupingBy { it.structure }.eachCount()
