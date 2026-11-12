@@ -84,10 +84,7 @@ internal fun GeneralContent(
             }
             if (uiState.showVoiceSection) {
                 SettingsCard {
-                    VoiceSettingsSection(
-                        isVoiceModeEnabled = uiState.isVoiceModeEnabled,
-                        onToggleVoiceMode = actions.onToggleVoiceMode,
-                    )
+                    VoiceSettingsSection(uiState = uiState, actions = actions)
                 }
             }
         },

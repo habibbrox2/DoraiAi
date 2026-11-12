@@ -2816,6 +2816,18 @@ class RemoteDataRepository(
         appSettings.setVoiceModeEnabled(enabled)
     }
 
+    override fun getVoiceModelManifestJson(): String = appSettings.getVoiceModelManifestJson()
+
+    override fun setVoiceModelManifestJson(json: String) {
+        appSettings.setVoiceModelManifestJson(json)
+    }
+
+    override fun isVoiceMobileDataAllowed(): Boolean = appSettings.isVoiceMobileDataAllowed()
+
+    override fun setVoiceMobileDataAllowed(enabled: Boolean) {
+        appSettings.setVoiceMobileDataAllowed(enabled)
+    }
+
     override fun getSmsPollIntervalMinutes(): Int = appSettings.getSmsPollIntervalMinutes()
 
     override fun setSmsPollIntervalMinutes(minutes: Int) {

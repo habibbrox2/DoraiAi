@@ -662,6 +662,22 @@ class FakeDataRepository : DataRepository {
         voiceModeEnabled = enabled
     }
 
+    private var voiceMobileDataAllowed = false
+
+    override fun isVoiceMobileDataAllowed(): Boolean = voiceMobileDataAllowed
+
+    override fun setVoiceMobileDataAllowed(enabled: Boolean) {
+        voiceMobileDataAllowed = enabled
+    }
+
+    override fun getVoiceModelManifestJson(): String = voiceModelManifestJson
+
+    override fun setVoiceModelManifestJson(json: String) {
+        voiceModelManifestJson = json
+    }
+
+    private var voiceModelManifestJson = ""
+
     override fun getSmsPollIntervalMinutes(): Int = smsPollIntervalMinutes
 
     override fun setSmsPollIntervalMinutes(minutes: Int) {

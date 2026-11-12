@@ -158,6 +158,8 @@ kotlin {
                 implementation(libs.litert.lm)
                 implementation(libs.sqldelight.android.driver)
                 implementation(libs.xz)
+                // Voice model download worker (Phase 2): WorkManager + foreground service.
+                implementation(libs.androidx.work.runtime)
                 // ML Kit Text Recognition v2 - OCR support
                 implementation(libs.mlkit.text.recognition)
                 implementation(libs.mlkit.text.recognition.chinese)

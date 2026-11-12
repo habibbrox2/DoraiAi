@@ -21,6 +21,22 @@ generated: { by: human:opencode, at: 2026-11-12T00:00:00Z }
   utterance count ≥ 20.
 - Source of truth for the set is the DOI; attribution lives in `VoiceEvalSet.kt` and
   `benchmark.md` — keep them in sync on regeneration.
+## 2026-11-12 — Phase 2 download infrastructure
+
+- `VoiceCatalog` pins the Coqui bn VITS (`csukuangfj/vits-coqui-bn-custom_female`, commit
+  `67008db…`) with per-file size + SHA-256. `licenseVerified = false` because the upstream repo
+  declares no license and no model card — **download disabled until sign-off is recorded**.
+- `AndroidVoiceModelDownloadWorker`: WorkManager + foreground service, unique work
+  `dorai-voice-model-download` with `KEEP`, Wi‑Fi-only constraint by default; optional mobile-data
+  opt-in in Settings → Voice.
+- Resume: byte-`Range`; kept `.part` bytes are re-hashed to rebuild the digest; `200`/`416`
+  responses restart from zero; `.part` + atomically-renamed file; `.sha256` marker next to each
+  verified file; pre-download storage gate (sizeBytes + 25 %).
+- Settings → Voice gains model download/delete/pause/resume/re-download controls and the
+  mobile-data toggle.
+- Coqui pin verified against the HuggingFace API on 2026-11-12 (commit, sizes); `model.onnx`
+  digest from the LFS pointer, `tokens.txt`/`config.json` digests computed by downloading them
+  at the pinned commit (git blob OIDs are not SHA-256).
 
 ## 2026-11-12 — Phase 0 harness (scorer, eval set, guide)
 

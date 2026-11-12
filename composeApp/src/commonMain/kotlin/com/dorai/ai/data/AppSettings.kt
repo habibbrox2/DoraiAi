@@ -436,6 +436,21 @@ class AppSettings(internal val settings: Settings) {
         if (voice == null) settings.remove(KEY_TTS_VOICE) else settings.putString(KEY_TTS_VOICE, voice)
     }
 
+    // Voice model manifest (downloaded models + integrity state).
+    fun getVoiceModelManifestJson(): String = settings.getString(KEY_VOICE_MODEL_MANIFEST, "")
+    fun setVoiceModelManifestJson(json: String) {
+        if (json.isBlank()) settings.remove(KEY_VOICE_MODEL_MANIFEST) else settings.putString(KEY_VOICE_MODEL_MANIFEST, json)
+    }
+
+    // Voice model downloads over mobile data. Default off: Voice Mode downloads
+    // only over Wi-Fi unless the user opts in, and every mobile-data download
+    // asks for confirmation first.
+    fun isVoiceMobileDataAllowed(): Boolean = settings.getBoolean(KEY_VOICE_MOBILE_DATA_ALLOWED, false)
+
+    fun setVoiceMobileDataAllowed(enabled: Boolean) {
+        settings.putBoolean(KEY_VOICE_MOBILE_DATA_ALLOWED, enabled)
+    }
+
     // Voice Mode. Off by default: the feature plan keeps it behind the toggle until
     // the on-device measurement gate has been signed off.
     private val _voiceModeEnabledFlow = MutableStateFlow(settings.getBoolean(KEY_VOICE_MODE_ENABLED, false))
@@ -810,6 +825,8 @@ class AppSettings(internal val settings: Settings) {
         const val KEY_TTS_AUTO_PLAY = "tts_auto_play"
 
         const val KEY_VOICE_MODE_ENABLED = "voice_mode_enabled"
+        const val KEY_VOICE_MODEL_MANIFEST = "voice_model_manifest"
+        const val KEY_VOICE_MOBILE_DATA_ALLOWED = "voice_mobile_data_allowed"
 
         const val KEY_SPLINTERLANDS_ENABLED = "splinterlands_enabled"
         const val KEY_SPLINTERLANDS_ACCOUNT = "splinterlands_account"

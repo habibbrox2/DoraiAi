@@ -18,6 +18,7 @@ import com.dorai.ai.network.dtos.SponsorsResponseDto
 import com.dorai.ai.network.tools.ToolInfo
 import com.dorai.ai.skills.RegistrySkillEntry
 import com.dorai.ai.skills.SkillManifest
+import com.dorai.ai.voice.VoiceModelEntry
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.ImmutableSet
@@ -130,6 +131,9 @@ data class SettingsUiState(
     /** True on platforms that can run a voice turn; the section is hidden elsewhere. */
     val showVoiceSection: Boolean = false,
     val isVoiceModeEnabled: Boolean = false,
+    /** Models from VOICE_MODEL_CATALOG joined with their manifest state. */
+    val voiceModels: ImmutableList<VoiceModelEntry> = persistentListOf(),
+    val isVoiceMobileDataAllowed: Boolean = false,
     val smsPermissionGranted: Boolean = false,
     val smsPollIntervalMinutes: Int = 15,
     val smsPendingCount: Int = 0,
