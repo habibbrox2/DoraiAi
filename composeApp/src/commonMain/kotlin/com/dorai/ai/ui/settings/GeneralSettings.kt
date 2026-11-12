@@ -82,6 +82,14 @@ internal fun GeneralContent(
             SettingsCard {
                 TtsSettingsSection(appLanguage = uiState.appLanguage)
             }
+            if (uiState.showVoiceSection) {
+                SettingsCard {
+                    VoiceSettingsSection(
+                        isVoiceModeEnabled = uiState.isVoiceModeEnabled,
+                        onToggleVoiceMode = actions.onToggleVoiceMode,
+                    )
+                }
+            }
         },
         end = {
             if (uiState.showUiScale) {

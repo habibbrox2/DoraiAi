@@ -46,8 +46,11 @@ import com.dorai.ai.data.ExecutionLocation
 import com.dorai.ai.data.imageExtensions
 import com.dorai.ai.exitApp
 import com.dorai.ai.getBackgroundDispatcher
+import com.dorai.ai.permissionQualifier
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
+import com.dorai.ai.tools.AppPermission
+import com.dorai.ai.tools.PermissionController
 import com.dorai.ai.ui.components.v2.DoraiModalSheet
 import com.dorai.ai.ui.components.v2.DoraiProviderBadge
 import com.dorai.ai.ui.components.v2.DoraiStatusBadge
@@ -56,6 +59,9 @@ import com.dorai.ai.ui.components.v2.DynamicUiOption
 import com.dorai.ai.ui.components.v2.ToolExecutionModel
 import com.dorai.ai.ui.components.v2.ToolExecutionState
 import com.dorai.ai.ui.dynamicui.toSpeakableText
+import com.dorai.ai.voice.VoiceError
+import com.dorai.ai.voice.VoiceModeState
+import com.dorai.ai.voice.toVoiceSentences
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.chat_active_badge
 import dorai.composeapp.generated.resources.chat_attach_file
@@ -66,7 +72,17 @@ import dorai.composeapp.generated.resources.chat_model_picker_title
 import dorai.composeapp.generated.resources.chat_press_back_to_exit
 import dorai.composeapp.generated.resources.chat_privacy_cloud
 import dorai.composeapp.generated.resources.chat_privacy_local
+import dorai.composeapp.generated.resources.chat_voice_busy
+import dorai.composeapp.generated.resources.chat_voice_disabled
+import dorai.composeapp.generated.resources.chat_voice_listening
+import dorai.composeapp.generated.resources.chat_voice_network_required
+import dorai.composeapp.generated.resources.chat_voice_no_speech
+import dorai.composeapp.generated.resources.chat_voice_permission_denied
+import dorai.composeapp.generated.resources.chat_voice_speaking
+import dorai.composeapp.generated.resources.chat_voice_thinking
+import dorai.composeapp.generated.resources.chat_voice_transcribing
 import dorai.composeapp.generated.resources.chat_voice_unavailable
+import dorai.composeapp.generated.resources.chat_voice_unknown_error
 import dorai.composeapp.generated.resources.ic_file
 import dorai.composeapp.generated.resources.ic_image
 import dorai.composeapp.generated.resources.settings_model_label
@@ -101,6 +117,12 @@ fun DoraiChatScreenConnected(
     val appSettings: AppSettings = koinInject()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // Voice Mode. The microphone permission is raised from here because the system
+    // prompt has to come from an Activity; the turn itself is driven by the ViewModel.
+    val recordAudioPermission: PermissionController =
+        koinInject(permissionQualifier(AppPermission.RECORD_AUDIO))
+    val isVoiceModeEnabled by appSettings.voiceModeEnabledFlow.collectAsStateWithLifecycle()
 
     val selectedModeId = uiState.selectedAgentModeId
     var showModelPicker by remember { mutableStateOf(false) }
@@ -196,8 +218,34 @@ fun DoraiChatScreenConnected(
 
     val deletedMessage = stringResource(Res.string.snackbar_conversation_deleted)
     val undoLabel = stringResource(Res.string.snackbar_undo)
-    val voiceUnavailableMsg = stringResource(Res.string.chat_voice_unavailable)
     val doubleBackToExitMessage = stringResource(Res.string.chat_press_back_to_exit)
+
+    // Voice status line shown under the composer while a voice turn is running.
+    val voiceStatusText = when (uiState.voiceState) {
+        VoiceModeState.LISTENING -> stringResource(Res.string.chat_voice_listening)
+        VoiceModeState.TRANSCRIBING -> stringResource(Res.string.chat_voice_transcribing)
+        VoiceModeState.THINKING -> stringResource(Res.string.chat_voice_thinking)
+        VoiceModeState.SPEAKING -> stringResource(Res.string.chat_voice_speaking)
+        VoiceModeState.IDLE -> null
+    }
+
+    val voiceDisabledMessage = stringResource(Res.string.chat_voice_disabled)
+    val voicePermissionDeniedMessage = stringResource(Res.string.chat_voice_permission_denied)
+    val voiceErrorMessage = when (uiState.voiceError) {
+        VoiceError.PERMISSION_DENIED -> stringResource(Res.string.chat_voice_permission_denied)
+        VoiceError.RECOGNIZER_UNAVAILABLE -> stringResource(Res.string.chat_voice_unavailable)
+        VoiceError.NO_SPEECH_DETECTED -> stringResource(Res.string.chat_voice_no_speech)
+        VoiceError.NETWORK_REQUIRED -> stringResource(Res.string.chat_voice_network_required)
+        VoiceError.BUSY -> stringResource(Res.string.chat_voice_busy)
+        VoiceError.CANCELLED -> null
+        VoiceError.UNKNOWN -> stringResource(Res.string.chat_voice_unknown_error)
+        null -> null
+    }
+
+    LaunchedEffect(uiState.voiceError) {
+        val message = voiceErrorMessage ?: return@LaunchedEffect
+        snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short)
+    }
     LaunchedEffect(uiState.pendingConversationDeletion) {
         val pendingId = uiState.pendingConversationDeletion ?: return@LaunchedEffect
         snackbarHostState.currentSnackbarData?.dismiss()
@@ -233,6 +281,27 @@ fun DoraiChatScreenConnected(
                     message = doubleBackToExitMessage,
                     duration = SnackbarDuration.Short,
                 )
+            }
+        }
+    }
+
+    // A voice turn speaks the answer back. The ViewModel decides which reply belongs
+    // to the voice turn; this side only speaks it.
+    LaunchedEffect(uiState.voiceReplyToSpeak) {
+        val reply = uiState.voiceReplyToSpeak ?: return@LaunchedEffect
+        uiState.actions.markVoiceReplySpoken()
+        val engine = textToSpeech ?: return@LaunchedEffect
+        uiState.actions.setVoiceSpeaking(true)
+        scope.launch(getBackgroundDispatcher()) {
+            try {
+                speakAssistantReply(
+                    textToSpeech = engine,
+                    appSettings = appSettings,
+                    rawText = reply.text,
+                    onSpeaking = { speaking -> uiState.actions.setIsSpeaking(speaking, reply.id) },
+                )
+            } finally {
+                uiState.actions.setVoiceSpeaking(false)
             }
         }
     }
@@ -312,10 +381,28 @@ fun DoraiChatScreenConnected(
                 imagePickerLauncher.launch()
             },
             onMicClick = {
-                scope.launch {
-                    snackbarHostState.showSnackbar(voiceUnavailableMsg, duration = SnackbarDuration.Short)
+                if (uiState.voiceState == VoiceModeState.LISTENING) {
+                    // Stop listening and send whatever was heard.
+                    uiState.actions.stopVoiceInput()
+                } else if (!isVoiceModeEnabled) {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(voiceDisabledMessage, duration = SnackbarDuration.Short)
+                    }
+                } else {
+                    scope.launch {
+                        if (recordAudioPermission.requestPermission()) {
+                            uiState.actions.startVoiceInput()
+                        } else {
+                            snackbarHostState.showSnackbar(
+                                voicePermissionDeniedMessage,
+                                duration = SnackbarDuration.Short,
+                            )
+                        }
+                    }
                 }
             },
+            isVoiceRecording = uiState.voiceState == VoiceModeState.LISTENING,
+            voiceStatusText = voiceStatusText,
             hasUnreadHeartbeat = uiState.hasUnreadHeartbeat,
             onHeartbeatTap = {
                 uiState.heartbeatConversationId?.let { uiState.actions.loadConversation(it) }
@@ -584,5 +671,48 @@ fun DoraiChatScreenConnected(
                 )
             }
         }
+    }
+}
+
+/**
+ * Speaks an assistant reply sentence by sentence.
+ *
+ * The markdown is flattened first, then the text is cleaned for speech and split into
+ * sentences. Speaking sentence by sentence keeps the first sentence audible as soon as
+ * it is synthesised instead of after the whole answer has been handed to the engine,
+ * and it lets the synthesizer start on the first sentence while the next one is still
+ * being prepared.
+ */
+private suspend fun speakAssistantReply(
+    textToSpeech: TextToSpeechInstance,
+    appSettings: AppSettings,
+    rawText: String,
+    onSpeaking: (Boolean) -> Unit,
+) {
+    val sentences = toVoiceSentences(rawText.toSpeakableText())
+    if (sentences.isEmpty()) return
+    onSpeaking(true)
+    try {
+        try {
+            textToSpeech.rate = appSettings.getTtsRate()
+        } catch (_: Exception) {
+        }
+        try {
+            textToSpeech.pitch = appSettings.getTtsPitch()
+        } catch (_: Exception) {
+        }
+        try {
+            textToSpeech.volume = (appSettings.getTtsVolume() * 100).toInt()
+        } catch (_: Exception) {
+        }
+        for (sentence in sentences) {
+            textToSpeech.say(text = sentence)
+        }
+    } catch (_: TextToSpeechSynthesisInterruptedError) {
+        // The user interrupted the playback.
+    } catch (_: Exception) {
+        // A missing engine or a failed synthesis must not take the chat down.
+    } finally {
+        onSpeaking(false)
     }
 }

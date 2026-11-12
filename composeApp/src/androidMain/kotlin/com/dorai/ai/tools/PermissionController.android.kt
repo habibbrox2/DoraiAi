@@ -81,6 +81,9 @@ private fun permissionsFor(permission: AppPermission): Array<String> = when (per
         Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2 -> arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
         else -> emptyArray() // DownloadManager, MediaStore, SAF don't require manifest permissions
     }
+
+    // The microphone is only opened for the duration of a voice turn.
+    AppPermission.RECORD_AUDIO -> arrayOf(Manifest.permission.RECORD_AUDIO)
 }
 
 private val androidContext: Context by inject(Context::class.java)

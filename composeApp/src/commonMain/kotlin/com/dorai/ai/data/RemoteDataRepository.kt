@@ -2810,6 +2810,12 @@ class RemoteDataRepository(
         appSettings.setSmsEnabled(enabled)
     }
 
+    override fun isVoiceModeEnabled(): Boolean = appSettings.isVoiceModeEnabled()
+
+    override fun setVoiceModeEnabled(enabled: Boolean) {
+        appSettings.setVoiceModeEnabled(enabled)
+    }
+
     override fun getSmsPollIntervalMinutes(): Int = appSettings.getSmsPollIntervalMinutes()
 
     override fun setSmsPollIntervalMinutes(minutes: Int) {

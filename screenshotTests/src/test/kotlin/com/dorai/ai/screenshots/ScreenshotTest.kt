@@ -137,6 +137,18 @@ class ScreenshotTest {
     }
 
     @Test
+    fun chatVoiceRecording_dark() {
+        paparazzi.snap(ThemePresets.dark) {
+            DoraiChatScreenV2(
+                messages = emptyList(),
+                conversations = ScreenshotTestData.v2Conversations,
+                isVoiceRecording = true,
+                voiceStatusText = "Listening…",
+            )
+        }
+    }
+
+    @Test
     fun chatWithDynamicUi_light() {
         paparazzi.snap(ThemePresets.light) {
             DoraiChatScreenV2(

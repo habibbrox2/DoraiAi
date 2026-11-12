@@ -59,6 +59,7 @@ import dorai.composeapp.generated.resources.composer_mic_content_description
 import dorai.composeapp.generated.resources.composer_remove_file
 import dorai.composeapp.generated.resources.composer_send_content_description
 import dorai.composeapp.generated.resources.composer_stop
+import dorai.composeapp.generated.resources.composer_stop_voice
 import dorai.composeapp.generated.resources.ic_file
 import dorai.composeapp.generated.resources.ic_image
 import io.github.vinceglb.filekit.PlatformFile
@@ -80,6 +81,10 @@ fun DoraiComposer(
     onStopStreaming: (() -> Unit)? = null,
     onAttach: (() -> Unit)? = null,
     onMicClick: (() -> Unit)? = null,
+    /** True while a voice turn is capturing speech; the mic button becomes a stop button. */
+    isVoiceRecording: Boolean = false,
+    /** Short status line shown under the input while a voice turn is running. */
+    voiceStatusText: String? = null,
     files: ImmutableList<PlatformFile> = persistentListOf(),
     onRemoveFile: ((PlatformFile) -> Unit)? = null,
     placeholder: String = stringResource(Res.string.composer_input_hint),
@@ -236,19 +241,44 @@ fun DoraiComposer(
                     )
                 }
             } else {
+                // The mic button turns into a stop button while a voice turn is running.
+                // The modifier chain is left untouched when idle so the resting state
+                // renders exactly as before.
+                val micModifier = if (isVoiceRecording) {
+                    Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(colors.err)
+                } else {
+                    Modifier.size(48.dp)
+                }
                 IconButton(
                     onClick = { onMicClick?.invoke() },
-                    modifier = Modifier
-                        .size(48.dp),
+                    modifier = micModifier,
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Mic,
-                        contentDescription = stringResource(Res.string.composer_mic_content_description),
-                        tint = colors.muted,
+                        imageVector = if (isVoiceRecording) Icons.Default.Stop else Icons.Default.Mic,
+                        contentDescription = stringResource(
+                            if (isVoiceRecording) {
+                                Res.string.composer_stop_voice
+                            } else {
+                                Res.string.composer_mic_content_description
+                            },
+                        ),
+                        tint = if (isVoiceRecording) colors.text else colors.muted,
                         modifier = Modifier.size(22.dp),
                     )
                 }
             }
+        }
+
+        if (isVoiceRecording && voiceStatusText != null) {
+            Text(
+                text = voiceStatusText,
+                color = colors.muted,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(start = 48.dp, bottom = 4.dp),
+            )
         }
 
         if (value.isNotBlank() && (value.length > 120 || (maxContextTokens != null && maxContextTokens > 0))) {

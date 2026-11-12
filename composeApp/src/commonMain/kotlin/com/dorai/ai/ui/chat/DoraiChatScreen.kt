@@ -373,6 +373,10 @@ fun DoraiChatScreen(
     onAttachFile: (() -> Unit)? = null,
     onAttachImage: (() -> Unit)? = null,
     onMicClick: (() -> Unit)? = null,
+    /** True while a voice turn is capturing speech; the mic button becomes a stop button. */
+    isVoiceRecording: Boolean = false,
+    /** Short status line shown under the composer while a voice turn is running. */
+    voiceStatusText: String? = null,
     hasUnreadHeartbeat: Boolean = false,
     onHeartbeatTap: (() -> Unit)? = null,
     onHeartbeatDismiss: (() -> Unit)? = null,
@@ -459,6 +463,8 @@ fun DoraiChatScreen(
                 onAttachFile = onAttachFile,
                 onAttachImage = onAttachImage,
                 onMicClick = onMicClick,
+                isVoiceRecording = isVoiceRecording,
+                voiceStatusText = voiceStatusText,
                 hasUnreadHeartbeat = hasUnreadHeartbeat,
                 onHeartbeatTap = onHeartbeatTap,
                 onHeartbeatDismiss = onHeartbeatDismiss,
@@ -938,6 +944,10 @@ private fun ChatDetailPane(
     onAttachFile: (() -> Unit)? = null,
     onAttachImage: (() -> Unit)? = null,
     onMicClick: (() -> Unit)? = null,
+    /** True while a voice turn is capturing speech; the mic button becomes a stop button. */
+    isVoiceRecording: Boolean = false,
+    /** Short status line shown under the composer while a voice turn is running. */
+    voiceStatusText: String? = null,
     hasUnreadHeartbeat: Boolean = false,
     onHeartbeatTap: (() -> Unit)? = null,
     onHeartbeatDismiss: (() -> Unit)? = null,
@@ -1425,6 +1435,8 @@ private fun ChatDetailPane(
                     onStopStreaming = onStopStreaming,
                     onAttach = onAttachFile,
                     onMicClick = onMicClick,
+                    isVoiceRecording = isVoiceRecording,
+                    voiceStatusText = voiceStatusText,
                     files = files,
                     onRemoveFile = onRemoveFile,
                     maxContextTokens = maxContextTokens,

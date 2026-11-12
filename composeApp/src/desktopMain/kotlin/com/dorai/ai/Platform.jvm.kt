@@ -100,6 +100,9 @@ actual val isNotificationsSupported: Boolean = false
 
 actual val isSplinterlandsSupported: Boolean = true
 
+// Desktop has no speech recognizer wired up yet.
+actual val isVoiceSupported: Boolean = false
+
 actual suspend fun compressImageBytes(bytes: ByteArray, mimeType: String): ByteArray {
     if (!mimeType.startsWith("image/")) return bytes
     return try {

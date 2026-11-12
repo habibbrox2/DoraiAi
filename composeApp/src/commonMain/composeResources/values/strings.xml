@@ -869,6 +869,7 @@
     <string name="composer_attach_content_description">Attach file</string>
     <string name="composer_send_content_description">Send message</string>
     <string name="composer_mic_content_description">Voice input</string>
+    <string name="composer_stop_voice">Stop voice input</string>
     <string name="composer_input_hint">Ask or instruct DORAI…</string>
     <string name="dynamic_ui_confirm">Confirm</string>
     <string name="dynamic_ui_submitted">Confirmed</string>
@@ -963,6 +964,16 @@
     <string name="chat_manage_providers">Manage providers</string>
     <string name="chat_active_badge">Active</string>
     <string name="chat_voice_unavailable">Voice input is not available yet. Please type instead.</string>
+    <string name="chat_voice_listening">Listening…</string>
+    <string name="chat_voice_transcribing">Transcribing…</string>
+    <string name="chat_voice_thinking">Thinking…</string>
+    <string name="chat_voice_speaking">Speaking…</string>
+    <string name="chat_voice_disabled">Voice Mode is off. Turn it on in Settings to talk instead of typing.</string>
+    <string name="chat_voice_permission_denied">Voice input needs the microphone. You can allow it in Settings.</string>
+    <string name="chat_voice_no_speech">I didn\'t catch that. Please try again.</string>
+    <string name="chat_voice_network_required">Speech recognition on this device needs a network connection.</string>
+    <string name="chat_voice_busy">The microphone is already in use. Try again in a moment.</string>
+    <string name="chat_voice_unknown_error">Voice input failed. Please try again.</string>
     <string name="chat_retry">Retry</string>
     <string name="chat_dismiss">Dismiss</string>
     <string name="chat_provider_local">Local</string>
@@ -1327,6 +1338,8 @@
     <string name="tts_voice_pitch">Voice pitch</string>
     <string name="tts_volume">Volume</string>
     <string name="tts_tip">Tip: Keep speed between 0.70–1.30, pitch between 0.80–1.20, and adjust volume to your preference.</string>
+    <string name="settings_voice_mode">Voice Mode</string>
+    <string name="settings_voice_mode_description">Talk to DORAI AI and hear the answer read back. Uses the device&#39;s own speech recognizer, which works offline when an offline language model is installed.</string>
     <string name="sidebar_older">Older</string>
     <string name="sidebar_pin">Pin</string>
     <string name="sidebar_unpin">Unpin</string>

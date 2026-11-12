@@ -23,6 +23,8 @@ internal fun DoraiChatScreenV2(
     currentModelName: String = "Google Gemini",
     isModelLocal: Boolean = false,
     selectedModeId: String = "ask",
+    isVoiceRecording: Boolean = false,
+    voiceStatusText: String? = null,
     onOpenConversation: (String) -> Unit = {},
     onNavigateToSettings: (() -> Unit)? = null,
     onNavigateToWorkspace: (() -> Unit)? = null,
@@ -42,6 +44,8 @@ internal fun DoraiChatScreenV2(
                 onOpenConversation = onOpenConversation,
                 onNavigateToSettings = onNavigateToSettings,
                 onNavigateToWorkspace = onNavigateToWorkspace,
+                isVoiceRecording = isVoiceRecording,
+                voiceStatusText = voiceStatusText,
             )
         }
     }

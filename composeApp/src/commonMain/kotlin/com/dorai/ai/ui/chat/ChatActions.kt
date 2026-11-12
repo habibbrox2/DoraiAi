@@ -41,4 +41,12 @@ data class ChatActions(
     val rejectFileChange: (proposalId: String) -> Unit = {},
     val rollbackFileChange: (proposalId: String) -> Unit = {},
     val clearError: () -> Unit = {},
+    /** Starts a voice turn. The microphone permission is requested by the caller. */
+    val startVoiceInput: () -> Unit = {},
+    /** Ends the current voice turn, keeping whatever was recognised so far. */
+    val stopVoiceInput: () -> Unit = {},
+    /** Reports that the assistant's answer is being spoken, or has finished. */
+    val setVoiceSpeaking: (Boolean) -> Unit = {},
+    /** Marks the pending voice reply as spoken so it is not repeated. */
+    val markVoiceReplySpoken: () -> Unit = {},
 )

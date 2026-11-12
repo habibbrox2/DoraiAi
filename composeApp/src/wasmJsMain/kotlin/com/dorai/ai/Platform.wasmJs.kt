@@ -57,6 +57,9 @@ actual val isNotificationsSupported: Boolean = false
 
 actual val isSplinterlandsSupported: Boolean = false
 
+// The browser has no speech recognizer wired up yet.
+actual val isVoiceSupported: Boolean = false
+
 actual suspend fun compressImageBytes(bytes: ByteArray, mimeType: String): ByteArray = bytes
 
 actual fun getAppFilesDirectory(): String {

@@ -45,6 +45,15 @@ enum class AppPermission {
      * - SAF (Storage Access Framework) for user-selected files (no manifest permission)
      */
     DOWNLOADS,
+
+    /**
+     * Recording the microphone for voice input.
+     *
+     * Requested only while a voice turn is starting, never at launch: the user is
+     * asking for the microphone by tapping the mic button, and the rationale is shown
+     * with the system prompt.
+     */
+    RECORD_AUDIO,
 }
 
 /**
