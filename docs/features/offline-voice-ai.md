@@ -147,7 +147,7 @@ Official IndicWhisper-এর কোনো ব্যবহারযোগ্য �
 
 ### Phase 0 gate (blocking)
 
-1. Bengali eval set: **১০০–২০০টি** বাক্য — phoneme-সমৃদ্ধ বাক্য, নাম, বাংলা-ইংরেজি মিশ্রণ, সংখ্যা; বাংলাদেশ ও পশ্চিমবঙ্গ উচ্চারণ, একাধিক বক্তা। (মূল প্ল্যানের ৫০ statistically দুর্বল।)
+1. Bengali eval set: **১০০–২০০টি** বাক্য — phoneme-সমৃদ্ধ বাক্য, নাম, বাংলা-ইংরেজি মিশ্রণ, সংখ্যা; বাংলাদেশ ও পশ্চিমবঙ্গ উচ্চারণ, একাধিক বক্তা। (মূল প্ল্যানের ৫০ statistically দুর্বল।) Harness তৈরি হয়েছে — CER/WER স্কোরার ও ১২০-বাক্য draft eval set `composeApp/src/commonMain/.../voice/benchmark/`-এ; draft বাক্যগুলো এখনো native Bengali review বাকি।
 2. প্রতিটি STT প্রার্থীর CER ও WER on-device মাপা (flagship + mid-range, noise-সহ), Unicode NFC normalization-এর পর। লক্ষ্য (প্রস্তাবিত, মাপার পর পুনর্বিবেচ্য): clean CER ≤ 15%, noisy ≤ 25%।
 3. TTS বোধগম্যতা: বাংলাভাষী ≥ ৫ জন rater; ২–৩ বাক্যের chat উত্তরে শেষ পর্যন্ত বোঝা যাচ্ছে কিনা।
 4. **(নতুন)** On-device LLM-এর বাংলা উত্তরের মান যাচাই। STT/TTS ভালো হয়েও LLM দুর্বল বাংলা দিলে ফিচার কাজ করবে না।
