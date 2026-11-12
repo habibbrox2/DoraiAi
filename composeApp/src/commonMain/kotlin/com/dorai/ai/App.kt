@@ -179,6 +179,7 @@ private fun AppContent(
     LaunchedEffect(appLanguage) {
         try {
             applyAppLanguage(appLanguage.code)
+            applyAndroidLocale(appLanguage.code)
         } catch (_: Exception) {
             // best-effort; ignore on platforms without Locale support
         }

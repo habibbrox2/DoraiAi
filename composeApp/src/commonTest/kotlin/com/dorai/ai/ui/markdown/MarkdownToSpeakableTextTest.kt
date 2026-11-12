@@ -87,6 +87,23 @@ class MarkdownToSpeakableTextTest {
     }
 
     @Test
+    fun `bengali list items end with danda not ascii period`() {
+        assertEquals("প্রথম।\nদ্বিতীয়।", speak("- প্রথম\n- দ্বিতীয়"))
+        assertEquals("already done।", speak("- already done।"))
+    }
+
+    @Test
+    fun `mixed bengali latin items ending in latin use ascii period`() {
+        assertEquals("মিশ্র text.", speak("- মিশ্র text"))
+    }
+
+    @Test
+    fun `bengali list items ending with ASCII period are preserved`() {
+        // An explicit ASCII period is author-provided; we don't rewrite it.
+        assertEquals("ঠিক আছে.", speak("- ঠিক আছে."))
+    }
+
+    @Test
     fun `multiple blank lines collapse to single paragraph break`() {
         assertEquals("a\n\nb", speak("a\n\n\n\nb"))
     }

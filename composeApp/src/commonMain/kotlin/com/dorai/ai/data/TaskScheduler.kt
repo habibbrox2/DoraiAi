@@ -194,6 +194,8 @@ class TaskScheduler(
             }
             manager.markHeartbeatExecuted()
             manager.recordHeartbeat(success = true)
+            // ASCII sentinel check: DEFAULT_HEARTBEAT_PROMPT always instructs ASCII HEARTBEAT_OK.
+            // Localized heartbeat prompts (Bengali) keep the sentinel ASCII too — see HeartbeatManager.
             if (response.isNotBlank() && "HEARTBEAT_OK" !in response) {
                 dataRepository.addAssistantMessage(response)
                 // Push-notify only when the user won't see the in-app banner.

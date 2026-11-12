@@ -173,8 +173,8 @@ private data class AssistantTurn(
 private enum class BailoutReason { LIMIT_REACHED, REPEATING }
 
 private fun bailoutPrompt(reason: BailoutReason): String = when (reason) {
-    BailoutReason.LIMIT_REACHED -> "You have reached the tool call limit. Please respond with the best answer you have so far based on the information gathered."
-    BailoutReason.REPEATING -> "You are repeating the same tool calls. Please respond with the best answer you have so far."
+    BailoutReason.LIMIT_REACHED -> "You have reached the tool call limit. Please respond with the best answer you have so far based on the information gathered. ${PromptLanguageRules.FOLLOW_MARKER}"
+    BailoutReason.REPEATING -> "You are repeating the same tool calls. Please respond with the best answer you have so far. ${PromptLanguageRules.FOLLOW_MARKER}"
 }
 
 private interface ToolLoopStrategy {
@@ -2214,7 +2214,7 @@ class RemoteDataRepository(
             }
         }
 
-        val summaryPrompt = "Summarize this conversation concisely, preserving key facts, decisions, and any information the assistant would need to continue helping. Be brief but complete:\n\n$transcript"
+        val summaryPrompt = "Summarize this conversation concisely, preserving key facts, decisions, and any information the assistant would need to continue helping. Write the summary in the same language the conversation is primarily in (or the active app language). ${PromptLanguageRules.FOLLOW_MARKER} Be brief but complete:\n\n$transcript"
 
         val summary = try {
             askSilently(summaryPrompt)
@@ -2548,10 +2548,12 @@ class RemoteDataRepository(
 
     override suspend fun getActiveSystemPrompt(variant: SystemPromptVariant): String? {
         val baseSoul = appSettings.getSoulText().ifEmpty { getString(Res.string.default_soul) }
+        val languageRules = PromptLanguageRules.languageRulesFor(appSettings.getAppLanguage())
         val soul = if (!baseSoul.contains("DORAI AI")) {
-            "You are DORAI AI. If asked \"তুমি কে\" or who you are, introduce yourself gracefully and beautifully as DORAI AI, state the current model name you are running on (provided in ## Context), and describe your capabilities warmly and politely in the user's language (Bengali if asked in Bengali, English if asked in English).\n\nCRITICAL LANGUAGE RULES:\n- ALWAYS respond in the EXACT same language as the user's message. Detect the primary language of the user's query and match it precisely.\n- NEVER mix languages, switch languages mid-response, or insert words from other languages.\n- For Bengali queries, respond entirely in natural Bengali. For English queries, respond entirely in natural English. For other languages, match that language exactly.\n- Do NOT translate or change proper nouns, technical terms, code, URLs, or file paths.\n- Avoid code-switching, unnecessary transliteration, or language bleed from training data.\n- Maintain correct grammar, spelling, and natural phrasing in the target language.\n- For technical explanations, use appropriate terminology in the user's language without mixing in other languages.\n\n$baseSoul"
+            "You are DORAI AI. If asked \"তুমি কে\" or who you are, introduce yourself gracefully and beautifully as DORAI AI, state the current model name you are running on (provided in ## Context), and describe your capabilities warmly and politely in the user's language (Bengali if asked in Bengali, English if asked in English).\n\n$languageRules\n\n$baseSoul"
         } else {
-            baseSoul
+            // Never drop the language rules just because the soul is customized.
+            "$languageRules\n\n$baseSoul"
         }
         val memoryEnabled = appSettings.isMemoryEnabled()
         val schedulingEnabled = appSettings.isSchedulingEnabled()

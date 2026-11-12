@@ -50,6 +50,31 @@ class HeartbeatPromptBuilderTest {
     )
 
     @Test
+    fun `report language line is added when activeLanguageName provided`() {
+        val out = buildHeartbeatPrompt(
+            customOrDefaultPrompt = "[HEARTBEAT] check yourself",
+            heartbeatAdditions = emptyList(),
+            recentResponses = emptyList(),
+            pendingTasks = emptyList(),
+            emailAccounts = emptyList(),
+            pendingEmails = emptyList(),
+            pendingSms = emptyList(),
+            pendingNotifications = emptyList(),
+            promotionCandidates = emptyList(),
+            activeLanguageName = "বাংলা",
+        )
+        assertTrue(out.contains("বাংলা"))
+        assertTrue(out.contains("HEARTBEAT_OK"))
+        assertTrue(out.contains("ASCII"))
+    }
+
+    @Test
+    fun `report language line is omitted when activeLanguageName null`() {
+        val out = build()
+        assertFalse(out.contains("active app language"))
+    }
+
+    @Test
     fun `default emits only the opening prompt and a trailing newline`() {
         val out = build(customOrDefaultPrompt = "[HEARTBEAT] check yourself")
         assertEquals("[HEARTBEAT] check yourself\n", out)

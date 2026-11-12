@@ -93,6 +93,7 @@ import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import kotlinx.coroutines.launch
 import nl.marc_apps.tts.TextToSpeechInstance
 import nl.marc_apps.tts.errors.TextToSpeechSynthesisInterruptedError
+import nl.marc_apps.tts.experimental.ExperimentalVoiceApi
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -104,6 +105,7 @@ import org.koin.compose.koinInject
  * collapsible reasoning/thinking blocks, TTS speech, tool authorization approvals, dynamic UI,
  * proactive heartbeat & SMS banners, conversation management, and undo actions.
  */
+@OptIn(ExperimentalVoiceApi::class)
 @Composable
 fun DoraiChatScreenConnected(
     viewModel: ChatViewModel,
@@ -362,6 +364,22 @@ fun DoraiChatScreenConnected(
                                 } catch (_: Exception) {}
                                 try {
                                     textToSpeech.volume = (appSettings.getTtsVolume() * 100).toInt()
+                                } catch (_: Exception) {}
+                                // Bengali/English: pick a voice matching the app language when the
+                                // engine's current voice doesn't speak it (Google TTS ships bn-IN voices).
+                                try {
+                                    val appLangCode = appSettings.getAppLanguage().code
+                                    val currentVoiceLang = try {
+                                        textToSpeech.language
+                                    } catch (_: Exception) {
+                                        ""
+                                    }
+                                    if (!currentVoiceLang.startsWith(appLangCode)) {
+                                        val match = textToSpeech.voices.firstOrNull { voice ->
+                                            voice.languageTag.startsWith(appLangCode)
+                                        }
+                                        if (match != null) textToSpeech.currentVoice = match
+                                    }
                                 } catch (_: Exception) {}
                                 textToSpeech.say(msg.text.toSpeakableText())
                             } catch (_: TextToSpeechSynthesisInterruptedError) {

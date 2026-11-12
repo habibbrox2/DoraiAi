@@ -89,6 +89,14 @@ internal const val DEFAULT_HONESTY_RULE =
     "Do not fabricate tool outputs, file contents, citations, or completed work."
 
 /**
+ * One-line pointer that keeps the language contract visible even if this builder is
+ * called with a soul that lacks the injected rules (e.g. pre-migration persisted
+ * sessions). The actual rules live in [PromptLanguageRules] / soul injection.
+ */
+internal const val DEFAULT_LANGUAGE_POINTER =
+    "LANGUAGE POLICY: Follow the CRITICAL LANGUAGE RULES in this prompt; never switch languages silently."
+
+/**
  * Universal tool-use policy composed into every chat variant. Lives as its own constant
  * (not in the soul string) so it survives user customization of the soul — the same
  * reasoning as [DEFAULT_HONESTY_RULE]. Has a `##` header because it's three sentences
@@ -209,6 +217,8 @@ internal fun buildChatSystemPrompt(
     }
 
     append(soul)
+    if (isNotEmpty()) append("\n\n")
+    append(DEFAULT_LANGUAGE_POINTER)
 
     if (isNotEmpty()) append("\n\n")
     append(DEFAULT_HONESTY_RULE)
