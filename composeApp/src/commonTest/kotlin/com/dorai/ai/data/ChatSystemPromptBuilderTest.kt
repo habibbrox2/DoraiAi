@@ -68,6 +68,7 @@ class ChatSystemPromptBuilderTest {
         emailAccounts: List<EmailAccountSummary> = emptyList(),
         uiMode: ChatPromptUiMode = ChatPromptUiMode.NONE,
         activeSkill: com.dorai.ai.skills.SkillManifest? = null,
+        agentMode: String = "build",
     ) = buildChatSystemPrompt(
         variant = variant,
         soul = soul,
@@ -85,6 +86,7 @@ class ChatSystemPromptBuilderTest {
         runtime = runtime,
         uiMode = uiMode,
         activeSkill = activeSkill,
+        agentMode = agentMode,
     )
 
     private fun skill(
@@ -98,6 +100,39 @@ class ChatSystemPromptBuilderTest {
         body = body,
         bundledFilePaths = bundledFilePaths,
     )
+
+    @Test
+    fun `Ask mode composes a read-only Ask section and blocks state-changing guidance`() {
+        val ask = build(SystemPromptVariant.CHAT_REMOTE, agentMode = "ask")
+        assertTrue("## Mode: Ask" in ask)
+        assertTrue(ask.contains("Do not call tools that change files"))
+    }
+
+    @Test
+    fun `Plan mode composes a plan-first section and forbids state-changing commands`() {
+        val plan = build(SystemPromptVariant.CHAT_REMOTE, agentMode = "plan")
+        assertTrue("## Mode: Plan" in plan)
+        assertTrue(plan.contains("Do NOT edit, commit, install"))
+    }
+
+    @Test
+    fun `Review mode composes a review-only reporting section`() {
+        val review = build(SystemPromptVariant.CHAT_REMOTE, agentMode = "review")
+        assertTrue("## Mode: Review" in review)
+        assertTrue(review.contains("Do not edit files"))
+    }
+
+    @Test
+    fun `Build mode emits no mode section`() {
+        val build = build(SystemPromptVariant.CHAT_REMOTE, agentMode = "build")
+        assertTrue("## Mode: " !in build)
+    }
+
+    @Test
+    fun `unknown agent mode falls back to Build behaviour`() {
+        val fallback = build(SystemPromptVariant.CHAT_REMOTE, agentMode = "bogus")
+        assertTrue("## Mode: " !in fallback)
+    }
 
     @Test
     fun `active skill section is absent by default and present when activated`() {

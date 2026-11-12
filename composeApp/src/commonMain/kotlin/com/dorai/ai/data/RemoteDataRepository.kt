@@ -2645,10 +2645,19 @@ class RemoteDataRepository(
             runtime = runtime,
             uiMode = uiMode,
             activeSkill = activeSkill,
+            agentMode = getActiveAgentMode(),
         ).ifEmpty { null }
     }
 
     override fun isDynamicUiEnabled(): Boolean = appSettings.isDynamicUiEnabled()
+
+    private val agentModeFlow = MutableStateFlow("build")
+    override fun getActiveAgentMode(): String = agentModeFlow.value
+    override fun getDefaultAgentMode(): String = appSettings.getDefaultAgentMode().takeIf { it in setOf("ask", "plan", "build", "review") } ?: "build"
+    override fun setActiveAgentMode(mode: String) {
+        val normalized = if (mode in setOf("ask", "plan", "build", "review")) mode else "build"
+        agentModeFlow.value = normalized
+    }
 
     override fun setDynamicUiEnabled(enabled: Boolean) {
         appSettings.setDynamicUiEnabled(enabled)

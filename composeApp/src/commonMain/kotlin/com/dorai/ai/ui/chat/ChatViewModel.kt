@@ -121,10 +121,13 @@ class ChatViewModel(
         ChatUiState(
             actions = actions,
             showPrivacyInfo = dataRepository.isUsingSharedKey(),
+            selectedAgentModeId = dataRepository.getDefaultAgentMode(),
         ),
     )
 
     init {
+        // Bridge the UI-selected mode into the runtime agent before any prompt is built.
+        dataRepository.setActiveAgentMode(_state.value.selectedAgentModeId)
         updateAvailableServices()
         // Restore the configured provider's model list automatically after a cold start.
         // The selected model id is persisted separately; this refresh repopulates the
@@ -821,19 +824,24 @@ class ChatViewModel(
 
     /**
      * Selects the UI v2 agent mode for the current chat session.
-     * Validates against the known ids and keeps "build" in sync with the
-     * tool-calling (interactive) loop so Build mode actually enables tools.
+     *
+     * Applies the mode to the runtime agent ([RemoteDataRepository.setActiveAgentMode]) so the
+     * system prompt carries the matching work-mode section; keeps the interactive (agentic)
+     * tool loop in sync — Build gets tools, Ask/Plan/Review run conversational/analysis flows.
      */
     private fun setAgentMode(modeId: String) {
         val validIds = listOf("ask", "plan", "build", "review")
         val normalized = modeId.takeIf { it in validIds } ?: "ask"
-        if (_state.value.selectedAgentModeId == normalized) return
-        _state.update { it.copy(selectedAgentModeId = normalized) }
-        // Build mode needs the agentic tool loop; other modes stay conversational.
-        // Guarded by supportsAgenticFlows check already applied at picker level.
-        if (normalized == "build") {
-            setInteractiveMode(true)
+        if (_state.value.selectedAgentModeId == normalized) {
+            // Keep the repository's mode in sync even if state already matches — a restored
+            // session reaches the same mode via a different path.
+            dataRepository.setActiveAgentMode(normalized)
+            return
         }
+        _state.update { it.copy(selectedAgentModeId = normalized) }
+        dataRepository.setActiveAgentMode(normalized)
+        // Build mode needs the agentic tool loop; other modes stay conversational.
+        setInteractiveMode(normalized == "build")
     }
 
     private fun resubmit(messageId: String, event: String, data: Map<String, String>) {

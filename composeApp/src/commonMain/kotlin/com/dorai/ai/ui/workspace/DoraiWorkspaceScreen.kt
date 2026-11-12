@@ -221,8 +221,8 @@ private fun WorkspaceSetupView(onCompleteSetup: () -> Unit) {
 
             Spacer(modifier = Modifier.height(DoraiSpacing.SM))
 
-            SetupStepRow(number = "1", text = stringResource(Res.string.workspace_setup_step_1), isDone = true)
-            SetupStepRow(number = "2", text = stringResource(Res.string.workspace_setup_step_2), isDone = true)
+            SetupStepRow(number = "1", text = stringResource(Res.string.workspace_setup_step_1), isDone = false)
+            SetupStepRow(number = "2", text = stringResource(Res.string.workspace_setup_step_2), isDone = false)
             SetupStepRow(number = "3", text = stringResource(Res.string.workspace_setup_step_3), isDone = false)
 
             Spacer(modifier = Modifier.height(DoraiSpacing.MD))

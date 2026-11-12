@@ -141,6 +141,14 @@ interface DataRepository {
     fun isDynamicUiEnabled(): Boolean
     fun setDynamicUiEnabled(enabled: Boolean)
 
+    // Active agent mode for chat conversations ("ask" | "plan" | "build" | "review").
+    // Heartbeat and background runs ignore this and behave as "build".
+    fun getActiveAgentMode(): String
+    fun setActiveAgentMode(mode: String)
+
+    /** The persisted default for new conversations (Settings → Agent). */
+    fun getDefaultAgentMode(): String
+
     // Chat restore behavior: true (default) — reopen last conversation on app launch
     fun isRestoreLastChatEnabled(): Boolean
     fun setRestoreLastChatEnabled(enabled: Boolean)
