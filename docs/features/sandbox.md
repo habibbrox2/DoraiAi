@@ -1,12 +1,12 @@
 # Linux Sandbox
 
-**Last verified:** 2026-11-11
+**Last verified:** 2026-11-12
 
 DORAI AI ships a self-contained Linux environment on Android so the assistant — and the user, via the in-app Terminal — can run real shell commands. The agent can install packages, write and run scripts, hit the network, and reach external servers over SSH/SFTP/FTP. The sandbox runs the user-space `proot` runtime against a rootfs extracted into the app's private storage; no root or system access is required.
 
 The sandbox is **Android-only**. iOS, desktop, and web have no-op stubs — sandbox operations are simply unavailable on those platforms.
 
-> **Where the sandbox is managed:** the sandbox card lives on the **Workspace screen** (projects list, below the projects). The former **Settings → Sandbox** tab was removed — the same card, one tap away, with the same actions. The v2 Workspace also offers an **Open with** row for opening fresh projects with an installed agent (Claude Code / OpenCode / Grok instead of a plain shell) and a chip row to install missing guest agents.
+> **Where the sandbox is managed:** the sandbox card lives on the **Workspace screen** (projects list, below the projects). The former **Settings → Sandbox** tab was removed — the same card, one tap away, with the same actions. The v2 Workspace also offers an **Open with** row for opening fresh projects with an installed agent (Claude Code / OpenCode / Grok instead of a plain shell) and a chip row to install missing guest agents. Agent installers are HTTPS-only, and every downloaded installer's SHA-256 is appended to `/root/.local/state/dorai-agent-install.log` for a guest-side audit trail (all three vendors self-verify their payloads: Claude via checksum manifest, Grok via `--version`, OpenCode via versioned release preflight).
 
 ## Concepts
 

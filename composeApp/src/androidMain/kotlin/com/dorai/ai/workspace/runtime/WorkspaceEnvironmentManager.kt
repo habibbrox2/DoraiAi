@@ -1186,20 +1186,29 @@ class WorkspaceEnvironmentManager(
                 isRepository = false,
             )
         }
-        val root = "/root/projects/$project"
-        val dest = File(root)
+        // Guest cwd is /root/projects/<project>; the host side that maps to it is
+        // `paths.projectsDir/<project>` — a plain `File("/root/projects/...")` points at a
+        // path that never exists on the host (overwrite guard dead, mkdirs is a no-op,
+        // brand-new projects always failed).
+        val guestRoot = "/root/projects/$project"
+        val dest = File(paths.projectsDir, project)
         if (dest.exists()) {
             return@withContext WorkspaceGitResult(
                 error = WorkspaceGitError.Failed,
                 isRepository = false,
             )
         }
-        dest.mkdirs()
+        if (!dest.mkdirs()) {
+            return@withContext WorkspaceGitResult(
+                error = WorkspaceGitError.Failed,
+                isRepository = false,
+            )
+        }
         val result = try {
             executor().execute(
                 command = "git clone --depth=1 --quiet ${shellQuote(url)} .",
                 timeoutSeconds = 120,
-                workingDir = root,
+                workingDir = guestRoot,
             )
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e

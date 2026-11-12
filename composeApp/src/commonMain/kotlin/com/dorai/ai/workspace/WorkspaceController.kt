@@ -150,7 +150,15 @@ class NoOpWorkspaceController : WorkspaceController {
     override fun cancel() {}
     override fun uninstall() {}
     override fun refresh() {}
-    override suspend fun gitStatus(project: String): WorkspaceGitResult = WorkspaceGitResult()
+
+    /**
+     * No platform integration — never claims a repository exists. Every git caller must see an
+     * honest "failed/not a repo" signal instead of a phantom clean working tree.
+     */
+    override suspend fun gitStatus(project: String): WorkspaceGitResult = WorkspaceGitResult(
+        error = WorkspaceGitError.Failed,
+        isRepository = false,
+    )
     override suspend fun gitClone(project: String, url: String): WorkspaceGitResult = WorkspaceGitResult(error = WorkspaceGitError.Failed, isRepository = false)
     override suspend fun gitLog(project: String, maxCount: Int): List<WorkspaceGitLogEntry> = emptyList()
     override suspend fun gitFetch(project: String): WorkspaceGitResult = WorkspaceGitResult(error = WorkspaceGitError.Failed, isRepository = false)
