@@ -1309,6 +1309,8 @@
     <string name="settings_voice_mode">ভয়েস মোড</string>
     <string name="settings_voice_mode_description">DORAI AI-এর সাথে কথা বলুন ও উত্তর শুনুন। ডিভাইসের নিজস্ব স্পিচ রিকগনাইজার ব্যবহার হয়; অফলাইন ল্যাঙ্গুয়েজ মডেল ইনস্টল থাকলে এটি অফলাইনেও কাজ করে।</string>
     <string name="settings_voice_models_title">অফলাইন ভয়েস মডেল</string>
+    <string name="settings_voice_models_empty_title">এখনো কোনো অফলাইন মডেল নেই</string>
+    <string name="settings_voice_models_empty_body">Voice Mode ডিভাইসের নিজস্ব recognizer দিয়ে কাজ করে — ফোনে মডেল থাকলে আরও ভালো ও সম্পূর্ণ offline গুণমান পাওয়া যায়। উপলব্ধ মডেল এখানে দেখা যাবে।</string>
     <string name="settings_voice_download">ডাউনলোড</string>
     <string name="settings_voice_downloading">ডাউনলোড হচ্ছে… %1$d%%</string>
     <string name="settings_voice_paused">বিরতি দেওয়া আছে — যেখানে থেমেছে সেখান থেকেই আবার চালু হবে</string>

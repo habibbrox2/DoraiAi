@@ -29,6 +29,8 @@ import dorai.composeapp.generated.resources.settings_voice_mobile_data
 import dorai.composeapp.generated.resources.settings_voice_mobile_data_description
 import dorai.composeapp.generated.resources.settings_voice_mode
 import dorai.composeapp.generated.resources.settings_voice_mode_description
+import dorai.composeapp.generated.resources.settings_voice_models_empty_body
+import dorai.composeapp.generated.resources.settings_voice_models_empty_title
 import dorai.composeapp.generated.resources.settings_voice_models_title
 import dorai.composeapp.generated.resources.settings_voice_pause
 import dorai.composeapp.generated.resources.settings_voice_paused
@@ -83,6 +85,18 @@ internal fun VoiceSettingsSection(
                 description = stringResource(Res.string.settings_voice_mobile_data_description),
                 checked = uiState.isVoiceMobileDataAllowed,
                 onCheckedChange = actions.onToggleVoiceMobileData,
+            )
+        } else {
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = stringResource(Res.string.settings_voice_models_empty_title),
+                style = DoraiTypography.bodyMedium,
+                color = LocalDesignColorTokens.current.textPrimary,
+            )
+            Text(
+                text = stringResource(Res.string.settings_voice_models_empty_body),
+                style = DoraiTypography.bodySmall,
+                color = LocalDesignColorTokens.current.textSecondary,
             )
         }
     }

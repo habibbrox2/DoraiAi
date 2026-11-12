@@ -9,6 +9,17 @@ generated: { by: human:opencode, at: 2026-11-12T00:00:00Z }
 
 # Update log
 
+## 2026-11-13 — Phase 3 hardening pack A (docs + empty state)
+
+- New bundle entries: `pin-bump.md` (how to move a catalog pin — commit, digests, sizes and
+  sign-off as one atomic edit, plus the re-measure mandate) and `phase3-device-checklist.md`
+  (real-device test list for Phase 3; the emulator proves functionality, never performance).
+- Settings → Voice now shows an honest empty state when the model catalog is empty instead of
+  hiding the whole Models area silently (`settings_voice_models_empty_title/body`, en + bn).
+- Phase 3 items that require a physical device (airplane-mode full-offline test, device tiers,
+  battery/thermal, APK size split, golden-audio regression) remain open — see the checklist;
+  none of them may be claimed as measured without device numbers.
+
 ## 2026-11-13 — Coqui bn VITS license sign-off recorded
 
 - `csukuangfj/vits-coqui-bn-custom_female` flipped to `licenseVerified = true` in
