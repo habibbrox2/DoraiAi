@@ -183,7 +183,18 @@ fun History.toGroqMessageDto(
         } else {
             emptyList()
         }
-        val fullText = "${split.textPrefix}$content"
+        // OpenAI-compatible providers receive neither binary PDF support nor the full multipart
+        // schema — so a PDF attachment would vanish from the prompt the model sees and the model
+        // would mis-answer confidently. Name the untransmittable attachments in the text instead.
+        val droppedNames = split.binaries
+            .filter { !it.mimeType.startsWith("image/") }
+            .mapNotNull { it.fileName ?: it.mimeType.substringAfterLast('/') }
+        val droppedNote = if (droppedNames.isNotEmpty()) {
+            "\n\n[Attachment(s) not transmitted to the model (provider cannot carry them): ${droppedNames.joinToString(", ")}]"
+        } else {
+            ""
+        }
+        val fullText = "${split.textPrefix}$content$droppedNote"
         val messageContent: JsonElement = if (imageAttachments.isEmpty()) {
             JsonPrimitive(fullText)
         } else {
@@ -318,12 +329,21 @@ fun History.toAnthropicContentBlocks(): JsonElement = when (role) {
                         )
                     }
                     for (tc in toolCalls) {
+                        // A corrupt/truncated arguments payload (e.g. from a trimmed persisted
+                        // row) must not blow up the whole request building path — fall back to
+                        // an empty object, which providers accept.
+                        val inputElement = try {
+                            SharedJson.parseToJsonElement(tc.arguments)
+                        } catch (_: Exception) {
+                            println("ChatUiState: unparseable tool call arguments for ${tc.name}; sending empty object")
+                            buildJsonObject { }
+                        }
                         add(
                             buildJsonObject {
                                 put("type", "tool_use")
                                 put("id", tc.id)
                                 put("name", tc.name)
-                                put("input", SharedJson.parseToJsonElement(tc.arguments))
+                                put("input", inputElement)
                             },
                         )
                     }
@@ -396,8 +416,14 @@ fun History.toGeminiMessageDto(): GeminiChatRequestDto.Content {
                             // Explicitly convert to LinkedHashMap to avoid serialization issues with JsonObject
                             val args: Map<String, JsonElement>? = try {
                                 val parsed = geminiJsonParser.parseToJsonElement(tc.arguments)
-                                if (parsed is JsonObject) LinkedHashMap(parsed) else null
+                                if (parsed is JsonObject) {
+                                    LinkedHashMap(parsed)
+                                } else {
+                                    println("ChatUiState: tool call ${tc.name} arguments is not a JSON object; sending empty args")
+                                    null
+                                }
                             } catch (e: Exception) {
+                                println("ChatUiState: tool call ${tc.name} arguments not parseable (${e.message?.take(120)}); sending empty args")
                                 null
                             }
                             add(

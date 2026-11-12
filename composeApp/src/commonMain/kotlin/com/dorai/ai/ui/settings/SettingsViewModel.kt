@@ -53,6 +53,7 @@ import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -1240,8 +1241,14 @@ class SettingsViewModel(
 
     fun clearAllConversations() {
         viewModelScope.launch {
+            // A failing delete (permissions, DB locked by the OS) must not abort the batch —
+            // the remaining conversations still get a chance to be deleted.
             for (c in dataRepository.savedConversations.value.toList()) {
-                dataRepository.deleteConversation(c.id)
+                try {
+                    dataRepository.deleteConversation(c.id)
+                } catch (e: Exception) {
+                    println("SettingsViewModel: failed to delete conversation ${c.id} (${e.message?.take(120)})")
+                }
             }
         }
     }
@@ -1254,8 +1261,9 @@ class SettingsViewModel(
             return
         }
         _state.update { it.copy(pendingDeletion = null) }
-        CoroutineScope(backgroundDispatcher).launch {
-            executeDeletion(deletion)
+        CoroutineScope(SupervisorJob() + backgroundDispatcher).launch {
+            runCatching { executeDeletion(deletion) }
+                .onFailure { println("SettingsViewModel: flushing a pending deletion on clear failed (${it.message?.take(160)})") }
         }
         super.onCleared()
     }

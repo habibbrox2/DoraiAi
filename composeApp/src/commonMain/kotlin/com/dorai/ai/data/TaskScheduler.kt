@@ -97,45 +97,57 @@ class TaskScheduler(
         activeJob = schedulerScope.launch {
             while (isActive) {
                 delay(POLL_INTERVAL_MS.milliseconds)
-                if (!appSettings.isSchedulingEnabled()) continue
+                // A single bad poll (settings store error, poller blowing up mid-iteration,
+                // a scheduler-managed call that throws) must not kill the scheduler loop —
+                // the daemon would keep its foreground notification but never do real work again.
+                try {
+                    if (!appSettings.isSchedulingEnabled()) continue
 
-                val dueTasks = taskStore.getDueTasks()
-                for (task in dueTasks) {
-                    if (isLoadingCheck()) break
+                    val dueTasks = taskStore.getDueTasks()
+                    for (task in dueTasks) {
+                        if (isLoadingCheck()) break
 
-                    try {
-                        // Bind tool calls to the heartbeat conversation's sandbox session
-                        // — the scheduled-task result also lands in that conversation
-                        // (see `addAssistantMessage`), so routing its shell commands
-                        // there too keeps shell state coherent with the visible output.
-                        val taskConversationId = dataRepository.getOrCreateHeartbeatConversationId()
-                        val response = dataRepository.askWithTools(task.prompt, conversationIdOverride = taskConversationId)
-                        if (response.isNotBlank()) {
-                            val header = task.description.ifBlank { "Scheduled task" }
-                            dataRepository.addAssistantMessage("**$header**\n\n$response")
+                        try {
+                            // Bind tool calls to the heartbeat conversation's sandbox session
+                            // — the scheduled-task result also lands in that conversation
+                            // (see `addAssistantMessage`), so routing its shell commands
+                            // there too keeps shell state coherent with the visible output.
+                            val taskConversationId = dataRepository.getOrCreateHeartbeatConversationId()
+                            val response = dataRepository.askWithTools(task.prompt, conversationIdOverride = taskConversationId)
+                            if (response.isNotBlank()) {
+                                val header = task.description.ifBlank { "Scheduled task" }
+                                dataRepository.addAssistantMessage("**$header**\n\n$response")
+                                handleTaskCompletion(task)
+                            } else {
+                                // Zero configured services (or an empty AI answer): treat as failure so
+                                // the backoff schedule applies instead of silently "completing" the task.
+                                handleTaskFailure(task, "No configured service")
+                            }
+                        } catch (e: Exception) {
+                            // Stopped mid-run (daemon shut down): leave the task due so it runs next
+                            // time instead of recording a failure and advancing past this occurrence.
+                            if (e is kotlinx.coroutines.CancellationException) throw e
+                            handleTaskFailure(task, formatException(e))
                         }
-                        handleTaskCompletion(task)
-                    } catch (e: Exception) {
-                        // Stopped mid-run (daemon shut down): leave the task due so it runs next
-                        // time instead of recording a failure and advancing past this occurrence.
-                        if (e is kotlinx.coroutines.CancellationException) throw e
-                        handleTaskFailure(task, formatException(e))
                     }
-                }
 
-                if (!isLoadingCheck() && heartbeatManager?.isHeartbeatDue() == true) {
-                    runHeartbeat()
-                }
+                    if (!isLoadingCheck() && heartbeatManager?.isHeartbeatDue() == true) {
+                        runHeartbeat()
+                    }
 
-                // Email polling
-                if (!isLoadingCheck() && isEmailSupported && appSettings.isEmailEnabled() && emailStore != null) {
-                    checkNewEmails { isLoadingCheck() }
-                }
+                    // Email polling
+                    if (!isLoadingCheck() && isEmailSupported && appSettings.isEmailEnabled() && emailStore != null) {
+                        checkNewEmails { isLoadingCheck() }
+                    }
 
-                // SMS polling — FOSS-only (gated on `isSmsSupported`, which is true only
-                // when READ_SMS is declared in the merged manifest).
-                if (!isLoadingCheck() && isSmsSupported && appSettings.isSmsEnabled() && smsStore != null && smsPoller != null) {
-                    checkNewSms()
+                    // SMS polling — FOSS-only (gated on `isSmsSupported`, which is true only
+                    // when READ_SMS is declared in the merged manifest).
+                    if (!isLoadingCheck() && isSmsSupported && appSettings.isSmsEnabled() && smsStore != null && smsPoller != null) {
+                        checkNewSms()
+                    }
+                } catch (e: Exception) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    println("TaskScheduler: scheduler iteration failed (${e.message?.take(120)}); continuing")
                 }
             }
         }
@@ -168,6 +180,18 @@ class TaskScheduler(
                 instanceId = manager.getConfig().heartbeatInstanceId,
                 conversationIdOverride = heartbeatConversationId,
             )
+            if (response.isBlank()) {
+                // No configured service answered (or an empty AI answer). Do NOT clear the
+                // pending email/SMS/notification queues or advance the email watermark —
+                // the user must not silently lose messages the heartbeat never processed.
+                // Advance lastHeartbeatEpochMs anyway so a persistently failing configuration
+                // retries on its configured interval instead of every scheduler tick,
+                // and record the failure honestly.
+                manager.markHeartbeatExecuted()
+                manager.recordHeartbeat(success = false, error = "No configured service")
+                println("TaskScheduler: heartbeat skipped — no configured service answered")
+                return
+            }
             manager.markHeartbeatExecuted()
             manager.recordHeartbeat(success = true)
             if (response.isNotBlank() && "HEARTBEAT_OK" !in response) {
@@ -216,7 +240,11 @@ class TaskScheduler(
                 notificationStore?.removePending(pendingNotifications)
             }
             // Sweep retention bounds opportunistically after each heartbeat run.
-            notificationStore?.sweep()
+            // Isolated from the AI-call failure attribution: a settings-store error here
+            // must not be logged as a heartbeat/model failure.
+            runCatching { notificationStore?.sweep() }.onFailure { sweepError ->
+                println("TaskScheduler: notification sweep failed (${sweepError.message?.take(120)})")
+            }
         } catch (e: Exception) {
             if (e is kotlinx.coroutines.CancellationException) throw e
             // Advance the watermark on failure too: without this a persistently
@@ -224,7 +252,7 @@ class TaskScheduler(
             // hammers the user's quota with no backoff. A failed attempt now
             // waits a full interval before the next one, same as a successful run.
             manager.markHeartbeatExecuted()
-            manager.recordHeartbeat(success = false, error = e.message ?: e.toString())
+            manager.recordHeartbeat(success = false, error = sanitizeHeartbeatError(e))
         }
     }
 
@@ -298,6 +326,19 @@ class TaskScheduler(
         return "$type: $msg"
     }
 
+    /**
+     * Keep heartbeat-log entries free of request/response payload fragments: an
+     * alpha/provider 400 or tool error can echo prompt text, so only the first line,
+     * truncated, lands in the log.
+     */
+    private fun sanitizeHeartbeatError(e: Exception): String {
+        val type = e::class.simpleName ?: "Exception"
+        val firstLine = (e.message ?: type).lineSequence()
+            .firstOrNull { it.isNotBlank() }
+            ?: return type
+        return firstLine.take(200)
+    }
+
     private fun appendExecution(task: ScheduledTask, success: Boolean, message: String?): List<TaskExecutionLogEntry> {
         val entry = TaskExecutionLogEntry(
             timestampEpochMs = Clock.System.now().toEpochMilliseconds(),
@@ -310,7 +351,7 @@ class TaskScheduler(
     private suspend fun handleTaskFailure(task: ScheduledTask, error: String? = null) {
         val now = Clock.System.now()
         val failures = task.consecutiveFailures + 1
-        val reason = error ?: "unknown error"
+        val reason = error?.lineSequence()?.firstOrNull { it.isNotBlank() }?.take(200) ?: "unknown error"
         val log = appendExecution(task, success = false, message = reason)
 
         if (task.cron != null) {

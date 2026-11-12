@@ -51,9 +51,12 @@ class SmsPoller(
                 updated = updated.copy(lastSeenId = newMessages.maxOf { it.id })
             }
             smsStore.updateSyncState(updated)
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (e: Exception) {
+            val fresh = smsStore.getSyncState()
             smsStore.updateSyncState(
-                syncState.copy(
+                fresh.copy(
                     lastAttemptEpochMs = attemptAt,
                     lastError = e.message ?: e::class.simpleName ?: "Poll failed",
                 ),

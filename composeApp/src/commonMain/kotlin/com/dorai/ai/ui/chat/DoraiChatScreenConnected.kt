@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,6 +63,7 @@ import dorai.composeapp.generated.resources.chat_attach_photo
 import dorai.composeapp.generated.resources.chat_attach_title
 import dorai.composeapp.generated.resources.chat_manage_providers
 import dorai.composeapp.generated.resources.chat_model_picker_title
+import dorai.composeapp.generated.resources.chat_press_back_to_exit
 import dorai.composeapp.generated.resources.chat_privacy_cloud
 import dorai.composeapp.generated.resources.chat_privacy_local
 import dorai.composeapp.generated.resources.chat_voice_unavailable
@@ -195,6 +197,7 @@ fun DoraiChatScreenConnected(
     val deletedMessage = stringResource(Res.string.snackbar_conversation_deleted)
     val undoLabel = stringResource(Res.string.snackbar_undo)
     val voiceUnavailableMsg = stringResource(Res.string.chat_voice_unavailable)
+    val doubleBackToExitMessage = stringResource(Res.string.chat_press_back_to_exit)
     LaunchedEffect(uiState.pendingConversationDeletion) {
         val pendingId = uiState.pendingConversationDeletion ?: return@LaunchedEffect
         snackbarHostState.currentSnackbarData?.dismiss()
@@ -227,7 +230,7 @@ fun DoraiChatScreenConnected(
             scope.launch {
                 snackbarHostState.currentSnackbarData?.dismiss()
                 snackbarHostState.showSnackbar(
-                    message = "Press back again to exit",
+                    message = doubleBackToExitMessage,
                     duration = SnackbarDuration.Short,
                 )
             }
@@ -385,7 +388,7 @@ fun DoraiChatScreenConnected(
                                 .clip(shape)
                                 .background(if (isSelected) colors.surface2 else colors.surface)
                                 .border(1.dp, if (isSelected) colors.primary else colors.line, shape)
-                                .clickable {
+                                .clickable(role = Role.Button, onClickLabel = serviceEntry.serviceName) {
                                     uiState.actions.selectService(serviceEntry.instanceId)
                                     showModelPicker = false
                                 }
@@ -438,7 +441,7 @@ fun DoraiChatScreenConnected(
                                     .clip(shape)
                                     .background(if (isActiveModel) colors.surface2 else colors.surface)
                                     .border(1.dp, if (isActiveModel) colors.primary else colors.line, shape)
-                                    .clickable {
+                                    .clickable(role = Role.Button, onClickLabel = model.displayName ?: model.id) {
                                         uiState.actions.selectModel(model.id)
                                         showModelPicker = false
                                     }
@@ -512,7 +515,7 @@ fun DoraiChatScreenConnected(
                         .clip(RoundedCornerShape(12.dp))
                         .background(colors.surface2)
                         .border(1.dp, colors.line, RoundedCornerShape(12.dp))
-                        .clickable {
+                        .clickable(role = Role.Button, onClickLabel = stringResource(Res.string.chat_attach_photo)) {
                             showAttachSheet = false
                             imagePickerLauncher.launch()
                         }
@@ -543,7 +546,7 @@ fun DoraiChatScreenConnected(
                         .clip(RoundedCornerShape(12.dp))
                         .background(colors.surface2)
                         .border(1.dp, colors.line, RoundedCornerShape(12.dp))
-                        .clickable {
+                        .clickable(role = Role.Button, onClickLabel = stringResource(Res.string.chat_attach_file)) {
                             showAttachSheet = false
                             filePickerLauncher?.launch()
                         }

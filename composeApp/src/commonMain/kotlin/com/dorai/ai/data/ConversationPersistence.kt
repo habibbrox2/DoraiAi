@@ -163,6 +163,7 @@ class SqlConversationPersistence(
         val encoded = ConversationJson.encodeToString(message)
         if (!encoded.exceedsUtf8Budget(MAX_MESSAGE_JSON_BYTES)) return encoded
 
+        println("ConversationPersistence: message ${message.id} exceeds the $MAX_MESSAGE_JSON_BYTES-byte row budget; dropping file attachments")
         val withoutFiles = message.copy(
             attachments = emptyList(),
             mimeType = null,
@@ -172,6 +173,7 @@ class SqlConversationPersistence(
         val withoutFilesJson = ConversationJson.encodeToString(withoutFiles)
         if (!withoutFilesJson.exceedsUtf8Budget(MAX_MESSAGE_JSON_BYTES)) return withoutFilesJson
 
+        println("ConversationPersistence: message ${message.id} still over budget after dropping attachments; trimming text and reasoning trace")
         // Everything that can still be large goes: the reasoning trace, and the copy
         // of the source message a dorai-ui submission carries. What is left is bounded
         // by MAX_MESSAGE_TEXT_CHARS, so the row is guaranteed to fit.
@@ -183,16 +185,34 @@ class SqlConversationPersistence(
         val trimmedJson = ConversationJson.encodeToString(trimmed)
         if (!trimmedJson.exceedsUtf8Budget(MAX_MESSAGE_JSON_BYTES)) return trimmedJson
 
-        // Tool-call argument payloads are unbounded (a shell command can carry a whole
-        // heredoc). Shrink them, then drop them, so the row always fits eventually.
-        val argumentsTrimmed = trimmed.copy(
+        // Tool-call arguments are unbounded (a shell command can carry a whole heredoc).
+        // Cutting mid-JSON would poison every future restore of this message, so oversized
+        // (or unparseable) arguments are replaced by a valid empty object instead.
+        println("ConversationPersistence: message ${message.id} still over budget; sanitizing tool-call arguments")
+        val argumentSanitized = trimmed.copy(
             toolCalls = trimmed.toolCalls?.map {
-                it.copy(arguments = it.arguments.take(MAX_TOOL_CALL_ARGUMENT_CHARS), thoughtSignature = null)
+                it.copy(arguments = sanitizeToolCallArguments(it.arguments), thoughtSignature = null)
             },
         )
-        val argumentsJson = ConversationJson.encodeToString(argumentsTrimmed)
+        val argumentsJson = ConversationJson.encodeToString(argumentSanitized)
         if (!argumentsJson.exceedsUtf8Budget(MAX_MESSAGE_JSON_BYTES)) return argumentsJson
-        return ConversationJson.encodeToString(argumentsTrimmed.copy(toolCalls = null))
+
+        println("ConversationPersistence: message ${message.id} still over budget; dropping tool calls")
+        return ConversationJson.encodeToString(argumentSanitized.copy(toolCalls = null))
+    }
+
+    private fun sanitizeToolCallArguments(arguments: String): String {
+        if (arguments.length > MAX_TOOL_CALL_ARGUMENT_CHARS) {
+            println("ConversationPersistence: dropping an oversized tool-call argument payload (${arguments.length} chars)")
+            return "{}"
+        }
+        return try {
+            ConversationJson.parseToJsonElement(arguments)
+            arguments
+        } catch (_: Exception) {
+            println("ConversationPersistence: dropping an unparseable tool-call argument payload")
+            "{}"
+        }
     }
 
     private fun decodeMessage(json: String): Conversation.Message? = try {

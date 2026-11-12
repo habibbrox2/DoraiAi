@@ -21,7 +21,22 @@ class SmsDraftStore(appSettings: AppSettings) {
     )
 
     init {
-        _drafts.value = persisted.get()
+        // A draft persisted as SENDING means the app died mid-send — nothing will ever flip it,
+        // so every such draft is permanently stuck in a perpetual "sending" banner otherwise.
+        // Demote them to FAILED at startup so the failure is visible and retryable.
+        val loaded = persisted.get()
+        val reconciled = loaded.map { draft ->
+            if (draft.status == SmsDraftStatus.SENDING) {
+                draft.copy(status = SmsDraftStatus.FAILED, lastError = "Interrupted")
+            } else {
+                draft
+            }
+        }
+        if (reconciled != loaded) {
+            runCatching { persisted.set(reconciled) }
+                .onFailure { println("SmsDraftStore: failed to demote interrupted SENDING drafts (${it.message?.take(120)})") }
+        }
+        _drafts.value = reconciled
     }
 
     suspend fun addDraft(draft: SmsDraft) {

@@ -653,11 +653,33 @@ class RemoteDataRepository(
             emptyList()
         }
 
-        val inferenceMessages = messages.mapNotNull { msg ->
-            when (msg.role) {
-                History.Role.USER -> InferenceMessage(role = "user", content = msg.content)
-                History.Role.ASSISTANT -> InferenceMessage(role = "assistant", content = msg.content)
-                else -> null
+        val inferenceMessages = buildList {
+            for (msg in messages) {
+                when (msg.role) {
+                    History.Role.USER ->
+                        add(InferenceMessage(role = "user", content = msg.content))
+
+                    History.Role.ASSISTANT ->
+                        // A tool-call-only turn has empty content and would enter the local
+                        // context as a blank assistant bubble — skip it entirely.
+                        if (msg.content.isNotBlank()) {
+                            add(InferenceMessage(role = "assistant", content = msg.content))
+                        }
+
+                    History.Role.TOOL ->
+                        // The on-device engine has no notion of the OpenAI tool protocol;
+                        // digest tool results as user turns so the model can see what the
+                        // tools returned. Cap each one so one big shell dump doesn't flood
+                        // the small context window.
+                        add(
+                            InferenceMessage(
+                                role = "user",
+                                content = "Tool result (${msg.toolName ?: "tool"}): ${msg.content.take(2000)}",
+                            ),
+                        )
+
+                    else -> Unit // TOOL_EXECUTING / TOOL_CONFIRMATION never enter the context
+                }
             }
         }
 
@@ -879,10 +901,20 @@ class RemoteDataRepository(
             }
             return result
         } finally {
-            // On cancellation the fused update above never ran — drop the stranded
-            // indicator. On the success path this is a no-op (id already removed).
+            // On cancellation the fused updates never ran — drop the stranded
+            // indicator and any confirmation row that will now never be answered,
+            // and make sure the pending-confirmation registry doesn't leak an entry
+            // whose deferred nobody awaits.
+            val confirmationId = "confirm-$callId"
             history.update { h ->
-                if (h.none { it.id == executingId }) h else h.filter { it.id != executingId }
+                if (h.any { it.id == executingId || it.id == confirmationId }) {
+                    h.filter { it.id != executingId && it.id != confirmationId }
+                } else {
+                    h
+                }
+            }
+            if (pendingToolExecutions.containsKey(callId)) {
+                pendingToolExecutions.remove(callId)
             }
         }
     }
@@ -965,7 +997,9 @@ class RemoteDataRepository(
                         requestTimeoutMs = requestTimeoutMs,
                     ).getOrThrow()
                 }
-                AssistantTurn(response.extractText())
+                val text = response.extractText()
+                if (text.isEmpty() && strictEmptyResponse) throw OpenAICompatibleEmptyResponseException()
+                AssistantTurn(text)
             }
 
             Service.Anthropic -> {
@@ -977,7 +1011,9 @@ class RemoteDataRepository(
                         requestTimeoutMs = requestTimeoutMs,
                     ).getOrThrow()
                 }
-                AssistantTurn(response.extractText())
+                val text = response.extractText()
+                if (text.isEmpty() && strictEmptyResponse) throw OpenAICompatibleEmptyResponseException()
+                AssistantTurn(text)
             }
 
             else -> {
@@ -1420,7 +1456,12 @@ class RemoteDataRepository(
                 }
             }
         }
-        saveCurrentConversation()
+        // Persisting the answer must not turn a fully-streamed, on-screen answer into a
+        // user-visible request failure — the local SQLite write can be blocked by the OS
+        // or the row budget for unrelated reasons. Swallow with a diagnostic print; the
+        // answer is still visible for this session.
+        runCatching { saveCurrentConversation() }
+            .onFailure { println("RemoteDataRepository: saving the conversation after a successful reply failed (${it.message?.take(160)})") }
     }
 
     private suspend fun askWithKeylessFreeTierFallback(
@@ -1471,10 +1512,26 @@ class RemoteDataRepository(
         if (service.isOnDevice) return
         val effectiveModelId = modelId ?: instanceCredentials(instanceId, service).modelId
         val entryWindowChars = ModelCatalog.estimateContextWindow(effectiveModelId) * ESTIMATED_CHARS_PER_TOKEN
-        val historyChars = messages.sumOf { it.content.length } + (systemPrompt?.length ?: 0)
+        val historyChars = estimatedHistoryChars(messages) + (systemPrompt?.length ?: 0)
         if (historyChars > entryWindowChars) {
             throw ContextWindowExceededException()
         }
+    }
+
+    /**
+     * Effective context window for compaction/trim decisions. On-device (LiteRT) models run with
+     * much smaller windows than the catalog default — honor the model's stored/catalog value
+     * when one exists, instead of assuming the cloud default.
+     */
+    private fun effectiveContextWindowTokens(service: Service, modelId: String): Int {
+        val stored = appSettings.getModelContextTokens(modelId)
+        if (stored > 0) return stored
+        if (service.isOnDevice) {
+            val catalogModel = localInferenceEngine?.getAvailableModels()?.firstOrNull { it.id == modelId }
+            val fallback = catalogModel?.defaultContextTokens ?: 0
+            if (fallback > 0) return fallback
+        }
+        return ModelCatalog.estimateContextWindow(modelId)
     }
 
     private suspend fun handleOpenAICompatibleChatWithTools(
@@ -1486,7 +1543,7 @@ class RemoteDataRepository(
         history: MutableStateFlow<List<History>> = chatHistory,
         stream: StreamedAssistantRow? = null,
     ): AssistantTurn {
-        val contextWindowTokens = ModelCatalog.estimateContextWindow(credentials.modelId)
+        val contextWindowTokens = effectiveContextWindowTokens(service, credentials.modelId)
         val declaredToolNames = tools.map { it.schema.name }.toSet()
         // GPT-5.6 and friends reject function tools on chat completions; the same messages are
         // translated to Responses API items instead. Everything before the wire call — prompt
@@ -1576,7 +1633,7 @@ class RemoteDataRepository(
         systemPrompt: String? = null,
         history: MutableStateFlow<List<History>> = chatHistory,
     ): AssistantTurn {
-        val contextWindowTokens = ModelCatalog.estimateContextWindow(credentials.modelId)
+        val contextWindowTokens = effectiveContextWindowTokens(Service.Gemini, credentials.modelId)
         val strategy = object : ToolLoopStrategy {
             override suspend fun chat(history: List<History>, systemPrompt: String?): LoopChatResult {
                 val geminiMessages = history.map { it.toGeminiMessageDto() }
@@ -1618,7 +1675,7 @@ class RemoteDataRepository(
         systemPrompt: String? = null,
         history: MutableStateFlow<List<History>> = chatHistory,
     ): AssistantTurn {
-        val contextWindowTokens = ModelCatalog.estimateContextWindow(credentials.modelId)
+        val contextWindowTokens = effectiveContextWindowTokens(Service.Anthropic, credentials.modelId)
         val strategy = object : ToolLoopStrategy {
             override suspend fun chat(history: List<History>, systemPrompt: String?): LoopChatResult {
                 val msgs = buildAnthropicMessages(history)
@@ -1920,6 +1977,12 @@ class RemoteDataRepository(
             history.update { h ->
                 h.filter { it.id !in executingIds && it.role != History.Role.TOOL_CONFIRMATION }
             }
+            // If the run died before every tool call answered, the confirmation deferreds are
+            // stranded (nobody awaits them) — drop the registry entries so a stray tap on an
+            // invisible card can't complete a deferred nobody consumes.
+            pendingToolExecutions.keys
+                .filter { key -> toolCalls.any { (callId, _, _) -> callId == key } }
+                .forEach { pendingToolExecutions.remove(it) }
         }
     }
 
@@ -1978,6 +2041,15 @@ class RemoteDataRepository(
         throw lastException!!
     }
 
+    /** Rough char-based context-cost estimate for history entries, including attachments
+     * (base64 shrinks at most 4x into tokens via the /4 heuristic) and tool-call payloads. */
+    private fun estimatedHistoryChars(messages: List<History>): Int = messages.sumOf { msg ->
+        msg.content.length +
+            (msg.reasoningContent?.length ?: 0) +
+            (msg.toolCalls?.sumOf { it.arguments.length + it.name.length } ?: 0) +
+            msg.attachments.sumOf { (it.data.length + 3) / 4 }
+    }
+
     private fun estimateMessageChars(msg: com.dorai.ai.network.dtos.openaicompatible.OpenAICompatibleChatRequestDto.Message): Int {
         val contentChars = when (val content = msg.content) {
             is JsonArray -> {
@@ -1997,7 +2069,10 @@ class RemoteDataRepository(
 
             else -> content?.toString()?.length ?: 0
         }
-        return contentChars + msg.role.length
+        val toolCallChars = msg.tool_calls?.sumOf { call ->
+            call.function.name.length + call.function.arguments.length
+        } ?: 0
+        return contentChars + msg.role.length + toolCallChars + (msg.reasoningContent?.length ?: 0)
     }
 
     /**
@@ -2050,7 +2125,12 @@ class RemoteDataRepository(
             usedChars += groupChars
         }
 
-        return systemMessages + kept
+        val merged = systemMessages + kept
+        // Strict providers require the conversation to begin with a user message. Drop any
+        // leading non-user entries (assistant tool-call turns whose user message was trimmed)
+        // — the tool-call grouping above keeps every surviving tool round internally consistent.
+        val firstUser = merged.indexOfFirst { it.role == "user" }
+        return if (firstUser <= 0) merged else merged.drop(firstUser)
     }
 
     /**
@@ -2064,7 +2144,7 @@ class RemoteDataRepository(
         contextWindowTokens: Int = ModelCatalog.DEFAULT_CONTEXT_WINDOW_TOKENS,
     ): List<History> {
         val maxChars = contextWindowTokens * ESTIMATED_CHARS_PER_TOKEN
-        val totalChars = history.sumOf { it.content.length } + systemPromptChars
+        val totalChars = estimatedHistoryChars(history) + systemPromptChars
         if (totalChars <= maxChars) return history
 
         val availableChars = maxChars - systemPromptChars
@@ -2073,15 +2153,20 @@ class RemoteDataRepository(
         val kept = mutableListOf<History>()
         var usedChars = 0
         for (msg in history.reversed()) {
-            val msgChars = msg.content.length
+            val msgChars = msg.content.length + (msg.reasoningContent?.length ?: 0) +
+                (msg.toolCalls?.sumOf { it.arguments.length + it.name.length } ?: 0) +
+                msg.attachments.sumOf { (it.data.length + 3) / 4 }
             if (usedChars + msgChars > availableChars) break
             kept.add(0, msg)
             usedChars += msgChars
         }
 
         // Dropping from the front can cut a tool round in half; a tool result whose assistant
-        // tool call was trimmed away is an orphan that strict providers reject.
-        return kept.dropWhile { it.role == History.Role.TOOL }
+        // tool call was trimmed away is an orphan that strict providers reject. Strict providers
+        // also require the conversation to begin with a USER message, so the kept window must
+        // be coaxed back to one.
+        return kept.dropWhile { it.role != History.Role.USER }
+            .ifEmpty { listOfNotNull(history.lastOrNull { it.role == History.Role.USER } ?: history.lastOrNull()) }
     }
 
     /**
@@ -2095,11 +2180,11 @@ class RemoteDataRepository(
         val firstInstance = getConfiguredServiceInstances().firstOrNull() ?: return
         val service = Service.fromId(firstInstance.serviceId)
         val modelId = appSettings.getSelectedModelId(service)
-        val contextWindowTokens = ModelCatalog.estimateContextWindow(modelId)
+        val contextWindowTokens = effectiveContextWindowTokens(service, modelId)
 
         val history = chatHistory.value.filter { it.role != History.Role.TOOL_EXECUTING }
         val systemPromptChars = getActiveSystemPrompt()?.length ?: 0
-        val totalChars = history.sumOf { it.content.length } + systemPromptChars
+        val totalChars = estimatedHistoryChars(history) + systemPromptChars
         val maxChars = contextWindowTokens * ESTIMATED_CHARS_PER_TOKEN
         if (totalChars <= (maxChars * COMPACTION_THRESHOLD).toInt()) return
 
@@ -2138,7 +2223,15 @@ class RemoteDataRepository(
             // Summarization failed (offline, rate limit, …). While the history still fits the
             // context window, keep every turn — a transient error must not erase the conversation.
             // Only when it no longer fits at all, drop the older turns so the chat can continue.
-            if (totalChars > maxChars) chatHistory.value = recentMessages
+            if (totalChars > maxChars) chatHistory.value = recomputedWindow(previousHistory = history, originalFirstKeptId = recentMessages.firstOrNull()?.id, recentCount = recentMessages.size)
+            return
+        }
+
+        // An empty summary is not usable — keep the old turns rather than replacing the
+        // older half of the conversation with a blank marker.
+        if (summary.isBlank()) {
+            println("RemoteDataRepository: compaction produced an empty summary; keeping the existing history")
+            if (totalChars > maxChars) chatHistory.value = recomputedWindow(previousHistory = history, originalFirstKeptId = recentMessages.firstOrNull()?.id, recentCount = recentMessages.size)
             return
         }
 
@@ -2148,7 +2241,28 @@ class RemoteDataRepository(
             sentAt = Clock.System.now().toEpochMilliseconds(),
         )
 
-        chatHistory.value = listOf(summaryEntry) + recentMessages
+        // Re-anchor the kept window onto the *current* history: the summarizer suspended and
+        // another turn may have landed (or the user cleared the chat) while it ran. Writing
+        // the stale snapshot would resurrect cleared state or drop fresh turns.
+        val kept = recomputedWindow(previousHistory = history, originalFirstKeptId = recentMessages.firstOrNull()?.id, recentCount = recentMessages.size)
+        chatHistory.value = listOf(summaryEntry) + kept
+    }
+
+    /**
+     * Recompute the kept tail against the current history: the slice of [previousHistory]
+     * starting at the entry whose id matches [originalFirstKeptId], extended to everything
+     * appended to the real history since — so concurrent changes made while a suspension
+     * was in flight are not clobbered. Falls back to the plain tail if the anchor vanished
+     * (e.g. the user cleared the chat).
+     */
+    private fun recomputedWindow(previousHistory: List<History>, originalFirstKeptId: String?, recentCount: Int): List<History> {
+        val current = chatHistory.value.filter { it.role != History.Role.TOOL_EXECUTING }
+        val firstKeptId = originalFirstKeptId ?: return current
+        val start = current.indexOfFirst { it.id == firstKeptId }
+        if (start >= 0) return current.subList(start, current.size)
+        // Anchor is gone (e.g. Clear history ran during suspension): take the plain tail,
+        // or the current history if nothing matched.
+        return current.takeLast(recentCount)
     }
 
     private fun trimToRecentExchanges(history: List<History>, maxExchanges: Int): List<History> {
@@ -2156,13 +2270,11 @@ class RemoteDataRepository(
             if (h.role == History.Role.USER) index else null
         }
         if (userIndices.size <= maxExchanges) return history
-        var cutoffIndex = userIndices[userIndices.size - maxExchanges]
-        // Never start mid-tool-round: a TOOL row kept without the ASSISTANT(tool_calls)
-        // that initiated it violates the provider pairing contract on restore.
-        while (cutoffIndex < history.size && history[cutoffIndex].role == History.Role.TOOL) {
-            cutoffIndex++
-        }
-        return history.subList(cutoffIndex, history.size)
+        val dropped = userIndices.size - maxExchanges
+        println("RemoteDataRepository: trimming the persisted conversation by $dropped older exchange(s) to respect the $maxExchanges-exchange cap")
+        // The cut always lands on a USER index by construction, and ASSISTANT tool-call
+        // bundles live after the users who asked for them, so no tool round is split here.
+        return history.subList(userIndices[dropped], history.size)
     }
 
     private suspend fun saveCurrentConversation() {
@@ -2321,7 +2433,7 @@ class RemoteDataRepository(
 
     override fun regenerate() {
         chatHistory.update { history ->
-            val lastUserIndex = history.indexOfLast { it.role == History.Role.USER }
+            val lastUserIndex = history.indexOfLast { it.role == History.Role.USER && !it.hiddenFromUi }
             if (lastUserIndex >= 0) {
                 history.subList(0, lastUserIndex + 1)
             } else {
@@ -2337,7 +2449,7 @@ class RemoteDataRepository(
 
     override fun popLastExchange() {
         chatHistory.update { history ->
-            val lastUserIndex = history.indexOfLast { it.role == History.Role.USER }
+            val lastUserIndex = history.indexOfLast { it.role == History.Role.USER && !it.hiddenFromUi }
             if (lastUserIndex >= 0) history.take(lastUserIndex) else history
         }
     }
