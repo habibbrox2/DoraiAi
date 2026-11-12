@@ -30,9 +30,11 @@ kept `.part` bytes are re-hashed to rebuild the digest; each file's length and S
 before rename; a `.sha256` marker sits next to each verified file; the settings surface exposes
 download / pause / resume / delete / re-download plus the mobile-data opt-in.
 
-**The catalog entry ships with `licenseVerified = false`** because the upstream repo declares no
-license and no model card. The download button is disabled and no bytes move until the sign-off is
-recorded in the catalog.
+**The Coqui bn VITS entry is signed off — the download button is enabled** — by the project
+owner on 2026-11-13 (all flavors; recorded in `log.md`). The upstream repo still declares no
+license and no model card; the sign-off is the owner's decision, not a licensing finding. If you
+pin a bump or a new entry, it needs its own recorded sign-off. The other candidate rows in the
+"Still candidates" table are **not** signed off and stay unshipped.
 
 ## Still candidates
 
@@ -44,7 +46,7 @@ source of truth for their sizes and licenses.
 |---|---|---|
 | Speech-to-text | `csukuangfj2/sherpa-onnx-streaming-zipformer-bn-vosk-2026-02-09` | Needs a native binding and an APK size measurement; the Bengali CER/WER is unmeasured. |
 | Speech-to-text | `csukuangfj/sherpa-onnx-whisper-small` (int8) | Same native binding question; Bengali Whisper quality is known to be weak. |
-| Text-to-speech | `csukuangfj/vits-coqui-bn-custom_female` | License sign-off not complete. |
+| Text-to-speech | `csukuangfj/vits-coqui-bn-custom_female` | Pinned in the catalog and downloadable in all flavors (owner sign-off, 2026-11-13; upstream license unverified). |
 | Text-to-speech | `csukuangfj/vits-mimic3-bn-multi_low` | `espeak-ng-data` is GPL-3.0, so the `playStore` flavor needs a legal review. |
 | Text-to-speech | eSpeak-ng `bn` | GPL-3.0; restricted to the `foss` flavor. |
 

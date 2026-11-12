@@ -9,6 +9,20 @@ generated: { by: human:opencode, at: 2026-11-12T00:00:00Z }
 
 # Update log
 
+## 2026-11-13 — Coqui bn VITS license sign-off recorded
+
+- `csukuangfj/vits-coqui-bn-custom_female` flipped to `licenseVerified = true` in
+  `VoiceCatalog.kt` — **all flavors** (foss and playStore). The owner signed off accepting
+  that the hosting repo declares no license and no model card; the model lineage is Coqui
+  TTS (typically MPL-2.0). The sign-off is the owner's decision, not a licensing finding —
+  do not describe it as verified licensing.
+- The catalog pin (immutable commit, sizes, digests) is unchanged by the sign-off; a bump
+  still requires commit + digest + sign-off to move together.
+- The Settings download button is now enabled; downloads verify length + SHA-256, mark the
+  model READY only after every file passes, and the voice turn stays behind Voice Mode.
+- `VoiceCatalogTest` updated: the "no model is downloadable before sign-off" invariant now
+  asserts the recorded sign-off instead.
+
 ## 2026-11-13 — BTSD structure coverage added to the eval set
 
 - `VOICE_STRUCTURE_EVAL_SENTENCES` (`btsd-001`…`btsd-030`) added alongside the 200 command
