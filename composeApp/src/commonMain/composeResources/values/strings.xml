@@ -279,6 +279,9 @@
     <string name="settings_mcp_header_value">Value</string>
     <string name="settings_mcp_add_header">Add Header</string>
     <string name="settings_mcp_api_key">API Key (optional)</string>
+    <string name="settings_mcp_authorize">Authorize</string>
+    <string name="settings_mcp_revoke">Revoke OAuth</string>
+    <string name="settings_mcp_authorized">Authorized</string>
     <string name="settings_mcp_api_key_help">Optional. Search tools need a free key from jina.ai; other tools work without one.</string>
     <string name="settings_mcp_add">Add</string>
     <string name="settings_mcp_cancel">Cancel</string>

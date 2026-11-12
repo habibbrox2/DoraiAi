@@ -1,3 +1,13 @@
+## DORAI AI - MCP OAuth (Desktop Commander & OAuth-Native MCP Servers) (Unreleased)
+
+### Added
+- **MCP OAuth support for OAuth-native servers**: DORAI AI now completes the RFC 6749 authorization-code flow (RFC 9728 Protected Resource Metadata + RFC 8414 Authorization Server Metadata + RFC 7591 Dynamic Client Registration + S256 PKCE) end-to-end for MCP servers that require it — today this is **Desktop Commander** (`https://mcp.desktopcommander.app/mcp`), added as a popular preset. Tapping **Authorize** on the server card opens the browser; the server signs the user in, the loopback callback captures `code`, and the token pair is stored in the platform's encrypted settings. Token is refreshed lazily at connection time; **Revoke OAuth** clears the session without deleting the server.
+- **Desktop Commander preset** in the popular connectors list — "Authorize once in Connectors" used the same OAuth flow; no manual token entry needed.
+- `McpServerConfig.oauth` field (serialized in encrypted settings); `McpOAuthSession`, `McpOAuthFlow`, `McpOAuth` (discovery / DCR / exchange / refresh), `OauthCallbackListener` (platform actuals bind `127.0.0.1:<ephemeral>`), and `McpCryptoPlatform` (jvmShared SHA-256 + SecureRandom) are new.
+- Tests pin the OAuth plumbing: protected-resource URL mapping, AS metadata URL, CSPRNG length/uniqueness, PKCE S256 vector, authorization-URL parameter composition, and `McpServerConfig.oauth` roundtrip.
+
+---
+
 ## DORAI AI - Workspace Runtime Agent and Critical Audit Remediation (Unreleased)
 
 ### Added

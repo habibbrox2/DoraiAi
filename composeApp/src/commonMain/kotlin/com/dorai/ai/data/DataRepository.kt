@@ -110,6 +110,12 @@ interface DataRepository {
     fun isMcpServerConnected(serverId: String): Boolean
     suspend fun connectEnabledMcpServers()
 
+    /** OAuth flow for an MCP server; opens the system browser. Result reports success/failure to the user. */
+    suspend fun authorizeMcpServer(serverId: String): Result<Unit>
+
+    /** Drop the OAuth session for [serverId]; the server stays but its tools fail until re-authorized. */
+    fun revokeMcpServerOAuth(serverId: String)
+
     // Skills (stored in the Linux sandbox at ~/skills/<id>/; Android-only)
     fun getInstalledSkills(): List<SkillManifest>
     suspend fun uninstallSkill(id: String)

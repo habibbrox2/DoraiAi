@@ -2523,6 +2523,9 @@ class RemoteDataRepository(
         mcpServerManager.connectEnabledServers()
     }
 
+    override suspend fun authorizeMcpServer(serverId: String): Result<Unit> = mcpServerManager.authorize(serverId)
+    override fun revokeMcpServerOAuth(serverId: String) = mcpServerManager.revokeOAuth(serverId)
+
     // Skills
     override fun getInstalledSkills(): List<SkillManifest> = skillManager.getInstalled()
 
