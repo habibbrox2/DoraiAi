@@ -114,7 +114,10 @@ object TarExtractor {
             val linkName = readTarString(headerBuffer, TAR_LINK_OFFSET, 100)
 
             val outFile = File(targetDir, fullName)
-            if (!outFile.canonicalPath.startsWith(targetCanonical)) {
+            // Containment — the target must BE the rootfs or live strictly beneath it;
+            // a bare startsWith also admits a sibling like `rootfs2/evil`.
+            val outCanonical = outFile.canonicalPath
+            if (outCanonical != targetCanonical && !outCanonical.startsWith(targetCanonical + File.separator)) {
                 skipBytes(inputStream, alignToBlock(size))
                 continue
             }
@@ -144,21 +147,37 @@ object TarExtractor {
 
                 '2' -> {
                     outFile.parentFile?.mkdirs()
-                    try {
-                        if (outFile.exists()) outFile.delete()
-                        java.nio.file.Files.createSymbolicLink(
-                            outFile.toPath(),
-                            java.nio.file.Paths.get(linkName),
-                        )
-                    } catch (_: Exception) {
+                    // Refuse links that mean the host filesystem — absolute targets in a
+                    // guest's own namespace are fine under proot (guest '/' is the rootfs),
+                    // but /data, /system, /storage etc. name host-only locations, and any
+                    // `..` climb out of the rootfs would read host-private files.
+                    if (isPermissibleSymlinkTarget(linkName, outFile.parentFile, targetCanonical)) {
+                        try {
+                            if (outFile.exists() || java.nio.file.Files.isSymbolicLink(outFile.toPath())) {
+                                outFile.delete()
+                            }
+                            java.nio.file.Files.createSymbolicLink(
+                                outFile.toPath(),
+                                java.nio.file.Paths.get(linkName),
+                            )
+                        } catch (_: Exception) {
+                        }
                     }
                 }
 
                 '1' -> {
                     val linkTarget = File(targetDir, linkName)
                     outFile.parentFile?.mkdirs()
-                    if (linkTarget.exists()) {
-                        linkTarget.copyTo(outFile, overwrite = true)
+                    // Refuse hardlink sources outside the rootfs — `../`-escaping links
+                    // are the only way a tarball can copy a host file into the guest.
+                    val linkTargetCanonical = linkTarget.canonicalPath
+                    val linkTargetInside = linkTargetCanonical == targetCanonical ||
+                        linkTargetCanonical.startsWith(targetCanonical + File.separator)
+                    if (linkTargetInside && linkTargetCanonical != outCanonical) {
+                        try {
+                            if (linkTarget.exists()) linkTarget.copyTo(outFile, overwrite = true)
+                        } catch (_: Exception) {
+                        }
                     }
                 }
 
@@ -168,6 +187,25 @@ object TarExtractor {
             // Non-file entries (long-name headers, pax records) still carry a body.
             if (size > 0) skipBytes(inputStream, alignToBlock(size))
         }
+    }
+
+    /**
+     * A symlink goes in the rootfs only while proot will read its target inside the guest
+     * namespace. Absolute targets name a guest-wide path (guest '/' is the rootfs under
+     * proot), so they are allowed except for roots that exist only on the host — anything
+     * else can leak host-private files into the sandbox. Relative targets are allowed as
+     * long as they stay inside the rootfs from the symlink's location.
+     */
+    private fun isPermissibleSymlinkTarget(target: String, parentDir: File, targetCanonical: String): Boolean {
+        if (target.isEmpty()) return false
+        if (target.startsWith('/') || target.startsWith('\\')) {
+            val firstSegment = target.removePrefix("/").removePrefix("\\").substringBefore('/').substringBefore('\\').lowercase()
+            return firstSegment !in setOf("data", "storage", "system", "vendor", "proc", "sys")
+        }
+        val resolved = File(parentDir, target)
+        val resolvedCanonical = resolved.canonicalPath
+        return resolvedCanonical == targetCanonical ||
+            resolvedCanonical.startsWith(targetCanonical + File.separator)
     }
 
     private fun readTarString(buffer: ByteArray, offset: Int, length: Int): String {

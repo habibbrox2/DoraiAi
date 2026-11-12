@@ -60,25 +60,25 @@ class LinuxInstaller(private val paths: LinuxPaths) {
             currentCoroutineContext().ensureActive()
             onStep(InstallStep.Extract)
             TarExtractor.extract(archive, paths.rootfsDir)
-        } finally {
-            archive.delete()
-        }
 
-        currentCoroutineContext().ensureActive()
-        onStep(InstallStep.Configure)
-        spec.configure(paths.rootfsDir)
-        paths.ensureMountPoints()
+            currentCoroutineContext().ensureActive()
+            onStep(InstallStep.Configure)
+            spec.configure(paths.rootfsDir)
+            paths.ensureMountPoints()
 
-        val launcher = launcherFor(spec)
-        try {
+            val launcher = launcherFor(spec)
             refreshPackageIndex(spec, launcher)
             currentCoroutineContext().ensureActive()
             installBasePackages(distro, launcher, onStep)
         } catch (e: Throwable) {
-            // A rootfs without its base packages would skip the download on the
-            // next attempt and keep failing the same way.
-            paths.rootfsDir.deleteRecursively()
+            // Whatever went wrong — bad download, cancelled extract, crashed package
+            // install — do not leave a half-installed rootfs behind. Without the
+            // marker the guest is unusable anyway, and the next attempt must not
+            // inherit a corrupt tree (broken dpkg locks, missing /bin, deleted /lib).
+            runCatching { paths.rootfsDir.deleteRecursively() }
             throw e
+        } finally {
+            runCatching { archive.delete() }
         }
 
         val marker = InstallMarker(distro, homeOnRootfs = true)
