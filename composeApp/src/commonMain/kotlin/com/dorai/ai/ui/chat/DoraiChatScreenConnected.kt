@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat
+﻿package com.dorai.ai.ui.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -47,6 +47,7 @@ import com.dorai.ai.data.imageExtensions
 import com.dorai.ai.exitApp
 import com.dorai.ai.getBackgroundDispatcher
 import com.dorai.ai.permissionQualifier
+import com.dorai.ai.text.graphemeSafeTruncateWithEllipsis
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.tools.AppPermission
@@ -170,7 +171,7 @@ fun DoraiChatScreenConnected(
             ?.content
             ?.trim()
             ?.replace(Regex("\\s+"), " ")
-            ?.take(90)
+            ?.let { graphemeSafeTruncateWithEllipsis(it, 90) }
             .orEmpty()
         uiState.savedConversations
             .filter { it.id != pendingId }

@@ -6,6 +6,13 @@ import com.dorai.ai.ui.components.v2.DynamicUiModel
 import com.dorai.ai.ui.components.v2.DynamicUiOption
 import com.dorai.ai.ui.components.v2.ToolExecutionModel
 import com.dorai.ai.ui.components.v2.ToolExecutionState
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 /**
  * Parsed details of a tool execution output.
@@ -17,16 +24,55 @@ data class ParsedToolOutput(
     val isFailure: Boolean,
 )
 
+private val toolOutputJson = Json {
+    ignoreUnknownKeys = true
+    isLenient = true
+}
+
+/**
+ * Best-effort extraction of the first JSON object from arbitrary tool output text
+ * (e.g. a bare JSON document or `"Tool result: {...}"` wrappers). Uses the real
+ * JSON parser — not regex — so escapes (`\"`, `\\uXXXX`) and nested braces survive.
+ */
+private fun parseToolJsonObject(content: String): JsonObject? {
+    val start = content.indexOf('{')
+    val end = content.lastIndexOf('}')
+    if (start < 0 || end <= start) return null
+    return runCatching {
+        toolOutputJson.parseToJsonElement(content.substring(start, end + 1)).jsonObject
+    }.getOrNull()
+}
+
+private fun JsonObject.jsonString(key: String): String? = this[key]?.jsonPrimitive?.contentOrNull
+
+private fun JsonObject.jsonInt(key: String): Int? = this[key]?.jsonPrimitive?.intOrNull
+
 /**
  * Extracts stdout, stderr, exit code, and failure flag from tool output string.
+ *
+ * JSON parsing via kotlinx.serialization; non-JSON content is treated as raw text
+ * output (failure marker detection mirrors the legacy heuristic).
  */
 fun parseToolExecutionOutput(content: String): ParsedToolOutput {
-    val stdout = Regex("\"stdout\"\\s*:\\s*\"([^\"]*)\"").find(content)?.groupValues?.get(1)?.replace("\\n", "\n")
-    val stderr = Regex("\"stderr\"\\s*:\\s*\"([^\"]*)\"").find(content)?.groupValues?.get(1)?.replace("\\n", "\n")
-    val exitCode = Regex("\"(?:exitCode|exit_code)\"\\s*:\\s*(-?\\d+)").find(content)?.groupValues?.get(1)?.toIntOrNull()
-    val hasSuccessFalse = content.contains("\"success\":false")
-    val errorField = Regex("\"error\"\\s*:\\s*\"([^\"]+)\"").find(content)?.groupValues?.get(1)
-    val isFailure = hasSuccessFalse || (exitCode != null && exitCode != 0) || !errorField.isNullOrBlank() ||
+    val obj = parseToolJsonObject(content)
+    if (obj == null) {
+        val isFailure = content.contains("tool_error", ignoreCase = true)
+        return ParsedToolOutput(
+            stdout = if (isFailure) null else content.takeIf { it.isNotBlank() },
+            stderr = if (isFailure) content else null,
+            exitCode = null,
+            isFailure = isFailure,
+        )
+    }
+
+    val stdout = obj.jsonString("stdout")
+    val stderr = obj.jsonString("stderr")
+    val exitCode = obj.jsonInt("exitCode") ?: obj.jsonInt("exit_code")
+    val success = obj["success"]?.jsonPrimitive?.let { primitive ->
+        primitive.booleanOrNull ?: primitive.contentOrNull?.equals("true", ignoreCase = true)
+    }
+    val errorField = obj.jsonString("error")
+    val isFailure = success == false || (exitCode != null && exitCode != 0) || !errorField.isNullOrBlank() ||
         content.contains("tool_error", ignoreCase = true)
 
     val finalOutput = stdout ?: if (!isFailure) content else null
@@ -44,8 +90,8 @@ fun parseToolExecutionOutput(content: String): ParsedToolOutput {
  * Parses command text from tool arguments.
  */
 fun parseToolCommandText(args: String): String {
-    val command = Regex("\"command\"\\s*:\\s*\"([^\"]+)\"").find(args)?.groupValues?.get(1)
-    return command ?: args
+    val obj = parseToolJsonObject(args) ?: return args
+    return obj.jsonString("command") ?: args
 }
 
 /**

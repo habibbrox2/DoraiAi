@@ -6,6 +6,7 @@ import com.dorai.ai.isEmailSupported
 import com.dorai.ai.isSmsSupported
 import com.dorai.ai.sendHeartbeatNotification
 import com.dorai.ai.sms.SmsPoller
+import com.dorai.ai.text.graphemeSafeTake
 import com.dorai.ai.ui.markdown.parseMarkdown
 import com.dorai.ai.ui.markdown.toSpeakableText
 import kotlinx.coroutines.CoroutineName
@@ -278,7 +279,7 @@ class TaskScheduler(
     private fun truncateForNotification(text: String): String {
         val trimmed = text.trim()
         if (trimmed.length <= HEARTBEAT_NOTIFICATION_PREVIEW_CHARS) return trimmed
-        val window = trimmed.substring(0, HEARTBEAT_NOTIFICATION_PREVIEW_CHARS)
+        val window = graphemeSafeTake(trimmed, HEARTBEAT_NOTIFICATION_PREVIEW_CHARS)
         val lastSpace = window.lastIndexOf(' ')
         // Only prefer the word boundary if it's close to the cap; otherwise hard-cut —
         // a word boundary 100 chars back would throw away half the preview.
