@@ -32,6 +32,7 @@ $desktop = $false
 $common = $false
 $wasmOnly = $false
 $frontend = $false
+$locales = $false
 
 foreach ($file in $changed) {
   if ($file -notmatch '^(docs/|.*\.md$|.*\.mdx$|.*\.txt$|\.github/ISSUE_TEMPLATE/)') { $docsOnly = $false }
@@ -43,6 +44,7 @@ foreach ($file in $changed) {
   if ($file -match '^composeApp/src/commonMain/|^composeApp/src/commonTest/|^composeApp/src/iosMain/|^composeApp/src/wasmJsMain/') { $common = $true }
   if ($file -match '^composeApp/src/wasmJsMain/|^composeApp/src/wasmJsTest/') { $wasmOnly = $true }
   if ($file -match '^(frontend/|hybrid/contracts/|\.github/workflows/|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$)') { $frontend = $true }
+  if ($file -match '^composeApp/src/commonMain/composeResources/') { $locales = $true }
 }
 
 if ($Profile -eq 'Auto') {
@@ -80,6 +82,12 @@ if ($Profile -ne 'Docs') {
     'Wasm' { $tasks += ':composeApp:compileKotlinWasmJs' }
     'Frontend' { }
   }
+}
+
+if ($locales) {
+  Write-Output 'Locale resources changed: running scripts/validate-locales.ps1'
+  & (Join-Path $repo 'scripts\validate-locales.ps1') -RepoRoot $repo
+  if ($LASTEXITCODE -ne 0) { throw "Locale validation failed with exit code $LASTEXITCODE" }
 }
 
 Write-Output "Changed files ($($changed.Count)):"

@@ -40,6 +40,7 @@ import com.dorai.ai.theme.tokens.LocalDoraiColors
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.chat_interactive_reply
 import dorai.composeapp.generated.resources.dynamic_ui_confirm
+import dorai.composeapp.generated.resources.dynamic_ui_form_submission
 import dorai.composeapp.generated.resources.dynamic_ui_submitted
 import org.jetbrains.compose.resources.stringResource
 
@@ -50,7 +51,8 @@ data class DynamicUiOption(
 )
 
 data class DynamicUiModel(
-    val title: String,
+    /** Null means "use the built-in localized form-submission title". */
+    val title: String?,
     val description: String? = null,
     val options: List<DynamicUiOption>,
     val selectedOptionId: String? = null,
@@ -95,7 +97,7 @@ fun DoraiDynamicUiBlock(
         }
 
         Text(
-            text = model.title,
+            text = model.title ?: stringResource(Res.string.dynamic_ui_form_submission),
             color = colors.text,
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,

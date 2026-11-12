@@ -200,7 +200,9 @@ fun groupHistoryToChatMessages(
                 val toolsForThisMessage = if (isLast) consolidatedTools else emptyList()
                 val dynamicUi = asst.uiSubmission?.let { sub ->
                     DynamicUiModel(
-                        title = "Form Submission",
+                        // Resolved at render time from dynamic_ui_form_submission so it
+                        // follows the active app language (see DoraiDynamicUiBlock).
+                        title = null,
                         description = sub.sourceContent.takeIf { it.isNotBlank() },
                         options = sub.values.map { (k, v) -> DynamicUiOption(id = k, title = "$k: $v") },
                         isLocked = true,
