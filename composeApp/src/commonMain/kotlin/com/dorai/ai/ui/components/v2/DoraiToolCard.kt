@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -50,6 +51,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,6 +71,8 @@ import dorai.composeapp.generated.resources.chat_command_failed_with_exit
 import dorai.composeapp.generated.resources.chat_exit_code
 import dorai.composeapp.generated.resources.chat_expand_output
 import dorai.composeapp.generated.resources.chat_lines_label
+import dorai.composeapp.generated.resources.state_collapsed
+import dorai.composeapp.generated.resources.state_expanded
 import dorai.composeapp.generated.resources.tool_action_ask_fix
 import dorai.composeapp.generated.resources.tool_action_retry
 import dorai.composeapp.generated.resources.tool_execution_error
@@ -159,8 +165,10 @@ fun DoraiToolCard(
     val colors = LocalDoraiColors.current
     val copyToClipboard = rememberCopyToClipboard()
 
-    // Default expanded state: Completed is collapsed by default to save space; Failed, Running, and PendingApproval expand.
-    var isExpanded by remember(model.state) {
+    // Default expanded state: Completed is collapsed by default to save space; Failed, Running, and
+    // PendingApproval expand. Keyed on the tool-call identity rather than the state: keying on
+    // state would reset the user's manual toggle whenever the tool transitions Running → Completed.
+    var isExpanded by remember(model.toolCallId) {
         mutableStateOf(model.state != ToolExecutionState.Completed)
     }
 
@@ -183,11 +191,16 @@ fun DoraiToolCard(
             .padding(DoraiSpacing.SM),
     ) {
         // Compact Tool Header Row (min-height 44dp)
+        val expandedDescription = stringResource(if (isExpanded) Res.string.state_expanded else Res.string.state_collapsed)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
-                .clickable { isExpanded = !isExpanded }
+                .defaultMinSize(minHeight = 48.dp)
+                .clickable(role = Role.Button) { isExpanded = !isExpanded }
+                .semantics {
+                    stateDescription = expandedDescription
+                }
                 .padding(horizontal = 6.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -355,7 +368,7 @@ fun DoraiToolCard(
                                 )
                                 IconButton(
                                     onClick = { copyToClipboard(model.commandText) },
-                                    modifier = Modifier.size(22.dp),
+                                    modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp),
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.ContentCopy,
@@ -547,6 +560,7 @@ fun DoraiToolCard(
                                             fontFamily = FontFamily.Monospace,
                                             fontWeight = FontWeight.SemiBold,
                                             modifier = Modifier
+                                                .defaultMinSize(minHeight = 48.dp)
                                                 .clickable { isOutputExpanded = !isOutputExpanded }
                                                 .padding(horizontal = 4.dp, vertical = 2.dp),
                                         )
@@ -554,7 +568,7 @@ fun DoraiToolCard(
                                     }
                                     IconButton(
                                         onClick = { copyToClipboard(model.outputText) },
-                                        modifier = Modifier.size(22.dp),
+                                        modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp),
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.ContentCopy,

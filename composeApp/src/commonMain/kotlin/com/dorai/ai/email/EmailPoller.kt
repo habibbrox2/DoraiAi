@@ -50,9 +50,12 @@ class EmailPoller(
             } finally {
                 imap.logout()
             }
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (e: Exception) {
+            val fresh = emailStore.getSyncState(account.id)
             emailStore.updateSyncState(
-                syncState.copy(
+                fresh.copy(
                     lastAttemptEpochMs = attemptAt,
                     lastError = e.message ?: e::class.simpleName ?: "Poll failed",
                 ),

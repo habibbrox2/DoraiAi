@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -90,6 +91,7 @@ internal fun FreeProviderSuggestionsPanel(
                     Box(
                         modifier = Modifier
                             .handCursor()
+                            .defaultMinSize(minHeight = 48.dp)
                             .clickable(
                                 role = Role.Button,
                                 onClick = { uriHandler.openUri(suggestion.signupUrl) },

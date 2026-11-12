@@ -115,10 +115,8 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -826,7 +824,7 @@ private fun ConversationItemRow(
                 color = if (isActive) colors.primary.copy(alpha = 0.6f) else Color.Transparent,
                 shape = itemShape,
             )
-            .clickable(onClick = onOpen)
+            .clickable(onClick = onOpen, role = Role.Button, onClickLabel = conv.title)
             .padding(horizontal = 10.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -1924,7 +1922,6 @@ private fun DoraiReasoningBlock(
                     expanded = !expanded
                 }
                 .semantics {
-                    liveRegion = LiveRegionMode.Polite
                     stateDescription = if (expanded) expandedStateDescription else collapsedStateDescription
                 }
                 .padding(horizontal = 12.dp, vertical = 6.dp),
@@ -2066,7 +2063,7 @@ private fun QuickPromptCard(
             .clip(shape)
             .background(colors.surface)
             .border(1.dp, colors.line, shape)
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick, role = Role.Button, onClickLabel = item.title)
             .padding(12.dp),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -2517,7 +2514,6 @@ private fun DoraiAccordionBlock(
                 .heightIn(min = 48.dp)
                 .clickable(role = Role.Button) { expanded = !expanded }
                 .semantics {
-                    liveRegion = LiveRegionMode.Polite
                     stateDescription = if (expanded) expandedStateDescription else collapsedStateDescription
                 }
                 .padding(horizontal = 12.dp, vertical = 6.dp),
@@ -2595,8 +2591,9 @@ private fun AttachmentImage(
         contentDescription = contentDescription,
         modifier = modifier
             .widthIn(max = 240.dp)
+            .heightIn(max = 360.dp)
             .clip(RoundedCornerShape(10.dp))
             .padding(bottom = 6.dp),
-        contentScale = ContentScale.FillWidth,
+        contentScale = ContentScale.Fit,
     )
 }

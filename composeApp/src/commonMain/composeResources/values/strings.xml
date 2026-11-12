@@ -1102,6 +1102,11 @@
     <string name="chat_lines_label">%1$d lines</string>
     <string name="chat_table_truncated_rows">… and %1$d more rows</string>
     <string name="a11y_image">Image</string>
+    <string name="diff_truncated_lines">… and %1$d more lines</string>
+    <string name="chat_busy_waiting">A reply is already in progress…</string>
+    <string name="chat_press_back_to_exit">Press back again to exit</string>
+    <string name="dynamic_ui_form_submission">Form Submission</string>
+    <string name="agent_fallback_name">Agent</string>
     <string name="settings_screen_title">Settings</string>
     <string name="settings_theme_presets">Theme presets (%1$d)</string>
     <string name="agent_activity_title">Agent run</string>

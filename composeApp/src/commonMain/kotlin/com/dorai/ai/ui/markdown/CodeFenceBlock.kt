@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -68,7 +68,10 @@ internal fun CodeFenceBlock(
     val colorScheme = MaterialTheme.colorScheme
     val highlightColors = remember(colorScheme) { codeHighlightColors(colorScheme) }
     // Collapse long blocks: only the first COLLAPSED_LINE_COUNT lines render until expanded.
-    var expanded by remember(code) { mutableStateOf(false) }
+    // Stream-aware: the code fence grows token by token. If `expanded` were keyed on `code`,
+    // the button would reset on every chunk and become unusable while the model is still
+    // writing — keep expansion stable across streaming re-emissions.
+    var expanded by remember { mutableStateOf(false) }
     val allLines = remember(code) { code.lines() }
     val isLong = allLines.size > COLLAPSED_LINE_COUNT
     val visibleCode = remember(allLines, expanded) {
@@ -137,7 +140,7 @@ internal fun CodeFenceBlock(
                         TextButton(
                             onClick = onRunInSandbox,
                             modifier = Modifier
-                                .height(30.dp)
+                                .defaultMinSize(minHeight = 48.dp)
                                 .padding(horizontal = 6.dp)
                                 .handCursor(),
                             colors = ButtonDefaults.textButtonColors(
@@ -185,7 +188,7 @@ internal fun CodeFenceBlock(
                                 copyToClipboard(code)
                                 isCopied = true
                             },
-                            modifier = Modifier.size(32.dp).handCursor(),
+                            modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).handCursor(),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.ContentCopy,
@@ -241,7 +244,7 @@ internal fun CodeFenceBlock(
                     onClick = { expanded = !expanded },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(36.dp)
+                        .defaultMinSize(minHeight = 48.dp)
                         .handCursor(),
                     colors = ButtonDefaults.textButtonColors(contentColor = AccentPrimary),
                 ) {

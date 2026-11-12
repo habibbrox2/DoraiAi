@@ -30,10 +30,12 @@ import com.dorai.ai.ui.markdown.DoraiUiBlock
 import com.dorai.ai.ui.markdown.DoraiUiError
 import com.dorai.ai.ui.markdown.parseMarkdown
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.chat_busy_waiting
 import dorai.composeapp.generated.resources.conversation_untitled
 import dorai.composeapp.generated.resources.error_attachment_too_large
 import dorai.composeapp.generated.resources.error_local_network_permission
 import dorai.composeapp.generated.resources.error_too_many_attachments
+import dorai.composeapp.generated.resources.error_unknown
 import dorai.composeapp.generated.resources.error_unsupported_file_type
 import dorai.composeapp.generated.resources.litert_no_model_warning
 import io.github.vinceglb.filekit.PlatformFile
@@ -60,6 +62,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.seconds
@@ -129,10 +132,15 @@ class ChatViewModel(
         loadModels()
 
         viewModelScope.launch(backgroundDispatcher) {
-            runCatching { fileReviewController.initialize() }
-            fileReviewController.proposals.collect { proposals ->
-                val visible = proposals.sortedByDescending { it.updatedAtMs }.take(20)
-                _state.update { it.copy(fileReviewProposals = visible.toImmutableList()) }
+            try {
+                runCatching { fileReviewController.initialize() }
+                fileReviewController.proposals.collect { proposals ->
+                    val visible = proposals.sortedByDescending { it.updatedAtMs }.take(20)
+                    _state.update { it.copy(fileReviewProposals = visible.toImmutableList()) }
+                }
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                println("ChatViewModel: file review proposal collector failed (${e.message?.take(120)})")
             }
         }
 
@@ -140,22 +148,31 @@ class ChatViewModel(
         // tool outputs caused ANRs when JSON-decoded synchronously during VM construction).
         // ChatScreen gates the interactive-mode branch on !isRestoring to avoid a flash.
         viewModelScope.launch(backgroundDispatcher) {
-            dataRepository.loadConversations()
-            // Share and assist both want a fresh chat. Skip restore so a slow
-            // load cannot clobber startNewChat() when DORAI AI is cold-started from
-            // ACTION_SEND or ACTION_ASSIST.
-            val skipRestore = dataRepository.pendingShareText.value != null ||
-                dataRepository.openAssistRequested.value ||
-                !dataRepository.isRestoreLastChatEnabled()
-            if (!skipRestore) {
-                dataRepository.restoreCurrentConversation()
-                presetInteractiveModeForCurrentConversation()
+            try {
+                dataRepository.loadConversations()
+                // Share and assist both want a fresh chat. Skip restore so a slow
+                // load cannot clobber startNewChat() when DORAI AI is cold-started from
+                // ACTION_SEND or ACTION_ASSIST.
+                val skipRestore = dataRepository.pendingShareText.value != null ||
+                    dataRepository.openAssistRequested.value ||
+                    !dataRepository.isRestoreLastChatEnabled()
+                if (!skipRestore) {
+                    dataRepository.restoreCurrentConversation()
+                    presetInteractiveModeForCurrentConversation()
+                }
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                // A corrupt conversation must not wedge the shell on a "restoring" screen,
+                // nor crash the app at startup. Restore will surface the empty/recovered state.
+                println("ChatViewModel: loadConversations/restore failed (${e.message?.take(160)})")
+            } finally {
+                _state.update { it.copy(isRestoring = false) }
             }
-            _state.update { it.copy(isRestoring = false) }
         }
 
         viewModelScope.launch(backgroundDispatcher) {
-            dataRepository.connectEnabledMcpServers()
+            runCatching { dataRepository.connectEnabledMcpServers() }
+                .onFailure { println("ChatViewModel: MCP server connect failed (${it.message?.take(120)})") }
         }
         viewModelScope.launch {
             dataRepository.fallbackStatus.collect { status ->
@@ -289,7 +306,12 @@ class ChatViewModel(
                 )
             }
         }
-        if (started === before) return // another call already won
+        if (started === before) {
+            // Another call already won the race — the user's message was dropped silently.
+            // Tell them instead of swallowing it.
+            _state.update { it.copy(snackbarMessage = Res.string.chat_busy_waiting) }
+            return // another call already won
+        }
 
         val (strippedQuestion, activeSkillId) = parseSkillInvocation(question)
 
@@ -350,7 +372,13 @@ class ChatViewModel(
     private suspend fun retryIfNoValidDoraiUi(maxRetries: Int = 2) {
         repeat(maxRetries) {
             currentCoroutineContext().ensureActive()
-            val lastAssistant = dataRepository.chatHistory.value.lastRenderedAssistant() ?: return
+            val historySnapshot = dataRepository.chatHistory.value
+            val lastAssistant = historySnapshot.lastRenderedAssistant() ?: return
+            // Only retry when the latest entry IS this assistant answer — a tool-call-only
+            // turn leaves a different assistant as "lastRenderedAssistant", and the retry
+            // feedback must not be misapplied to an up-to-date, unrelated message.
+            val lastEntryId = historySnapshot.lastOrNull()?.id
+            if (lastAssistant.id != lastEntryId) return
 
             val blocks = parseMarkdown(lastAssistant.content).blocks
             val hasValidUi = blocks.any { it is DoraiUiBlock }
@@ -601,8 +629,9 @@ class ChatViewModel(
             try {
                 dataRepository.validateConnection(service, primary.instanceId)
                 _state.update { it.copy(modelsLoadedInstanceId = primary.instanceId) }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 // Keep the list we already have: the curated defaults are still selectable.
+                println("ChatViewModel: model list refresh failed for ${primary.instanceId} (${e.message?.take(120)})")
             }
             _state.update { it.copy(isLoadingModels = false) }
             refreshModelsForPrimary()
@@ -644,7 +673,7 @@ class ChatViewModel(
             commitPendingConversationDeletion()
         }
         _state.update { it.copy(pendingConversationDeletion = id) }
-        pendingConversationDeleteJob = viewModelScope.launch(backgroundDispatcher) {
+        pendingConversationDeleteJob = launchGuarded(failureMessage = Res.string.error_unknown) {
             delay(4.seconds)
             dataRepository.deleteConversation(id)
             _state.update {
@@ -654,13 +683,13 @@ class ChatViewModel(
     }
 
     private fun renameConversation(id: String, title: String) {
-        viewModelScope.launch(backgroundDispatcher) {
+        launchGuarded(failureMessage = Res.string.error_unknown) {
             dataRepository.renameConversation(id, title)
         }
     }
 
     private fun togglePinConversation(id: String) {
-        viewModelScope.launch(backgroundDispatcher) {
+        launchGuarded(failureMessage = Res.string.error_unknown) {
             dataRepository.togglePinConversation(id)
         }
     }
@@ -676,8 +705,30 @@ class ChatViewModel(
         pendingConversationDeleteJob = null
         val pendingId = _state.value.pendingConversationDeletion ?: return
         _state.update { it.copy(pendingConversationDeletion = null) }
-        viewModelScope.launch(backgroundDispatcher) {
+        launchGuarded(failureMessage = Res.string.error_unknown) {
             dataRepository.deleteConversation(pendingId)
+        }
+    }
+
+    /**
+     * Fire-and-forget background work with a guard: a persistence/settings failure must never
+     * crash the app or strand the user on a silently-failed action. CancellationException is
+     * rethrown so coroutine cancellation works normally; other failures are logged and, when
+     * [failureMessage] is given, surfaced as a snackbar.
+     */
+    private fun launchGuarded(
+        failureMessage: StringResource? = null,
+        block: suspend () -> Unit,
+    ): Job = viewModelScope.launch(backgroundDispatcher) {
+        try {
+            block()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            println("ChatViewModel: background task failed (${e.message?.take(160)})")
+            if (failureMessage != null) {
+                _state.update { it.copy(snackbarMessage = failureMessage) }
+            }
         }
     }
 
@@ -711,13 +762,13 @@ class ChatViewModel(
     }
 
     private fun sendSmsDraft(draftId: String) {
-        viewModelScope.launch(backgroundDispatcher) {
+        launchGuarded(failureMessage = Res.string.error_unknown) {
             dataRepository.sendSmsDraft(draftId)
         }
     }
 
     private fun discardSmsDraft(draftId: String) {
-        viewModelScope.launch(backgroundDispatcher) {
+        launchGuarded(failureMessage = Res.string.error_unknown) {
             dataRepository.discardSmsDraft(draftId)
         }
     }
@@ -794,8 +845,10 @@ class ChatViewModel(
     fun refreshSettings() {
         updateAvailableServices()
         viewModelScope.launch(backgroundDispatcher) {
-            dataRepository.restoreCurrentConversation()
-            presetInteractiveModeForCurrentConversation()
+            runCatching {
+                dataRepository.restoreCurrentConversation()
+                presetInteractiveModeForCurrentConversation()
+            }.onFailure { println("ChatViewModel: refreshSettings restore failed (${it.message?.take(160)})") }
         }
     }
 

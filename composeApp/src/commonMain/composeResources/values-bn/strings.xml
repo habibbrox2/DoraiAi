@@ -851,6 +851,9 @@
     <string name="chat_lines_label">%1$d লাইন</string>
     <string name="chat_table_truncated_rows">… আরও %1$d লাইন</string>
     <string name="a11y_image">ছবি</string>
+    <string name="diff_truncated_lines">… আরও %1$d লাইন</string>
+    <string name="chat_busy_waiting">একটা প্রত্যুত্তর ইতোমধ্যে চলছে…</string>
+    <string name="chat_press_back_to_exit">বের হতে আবার ব্যাক চাপুন</string>
     <string name="settings_tab_github">GitHub</string>
     <string name="settings_cat_github">GitHub</string>
     <string name="settings_github_not_supported">গিটহাব ইন্টিগ্রেশন শুধুমাত্র অ্যান্ড্রয়েড এবং ডেস্কটপে উপলব্ধ।</string>
