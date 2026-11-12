@@ -144,6 +144,9 @@ actual val isNotificationsSupported: Boolean by lazy {
 
 actual val isSplinterlandsSupported: Boolean = true
 
+// Android is the only target with a speech recognizer wired up.
+actual val isVoiceSupported: Boolean = true
+
 actual suspend fun compressImageBytes(bytes: ByteArray, mimeType: String): ByteArray {
     if (!mimeType.startsWith("image/")) return bytes
     return try {

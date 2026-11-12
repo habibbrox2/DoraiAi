@@ -436,6 +436,18 @@ class AppSettings(internal val settings: Settings) {
         if (voice == null) settings.remove(KEY_TTS_VOICE) else settings.putString(KEY_TTS_VOICE, voice)
     }
 
+    // Voice Mode. Off by default: the feature plan keeps it behind the toggle until
+    // the on-device measurement gate has been signed off.
+    private val _voiceModeEnabledFlow = MutableStateFlow(settings.getBoolean(KEY_VOICE_MODE_ENABLED, false))
+    val voiceModeEnabledFlow: StateFlow<Boolean> = _voiceModeEnabledFlow
+
+    fun isVoiceModeEnabled(): Boolean = settings.getBoolean(KEY_VOICE_MODE_ENABLED, false)
+
+    fun setVoiceModeEnabled(enabled: Boolean) {
+        settings.putBoolean(KEY_VOICE_MODE_ENABLED, enabled)
+        _voiceModeEnabledFlow.value = enabled
+    }
+
     fun getTtsEnabled(): Boolean = settings.getBoolean(KEY_TTS_ENABLED, true)
     fun setTtsEnabled(enabled: Boolean) {
         settings.putBoolean(KEY_TTS_ENABLED, enabled)
@@ -796,6 +808,8 @@ class AppSettings(internal val settings: Settings) {
         const val KEY_TTS_VOICE = "tts_voice"
         const val KEY_TTS_ENABLED = "tts_enabled"
         const val KEY_TTS_AUTO_PLAY = "tts_auto_play"
+
+        const val KEY_VOICE_MODE_ENABLED = "voice_mode_enabled"
 
         const val KEY_SPLINTERLANDS_ENABLED = "splinterlands_enabled"
         const val KEY_SPLINTERLANDS_ACCOUNT = "splinterlands_account"

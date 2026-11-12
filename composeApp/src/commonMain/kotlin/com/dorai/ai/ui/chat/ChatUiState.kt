@@ -15,6 +15,9 @@ import com.dorai.ai.network.UiError
 import com.dorai.ai.network.dtos.gemini.GeminiChatRequestDto
 import com.dorai.ai.network.dtos.openaicompatible.OpenAICompatibleChatRequestDto
 import com.dorai.ai.ui.settings.SettingsModel
+import com.dorai.ai.voice.VoiceError
+import com.dorai.ai.voice.VoiceModeState
+import com.dorai.ai.voice.VoiceReply
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -110,6 +113,12 @@ data class ChatUiState(
     val pendingToolConfirmations: ImmutableList<PendingToolConfirmation> = persistentListOf(),
     val fileReviewProposals: ImmutableList<FileReviewProposal> = persistentListOf(),
     val fileReviewActionMessage: String? = null,
+    /** Where the voice turn is: idle, listening, transcribing, thinking or speaking. */
+    val voiceState: VoiceModeState = VoiceModeState.IDLE,
+    /** Why the last voice turn failed, if it did. */
+    val voiceError: VoiceError? = null,
+    /** The assistant reply a voice turn produced, waiting to be spoken aloud. */
+    val voiceReplyToSpeak: VoiceReply? = null,
 ) {
     val heartbeatConversationId: String?
         get() = savedConversations.firstOrNull { it.isHeartbeat }?.id

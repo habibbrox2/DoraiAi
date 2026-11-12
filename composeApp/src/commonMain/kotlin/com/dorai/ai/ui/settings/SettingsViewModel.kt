@@ -21,6 +21,7 @@ import com.dorai.ai.inference.ModelImportResult
 import com.dorai.ai.isEmailSupported
 import com.dorai.ai.isNotificationsSupported
 import com.dorai.ai.isSmsSupported
+import com.dorai.ai.isVoiceSupported
 import com.dorai.ai.mcp.PopularMcpServer
 import com.dorai.ai.network.AnthropicInsufficientCreditsException
 import com.dorai.ai.network.AnthropicInvalidApiKeyException
@@ -118,6 +119,8 @@ class SettingsViewModel(
         emailSyncStates = dataRepository.getEmailSyncStates().toImmutableMap(),
         showSmsSection = isSmsSupported,
         isSmsEnabled = dataRepository.isSmsEnabled(),
+        showVoiceSection = isVoiceSupported,
+        isVoiceModeEnabled = dataRepository.isVoiceModeEnabled(),
         smsPermissionGranted = dataRepository.hasSmsPermission(),
         smsPollIntervalMinutes = dataRepository.getSmsPollIntervalMinutes(),
         smsPendingCount = dataRepository.getPendingSmsCount(),
@@ -184,6 +187,7 @@ class SettingsViewModel(
         onChangeEmailPollInterval = ::onChangeEmailPollInterval,
         onRefreshEmailAccount = ::onRefreshEmailAccount,
         onToggleSms = ::onToggleSms,
+        onToggleVoiceMode = ::onToggleVoiceMode,
         onChangeSmsPollInterval = ::onChangeSmsPollInterval,
         onRefreshSms = ::onRefreshSms,
         onToggleSmsSend = ::onToggleSmsSend,
@@ -790,6 +794,15 @@ class SettingsViewModel(
     private fun onChangeSmsPollInterval(minutes: Int) {
         dataRepository.setSmsPollIntervalMinutes(minutes)
         _state.update { it.copy(smsPollIntervalMinutes = minutes) }
+    }
+
+    /**
+     * Voice Mode is a plain user toggle: the microphone permission is requested later,
+     * when a voice turn actually starts, not here.
+     */
+    private fun onToggleVoiceMode(enabled: Boolean) {
+        dataRepository.setVoiceModeEnabled(enabled)
+        _state.update { it.copy(isVoiceModeEnabled = enabled) }
     }
 
     private fun onRefreshSms() {

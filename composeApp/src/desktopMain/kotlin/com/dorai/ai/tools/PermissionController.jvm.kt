@@ -21,6 +21,9 @@ internal actual fun platformHasPermission(permission: AppPermission): Boolean = 
 
     // Downloads access on desktop: file picker only, no runtime permission
     AppPermission.DOWNLOADS -> true
+
+    // Voice input is Android-only for now, so the microphone is never requested here.
+    AppPermission.RECORD_AUDIO -> false
 }
 
 internal actual fun platformCanRequest(permission: AppPermission): Boolean = false

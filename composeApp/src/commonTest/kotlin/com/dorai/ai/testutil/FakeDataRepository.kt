@@ -654,6 +654,14 @@ class FakeDataRepository : DataRepository {
         smsEnabled = enabled
     }
 
+    private var voiceModeEnabled = false
+
+    override fun isVoiceModeEnabled(): Boolean = voiceModeEnabled
+
+    override fun setVoiceModeEnabled(enabled: Boolean) {
+        voiceModeEnabled = enabled
+    }
+
     override fun getSmsPollIntervalMinutes(): Int = smsPollIntervalMinutes
 
     override fun setSmsPollIntervalMinutes(minutes: Int) {

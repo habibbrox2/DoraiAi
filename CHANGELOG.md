@@ -1,3 +1,18 @@
+## DORAI AI - Offline Voice Mode (Android, Bengali) (Unreleased)
+
+### Added
+- **Voice Mode on Android (Phase 1)**: the chat composer's mic button now works. Tap it, the app asks for the microphone, the device's own speech recognizer listens, and the transcript is sent as an ordinary chat message — a voice turn gets exactly the same tools, network access and persistence as a typed one. The assistant's answer is read back sentence by sentence. Voice Mode is **off by default** and is switched on in **Settings → Voice**; it is Android-only for now, so the desktop, iOS and web builds keep the voice entry points hidden.
+- **Bengali-first speech pipeline** (`com.dorai.ai.voice`): markdown, code, raw URLs and emoji are removed before anything is spoken, and prose numbers are read as Bengali words — "২০২৬" is spoken "দুই হাজার ছাব্বিশ", while identifiers, versions, decimals and currency amounts keep their written form ("v2.1", "৳৫০", "1.5GB"). Bengali and Latin words that are written glued together are separated so the synthesizer does not read one unpronounceable token. Bengali conjuncts, matras and joiners are never reordered, stripped or normalised.
+- **`SpeechToText` contract** in `commonMain` keeps the chat pipeline independent of the engine: the on-device sherpa-onnx binding planned for Phase 2 drops in behind the same interface without touching the chat UI, the settings screen or the speech pipeline.
+- **`RECORD_AUDIO` runtime permission** is requested only when a voice turn starts, never at launch. Denying it leaves text chat untouched and points at the system settings instead.
+- **Honest offline behaviour**: the recognizer is asked to prefer its on-device model. A device with no offline Bengali language pack reports a network error and the turn fails with a clear message, instead of quietly streaming the audio away.
+- **Docs**: `docs/knowledge/voice/` is a new OKF bundle (engine inventory, speech-model pin and bump policy, update log), and `docs/features/offline-voice-ai.md` now records the shipped Phase 1 alongside the remaining plan.
+
+### Changed
+- The composer's mic button becomes a stop button while a voice turn is running, with a short status line under the input (listening / transcribing / thinking / speaking). The resting composer is unchanged.
+
+---
+
 ## DORAI AI - MCP OAuth (Desktop Commander & OAuth-Native MCP Servers) (Unreleased)
 
 ### Added

@@ -588,6 +588,7 @@
     <string name="composer_attach_content_description">সংযুক্ত করুন</string>
     <string name="composer_send_content_description">বার্তা পাঠান</string>
     <string name="composer_mic_content_description">ভয়েস ইনপুট</string>
+    <string name="composer_stop_voice">ভয়েস ইনপুট বন্ধ করুন</string>
     <string name="composer_input_hint">DORAI-কে জিজ্ঞাসা করুন বা নির্দেশ দিন…</string>
     <string name="dynamic_ui_confirm">নিশ্চিত করুন</string>
     <string name="dynamic_ui_submitted">নিশ্চিত করা হয়েছে</string>
@@ -682,6 +683,16 @@
     <string name="chat_manage_providers">প্রোভাইডার পরিচালনা করুন</string>
     <string name="chat_active_badge">সক্রিয়</string>
     <string name="chat_voice_unavailable">ভয়েস ইনপুট এখনো চালু নয়। অনুগ্রহ করে টাইপ করুন।</string>
+    <string name="chat_voice_listening">শুনছি…</string>
+    <string name="chat_voice_transcribing">লিখে নিচ্ছি…</string>
+    <string name="chat_voice_thinking">ভাবছি…</string>
+    <string name="chat_voice_speaking">বলছি…</string>
+    <string name="chat_voice_disabled">ভয়েস মোড বন্ধ আছে। টাইপ না করে কথা বলতে সেটিংসে এটি চালু করুন।</string>
+    <string name="chat_voice_permission_denied">ভয়েস ইনপুটের জন্য মাইক্রোফোন লাগবে। সেটিংসে অনুমতি দিতে পারেন।</string>
+    <string name="chat_voice_no_speech">কথাটা বুঝতে পারলাম না। আবার চেষ্টা করুন।</string>
+    <string name="chat_voice_network_required">এই ডিভাইসে স্পিচ রিকগনিশনের জন্য নেটওয়ার্ক দরকার।</string>
+    <string name="chat_voice_busy">মাইক্রোফোন ব্যবহার করা হচ্ছে। একটু পরে আবার চেষ্টা করুন।</string>
+    <string name="chat_voice_unknown_error">ভয়েস ইনপুট ব্যর্থ হয়েছে। আবার চেষ্টা করুন।</string>
     <string name="chat_retry">পুনরায় চেষ্টা করুন</string>
     <string name="chat_dismiss">খারিজ করুন</string>
     <string name="chat_provider_local">লোকাল</string>
@@ -1295,6 +1306,8 @@
     <string name="tts_voice_pitch">কণ্ঠের স্বর</string>
     <string name="tts_volume">শব্দের মাত্রা</string>
     <string name="tts_tip">পরামর্শ: কথার গতি 0.70–1.30, কণ্ঠের স্বর 0.80–1.20 এবং প্রয়োজন অনুযায়ী ভলিউম রাখুন।</string>
+    <string name="settings_voice_mode">ভয়েস মোড</string>
+    <string name="settings_voice_mode_description">DORAI AI-এর সাথে কথা বলুন ও উত্তর শুনুন। ডিভাইসের নিজস্ব স্পিচ রিকগনাইজার ব্যবহার হয়; অফলাইন ল্যাঙ্গুয়েজ মডেল ইনস্টল থাকলে এটি অফলাইনেও কাজ করে।</string>
     <string name="sidebar_older">পুরোনো</string>
     <string name="sidebar_pin">পিন</string>
     <string name="sidebar_unpin">পিন তুলুন</string>

@@ -127,6 +127,9 @@ data class SettingsUiState(
     val refreshingEmailAccountIds: ImmutableSet<String> = persistentSetOf(),
     val showSmsSection: Boolean = false,
     val isSmsEnabled: Boolean = false,
+    /** True on platforms that can run a voice turn; the section is hidden elsewhere. */
+    val showVoiceSection: Boolean = false,
+    val isVoiceModeEnabled: Boolean = false,
     val smsPermissionGranted: Boolean = false,
     val smsPollIntervalMinutes: Int = 15,
     val smsPendingCount: Int = 0,

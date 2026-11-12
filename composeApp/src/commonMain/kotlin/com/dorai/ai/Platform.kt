@@ -107,6 +107,13 @@ expect val isNotificationsSupported: Boolean
 
 expect val isSplinterlandsSupported: Boolean
 
+/**
+ * True only on Android. Voice input needs the platform speech recognizer, which the
+ * desktop, iOS and web targets do not have yet. The feature plan scopes this
+ * iteration to Android; the other targets keep the voice entry points hidden.
+ */
+expect val isVoiceSupported: Boolean
+
 expect suspend fun compressImageBytes(bytes: ByteArray, mimeType: String): ByteArray
 
 expect fun openUrl(url: String): Boolean

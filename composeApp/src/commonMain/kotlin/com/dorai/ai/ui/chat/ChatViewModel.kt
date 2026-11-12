@@ -29,6 +29,10 @@ import com.dorai.ai.tools.isLocalNetworkUrl
 import com.dorai.ai.ui.markdown.DoraiUiBlock
 import com.dorai.ai.ui.markdown.DoraiUiError
 import com.dorai.ai.ui.markdown.parseMarkdown
+import com.dorai.ai.voice.VoiceError
+import com.dorai.ai.voice.VoiceModeController
+import com.dorai.ai.voice.VoiceReply
+import com.dorai.ai.voice.createSpeechToText
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.chat_busy_waiting
 import dorai.composeapp.generated.resources.conversation_untitled
@@ -112,6 +116,10 @@ class ChatViewModel(
         rejectFileChange = ::rejectFileChange,
         rollbackFileChange = ::rollbackFileChange,
         clearError = ::clearError,
+        startVoiceInput = ::startVoiceInput,
+        stopVoiceInput = ::stopVoiceInput,
+        setVoiceSpeaking = ::setVoiceSpeaking,
+        markVoiceReplySpoken = ::markVoiceReplySpoken,
     )
     private var currentJob: Job? = null
     private var pendingConversationDeleteJob: Job? = null
@@ -124,6 +132,23 @@ class ChatViewModel(
             selectedAgentModeId = dataRepository.getDefaultAgentMode(),
         ),
     )
+
+    /**
+     * Drives the voice turn. Created lazily so platforms without a speech recognizer
+     * never touch one.
+     */
+    private val voiceModeController: VoiceModeController by lazy {
+        VoiceModeController(createSpeechToText(), viewModelScope)
+    }
+
+    /**
+     * The history that existed when the last voice transcript was sent. The reply of
+     * that turn is the assistant message that is not in this set.
+     */
+    private var voiceReplyBaseline: Set<String> = emptySet()
+
+    /** True while a voice turn is waiting for its answer. */
+    private var awaitingVoiceReply: Boolean = false
 
     init {
         // Bridge the UI-selected mode into the runtime agent before any prompt is built.
@@ -222,6 +247,40 @@ class ChatViewModel(
                     dataRepository.consumeOpenShareRequest()
                 }
         }
+
+        // Voice turn plumbing. The transcript becomes an ordinary USER turn, so a
+        // spoken message gets exactly the same tools, network access and persistence
+        // as a typed one.
+        viewModelScope.launch {
+            voiceModeController.state.collect { voiceState ->
+                _state.update { it.copy(voiceState = voiceState) }
+            }
+        }
+        viewModelScope.launch {
+            voiceModeController.error.collect { voiceError ->
+                _state.update { it.copy(voiceError = voiceError) }
+            }
+        }
+        viewModelScope.launch {
+            voiceModeController.transcripts.collect { transcript ->
+                // Remember the history before the transcript becomes a USER turn, so
+                // the reply can be told apart from the answers that came before it.
+                voiceReplyBaseline = dataRepository.chatHistory.value.map { it.id }.toSet()
+                awaitingVoiceReply = true
+                askInternal(transcript, null)
+            }
+        }
+        viewModelScope.launch {
+            combine(dataRepository.chatHistory, _state) { history, state -> history to state.isLoading }
+                .collect { (history, isLoading) ->
+                    if (!awaitingVoiceReply || isLoading) return@collect
+                    val reply = history.lastRenderedAssistant()?.takeIf { it.id !in voiceReplyBaseline }
+                    awaitingVoiceReply = false
+                    if (reply != null) {
+                        _state.update { it.copy(voiceReplyToSpeak = VoiceReply(reply.id, reply.content)) }
+                    }
+                }
+        }
     }
 
     val state = combine(
@@ -291,6 +350,34 @@ class ChatViewModel(
 
     private fun ask(question: String?) {
         askInternal(question, null)
+    }
+
+    /**
+     * Starts a voice turn. The microphone permission is requested by the caller,
+     * because the system prompt has to be raised from an Activity.
+     */
+    private fun startVoiceInput() {
+        if (!dataRepository.isVoiceModeEnabled()) return
+        if (!voiceModeController.isSupported) {
+            _state.update { it.copy(voiceError = VoiceError.RECOGNIZER_UNAVAILABLE) }
+            return
+        }
+        voiceModeController.start(dataRepository.getAppLanguage().code)
+    }
+
+    /** Ends the current voice turn, keeping whatever was recognised so far. */
+    private fun stopVoiceInput() {
+        voiceModeController.stop()
+    }
+
+    /** Reports that the assistant's answer is being spoken, or has finished. */
+    private fun setVoiceSpeaking(speaking: Boolean) {
+        if (speaking) voiceModeController.markSpeaking() else voiceModeController.markIdle()
+    }
+
+    /** Marks the pending voice reply as spoken so it is not repeated. */
+    private fun markVoiceReplySpoken() {
+        _state.update { it.copy(voiceReplyToSpeak = null) }
     }
 
     private fun askInternal(question: String?, uiSubmission: UiSubmission?) {
@@ -757,6 +844,8 @@ class ChatViewModel(
         // signal (`appInForeground`) is tracked separately via `ProcessLifecycleOwner`
         // on Android — ViewModel lifecycle is too narrow (survives backgrounding).
         taskScheduler.isLoadingCheck = { false }
+        // Release the speech engine's platform resources with the ViewModel.
+        voiceModeController.release()
         super.onCleared()
     }
 

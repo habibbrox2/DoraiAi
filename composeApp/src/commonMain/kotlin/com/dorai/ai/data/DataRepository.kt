@@ -223,6 +223,10 @@ interface DataRepository {
     fun setSmsSendEnabled(enabled: Boolean)
     fun hasSmsSendPermission(): Boolean
     suspend fun requestSmsSendPermission(): Boolean
+
+    // Voice Mode (Android-only for now; other platforms keep the toggle hidden).
+    fun isVoiceModeEnabled(): Boolean
+    fun setVoiceModeEnabled(enabled: Boolean)
     val smsDrafts: StateFlow<List<SmsDraft>>
     suspend fun sendSmsDraft(draftId: String): Boolean
     suspend fun discardSmsDraft(draftId: String)
