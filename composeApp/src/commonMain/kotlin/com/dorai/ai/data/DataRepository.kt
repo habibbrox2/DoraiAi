@@ -227,6 +227,12 @@ interface DataRepository {
     // Voice Mode (Android-only for now; other platforms keep the toggle hidden).
     fun isVoiceModeEnabled(): Boolean
     fun setVoiceModeEnabled(enabled: Boolean)
+
+    // Voice model manifest (downloaded models + integrity state) and mobile-data policy.
+    fun getVoiceModelManifestJson(): String
+    fun setVoiceModelManifestJson(json: String)
+    fun isVoiceMobileDataAllowed(): Boolean
+    fun setVoiceMobileDataAllowed(enabled: Boolean)
     val smsDrafts: StateFlow<List<SmsDraft>>
     suspend fun sendSmsDraft(draftId: String): Boolean
     suspend fun discardSmsDraft(draftId: String)

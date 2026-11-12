@@ -20,6 +20,20 @@ The platform recognizer is **device-dependent**. A device with no offline Bengal
 network error, and the voice turn fails with `NETWORK_REQUIRED` rather than quietly sending audio
 away. The user is told what happened instead of the app pretending the turn was private.
 
+## Download and integrity (Phase 2 infrastructure)
+
+The Coqui bn VITS files are pinned in `composeApp/src/commonMain/kotlin/com/dorai/ai/voice/VoiceCatalog.kt`
+(`models/voice/<id>/`, immutable commit `67008db…`, per-file size + SHA-256). The download runs in
+`AndroidVoiceModelDownloadWorker` — foreground service, unique work keeping existing work, Wi‑Fi-only
+constraint by default (mobile data only after the user opts in). Downloads resume with a byte-Range;
+kept `.part` bytes are re-hashed to rebuild the digest; each file's length and SHA-256 are checked
+before rename; a `.sha256` marker sits next to each verified file; the settings surface exposes
+download / pause / resume / delete / re-download plus the mobile-data opt-in.
+
+**The catalog entry ships with `licenseVerified = false`** because the upstream repo declares no
+license and no model card. The download button is disabled and no bytes move until the sign-off is
+recorded in the catalog.
+
 ## Still candidates
 
 These are **not** wired up. They are the Phase 0 measurement candidates listed in

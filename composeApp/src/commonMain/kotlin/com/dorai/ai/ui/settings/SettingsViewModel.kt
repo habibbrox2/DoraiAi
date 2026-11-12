@@ -38,6 +38,12 @@ import com.dorai.ai.skills.parseGitHubSkillUrl
 import com.dorai.ai.tools.AppPermission
 import com.dorai.ai.tools.PermissionController
 import com.dorai.ai.tools.isLocalNetworkUrl
+import com.dorai.ai.voice.VoiceModelEntry
+import com.dorai.ai.voice.VoiceModelRepository
+import com.dorai.ai.voice.cancelVoiceDownload
+import com.dorai.ai.voice.deleteVoiceModelFiles
+import com.dorai.ai.voice.enqueueVoiceDownload
+import com.dorai.ai.voice.isDownloadable
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.error_unknown
 import dorai.composeapp.generated.resources.error_unrecognized_github_repo
@@ -82,6 +88,16 @@ class SettingsViewModel(
     private var hasCheckedInitialConnection = false
     private var pendingDeleteJob: Job? = null
 
+    /**
+     * Backlog-facing view of the pinned voice model catalog joined with its manifest.
+     * The worker writes the manifest through a separate repository instance, so the UI
+     * polls while a download is active rather than relying on flow push.
+     */
+    private val voiceModelRepository = VoiceModelRepository(
+        dataRepository::getVoiceModelManifestJson,
+        dataRepository::setVoiceModelManifestJson,
+    )
+
     private fun buildFullState(): SettingsUiState = SettingsUiState(
         configuredServices = buildConfiguredServiceEntries().toImmutableList(),
         availableServicesToAdd = computeAvailableServices().toImmutableList(),
@@ -121,6 +137,8 @@ class SettingsViewModel(
         isSmsEnabled = dataRepository.isSmsEnabled(),
         showVoiceSection = isVoiceSupported,
         isVoiceModeEnabled = dataRepository.isVoiceModeEnabled(),
+        voiceModels = voiceModelRepository.models.value.toImmutableList(),
+        isVoiceMobileDataAllowed = dataRepository.isVoiceMobileDataAllowed(),
         smsPermissionGranted = dataRepository.hasSmsPermission(),
         smsPollIntervalMinutes = dataRepository.getSmsPollIntervalMinutes(),
         smsPendingCount = dataRepository.getPendingSmsCount(),
@@ -188,6 +206,12 @@ class SettingsViewModel(
         onRefreshEmailAccount = ::onRefreshEmailAccount,
         onToggleSms = ::onToggleSms,
         onToggleVoiceMode = ::onToggleVoiceMode,
+        onToggleVoiceMobileData = ::onToggleVoiceMobileData,
+        onVoiceModelDownload = ::onVoiceModelDownload,
+        onVoiceModelPause = ::onVoiceModelPause,
+        onVoiceModelDelete = ::onVoiceModelDelete,
+        onVoiceModelReDownload = ::onVoiceModelReDownload,
+        onVoiceModelsTick = ::refreshVoiceModels,
         onChangeSmsPollInterval = ::onChangeSmsPollInterval,
         onRefreshSms = ::onRefreshSms,
         onToggleSmsSend = ::onToggleSmsSend,
@@ -234,6 +258,12 @@ class SettingsViewModel(
     )
 
     init {
+        // Voice models: keep the UI render in sync with the worker-side manifest.
+        // The worker writes through its own repository instance; refresh() is pulled
+        // by the UI while a download is active (VoiceSettingsSection ticks) and after
+        // every user action — an unconditional polling loop here would never let a
+        // test dispatcher go idle and hang the whole desktop suite.
+
         // Startup note: visible-entry revalidation remains active inside onScreenVisible();
         // eagerly re-running it here would interleave with per-test schedulers and destabilize
         // emission ordering across unit tests.
@@ -803,6 +833,46 @@ class SettingsViewModel(
     private fun onToggleVoiceMode(enabled: Boolean) {
         dataRepository.setVoiceModeEnabled(enabled)
         _state.update { it.copy(isVoiceModeEnabled = enabled) }
+    }
+
+    private fun onToggleVoiceMobileData(enabled: Boolean) {
+        dataRepository.setVoiceMobileDataAllowed(enabled)
+        _state.update { it.copy(isVoiceMobileDataAllowed = enabled) }
+    }
+
+    private fun onVoiceModelDownload(modelId: String) {
+        val entry = voiceModelRepository.entry(modelId) ?: return
+        if (!entry.model.isDownloadable()) return
+        enqueueVoiceDownload(modelId, dataRepository.isVoiceMobileDataAllowed())
+        refreshVoiceModels()
+    }
+
+    private fun onVoiceModelPause(modelId: String) {
+        cancelVoiceDownload(modelId)
+        refreshVoiceModels()
+    }
+
+    private fun onVoiceModelDelete(modelId: String) {
+        deleteVoiceModelFiles(modelId)
+        refreshVoiceModels()
+    }
+
+    private fun onVoiceModelReDownload(modelId: String) {
+        val allowed = dataRepository.isVoiceMobileDataAllowed()
+        deleteVoiceModelFiles(modelId)
+        enqueueVoiceDownload(modelId, allowed)
+        refreshVoiceModels()
+    }
+
+    /**
+     * Re-reads the manifest and pushes the joined view into the UI state. Called
+     * after every user action and, while a download is running, on a one-second
+     * tick driven from the UI layer — never from an unbounded loop in this
+     * ViewModel, which would keep test dispatchers busy forever.
+     */
+    private fun refreshVoiceModels() {
+        voiceModelRepository.refresh()
+        _state.update { it.copy(voiceModels = voiceModelRepository.models.value.toImmutableList()) }
     }
 
     private fun onRefreshSms() {
