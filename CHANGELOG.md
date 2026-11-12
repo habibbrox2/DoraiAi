@@ -11,6 +11,7 @@
 - **Voice model management in Settings → Voice**: per-model download, pause, resume, delete and re-download, plus the mobile-data opt-in toggle; a model is never usable before every file passes verification.
 
 ### Fixed
+- **Voice settings hid the Models area silently when empty**: with no catalog entries the whole section vanished without a word; it now shows an honest empty state ("উপলব্ধ মডেল এখানে দেখা যাবে").
 - **Bengali voice strings render as mojibake on device**: the `settings_voice_*` strings (and three English ellipsis/em-dash values) added in the Phase 2 infrastructure were double-encoded at insertion; they now display correct Bengali in Settings → Voice.
 - **TTS speed/pitch/volume labels showed "100%%"**: `tts_value_format` used `%%`, which Compose resource formatting does not unescape; the labels now show a single `%`.
 

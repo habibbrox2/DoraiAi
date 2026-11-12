@@ -19,6 +19,7 @@ numbers from real devices are in the table below.
 |---|---|---|
 | CER/WER scorer | `composeApp/src/commonMain/kotlin/com/dorai/ai/voice/benchmark/SpeechScoring.kt` | Normalises (NFC, case-fold, punctuation-as-space) and computes code-point CER and word WER |
 | Bengali eval set | `composeApp/src/commonMain/kotlin/com/dorai/ai/voice/benchmark/VoiceEvalSet.kt` | 200 command utterances (20 per intent, BengVoice, CC BY 4.0, DOI:10.17632/sr99ryf4ns.1) + 30 declarative structure sentences (10 per Simple/Compound/Complex, BTSD, CC BY 4.0, DOI:10.17632/4k964xyz65.2) |
+| TTS/ASR measurement | `docs/knowledge/voice/phase3-device-checklist.md` | Phase 3 device checklist — fresh-install airplane mode, download chain, device tiers, battery/thermal, golden-audio hooks |
 | Scorer test suite | `composeApp/src/commonTest/kotlin/com/dorai/ai/voice/benchmark/` | Known pairs and eval-set integrity |
 
 The scorer is pure Kotlin and runs on every target. Bengali code points (not UTF-16 code units) are
