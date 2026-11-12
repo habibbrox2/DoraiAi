@@ -71,6 +71,8 @@ class GitHubIntegrationViewModel(
                 connectionStatus = GitHubConnectionStatus.Error,
                 error = GitHubDeviceFlowError.MissingClientId,
                 isLoading = false,
+                userCode = null,
+                verificationUri = null,
             )
             return
         }
@@ -86,6 +88,8 @@ class GitHubIntegrationViewModel(
                     connectionStatus = GitHubConnectionStatus.Error,
                     error = result.exceptionOrNull()?.let { (it as? GitHubDeviceFlowException)?.error ?: GitHubDeviceFlowError.Network(it.message ?: "request failed") },
                     isLoading = false,
+                    userCode = null,
+                    verificationUri = null,
                 )
                 return@launch
             }
@@ -93,6 +97,8 @@ class GitHubIntegrationViewModel(
             _state.value = _state.value.copy(
                 connectionStatus = GitHubConnectionStatus.WaitingForDevice,
                 isLoading = false,
+                userCode = awaiting.userCode,
+                verificationUri = awaiting.verificationUri,
             )
             pollDeviceCode(awaiting.deviceCode, awaiting.verificationUri, awaiting.expiresIn, awaiting.interval)
         }
@@ -119,6 +125,8 @@ class GitHubIntegrationViewModel(
                     _state.value = _state.value.copy(
                         connectionStatus = GitHubConnectionStatus.Error,
                         error = GitHubDeviceFlowError.ExpiredToken,
+                        userCode = null,
+                        verificationUri = null,
                     )
                     return@launch
                 }
@@ -155,6 +163,8 @@ class GitHubIntegrationViewModel(
                                     connectionStatus = GitHubConnectionStatus.Error,
                                     error = GitHubDeviceFlowError.Network("token could not be saved"),
                                     isLoading = false,
+                                    userCode = null,
+                                    verificationUri = null,
                                 )
                                 return@launch
                             }
@@ -167,6 +177,8 @@ class GitHubIntegrationViewModel(
                                     connectionStatus = GitHubConnectionStatus.Error,
                                     error = GitHubDeviceFlowError.Network("token could not be saved"),
                                     isLoading = false,
+                                    userCode = null,
+                                    verificationUri = null,
                                 )
                                 return@launch
                             }
@@ -174,6 +186,8 @@ class GitHubIntegrationViewModel(
                         _state.value = _state.value.copy(
                             connectionStatus = GitHubConnectionStatus.Connected,
                             error = null,
+                            userCode = null,
+                            verificationUri = null,
                         )
                         scope.launch { refreshInstallations() }
                         return@launch
@@ -183,11 +197,17 @@ class GitHubIntegrationViewModel(
                         _state.value = _state.value.copy(
                             connectionStatus = GitHubConnectionStatus.Error,
                             error = state.error,
+                            userCode = null,
+                            verificationUri = null,
                         )
                         return@launch
                     }
 
-                    else -> { /* Idle / AwaitingUser — not expected from pollForToken */ }
+                    else -> {
+                        // Idle / AwaitingUser — not expected from pollForToken. Avoid a busy
+                        // loop by backing off briefly before the next poll attempt.
+                        kotlinx.coroutines.delay(1.seconds)
+                    }
                 }
             }
         }
@@ -202,15 +222,26 @@ class GitHubIntegrationViewModel(
         )
     }
 
+    /** Cancels the device flow (user pressed Cancel) and returns to a clean NotConnected state. */
+    fun cancelDeviceFlow() {
+        stopPolling()
+        _state.value = GitHubIntegrationState(
+            connectionStatus = GitHubConnectionStatus.NotConnected,
+        )
+    }
+
     /** Refreshes the list of GitHub installations for the connected account. */
     fun refreshInstallations() {
         if (_state.value.connectionStatus != GitHubConnectionStatus.Connected) return
         _state.value = _state.value.copy(isLoading = true, error = null)
         scope.launch {
-            // Network/serialization failures are represented as UI state rather than
-            // uncaught exceptions on the main dispatcher (which would close the app).
+            // CancellationException must propagate to the scope — a cancellation is not a
+            // network failure and must not surface as an Error state.
             val result = runCatching { apiClient.listInstallations() }
-                .getOrDefault(GitHubApiResult.Failed)
+                .getOrElse { e ->
+                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    GitHubApiResult.Failed
+                }
             _state.value = when (result) {
                 is GitHubApiResult.Success -> _state.value.copy(
                     installations = result.data,
@@ -235,6 +266,11 @@ class GitHubIntegrationViewModel(
                     isLoading = false,
                 )
             }
+            // No separate UI trigger exists; the repositories list must load as soon as the
+            // installations are known or it stays empty forever.
+            if (result is GitHubApiResult.Success) {
+                refreshRepositories()
+            }
         }
     }
 
@@ -250,7 +286,10 @@ class GitHubIntegrationViewModel(
         _state.value = _state.value.copy(isLoading = true, error = null)
         scope.launch {
             val result = runCatching { apiClient.listInstallationRepositories(installationId) }
-                .getOrDefault(GitHubApiResult.Failed)
+                .getOrElse { e ->
+                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    GitHubApiResult.Failed
+                }
             _state.value = when (result) {
                 is GitHubApiResult.Success -> _state.value.copy(
                     repositories = result.data,

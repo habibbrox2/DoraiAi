@@ -24,16 +24,16 @@ The screen has two states:
 
 ### Not connected
 
-- "Connect to GitHub" button starts the Device Flow: `POST https://github.com/login/device/code` → the screen shows the user code and verification URL; the user enters the code at https://github.com/login/device and authorizes.
-- The app polls `POST /login/oauth/access_token` with `grant_type=device_code` (RFC 8628), honoring `authorization_pending` (keep polling), `slow_down` (interval + 5s), `expired_token` (stop and surface error), `access_denied`, `device_flow_disabled`, and `bad_refresh_token`.
-- On success the token is stored in the platform vault; the screen shows the connected state.
+- "Connect to GitHub" button starts the Device Flow: `POST https://github.com/login/device/code` → while waiting, the screen shows the user code with a copy button, the verification URI with an "Open GitHub" button that launches the browser, and a Cancel button (`cancelDeviceFlow()`). Errors render as a localized card with a Retry button (`retry()`).
+- The app polls `POST /login/oauth/access_token` with `grant_type=device_code` and the OAuth `device_code` (never the user-facing `user_code`), honoring `authorization_pending` (keep polling), `slow_down` (interval + 5s), `expired_token` (stop and surface error), `access_denied`, `device_flow_disabled`, and `bad_refresh_token`.
+- On success the tokens are stored in the platform vault and `vault.isConnected()` is verified; a persist mismatch surfaces `Error("token could not be saved")`, never a fake Connected state.
 
 ### Connected
 
-- Shows the authenticated user (`GET /user`), the account's installations (`GET /user/installations`), and their repositories (`GET /user/installations/{installation_id}/repositories`) — read-only list from the **first installation** in v1. Repository names, full names and owner types are displayed; a repository can be selected for cloning.
-- **Clone** is visible only after a repository is selected. Confirming the dialog clones into `projects/<projectName>` with `--depth=1` and stamps `lastSync`; `projectName` is validated by `GitUrlValidator.isValidProjectName` (no traversal, no slashes, no leading dot) before any guest call. On failure `cloneState` becomes `Failure` and the repository selection is rolled back.
+- Shows the connection status; the connect button is replaced by a **Disconnect** button that clears the vault after a confirmation dialog.
+- The account's installations (`GET /user/installations`) are listed, and repositories (`GET /user/installations/{installation_id}/repositories`) load automatically right after installations are refreshed — read-only list from the **first installation** in v1. A repository can be selected for cloning; a Refresh button re-fetches the list.
+- **Clone** is visible only after a repository is selected. Confirming the dialog clones into `projects/<projectName>` with `--depth=1` and stamps `lastSync` (local date-time formatting); `projectName` is validated by `GitUrlValidator.isValidProjectName` (no traversal, no slashes, no leading dot) before any guest call. On failure `cloneState` becomes `Failure` and the repository selection is rolled back.
 - **Refresh status** and **Sync** buttons run `git status` and `git fetch --prune` + `git pull --ff-only --quiet` for the selected project; failures are recorded as a human-readable `lastError`.
-- **Disconnect** clears the vault and resets all UI state.
 
 ## Fail-closed guarantees (2026-11-12)
 
@@ -63,9 +63,9 @@ The screen has two states:
 
 ## Known limitations
 
-- The settings UI does not yet render the `WaitingForDevice` state (user code + verification URI) or the error/retry states; the device-flow plumbing is fixed but the screen is not wired to it yet — step 2 of the GitHub critical remediation.
+- The device-flow screen waits indefinitely while the token is pending — there is no countdown/UX for expiry beyond the terminal `expired_token` error state.
 - Desktop clone/sync is not functional (no-op desktop `WorkspaceController`; the desktop CLI layer exists but is unwired).
-- Android guest git operations authenticate anonymously only; private repositories and pushes need guest-visible credential helper support + GitHub App registration with write permissions.
+- iOS has no `GitCommandRunner`/`GitCredentialBroker` actuals yet (latent compile break for iOS; iOS not in CI).
 - `Pull requests: Read-only` keeps PR creation disabled until `writeOperationsEnabled` and the App is re-registered with `Pull requests: Write`.
 - The first installation is used for repository listing in v1.
 - Foreground refresh only; no background polling in v1.
@@ -82,8 +82,8 @@ The screen has two states:
 | `composeApp/src/desktopMain/kotlin/com/dorai/ai/github/GitHubTokenVault.desktop.kt` | AES-256-GCM file vault (`~/.dorai/github-vault.aes`) |
 | `composeApp/src/iosMain/kotlin/com/dorai/ai/github/GitHubTokenVault.ios.kt` | Keychain vault |
 | `composeApp/src/wasmJsMain/kotlin/com/dorai/ai/github/GitHubTokenVault.wasmJs.kt` | No-op vault |
-| `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitHubIntegrationViewModel.kt` | Connect/Device Flow, repository browsing, select-and-clone, sync, write-gated commit/push/PR |
-| `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitHubIntegrationState.kt` | UI/domain state incl. `CloneState` and `writeOperationsEnabled` |
+| `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitHubIntegrationViewModel.kt` | Connect/cancel/disconnect Device Flow (userCode + verificationUri in VM state), installation + automatic repository loading, select-and-clone, sync, write-gated commit/push/PR |
+| `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitHubIntegrationState.kt` | UI/domain state incl. `CloneState`, `writeOperationsEnabled`, `userCode`/`verificationUri` (waiting-state display only) |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/settings/GitHubSection.kt` | Settings → GitHub screen (Android/desktop gate, clone/sync UI, confirmation dialog) |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitCommandPolicy.kt` | Read-only allowlist + flag deny-list + exact write shapes (gated by `writeEnabled`) |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitUrlValidator.kt` | `github.com` URL validation (https-only, shell-safe segment charset), project-name rules, safe relative paths |

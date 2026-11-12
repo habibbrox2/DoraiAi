@@ -239,6 +239,9 @@ class GitHubIntegrationViewModelTest {
         assertEquals(1, vault.storeCalls)
         // The poll must use the OAuth device code, never the user-facing user code.
         assertEquals("DC-SECRET-ABCD-EFGH", deviceFlow.lastPolledDeviceCode)
+        // Device-flow codes are cleared once the flow terminates.
+        assertNull(vm.state.value.userCode)
+        assertNull(vm.state.value.verificationUri)
     }
 
     @Test
@@ -277,6 +280,48 @@ class GitHubIntegrationViewModelTest {
         assertIs<GitHubDeviceFlowError.MissingClientId>(vm.state.value.error)
         assertFalse(vm.state.value.isLoading)
         assertFalse(deviceFlow.called)
+    }
+
+    @Test
+    fun `cancel device flow resets waiting state to NotConnected`() {
+        val deviceFlow = FakeDeviceFlow()
+        deviceFlow.pollForTokenResult = GitHubDeviceFlowState.Polling(userCode = "", interval = 5)
+        val vm = buildVm(deviceFlow = deviceFlow)
+
+        vm.connect()
+        assertEquals(GitHubConnectionStatus.WaitingForDevice, vm.state.value.connectionStatus)
+
+        vm.cancelDeviceFlow()
+        assertEquals(GitHubConnectionStatus.NotConnected, vm.state.value.connectionStatus)
+        assertNull(vm.state.value.userCode)
+        assertNull(vm.state.value.verificationUri)
+    }
+
+    @Test
+    fun `successful installations load also loads repositories`() {
+        val repo = GitHubRepository(
+            id = 99,
+            name = "repo",
+            fullName = "org-a/repo",
+            owner = GitHubRepositoryOwner(login = "org-a", id = 10, type = "Organization"),
+            `private` = false,
+            defaultBranch = "main",
+            htmlUrl = "https://github.com/org-a/repo",
+        )
+        val apiClient = FakeApiClient()
+        apiClient.listRepositoriesResult = GitHubApiResult.Success(listOf(repo))
+        val deviceFlow = FakeDeviceFlow()
+        deviceFlow.pollForTokenResult = GitHubDeviceFlowState.Success(
+            login = "dorai-user",
+            accessToken = "ghs_tok",
+            refreshToken = null,
+        )
+        val vm = buildVm(apiClient = apiClient, deviceFlow = deviceFlow)
+
+        vm.connect()
+
+        assertEquals(GitHubConnectionStatus.Connected, vm.state.value.connectionStatus)
+        assertEquals(listOf("org-a/repo"), vm.state.value.repositories.map { it.fullName })
     }
 
     @Test
