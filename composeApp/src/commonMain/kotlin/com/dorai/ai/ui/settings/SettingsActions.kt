@@ -53,6 +53,8 @@ data class SettingsActions(
     val onVoiceModelPause: (String) -> Unit = {},
     val onVoiceModelDelete: (String) -> Unit = {},
     val onVoiceModelReDownload: (String) -> Unit = {},
+    /** One-second tick from the UI while a download runs; refreshes the manifest view. */
+    val onVoiceModelsTick: () -> Unit = {},
     val onChangeSmsPollInterval: (Int) -> Unit,
     val onRefreshSms: () -> Unit,
     val onToggleSmsSend: (Boolean) -> Unit,
@@ -131,6 +133,7 @@ data class SettingsActions(
             onVoiceModelPause = {},
             onVoiceModelDelete = {},
             onVoiceModelReDownload = {},
+            onVoiceModelsTick = {},
             onChangeSmsPollInterval = {},
             onRefreshSms = {},
             onToggleSmsSend = {},

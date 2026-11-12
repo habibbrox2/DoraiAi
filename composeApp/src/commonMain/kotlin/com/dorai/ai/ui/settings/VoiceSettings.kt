@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.DoraiTypography
@@ -34,6 +35,7 @@ import dorai.composeapp.generated.resources.settings_voice_paused
 import dorai.composeapp.generated.resources.settings_voice_ready
 import dorai.composeapp.generated.resources.settings_voice_redownload
 import dorai.composeapp.generated.resources.settings_voice_resume
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -59,6 +61,7 @@ internal fun VoiceSettingsSection(
 
         if (uiState.voiceModels.isNotEmpty()) {
             Spacer(Modifier.height(12.dp))
+            VoiceModelsTicker(uiState = uiState, onTick = actions.onVoiceModelsTick)
             Text(
                 text = stringResource(Res.string.settings_voice_models_title),
                 style = DoraiTypography.titleSmall,
@@ -81,6 +84,24 @@ internal fun VoiceSettingsSection(
                 checked = uiState.isVoiceMobileDataAllowed,
                 onCheckedChange = actions.onToggleVoiceMobileData,
             )
+        }
+    }
+}
+
+/**
+ * Drives the one-second manifest refresh while a download is in flight. Lives in the
+ * UI layer on purpose: an unbounded polling loop inside the ViewModel would never let
+ * a test dispatcher go idle and hang the whole desktop test suite. The loop only starts
+ * when some entry is DOWNLOADING or PAUSED, so idle screens cost nothing.
+ */
+@Composable
+private fun VoiceModelsTicker(uiState: SettingsUiState, onTick: () -> Unit) {
+    val inFlight = uiState.voiceModels.any { it.state == VoiceModelState.DOWNLOADING || it.state == VoiceModelState.PAUSED }
+    if (!inFlight) return
+    LaunchedEffect(inFlight) {
+        while (true) {
+            delay(1_000)
+            onTick()
         }
     }
 }

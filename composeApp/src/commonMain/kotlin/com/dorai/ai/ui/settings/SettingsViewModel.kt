@@ -40,7 +40,6 @@ import com.dorai.ai.tools.PermissionController
 import com.dorai.ai.tools.isLocalNetworkUrl
 import com.dorai.ai.voice.VoiceModelEntry
 import com.dorai.ai.voice.VoiceModelRepository
-import com.dorai.ai.voice.VoiceModelState
 import com.dorai.ai.voice.cancelVoiceDownload
 import com.dorai.ai.voice.deleteVoiceModelFiles
 import com.dorai.ai.voice.enqueueVoiceDownload
@@ -212,6 +211,7 @@ class SettingsViewModel(
         onVoiceModelPause = ::onVoiceModelPause,
         onVoiceModelDelete = ::onVoiceModelDelete,
         onVoiceModelReDownload = ::onVoiceModelReDownload,
+        onVoiceModelsTick = ::refreshVoiceModels,
         onChangeSmsPollInterval = ::onChangeSmsPollInterval,
         onRefreshSms = ::onRefreshSms,
         onToggleSmsSend = ::onToggleSmsSend,
@@ -259,22 +259,10 @@ class SettingsViewModel(
 
     init {
         // Voice models: keep the UI render in sync with the worker-side manifest.
-        // The worker writes through its own repository instance, so the only reliable
-        // signal here is to poll while anything looks in flight.
-        viewModelScope.launch {
-            voiceModelRepository.models.collect { models ->
-                _state.update { it.copy(voiceModels = models.toImmutableList()) }
-            }
-        }
-        viewModelScope.launch {
-            while (true) {
-                kotlinx.coroutines.delay(1_000)
-                val active = _state.value.voiceModels.any {
-                    it.state == VoiceModelState.DOWNLOADING || it.state == VoiceModelState.PAUSED
-                }
-                if (active) voiceModelRepository.refresh()
-            }
-        }
+        // The worker writes through its own repository instance; refresh() is pulled
+        // by the UI while a download is active (VoiceSettingsSection ticks) and after
+        // every user action — an unconditional polling loop here would never let a
+        // test dispatcher go idle and hang the whole desktop suite.
 
         // Startup note: visible-entry revalidation remains active inside onScreenVisible();
         // eagerly re-running it here would interleave with per-test schedulers and destabilize
@@ -856,24 +844,35 @@ class SettingsViewModel(
         val entry = voiceModelRepository.entry(modelId) ?: return
         if (!entry.model.isDownloadable()) return
         enqueueVoiceDownload(modelId, dataRepository.isVoiceMobileDataAllowed())
-        voiceModelRepository.refresh()
+        refreshVoiceModels()
     }
 
     private fun onVoiceModelPause(modelId: String) {
         cancelVoiceDownload(modelId)
-        voiceModelRepository.refresh()
+        refreshVoiceModels()
     }
 
     private fun onVoiceModelDelete(modelId: String) {
         deleteVoiceModelFiles(modelId)
-        voiceModelRepository.refresh()
+        refreshVoiceModels()
     }
 
     private fun onVoiceModelReDownload(modelId: String) {
         val allowed = dataRepository.isVoiceMobileDataAllowed()
         deleteVoiceModelFiles(modelId)
         enqueueVoiceDownload(modelId, allowed)
+        refreshVoiceModels()
+    }
+
+    /**
+     * Re-reads the manifest and pushes the joined view into the UI state. Called
+     * after every user action and, while a download is running, on a one-second
+     * tick driven from the UI layer — never from an unbounded loop in this
+     * ViewModel, which would keep test dispatchers busy forever.
+     */
+    private fun refreshVoiceModels() {
         voiceModelRepository.refresh()
+        _state.update { it.copy(voiceModels = voiceModelRepository.models.value.toImmutableList()) }
     }
 
     private fun onRefreshSms() {
