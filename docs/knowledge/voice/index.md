@@ -32,6 +32,7 @@ sources above.
 ## Contents
 
 * [Engine inventory](engines.md) — what is wired up today and what is still a candidate
+* [Phase 0 measurement guide](benchmark.md) — scorer, eval set, device procedure, decision memo
 
 ## Policy
 

@@ -9,6 +9,19 @@ generated: { by: human:opencode, at: 2026-11-12T00:00:00Z }
 
 # Update log
 
+## 2026-11-12 — Phase 0 harness (scorer, eval set, guide)
+
+- Bengali CER/WER scorer in `composeApp/src/commonMain/kotlin/com/dorai/ai/voice/benchmark/SpeechScoring.kt`:
+  NFC, case-fold, punctuation-as-space; code-point edit distance (Bengali is combining-mark script);
+  WER on whitespace-separated tokens. Platform actuals apply NFC on Android, desktop and iOS; the
+  wasm value is a pass-through (target not release-ready, voice disabled there).
+- Draft eval set `VOICE_EVAL_SENTENCES`: 120 sentences, 20 per category (general, names,
+  code-switch, numbers, conjuncts, long forms). **Not yet reviewed by a native Bengali speaker**;
+  both accents (Bangladeshi, West Bengali) are not yet confirmed fairly represented.
+- Measurement guide and decision memo template added as `benchmark.md`.
+- No measurement has been taken yet — Phase 0 is still open; the gate stays failed until numbers
+  from real devices are in.
+
 ## 2026-11-12 — Bundle created with the Phase 1 implementation
 
 - Bundle created alongside the first working voice turn.
