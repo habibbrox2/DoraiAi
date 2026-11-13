@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "packageName": "com.dorai.ai",
-  "versionName": "2.1.32",
-  "versionCode": 244,
-  "assetName": "DORAI-AI-v2.1.32-Android.apk",
-  "downloadUrl": "https://github.com/habibbrox2/DoraiAi/releases/download/v2.1.32/DORAI-AI-v2.1.32-Android.apk",
-  "sha256": "e7c11885785ba1b6180c82c65f852dec07a480068f34e5f1cd3ffaceef717b58",
+  "versionName": "2.1.33",
+  "versionCode": 245,
+  "assetName": "DORAI-AI-v2.1.33-Android.apk",
+  "downloadUrl": "https://github.com/habibbrox2/DoraiAi/releases/download/v2.1.33/DORAI-AI-v2.1.33-Android.apk",
+  "sha256": "03cdd6e18f4e53d883d953098703d499e23ad321191edd8300dae3eec3f9dbeb",
   "signerCertificateSha256": "df9578135f0bd6a9ba6e9b625c3fd98f947125ad1c8f6f846aa1fced2a096ef2"
 }
