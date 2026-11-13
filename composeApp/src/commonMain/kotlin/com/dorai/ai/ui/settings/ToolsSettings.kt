@@ -81,18 +81,13 @@ internal fun ToolsContent(
     browsableSkills: ImmutableList<RegistrySkillEntry>,
     isBrowsingSkills: Boolean,
     browseSkillsFailed: Boolean,
-    showSkills: Boolean,
     isSandboxInstalled: Boolean,
     onNavigateToSandbox: (() -> Unit)? = null,
 ) {
     var section by remember { mutableStateOf(ConnectorLibrarySection.Connectors) }
-    val sections = remember(showSkills) {
-        if (showSkills) {
-            ConnectorLibrarySection.entries
-        } else {
-            ConnectorLibrarySection.entries.filter { it != ConnectorLibrarySection.Skills }
-        }
-    }
+    // Every section stays reachable: Skills renders a "sandbox required" state with a CTA
+    // instead of vanishing, so the library never hides a capability silently.
+    val sections = ConnectorLibrarySection.entries
     LaunchedEffect(sections) {
         if (section !in sections) section = sections.first()
     }
@@ -138,10 +133,16 @@ internal fun ToolsContent(
                 onBrowseSkills = onBrowseSkills,
             )
 
-            ConnectorLibrarySection.Plugins -> PluginsSection(
-                tools = tools,
-                onToggleTool = onToggleTool,
-            )
+            ConnectorLibrarySection.Plugins -> {
+                PluginsSection(
+                    tools = tools,
+                    onToggleTool = onToggleTool,
+                )
+                Spacer(Modifier.height(24.dp))
+                // Integrations used to be a separate Settings tab; the request entry point
+                // now lives at the bottom of the merged Tools page.
+                IntegrationRequestCard()
+            }
         }
     }
 }
@@ -182,8 +183,6 @@ internal fun ToolsTabContent(
         browsableSkills = uiState.browsableSkills,
         isBrowsingSkills = uiState.isBrowsingSkills,
         browseSkillsFailed = uiState.browseSkillsFailed,
-        // Skills run inside the sandbox, so they only exist where the sandbox does.
-        showSkills = sandboxState.showSandbox,
         isSandboxInstalled = sandboxState.sandboxInstalled,
     )
 }
@@ -203,16 +202,10 @@ internal fun PluginsSection(
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(Res.string.settings_plugins),
-            style = DoraiTypography.titleLarge,
-            color = LocalDesignColorTokens.current.textPrimary,
-        )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = stringResource(Res.string.settings_plugins_description),
-            style = DoraiTypography.bodySmall,
-            color = LocalDesignColorTokens.current.textSecondary,
+        SettingsSectionHeader(
+            title = stringResource(Res.string.settings_plugins),
+            count = tools.size,
+            description = stringResource(Res.string.settings_plugins_description),
         )
 
         Spacer(Modifier.height(16.dp))
@@ -274,12 +267,6 @@ internal fun PluginsSection(
                 }
             }
         }
-
-        Spacer(Modifier.height(24.dp))
-
-        // Integrations used to be a separate Settings tab; the request entry point
-        // now lives at the bottom of the merged Tools page.
-        IntegrationRequestCard()
     }
 }
 

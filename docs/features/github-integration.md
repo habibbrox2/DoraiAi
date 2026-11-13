@@ -1,6 +1,6 @@
 # GitHub Integration
 
-**Last verified:** 2026-11-12
+**Last verified:** 2026-11-14
 
 DORAI AI can connect to GitHub through a GitHub App using the **Device Flow** and browse the repositories an installation can see — read-only. The integration is local-first: authentication, token custody, repository browsing, cloning and git operations all happen on the device.
 
@@ -12,13 +12,19 @@ No client secret exists for this integration — the GitHub App is registered wi
 
 - App name: `DORAI AI GitHub`, owner `habibbrox2`, no webhook, no callback URL, webhooks disabled.
 - Installation scope: any GitHub account or organization; repository permissions **`Contents: Read-only`** (plus `Pull requests: Read-only`), `Metadata` implicit. The owner can restrict access to selected repositories by installing with "Only select repositories" for least privilege.
-- `client_id` is supplied at build time as a maintainer-provided constant in `GitHubAppConfig`; it is never committed. **Current state: `GitHubAppConfig.clientId = null`** — the source tree carries no client ID, so the integration fails closed (see "Fail-closed guarantees" below). Maintainers adding one should do it in a private build config, not by editing that file.
+- `client_id` is supplied at build time and is never committed. The Gradle build resolves it from `-Pdorai.github.clientId=...` or the `DORAI_GITHUB_CLIENT_ID` environment variable (CI fills the variable from the `DORAI_GITHUB_CLIENT_ID` repository secret) and generates the commonMain constant `GitHubBuildConfig.clientId`; `GitHubAppConfig.clientId` reads that constant. **When the build supplies no value the generated constant is `null`**, so the source tree carries no client ID and the integration fails closed (see "Fail-closed guarantees" below). Maintainers should supply the value through the build (a local `~/.gradle/gradle.properties` entry or the CI secret), never by editing `GitHubAppConfig.kt` or the generated file.
 
 Phase 0 registration is a manual owner step and is **not** part of the codebase. Phase 4 (write operations) additionally requires `Pull requests: Write` on the App registration.
 
 ## Settings
 
 **Settings → GitHub** (dedicated category, icon: code) — visible on all platforms, but the integration itself is supported on **Android and desktop only**. iOS and Web render a "GitHub integration is available on Android and desktop only" notice.
+
+The screen opens with a **hero card**: the GitHub mark, a headline that states the current state
+(not a second "GitHub" title — the category chip already names it), a status badge
+(Not connected / Waiting for authorization / Connected / Connection failed), the description, and the
+one action that changes the state (**Connect to GitHub** or **Disconnect**). Below it sit the error
+card, the waiting-for-authorization card, the installations and the repository list.
 
 The screen has two states:
 
@@ -27,6 +33,7 @@ The screen has two states:
 - "Connect to GitHub" button starts the Device Flow: `POST https://github.com/login/device/code` → while waiting, the screen shows the user code with a copy button, the verification URI with an "Open GitHub" button that launches the browser, and a Cancel button (`cancelDeviceFlow()`). Errors render as a localized card with a Retry button (`retry()`).
 - The app polls `POST /login/oauth/access_token` with `grant_type=device_code` and the OAuth `device_code` (never the user-facing `user_code`), honoring `authorization_pending` (keep polling), `slow_down` (interval + 5s), `expired_token` (stop and surface error), `access_denied`, `device_flow_disabled`, and `bad_refresh_token`.
 - On success the tokens are stored in the platform vault and `vault.isConnected()` is verified; a persist mismatch surfaces `Error("token could not be saved")`, never a fake Connected state.
+- The consent happens in a browser, so the app is in the background when it completes: a notification ("GitHub connected — return to DORAI AI to browse your repositories") tells the user it worked. Tapping it opens the app on the GitHub settings through the `dorai://github/done` deep link (`DeepLinks.GITHUB_RETURN_URI`).
 
 ### Connected
 
@@ -39,9 +46,9 @@ The screen has two states:
 - **Clone** is visible only after a repository is selected. Confirming the dialog clones into `projects/<projectName>` with `--depth=1` and stamps `lastSync` (local date-time formatting); `projectName` is validated by `GitUrlValidator.isValidProjectName` (no traversal, no slashes, no leading dot) before any guest call. On failure `cloneState` becomes `Failure` and the repository selection is rolled back.
 - **Refresh status** and **Sync** buttons run `git status` and `git fetch --prune` + `git pull --ff-only --quiet` for the selected project; failures are recorded as a human-readable `lastError`.
 
-## Fail-closed guarantees (2026-11-12)
+## Fail-closed guarantees (2026-11-14)
 
-- No client ID is checked in (`GitHubAppConfig.clientId = null`). Until a build-time client ID is supplied, `connect()` returns `MissingClientId` before any network I/O and a `Connected` state cannot be entered.
+- No client ID is checked in (`GitHubAppConfig.clientId` reads the generated `GitHubBuildConfig.clientId`, which is `null` unless the build supplies one). Until a build-time client ID is supplied, `connect()` returns `MissingClientId` before any network I/O and a `Connected` state cannot be entered.
 - Device-token polling submits the OAuth `device_code` (never the user-facing `user_code`), so GitHub cannot answer `incorrect_device_code` forever; the `user_code` is display-only.
 - Vault writes are verified after `store()` — a throwing or silently no-op vault surfaces `Error("token could not be saved")`, never a fake `Connected`.
 - `GitUrlValidator.isValidGitHubUrl` is https-only with `[A-Za-z0-9._-]` path segments (this is what keeps shell metacharacters off the Android `/bin/sh` clone path, which also quotes the URL).
@@ -79,6 +86,9 @@ The screen has two states:
 
 | File | Purpose |
 |---|---|
+| `composeApp/build.gradle.kts` | Generates `GitHubBuildConfig.kt` with the build-time client id (Gradle property `dorai.github.clientId` or `DORAI_GITHUB_CLIENT_ID` env; `null` when absent) |
+| `composeApp/src/commonMain/kotlin/com/dorai/ai/DeepLinks.kt` | The `dorai://` scheme constants (OAuth and GitHub hand-off links) — the source of truth for the manifest filters |
+| `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitHubAppConfig.kt` | Client id (from the generated constant), API version, app-name constants; no secrets |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitHubDeviceFlow.kt` | RFC 8628 Device Flow state machine (request code, poll, refresh) |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitHubApiClient.kt` | REST wrapper: installations, repositories, user (read-only) + `createPullRequest` (write-gated) |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitHubApiResult.kt` | Sealed outcome types (Success / Unauthorized / NotFound / Forbidden / RateLimited / Failed) |

@@ -271,6 +271,9 @@ class VersionGeneratorPlugin : Plugin<Project> {
                 """.trimIndent(),
             )
 
+            // Generate the build-time GitHub client id constant (never committed).
+            GitHubClientIdConfig.write(project, GitHubClientIdConfig.resolve(project))
+
             // Update iOS Config.xcconfig with version
             val xcConfigFile = rootProject.file("iosApp/Configuration/Config.xcconfig")
             if (xcConfigFile.exists()) {
@@ -284,6 +287,56 @@ class VersionGeneratorPlugin : Plugin<Project> {
                 xcConfigFile.writeText(updatedContent)
             }
         }
+    }
+}
+
+/**
+ * Build-time injection of the GitHub OAuth App client id (never committed).
+ *
+ * The value comes from a Gradle property (`-Pdorai.github.clientId=...`) or the
+ * `DORAI_GITHUB_CLIENT_ID` environment variable (CI passes it from a repository secret).
+ * When neither is present the generated constant is null and the integration stays
+ * fail-closed — no network I/O and no "Connected" state.
+ */
+private object GitHubClientIdConfig {
+    fun resolve(project: Project): String? =
+        project.providers
+            .gradleProperty("dorai.github.clientId")
+            .orNull
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?: project.providers
+                .environmentVariable("DORAI_GITHUB_CLIENT_ID")
+                .orNull
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+
+    /** Writes the generated commonMain constant that carries the build-time client id. */
+    fun write(
+        project: Project,
+        clientId: String?,
+    ) {
+        val target =
+            project.layout.buildDirectory
+                .file("generated/src/commonMain/kotlin/com/dorai/ai/github/GitHubBuildConfig.kt")
+                .get()
+                .asFile
+        target.parentFile?.mkdirs()
+        val literal = clientId?.let { "\"${it.replace("\\", "\\\\").replace("\"", "\\\"")}\"" } ?: "null"
+        target.writeText(
+            """
+            package com.dorai.ai.github
+
+            /** Build-time constants injected by the Gradle build — generated, never edited by hand. */
+            object GitHubBuildConfig {
+                /**
+                 * GitHub OAuth App client id for the Device Flow, or null when the build supplies
+                 * none. A null value keeps the GitHub integration fail-closed.
+                 */
+                val clientId: String? = $literal
+            }
+            """.trimIndent(),
+        )
     }
 }
 
@@ -314,6 +367,15 @@ tasks.register("generateVersionFile") {
     }
 }
 
+// Register the build-time GitHub client id generation task
+tasks.register("generateGitHubClientIdConfig") {
+    group = "build"
+    description = "Generates GitHubBuildConfig.kt with the build-time GitHub client id"
+    doLast {
+        GitHubClientIdConfig.write(project, GitHubClientIdConfig.resolve(project))
+    }
+}
+
 // Ensure version file is generated before Kotlin compilation
 tasks.named("compileKotlinDesktop") {
     dependsOn("generateVersionFile")
@@ -323,6 +385,9 @@ tasks.named("compileKotlinDesktop") {
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java).configureEach {
     if (name.startsWith("compileKotlin")) {
         dependsOn("generateVersionFile")
+    }
+    if (name.startsWith("compile") && name.endsWith("Main")) {
+        dependsOn("generateGitHubClientIdConfig")
     }
 }
 

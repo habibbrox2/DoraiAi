@@ -263,6 +263,47 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun `onAuthorizeMcpServer refreshes persisted OAuth session into state`() = runTest {
+        val config = fakeRepository.addMcpServer("GitHub", "https://api.githubcopilot.com/mcp/", emptyMap())
+        val viewModel = SettingsViewModel(fakeRepository, fakeDaemonController, fakeNotificationPermissionController, noOpScheduler, testDispatcher)
+
+        viewModel.state.test {
+            assertFalse(awaitItem().mcpServers[0].oauthAuthorized)
+
+            viewModel.actions.onAuthorizeMcpServer(config.id)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            val updates = cancelAndConsumeRemainingEvents()
+            val lastState = updates.filterIsInstance<app.cash.turbine.Event.Item<SettingsUiState>>().lastOrNull()?.value
+            requireNotNull(lastState)
+            assertTrue(lastState.mcpServers[0].oauthAuthorized)
+            assertEquals(McpConnectionStatus.Connected, lastState.mcpServers[0].connectionStatus)
+        }
+    }
+
+    @Test
+    fun `onAuthorizeMcpServer keeps persisted session visible when reconnect fails`() = runTest {
+        // Browser flow succeeds (session persisted) but the follow-up connect fails —
+        // the UI must still show the session instead of "not authorized".
+        val config = fakeRepository.addMcpServer("Desktop Commander", "https://mcp.desktopcommander.app/mcp", emptyMap())
+        fakeRepository.failMcpConnect = true
+        val viewModel = SettingsViewModel(fakeRepository, fakeDaemonController, fakeNotificationPermissionController, noOpScheduler, testDispatcher)
+
+        viewModel.state.test {
+            assertFalse(awaitItem().mcpServers[0].oauthAuthorized)
+
+            viewModel.actions.onAuthorizeMcpServer(config.id)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            val updates = cancelAndConsumeRemainingEvents()
+            val lastState = updates.filterIsInstance<app.cash.turbine.Event.Item<SettingsUiState>>().lastOrNull()?.value
+            requireNotNull(lastState)
+            assertTrue(lastState.mcpServers[0].oauthAuthorized)
+            assertEquals(McpConnectionStatus.Error, lastState.mcpServers[0].connectionStatus)
+        }
+    }
+
+    @Test
     fun `showAddMcpServerDialog toggles correctly`() = runTest {
         val viewModel = SettingsViewModel(fakeRepository, fakeDaemonController, fakeNotificationPermissionController, noOpScheduler, testDispatcher)
 

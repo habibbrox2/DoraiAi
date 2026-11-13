@@ -64,6 +64,24 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
             </intent-filter>
+            <!-- OAuth hand-off: the MCP callback page offers "Open DORAI AI", which sends the
+                 user back to the Integrations / MCP settings. The link carries no credential —
+                 the authorization code travels over the loopback listener, not through here. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="dorai" android:host="oauth" />
+            </intent-filter>
+            <!-- GitHub authorization: the completion notification opens the GitHub settings. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="dorai" android:host="github" />
+            </intent-filter>
         </activity>
         <provider
             android:name="androidx.core.content.FileProvider"

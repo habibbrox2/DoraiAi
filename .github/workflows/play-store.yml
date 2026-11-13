@@ -59,8 +59,7 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
         with:
-          packages: platform-tools
-      - name: Decode Play Store keystore
+          packages: platform-tools      - name: Decode Play Store keystore
         env:
           PLAY_STORE_KEYSTORE_B64: ${{ secrets.PLAY_STORE_KEYSTORE_B64 }}
         run: |
@@ -83,6 +82,8 @@ jobs:
           KEYSTORE_FILE: /tmp/keystore.jks
           KEYSTORE_PASSWORD: ${{ secrets.PLAY_STORE_KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.PLAY_STORE_KEY_ALIAS }}
+          # Build-time GitHub OAuth App client id (public identifier; no client secret used).
+          DORAI_GITHUB_CLIENT_ID: ${{ secrets.DORAI_GITHUB_CLIENT_ID }}
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:

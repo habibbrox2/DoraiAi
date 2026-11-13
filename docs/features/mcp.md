@@ -1,6 +1,6 @@
 # MCP Servers
 
-**Last verified:** 2026-11-12
+**Last verified:** 2026-11-14
 
 DORAI AI supports external tool servers via the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP). Users can connect to remote MCP servers using Streamable HTTP transport and use their tools alongside native tools.
 
@@ -22,7 +22,7 @@ One popular entry requires OAuth instead of an API key: **Desktop Commander** (`
 
 ## Adding a Server
 
-MCP servers are managed in **Settings > Tools > Connectors**. The Connectors tab uses a **Yours / Discover** split: *Yours* lists configured servers, *Discover* lists the curated "Top connectors" with one-tap Add. A search bar filters either list, and the Add button opens the server dialog. Users can:
+MCP servers are managed in **Settings > Tools > Connectors**. The tab is a single scroll with two sections: **Your connectors** (the servers you configured, each with its enable switch and status) and **Top connectors** (the curated catalog with one-tap Add). A search bar filters both sections, and the Add button opens the server dialog. Each section heading carries its own count. The previous **Yours / Discover** toggle was removed — it read like a second tab row inside the category chips and split the library in two. Users can:
 
 - Tap "Add MCP Server" to open a bottom sheet
 - Enter a name, URL, and any number of custom headers manually (e.g., `Authorization`, plus additional vendor-specific headers); rows can be added or removed individually
@@ -49,8 +49,12 @@ Each server card in settings shows:
 
 - A status dot (green=connected, orange=connecting, red=error, grey=unknown), an enable/disable toggle, and a dropdown chevron
 - Clicking anywhere on the card expands/collapses it
-- When expanded: discovered tools with individual toggles, refresh button, remove button (removal is deferred with a snackbar "Undo" option before permanent deletion)
+- When expanded: the OAuth state, the discovered tools with individual toggles, a refresh button, and a remove button (removal is deferred with a snackbar "Undo" option before permanent deletion)
 - Disabling a server disconnects it immediately and the status dot reflects the change
+
+Tool descriptions are clamped to two lines with a tap-to-expand row: a single MCP tool can ship a
+paragraph-long usage guide (the Cloudflare documentation tool does), and rendering it in full pushed
+the rest of the card out of view. The tool count and the number of enabled tools sit above the list.
 
 The UI uses the same card style, status dot colors, and spacing as the Services tab for visual consistency.
 
@@ -77,6 +81,32 @@ A subset of servers is **OAuth-native**: the client must obtain a token via the 
 6. Tokens are stored in the encrypted MCP config (`AppSettings` — AES-256-GCM / Keystore) and refreshed automatically on expiry. They are never logged or attached to exports as raw strings — but `docs/features/settings-export-import.md` still applies to the full MCP config blob (treat exports with the same care as settings containing API keys).
 
 OAuth tokens are refreshed lazily at connection time (before initialize + tools/list); a failed refresh surfaces a clear "re-authorize" message. **Revoke OAuth** on the server card clears the stored session without deleting the server — re-authorizing replaces it.
+
+### The OAuth hand-off page
+
+After consent, the authorization server redirects the browser to the loopback listener, which
+answers with a branded page instead of a bare line of text: the D-Shape mark, a success (or
+failure) badge, the name of the server that was authorized, and a "Return to DORAI AI" hint. The
+page is self-contained — the mark, the icon and the favicon are inlined — so the browser never
+spends a second request on the one-shot socket the handshake is waiting on, and a stray
+`/favicon.ico` probe is answered with a 404 instead of swallowing the callback. The copy is
+English-only: it is a machine-facing hand-off for a third-party provider, not a localized app
+surface. Implementation: `mcp/OauthCallbackPage.kt` (page) and `mcp/JvmOauthCallbackListener`
+(loopback listener, shared by the Android and desktop targets).
+
+### Coming back to the app
+
+On Android the hand-off page also offers a **Return to DORAI AI** button that opens the app
+through the `dorai://oauth/done` deep link, and it attempts the same jump on its own after a
+short delay. Browsers show their own "open this app?" confirmation, so the jump is one tap;
+the button stays available when a browser refuses the automatic attempt. The deep link carries
+**no credential** — the authorization code travels over the loopback socket — so all it does is
+ask the app to show the Integrations / MCP settings (`DeepLinks.OAUTH_RETURN_URI`, handled by
+`MainActivity` and routed by the app shell). The Android manifest registers the `dorai` scheme
+for the `oauth` and `github` hosts; the desktop has no handler for it and simply asks the user
+to switch back to the window.
+
+After the handshake completes — whether the follow-up reconnect succeeds or fails — the settings MCP list rebuilds from the persisted server config, so the card always reflects the stored session (authorized badge + **Revoke OAuth**) instead of a stale "Authorization required" state. If the reconnect fails after a successful handshake, the card shows the connection failure alongside the still-present session; the user can retry (refresh) or revoke, without needing to re-authorize blindly.
 
 ## Integration with Tools
 

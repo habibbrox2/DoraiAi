@@ -47,26 +47,90 @@ import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.settings_connectors
-import dorai.composeapp.generated.resources.settings_library_add
 import dorai.composeapp.generated.resources.settings_library_added
-import dorai.composeapp.generated.resources.settings_library_discover
 import dorai.composeapp.generated.resources.settings_library_filter_no_setup
-import dorai.composeapp.generated.resources.settings_library_yours
 import dorai.composeapp.generated.resources.settings_plugins
 import dorai.composeapp.generated.resources.settings_skills
 import org.jetbrains.compose.resources.stringResource
 
-/** Primary library surfaces inside Settings â†’ Tools. */
+/** Primary library surfaces inside Settings → Tools. */
 internal enum class ConnectorLibrarySection {
     Connectors,
     Skills,
     Plugins,
 }
 
-/** "Yours" shows installed items; "Discover" shows curated ones to add. */
-internal enum class ConnectorLibraryScope {
-    Yours,
-    Discover,
+/**
+ * Section heading for a top-level block inside a settings page (Plugins, Skills, Connectors).
+ *
+ * The page already names the category, so the heading names the *block* and carries its own
+ * count — no duplicate title and no floating counter.
+ */
+@Composable
+internal fun SettingsSectionHeader(
+    title: String,
+    modifier: Modifier = Modifier,
+    count: Int? = null,
+    description: String? = null,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = title,
+                style = DoraiTypography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = LocalDesignColorTokens.current.textPrimary,
+            )
+            if (count != null) {
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = count.toString(),
+                    style = DoraiTypography.labelMedium,
+                    color = LocalDesignColorTokens.current.textTertiary,
+                )
+            }
+        }
+        if (description != null) {
+            Text(
+                text = description,
+                style = DoraiTypography.bodySmall,
+                color = LocalDesignColorTokens.current.textSecondary,
+            )
+        }
+    }
+}
+
+/**
+ * Sub-list heading inside a section ("Your connectors", "Top skills"): the title carries
+ * the count so nothing floats at the far edge of the row.
+ */
+@Composable
+internal fun SettingsSubsectionHeader(
+    title: String,
+    modifier: Modifier = Modifier,
+    count: Int? = null,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = title,
+            style = DoraiTypography.titleSmall,
+            color = LocalDesignColorTokens.current.textSecondary,
+        )
+        if (count != null) {
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = count.toString(),
+                style = DoraiTypography.labelMedium,
+                color = LocalDesignColorTokens.current.textTertiary,
+            )
+        }
+    }
 }
 
 @Composable
@@ -125,61 +189,9 @@ internal fun ConnectorLibraryTabs(
     }
 }
 
-@Composable
-internal fun ConnectorScopeToggle(
-    selected: ConnectorLibraryScope,
-    onSelect: (ConnectorLibraryScope) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .clip(SettingsShapes.pill)
-            .background(LocalDesignColorTokens.current.surfaceRaised.copy(alpha = 0.55f))
-            .border(BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle), SettingsShapes.pill)
-            .padding(3.dp),
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
-    ) {
-        ConnectorLibraryScope.entries.forEach { scope ->
-            val isSelected = scope == selected
-            val label = when (scope) {
-                ConnectorLibraryScope.Yours -> stringResource(Res.string.settings_library_yours)
-                ConnectorLibraryScope.Discover -> stringResource(Res.string.settings_library_discover)
-            }
-            val background by animateColorAsState(
-                targetValue = if (isSelected) LocalDesignColorTokens.current.surfaceElevated else Color.Transparent,
-                animationSpec = tween(durationMillis = if (prefersReducedMotion()) 0 else 180),
-                label = "libraryScopeBackground",
-            )
-            Box(
-                modifier = Modifier
-                    .defaultMinSize(minWidth = 84.dp, minHeight = 48.dp)
-                    .clip(SettingsShapes.pill)
-                    .background(background)
-                    .handCursor()
-                    .selectable(selected = isSelected, onClick = { onSelect(scope) }, role = Role.Tab),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = label,
-                    style = DoraiTypography.labelLarge,
-                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-                    color = if (isSelected) {
-                        LocalDesignColorTokens.current.textPrimary
-                    } else {
-                        LocalDesignColorTokens.current.textSecondary
-                    },
-                    modifier = Modifier.padding(horizontal = 14.dp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
-    }
-}
-
 /**
- * Search + optional filter + Add action. The filter only applies to Discover lists;
- * callers hide it for "Yours".
+ * Search + optional filter + Add action. The filter narrows the curated catalog down to
+ * the entries that need no setup.
  */
 @Composable
 internal fun ConnectorSearchBar(

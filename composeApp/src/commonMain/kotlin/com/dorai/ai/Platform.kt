@@ -142,3 +142,27 @@ expect suspend fun saveFileToDevice(bytes: ByteArray, baseName: String, extensio
  * without deep-linking back to the conversation. No-op on web.
  */
 expect fun sendHeartbeatNotification(title: String, body: String)
+
+/**
+ * Which settings surface an authorization-complete notification opens when tapped.
+ */
+enum class AuthorizationDestination {
+    /** Integrations / MCP — used by the OAuth hand-off page. */
+    Mcp,
+
+    /** GitHub — used by the device flow, which completes in the browser. */
+    GitHub,
+}
+
+/**
+ * Fires a notification that an external authorization finished and the app is ready to
+ * continue. The user completed the consent in a browser, so the app announces it and the
+ * tap brings the user back to the matching settings surface. Android wires a deep link
+ * into the notification; other platforms surface it in the OS notification center. No-op
+ * on web.
+ */
+expect fun sendAuthorizationNotification(
+    title: String,
+    body: String,
+    destination: AuthorizationDestination,
+)

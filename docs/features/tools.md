@@ -1,6 +1,6 @@
 # Tools
 
-**Last verified:** 2026-11-13
+**Last verified:** 2026-11-14
 
 DORAI AI's tools feature allows the AI to execute external functions during conversations — web search, notifications, calendar events, device actions, shell commands, memory operations, and more. Tools are defined with a schema, executed with safety guards, and managed through per-tool toggles in settings.
 
@@ -261,7 +261,18 @@ The platform layer assembles the final list of available tools by checking all g
 
 ## Settings UI
 
-Settings → Tools is one merged library shell with three tabs: **Connectors** (MCP servers), **Skills**, and **Plugins** (native tools). The former separate Integrations tab no longer exists; its "Request an integration" card sits at the bottom of the Plugins tab.
+Settings → Tools is one merged library shell with three tabs: **Connectors** (MCP servers), **Skills**, and **Plugins** (native tools). The former separate Integrations tab no longer exists; its "Request an integration" card sits at the bottom of the page.
+
+All three tabs are always present. Skills run inside the Linux sandbox, so on a platform without it the tab renders a "sandbox required" state with a link to the sandbox setup instead of disappearing — a capability is never hidden silently.
+
+Every library list uses the same shape: one scroll, a search field that filters the whole list, and
+one heading per group that carries its own count. The Connectors tab shows **Your connectors** and
+**Top connectors** (see [mcp.md](mcp.md)); the Skills tab shows **Your skills** and **Top skills** in
+the same way. The earlier **Yours / Discover** toggles were removed — inside a tabbed library they
+read like a second tab row and split every catalog in two.
+
+Section headings name their block and carry its count instead of repeating the page title, so the
+page never shows the same heading twice.
 
 The Plugins tab displays a responsive grid of toggle cards:
 

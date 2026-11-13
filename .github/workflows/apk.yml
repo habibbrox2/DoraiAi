@@ -33,6 +33,9 @@ jobs:
         run: sdkmanager "build-tools;36.0.0"
       - name: Build Foss Debug APK (NOT FOR UPDATES)
         run: bash ./gradlew :androidApp:assembleFossDebug --stacktrace
+        env:
+          # Build-time GitHub OAuth App client id (public identifier; no client secret used).
+          DORAI_GITHUB_CLIENT_ID: ${{ secrets.DORAI_GITHUB_CLIENT_ID }}
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:

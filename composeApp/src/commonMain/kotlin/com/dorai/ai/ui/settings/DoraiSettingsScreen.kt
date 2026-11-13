@@ -454,24 +454,28 @@ private fun SettingsCategoryContent(
 
                 SettingsCategory.Tools -> {
                     PluginsSection(tools = uiState.tools, onToggleTool = actions.onToggleTool)
-                    if (uiState.skills.isNotEmpty() || sandboxState?.showSandbox == true) {
-                        SkillsSection(
-                            skills = uiState.skills,
-                            onUninstallSkill = actions.onUninstallSkill,
-                            showAddDialog = uiState.showAddSkillDialog,
-                            onShowAddDialog = actions.onShowAddSkillDialog,
-                            onInstallGitHub = actions.onInstallGitHubSkill,
-                            onInstallBrowsed = actions.onInstallBrowsedSkill,
-                            isInstalling = uiState.isInstallingSkill,
-                            installError = uiState.skillInstallError,
-                            browsableSkills = uiState.browsableSkills,
-                            isBrowsing = uiState.isBrowsingSkills,
-                            browseFailed = uiState.browseSkillsFailed,
-                            isSandboxInstalled = sandboxState?.sandboxInstalled ?: false,
-                            onNavigateToSandbox = onNavigateToWorkspace,
-                            onBrowseSkills = actions.onBrowseSkills,
-                        )
-                    }
+                    // Skills stay visible on every platform: without the sandbox the section
+                    // explains what is missing and links to the sandbox setup, so the capability
+                    // is never silently hidden.
+                    SkillsSection(
+                        skills = uiState.skills,
+                        onUninstallSkill = actions.onUninstallSkill,
+                        showAddDialog = uiState.showAddSkillDialog,
+                        onShowAddDialog = actions.onShowAddSkillDialog,
+                        onInstallGitHub = actions.onInstallGitHubSkill,
+                        onInstallBrowsed = actions.onInstallBrowsedSkill,
+                        isInstalling = uiState.isInstallingSkill,
+                        installError = uiState.skillInstallError,
+                        browsableSkills = uiState.browsableSkills,
+                        isBrowsing = uiState.isBrowsingSkills,
+                        browseFailed = uiState.browseSkillsFailed,
+                        isSandboxInstalled = sandboxState?.sandboxInstalled ?: false,
+                        onNavigateToSandbox = onNavigateToWorkspace,
+                        onBrowseSkills = actions.onBrowseSkills,
+                    )
+                    // Integrations used to be a separate Settings tab; the request entry
+                    // point now closes the Tools page.
+                    IntegrationRequestCard()
                 }
 
                 SettingsCategory.Mcp -> {

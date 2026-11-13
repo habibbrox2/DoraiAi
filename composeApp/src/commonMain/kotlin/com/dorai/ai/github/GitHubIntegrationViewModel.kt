@@ -1,11 +1,17 @@
 package com.dorai.ai.github
 
 import androidx.lifecycle.ViewModel
+import com.dorai.ai.AuthorizationDestination
 import com.dorai.ai.NoOpWorkspaceController
 import com.dorai.ai.WorkspaceController
 import com.dorai.ai.httpClient
+import com.dorai.ai.sendAuthorizationNotification
+import com.dorai.ai.tools.PermissionController
 import com.dorai.ai.workspace.WorkspaceGitError
 import com.dorai.ai.workspace.WorkspaceGitResult
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.notification_github_connected_body
+import dorai.composeapp.generated.resources.notification_github_connected_title
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -14,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
@@ -35,6 +42,12 @@ class GitHubIntegrationViewModel(
     private val apiClient: GitHubApiClient = GitHubApiClient(vault, httpClient()),
     private val workspaceController: WorkspaceController = NoOpWorkspaceController(),
     private val dispatcher: CoroutineContext = Dispatchers.Main,
+    /**
+     * Asked for the notification permission before the browser is opened, so the
+     * "authorization completed" notice can actually be posted (Android 13+ gates it).
+     * Null when the platform has no notification surface to offer.
+     */
+    private val notificationPermissionController: PermissionController? = null,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(GitHubIntegrationState())
@@ -82,6 +95,10 @@ class GitHubIntegrationViewModel(
             isLoading = true,
         )
         scope.launch {
+            // The consent happens in a browser, so the app will be in the background when it
+            // completes. Ask for the notification permission now, while the user is still
+            // looking at the app.
+            runCatching { notificationPermissionController?.requestPermission() }
             val result = deviceFlow.requestDeviceCode()
             if (result.isFailure) {
                 _state.value = _state.value.copy(
@@ -189,6 +206,15 @@ class GitHubIntegrationViewModel(
                             userCode = null,
                             verificationUri = null,
                         )
+                        // The consent happened in the browser, so the app is in the background.
+                        // Tell the user it worked and that they can come back.
+                        scope.launch {
+                            runCatching {
+                                val title = getString(Res.string.notification_github_connected_title)
+                                val body = getString(Res.string.notification_github_connected_body)
+                                sendAuthorizationNotification(title, body, AuthorizationDestination.GitHub)
+                            }
+                        }
                         scope.launch {
                             // Best effort: load the authenticated user's profile for display.
                             // A failure here must not break the connection — the token works.
