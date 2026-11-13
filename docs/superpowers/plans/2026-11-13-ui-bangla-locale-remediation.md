@@ -373,3 +373,12 @@ U+09AF+U+09BC (364×) vs U+09DF (20×) — দুটোই valid, NFC একই 
 ## Execution Handoff
 
 সব phase শেষে: `fix/ui-bangla-remediation` → `main` PR (squash নয় — phase commits ইতিহাস রাখতে merge commit বেছে নাও যদি repo convention Allow করে; না হলে squash-এ phase bullet-গুলো PR body-তে)।
+
+
+## Phase 9 — Verification follow-up (post-merge)
+
+- [x] Task 9.1: Bengali resource canonical form — `U+09DF` বনাম `U+09AF U+09BC` অসামঞ্জস্য (১৭টি string) scope-সীমিত NFC normalization দিয়ে canonical spelling-এ আনা হয়েছে; `BengaliCanonicalFormTest` (scope/equivalence/round-trip) CI gate হিসেবে যোগ।
+- [x] Task 9.2: Stale-locale backlog — `LocaleCoverageBaselineTest` (কোনো locale ইতিমধ্যে পাওয়া key হারালে fail) + `scripts/locale-coverage.ps1` (coverage report, per-locale missing-key worklist, `-FailOnRegression`) + baseline (`scripts/locale-coverage-baseline.json`)।
+- [x] Task 9.3: JVM-এ যাচাইযোগ্য অংশ — `AppLanguageSwitchTest` (platform locale switch), `TerminalImeTextBufferTest` (grapheme-aligned IME backspace count) — CI-তে চলছে।
+- [x] Task 9.4: ডিভাইস checklist — `docs/development/bangla-device-verification-checklist.md` (Android/iOS locale switch, Bengali IME composition, terminal backspace, dynamic UI)।
+- [ ] Task 9.5: **ডিভাইসে চালিয়ে যাচাই** — এই environment-এ `adb`/`emulator` নেই, তাই on-device item (Android/iOS locale switch, বাংলা IME composition/backspace, real-device UX) এখনও **pending**; checklist অনুযায়ী হাতে ডিভাইসে চালিয়ে ফলাফল (pass/fail/blocked) রিপোর্ট করতে হবে।

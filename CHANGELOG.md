@@ -1,3 +1,17 @@
+## DORAI AI - Bengali Resource Canonical Form and Locale Coverage Tooling (Unreleased)
+
+### Fixed
+- **Bengali resources now use one canonical spelling of য়**: seventeen Bengali strings mixed the precomposed letter (`U+09DF`) with the decomposed form (`U+09AF` + nukta) that the rest of the resources use. They are normalized to the canonical (NFC) spelling, so the same word no longer compares, searches and diffs as two different strings. The normalization is scoped to that single letter — no conjunct, vowel sign, emoji or Latin text was touched.
+
+### Added
+- **Locale integrity gates**: `BengaliCanonicalFormTest` (every locale string must be NFC-normalized; the two spellings of য় must not be mixed inside one file) and `LocaleCoverageBaselineTest` (a locale must never lose keys it already had) now run in CI alongside the existing parity gate.
+- **Locale coverage tooling**: `pwsh scripts/locale-coverage.ps1` prints per-locale coverage, exports the exact missing-key worklist for a locale (`-Out <file>`) and checks the recorded baseline (`-FailOnRegression`). The 53 locales that are still behind the English source fall back to English at runtime; the tool makes that backlog visible without failing the build.
+- **Device verification checklist**: `docs/development/bangla-device-verification-checklist.md` lists the language-switch, Bengali IME composition, terminal backspace and dynamic-UI items that need real hardware, so they can be executed and reported instead of staying implicit.
+
+### Verified
+- The JVM-verifiable parts of the language pipeline are now covered by tests: the platform locale switch (`applyAppLanguage`), the grapheme-aware terminal delete counts used by the Android IME path (`TerminalImeTextBuffer`), and resource canonical form. On-device behaviour (Android/iOS locale switch, real Bengali IME composition and backspace) still requires hardware and is tracked in the checklist.
+
+---
 ## DORAI AI - Offline Voice Mode (Android, Bengali) (Unreleased)
 
 ### Added
