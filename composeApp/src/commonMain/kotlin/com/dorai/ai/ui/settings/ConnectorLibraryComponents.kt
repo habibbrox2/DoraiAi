@@ -93,12 +93,12 @@ internal fun ConnectorLibraryTabs(
                 ConnectorLibrarySection.Plugins -> stringResource(Res.string.settings_plugins)
             }
             val background by animateColorAsState(
-                targetValue = if (isSelected) DesignTokens.PrimaryCyan.copy(alpha = 0.16f) else Color.Transparent,
+                targetValue = if (isSelected) LocalDesignColorTokens.current.primary.copy(alpha = 0.16f) else Color.Transparent,
                 animationSpec = tween(durationMillis = if (prefersReducedMotion()) 0 else 180),
                 label = "libraryTabBackground",
             )
             val foreground by animateColorAsState(
-                targetValue = if (isSelected) DesignTokens.PrimaryCyan else LocalDesignColorTokens.current.textSecondary,
+                targetValue = if (isSelected) LocalDesignColorTokens.current.primary else LocalDesignColorTokens.current.textSecondary,
                 animationSpec = tween(durationMillis = if (prefersReducedMotion()) 0 else 180),
                 label = "libraryTabForeground",
             )
@@ -204,7 +204,7 @@ internal fun ConnectorSearchBar(
         )
         if (showFilter && onToggleFilter != null) {
             val filterTint = if (isFilterActive) {
-                DesignTokens.PrimaryCyan
+                LocalDesignColorTokens.current.primary
             } else {
                 LocalDesignColorTokens.current.textSecondary
             }

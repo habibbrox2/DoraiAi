@@ -15,15 +15,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.dorai.ai.ui.AccentPrimary
-import com.dorai.ai.ui.BorderSoft
-import com.dorai.ai.ui.DangerAlert
 import com.dorai.ai.ui.DoraiTypography
-import com.dorai.ai.ui.InfoBlue
-import com.dorai.ai.ui.SuccessGreen
-import com.dorai.ai.ui.WarningAmber
 
 /** Severity of an inline settings status banner. */
 enum class SettingsBannerSeverity {
@@ -54,18 +51,27 @@ fun SettingsStatusBanner(
     modifier: Modifier = Modifier,
     action: (@Composable () -> Unit)? = null,
 ) {
-    val (container, content) = when (severity) {
-        SettingsBannerSeverity.Info -> InfoBlue to InfoBlue
-        SettingsBannerSeverity.Progress -> AccentPrimary to AccentPrimary
-        SettingsBannerSeverity.Warning -> WarningAmber to WarningAmber
-        SettingsBannerSeverity.Error -> DangerAlert to DangerAlert
+    val tokens = com.dorai.ai.ui.theme.LocalDesignColorTokens.current
+    val container = when (severity) {
+        SettingsBannerSeverity.Info -> tokens.info
+        SettingsBannerSeverity.Progress -> tokens.primary
+        SettingsBannerSeverity.Warning -> tokens.warning
+        SettingsBannerSeverity.Error -> tokens.error
     }
+    val content = tokens.textPrimary
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(SettingsShapes.row)
             .background(container.copy(alpha = 0.14f))
-            .border(BorderStroke(1.dp, BorderSoft), SettingsShapes.row),
+            .border(BorderStroke(1.dp, container.copy(alpha = 0.45f)), SettingsShapes.row)
+            .then(
+                if (severity == SettingsBannerSeverity.Error || severity == SettingsBannerSeverity.Warning) {
+                    Modifier.semantics { liveRegion = LiveRegionMode.Polite }
+                } else {
+                    Modifier
+                },
+            ),
     ) {
         Row(
             modifier = Modifier.padding(SettingsSpacing.md),

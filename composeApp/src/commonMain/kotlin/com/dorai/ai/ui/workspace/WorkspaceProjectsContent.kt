@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.workspace
+package com.dorai.ai.ui.workspace
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
@@ -45,10 +45,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.formatFileSize
-import com.dorai.ai.ui.AccentPrimary
-import com.dorai.ai.ui.BorderSoft
-import com.dorai.ai.ui.CardFill
-import com.dorai.ai.ui.DangerAlert
 import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.components.DoraiChip
@@ -210,7 +206,7 @@ internal fun WorkspaceProjectsContent(
                         Icon(
                             imageVector = Icons.Default.Folder,
                             contentDescription = stringResource(Res.string.workspace_project_folder_content_description),
-                            tint = AccentPrimary,
+                            tint = LocalDesignColorTokens.current.primary,
                         )
                         Text(
                             text = project,
@@ -225,7 +221,7 @@ internal fun WorkspaceProjectsContent(
                             Text(
                                 text = openSessionsLabel(open),
                                 style = DoraiTypography.labelMedium,
-                                color = AccentPrimary,
+                                color = LocalDesignColorTokens.current.primary,
                             )
                         }
                         ProjectRowMenu(
@@ -241,7 +237,7 @@ internal fun WorkspaceProjectsContent(
                     Text(
                         text = error,
                         style = DoraiTypography.bodySmall,
-                        color = DangerAlert,
+                        color = LocalDesignColorTokens.current.error,
                     )
                 }
             }
@@ -436,7 +432,7 @@ private fun DeleteProjectDialog(
                     Text(
                         text = openSessionsLabel(openSessions),
                         style = DoraiTypography.bodySmall,
-                        color = DangerAlert,
+                        color = LocalDesignColorTokens.current.error,
                     )
                 }
             }
@@ -445,7 +441,7 @@ private fun DeleteProjectDialog(
             TextButton(onClick = onDelete, modifier = Modifier.handCursor()) {
                 Text(
                     text = stringResource(Res.string.sandbox_files_delete_confirm),
-                    color = DangerAlert,
+                    color = LocalDesignColorTokens.current.error,
                 )
             }
         },
@@ -500,7 +496,7 @@ private fun BuildSystemCard(
         ) {
             Text(
                 text = stringResource(Res.string.workspace_uninstall),
-                color = DangerAlert,
+                color = LocalDesignColorTokens.current.error,
             )
         }
     }

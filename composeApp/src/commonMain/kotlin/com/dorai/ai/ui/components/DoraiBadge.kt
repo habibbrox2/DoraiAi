@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
-import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 
 /**
@@ -35,9 +34,9 @@ fun DoraiBadge(
 
     Box(
         modifier = modifier
+            .clip(DoraiShapes.pill)
             .border(BorderStroke(1.dp, borderColor), DoraiShapes.pill)
             .defaultMinSize(minHeight = 22.dp)
-            .clip(DoraiShapes.pill)
             .background(bgColor),
         contentAlignment = Alignment.Center,
     ) {
@@ -52,12 +51,15 @@ fun DoraiBadge(
 
 @Composable private fun badgeColors(
     variant: BadgeVariant,
-): Triple<Color, Color, Color> = when (variant) {
-    BadgeVariant.Success -> Triple(DesignTokens.Success.copy(alpha = 0.15f), DesignTokens.Success, DesignTokens.Success.copy(alpha = 0.35f))
-    BadgeVariant.Warning -> Triple(DesignTokens.Warning.copy(alpha = 0.15f), DesignTokens.Warning, DesignTokens.Warning.copy(alpha = 0.35f))
-    BadgeVariant.Error -> Triple(DesignTokens.Error.copy(alpha = 0.15f), DesignTokens.Error, DesignTokens.Error.copy(alpha = 0.35f))
-    BadgeVariant.Accent -> Triple(DesignTokens.PrimaryCyan.copy(alpha = 0.15f), DesignTokens.PrimaryCyan, DesignTokens.PrimaryCyan.copy(alpha = 0.35f))
-    BadgeVariant.Default -> Triple(LocalDesignColorTokens.current.surfaceElevated, LocalDesignColorTokens.current.textSecondary, LocalDesignColorTokens.current.borderSubtle)
+): Triple<Color, Color, Color> {
+    val tokens = LocalDesignColorTokens.current
+    return when (variant) {
+        BadgeVariant.Success -> Triple(tokens.success.copy(alpha = 0.15f), tokens.success, tokens.success.copy(alpha = 0.35f))
+        BadgeVariant.Warning -> Triple(tokens.warning.copy(alpha = 0.15f), tokens.warning, tokens.warning.copy(alpha = 0.35f))
+        BadgeVariant.Error -> Triple(tokens.error.copy(alpha = 0.15f), tokens.error, tokens.error.copy(alpha = 0.35f))
+        BadgeVariant.Accent -> Triple(tokens.primary.copy(alpha = 0.15f), tokens.primary, tokens.primary.copy(alpha = 0.35f))
+        BadgeVariant.Default -> Triple(tokens.surfaceElevated, tokens.textSecondary, tokens.borderSubtle)
+    }
 }
 
 /** Color variants for DoraiBadge. */

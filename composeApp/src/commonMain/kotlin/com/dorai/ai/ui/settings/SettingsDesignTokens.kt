@@ -14,18 +14,18 @@ import com.dorai.ai.ui.theme.LocalDesignColorTokens
  * Updated for 2027 Premium AI Agent Workspace design system.
  */
 object SettingsSpacing {
-    val xxs: Dp = 2.dp
-    val xs: Dp = 4.dp
-    val sm: Dp = 8.dp
-    val md: Dp = 12.dp
-    val lg: Dp = 16.dp
-    val xl: Dp = 20.dp
-    val xxl: Dp = 28.dp
-    val xxxl: Dp = 32.dp
+    val xxs: Dp = DesignTokens.SpacingXxs
+    val xs: Dp = DesignTokens.SpacingXs
+    val sm: Dp = DesignTokens.SpacingSm
+    val md: Dp = DesignTokens.SpacingMd
+    val lg: Dp = DesignTokens.SpacingLg
+    val xl: Dp = DesignTokens.SpacingXl
+    val xxl: Dp = DesignTokens.SpacingXxl
+    val xxxl: Dp = DesignTokens.SpacingXxxl
 
-    val minTouchTarget: Dp = 48.dp
-    val sectionGap: Dp = 20.dp
-    val cardGap: Dp = 16.dp
+    val minTouchTarget: Dp = DesignTokens.MinTouchTarget
+    val sectionGap: Dp = DesignTokens.SpacingXl
+    val cardGap: Dp = DesignTokens.SpacingLg
 }
 
 object SettingsShapes {
@@ -36,15 +36,6 @@ object SettingsShapes {
     val input = RoundedCornerShape(14.dp)
     val button = RoundedCornerShape(999.dp)
     val panel = RoundedCornerShape(24.dp)
-}
-
-object SettingsStatusColors {
-    val connected = DesignTokens.Success
-    val checking = DesignTokens.Warning
-    val error = DesignTokens.Error
-    val unknown = DesignTokens.TertiaryText
-    val attention = DesignTokens.Warning
-    val glow = DesignTokens.PrimaryCyan
 }
 
 object SettingsSurfaces {

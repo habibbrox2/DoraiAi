@@ -276,7 +276,7 @@ private fun SessionChipRow(viewModel: SandboxSessionViewModel) {
 
             val buttonColors = ButtonDefaults.buttonColors(
                 containerColor = if (isSelected) {
-                    com.dorai.ai.ui.theme.DesignTokens.PrimaryCyan
+                    LocalDesignColorTokens.current.primary
                 } else {
                     LocalDesignColorTokens.current.surfaceElevated
                 },
@@ -365,8 +365,8 @@ private fun SandboxSubTabSelector(
 
             val buttonColors = ButtonDefaults.buttonColors(
                 containerColor = when {
-                    isSelected -> com.dorai.ai.ui.theme.DesignTokens.PrimaryCyan
-                    isFocused -> com.dorai.ai.ui.theme.DesignTokens.PrimaryCyan.copy(alpha = 0.25f)
+                    isSelected -> LocalDesignColorTokens.current.primary
+                    isFocused -> LocalDesignColorTokens.current.primary.copy(alpha = 0.25f)
                     else -> LocalDesignColorTokens.current.surfaceElevated
                 },
                 contentColor = if (isSelected) {

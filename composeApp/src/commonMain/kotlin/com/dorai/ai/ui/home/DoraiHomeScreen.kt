@@ -100,14 +100,13 @@ data class HomeChatSummary(
 )
 
 data class HomeUiState(
-    val isWorkspaceSetupDone: Boolean = true,
+    val isWorkspaceSetupDone: Boolean = false,
     val activeProject: HomeProjectSummary? = null,
     val runningCount: Int = 0,
     val waitingApprovalCount: Int = 0,
-    val currentModelName: String = "Free FAST",
+    val currentModelName: String = "",
     val isModelLocal: Boolean = false,
-    val isSandboxRunning: Boolean = true,
-    val storageUsageText: String = "1.2 / 4 GB",
+    val isSandboxRunning: Boolean = false,
     val recentChats: List<HomeChatSummary> = emptyList(),
 )
 
@@ -550,16 +549,6 @@ private fun StatusCard(state: HomeUiState) {
                 text = if (state.isSandboxRunning) stringResource(Res.string.home_running) else stringResource(Res.string.home_stopped),
                 color = if (state.isSandboxRunning) colors.ok else colors.muted,
             )
-        }
-
-        // Storage
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(stringResource(Res.string.home_storage_label), color = colors.muted, fontSize = 13.sp)
-            Text(state.storageUsageText, color = colors.text, fontSize = 13.sp)
         }
     }
 }

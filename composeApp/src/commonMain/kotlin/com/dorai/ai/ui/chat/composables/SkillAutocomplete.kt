@@ -86,7 +86,7 @@ private fun SkillRow(skill: SkillManifest, onClick: () -> Unit) {
         Text(
             text = "/${skill.id}",
             style = DoraiTypography.bodyMedium,
-            color = DesignTokens.PrimaryCyan,
+            color = LocalDesignColorTokens.current.primary,
             fontWeight = FontWeight.SemiBold,
         )
         if (skill.description.isNotEmpty()) {

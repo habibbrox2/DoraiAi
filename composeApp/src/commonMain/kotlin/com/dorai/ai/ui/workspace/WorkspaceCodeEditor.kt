@@ -232,7 +232,7 @@ fun WorkspaceCodeEditor(
                 Icon(
                     imageVector = Icons.Filled.Search,
                     contentDescription = stringResource(Res.string.workspace_editor_search),
-                    tint = if (showSearch) DesignTokens.AccentPrimary else colorTokens.textSecondary,
+                    tint = if (showSearch) colorTokens.primary else colorTokens.textSecondary,
                 )
             }
             // Diff and Run render only with real diff data / a safe execution
@@ -242,14 +242,14 @@ fun WorkspaceCodeEditor(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.CompareArrows,
                         contentDescription = stringResource(Res.string.workspace_editor_toggle_diff),
-                        tint = if (isDiffMode) DesignTokens.AccentPrimary else colorTokens.textSecondary,
+                        tint = if (isDiffMode) colorTokens.primary else colorTokens.textSecondary,
                     )
                 }
                 IconButton(onClick = onRun) {
                     Icon(
                         imageVector = Icons.Filled.PlayArrow,
                         contentDescription = stringResource(Res.string.workspace_editor_run),
-                        tint = DesignTokens.Success,
+                        tint = colorTokens.success,
                     )
                 }
             }
@@ -258,7 +258,7 @@ fun WorkspaceCodeEditor(
                     Icon(
                         imageVector = if (editable) Icons.Filled.Visibility else Icons.Filled.Edit,
                         contentDescription = if (editable) stringResource(Res.string.workspace_editor_preview) else stringResource(Res.string.workspace_editor_edit),
-                        tint = if (editable) DesignTokens.AccentPrimary else colorTokens.textSecondary,
+                        tint = if (editable) colorTokens.primary else colorTokens.textSecondary,
                     )
                 }
             }
@@ -267,7 +267,7 @@ fun WorkspaceCodeEditor(
                     Icon(
                         imageVector = Icons.Filled.Save,
                         contentDescription = if (isSaving) stringResource(Res.string.workspace_editor_saving) else stringResource(Res.string.workspace_editor_save),
-                        tint = if (isSaving) colorTokens.textMuted else DesignTokens.Success,
+                        tint = if (isSaving) colorTokens.textMuted else colorTokens.success,
                     )
                 }
             }
@@ -386,8 +386,8 @@ fun WorkspaceCodeEditor(
                 style = DoraiTypography.labelSmall,
                 color = when {
                     isSaving -> colorTokens.textSecondary
-                    isDirty -> DesignTokens.Warning
-                    else -> DesignTokens.Success
+                    isDirty -> colorTokens.warning
+                    else -> colorTokens.success
                 },
                 modifier = Modifier.weight(1f).padding(start = WorkspaceSpacing.sm),
             )

@@ -104,9 +104,9 @@ fun ShellExecutionCard(
     val borderColor = LocalDesignColorTokens.current.borderSubtle
     val textSlate = LocalDesignColorTokens.current.textPrimary
     val textMuted = LocalDesignColorTokens.current.textMuted
-    val accentCyan = DesignTokens.PrimaryCyan
-    val successGreen = DesignTokens.Success
-    val errorRed = DesignTokens.Error
+    val accentCyan = LocalDesignColorTokens.current.primary
+    val successGreen = LocalDesignColorTokens.current.success
+    val errorRed = LocalDesignColorTokens.current.error
 
     val cleanOutput = stdout?.trimEnd().orEmpty()
     val cleanError = stderr?.trimEnd().orEmpty()
@@ -373,9 +373,9 @@ fun ToolExecutionCard(
     val borderColor = LocalDesignColorTokens.current.borderSubtle
     val textSlate = LocalDesignColorTokens.current.textPrimary
     val textMuted = LocalDesignColorTokens.current.textMuted
-    val accentTeal = DesignTokens.PrimaryCyan
-    val successGreen = DesignTokens.Success
-    val errorRed = DesignTokens.Error
+    val accentTeal = LocalDesignColorTokens.current.primary
+    val successGreen = LocalDesignColorTokens.current.success
+    val errorRed = LocalDesignColorTokens.current.error
 
     val toolIcon = when {
         toolName.contains("search", ignoreCase = true) -> "??"

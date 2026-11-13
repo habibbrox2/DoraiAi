@@ -6,26 +6,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.dorai.ai.ui.AccentPrimary
-import com.dorai.ai.ui.BorderSoft
-import com.dorai.ai.ui.CardFill
-import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.SuccessGreen
-import com.dorai.ai.ui.WarningAmber
+import com.dorai.ai.ui.theme.DesignTokens
+import com.dorai.ai.ui.theme.LocalDesignColorTokens
 
 /**
  * Shared design tokens for the DORAI AI chat workspace.
  * Updated for Futuristic Midnight Glassmorphism design system.
  */
 object ChatSpacing {
-    val xxs: Dp = 2.dp
-    val xs: Dp = 4.dp
-    val sm: Dp = 8.dp
-    val md: Dp = 12.dp
-    val lg: Dp = 16.dp
-    val xl: Dp = 24.dp
-    val xxl: Dp = 32.dp
-    val xxxl: Dp = 48.dp
+    val xxs: Dp = DesignTokens.SpacingXxs
+    val xs: Dp = DesignTokens.SpacingXs
+    val sm: Dp = DesignTokens.SpacingSm
+    val md: Dp = DesignTokens.SpacingMd
+    val lg: Dp = DesignTokens.SpacingLg
+    val xl: Dp = DesignTokens.SpacingXl
+    val xxl: Dp = DesignTokens.SpacingXxl
+    val xxxl: Dp = DesignTokens.SpacingXxxl
 
     /** Width of the centered conversation column on expanded windows. */
     val conversationColumnMax: Dp = ChatAdaptivePolicy.conversationColumnMax
@@ -66,13 +62,13 @@ object ChatShapes {
  * Status colors used by timeline cards and status pills. Updated for cyan accent theme.
  */
 object ChatStatusColors {
-    val streaming = AccentPrimary
-    val toolActivity = AccentPrimary.copy(alpha = 0.8f)
-    val fallback = Color(0xFFB388FF)
-    val error = DangerAlert
-    val retry = WarningAmber
-    val success = SuccessGreen
-    val glow = AccentPrimary
+    val streaming = DesignTokens.PrimaryCyan
+    val toolActivity = DesignTokens.PrimaryCyan.copy(alpha = 0.8f)
+    val fallback = DesignTokens.AgentViolet
+    val error = DesignTokens.Error
+    val retry = DesignTokens.Warning
+    val success = DesignTokens.Success
+    val glow = DesignTokens.PrimaryCyan
 }
 
 /**
@@ -86,10 +82,10 @@ object ChatSurfaces {
     fun elevated(): Color = MaterialTheme.colorScheme.surfaceContainerHigh
 
     @Composable
-    fun border(): Color = BorderSoft
+    fun border(): Color = LocalDesignColorTokens.current.borderSoft
 
     @Composable
-    fun assistantMessage(): Color = CardFill
+    fun assistantMessage(): Color = LocalDesignColorTokens.current.cardFill
 
     @Composable
     fun composer(): Color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.9f)

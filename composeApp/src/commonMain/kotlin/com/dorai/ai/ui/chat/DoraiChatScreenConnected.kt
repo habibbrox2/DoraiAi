@@ -86,6 +86,7 @@ import dorai.composeapp.generated.resources.chat_voice_unavailable
 import dorai.composeapp.generated.resources.chat_voice_unknown_error
 import dorai.composeapp.generated.resources.ic_file
 import dorai.composeapp.generated.resources.ic_image
+import dorai.composeapp.generated.resources.model_not_configured
 import dorai.composeapp.generated.resources.settings_model_label
 import dorai.composeapp.generated.resources.snackbar_conversation_deleted
 import dorai.composeapp.generated.resources.snackbar_undo
@@ -187,7 +188,7 @@ fun DoraiChatScreenConnected(
     }
 
     val activeService = uiState.availableServices.firstOrNull()
-    val currentModelName = activeService?.serviceName ?: "Free FAST"
+    val currentModelName = activeService?.serviceName ?: stringResource(Res.string.model_not_configured)
     val isModelLocal = activeService?.executionLocation == ExecutionLocation.LOCAL
     val maxContextTokens = remember(activeService) {
         val modelId = activeService?.modelId ?: activeService?.serviceId ?: ""

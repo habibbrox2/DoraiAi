@@ -1466,4 +1466,5 @@
     <string name="tool_show_map_description">মানচিত্রে একটি স্থান দেখান</string>
     <string name="tool_open_wifi_settings_name">ওয়াই-ফাই সেটিংস</string>
     <string name="tool_open_wifi_settings_description">ওয়াই-ফাই সেটিংস স্ক্রিন খুলুন</string>
+    <string name="model_not_configured">কনফিগার করা হয়নি</string>
 </resources>

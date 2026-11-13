@@ -770,7 +770,7 @@ private fun WorkspaceTabContent(
                                     Text(
                                         text = stringResource(saveMessage),
                                         style = DoraiTypography.labelMedium,
-                                        color = if (saveMessage == Res.string.sandbox_files_save_failed) DesignTokens.Error else DesignTokens.Success,
+                                        color = if (saveMessage == Res.string.sandbox_files_save_failed) LocalDesignColorTokens.current.error else LocalDesignColorTokens.current.success,
                                         modifier = Modifier.weight(1f),
                                     )
                                     TextButton(onClick = onConsumeSaveMessage) {
@@ -1055,7 +1055,7 @@ private fun WorkspaceGitContent(
                     Text(
                         text = stringResource(Res.string.workspace_git_failed),
                         style = DoraiTypography.bodyMedium,
-                        color = DesignTokens.Error,
+                        color = LocalDesignColorTokens.current.error,
                     )
                 }
 
@@ -1136,7 +1136,7 @@ private fun WorkspaceGitDiffDialog(
                     Text(
                         text = stringResource(Res.string.workspace_git_diff_error),
                         style = DoraiTypography.bodyMedium,
-                        color = DesignTokens.Error,
+                        color = LocalDesignColorTokens.current.error,
                     )
                 } else {
                     if (diff.stagedDiff.isNotEmpty()) {
@@ -1250,12 +1250,12 @@ private fun WorkspaceGitChangesList(
                     }
 
                     val (badgeColor, badgeText) = when (change.status) {
-                        WorkspaceGitStatus.Added -> Pair(DesignTokens.Success, stringResource(Res.string.workspace_git_status_added))
-                        WorkspaceGitStatus.Modified -> Pair(DesignTokens.Warning, stringResource(Res.string.workspace_git_status_modified))
-                        WorkspaceGitStatus.Deleted -> Pair(DesignTokens.Error, stringResource(Res.string.workspace_git_status_deleted))
-                        WorkspaceGitStatus.Renamed -> Pair(DesignTokens.AccentPrimary, stringResource(Res.string.workspace_git_status_renamed))
+                        WorkspaceGitStatus.Added -> Pair(colorTokens.success, stringResource(Res.string.workspace_git_status_added))
+                        WorkspaceGitStatus.Modified -> Pair(colorTokens.warning, stringResource(Res.string.workspace_git_status_modified))
+                        WorkspaceGitStatus.Deleted -> Pair(colorTokens.error, stringResource(Res.string.workspace_git_status_deleted))
+                        WorkspaceGitStatus.Renamed -> Pair(colorTokens.accent, stringResource(Res.string.workspace_git_status_renamed))
                         WorkspaceGitStatus.Untracked -> Pair(colorTokens.textMuted, stringResource(Res.string.workspace_git_status_untracked))
-                        WorkspaceGitStatus.Conflicted -> Pair(DesignTokens.Error, stringResource(Res.string.workspace_git_status_conflicted))
+                        WorkspaceGitStatus.Conflicted -> Pair(colorTokens.error, stringResource(Res.string.workspace_git_status_conflicted))
                     }
                     Box(
                         modifier = Modifier
@@ -1265,7 +1265,7 @@ private fun WorkspaceGitChangesList(
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = badgeText.take(1).uppercase(),
+                            text = badgeText.take(1),
                             style = DoraiTypography.labelSmall.copy(fontSize = 9.sp),
                             color = DesignTokens.BrandInk,
                         )

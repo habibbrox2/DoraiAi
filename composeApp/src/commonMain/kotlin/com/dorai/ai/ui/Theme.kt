@@ -52,11 +52,11 @@ import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import com.dorai.ai.ui.theme.LocalDesignTokens
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
-// BROX KAI 2.0 Ã¢â‚¬â€ 2027 MINIMAL DESIGN SYSTEM
-// Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+// ================================================================
+// BROX KAI 2.0 - 2027 MINIMAL DESIGN SYSTEM
+// ================================================================
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Core Brand Colors Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// === Core Brand Colors ===
 val broxNavy = DesignTokens.BrandNavy
 val broxDeepNavy = DesignTokens.Background
 val broxCharcoal = DesignTokens.SurfaceRaised
@@ -66,7 +66,7 @@ val broxCyan = AccentPrimary
 val broxLightSurface = Color(0xFFFFFFFF)
 val broxMutedText = Color(0xFF64748B)
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ 2027 Design Tokens (scheme-aware via LocalDesignColorTokens) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// === 2027 Design Tokens (scheme-aware via LocalDesignColorTokens) ===
 
 val SurfaceElevated: Color
     @Composable get() = LocalDesignColorTokens.current.surfaceElevated
@@ -173,7 +173,7 @@ val DoraiTypography = Typography(
         fontSize = 12.sp,
         fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
         letterSpacing = 0.4.sp,
-        lineHeight = 16.sp,
+        lineHeight = 18.sp,
     ),
     labelLarge = TextStyle(
         fontSize = 14.sp,
@@ -185,7 +185,7 @@ val DoraiTypography = Typography(
         fontSize = 12.sp,
         fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
         letterSpacing = 0.5.sp,
-        lineHeight = 16.sp,
+        lineHeight = 18.sp,
     ),
     labelSmall = TextStyle(
         fontSize = 11.sp,
@@ -195,7 +195,7 @@ val DoraiTypography = Typography(
     ),
 )
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ DoraiShapes Ã¢â‚¬â€ 2026 Modern Shape System Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// === DoraiShapes - 2026 Modern Shape System ===
 object DoraiShapes {
     /** Extra small elements */
     val xs = RoundedCornerShape(8.dp)
@@ -257,7 +257,7 @@ object DoraiShapes {
     val dialog = RoundedCornerShape(28.dp)
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ DoraiBorders Ã¢â‚¬â€ Centralized stroke definitions Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// === DoraiBorders - Centralized stroke definitions ===
 object DoraiBorders {
     /** Subtle 0.5px hairline */
     @Composable fun hairline(): BorderStroke = BorderStroke(0.5.dp, BorderSoft)
@@ -278,7 +278,7 @@ object DoraiBorders {
     @Composable fun disabled(): BorderStroke = BorderStroke(1.dp, BorderSoft.copy(alpha = 0.3f))
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ DoraiElevation Ã¢â‚¬â€ Cross-platform elevation using borders + alpha overlays Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// === DoraiElevation - Cross-platform elevation using borders + alpha overlays ===
 object DoraiElevation {
     /** Subtle card elevation Ã¢â‚¬â€ soft border + faint overlay */
     @Composable fun level1(): BorderStroke = BorderStroke(1.dp, BorderSoft.copy(alpha = 0.8f))
@@ -367,7 +367,7 @@ fun Modifier.cyanGlow(enabled: Boolean = true): Modifier = if (enabled) {
     this
 }
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Color Schemes Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// === Color Schemes ===
 
 /** Light theme */
 val LightColorScheme = lightColorScheme(
@@ -593,7 +593,7 @@ val CarbonColorScheme = darkColorScheme(
     outlineVariant = Color(0xFF1E3A8A),
 )
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Card Colors & Borders Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// === Card Colors & Borders ===
 
 @Composable
 fun doraiAdaptiveCardColors(): CardColors = CardDefaults.cardColors(
@@ -624,7 +624,7 @@ fun glassmorphicCardColors(): CardColors = CardDefaults.cardColors(
 @Composable
 fun glassmorphicCardBorder(): BorderStroke = BorderStroke(1.dp, LocalDesignColorTokens.current.borderSoft)
 
-// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Text Field Colors Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+// === Text Field Colors ===
 
 @Composable
 fun outlineTextFieldColors() = OutlinedTextFieldDefaults.colors(

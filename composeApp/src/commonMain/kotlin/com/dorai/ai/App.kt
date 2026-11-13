@@ -49,10 +49,13 @@ import com.dorai.ai.ui.settings.DoraiSettingsScreenConnected
 import com.dorai.ai.ui.settings.SettingsCategory
 import com.dorai.ai.ui.settings.SettingsTab
 import com.dorai.ai.ui.workspace.DoraiWorkspaceScreenConnected
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.model_not_configured
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import nl.marc_apps.tts.TextToSpeechInstance
 import nl.marc_apps.tts.experimental.ExperimentalVoiceApi
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -210,17 +213,19 @@ private fun AppContent(
                 var currentSettingsCategory by remember { mutableStateOf(SettingsCategory.General) }
 
                 val activeService = chatUiState.availableServices.firstOrNull()
-                val currentModelName = activeService?.serviceName ?: "Free FAST"
+                val currentModelName = activeService?.serviceName ?: stringResource(Res.string.model_not_configured)
                 val isModelLocal = activeService?.executionLocation == ExecutionLocation.LOCAL
+                val sandboxViewModel: com.dorai.ai.ui.settings.SandboxViewModel = koinViewModel()
+                val sandboxState by sandboxViewModel.state.collectAsStateWithLifecycle()
 
-                val homeState = remember(chatUiState, currentModelName, isModelLocal) {
+                val homeState = remember(chatUiState, sandboxState, currentModelName, isModelLocal) {
                     HomeUiState(
-                        isWorkspaceSetupDone = true,
+                        isWorkspaceSetupDone = sandboxState.sandboxReady,
                         runningCount = if (chatUiState.isLoading) 1 else 0,
                         waitingApprovalCount = chatUiState.pendingToolConfirmations.size,
                         currentModelName = currentModelName,
                         isModelLocal = isModelLocal,
-                        isSandboxRunning = true,
+                        isSandboxRunning = sandboxState.sandboxReady,
                         recentChats = chatUiState.savedConversations.take(3).map {
                             // null snippet → localized "Updated recently" placeholder
                             HomeChatSummary(it.id, it.title)

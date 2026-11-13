@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.components
+package com.dorai.ai.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -27,11 +26,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.dorai.ai.ui.AccentPrimary
-import com.dorai.ai.ui.BorderSoft
-import com.dorai.ai.ui.DangerAlert
 import com.dorai.ai.ui.DoraiTypography
-import com.dorai.ai.ui.SurfaceRaised
 import com.dorai.ai.ui.doraiAdaptiveCardBorder
 import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.settings.SettingsSpacing
@@ -106,18 +101,17 @@ data class OperationalStatusColors(
 @Composable
 fun rememberOperationalStatusColors(): OperationalStatusColors {
     val colors = LocalDesignColorTokens.current
-    val materialColors = MaterialTheme.colorScheme
-    return remember(materialColors) {
+    return remember(colors) {
         OperationalStatusColors(
-            // Positive states use the theme's primary (a11y: distinct from Disabled).
-            connected = materialColors.primary,
-            connecting = AccentPrimary,
+            // Positive states use the palette's success token (a11y: distinct from Disabled).
+            connected = colors.success,
+            connecting = colors.primary,
             disabled = colors.textSecondary,
-            installing = AccentPrimary,
+            installing = colors.primary,
             needsSetup = colors.textTertiary,
-            error = DangerAlert,
-            active = materialColors.primary,
-            ready = materialColors.primary,
+            error = colors.error,
+            active = colors.success,
+            ready = colors.success,
         )
     }
 }
@@ -185,8 +179,8 @@ fun CapabilityCountCard(
     status: OperationalStatus? = null,
 ) {
     val colors = LocalDesignColorTokens.current
-    val cardBg = SurfaceRaised.copy(alpha = 0.5f)
-    val cardBorder = BorderStroke(1.dp, BorderSoft)
+    val cardBg = colors.surfaceRaised.copy(alpha = 0.5f)
+    val cardBorder = BorderStroke(1.dp, colors.borderSoft)
     val cardShape = com.dorai.ai.ui.settings.SettingsShapes.card
 
     Card(
@@ -229,8 +223,8 @@ fun CollectionEmptyState(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalDesignColorTokens.current
-    val cardBg = SurfaceRaised.copy(alpha = 0.4f)
-    val cardBorder = BorderStroke(1.dp, BorderSoft.copy(alpha = 0.4f))
+    val cardBg = colors.surfaceRaised.copy(alpha = 0.4f)
+    val cardBorder = BorderStroke(1.dp, colors.borderSoft.copy(alpha = 0.4f))
     val cardShape = com.dorai.ai.ui.settings.SettingsShapes.card
 
     Box(

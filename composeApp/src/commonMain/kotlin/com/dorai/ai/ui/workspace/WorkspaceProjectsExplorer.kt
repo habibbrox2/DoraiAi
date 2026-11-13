@@ -161,7 +161,7 @@ fun WorkspaceProjectsExplorer(
                     Icon(
                         imageVector = Icons.Default.Code,
                         contentDescription = null,
-                        tint = DesignTokens.AccentPrimary,
+                        tint = LocalDesignColorTokens.current.primary,
                     )
                 }
                 Column(
@@ -305,7 +305,7 @@ fun WorkspaceProjectsExplorer(
                             Text(
                                 text = stringResource(Res.string.workspace_explorer_error),
                                 style = DoraiTypography.bodyMedium,
-                                color = DesignTokens.Error,
+                                color = colorTokens.error,
                             )
                             if (onRefresh != null) {
                                 TextButton(onClick = onRefresh) {
@@ -404,7 +404,7 @@ private fun ProjectFilterChip(
         Text(
             text = label,
             style = DoraiTypography.labelMedium,
-            color = if (selected) DesignTokens.PrimaryCyan else colorTokens.textPrimary,
+            color = if (selected) colorTokens.primary else colorTokens.textPrimary,
         )
     }
 }
@@ -416,7 +416,7 @@ private fun ProjectFileRow(
     onClick: () -> Unit,
 ) {
     val colorTokens = LocalDesignColorTokens.current
-    val bgColor = if (file.isCurrentFile) DesignTokens.SurfaceRaised else DesignTokens.BackgroundOled
+    val bgColor = if (file.isCurrentFile) colorTokens.surfaceRaised else colorTokens.surface
 
     Row(
         modifier = Modifier
@@ -451,12 +451,12 @@ private fun ProjectFileRow(
         // Git status badge
         file.gitStatus?.let { status ->
             val (badgeColor, badgeText) = when (status) {
-                WorkspaceGitStatus.Added -> Pair(DesignTokens.Success, "A")
-                WorkspaceGitStatus.Modified -> Pair(DesignTokens.Warning, "M")
-                WorkspaceGitStatus.Deleted -> Pair(DesignTokens.Error, "D")
-                WorkspaceGitStatus.Renamed -> Pair(DesignTokens.AccentPrimary, "R")
+                WorkspaceGitStatus.Added -> Pair(colorTokens.success, "A")
+                WorkspaceGitStatus.Modified -> Pair(colorTokens.warning, "M")
+                WorkspaceGitStatus.Deleted -> Pair(colorTokens.error, "D")
+                WorkspaceGitStatus.Renamed -> Pair(colorTokens.accent, "R")
                 WorkspaceGitStatus.Untracked -> Pair(colorTokens.textMuted, "U")
-                WorkspaceGitStatus.Conflicted -> Pair(DesignTokens.Error, "!")
+                WorkspaceGitStatus.Conflicted -> Pair(colorTokens.error, "!")
             }
             Box(
                 modifier = Modifier

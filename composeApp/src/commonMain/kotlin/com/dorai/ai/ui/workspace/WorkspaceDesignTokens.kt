@@ -8,10 +8,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.prefersReducedMotion
-import com.dorai.ai.ui.AccentPrimary
-import com.dorai.ai.ui.DangerAlert
-import com.dorai.ai.ui.SuccessGreen
-import com.dorai.ai.ui.WarningAmber
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import com.dorai.ai.workspace.WorkspaceEnvironmentState
@@ -23,15 +19,15 @@ import com.dorai.ai.workspace.WorkspaceEnvironmentState
  * both the dark terminal surface and the app's adaptive backgrounds.
  */
 object WorkspaceSpacing {
-    val xxs: Dp = 2.dp
-    val xs: Dp = 4.dp
-    val sm: Dp = 8.dp
-    val md: Dp = 12.dp
-    val lg: Dp = 16.dp
-    val xl: Dp = 24.dp
-    val xxl: Dp = 32.dp
+    val xxs: Dp = DesignTokens.SpacingXxs
+    val xs: Dp = DesignTokens.SpacingXs
+    val sm: Dp = DesignTokens.SpacingSm
+    val md: Dp = DesignTokens.SpacingMd
+    val lg: Dp = DesignTokens.SpacingLg
+    val xl: Dp = DesignTokens.SpacingXl
+    val xxl: Dp = DesignTokens.SpacingXxl
 
-    val minTouchTarget: Dp = 48.dp
+    val minTouchTarget: Dp = DesignTokens.MinTouchTarget
 }
 
 object WorkspaceShapes {
@@ -133,7 +129,8 @@ enum class WorkspaceTier {
 /** Breakpoints in width — mirrors the chat/settings adaptive policy (600/840 style). */
 fun WorkspaceTier(width: Dp): WorkspaceTier = when {
     width < 600.dp -> WorkspaceTier.Compact
-    width < 1000.dp -> WorkspaceTier.Medium
+    width < 840.dp -> WorkspaceTier.Medium
+    width < 1200.dp -> WorkspaceTier.Expanded
     else -> WorkspaceTier.Expanded
 }
 

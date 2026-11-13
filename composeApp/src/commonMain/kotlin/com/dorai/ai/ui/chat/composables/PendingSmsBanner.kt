@@ -27,8 +27,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.data.SmsDraft
 import com.dorai.ai.data.SmsDraftStatus
-import com.dorai.ai.ui.AccentPrimary
-import com.dorai.ai.ui.DangerAlert
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.doraiAdaptiveCardBorder
 import com.dorai.ai.ui.doraiAdaptiveCardColors
@@ -170,13 +168,13 @@ private fun PendingSmsBanner(
                 SmsDraftStatus.SENT -> Text(
                     text = stringResource(Res.string.sms_draft_banner_sent),
                     style = DoraiTypography.labelSmall,
-                    color = AccentPrimary,
+                    color = LocalDesignColorTokens.current.primary,
                 )
 
                 SmsDraftStatus.FAILED -> Text(
                     text = stringResource(Res.string.sms_draft_banner_failed, draft.lastError ?: "unknown error"),
                     style = DoraiTypography.labelSmall,
-                    color = DangerAlert,
+                    color = LocalDesignColorTokens.current.error,
                 )
             }
         }

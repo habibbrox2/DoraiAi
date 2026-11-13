@@ -1946,19 +1946,19 @@ private fun DevicePerformanceLabel(performance: DevicePerformance) {
         DevicePerformance.GOOD -> Text(
             text = stringResource(Res.string.litert_performance_good),
             style = DoraiTypography.labelSmall,
-            color = StatusColorConnected,
+            color = LocalDesignColorTokens.current.success,
         )
 
         DevicePerformance.OK -> Text(
             text = stringResource(Res.string.litert_performance_ok),
             style = DoraiTypography.labelSmall,
-            color = StatusColorChecking,
+            color = LocalDesignColorTokens.current.warning,
         )
 
         DevicePerformance.POOR -> Text(
             text = stringResource(Res.string.litert_performance_poor),
             style = DoraiTypography.labelSmall,
-            color = StatusColorError,
+            color = LocalDesignColorTokens.current.error,
         )
     }
 }
