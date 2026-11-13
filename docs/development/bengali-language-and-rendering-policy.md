@@ -58,6 +58,8 @@
 7. Singular/plural, zero/one/other এবং quantity-sensitive message-এর ক্ষেত্রে Compose Resources-এর সমর্থিত plural mechanism ব্যবহার করতে হবে; string concatenation দিয়ে বাক্য জোড়া লাগিয়ে grammar ভাঙা যাবে না।
 8. Bengali translation review-এ শুধু key উপস্থিতি নয়, grammar, context, truncation, placeholder rendering এবং বাস্তব screen-এ পাঠযোগ্যতাও যাচাই করতে হবে।
 9. নতুন feature-এর resource coverage test বা বিদ্যমান localization validation script update করতে হবে, যাতে ভবিষ্যতে parity regression ধরা পড়ে।
+10. **Canonical form:** resource file-এর প্রতিটি string NFC form-এ লেখা হবে। বাংলা য় (U+09DF) আর য+nukta (U+09AF U+09BC) canonically সমতুল্য, কিন্তু Bengali nukta composition Unicode-তে বাদ, তাই NFC-এ canonical spelling হলো decomposed রূপ। একই resource file-এ দুই spelling মিশিয়ে রাখা যাবে না — এটি LocaleParityTest-এর পাশাপাশি BengaliCanonicalFormTest দ্বারা CI-তে fail করে।
+11. **Stale locale backlog:** default (English) resource-এর key set বহিরের ৫৩টি locale এখনো পুরো নয়; runtime-এ missing key-এর জন্য English fallback কাজ করে, তাই এটি build failure নয়। তবে কোনো locale ইতিমধ্যে যে key পেয়েছে সেটা হারালে সেটি regression — LocaleCoverageBaselineTest (baseline: scripts/locale-coverage-baseline.json) তা fail করে। অনুবাদের কাজের তালিকা scripts/locale-coverage.ps1 দিয়ে বের করা যায়।
 
 ## 5. Unicode ও UTF-8 data integrity
 
