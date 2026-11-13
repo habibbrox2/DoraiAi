@@ -144,6 +144,14 @@ internal val LOCAL_TOOL_ALLOWLIST = setOf(
     "memory_forget",
     "memory_reinforce",
     "execute_shell_command",
+    // Device actions ported from Google AI Edge Gallery mobile-actions.
+    "flashlight_on",
+    "flashlight_off",
+    "create_contact",
+    "send_email",
+    "show_location_on_map",
+    "open_wifi_settings",
+    "create_calendar_event",
 )
 
 /**
@@ -251,8 +259,11 @@ class RemoteDataRepository(
      * which is gated behind `isToolEnabled("execute_shell_command")`) won't appear in
      * `getAvailableTools()` in the first place, so they're naturally excluded.
      */
-    private fun getLocalSafeTools(): List<Tool> = getAvailableTools()
-        .filter { it.schema.name in LOCAL_TOOL_ALLOWLIST }
+    private fun getLocalSafeTools(): List<Tool> {
+        // On-device (LiteRT) tools are exposed only from [LOCAL_TOOL_ALLOWLIST].
+        // Everything else is off the table for small on-device models.
+        return getAvailableTools().filter { it.schema.name in LOCAL_TOOL_ALLOWLIST }
+    }
 
     /**
      * Whether the on-device model file for [modelId] carries a tool section in its chat

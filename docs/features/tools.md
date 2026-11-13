@@ -1,8 +1,8 @@
 # Tools
 
-**Last verified:** 2026-11-12
+**Last verified:** 2026-11-13
 
-DORAI AI's tools feature allows the AI to execute external functions during conversations — web search, notifications, calendar events, shell commands, memory operations, and more. Tools are defined with a schema, executed with safety guards, and managed through per-tool toggles in settings.
+DORAI AI's tools feature allows the AI to execute external functions during conversations — web search, notifications, calendar events, device actions, shell commands, memory operations, and more. Tools are defined with a schema, executed with safety guards, and managed through per-tool toggles in settings.
 
 ## Concepts
 
@@ -101,6 +101,14 @@ SMS tools (`check_sms`, `read_sms`, `search_sms`, `send_sms`, `reply_sms`) and n
 | `manage_process` | Manage background shell processes (list, log, kill, remove) | Follows the sandbox switch; no switch of its own |
 | `ssh_configure_host` | Register a named SSH host alias for the Linux sandbox so subsequent shell calls can use `ssh <alias>`. Rides along whenever the sandbox is installed and enabled. SSH multiplexing (ControlMaster) is intentionally not enabled — Android blocks the `link()` syscall OpenSSH uses for control sockets, so every `ssh` call does a full TCP and authentication handshake. | Follows the sandbox switch; no switch of its own |
 | `open_file` | Open a file from the sandbox in an Android app (browser, image viewer, etc.) | Enabled |
+| `flashlight_on` | Turn the device flashlight on | Enabled |
+| `flashlight_off` | Turn the device flashlight off | Enabled |
+| `create_contact` | Open the contact editor with the given details prefilled (user reviews and saves in the system contacts app) | Enabled |
+| `send_email` | Compose an email and open it in the user's email app (user sends from there) | Enabled |
+| `show_location_on_map` | Show a place, business, or address on the map (falls back to web search if no maps app) | Enabled |
+| `open_wifi_settings` | Open the Wi-Fi settings screen | Enabled |
+
+The device-action tools are ported from the Google AI Edge Gallery "Mobile Actions" pattern. They are implemented the DORAI way (Common `Tool` interface, OpenAPI schema, `getToolPermission`-style flow, MCP-only approval policy). Content-creating actions launch the system UI — contact editor, email composer, map viewer — instead of writing the database or sending anything directly, so the user stays in control. They are Android-only and appear in Settings → Connectors → Plugins with their own toggles.
 
 #### Linux Sandbox (Android)
 
@@ -246,8 +254,8 @@ Tool availability is controlled at multiple levels:
 - **Per-tool toggles** — individual tools can be enabled or disabled in settings, persisted with a `tool_enabled_` key prefix
 - **Default state** — most tools default to enabled; desktop's `execute_shell_command` defaults to disabled. On Android the shell has no per-tool switch — it follows the sandbox switch, which is on by default once the sandbox is installed
 - **Master-toggle-only** — memory, scheduling, heartbeat, email, SMS, and notification tools have no individual per-tool toggle; they are on whenever their master switch in Settings → Agent is on (heartbeat is bundled with the scheduling switch). The Android sandbox tools and desktop's `manage_process` are gated the same way — by the sandbox switch and the shell switch respectively — and likewise carry no switch of their own
-- **Approval classification** — memory tools (`memory_store`, `memory_forget`, `memory_learn`, `memory_reinforce`) never prompt per call; like the sandbox tools they are governed by the memory master switch. (An earlier build asked for approval on `memory_store`/`memory_learn`/`memory_reinforce` while accidentally permitting `memory_forget` — `forget` contains `get` — so the family now classifies consistently.)
-- **On-device (LiteRT) allowlist** — when the active model is an on-device LiteRT model, only a small allowlist of tools is exposed regardless of which other tools are enabled. The current allowlist is: `get_local_time`, `get_location_from_ip`, `web_search`, `open_url`, `memory_store`, `memory_forget`, `memory_reinforce`, and `execute_shell_command`. Memory tools beyond the three listed, email tools, scheduling tools, and heartbeat tools are not surfaced to local models even when their master switches are on.
+- **Approval classification** — MCP-only approval (as of 2026-11-13): only MCP connector tools ask the user before running, using the confirmation card as before. **Every non-MCP tool — shell commands, file writes/deletes, GitHub write tools (`github_commit`, `github_push`, `github_create_pull_request`), device actions, SMS/USSD, email, everything — executes without a prompt.** Memory tools (`memory_store`, `memory_forget`, `memory_learn`, `memory_reinforce`) were already prompt-free; they remain governed by the memory master switch. (Earlier builds asked for approval on some non-MCP tools; that policy was deliberately retired — see CHANGELOG.)
+- **On-device (LiteRT) allowlist** — when the active model is an on-device LiteRT model, only a small allowlist of tools is exposed regardless of which other tools are enabled. The current allowlist is: `get_local_time`, `get_location_from_ip`, `web_search`, `open_url`, `memory_store`, `memory_forget`, `memory_reinforce`, `execute_shell_command`, and the device actions (`flashlight_on`, `flashlight_off`, `create_contact`, `send_email`, `show_location_on_map`, `open_wifi_settings`, `create_calendar_event`). Memory tools beyond the three listed, email tools, scheduling tools, and heartbeat tools are not surfaced to local models even when their master switches are on.
 
 The platform layer assembles the final list of available tools by checking all gates and per-tool settings, and only enabled tools are sent to the AI provider.
 
@@ -324,6 +332,7 @@ The interactive-mode top bar shows only the static title — loading is surfaced
 | `composeApp/src/androidMain/.../Platform.android.kt` | Android tool gating and the Android definition list |
 | `composeApp/src/androidMain/.../tools/SendNotificationTool.kt` | Android notification-posting tool |
 | `composeApp/src/androidMain/.../tools/CreateCalendarEventTool.kt` | Android calendar-event tool |
+| `composeApp/src/androidMain/.../tools/DeviceActionTools.kt` | Device actions ported from Google AI Edge Gallery (flashlight, contact, email, map, Wi-Fi) |
 | `composeApp/src/androidMain/.../tools/SetAlarmTool.kt` | Android alarm / countdown-timer tool |
 | `composeApp/src/androidMain/.../sandbox/LinuxSandboxManager.kt` | Sandbox lifecycle, setup, proot management |
 | `composeApp/src/androidMain/.../sandbox/ProotExecutor.kt` | Proot command building and execution |

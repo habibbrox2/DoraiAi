@@ -11,32 +11,51 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * Pins the default policy for the GitHub write tools: all three require an explicit
- * approval prompt (OTHER risk / ASK_ALWAYS), scoped to the target repository.
+ * Pins the MCP-only approval policy: NO non-MCP tool asks the user, regardless
+ * of its risk classification or stored permission scope. Only MCP connector
+ * tools prompt (verified manually / via integration coverage — a network-bound
+ * McpServerManager is not mockable here).
  */
 class GitHubToolPermissionsTest {
 
     private fun freshManager(): ToolPermissionManager = ToolPermissionManager(AppSettings(MapSettings()))
 
     @Test
-    fun `github push requires confirmation`() {
-        assertTrue(
+    fun `github push runs without confirmation`() {
+        assertFalse(
             freshManager().shouldAskForPermission("github_push", mapOf("repo" to "a/b")),
         )
     }
 
     @Test
-    fun `github commit requires confirmation`() {
-        assertTrue(
+    fun `github commit runs without confirmation`() {
+        assertFalse(
             freshManager().shouldAskForPermission("github_commit", mapOf("repo" to "a/b")),
         )
     }
 
     @Test
-    fun `github create pull request requires confirmation`() {
-        assertTrue(
+    fun `github create pull request runs without confirmation`() {
+        assertFalse(
             freshManager().shouldAskForPermission("github_create_pull_request", mapOf("repo" to "a/b")),
         )
+    }
+
+    @Test
+    fun `no non-MCP tool asks regardless of stored permission state`() {
+        val settings = AppSettings(MapSettings())
+        val manager = ToolPermissionManager(settings)
+        val scope = manager.getScope("github_push", mapOf("fullName" to "owner/repo"))
+        // ALLOW_ONCE stored absent / mismatched scope: still no prompt for non-MCP.
+        assertFalse(manager.shouldAskForPermission("github_push", mapOf("fullName" to "owner/repo")))
+        assertFalse(manager.shouldAskForPermission("execute_shell_command", emptyMap()))
+        assertFalse(manager.shouldAskForPermission("write_file", mapOf("path" to "/tmp/x")))
+        assertFalse(manager.shouldAskForPermission("delete_file", mapOf("path" to "/tmp/x")))
+        assertFalse(manager.shouldAskForPermission("web_search", mapOf("query" to "x")))
+        assertFalse(manager.shouldAskForPermission("dial_phone", mapOf("number" to "100")))
+        // Even with an always-allow record scoped to a DIFFERENT repo, non-MCP asks nothing.
+        manager.recordAlwaysAllow("github_push", "owner/other")
+        assertFalse(manager.shouldAskForPermission("github_push", mapOf("fullName" to "owner/repo")))
     }
 
     @Test
@@ -60,19 +79,6 @@ class GitHubToolPermissionsTest {
     }
 
     @Test
-    fun `stored always-allow for the exact repository scope suppresses the prompt`() {
-        val settings = AppSettings(MapSettings())
-        val manager = ToolPermissionManager(settings)
-        val fullName = "owner/repo"
-        val scope = manager.getScope("github_push", mapOf("fullName" to fullName))
-        manager.recordAlwaysAllow("github_push", scope)
-
-        assertFalse(manager.shouldAskForPermission("github_push", mapOf("fullName" to fullName)))
-        // A different repository must still ask
-        assertTrue(manager.shouldAskForPermission("github_push", mapOf("fullName" to "owner/other")))
-    }
-
-    @Test
     fun `stored permission policy round-trips`() {
         val settings = AppSettings(MapSettings())
         val scope = "owner/repo"
@@ -80,9 +86,11 @@ class GitHubToolPermissionsTest {
             com.dorai.ai.data.ToolPermission(
                 toolName = "github_push",
                 scope = scope,
-                policy = ToolPermissionPolicy.ASK_ALWAYS,
+                policy = ToolPermissionPolicy.ALWAYS_ALLOW,
             ),
         )
-        assertEquals(ToolPermissionPolicy.ASK_ALWAYS, settings.getToolPermission("github_push", scope)?.policy)
+
+        val granted = settings.getToolPermission("github_push", scope)
+        assertEquals(ToolPermissionPolicy.ALWAYS_ALLOW, granted?.policy)
     }
 }

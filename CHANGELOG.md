@@ -20,6 +20,19 @@
 
 ---
 
+## DORAI AI - Device Actions & MCP-Only Tool Approval (Unreleased)
+
+### Added
+- **Device actions (Android)** — six tools ported from the Google AI Edge Gallery "Mobile Actions" pattern: `flashlight_on` / `flashlight_off` (direct CameraManager torch), `create_contact`, `send_email`, `show_location_on_map`, `open_wifi_settings` (intents into the system UI). Localized (en + bn), each with its own toggle in Settings → Connectors → Plugins, work in chat like every other native tool, and are exposed to on-device (LiteRT) models via the documented allowlist. Content-creating actions launch the system UI — contact editor, email composer — rather than writing Contacts/sending mail directly, so the user reviews every change.
+
+### Changed
+- **MCP-only tool approval** — by product decision, only MCP connector tools ask the user before running (the confirmation card is unchanged for MCP). **Every non-MCP tool — shell commands, file writes/deletes, GitHub write tools (`github_commit`, `github_push`, `github_create_pull_request`), device actions, SMS/USSD, email, everything — now executes without a per-call prompt**, in chat and in background/heartbeat runs alike. The on-device (LiteRT) tool exposure now follows the documented allowlist in `docs/features/tools.md` (previously all available tools were handed to on-device models).
+
+### Docs
+- `docs/features/tools.md` updated (approval policy, device-action tools, on-device allowlist implementation); `Last verified` bumped.
+
+---
+
 ## DORAI AI - MCP OAuth (Desktop Commander & OAuth-Native MCP Servers) (Unreleased)
 
 ### Added

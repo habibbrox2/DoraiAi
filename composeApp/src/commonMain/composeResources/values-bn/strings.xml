@@ -1454,4 +1454,16 @@
     <string name="dashboard_empty_no_saved_work">এখনো কোনো সংরক্ষিত কাজ নেই — কথোপকথন ও বিল্ড প্রজেক্ট এখানে দেখা যাবে।</string>
     <string name="settings_confirm_dialog_cancel">বাতিল</string>
     <string name="a11y_refresh">রিফ্রেশ করুন</string>
+    <string name="tool_flashlight_on_name">টর্চ অন</string>
+    <string name="tool_flashlight_on_description">ডিভাইসের টর্চ চালু করুন</string>
+    <string name="tool_flashlight_off_name">টর্চ অফ</string>
+    <string name="tool_flashlight_off_description">ডিভাইসের টর্চ বন্ধ করুন</string>
+    <string name="tool_create_contact_name">যোগাযোগ তৈরি</string>
+    <string name="tool_create_contact_description">দেওয়া বিবরণ দিয়ে নতুন যোগাযোগ তৈরি করুন</string>
+    <string name="tool_send_email_name">ইমেইল পাঠান</string>
+    <string name="tool_send_email_description">ইমেইল তৈরি করে পাঠান</string>
+    <string name="tool_show_map_name">মানচিত্রে দেখান</string>
+    <string name="tool_show_map_description">মানচিত্রে একটি স্থান দেখান</string>
+    <string name="tool_open_wifi_settings_name">ওয়াই-ফাই সেটিংস</string>
+    <string name="tool_open_wifi_settings_description">ওয়াই-ফাই সেটিংস স্ক্রিন খুলুন</string>
 </resources>

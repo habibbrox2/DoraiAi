@@ -1484,5 +1484,17 @@
     <string name="dashboard_empty_no_saved_work">No saved work yet — conversations and build projects will show up here.</string>
     <string name="settings_confirm_dialog_cancel">Cancel</string>
     <string name="a11y_refresh">Refresh</string>
+    <string name="tool_flashlight_on_name">Turn Flashlight On</string>
+    <string name="tool_flashlight_on_description">Turn on the device flashlight</string>
+    <string name="tool_flashlight_off_name">Turn Flashlight Off</string>
+    <string name="tool_flashlight_off_description">Turn off the device flashlight</string>
+    <string name="tool_create_contact_name">Create Contact</string>
+    <string name="tool_create_contact_description">Create a new contact with the given details</string>
+    <string name="tool_send_email_name">Send Email</string>
+    <string name="tool_send_email_description">Compose and send an email</string>
+    <string name="tool_show_map_name">Show on Map</string>
+    <string name="tool_show_map_description">Show a location on the map</string>
+    <string name="tool_open_wifi_settings_name">Wi-Fi Settings</string>
+    <string name="tool_open_wifi_settings_description">Open the Wi-Fi settings screen</string>
 </resources>
 
