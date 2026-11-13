@@ -17,6 +17,7 @@
 - **A GitHub authorization now announces itself**: the device flow finishes in the browser, so the app posts a "GitHub connected" notification; tapping it opens the app on the GitHub settings through the `dorai://github/done` deep link.
 
 ---
+
 ## DORAI AI - Connectors library, MCP OAuth state and GitHub client-id wiring (Unreleased)
 
 ### Fixed
@@ -32,6 +33,14 @@
 
 ### Added
 - **Build-time GitHub client id**: the GitHub Device Flow integration could never be used because the client id was hardcoded to `null` in the source tree with no way to supply one. The Gradle build now resolves it from `-Pdorai.github.clientId=...` or the `DORAI_GITHUB_CLIENT_ID` environment variable — CI passes the variable from a repository secret — and generates the `GitHubBuildConfig` constant that the app reads. Nothing is committed; without a value the build stays fail-closed exactly as before.
+
+---
+
+## DORAI AI - Vendored Android agent skills (Unreleased)
+
+### Added
+- **Curated Android skills from [android/skills](https://github.com/android/skills)**: the agent runtimes now have vendored guidance for on-device LiteRT-LM (litert-lm), LiteRT CompiledModel `.tflite` runtime (litert-runtime), Android intent and permission security, edge-to-edge insets, adaptive UI, Jetpack Compose performance, predictive back behind PlatformBackHandler, R8 keep rules, the test-stack strategy and ANR audit. The upstream body is kept verbatim (Apache-2.0, © Google LLC, .agents/skills/android-skills-LICENSE.txt); each skill carries a DORAI AI scope note that marks which parts are Android-only and which apply to the shared Kotlin Multiplatform/Compose Multiplatform codebase.
+- **LiteRT knowledge pointer**: `docs/knowledge/litert/index.md` now cross-references the vendored `litert-lm` and `litert-runtime` agent skills.
 
 ---
 ## DORAI AI - Bengali Resource Canonical Form and Locale Coverage Tooling (Unreleased)

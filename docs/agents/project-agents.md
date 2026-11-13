@@ -1,6 +1,6 @@
 # Project Agent — Instructions Map
 
-**Last verified:** 2026-11-12
+**Last verified:** 2026-11-14
 
 The **Project Agent** is every coding agent or CI bot that changes this repository —
 including OpenCode sessions, Claude Code, and CI/CD systems. This document is the
@@ -34,6 +34,7 @@ canonical map of where its instructions live and how to change them safely.
 | `agents/README.md` | Repository | Index of the `agents/` directory. |
 | `.agents/rules/dorai-project.md` | Repository | Agent-platform rules file (skills discovery, repo conventions for tools that read `.agents/rules/`). |
 | `.agents/skills/<id>/SKILL.md` | Repository | Agent skills consumed by agent runtimes that support skills (e.g. `compose-resources`, `gradle-build-diagnostics`, `browser`, `skill-creator`). Each skill has frontmatter (`id`, `name`, `description`). |
+| `.agents/skills/<android-skill>/` | Repository | Skills vendored verbatim from [android/skills](https://github.com/android/skills) (Apache-2.0, © Google LLC). Each vendored `SKILL.md` ends with a "DORAI AI scope note" that records the repository-specific scope and validation commands; the upstream body is not hand-edited. Terms: `.agents/skills/android-skills-LICENSE.txt`. Index: `agents/README.md` § Vendored Android skills. |
 | `docs/agents/` | Repository | **This directory** — central index and governance of all agent-instruction files. |
 | `docs/architecture/` | Repository | Architecture decisions (not agent policy). |
 | `.github/workflows/test.yml` | Repository | Read-only CI: formatting/assets checks, platform tests, screenshot verification. Never commits generated content. |
@@ -45,9 +46,12 @@ canonical map of where its instructions live and how to change them safely.
    `agents/<name>.md` with an `agents/README.md` entry. Root files stay thin.
 3. Agent skills (`.agents/skills/`) are for agent runtimes, not the app. A skill that would
    change app runtime behavior must be reviewed like app code.
-4. `main` is protected: integrate via PR only, one logical task per branch, squash merge.
+4. Skills vendored from an upstream project keep that project's body verbatim. Only the appended
+   DORAI AI scope note is repository-authored; refresh a vendored skill by re-vendoring it and
+   re-applying the note, never by hand-editing the upstream text.
+5. `main` is protected: integrate via PR only, one logical task per branch, squash merge.
    See `AGENTS.md` §Branch & Pull Request Policy.
-5. Bengali/i18n policy is mandatory reading before any localized string, chat rendering,
+6. Bengali/i18n policy is mandatory reading before any localized string, chat rendering,
    IME or Unicode work. See `AGENTS.md` §Bengali Language and
    `docs/development/bengali-language-and-rendering-policy.md`.
 
