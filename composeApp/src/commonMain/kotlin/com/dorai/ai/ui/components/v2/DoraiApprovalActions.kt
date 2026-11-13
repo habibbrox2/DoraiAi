@@ -21,11 +21,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.theme.engine.doraiEdgeStyle
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
+import com.dorai.ai.ui.DoraiTypography
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.tool_action_allow_once
 import dorai.composeapp.generated.resources.tool_action_allow_session
@@ -65,7 +68,7 @@ fun DoraiApprovalActions(
             Text(
                 text = stringResource(Res.string.tool_approval_prompt),
                 color = colors.warn,
-                fontSize = 13.sp,
+                style = DoraiTypography.labelMedium,
                 fontWeight = FontWeight.SemiBold,
             )
         }
@@ -92,9 +95,11 @@ fun DoraiApprovalActions(
                 ) {
                     Text(
                         text = stringResource(Res.string.tool_action_allow_once),
+                        style = DoraiTypography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 13.sp,
-                        maxLines = 1,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -111,9 +116,10 @@ fun DoraiApprovalActions(
                 ) {
                     Text(
                         text = stringResource(Res.string.tool_action_allow_session),
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 13.sp,
-                        maxLines = 1,
+                        style = DoraiTypography.labelMedium,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -130,9 +136,11 @@ fun DoraiApprovalActions(
                 ) {
                     Text(
                         text = stringResource(Res.string.tool_action_deny),
+                        style = DoraiTypography.labelMedium,
                         fontWeight = FontWeight.Medium,
-                        fontSize = 13.sp,
-                        maxLines = 1,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }

@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.theme.tokens.DoraiSpacing
@@ -132,6 +133,7 @@ fun DoraiModeSelector(
             fontSize = 13.sp,
             modifier = Modifier.padding(horizontal = DoraiSpacing.XS),
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

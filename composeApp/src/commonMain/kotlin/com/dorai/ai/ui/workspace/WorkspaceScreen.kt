@@ -1240,12 +1240,14 @@ private fun WorkspaceGitChangesList(
                             style = DoraiTypography.bodyMedium,
                             color = colorTokens.textPrimary,
                             maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                         Text(
                             text = change.path,
                             style = DoraiTypography.labelSmall,
                             color = colorTokens.textSecondary,
                             maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
 
@@ -1266,8 +1268,8 @@ private fun WorkspaceGitChangesList(
                     ) {
                         Text(
                             text = badgeText.take(1),
-                            style = DoraiTypography.labelSmall.copy(fontSize = 9.sp),
-                            color = DesignTokens.BrandInk,
+                            style = DoraiTypography.labelSmall,
+                            color = colorTokens.background,
                         )
                     }
                 }

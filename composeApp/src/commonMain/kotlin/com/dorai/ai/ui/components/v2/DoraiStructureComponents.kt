@@ -36,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.theme.data.ThemePalette
@@ -86,6 +87,8 @@ fun <T> DoraiPillTabs(
                     color = if (isSelected) colors.onPrimary else colors.muted,
                     fontSize = 13.sp,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -165,6 +168,7 @@ fun DoraiThemePresetTile(
             fontSize = 12.sp,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
