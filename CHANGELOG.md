@@ -1,7 +1,8 @@
 ## DORAI AI - Vendored Android agent skills (Unreleased)
 
 ### Added
-- **Curated Android skills from [android/skills](https://github.com/android/skills)**: the agent runtimes now have vendored guidance for on-device LiteRT-LM (litert-lm), Android intent and permission security, edge-to-edge insets, adaptive UI, Jetpack Compose performance, predictive back behind PlatformBackHandler, R8 keep rules, the test-stack strategy and ANR audit. The upstream body is kept verbatim (Apache-2.0, © Google LLC, .agents/skills/android-skills-LICENSE.txt); each skill carries a DORAI AI scope note that marks which parts are Android-only and which apply to the shared Kotlin Multiplatform/Compose Multiplatform codebase.
+- **Curated Android skills from [android/skills](https://github.com/android/skills)**: the agent runtimes now have vendored guidance for on-device LiteRT-LM (litert-lm), LiteRT CompiledModel `.tflite` runtime (litert-runtime), Android intent and permission security, edge-to-edge insets, adaptive UI, Jetpack Compose performance, predictive back behind PlatformBackHandler, R8 keep rules, the test-stack strategy and ANR audit. The upstream body is kept verbatim (Apache-2.0, © Google LLC, .agents/skills/android-skills-LICENSE.txt); each skill carries a DORAI AI scope note that marks which parts are Android-only and which apply to the shared Kotlin Multiplatform/Compose Multiplatform codebase.
+- **LiteRT knowledge pointer**: `docs/knowledge/litert/index.md` now cross-references the vendored `litert-lm` and `litert-runtime` agent skills.
 
 ---
 

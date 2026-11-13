@@ -13,6 +13,7 @@ OKF v0.2 bundle for DORAI AI’s **pinned on-device model downloads**. Agents us
 | **Runtime** (shipped) | `composeApp/src/commonMain/kotlin/com/dorai/ai/inference/LocalModelCatalog.kt` | Source of truth for download URL, SHA-256, size, and context defaults |
 | **Knowledge** (this bundle) | `docs/knowledge/litert/` | Pin policy, attested digest snapshot, sources, stale dates |
 | **Refresh skill** | `.grok/skills/update-litert-models/SKILL.md` | Checks HuggingFace pins, updates Kotlin + this bundle only on an explicit bump |
+| **Agent skills** (vendored) | `.agents/skills/litert-lm/SKILL.md`, `.agents/skills/litert-runtime/SKILL.md` | `litert-lm` covers the shipped `.litertlm` generative chat path (Engine/Conversation, jvmShared + Android/desktop actuals). `litert-runtime` covers the separate CompiledModel `.tflite` runtime for vision/audio/embeddings (Android-only integration). Each carries a DORAI AI/KMP scope note — read it before applying upstream steps. |
 
 The app **never** reads this directory at runtime. Production downloads use the pinned URL in Kotlin only.
 
