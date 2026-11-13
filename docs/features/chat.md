@@ -1,6 +1,6 @@
 # Chat & Conversations
 
-**Last verified:** 2026-11-12
+**Last verified:** 2026-11-13
 
 DORAI AI's chat system manages the message history, conversation persistence, file attachments, and speech output. Conversations are service-independent — switching providers does not affect which conversation is loaded or restored. Multiple conversations are persisted and browsable via the chat drawer (compact) or an inline history pane (expanded).
 
@@ -80,6 +80,9 @@ Auto-derived from the first user message when a conversation is saved for the fi
 - Timestamps (HH:mm, local 24h) render under user bubbles and assistant replies; they are persisted per-message in the conversation JSON blob (`Conversation.Message.sentAt`) so restored conversations show times too (messages saved before this field existed render without a timestamp)
 - Markdown images in assistant replies: a standalone `![alt](url)` block renders `Fit`-scaled (max 360.dp, aspect-ratio preserving, rounded corners), shows a loading placeholder while fetching and an "Image unavailable" fallback on error, and opens a full-screen viewer (pinch/double-tap zoom) on tap; images inline with text render as a horizontal thumbnail strip under the paragraph instead
 - Markdown tables in assistant replies render at most 100 rows; longer model-emitted tables are truncated with a "… and N more rows" footer instead of expanding into thousands of composables
+- Markdown link URLs are scheme-allow-listed (`https://`, `http://`, `mailto:…`); other schemes render as plain text (no clickable link)
+- Bengali/Unicode text in Markdown is truncated at grapheme boundaries (conjunct clusters and ZWJ emoji are never split mid-cluster)
+- DORAI UI interactive blocks render outside the text-selection scope; surrounding message text stays selectable
 - `Ctrl/Cmd+K` opens a command palette (new chat, switch model, open settings, and jump to a saved conversation filtered by title); arrow keys select, Enter runs, Escape dismisses. Desktop/Web only. The composer already sends on Enter (and Ctrl/Cmd+Enter also sends)
 - Looping/decorative animations respect `prefersReducedMotion()`: logo, loading spinner, dynamic-UI button pulse, gradient border, agent orb/HUD, typing dots, loading bar, streaming caret — all render statically when the user prefers reduced motion
 - A font-scale stress snapshot (`chat_compact_conversation_fontscale_14`, 1.4×) locks in layout at large font scales; the assistant model name truncates with ellipsis before pushing the provider badge off-screen

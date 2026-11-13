@@ -20,6 +20,30 @@
 
 ---
 
+## DORAI AI - UI/UX and Bangla/English Language System Remediation (Unreleased)
+
+### Fixed
+- **Bengali text corruption (mojibake) repaired** across `values-bn/strings.xml`; a locale-parity gate (`desktopTest` `LocaleParityTest` + `pwsh scripts/validate-locales.ps1`) now enforces placeholder/plural key parity across all `values-*` directories offline.
+- **App language is threaded into agent prompts and locale application**: Settings → Language changes the app locale immediately on Android and re-localizes Compose Resources; the system prompt and heartbeat prompt receive the chosen language rule (DORAI AI brand rules kept intact).
+- **Hardcoded UI English strings localized** across settings, chat, sandbox, dashboard, workspace and dynamic-UI surfaces (en + bn); all user-facing copy now flows through Compose Resources.
+- **Markdown safety**: link scheme allow-list (`https`, `http`, `mailto`);`javascript:`/`intent:`/`data:`/`file:` render as plain text; grapheme-safe truncation/wrapping (Bengali clusters and ZWJ emoji are never split; ellipsis counts as one grapheme); unicode-aware emphasis parsing.
+- **Bengali IME composition rendering preserved**: interactive text in dynamic UI stays on first-class surfaces (no inline error); selection containers wrap only text segments, keeping DORAI UI blocks outside the selection so interactive controls and text selection don't fight over gestures.
+- **Home screen no longer shows fabricated state**: hardcoded workspace/sandbox/storage/"Free FAST" defaults removed; state is derived from real sandbox/model/conversation data; model-not-configured fallback uses localized string.
+- **Approval affordances**: tool-approval buttons accept long/wrapped labels (2-line wrap, token font) instead of clipping;
+- **Status colors and typography unified** on theme tokens; `SettingsStatusColors` dead token removed; breakpoints unified to 600/840/1200dp; spacing delegates to canonical `DesignTokens` scale; Bengali-readable line heights.
+- **Terminal delete (Android)**: IME `deleteSurroundingText` is grapheme-aware — whole Bengali clusters are removed instead of splitting mid-cluster (Bengali IME on-device verification pending).
+- **Accessibility**: 48dp minimum touch targets, selection semantics, headings and state descriptions on expandable rows, labeled icon-only buttons.
+- **Fake workspace "completed" checkmarks corrected**; **Dynamic UI bad-input clamps** (NaN/Infinity/out-of-range) prevent crashes in image/slider/progress/icon/avatar/countdown widgets.
+
+### Changed
+- **DORAI UI blocks render outside any selection container** (text runs remain selectable); dynamic-UI rendering is closer to native behavior on long Bengali strings.
+- **`doradoUiRenderer` bad numeric input is clamped** rather than crashing the whole surface (widget-level error isolation pending; Compose lacks a public error boundary, so this is a safe fallback only).
+
+### Pending (not yet done on main)
+- Device verification (Android/iOS locale switch, Bengali IME behavior, real-device UX); propagation of new keys to the 53 stale locales and `য়`/`য়` normalization (maintainer approval pending); full widget-level error boundary in dynamic UI.
+
+---
+
 ## DORAI AI - Device Actions & MCP-Only Tool Approval (Unreleased)
 
 ### Added
