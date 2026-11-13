@@ -565,7 +565,7 @@ fun DoraiToolCard(
                                             fontWeight = FontWeight.SemiBold,
                                             modifier = Modifier
                                                 .defaultMinSize(minHeight = 48.dp)
-                                                .clickable { isOutputExpanded = !isOutputExpanded }
+                                                .clickable(role = Role.Button) { isOutputExpanded = !isOutputExpanded }
                                                 .padding(horizontal = 4.dp, vertical = 2.dp),
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
@@ -601,7 +601,7 @@ fun DoraiToolCard(
                                     fontFamily = FontFamily.Monospace,
                                     fontSize = 11.5.sp,
                                     modifier = Modifier
-                                        .clickable { isOutputExpanded = true }
+                                        .clickable(role = Role.Button) { isOutputExpanded = true }
                                         .padding(top = 2.dp),
                                 )
                             } else {

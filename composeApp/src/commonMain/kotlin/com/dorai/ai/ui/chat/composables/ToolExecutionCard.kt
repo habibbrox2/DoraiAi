@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -131,7 +132,7 @@ fun ShellExecutionCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(headerBg)
-                    .clickable { isExpanded = !isExpanded }
+                    .clickable(role = Role.Button) { isExpanded = !isExpanded }
                     .handCursor()
                     .padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -318,7 +319,7 @@ fun ShellExecutionCard(
                                 color = accentCyan,
                                 modifier = Modifier
                                     .padding(top = 8.dp)
-                                    .clickable { showAllLines = !showAllLines }
+                                    .clickable(role = Role.Button) { showAllLines = !showAllLines }
                                     .handCursor(),
                             )
                         }
@@ -401,7 +402,7 @@ fun ToolExecutionCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { isExpanded = !isExpanded }
+                    .clickable(role = Role.Button) { isExpanded = !isExpanded }
                     .handCursor()
                     .padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,

@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -573,7 +574,7 @@ private fun RegistrySkillRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(DoraiShapes.card)
-            .then(if (enabled && !alreadyInstalled) Modifier.clickable { onInstall() }.handCursor() else Modifier),
+            .then(if (enabled && !alreadyInstalled) Modifier.clickable(role = Role.Button) { onInstall() }.handCursor() else Modifier),
         colors = CardDefaults.cardColors(
             containerColor = SurfaceRaised.copy(alpha = 0.3f),
         ),

@@ -48,6 +48,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -126,7 +127,7 @@ internal fun ModelSelection(
                 modifier = Modifier
                     .matchParentSize()
                     .handCursor()
-                    .clickable { expanded = true },
+                    .clickable(role = Role.Button) { expanded = true },
             )
         }
         if (expanded) {
@@ -333,7 +334,7 @@ private fun ModelCard(model: SettingsModel, isSelected: Boolean, onClick: () -> 
         modifier = Modifier
             .handCursor()
             .clip(DoraiShapes.card)
-            .clickable { onClick() }
+            .clickable(role = Role.Button) { onClick() }
             .background(if (isSelected) LocalDesignColorTokens.current.surfaceRaised else LocalDesignColorTokens.current.surfaceElevated, DoraiShapes.card)
             .border(BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle), DoraiShapes.card),
     ) {

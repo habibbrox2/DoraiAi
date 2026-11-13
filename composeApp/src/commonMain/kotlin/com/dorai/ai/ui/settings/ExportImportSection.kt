@@ -43,6 +43,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.data.ImportSection
@@ -369,7 +370,7 @@ private fun ImportPreviewDialog(
                         verticalAlignment = CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { replace = !replace }
+                            .clickable(role = Role.Button) { replace = !replace }
                             .handCursor(),
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
@@ -398,7 +399,7 @@ private fun ImportPreviewDialog(
                             verticalAlignment = CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable {
+                                .clickable(role = Role.Button) {
                                     selectedSections = if (section in selectedSections) {
                                         selectedSections - section
                                     } else {
@@ -479,7 +480,7 @@ private fun ExportPreviewDialog(
                             verticalAlignment = CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable {
+                                .clickable(role = Role.Button) {
                                     selectedSections = if (section in selectedSections) {
                                         selectedSections - section
                                     } else {

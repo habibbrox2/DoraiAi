@@ -5,8 +5,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -28,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -216,16 +215,14 @@ private fun DoraiBottomNavItem(
     val colors = LocalDoraiColors.current
     val label = stringResource(destination.labelRes)
     val waitingApprovalLabel = stringResource(Res.string.nav_waiting_approval)
-    val interactionSource = remember { MutableInteractionSource() }
 
     Box(
         modifier = modifier
             .fillMaxHeight()
             .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
             .clip(RoundedCornerShape(16.dp))
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
+            .selectable(
+                selected = isSelected,
                 role = Role.Tab,
                 onClick = onClick,
             ),
@@ -341,16 +338,14 @@ private fun DoraiRailNavItem(
     val colors = LocalDoraiColors.current
     val label = stringResource(destination.labelRes)
     val waitingApprovalLabel = stringResource(Res.string.nav_waiting_approval)
-    val interactionSource = remember { MutableInteractionSource() }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 56.dp)
             .clip(RoundedCornerShape(16.dp))
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
+            .selectable(
+                selected = isSelected,
                 role = Role.Tab,
                 onClick = onClick,
             )
@@ -479,7 +474,6 @@ private fun DoraiDrawerNavItem(
     val colors = LocalDoraiColors.current
     val label = stringResource(destination.labelRes)
     val waitingApprovalLabel = stringResource(Res.string.nav_waiting_approval)
-    val interactionSource = remember { MutableInteractionSource() }
 
     Row(
         modifier = modifier
@@ -489,9 +483,8 @@ private fun DoraiDrawerNavItem(
             .background(
                 if (isSelected) colors.primary.copy(alpha = 0.16f) else Color.Transparent,
             )
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
+            .selectable(
+                selected = isSelected,
                 role = Role.Tab,
                 onClick = onClick,
             )

@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.sandbox
+package com.dorai.ai.ui.sandbox
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -50,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
@@ -253,7 +254,7 @@ private fun PathBar(
                         color = com.dorai.ai.ui.AccentPrimary,
                         modifier = Modifier
                             .clip(com.dorai.ai.ui.DoraiShapes.sm)
-                            .clickable { onNavigateTo(target) }
+                            .clickable(role = Role.Button) { onNavigateTo(target) }
                             .handCursor()
                             .padding(horizontal = 10.dp, vertical = 6.dp),
                     )
@@ -393,7 +394,7 @@ private fun FileRow(
             Row(
                 modifier = Modifier
                     .weight(1f)
-                    .clickable(onClick = onClick)
+                    .clickable(onClick = onClick, role = Role.Button)
                     .handCursor()
                     .padding(start = 12.dp, top = 10.dp, bottom = 10.dp, end = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,

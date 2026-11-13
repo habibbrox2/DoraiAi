@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -52,7 +53,7 @@ internal fun SmallIconButton(
 @Composable
 private fun SmallIconButtonBox(onClick: () -> Unit, content: @Composable () -> Unit) {
     Box(
-        modifier = Modifier.size(36.dp).clip(CircleShape).handCursor().clickable { onClick() },
+        modifier = Modifier.size(36.dp).clip(CircleShape).handCursor().clickable(role = Role.Button) { onClick() },
         contentAlignment = Alignment.Center,
     ) { content() }
 }

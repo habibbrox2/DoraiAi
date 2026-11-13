@@ -54,6 +54,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -203,7 +204,7 @@ fun AppSidebar(
             onClick = onNewChat,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(44.dp)
+                .height(48.dp)
                 .handCursor(),
             shape = RoundedCornerShape(12.dp),
             color = Color.Transparent,
@@ -469,7 +470,7 @@ private fun SidebarProjectsSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .handCursor()
-                    .clickable { onOpenWorkspace?.invoke() }
+                    .clickable(role = Role.Button) { onOpenWorkspace?.invoke() }
                     .padding(horizontal = ChatSpacing.xs, vertical = ChatSpacing.sm),
             ) {
                 Row(
@@ -532,7 +533,7 @@ private fun SidebarProjectRow(
             .fillMaxWidth()
             .handCursor()
             .clip(rowShape)
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick, role = Role.Button)
             .padding(horizontal = ChatSpacing.xs, vertical = ChatSpacing.sm),
     ) {
         Row(
@@ -586,7 +587,7 @@ private fun ConversationRow(
             .fillMaxWidth()
             .handCursor()
             .clip(rowShape)
-            .clickable(onClick = onSelect)
+            .clickable(onClick = onSelect, role = Role.Button)
             .background(
                 if (isSelected) tokens.SurfaceElevated else Color.Transparent,
                 rowShape,
@@ -835,7 +836,7 @@ private fun SidebarLink(
         modifier = Modifier
             .fillMaxWidth()
             .handCursor()
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick, role = Role.Button)
             .clip(linkShape)
             .background(
                 if (isActive) tokens.PrimaryCyan.copy(alpha = 0.12f) else Color.Transparent,

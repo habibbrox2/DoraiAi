@@ -38,6 +38,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -148,6 +151,7 @@ fun DoraiHomeScreen(
                 color = colors.text,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
+                modifier = Modifier.semantics { heading() },
             )
         }
 
@@ -170,6 +174,7 @@ fun DoraiHomeScreen(
                     color = colors.text,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
+                    modifier = Modifier.semantics { heading() },
                 )
 
                 // Responsive 2-column or 1-column grid
@@ -213,7 +218,7 @@ fun DoraiHomeScreen(
                     color = colors.text,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = DoraiSpacing.SM),
+                    modifier = Modifier.padding(top = DoraiSpacing.SM).semantics { heading() },
                 )
 
                 RecentChatsCard(
@@ -476,7 +481,7 @@ private fun QuickChip(
             .clip(CircleShape)
             .background(colors.surface2)
             .border(1.dp, colors.line, CircleShape)
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick, role = Role.Button)
             .padding(horizontal = 12.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center,
     ) {
@@ -595,7 +600,7 @@ private fun RecentChatsCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
-                        .clickable { onOpenConversation(chat.id) }
+                        .clickable(role = Role.Button) { onOpenConversation(chat.id) }
                         .padding(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.SM),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {

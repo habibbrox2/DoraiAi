@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.settings
+package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -714,7 +715,7 @@ private fun AddMcpServerDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(CardDefaults.shape)
-                                .clickable {
+                                .clickable(role = Role.Button) {
                                     if (server.requiresAuth) {
                                         prefillPopularWithAuth(server)
                                     } else {

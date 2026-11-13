@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.mcp.PopularMcpServer
 import com.dorai.ai.network.tools.ToolInfo
@@ -296,7 +297,7 @@ private fun ToolItem(
         modifier = modifier
             .fillMaxWidth()
             .clip(cardShape)
-            .clickable { onToggle(!tool.isEnabled) }
+            .clickable(role = Role.Button) { onToggle(!tool.isEnabled) }
             .handCursor(),
         colors = CardDefaults.cardColors(containerColor = cardBg),
         border = cardBorder,

@@ -621,7 +621,7 @@ private fun ChatHistoryPane(
             onClick = onNewChat,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(44.dp),
+                .height(48.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = colors.primary,
@@ -1579,7 +1579,7 @@ private fun ChatMessageRow(
                             modifier = Modifier
                                 .align(Alignment.End)
                                 .padding(top = 4.dp)
-                                .semantics { contentDescription = sentAtCd ?: "" },
+                                .semantics { if (sentAtCd != null) contentDescription = sentAtCd },
                         )
                     }
                 }

@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
@@ -423,7 +424,7 @@ private fun ProjectFileRow(
             .padding(horizontal = 4.dp, vertical = 1.dp)
             .background(bgColor)
             .clip(DoraiShapes.sm)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick, role = Role.Button),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // Flat list rendered for the currently-opened project — no inter-tree indentation.

@@ -412,7 +412,7 @@ internal fun HeartbeatSection(
                 RefreshIconButton(
                     onClick = onRefresh,
                     isRefreshing = isRefreshing,
-                    contentDescription = stringResource(Res.string.settings_heartbeat_refresh),
+                    description = stringResource(Res.string.settings_heartbeat_refresh),
                 )
             }
             if (heartbeatLog.isNotEmpty()) {
@@ -655,7 +655,7 @@ internal fun SmsSection(
                     RefreshIconButton(
                         onClick = onRefresh,
                         isRefreshing = isRefreshing,
-                        contentDescription = stringResource(Res.string.settings_sms_refresh),
+                        description = stringResource(Res.string.settings_sms_refresh),
                     )
                 }
             }

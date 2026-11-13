@@ -43,6 +43,9 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -236,7 +239,11 @@ internal fun ChatCommandPalette(
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(10.dp))
                                     .background(if (selected) colors.surface2 else colors.surface)
-                                    .clickable(onClickLabel = item.title) { runItem(item) }
+                                    .clickable(
+                                        role = Role.Button,
+                                        onClickLabel = item.title,
+                                    ) { runItem(item) }
+                                    .semantics { this.selected = selected }
                                     .handCursor()
                                     .padding(horizontal = 10.dp, vertical = 10.dp),
                             ) {

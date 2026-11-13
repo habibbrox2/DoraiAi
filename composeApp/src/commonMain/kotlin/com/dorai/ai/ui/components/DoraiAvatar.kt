@@ -13,6 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.hideFromAccessibility
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.AccentPrimary
@@ -39,15 +42,24 @@ fun DoraiAvatar(
     size: Dp = 40.dp,
     borderColor: Color = BorderSoft,
     statusColor: Color? = null,
+    contentDescription: String? = null,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalDesignColorTokens.current
+    val avatarDescription = contentDescription
     Box(
         modifier = modifier
             .size(size)
             .clip(CircleShape)
             .border(BorderStroke(1.dp, borderColor), CircleShape)
-            .background(SurfaceElevated, CircleShape),
+            .background(SurfaceElevated, CircleShape)
+            .semantics {
+                if (avatarDescription == null) {
+                    hideFromAccessibility()
+                } else {
+                    this.contentDescription = avatarDescription
+                }
+            },
         contentAlignment = Alignment.Center,
     ) {
         if (initials != null && initials.isNotEmpty()) {

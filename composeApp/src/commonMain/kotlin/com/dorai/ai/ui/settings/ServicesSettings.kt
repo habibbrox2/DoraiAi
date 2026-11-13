@@ -428,7 +428,7 @@ private fun OwnerProfileCard(profile: SupportProfile) {
                 if (destination != null) {
                     Modifier
                         .handCursor()
-                        .clickable { uriHandler.openUri(destination) }
+                        .clickable(role = Role.Button) { uriHandler.openUri(destination) }
                         .semantics {
                             contentDescription =
                                 "Open ${profile.name} profile, ${destination.removePrefix("https://")}"
@@ -497,7 +497,7 @@ private fun SponsorTile(profile: SupportProfile, tileWidth: Dp) {
             .then(
                 if (destination != null) {
                     Modifier
-                        .clickable { uriHandler.openUri(destination) }
+                        .clickable(role = Role.Button) { uriHandler.openUri(destination) }
                         .handCursor()
                         .semantics {
                             // Link action is part of the name so screen readers
@@ -875,7 +875,7 @@ private fun ProviderRowItem(
         modifier = Modifier
             .fillMaxWidth()
             .handCursor()
-            .clickable { onClick() }
+            .clickable(role = Role.Button) { onClick() }
             .clip(itemShape)
             .background(CardFill, itemShape)
             .border(BorderStroke(1.dp, BorderSoft), itemShape)
@@ -1044,7 +1044,7 @@ private fun ConfiguredServiceCardContent(
         modifier = Modifier
             .doraiAdaptiveCardSurface()
             .fillMaxWidth()
-            .clickable { onExpand() }
+            .clickable(role = Role.Button) { onExpand() }
             .handCursor()
             .semantics {
                 role = Role.Button

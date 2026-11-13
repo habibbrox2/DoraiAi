@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.settings
+package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -46,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
@@ -461,7 +462,7 @@ private fun SplinterlandsBattleLogRow(entry: BattleLogEntry) {
             .background(bgColor, DoraiShapes.xs)
             .then(
                 if (entry.activity.isNotEmpty()) {
-                    Modifier.clickable { showActivity = true }.handCursor()
+                    Modifier.clickable(role = Role.Button) { showActivity = true }.handCursor()
                 } else {
                     Modifier
                 },

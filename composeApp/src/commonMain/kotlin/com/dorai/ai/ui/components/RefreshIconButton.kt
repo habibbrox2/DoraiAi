@@ -8,6 +8,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -16,14 +18,17 @@ import com.dorai.ai.ui.theme.LocalDesignColorTokens
 fun RefreshIconButton(
     onClick: () -> Unit,
     isRefreshing: Boolean,
-    contentDescription: String,
+    description: String,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalDesignColorTokens.current
+    val buttonDescription = description
     IconButton(
         onClick = onClick,
         enabled = !isRefreshing,
-        modifier = modifier.handCursor(),
+        modifier = modifier
+            .handCursor()
+            .semantics { contentDescription = buttonDescription },
     ) {
         if (isRefreshing) {
             CircularProgressIndicator(
@@ -34,7 +39,7 @@ fun RefreshIconButton(
         } else {
             Icon(
                 imageVector = Icons.Default.Refresh,
-                contentDescription = contentDescription,
+                contentDescription = description,
                 tint = colors.textSecondary,
             )
         }

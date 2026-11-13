@@ -31,12 +31,14 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -244,6 +246,8 @@ import dorai.composeapp.generated.resources.bot_message_copy_content_description
 import dorai.composeapp.generated.resources.dorai_ui_code_copy
 import dorai.composeapp.generated.resources.dorai_ui_render_failed
 import dorai.composeapp.generated.resources.state_checked
+import dorai.composeapp.generated.resources.state_collapsed
+import dorai.composeapp.generated.resources.state_expanded
 import dorai.composeapp.generated.resources.state_not_selected
 import dorai.composeapp.generated.resources.state_off
 import dorai.composeapp.generated.resources.state_on
@@ -659,6 +663,7 @@ private fun RenderCheckbox(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
+            .heightIn(min = 48.dp)
             .semantics(mergeDescendants = true) {
                 role = Role.Checkbox
                 stateDescription = checkedDescription
@@ -1583,7 +1588,7 @@ private fun RenderTabs(
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .defaultMinSize(minHeight = 32.dp)
+                            .defaultMinSize(minHeight = 48.dp)
                             .clip(pillShape)
                             .then(
                                 if (isSelected) {
@@ -1595,7 +1600,11 @@ private fun RenderTabs(
                                     Modifier
                                 },
                             )
-                            .clickable { selectedIndex = index }
+                            .selectable(
+                                selected = isSelected,
+                                onClick = { selectedIndex = index },
+                                role = Role.Tab,
+                            )
                             .handCursor()
                             .padding(horizontal = 16.dp, vertical = 4.dp),
                     ) {
@@ -1641,11 +1650,16 @@ private fun RenderAccordion(
 ) {
     var expanded by remember { mutableStateOf(node.expanded ?: false) }
 
+    val expandedLabel = stringResource(
+        if (expanded) Res.string.state_expanded else Res.string.state_collapsed,
+    )
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .handCursor()
-            .clickable { expanded = !expanded }
+            .clickable(role = Role.Button) { expanded = !expanded }
+            .semantics { stateDescription = expandedLabel }
             .clip(DoraiShapes.xs)
             .background(SurfaceElevated, DoraiShapes.xs),
     ) {

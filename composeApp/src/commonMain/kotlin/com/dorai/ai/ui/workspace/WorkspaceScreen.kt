@@ -57,6 +57,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -611,6 +614,7 @@ private fun WorkspaceTabContent(
                         color = LocalDesignColorTokens.current.textPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.semantics { heading() },
                     )
                     Text(
                         text = state.build.activeSessionId?.take(7) ?: stringResource(Res.string.workspace_default_session_label),
@@ -1217,7 +1221,7 @@ private fun WorkspaceGitChangesList(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable(onClick = { onOpenFile(change.path) }),
+                        .clickable(onClick = { onOpenFile(change.path) }, role = Role.Button),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(

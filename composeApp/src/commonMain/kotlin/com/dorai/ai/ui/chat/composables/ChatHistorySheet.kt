@@ -1,4 +1,4 @@
-﻿@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.dorai.ai.ui.chat.composables
 
@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.AccentPrimary
@@ -173,7 +174,7 @@ internal fun ChatHistorySheet(
                                     modifier = borderModifier
                                         .fillMaxWidth()
                                         .handCursor()
-                                        .clickable {
+                                        .clickable(role = Role.Button) {
                                             onConversationSelected()
                                             actions.loadConversation(conversation.id)
                                             onDismiss()

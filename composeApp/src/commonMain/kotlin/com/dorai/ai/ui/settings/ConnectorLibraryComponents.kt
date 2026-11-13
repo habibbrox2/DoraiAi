@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -32,8 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -106,12 +105,11 @@ internal fun ConnectorLibraryTabs(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .defaultMinSize(minHeight = 42.dp)
+                    .defaultMinSize(minHeight = 48.dp)
                     .clip(SettingsShapes.pill)
                     .background(background)
                     .handCursor()
-                    .clickable(role = Role.Tab) { onSelect(section) }
-                    .semantics { this.selected = isSelected },
+                    .selectable(selected = isSelected, onClick = { onSelect(section) }, role = Role.Tab),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -153,12 +151,11 @@ internal fun ConnectorScopeToggle(
             )
             Box(
                 modifier = Modifier
-                    .defaultMinSize(minWidth = 84.dp, minHeight = 36.dp)
+                    .defaultMinSize(minWidth = 84.dp, minHeight = 48.dp)
                     .clip(SettingsShapes.pill)
                     .background(background)
                     .handCursor()
-                    .clickable(role = Role.Tab) { onSelect(scope) }
-                    .semantics { this.selected = isSelected },
+                    .selectable(selected = isSelected, onClick = { onSelect(scope) }, role = Role.Tab),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(

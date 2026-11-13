@@ -2,7 +2,6 @@ package com.dorai.ai.ui.components.v2
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -134,13 +134,15 @@ fun DoraiDynamicUiBlock(
                         color = if (isSelected) colors.primary else colors.line,
                         shape = optShape,
                     )
-                    .clickable(
+                    .selectable(
                         enabled = !model.isLocked,
+                        selected = isSelected,
                         role = Role.RadioButton,
-                    ) {
-                        currentSelectedId = option.id
-                        onOptionSelected(option.id)
-                    }
+                        onClick = {
+                            currentSelectedId = option.id
+                            onOptionSelected(option.id)
+                        },
+                    )
                     .padding(DoraiSpacing.MD),
                 verticalAlignment = Alignment.Top,
             ) {

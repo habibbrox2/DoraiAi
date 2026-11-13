@@ -380,7 +380,7 @@ private fun WorkspaceProjectsView(
                     .clip(projShape)
                     .background(colors.surface)
                     .border(1.dp, colors.line, projShape)
-                    .clickable { onOpenProject(proj) }
+                    .clickable(role = Role.Button) { onOpenProject(proj) }
                     .padding(DoraiSpacing.MD),
             ) {
                 Row(

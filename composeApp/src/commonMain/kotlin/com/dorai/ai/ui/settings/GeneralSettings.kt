@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.data.AppLanguage
 import com.dorai.ai.data.AppSettings
@@ -191,7 +192,7 @@ private fun ThemeModeButton(
         modifier = Modifier
             .clip(SettingsShapes.pill)
             .handCursor()
-            .clickable { onClick() }
+            .clickable(role = Role.Button) { onClick() }
             .background(if (isSelected) selectedBg else unselectedBg, SettingsShapes.pill)
             .border(
                 if (!isSelected) {

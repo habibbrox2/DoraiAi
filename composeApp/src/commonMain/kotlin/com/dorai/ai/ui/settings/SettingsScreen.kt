@@ -80,6 +80,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -361,6 +362,7 @@ private fun TopBar(onNavigateBack: () -> Unit) {
                 style = DoraiTypography.titleMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
                 fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.semantics { heading() },
             )
             Spacer(Modifier.weight(1f))
         }
@@ -605,7 +607,7 @@ internal fun SettingsCard(
             .clip(cardShape)
             .background(cardBg)
             .border(cardBorder, cardShape)
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick).handCursor() else Modifier),
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick, role = Role.Button).handCursor() else Modifier),
     ) {
         Column(
             modifier = Modifier

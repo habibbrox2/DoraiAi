@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.workspace
+package com.dorai.ai.ui.workspace
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
@@ -96,7 +97,10 @@ internal fun WorkspaceSetupContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable(enabled = installing == null && agent.id !in state.installedAgents) { onToggleAgent(agent.id) }
+                            .clickable(
+                                enabled = installing == null && agent.id !in state.installedAgents,
+                                role = Role.Button,
+                            ) { onToggleAgent(agent.id) }
                             .handCursor(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {

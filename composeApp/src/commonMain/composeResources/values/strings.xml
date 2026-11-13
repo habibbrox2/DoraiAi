@@ -1483,5 +1483,6 @@
     <string name="tool_card_more_lines_format">… (%1$d more lines · click to expand)</string>
     <string name="dashboard_empty_no_saved_work">No saved work yet — conversations and build projects will show up here.</string>
     <string name="settings_confirm_dialog_cancel">Cancel</string>
+    <string name="a11y_refresh">Refresh</string>
 </resources>
 
