@@ -57,7 +57,8 @@ repository is Kotlin Multiplatform with Compose Multiplatform UI.
 
 | Skill | Use for |
 |---|---|
-| `litert-lm` | On-device LiteRT-LM engine, model pins and `docs/knowledge/litert/` |
+| `litert-lm` | On-device LiteRT-LM (`.litertlm`) engine, model pins and `docs/knowledge/litert/` |
+| `litert-runtime` | LiteRT CompiledModel (`.tflite`) runtime for vision/audio/embeddings (Android-only integration) |
 | `android-intent-security` | Exported activity, intent filters and incoming-intent handling |
 | `android-permissions-security` | Manifest permissions, services, receivers and IPC components |
 | `edge-to-edge` | System-bar and IME inset problems on Android |
