@@ -46,6 +46,33 @@ Canonical portable skills live in `skills/<skill-name>/SKILL.md`. Claude-discove
 - `security-regression`
 - `cross-platform-validation`
 
+### Vendored Android skills
+
+`.agents/skills/` also carries skills vendored from [android/skills](https://github.com/android/skills)
+(Apache-2.0, © Google LLC — terms in `.agents/skills/android-skills-LICENSE.txt`). The upstream body is
+kept verbatim; every vendored `SKILL.md` ends with a **DORAI AI scope note** that states where the
+guidance applies here, which upstream APIs are Android-only, and which validation commands to run.
+Read that note before applying the skill: the upstream guidance assumes a pure Android app, while this
+repository is Kotlin Multiplatform with Compose Multiplatform UI.
+
+| Skill | Use for |
+|---|---|
+| `litert-lm` | On-device LiteRT-LM engine, model pins and `docs/knowledge/litert/` |
+| `android-intent-security` | Exported activity, intent filters and incoming-intent handling |
+| `android-permissions-security` | Manifest permissions, services, receivers and IPC components |
+| `edge-to-edge` | System-bar and IME inset problems on Android |
+| `adaptive` | Window-size adaptation across phone, desktop, tablet and foldable |
+| `jetpack-compose-performance` | Recomposition and rendering cost in the shared UI |
+| `navigation-event` | Predictive back behind `PlatformBackHandler` |
+| `r8-analyzer` | R8 keep rules and release APK size |
+| `testing-setup` | Test source sets, Paparazzi and the shared test strategy |
+| `anr-audit-and-fix` | Android ANR risks in the foreground services |
+
+These are third-party content, not repository-authored skills: they are **not** mirrored into
+`.claude/skills/`, because the sync script copies only `SKILL.md` and not the `references/` trees.
+To refresh them, re-vendor from upstream and re-apply the scope note — do not hand-edit the upstream
+body.
+
 ## Repository-specific notes
 - Gradle modules: `:composeApp` (shared KMP library/UI), `:androidApp` (Android app, `playStore`/`foss` flavors), `:screenshotTests`. `iosApp/` contains the iOS Xcode project.
 - `composeApp` configures Android, iOS arm64/simulator arm64, JVM desktop (`desktop` target), and browser `wasmJs` (target exists; Web/Wasm distribution is not release-ready).
