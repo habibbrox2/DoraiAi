@@ -87,6 +87,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.BackIcon
@@ -533,6 +534,7 @@ private fun SettingsTabSelector(
                         },
                         style = DoraiTypography.labelLarge,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                     )
                 }

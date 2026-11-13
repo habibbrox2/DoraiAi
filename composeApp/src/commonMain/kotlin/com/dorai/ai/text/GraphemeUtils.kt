@@ -193,6 +193,41 @@ private fun clusterEnd(text: String, start: Int): Int {
     return end
 }
 
+/** Number of grapheme clusters in [text]. Never fails; runs in O(length). */
+internal fun graphemeClusterCount(text: String): Int {
+    var index = 0
+    var count = 0
+    while (index < text.length) {
+        index = clusterEnd(text, index)
+        count += 1
+    }
+    return count
+}
+
+/**
+ * How many grapheme clusters must be deleted from the end of [text] to remove at least
+ * [codeUnits] UTF-16 code units, never splitting a cluster. Returns the cluster count;
+ * callers that can only delete per grapheme (terminal backspaces) use this directly.
+ */
+internal fun graphemeSafeDeleteCount(text: String, codeUnits: Int): Int {
+    if (codeUnits <= 0 || text.isEmpty()) return 0
+    val ends = mutableListOf<Int>()
+    var index = 0
+    while (index < text.length) {
+        index = clusterEnd(text, index)
+        ends += index
+    }
+    var total = 0
+    var units = 0
+    for (i in ends.indices.reversed()) {
+        val clusterUnits = ends[i] - (if (i == 0) 0 else ends[i - 1])
+        units += clusterUnits
+        total += 1
+        if (units >= codeUnits) break
+    }
+    return total
+}
+
 /**
  * Returns the longest prefix of [text] containing at most [maxGraphemes]
  * grapheme clusters. Never splits a cluster.

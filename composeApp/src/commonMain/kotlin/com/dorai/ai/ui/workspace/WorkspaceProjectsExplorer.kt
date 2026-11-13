@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
@@ -93,7 +94,7 @@ data class ProjectFile(
 
 /**
  * Pure in-memory filter for the explorer list. Runs on the already-loaded
- * listing only — no filesystem access, so large directories never block the UI.
+ * listing only Ã¢â‚¬â€ no filesystem access, so large directories never block the UI.
  * Exported for tests.
  */
 fun filterProjectFiles(
@@ -141,7 +142,7 @@ fun WorkspaceProjectsExplorer(
     Column(
         modifier = modifier.fillMaxHeight(),
     ) {
-        // ─── Project header ───
+        // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Project header Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -173,6 +174,7 @@ fun WorkspaceProjectsExplorer(
                         style = DoraiTypography.titleMedium,
                         color = colorTokens.textPrimary,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         text = if (projects.isEmpty()) {
@@ -185,6 +187,7 @@ fun WorkspaceProjectsExplorer(
                         style = DoraiTypography.labelSmall,
                         color = colorTokens.textSecondary,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
                 IconButton(onClick = { showCreateDialog = true }) {
@@ -197,7 +200,7 @@ fun WorkspaceProjectsExplorer(
             }
         }
 
-        // ─── File search ───
+        // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ File search Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -235,7 +238,7 @@ fun WorkspaceProjectsExplorer(
             }
         }
 
-        // ─── Filter chips ───
+        // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Filter chips Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -265,7 +268,7 @@ fun WorkspaceProjectsExplorer(
             )
         }
 
-        // ─── File tree ───
+        // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ File tree Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -357,7 +360,7 @@ fun WorkspaceProjectsExplorer(
             }
         }
 
-        // ─── Footer ───
+        // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Footer Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -427,7 +430,7 @@ private fun ProjectFileRow(
             .clickable(onClick = onClick, role = Role.Button),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Flat list rendered for the currently-opened project — no inter-tree indentation.
+        // Flat list rendered for the currently-opened project Ã¢â‚¬â€ no inter-tree indentation.
         // (An absolute-path depth here pushed every row's content off-screen when the
         // project was nested deep in the guest filesystem.)
         Spacer(modifier = Modifier.width(8.dp))

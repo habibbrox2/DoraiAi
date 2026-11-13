@@ -1,5 +1,7 @@
 package com.dorai.ai.ui.markdown
 
+import com.dorai.ai.text.graphemeClusterCount
+import com.dorai.ai.text.graphemeSafeDeleteCount
 import com.dorai.ai.text.graphemeSafeTake
 import com.dorai.ai.text.graphemeSafeTruncateWithEllipsis
 import kotlinx.collections.immutable.persistentListOf
@@ -144,6 +146,24 @@ class BengaliCorpusTest {
     fun `graphemeSafeTake empty and zero limits`() {
         assertEquals("", graphemeSafeTake("বাংলা", 0))
         assertEquals("", graphemeSafeTake("", 5))
+    }
+
+    @Test
+    fun `graphemeClusterCount counts clusters not code units`() {
+        assertEquals(1, graphemeClusterCount("ক্ষ")) // ক + ্ + ষ is one cluster
+        assertEquals(1, graphemeClusterCount("👩‍💻")) // ZWJ emoji is one cluster
+        assertEquals(2, graphemeClusterCount("কীই")) // কী (cluster) + ই (cluster)
+    }
+
+    @Test
+    fun `graphemeSafeDeleteCount never splits a cluster`() {
+        // ক + ী is one cluster; asking for one code unit back must delete the whole cluster.
+        assertEquals(1, graphemeSafeDeleteCount("কী", 1))
+        assertEquals(1, graphemeSafeDeleteCount("কী", 2))
+        assertEquals(1, graphemeSafeDeleteCount("কীক্ষ", 2)) // final cluster (ক্ষ, 3 units) already covers 2 requested units
+        assertEquals(1, graphemeSafeDeleteCount("👩‍💻", 1))
+        assertEquals(1, graphemeSafeDeleteCount("👩‍💻", 4))
+        assertEquals(1, graphemeSafeDeleteCount("a👩‍💻", 2))
     }
 
     @Test

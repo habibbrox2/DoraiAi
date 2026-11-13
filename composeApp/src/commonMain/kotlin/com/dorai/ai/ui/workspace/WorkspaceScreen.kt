@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -132,7 +133,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
-/** Where Debian mounts the project folders — the browser's root inside a project. */
+/** Where Debian mounts the project folders â€” the browser's root inside a project. */
 private const val PROJECTS_GUEST_DIR = "/root/projects"
 
 /** Keeps Workspace's browser out of the chat sandbox's ViewModel slot. */
@@ -586,7 +587,7 @@ private fun WorkspaceTabContent(
             .statusBarsPadding()
             .navigationBarsPadding(),
     ) {
-        // ─── Top bar ───
+        // â”€â”€â”€ Top bar â”€â”€â”€
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -648,7 +649,7 @@ private fun WorkspaceTabContent(
             }
         }
 
-        // ─── Tab body ───
+        // â”€â”€â”€ Tab body â”€â”€â”€
         when (tab) {
             WorkspaceTab.Agent -> {
                 if (project != null) {
@@ -941,7 +942,7 @@ private fun WorkspaceTabContent(
             }
         }
 
-        // ─── Bottom navigation ───
+        // â”€â”€â”€ Bottom navigation â”€â”€â”€
         NavigationBar(
             modifier = Modifier.fillMaxWidth(),
             containerColor = MaterialTheme.colorScheme.surface,
@@ -1261,15 +1262,19 @@ private fun WorkspaceGitChangesList(
                     }
                     Box(
                         modifier = Modifier
-                            .size(20.dp)
+                            .heightIn(min = 22.dp)
+                            .defaultMinSize(minWidth = 22.dp)
                             .background(badgeColor)
-                            .clip(RoundedCornerShape(4.dp)),
+                            .clip(RoundedCornerShape(6.dp)),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = badgeText.take(1),
+                            text = badgeText,
                             style = DoraiTypography.labelSmall,
                             color = colorTokens.background,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                         )
                     }
                 }
@@ -1292,6 +1297,7 @@ private fun WorkspaceGitChangesList(
                         color = colorTokens.textSecondary,
                         modifier = Modifier.weight(1f),
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     if (change.staged) {
                         TextButton(

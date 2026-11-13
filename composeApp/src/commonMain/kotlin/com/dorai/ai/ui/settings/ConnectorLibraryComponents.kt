@@ -56,7 +56,7 @@ import dorai.composeapp.generated.resources.settings_plugins
 import dorai.composeapp.generated.resources.settings_skills
 import org.jetbrains.compose.resources.stringResource
 
-/** Primary library surfaces inside Settings → Tools. */
+/** Primary library surfaces inside Settings â†’ Tools. */
 internal enum class ConnectorLibrarySection {
     Connectors,
     Skills,
@@ -118,6 +118,7 @@ internal fun ConnectorLibraryTabs(
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                     color = foreground,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -169,6 +170,7 @@ internal fun ConnectorScopeToggle(
                     },
                     modifier = Modifier.padding(horizontal = 14.dp),
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }

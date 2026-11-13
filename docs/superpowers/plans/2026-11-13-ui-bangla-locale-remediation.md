@@ -346,15 +346,15 @@ U+09AF+U+09BC (364×) vs U+09DF (20×) — দুটোই valid, NFC একই 
 
 ## Phase 7 — Responsive/overflow ও ছোট UX defects (U-4 + minor leftovers)
 
-- [ ] Task 7.1: `maxLines = N` ছাড়া `overflow` নেই — 32 site (`DoraiApprovalActions.kt:97,116,135`, `DoraiComposer.kt:134`, `DoraiModeSelector.kt:134`, `DoraiStructureComponents.kt:134`, `ChatCommandPalette.kt:255,262`, `WorkspaceScreen.kt:1238,1244` + `git grep 'maxLines'` sweep): প্রতিটিতে `overflow = TextOverflow.Ellipsis`; approval buttons compact-এ 2-line wrap + 11–12sp? **না** — token font রেখে wrap করা বেছে নাও (13.sp hardcode সরাও, `labelMedium`-এ route)।
-- [ ] Task 7.2: `DoraiApprovalActions.kt` weight(1f)+maxLines=1 → `width(In, fill)` সঙ্গে 2-line text semantics; German/Bengali label test case Manually check (লম্বা বাংলা label ছোট screen-এ)।
-- [ ] Task 7.3: `DoraiWorkspaceScreen.kt:610` fixed 300.dp → `widthIn(max = 300.dp)` + compact ≤320dp-এ full-width fallback।
-- [ ] Task 7.4: `WorkspaceScreen.kt:1265` 9.sp → token; `:1264` localized single-char uppercase সরাও; `:1241` absolute path → ellipsis।
-- [ ] Task 7.5: `DoraiDialog`-referenced docs/dsl cleanup; `PremiumChatBackdrop.kt:151` contentDescription → `Res.string.premium_backdrop_logo_description` (Task 3-এ covered না হলে)।
-- [ ] Task 7.6: `DoraiAgentTimeline.kt:98,171` — expandable-এ `stateDescription` (DoraiToolCard pattern)।
-- [ ] Task 7.7: `DoraiUiRenderer.kt` — widget-level try/catch: এক bad node → শুধু সেই widget-এ inline error placeholder, পুরো surface crash নয়।
-- [ ] Task 7.8: `TerminalInputView.kt:132-136` — `deleteSurroundingText` UTF-16 counts → grapheme-aware delete (Task 4.2-এর GraphemeUtils দিয়ে); **on-device Bengali IME verify পরে** (note: P2 Task 2.3-এর মতো)।
-- [ ] Task 7.9: `DoraiChatScreen.kt:1670-1683` — `SelectionContainer`-এ `DoraiUiRenderer` blocks wrap থাকে; selection extraction টেক্সট order splice হতে পারে (unverified)। Fix: dynamic-UI widget-গুলো নির্বাচন-বহির্ভূত `SelectionContainer` scope-এ, message text আলাদা scope-এ। Render diff Paparazzi-তে check।
+- [x] Task 7.1: `maxLines = N` ছাড়া `overflow` নেই — 32 site: প্রতিটিতে `overflow = TextOverflow.Ellipsis` যোগ করা হয়েছে (সব user-facing `Text(maxLines = …)` site; approval buttons compact-এ 2-line wrap; hardcoded `13.sp` সরানো হয়ে `DoraiTypography.labelMedium`)। TextField-site গুলো স্বাভাবিকভাবেই বাদ।
+- [x] Task 7.2: `DoraiApprovalActions.kt` → `weight(1f)` রেখে 2-line wrap (`maxLines = 2`) + centered overflow ellipsis + token font;লম্বা Bengali/German label ছোট screen-এ ২ লাইনে wrap হওয়ার design নিশ্চিত। (Manually check static review; on-device দেখনা pending।)
+- [x] Task 7.3: `DoraiWorkspaceScreen.kt:610` fixed 300.dp → `widthIn(max = 300.dp)` + `fillMaxWidth` (compact ≤320dp fallback)।
+- [x] Task 7.4: `WorkspaceScreen.kt` git status badge: `9.sp` hardcode সরিয়ে `DoraiTypography.labelSmall` + localized full label (`TextOverflow.Ellipsis`) + compact chip (`heightIn(22.dp)`/`defaultMinSize(22.dp)`) — `.take(1)` একক অক্ষর localized label বাদ। `:1241` path-এ ellipsis যোগ।
+- [x] Task 7.5: `DoraiDialog` code ref-মুক্ত; `PremiumChatBackdrop.kt:151` contentDescription → `Res.string.premium_backdrop_logo_description` (docs/superpowers/plans-এ শুধু উল্লেখ আছে, app code-এ নেই)।
+- [x] Task 7.6: `DoraiAgentTimeline.kt:98,171` — expandable-এ `Role.Button` + `stateDescription` (একটিমাত্র expandable হওয়ায় "Expanded"/"Collapsed" stringResource) যোগ।
+- [ ] Task 7.7: `DoraiUiRenderer.kt` — widget-level try/catch **Compose-এ সম্ভব নয়** (composable invocation try/catch illegal)। নিরাপদ বিকল্প হিসেবে রাশি-ভিত্তিক defensive clamp implement করা হয়েছে (image/slider/progress/icon/avatar/countdown; NaN/Infinity/out-of-range মান) — bad node-এ widget crash না হয়ে fallback মান ব্যবহার হবে। Inline per-widget error placeholder ও পূর্ণ error boundary এখনো বাকি (Compose public error boundary নেই; অন্য level-এ সমাধান দরকার)।
+- [x] Task 7.8: `TerminalInputView.kt` `deleteSurroundingText` → grapheme-aware delete (`TerminalImeTextBuffer` committed-tail track; `graphemeSafeDeleteCount`/`graphemeClusterCount`; code-unit counts-এর পরিবর্তে cluster-aligned backspace count)। **On-device Bengali IME verify pending।**
+- [x] Task 7.9: `DoraiChatScreen.kt` — `SelectionContainer` সরানো হয়েছে Markdown অংশ থেকে; এখন `MarkdownContent`-এর ভেতরে শুধু text-run segment-গুলোর চারপাশে `SelectionContainer` (DORAI UI block গুলো নির্বাচন-বহির্ভূত scope-এ)। Paparazzi verify পুনঃচলুনীতে render diff চেক করা হয়েছে।
 
 **Phase 7 gate:** Paparazzi + desktopTest PASS; commit `fix(ui): ellipsis/overflow sweep, adaptive width fixes`।
 

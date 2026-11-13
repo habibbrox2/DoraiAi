@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
@@ -82,11 +83,7 @@ fun MarkdownContent(
     }
     CompositionLocalProvider(LocalContentColor provides effectiveColor) {
         Column(modifier) {
-            document.blocks.forEachIndexed { index, block ->
-                key(index, block) {
-                    BlockRenderer(block, isInteractive, onUiCallback, frozen)
-                }
-            }
+            RenderBlocks(document.blocks, isInteractive, onUiCallback, frozen)
         }
     }
 }
@@ -105,6 +102,55 @@ fun MarkdownContent(
         }
     }
     MarkdownContent(doc, modifier, isInteractive, onUiCallback, frozen)
+}
+
+/**
+ * Render a list of markdown blocks, keeping text runs inside a [SelectionContainer]
+ * while DORAI UI blocks — which host interactive controls — are composed outside of any
+ * selection container so taps and text selection do not fight over the same gestures.
+ */
+@Composable
+private fun RenderBlocks(
+    blocks: List<BlockNode>,
+    isInteractive: Boolean,
+    onUiCallback: (String, Map<String, String>) -> Unit,
+    frozen: FrozenSubmission?,
+) {
+    // Split into segments of text blocks and interactive DORAI UI blocks. Text runs are
+    // wrapped in a single SelectionContainer for native text selection; DORAI UI blocks
+    // are composed outside any selection container so their controls remain interactive.
+    val segments = mutableListOf<Pair<Boolean, IntRange>>()
+    var runStart = 0
+    var index = 0
+    while (index < blocks.size) {
+        if (blocks[index] is DoraiUiBlock) {
+            if (index > runStart) segments += false to (runStart until index)
+            segments += true to (index..index)
+            runStart = index + 1
+        }
+        index += 1
+    }
+    if (blocks.size > runStart) segments += false to (runStart until blocks.size)
+
+    segments.forEachIndexed { segmentIndex, (isUi, range) ->
+        if (isUi) {
+            val block = blocks[range.first]
+            key(segmentIndex, block) {
+                BlockRenderer(block, isInteractive, onUiCallback, frozen)
+            }
+        } else {
+            SelectionContainer {
+                Column {
+                    for (i in range) {
+                        val block = blocks[i]
+                        key(i, block) {
+                            BlockRenderer(block, isInteractive, onUiCallback, frozen)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -353,7 +399,7 @@ private fun BlockquoteBlock(
             modifier = Modifier.fillMaxHeight(),
         )
         Column(Modifier.padding(start = 8.dp)) {
-            block.children.forEach { BlockRenderer(it, isInteractive, onUiCallback, frozen) }
+            RenderBlocks(block.children, isInteractive, onUiCallback, frozen)
         }
     }
 }
@@ -406,7 +452,7 @@ private fun ListItemRow(
             modifier = Modifier.widthIn(min = scaledMarkerWidth).padding(end = 4.dp),
         )
         Column(Modifier.fillMaxWidth()) {
-            item.children.forEach { BlockRenderer(it, isInteractive, onUiCallback, frozen) }
+            RenderBlocks(item.children, isInteractive, onUiCallback, frozen)
         }
     }
 }

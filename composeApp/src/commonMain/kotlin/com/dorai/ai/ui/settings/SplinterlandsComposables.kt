@@ -434,12 +434,14 @@ private fun SplinterlandsModelRow(rank: Int, stats: ModelStats) {
                 style = DoraiTypography.labelSmall,
                 color = LocalDesignColorTokens.current.textSecondary,
                 maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
             Text(
                 text = "$winPct%",
                 style = DoraiTypography.labelMedium,
                 color = barColor,
                 maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -521,7 +523,7 @@ private fun SplinterlandsBattleLogRow(entry: BattleLogEntry) {
                     }
                     if (infoItems.isNotEmpty()) {
                         Text(
-                            text = infoItems.joinToString(" · "),
+                            text = infoItems.joinToString(" Â· "),
                             style = DoraiTypography.bodySmall,
                             color = LocalDesignColorTokens.current.textSecondary,
                             modifier = Modifier.weight(1f),

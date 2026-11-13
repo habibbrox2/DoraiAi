@@ -52,6 +52,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -192,7 +193,7 @@ fun WorkspaceCodeEditor(
     Column(
         modifier = modifier.fillMaxSize(),
     ) {
-        // ─── Top bar ───
+        // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Top bar Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -213,12 +214,14 @@ fun WorkspaceCodeEditor(
                     style = DoraiTypography.titleMedium,
                     color = colorTokens.textPrimary,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = filePath,
                     style = DoraiTypography.labelSmall,
                     color = colorTokens.textSecondary,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             IconButton(onClick = onUndo, enabled = canUndo) {
@@ -236,7 +239,7 @@ fun WorkspaceCodeEditor(
                 )
             }
             // Diff and Run render only with real diff data / a safe execution
-            // contract ([showDiffRun]) — never as decorative, empty callbacks.
+            // contract ([showDiffRun]) Ã¢â‚¬â€ never as decorative, empty callbacks.
             if (showDiffRun) {
                 IconButton(onClick = { onDiffToggled(!isDiffMode) }) {
                     Icon(
@@ -273,7 +276,7 @@ fun WorkspaceCodeEditor(
             }
         }
 
-        // ─── Search/Replace panel ───
+        // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Search/Replace panel Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         if (showSearch) {
             SearchReplacePanel(
                 query = searchQuery,
@@ -295,7 +298,7 @@ fun WorkspaceCodeEditor(
             )
         }
 
-        // ─── Code area ───
+        // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Code area Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         if (editable && !readOnly) {
             EditableCodeArea(
                 content = content,
@@ -398,7 +401,7 @@ fun WorkspaceCodeEditor(
             )
         }
 
-        // ─── Code key row ───
+        // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Code key row Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         CodeKeyRow(
             onKeyClick = { key ->
                 if (editable && !readOnly) {
@@ -519,7 +522,7 @@ private fun SearchReplacePanel(
 fun CodeKeyRow(onKeyClick: (String) -> Unit = {}) {
     val colorTokens = LocalDesignColorTokens.current
     val keys = listOf(
-        "Tab", "↑", "←", "↓", "→", "{ }", "( )", "[ ]", ";", "\"", "=", "<", ">", "!",
+        "Tab", "Ã¢â€ â€˜", "Ã¢â€ Â", "Ã¢â€ â€œ", "Ã¢â€ â€™", "{ }", "( )", "[ ]", ";", "\"", "=", "<", ">", "!",
         ":",
     )
     Column(

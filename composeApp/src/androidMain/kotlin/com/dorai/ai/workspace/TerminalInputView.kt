@@ -130,7 +130,15 @@ internal class TerminalInputView(context: Context) : View(context) {
         }
 
         override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
-            repeat(beforeLength) { onKey(TerminalKey.Backspace, TerminalModifiers.None) }
+            // Bengali/Indic IMEs may ask to remove several UTF-16 code units that belong
+            // to one grapheme cluster (consonant + virama + consonant, ZWJ emoji). Deleting
+            // per code unit would punch a half-cluster out of the shell line, so delete
+            // whole clusters based on the recently committed text instead. If a composing
+            // string is active the IME must edit it via setComposingText, so only the
+            // committed tail informs the cluster count.
+            val backspaces = imeTextBuffer.backspacesFor(beforeLength)
+            repeat(backspaces) { onKey(TerminalKey.Backspace, TerminalModifiers.None) }
+            imeTextBuffer.dropTailClusters(backspaces)
             repeat(afterLength) { onKey(TerminalKey.Delete, TerminalModifiers.None) }
             return true
         }

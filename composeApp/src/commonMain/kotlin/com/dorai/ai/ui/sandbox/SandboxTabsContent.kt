@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.sandbox
+package com.dorai.ai.ui.sandbox
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -45,6 +45,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.SandboxController
@@ -169,7 +170,7 @@ internal fun SandboxTabsContent(
         Column(modifier = modifier.fillMaxWidth()) {
             SettingsCard {
                 // Readiness flow (Plan 4, Phase 3): which environment, what state
-                // it is in, what setup costs, progress, and an explicit retry —
+                // it is in, what setup costs, progress, and an explicit retry â€”
                 // the error is never the only thing on screen.
                 val badgeStatus = when {
                     sandboxState.hasError -> OperationalStatus.Error
@@ -181,7 +182,7 @@ internal fun SandboxTabsContent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        // Distro comes from state — a hard-coded name goes stale the
+                        // Distro comes from state â€” a hard-coded name goes stale the
                         // moment the user picks the other distribution.
                         text = sandboxState.distro.displayName,
                         style = DoraiTypography.titleMedium,
@@ -256,7 +257,7 @@ internal fun SandboxTabsContent(
 private fun SessionChipRow(viewModel: SandboxSessionViewModel) {
     val tabs = viewModel.visibleSessions.collectAsStateWithLifecycle().value
     val selectedId = viewModel.selectedSessionId.collectAsStateWithLifecycle().value
-    if (tabs.size <= 1) return // Nothing to switch between — keep the UI quiet.
+    if (tabs.size <= 1) return // Nothing to switch between â€” keep the UI quiet.
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -305,6 +306,7 @@ private fun SessionChipRow(viewModel: SandboxSessionViewModel) {
                     style = com.dorai.ai.ui.DoraiTypography.labelMedium,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -428,6 +430,7 @@ private fun SandboxSubTabSelector(
                     style = com.dorai.ai.ui.DoraiTypography.labelLarge,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
