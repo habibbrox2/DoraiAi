@@ -191,7 +191,7 @@ following values:
 
 #### Get download information about AI packs
 
-Use the   
+Use the
 
 [`getPackStates()`](https://developer.android.com/reference/com/google/android/play/core/aipacks/AiPackManager#getPackStates(java.util.List%3Cjava.lang.String%3E))
 method to determine the size of the download and whether the pack is already
@@ -560,7 +560,7 @@ group is automatically generated and shouldn't be defined explicitly.
 >     <config:device-selector ram-min-bytes="7000000000">
 >         <config:included-device-id brand="google" device="flame"/>
 >     </config:device-selector>
->   
+>
 > ```
 >
 > will create the condition for all devices with \> 7GB of RAM AND it
@@ -576,7 +576,7 @@ group is automatically generated and shouldn't be defined explicitly.
 >     <config:device-selector>
 >           <config:included-device-id brand="google" device="flame"/>
 >     </config:device-selector>
->   
+>
 > ```
 >
 > will create the condition for all devices with \> 7GB of RAM OR

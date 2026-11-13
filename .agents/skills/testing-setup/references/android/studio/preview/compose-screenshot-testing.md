@@ -181,7 +181,7 @@ integration or for the Gradle tasks.
 
 ### Try Android CLI to render a Compose preview
 
-Try [Android CLI](https://developer.android.com/tools/agents) if you're not using Android Studio or prefer to do things from the command line.  
+Try [Android CLI](https://developer.android.com/tools/agents) if you're not using Android Studio or prefer to do things from the command line.
 
 For example, use the [`android studio render-compose-preview`](https://developer.android.com/tools/agents/android-cli/commands/studio_render-compose-preview) command when you need to render a Compose preview for visual testing.
 
