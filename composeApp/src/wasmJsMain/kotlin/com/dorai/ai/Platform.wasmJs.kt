@@ -123,3 +123,10 @@ actual suspend fun saveFileToDevice(bytes: ByteArray, baseName: String, extensio
 
 // Web notifications API isn't wired up; stub.
 actual fun sendHeartbeatNotification(title: String, body: String) = Unit
+
+// Web notifications API isn't wired up; stub.
+actual fun sendAuthorizationNotification(
+    title: String,
+    body: String,
+    destination: AuthorizationDestination,
+) = Unit

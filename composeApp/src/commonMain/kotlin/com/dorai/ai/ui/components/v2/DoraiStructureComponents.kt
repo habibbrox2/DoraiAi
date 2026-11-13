@@ -30,10 +30,19 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,6 +56,7 @@ import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.chat_provider_cloud
 import dorai.composeapp.generated.resources.chat_provider_local
 import org.jetbrains.compose.resources.stringResource
+import kotlin.math.roundToInt
 
 /**
  * Scrollable pill tabs used across Settings, Workspace tabs, etc.
@@ -61,19 +71,43 @@ fun <T> DoraiPillTabs(
 ) {
     val colors = LocalDoraiColors.current
     val scrollState = rememberScrollState()
+    // Track each chip's offset/width so the selected one is always scrolled into view.
+    val itemMeasurements = remember { mutableStateMapOf<Int, Pair<Int, Int>>() }
+    var viewportWidth by remember { mutableIntStateOf(0) }
+    val allMeasured = itemMeasurements.size == items.size
+
+    LaunchedEffect(selectedItem, allMeasured) {
+        if (!allMeasured) return@LaunchedEffect
+        val index = items.indexOf(selectedItem)
+        if (index < 0) return@LaunchedEffect
+        val (x, width) = itemMeasurements[index] ?: return@LaunchedEffect
+        val start = scrollState.value
+        val end = start + viewportWidth
+        val target = when {
+            x < start -> x
+            x + width > end -> (x + width - viewportWidth)
+            else -> null
+        }
+        if (target != null) scrollState.animateScrollTo(target.coerceAtLeast(0))
+    }
 
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .onSizeChanged { viewportWidth = it.width }
             .horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.SM),
     ) {
-        items.forEach { item ->
+        items.forEachIndexed { index, item ->
             val isSelected = item == selectedItem
             val label = labelProvider(item)
 
             Box(
                 modifier = Modifier
+                    .onGloballyPositioned { coordinates ->
+                        itemMeasurements[index] =
+                            (coordinates.positionInParent().x.roundToInt() to coordinates.size.width)
+                    }
                     .defaultMinSize(minHeight = 48.dp)
                     .clip(CircleShape)
                     .background(if (isSelected) colors.primary else colors.surface)

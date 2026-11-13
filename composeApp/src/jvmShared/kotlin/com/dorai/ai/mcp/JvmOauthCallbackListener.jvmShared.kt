@@ -10,10 +10,22 @@ import java.net.Socket
  * JVM implementation of [OauthCallbackListener]. Shared by the Android and Desktop targets
  * through the `jvmShared` source set.
  *
- * Binds `127.0.0.1:0` (ephemeral port), accepts a single `GET /callback?code=...` request,
- * returns a tiny HTML page the user can close, and exposes the query parameters.
+ * Binds `127.0.0.1:0` (ephemeral port), accepts `GET /callback?code=...` requests and returns
+ * the branded hand-off page the user can close, and exposes the query parameters.
+ *
+ * The listener stays open until the real callback arrives: browsers sometimes probe
+ * `/favicon.ico` on the same origin first, and answering that request would otherwise consume
+ * the one-shot socket the OAuth handshake is waiting on.
  */
-internal object JvmOauthCallbackListener : OauthCallbackListener {
+internal class JvmOauthCallbackListener(
+    /** The MCP server being authorized; shown on the hand-off page when known. */
+    private val serverName: String?,
+    /**
+     * A deep link that re-opens the app (e.g. `dorai://oauth/done`), offered as a button on
+     * the hand-off page. Null on platforms without a handler for it (desktop).
+     */
+    private val returnUri: String? = null,
+) : OauthCallbackListener {
     private var socket: ServerSocket? = null
 
     override val port: Int get() = socket?.localPort ?: 0
@@ -31,8 +43,14 @@ internal object JvmOauthCallbackListener : OauthCallbackListener {
             current.soTimeout = (timeoutSeconds * 1000).toInt()
             kotlinx.coroutines.withTimeout(timeoutSeconds * 1000 + 1_000) {
                 current.use { listener ->
-                    val client = listener.accept()
-                    client.use(::handleClient)
+                    var handled: HandledRequest? = null
+                    // Only a real OAuth callback ends the handshake; anything else
+                    // (favicon, stray probe) gets a 404 and the loop continues.
+                    while (handled == null) {
+                        val client = listener.accept()
+                        handled = client.use(::handleClient).takeIf { it.isCallback }
+                    }
+                    handled.request
                 }
             }
         }
@@ -43,27 +61,38 @@ internal object JvmOauthCallbackListener : OauthCallbackListener {
         socket = null
     }
 
-    private fun handleClient(socket: Socket): OauthCallbackRequest {
+    private fun handleClient(socket: Socket): HandledRequest {
         val reader = BufferedReader(InputStreamReader(socket.getInputStream(), Charsets.UTF_8))
         val request = reader.readLine() ?: ""
-        val responseHtml = """
-            <!doctype html><html><head><meta charset="utf-8"><title>DORAI AI</title></head>
-            <body><h1>DORAI AI</h1><p>Authorization complete. You can close this tab and return to the app.</p></body></html>
-        """.trimIndent()
-        val body = responseHtml.encodeToByteArray()
-        val response = buildString {
-            appendLine("HTTP/1.1 200 OK")
+        val callback = parseCallbackLine(request)
+        if (!callback.isCallback) {
+            writeResponse(socket, status = "404 Not Found", body = "Not found".encodeToByteArray())
+            return HandledRequest(callback, isCallback = false)
+        }
+        val html = OauthCallbackPage.render(
+            serverName = serverName,
+            error = callback.error,
+            errorDescription = callback.errorDescription,
+            returnUri = returnUri,
+        )
+        writeResponse(socket, status = "200 OK", body = html.encodeToByteArray())
+        return HandledRequest(callback, isCallback = true)
+    }
+
+    private fun writeResponse(socket: Socket, status: String, body: ByteArray) {
+        val head = buildString {
+            appendLine("HTTP/1.1 $status")
             appendLine("Content-Type: text/html; charset=utf-8")
             appendLine("Content-Length: ${body.size}")
+            appendLine("Cache-Control: no-store")
             appendLine("Connection: close")
             appendLine()
         }.encodeToByteArray()
         socket.getOutputStream().apply {
-            write(response, 0, response.size)
+            write(head, 0, head.size)
             write(body, 0, body.size)
             flush()
         }
-        return parseCallbackLine(request)
     }
 
     private fun parseCallbackLine(request: String): OauthCallbackRequest {
@@ -78,7 +107,16 @@ internal object JvmOauthCallbackListener : OauthCallbackListener {
             errorDescription = queryParameter(query, "error_description"),
         )
     }
+
+    private data class HandledRequest(
+        val request: OauthCallbackRequest,
+        val isCallback: Boolean,
+    )
 }
+
+/** True when the request carries an OAuth result the handshake can act on. */
+private val OauthCallbackRequest.isCallback: Boolean
+    get() = !code.isNullOrBlank() || !state.isNullOrBlank() || !error.isNullOrBlank()
 
 private fun queryParameter(query: String, key: String): String? = query.split('&')
     .mapNotNull { part ->

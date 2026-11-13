@@ -3035,6 +3035,28 @@ class RemoteDataRepository(
         _openAssistRequested.value = false
     }
 
+    private val _openMcpSettingsRequested = MutableStateFlow(false)
+    override val openMcpSettingsRequested: StateFlow<Boolean> = _openMcpSettingsRequested
+
+    override fun requestOpenMcpSettings() {
+        _openMcpSettingsRequested.value = true
+    }
+
+    override fun consumeOpenMcpSettingsRequest() {
+        _openMcpSettingsRequested.value = false
+    }
+
+    private val _openGitHubSettingsRequested = MutableStateFlow(false)
+    override val openGitHubSettingsRequested: StateFlow<Boolean> = _openGitHubSettingsRequested
+
+    override fun requestOpenGitHubSettings() {
+        _openGitHubSettingsRequested.value = true
+    }
+
+    override fun consumeOpenGitHubSettingsRequest() {
+        _openGitHubSettingsRequested.value = false
+    }
+
     override fun confirmToolExecution(toolCallId: String, allowOnce: Boolean, alwaysAllow: Boolean, allowSession: Boolean) {
         val pending = pendingToolExecutions[toolCallId]
         if (pending != null) {

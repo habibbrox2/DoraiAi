@@ -28,6 +28,7 @@ import com.dorai.ai.inference.LocalModel
 import com.dorai.ai.inference.ModelImportError
 import com.dorai.ai.inference.ModelImportResult
 import com.dorai.ai.linux.LinuxDistro
+import com.dorai.ai.mcp.McpOAuthSession
 import com.dorai.ai.mcp.McpServerConfig
 import com.dorai.ai.network.tools.ToolInfo
 import com.dorai.ai.tools.CommonTools
@@ -380,6 +381,10 @@ class FakeDataRepository : DataRepository {
     private val mcpConnected = mutableSetOf<String>()
     private val mcpTools = mutableMapOf<String, List<ToolInfo>>()
 
+    /** Test hook: make the next (and subsequent) [connectMcpServer] calls fail, simulating a
+     *  live OAuth handshake whose `initialize()` is rejected by the server. */
+    var failMcpConnect = false
+
     override fun getMcpServers(): List<McpServerConfig> = mcpServers.toList()
 
     override suspend fun addMcpServer(name: String, url: String, headers: Map<String, String>): McpServerConfig {
@@ -407,12 +412,38 @@ class FakeDataRepository : DataRepository {
     }
 
     override suspend fun connectMcpServer(serverId: String): Result<List<ToolInfo>> {
+        if (failMcpConnect) return Result.failure(IllegalStateException("MCP connection failed"))
         mcpConnected.add(serverId)
         return Result.success(mcpTools[serverId] ?: emptyList())
     }
 
-    override suspend fun authorizeMcpServer(serverId: String): Result<Unit> = Result.success(Unit)
-    override fun revokeMcpServerOAuth(serverId: String) {}
+    override suspend fun authorizeMcpServer(serverId: String): Result<Unit> {
+        // Mirror the real implementation: a successful handshake persists an OAuth session
+        // on the stored config before the reconnect attempt.
+        val index = mcpServers.indexOfFirst { it.id == serverId }
+        if (index >= 0) {
+            val config = mcpServers[index]
+            mcpServers[index] = config.copy(
+                oauth = McpOAuthSession(
+                    resource = config.url,
+                    authorizationEndpoint = "https://example.com/oauth/authorize",
+                    tokenEndpoint = "https://example.com/oauth/token",
+                    clientId = "fake-client-id",
+                    scopes = listOf("mcp:tools"),
+                    accessToken = "fake-access-token",
+                    refreshToken = "fake-refresh-token",
+                    expiresAtEpochMs = Long.MAX_VALUE,
+                ),
+            )
+        }
+        return Result.success(Unit)
+    }
+
+    override fun revokeMcpServerOAuth(serverId: String) {
+        val index = mcpServers.indexOfFirst { it.id == serverId }
+        if (index >= 0) mcpServers[index] = mcpServers[index].copy(oauth = null)
+        mcpConnected.remove(serverId)
+    }
 
     override fun getMcpToolsForServer(serverId: String): List<ToolInfo> = mcpTools[serverId] ?: emptyList()
 
@@ -607,6 +638,22 @@ class FakeDataRepository : DataRepository {
     }
     override fun consumeOpenAssistRequest() {
         openAssistRequested.value = false
+    }
+
+    override val openMcpSettingsRequested: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    override fun requestOpenMcpSettings() {
+        openMcpSettingsRequested.value = true
+    }
+    override fun consumeOpenMcpSettingsRequest() {
+        openMcpSettingsRequested.value = false
+    }
+
+    override val openGitHubSettingsRequested: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    override fun requestOpenGitHubSettings() {
+        openGitHubSettingsRequested.value = true
+    }
+    override fun consumeOpenGitHubSettingsRequest() {
+        openGitHubSettingsRequested.value = false
     }
 
     override val pendingShareText: MutableStateFlow<String?> = MutableStateFlow(null)

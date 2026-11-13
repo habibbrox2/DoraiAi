@@ -40,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.liveRegion
@@ -72,10 +73,10 @@ import dorai.composeapp.generated.resources.settings_connectors_add
 import dorai.composeapp.generated.resources.settings_connectors_description
 import dorai.composeapp.generated.resources.settings_connectors_empty
 import dorai.composeapp.generated.resources.settings_connectors_no_match
-import dorai.composeapp.generated.resources.settings_connectors_search
 import dorai.composeapp.generated.resources.settings_connectors_search_discover
 import dorai.composeapp.generated.resources.settings_connectors_setup_required
 import dorai.composeapp.generated.resources.settings_connectors_top
+import dorai.composeapp.generated.resources.settings_connectors_yours
 import dorai.composeapp.generated.resources.settings_library_publisher
 import dorai.composeapp.generated.resources.settings_mcp_add
 import dorai.composeapp.generated.resources.settings_mcp_add_header
@@ -96,6 +97,8 @@ import dorai.composeapp.generated.resources.settings_mcp_server_url
 import dorai.composeapp.generated.resources.settings_mcp_status_connected
 import dorai.composeapp.generated.resources.settings_mcp_status_connecting
 import dorai.composeapp.generated.resources.settings_mcp_status_error
+import dorai.composeapp.generated.resources.settings_mcp_tool_count
+import dorai.composeapp.generated.resources.settings_mcp_tool_enabled_count
 import dorai.composeapp.generated.resources.status_not_checked
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.launch
@@ -117,166 +120,141 @@ internal fun McpServersSection(
     onRevokeMcpServerOAuth: (String) -> Unit,
 ) {
     var pendingRemoval by remember { mutableStateOf<McpServerUiState?>(null) }
-    var scope by remember { mutableStateOf(ConnectorLibraryScope.Yours) }
     var query by remember { mutableStateOf("") }
     var onlyNoSetup by remember { mutableStateOf(false) }
     var prefillPopular by remember { mutableStateOf<PopularMcpServer?>(null) }
 
+    // One scroll with two sections: the connectors you added and the curated catalog.
+    // The old "Yours / Discover" toggle read like a second tab row and split the library
+    // in two, so both lists now live in one scroll under their own heading.
+    val installedServers = remember(mcpServers, query) {
+        if (query.isBlank()) {
+            mcpServers
+        } else {
+            mcpServers.filter { server ->
+                server.name.contains(query, ignoreCase = true) ||
+                    server.url.contains(query, ignoreCase = true)
+            }
+        }
+    }
+    val popularServers = remember(query, onlyNoSetup) {
+        popularMcpServers.filter { server ->
+            (!onlyNoSetup || !server.requiresAuth) &&
+                (
+                    query.isBlank() ||
+                        server.name.contains(query, ignoreCase = true) ||
+                        server.description.contains(query, ignoreCase = true)
+                    )
+        }
+    }
+
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(Res.string.settings_connectors),
-            style = DoraiTypography.titleLarge,
-            color = LocalDesignColorTokens.current.textPrimary,
-        )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = stringResource(Res.string.settings_connectors_description),
-            style = DoraiTypography.bodySmall,
-            color = LocalDesignColorTokens.current.textSecondary,
+        SettingsSectionHeader(
+            title = stringResource(Res.string.settings_connectors),
+            description = stringResource(Res.string.settings_connectors_description),
         )
 
         Spacer(Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            ConnectorScopeToggle(
-                selected = scope,
-                onSelect = {
-                    scope = it
-                    query = ""
-                },
-            )
-            Spacer(Modifier.weight(1f))
-            Text(
-                text = if (scope == ConnectorLibraryScope.Yours) {
-                    mcpServers.size.toString()
-                } else {
-                    popularMcpServers.size.toString()
-                },
-                style = DoraiTypography.labelMedium,
-                color = LocalDesignColorTokens.current.textTertiary,
-            )
-        }
-
-        Spacer(Modifier.height(12.dp))
-
         ConnectorSearchBar(
             query = query,
             onQueryChange = { query = it },
-            placeholder = if (scope == ConnectorLibraryScope.Yours) {
-                stringResource(Res.string.settings_connectors_search)
-            } else {
-                stringResource(Res.string.settings_connectors_search_discover)
-            },
+            placeholder = stringResource(Res.string.settings_connectors_search_discover),
             addContentDescription = stringResource(Res.string.settings_connectors_add),
             onAdd = {
                 prefillPopular = null
                 onShowAddDialog(true)
             },
-            showFilter = scope == ConnectorLibraryScope.Discover,
+            showFilter = true,
             isFilterActive = onlyNoSetup,
             onToggleFilter = { onlyNoSetup = !onlyNoSetup },
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(20.dp))
 
-        when (scope) {
-            ConnectorLibraryScope.Yours -> {
-                val visibleServers = if (query.isBlank()) {
-                    mcpServers
-                } else {
-                    mcpServers.filter { server ->
-                        server.name.contains(query, ignoreCase = true) ||
-                            server.url.contains(query, ignoreCase = true)
-                    }
-                }
-                if (mcpServers.isEmpty()) {
-                    CollectionEmptyState(
-                        message = stringResource(Res.string.settings_connectors_empty),
-                    )
-                } else if (visibleServers.isEmpty()) {
-                    CollectionEmptyState(
-                        message = stringResource(Res.string.settings_connectors_no_match),
-                    )
-                } else {
-                    for (server in visibleServers) {
-                        McpServerCard(
-                            server = server,
-                            onToggle = { enabled -> onToggleMcpServer(server.id, enabled) },
-                            onRemove = { pendingRemoval = server },
-                            onRefresh = { onRefreshMcpServer(server.id) },
-                            onToggleTool = onToggleTool,
-                            onAuthorize = { onAuthorizeMcpServer(server.id) },
-                            onRevoke = { onRevokeMcpServerOAuth(server.id) },
-                        )
-                        Spacer(Modifier.height(8.dp))
-                    }
-                }
-            }
+        // Connectors you added
+        SettingsSubsectionHeader(
+            title = stringResource(Res.string.settings_connectors_yours),
+            count = mcpServers.size,
+        )
+        Spacer(Modifier.height(8.dp))
+        when {
+            mcpServers.isEmpty() -> CollectionEmptyState(
+                message = stringResource(Res.string.settings_connectors_empty),
+            )
 
-            ConnectorLibraryScope.Discover -> {
-                val visibleServers = remember(query, onlyNoSetup) {
-                    popularMcpServers.filter { server ->
-                        (!onlyNoSetup || !server.requiresAuth) &&
-                            (
-                                query.isBlank() ||
-                                    server.name.contains(query, ignoreCase = true) ||
-                                    server.description.contains(query, ignoreCase = true)
-                                )
-                    }
-                }
-                if (visibleServers.isEmpty()) {
+            installedServers.isEmpty() -> CollectionEmptyState(
+                message = stringResource(Res.string.settings_connectors_no_match),
+            )
+
+            else -> {
+                for (server in installedServers) {
+                    McpServerCard(
+                        server = server,
+                        onToggle = { enabled -> onToggleMcpServer(server.id, enabled) },
+                        onRemove = { pendingRemoval = server },
+                        onRefresh = { onRefreshMcpServer(server.id) },
+                        onToggleTool = onToggleTool,
+                        onAuthorize = { onAuthorizeMcpServer(server.id) },
+                        onRevoke = { onRevokeMcpServerOAuth(server.id) },
+                    )
                     Spacer(Modifier.height(8.dp))
-                    CollectionEmptyState(
-                        message = stringResource(Res.string.settings_connectors_no_match),
-                    )
-                } else {
-                    Text(
-                        text = stringResource(Res.string.settings_connectors_top),
-                        style = DoraiTypography.titleSmall,
-                        color = LocalDesignColorTokens.current.textSecondary,
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    visibleServers.forEachIndexed { index, server ->
-                        val isAdded = mcpServers.any { saved ->
-                            matchesPopularMcpUrl(saved.url, server.url)
-                        }
-                        val publisher = connectorPublisher(server)
-                        val meta = buildString {
-                            append(stringResource(Res.string.settings_library_publisher, publisher))
-                            if (server.requiresAuth) {
-                                append(" · ")
-                                append(stringResource(Res.string.settings_connectors_setup_required))
-                            }
-                        }
-                        ConnectorDiscoverRow(
-                            name = server.name,
-                            description = server.description,
-                            meta = meta,
-                            isAdded = isAdded,
-                            addContentDescription = stringResource(
-                                Res.string.settings_connectors_add,
-                            ),
-                            onAdd = {
-                                if (server.requiresAuth) {
-                                    prefillPopular = server
-                                    onShowAddDialog(true)
-                                } else {
-                                    onAddPopularMcpServer(server)
-                                }
-                            },
-                        )
-                        if (index != visibleServers.lastIndex) {
-                            HorizontalDivider(
-                                color = LocalDesignColorTokens.current.borderSubtle,
-                            )
-                        }
-                    }
                 }
             }
         }
+
+        Spacer(Modifier.height(20.dp))
+
+        // Curated catalog
+        SettingsSubsectionHeader(
+            title = stringResource(Res.string.settings_connectors_top),
+            count = popularServers.size,
+        )
+        Spacer(Modifier.height(8.dp))
+        if (popularServers.isEmpty()) {
+            CollectionEmptyState(
+                message = stringResource(Res.string.settings_connectors_no_match),
+            )
+        } else {
+            popularServers.forEachIndexed { index, server ->
+                val isAdded = mcpServers.any { saved ->
+                    matchesPopularMcpUrl(saved.url, server.url)
+                }
+                val publisher = connectorPublisher(server)
+                val meta = buildString {
+                    append(stringResource(Res.string.settings_library_publisher, publisher))
+                    if (server.requiresAuth) {
+                        append(" · ")
+                        append(stringResource(Res.string.settings_connectors_setup_required))
+                    }
+                }
+                ConnectorDiscoverRow(
+                    name = server.name,
+                    description = server.description,
+                    meta = meta,
+                    isAdded = isAdded,
+                    addContentDescription = stringResource(
+                        Res.string.settings_connectors_add,
+                    ),
+                    onAdd = {
+                        if (server.requiresAuth) {
+                            prefillPopular = server
+                            onShowAddDialog(true)
+                        } else {
+                            onAddPopularMcpServer(server)
+                        }
+                    },
+                )
+                if (index != popularServers.lastIndex) {
+                    HorizontalDivider(
+                        color = LocalDesignColorTokens.current.borderSubtle,
+                    )
+                }
+            }
+        }
+
+        // Keep the last card clear of the bottom navigation bar when the list scrolls to its end.
+        Spacer(Modifier.height(64.dp))
     }
 
     pendingRemoval?.let { target ->
@@ -346,6 +324,9 @@ private fun McpServerCard(
     onRevoke: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    // One tool is expanded at a time: a long description must not push the rest of the
+    // server card out of view.
+    var expandedToolId by remember { mutableStateOf<String?>(null) }
 
     Card(
         onClick = { expanded = !expanded },
@@ -361,32 +342,6 @@ private fun McpServerCard(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Status badge: text + color, standardized across tools/skills/sandbox
-                // (Plan 4, Phase 1). Disabled is its own state, not an error.
-                val status = when {
-                    !server.isEnabled -> OperationalStatus.Disabled
-                    server.connectionStatus == McpConnectionStatus.Connected -> OperationalStatus.Connected
-                    server.connectionStatus == McpConnectionStatus.Connecting -> OperationalStatus.Connecting
-                    server.connectionStatus == McpConnectionStatus.Error -> OperationalStatus.Error
-                    else -> OperationalStatus.Ready
-                }
-                val statusLabel = when {
-                    !server.isEnabled -> "Disabled"
-
-                    server.connectionStatus == McpConnectionStatus.Connected ->
-                        stringResource(Res.string.settings_mcp_status_connected)
-
-                    server.connectionStatus == McpConnectionStatus.Connecting ->
-                        stringResource(Res.string.settings_mcp_status_connecting)
-
-                    server.connectionStatus == McpConnectionStatus.Error ->
-                        stringResource(Res.string.settings_mcp_status_error)
-
-                    else -> stringResource(Res.string.status_not_checked)
-                }
-                StatusBadge(label = statusLabel, status = status)
-                Spacer(Modifier.width(12.dp))
-
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = server.name,
@@ -415,6 +370,33 @@ private fun McpServerCard(
                     tint = LocalDesignColorTokens.current.textSecondary,
                 )
             }
+
+            Spacer(Modifier.height(8.dp))
+
+            // Status badge on its own line — a long Bengali label (e.g. "এখনও পরীক্ষা করা হয়নি")
+            // must not squeeze the name/URL column or wrap the card layout.
+            val status = when {
+                !server.isEnabled -> OperationalStatus.Disabled
+                server.connectionStatus == McpConnectionStatus.Connected -> OperationalStatus.Connected
+                server.connectionStatus == McpConnectionStatus.Connecting -> OperationalStatus.Connecting
+                server.connectionStatus == McpConnectionStatus.Error -> OperationalStatus.Error
+                else -> OperationalStatus.Ready
+            }
+            val statusLabel = when {
+                !server.isEnabled -> "Disabled"
+
+                server.connectionStatus == McpConnectionStatus.Connected ->
+                    stringResource(Res.string.settings_mcp_status_connected)
+
+                server.connectionStatus == McpConnectionStatus.Connecting ->
+                    stringResource(Res.string.settings_mcp_status_connecting)
+
+                server.connectionStatus == McpConnectionStatus.Error ->
+                    stringResource(Res.string.settings_mcp_status_error)
+
+                else -> stringResource(Res.string.status_not_checked)
+            }
+            StatusBadge(label = statusLabel, status = status)
 
             if (expanded) {
                 Spacer(Modifier.height(12.dp))
@@ -453,50 +435,76 @@ private fun McpServerCard(
                     Spacer(Modifier.height(8.dp))
                 }
 
-                // Status text
-                val statusText = when (server.connectionStatus) {
-                    McpConnectionStatus.Connected -> stringResource(Res.string.settings_mcp_status_connected)
-                    McpConnectionStatus.Connecting -> stringResource(Res.string.settings_mcp_status_connecting)
-                    McpConnectionStatus.Error -> stringResource(Res.string.settings_mcp_status_error)
-                    McpConnectionStatus.Unknown -> ""
-                }
-                if (statusText.isNotEmpty()) {
-                    Text(
-                        text = statusText,
-                        style = DoraiTypography.bodySmall,
-                        color = when (server.connectionStatus) {
-                            McpConnectionStatus.Error -> DangerAlert
-                            else -> LocalDesignColorTokens.current.textSecondary
-                        },
-                    )
-                    Spacer(Modifier.height(8.dp))
-                }
-
                 // Tools list
+                //
+                // A single MCP tool can carry a paragraph-long description (the Cloudflare
+                // docs tool ships a full usage guide), so the description is clamped to two
+                // lines and the row expands on tap.
                 if (server.tools.isNotEmpty()) {
+                    val enabledCount = server.tools.count { it.isEnabled }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.settings_mcp_tool_count, server.tools.size),
+                            style = DoraiTypography.titleSmall,
+                            color = LocalDesignColorTokens.current.textSecondary,
+                        )
+                        Text(
+                            text = stringResource(Res.string.settings_mcp_tool_enabled_count, enabledCount),
+                            style = DoraiTypography.labelSmall,
+                            color = LocalDesignColorTokens.current.textTertiary,
+                        )
+                    }
+                    Spacer(Modifier.height(4.dp))
                     for (tool in server.tools) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = tool.name,
-                                    style = DoraiTypography.bodyMedium,
-                                    color = LocalDesignColorTokens.current.textPrimary,
+                        val isToolExpanded = expandedToolId == tool.id
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(SettingsShapes.row)
+                                .background(
+                                    if (isToolExpanded) {
+                                        LocalDesignColorTokens.current.surfaceRaised.copy(alpha = 0.45f)
+                                    } else {
+                                        Color.Transparent
+                                    },
                                 )
-                                if (tool.description.isNotEmpty()) {
+                                .clickable(
+                                    role = Role.Button,
+                                    onClick = { expandedToolId = if (isToolExpanded) null else tool.id },
+                                )
+                                .handCursor()
+                                .padding(horizontal = 10.dp, vertical = 8.dp),
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = tool.description,
-                                        style = DoraiTypography.bodySmall,
-                                        color = LocalDesignColorTokens.current.textSecondary,
+                                        text = tool.name,
+                                        style = DoraiTypography.bodyMedium,
+                                        color = LocalDesignColorTokens.current.textPrimary,
                                     )
+                                    if (tool.description.isNotEmpty()) {
+                                        Text(
+                                            text = tool.description,
+                                            style = DoraiTypography.bodySmall,
+                                            color = LocalDesignColorTokens.current.textSecondary,
+                                            maxLines = if (isToolExpanded) Int.MAX_VALUE else 2,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+                                    }
                                 }
+                                Spacer(Modifier.width(8.dp))
+                                Switch(
+                                    checked = tool.isEnabled,
+                                    onCheckedChange = { enabled -> onToggleTool(tool.id, enabled) },
+                                )
                             }
-                            Switch(
-                                checked = tool.isEnabled,
-                                onCheckedChange = { enabled -> onToggleTool(tool.id, enabled) },
-                            )
                         }
                     }
                 } else if (server.connectionStatus == McpConnectionStatus.Connected) {

@@ -1150,6 +1150,7 @@ class SettingsViewModel(
                 connectMcpServerWithStatus(serverId)
             } else {
                 updateMcpConnectionStatus(serverId, McpConnectionStatus.Error)
+                refreshMcpServers()
             }
         }
     }
@@ -1244,10 +1245,13 @@ class SettingsViewModel(
         val result = dataRepository.connectMcpServer(serverId)
         if (result.isSuccess) {
             updateMcpConnectionStatus(serverId, McpConnectionStatus.Connected)
-            refreshMcpServers()
         } else {
             updateMcpConnectionStatus(serverId, McpConnectionStatus.Error)
         }
+        // A connect that fails after a successful OAuth handshake still leaves a persisted
+        // session on the server — rebuild so the UI shows it (revoke/re-auth) instead of a
+        // stale "not authorized" state.
+        refreshMcpServers()
     }
 
     private fun updateMcpConnectionStatus(serverId: String, status: McpConnectionStatus) {

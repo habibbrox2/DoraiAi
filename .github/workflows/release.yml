@@ -41,6 +41,10 @@ env:
   REPO_OWNER: habibbrox2
   REPO_NAME: DoraiAi
   KEYSTORE_PATH: ${{ github.workspace }}/dorai-release.jks
+  # Build-time GitHub OAuth App client id for the Device Flow integration. The build reads
+  # it from the environment; when the secret is absent the generated constant stays null and
+  # the integration fails closed. It is a public identifier (no client secret is used).
+  DORAI_GITHUB_CLIENT_ID: ${{ secrets.DORAI_GITHUB_CLIENT_ID }}
 
 jobs:
   ###############################################################################

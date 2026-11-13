@@ -153,6 +153,18 @@ class MainActivity : ComponentActivity() {
             // the deep-link after ChatViewModel has already consumed it.
             intent.removeExtra(EXTRA_OPEN_HEARTBEAT)
         }
+        if (intent?.action == Intent.ACTION_VIEW && intent.data?.scheme == DeepLinks.SCHEME) {
+            // The MCP OAuth hand-off page links back into the app. The link carries no
+            // credential: the authorization code went through the loopback listener, this
+            // only asks the app to show the connector list.
+            val dataRepository: DataRepository = get()
+            when (intent.data?.host) {
+                DeepLinks.OAUTH_HOST -> dataRepository.requestOpenMcpSettings()
+                DeepLinks.GITHUB_HOST -> dataRepository.requestOpenGitHubSettings()
+            }
+            // Clear the data so a rotation does not re-apply the deep link.
+            intent.data = null
+        }
         if (intent?.action == Intent.ACTION_ASSIST) {
             val dataRepository: DataRepository = get()
             dataRepository.requestOpenAssist()

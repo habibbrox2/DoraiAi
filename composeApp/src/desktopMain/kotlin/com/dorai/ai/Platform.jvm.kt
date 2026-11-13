@@ -270,3 +270,15 @@ actual fun sendHeartbeatNotification(title: String, body: String) {
         // notify-send missing, AWT headless, sandboxed osascript, etc. — fall back silently.
     }
 }
+
+/**
+ * The desktop has no deep link back into the app window, so the notice only tells the user
+ * that the authorization finished; the same OS surface as the heartbeat notice is used.
+ */
+actual fun sendAuthorizationNotification(
+    title: String,
+    body: String,
+    destination: AuthorizationDestination,
+) {
+    sendHeartbeatNotification(title, body)
+}

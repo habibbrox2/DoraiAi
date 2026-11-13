@@ -1,3 +1,39 @@
+## DORAI AI - OAuth hand-off page and Settings library redesign (Unreleased)
+
+### Fixed
+- **The MCP OAuth hand-off page is no longer a bare line of text**: after the browser is redirected back to the app, the loopback listener answered with `<h1>DORAI AI</h1>` and a plain paragraph. It now serves a branded page with the D-Shape mark, a success (or failure) badge, the name of the server that was authorized and a "Return to DORAI AI" hint. The page is fully self-contained — the mark, the icon and the favicon are inlined — so the browser never spends a second request on the one-shot socket the handshake is waiting on, and a stray `/favicon.ico` probe is answered with a 404 instead of swallowing the OAuth callback.
+- **An MCP tool description no longer floods the card**: a single tool can ship a paragraph-long usage guide (the Cloudflare documentation tool does), and the full text was rendered inline, pushing the rest of the server card out of view. Descriptions are clamped to two lines and expand on tap; the tool count and the number of enabled tools sit above the list.
+- **The repository list no longer looks like loose text**: repositories are rows with a border, a selected state and a count next to the heading; an empty list renders the explanatory empty state instead of a bare sentence.
+- **The MCP card no longer repeats its status**: the state was shown twice — once as a status badge and again as a line of text under it. Only the badge remains.
+
+### Changed
+- **The GitHub tab opens with a hero card**: the GitHub mark, a headline that states the current state, a status badge (Not connected / Waiting for authorization / Connected / Connection failed), the description and the single action that changes it (Connect / Disconnect) sit in one card above the error, installations and repository list. The section no longer repeats the "GitHub" title the category chip already shows.
+- **Skills is one scroll with two sections**: "Your skills" and "Top skills" now appear in one list under their own headings, each with its own count, with a single search field filtering both — the same shape as Connectors. The **Yours / Discover** toggle is gone; it read like a second tab row inside the library shell and split the catalog in two. The registry is fetched once, when the section is opened, instead of when a scope was toggled.
+- **Settings headings no longer repeat the page title**: each block (Plugins, Skills, Connectors) has one heading that carries its own count and description, so the page never shows the same title twice.
+- **"Request an Integration" closes the Tools page**: the card used to sit between the plugin grid and the skills list; it now sits at the very bottom.
+
+### Added
+- **The OAuth page brings you back into the app**: on Android the hand-off page offers a "Return to DORAI AI" button and attempts the jump on its own; both open the app through the new `dorai://oauth/done` deep link and land on the Integrations / MCP settings. The link carries no credential — the authorization code travels over the loopback socket — so it can only ask the app to show that screen.
+- **A GitHub authorization now announces itself**: the device flow finishes in the browser, so the app posts a "GitHub connected" notification; tapping it opens the app on the GitHub settings through the `dorai://github/done` deep link.
+
+---
+## DORAI AI - Connectors library, MCP OAuth state and GitHub client-id wiring (Unreleased)
+
+### Fixed
+- **A completed MCP OAuth handshake no longer looks unauthorized**: the server list was only rebuilt when the follow-up connection succeeded, so a browser authorization that finished while the reconnect failed left the card showing "Authorize" again although a session had already been stored. The list is now rebuilt on every path, so the card shows the stored session (authorized badge + **Revoke OAuth**) next to the connection failure — the user can retry or revoke instead of re-authorizing blindly.
+- **Bengali "Connect to GitHub" label no longer overlaps**: the label was `GitHubে সংযুক্ত করুন` — a Latin word followed directly by the Bengali pre-base vowel sign, which the shaping engine detached and drew on top of the neighbouring glyphs. It is now `GitHub-এ সংযুক্ত করুন` (the hyphenated form used elsewhere in the app).
+- **The GitHub section no longer shows its title twice**: the category heading already renders "GitHub", and the section rendered a second one on top of it. The section now starts with its description.
+
+### Changed
+- **Connectors is one scroll with two sections**: "Your connectors" (the servers you added) and "Top connectors" (the curated catalog) now appear in one list under their own headings, each with its own count. The old **Yours / Discover** toggle inside the Connectors tab read like a second tab row next to the category chips and split the library in two; one search field now filters both sections.
+- **The connector status badge sits under the server name instead of squeezing it**: a long Bengali status ("এখনও পরীক্ষা করা হয়নি") used to push the server name and URL to the right edge of the card.
+- **The Skills tab is always present**: skills run inside the Linux sandbox, so on a platform without it the tab used to disappear without a word. It now renders the sandbox notice with a link to the sandbox setup, so a capability is never hidden silently.
+- **The selected category chip scrolls into view**: picking a category near the edge of the chip row left it clipped; the chip row now scrolls the selection into view on both the Settings and Workspace tabs.
+
+### Added
+- **Build-time GitHub client id**: the GitHub Device Flow integration could never be used because the client id was hardcoded to `null` in the source tree with no way to supply one. The Gradle build now resolves it from `-Pdorai.github.clientId=...` or the `DORAI_GITHUB_CLIENT_ID` environment variable — CI passes the variable from a repository secret — and generates the `GitHubBuildConfig` constant that the app reads. Nothing is committed; without a value the build stays fail-closed exactly as before.
+
+---
 ## DORAI AI - Bengali Resource Canonical Form and Locale Coverage Tooling (Unreleased)
 
 ### Fixed

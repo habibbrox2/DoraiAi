@@ -305,6 +305,25 @@ interface DataRepository {
     fun consumeOpenAssistRequest()
 
     /**
+     * Pulse that fires when the app is re-opened from the MCP OAuth hand-off page (the
+     * `dorai://oauth/done` deep link). `true` means "show the Integrations / MCP settings
+     * now", then call [consumeOpenMcpSettingsRequest]. Collected by the app shell so the
+     * user lands on the connector they just authorized instead of the home screen.
+     */
+    val openMcpSettingsRequested: StateFlow<Boolean>
+    fun requestOpenMcpSettings()
+    fun consumeOpenMcpSettingsRequest()
+
+    /**
+     * Pulse that fires when the app is re-opened after a GitHub authorization completed
+     * (the `dorai://github/done` deep link). `true` means "show the GitHub settings now",
+     * then call [consumeOpenGitHubSettingsRequest].
+     */
+    val openGitHubSettingsRequested: StateFlow<Boolean>
+    fun requestOpenGitHubSettings()
+    fun consumeOpenGitHubSettingsRequest()
+
+    /**
      * Pulse that fires when another app shares plain text into DORAI AI via Android
      * `ACTION_SEND`. Non-null means "start a fresh chat, put this text in the
      * composer, then call [consumeOpenShareRequest]". Collected by `ChatViewModel`

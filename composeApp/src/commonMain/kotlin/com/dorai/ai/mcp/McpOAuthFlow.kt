@@ -13,7 +13,7 @@ internal object McpOAuthFlow {
         server: McpServerConfig,
         clientFactory: () -> HttpClient,
     ): Result<McpServerConfig> {
-        val listener = createOauthCallbackListener()
+        val listener = createOauthCallbackListener(server.name)
         return runCatching {
             listener.start()
             val endpoints = McpOAuth.discover(server.url, clientFactory())

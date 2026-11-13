@@ -4,10 +4,13 @@ package com.dorai.ai.mcp
  * A one-shot loopback HTTP listener used during the OAuth authorization-code flow.
  *
  * The browser opens `$authorizationEndpoint?...redirect_uri=$port/callback`; the listener
- * captures the `code`/`state` query parameters from the single request that hits `/callback`
+ * captures the `code`/`state` query parameters from the request that hits `/callback`
  * and resolves the waiting authorization flow.
+ *
+ * @param serverName the MCP server being authorized; platforms that render a hand-off page
+ *   show it so the user can confirm which connector was approved.
  */
-internal expect fun createOauthCallbackListener(): OauthCallbackListener
+internal expect fun createOauthCallbackListener(serverName: String?): OauthCallbackListener
 
 internal interface OauthCallbackListener {
     /** The ephemeral port the listener is bound to (0 until started). */

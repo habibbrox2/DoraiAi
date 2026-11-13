@@ -7,10 +7,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -19,6 +22,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -55,9 +59,16 @@ import com.dorai.ai.github.GitHubIntegrationViewModel
 import com.dorai.ai.github.GitHubRepository
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.ui.DoraiTypography
+import com.dorai.ai.ui.components.CollectionEmptyState
+import com.dorai.ai.ui.components.OperationalStatus
+import com.dorai.ai.ui.components.StatusBadge
+import com.dorai.ai.ui.doraiAdaptiveCardBorder
+import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.rememberCopyToClipboard
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.github_mark
+import dorai.composeapp.generated.resources.settings_github_account_connected
 import dorai.composeapp.generated.resources.settings_github_cancel_flow
 import dorai.composeapp.generated.resources.settings_github_clear_selection
 import dorai.composeapp.generated.resources.settings_github_clone_button
@@ -88,6 +99,7 @@ import dorai.composeapp.generated.resources.settings_github_error_not_configured
 import dorai.composeapp.generated.resources.settings_github_error_rate_limited
 import dorai.composeapp.generated.resources.settings_github_error_section_title
 import dorai.composeapp.generated.resources.settings_github_error_unauthorized
+import dorai.composeapp.generated.resources.settings_github_hero_title
 import dorai.composeapp.generated.resources.settings_github_installations
 import dorai.composeapp.generated.resources.settings_github_last_sync
 import dorai.composeapp.generated.resources.settings_github_loading
@@ -102,7 +114,6 @@ import dorai.composeapp.generated.resources.settings_github_refresh_repositories
 import dorai.composeapp.generated.resources.settings_github_refresh_status
 import dorai.composeapp.generated.resources.settings_github_repositories
 import dorai.composeapp.generated.resources.settings_github_retry
-import dorai.composeapp.generated.resources.settings_github_section_title
 import dorai.composeapp.generated.resources.settings_github_signed_in
 import dorai.composeapp.generated.resources.settings_github_sync
 import dorai.composeapp.generated.resources.settings_github_user_code
@@ -111,6 +122,7 @@ import dorai.composeapp.generated.resources.settings_github_waiting_title
 import kotlinx.coroutines.delay
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -123,11 +135,6 @@ internal fun GitHubSection() {
         Column(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(
-                text = stringResource(Res.string.settings_github_section_title),
-                style = DoraiTypography.titleLarge,
-                color = colors.textPrimary,
-            )
             Text(
                 text = stringResource(Res.string.settings_github_not_supported),
                 style = DoraiTypography.bodyMedium,
@@ -159,64 +166,106 @@ internal fun GitHubSection() {
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text(
-            text = stringResource(Res.string.settings_github_section_title),
-            style = DoraiTypography.titleLarge,
-            color = colors.textPrimary,
-        )
-        Text(
-            text = stringResource(Res.string.settings_github_description),
-            style = DoraiTypography.bodyMedium,
-            color = colors.textSecondary,
-        )
+        // Hero card: the GitHub mark, the current state and the one action that changes it.
+        // The category chip already says "GitHub", so the headline states the *state* instead
+        // of repeating the name.
+        val isConnected = state.connectionStatus == GitHubConnectionStatus.Connected
+        val isWaiting = state.connectionStatus == GitHubConnectionStatus.WaitingForDevice
+        val isFailed = state.connectionStatus == GitHubConnectionStatus.Error
+        val headline = when {
+            isConnected -> state.user?.login?.let {
+                stringResource(Res.string.settings_github_signed_in, it)
+            } ?: stringResource(Res.string.settings_github_account_connected)
 
-        // Connection status + connect/disconnect
-        Row(
+            isWaiting -> stringResource(Res.string.settings_github_waiting_title)
+
+            else -> stringResource(Res.string.settings_github_hero_title)
+        }
+        val statusLabel = when {
+            isConnected -> stringResource(Res.string.settings_github_connected)
+            isWaiting -> stringResource(Res.string.settings_github_waiting_title)
+            isFailed -> stringResource(Res.string.settings_github_error_section_title)
+            else -> stringResource(Res.string.settings_github_not_connected)
+        }
+        val statusKind = when {
+            isConnected -> OperationalStatus.Connected
+            isWaiting -> OperationalStatus.Connecting
+            isFailed -> OperationalStatus.Error
+            else -> OperationalStatus.NeedsSetup
+        }
+
+        Card(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            colors = doraiAdaptiveCardColors(),
+            border = doraiAdaptiveCardBorder(),
         ) {
-            Text(
-                text = when {
-                    state.connectionStatus == GitHubConnectionStatus.Connected -> stringResource(Res.string.settings_github_connected)
-                    state.connectionStatus == GitHubConnectionStatus.WaitingForDevice -> stringResource(Res.string.settings_github_waiting_title)
-                    else -> stringResource(Res.string.settings_github_not_connected)
-                },
-                style = DoraiTypography.bodyMedium,
-                color = colors.textPrimary,
-                modifier = Modifier.weight(1f, fill = false),
-            )
-            if (state.connectionStatus == GitHubConnectionStatus.Connected) {
-                OutlinedButton(
-                    onClick = { showDisconnectConfirm.value = true },
-                ) {
-                    Text(text = stringResource(Res.string.settings_github_disconnect))
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(52.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(colors.surfaceRaised)
+                            .border(1.dp, colors.borderSubtle, RoundedCornerShape(16.dp)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = vectorResource(Res.drawable.github_mark),
+                            contentDescription = null,
+                            tint = colors.textPrimary,
+                            modifier = Modifier.size(26.dp),
+                        )
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = headline,
+                            style = DoraiTypography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = colors.textPrimary,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        StatusBadge(label = statusLabel, status = statusKind)
+                    }
                 }
-            } else if (state.connectionStatus != GitHubConnectionStatus.WaitingForDevice) {
-                Button(
-                    onClick = { vm.connect() },
-                    enabled = !state.isLoading,
+
+                Text(
+                    text = stringResource(Res.string.settings_github_description),
+                    style = DoraiTypography.bodySmall,
+                    color = colors.textSecondary,
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
                 ) {
-                    Text(
-                        text = if (state.isLoading) {
-                            stringResource(Res.string.settings_github_connecting)
-                        } else {
-                            stringResource(Res.string.settings_github_connect)
-                        },
-                    )
+                    if (isConnected) {
+                        OutlinedButton(onClick = { showDisconnectConfirm.value = true }) {
+                            Text(text = stringResource(Res.string.settings_github_disconnect))
+                        }
+                    } else if (!isWaiting) {
+                        Button(
+                            onClick = { vm.connect() },
+                            enabled = !state.isLoading,
+                        ) {
+                            Text(
+                                text = if (state.isLoading) {
+                                    stringResource(Res.string.settings_github_connecting)
+                                } else {
+                                    stringResource(Res.string.settings_github_connect)
+                                },
+                            )
+                        }
+                    }
                 }
             }
         }
 
         // Signed-in identity + installations (Connected only)
         if (state.connectionStatus == GitHubConnectionStatus.Connected) {
-            state.user?.let { user ->
-                Text(
-                    text = stringResource(Res.string.settings_github_signed_in, user.login),
-                    style = DoraiTypography.bodySmall,
-                    color = colors.textSecondary,
-                )
-            }
             if (state.installations.isNotEmpty()) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
@@ -316,11 +365,21 @@ internal fun GitHubSection() {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = stringResource(Res.string.settings_github_repositories),
-                style = DoraiTypography.titleMedium,
-                color = colors.textPrimary,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(Res.string.settings_github_repositories),
+                    style = DoraiTypography.titleMedium,
+                    color = colors.textPrimary,
+                )
+                if (state.repositories.isNotEmpty()) {
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = state.repositories.size.toString(),
+                        style = DoraiTypography.labelMedium,
+                        color = colors.textTertiary,
+                    )
+                }
+            }
             if (state.connectionStatus == GitHubConnectionStatus.Connected) {
                 TextButton(
                     onClick = { vm.refreshRepositories() },
@@ -331,16 +390,27 @@ internal fun GitHubSection() {
             }
         }
         if (state.repositories.isEmpty()) {
-            Text(
-                text = if (state.isLoading) stringResource(Res.string.settings_github_loading) else stringResource(Res.string.settings_github_no_repositories),
-                style = DoraiTypography.bodySmall,
-                color = colors.textSecondary,
-            )
-            if (state.connectionStatus == GitHubConnectionStatus.Connected && !state.isLoading) {
-                Text(
-                    text = stringResource(Res.string.settings_github_no_repositories_hint),
-                    style = DoraiTypography.labelSmall,
-                    color = colors.textSecondary,
+            if (state.isLoading) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                        color = colors.primary,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(Res.string.settings_github_loading),
+                        style = DoraiTypography.bodySmall,
+                        color = colors.textSecondary,
+                    )
+                }
+            } else {
+                CollectionEmptyState(
+                    message = if (state.connectionStatus == GitHubConnectionStatus.Connected) {
+                        stringResource(Res.string.settings_github_no_repositories_hint)
+                    } else {
+                        stringResource(Res.string.settings_github_no_repositories)
+                    },
                 )
             }
         } else {
@@ -349,9 +419,14 @@ internal fun GitHubSection() {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .defaultMinSize(minHeight = 48.dp)
-                        .clip(RoundedCornerShape(8.dp))
+                        .defaultMinSize(minHeight = 52.dp)
+                        .clip(SettingsShapes.row)
                         .background(if (isSelected) colors.surfaceElevated else Color.Transparent)
+                        .border(
+                            width = 1.dp,
+                            color = if (isSelected) colors.borderStrong else colors.borderSubtle,
+                            shape = SettingsShapes.row,
+                        )
                         .clickable(
                             role = Role.Button,
                             onClick = { onRepositorySelected(repo) },
@@ -360,7 +435,7 @@ internal fun GitHubSection() {
                         .semantics {
                             if (isSelected) selected = true
                         }
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(

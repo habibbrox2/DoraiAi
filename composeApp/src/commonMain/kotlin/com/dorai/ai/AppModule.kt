@@ -194,6 +194,6 @@ val appModule = module {
     single<GitCommandRunner> { createGitCommandRunner() }
     single<GitHubDeviceFlow> { GitHubDeviceFlow(GitHubAppConfig.clientId) }
     single<GitHubApiClient> { GitHubApiClient(get(), httpClient()) }
-    viewModel { GitHubIntegrationViewModel(get(), get(), get(), get()) }
+    viewModel { GitHubIntegrationViewModel(get(), get(), get(), get(), notificationPermissionController = get(permissionQualifier(AppPermission.POST_NOTIFICATIONS))) }
     viewModel { ChatViewModel(get<DataRepository>(), get<TaskScheduler>(), localNetworkPermissionController = get(permissionQualifier(AppPermission.LOCAL_NETWORK)), fileReviewController = getOrNull<FileReviewController>() ?: NoOpFileReviewController()) }
 }

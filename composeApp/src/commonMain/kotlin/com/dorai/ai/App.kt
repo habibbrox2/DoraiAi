@@ -28,6 +28,7 @@ import coil3.compose.setSingletonImageLoaderFactory
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.svg.SvgDecoder
 import com.dorai.ai.data.AppSettings
+import com.dorai.ai.data.DataRepository
 import com.dorai.ai.data.ExecutionLocation
 import com.dorai.ai.data.Service
 import com.dorai.ai.theme.ThemeViewModel
@@ -211,6 +212,29 @@ private fun AppContent(
                 }
                 val pendingApprovalsCount = chatUiState.pendingToolConfirmations.size
                 var currentSettingsCategory by remember { mutableStateOf(SettingsCategory.General) }
+
+                // The MCP OAuth hand-off page links back into the app; land on the
+                // Integrations / MCP category so the authorized connector is in view.
+                val dataRepository: DataRepository = koinInject()
+                val openMcpSettingsRequested by dataRepository.openMcpSettingsRequested.collectAsStateWithLifecycle()
+                LaunchedEffect(openMcpSettingsRequested) {
+                    if (openMcpSettingsRequested) {
+                        currentSettingsCategory = SettingsCategory.Mcp
+                        shellState.navigateTo(DoraiDestination.Settings)
+                        dataRepository.consumeOpenMcpSettingsRequest()
+                    }
+                }
+
+                // The GitHub device flow completes in the browser, so the app announces it and
+                // the notification brings the user back to the GitHub settings.
+                val openGitHubSettingsRequested by dataRepository.openGitHubSettingsRequested.collectAsStateWithLifecycle()
+                LaunchedEffect(openGitHubSettingsRequested) {
+                    if (openGitHubSettingsRequested) {
+                        currentSettingsCategory = SettingsCategory.GitHub
+                        shellState.navigateTo(DoraiDestination.Settings)
+                        dataRepository.consumeOpenGitHubSettingsRequest()
+                    }
+                }
 
                 val activeService = chatUiState.availableServices.firstOrNull()
                 val currentModelName = activeService?.serviceName ?: stringResource(Res.string.model_not_configured)
