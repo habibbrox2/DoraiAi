@@ -26,3 +26,18 @@ The full GPL-2.0 license text is available at: https://www.gnu.org/licenses/old-
 talloc is a hierarchical memory allocator used as a dependency of PRoot. It is dynamically linked.
 
 The full LGPL-3.0 license text is available at: https://www.gnu.org/licenses/lgpl-3.0.html
+## Android agent skills (vendored)
+
+- **Files:** .agents/skills/litert-lm/, .agents/skills/android-intent-security/,
+  .agents/skills/android-permissions-security/, .agents/skills/edge-to-edge/,
+  .agents/skills/adaptive/, .agents/skills/jetpack-compose-performance/,
+  .agents/skills/navigation-event/, .agents/skills/r8-analyzer/,
+  .agents/skills/testing-setup/, .agents/skills/anr-audit-and-fix/
+- **License copy:** .agents/skills/android-skills-LICENSE.txt
+- **Source:** https://github.com/android/skills (curated vendoring of selected SKILL.md trees)
+- **License:** Apache-2.0
+- **Copyright:** Copyright (C) Google LLC
+
+These are agent instructions vendored for the repository's coding-agent runtimes, not app runtime
+code or a shipped binary. Each vendored SKILL.md keeps the upstream body verbatim and ends with a
+DORAI AI scope note that records where the guidance applies in this repository.
