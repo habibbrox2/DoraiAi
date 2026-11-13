@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.sandbox
+package com.dorai.ai.ui.sandbox
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -45,6 +45,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.SandboxController
@@ -61,8 +62,11 @@ import com.dorai.ai.ui.settings.TerminalContent
 import com.dorai.ai.ui.settings.TerminalDarkBg
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.sandbox_retry_setup
 import dorai.composeapp.generated.resources.sandbox_session_chip_session
 import dorai.composeapp.generated.resources.sandbox_session_chip_temporary
+import dorai.composeapp.generated.resources.sandbox_setup_persistence_note
+import dorai.composeapp.generated.resources.sandbox_workspace_heading
 import dorai.composeapp.generated.resources.settings_sandbox_cancel
 import dorai.composeapp.generated.resources.settings_sandbox_description
 import dorai.composeapp.generated.resources.settings_sandbox_distro_alpine_detail
@@ -117,12 +121,12 @@ internal fun SandboxTabsContent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Sandbox workspace",
+                        text = stringResource(Res.string.sandbox_workspace_heading),
                         style = com.dorai.ai.ui.DoraiTypography.titleMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f).semantics { heading() },
                     )
-                    StatusBadge(label = "Ready", status = OperationalStatus.Ready)
+                    StatusBadge(status = OperationalStatus.Ready)
                 }
             }
 
@@ -166,29 +170,26 @@ internal fun SandboxTabsContent(
         Column(modifier = modifier.fillMaxWidth()) {
             SettingsCard {
                 // Readiness flow (Plan 4, Phase 3): which environment, what state
-                // it is in, what setup costs, progress, and an explicit retry —
+                // it is in, what setup costs, progress, and an explicit retry â€”
                 // the error is never the only thing on screen.
-                val (badgeLabel, badgeStatus) = when {
-                    sandboxState.hasError -> "Failed" to OperationalStatus.Error
-
-                    sandboxState.isWorking || sandboxState.sandboxProgress != null ->
-                        "Installing" to OperationalStatus.Installing
-
-                    else -> "Needs setup" to OperationalStatus.NeedsSetup
+                val badgeStatus = when {
+                    sandboxState.hasError -> OperationalStatus.Error
+                    sandboxState.isWorking || sandboxState.sandboxProgress != null -> OperationalStatus.Installing
+                    else -> OperationalStatus.NeedsSetup
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        // Distro comes from state — a hard-coded name goes stale the
+                        // Distro comes from state â€” a hard-coded name goes stale the
                         // moment the user picks the other distribution.
                         text = sandboxState.distro.displayName,
                         style = DoraiTypography.titleMedium,
                         color = LocalDesignColorTokens.current.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    StatusBadge(label = badgeLabel, status = badgeStatus)
+                    StatusBadge(status = badgeStatus)
                 }
 
                 Spacer(Modifier.height(4.dp))
@@ -215,7 +216,7 @@ internal fun SandboxTabsContent(
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
                 Text(
-                    text = "Files, packages, and terminal sessions live inside the environment and are kept between launches.",
+                    text = stringResource(Res.string.sandbox_setup_persistence_note),
                     style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
@@ -240,7 +241,7 @@ internal fun SandboxTabsContent(
                         // original invitation verbatim (Plan 4, Phase 3).
                         Text(
                             if (sandboxState.hasError) {
-                                "Retry setup"
+                                stringResource(Res.string.sandbox_retry_setup)
                             } else {
                                 stringResource(Res.string.settings_sandbox_install)
                             },
@@ -256,7 +257,7 @@ internal fun SandboxTabsContent(
 private fun SessionChipRow(viewModel: SandboxSessionViewModel) {
     val tabs = viewModel.visibleSessions.collectAsStateWithLifecycle().value
     val selectedId = viewModel.selectedSessionId.collectAsStateWithLifecycle().value
-    if (tabs.size <= 1) return // Nothing to switch between — keep the UI quiet.
+    if (tabs.size <= 1) return // Nothing to switch between â€” keep the UI quiet.
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -276,7 +277,7 @@ private fun SessionChipRow(viewModel: SandboxSessionViewModel) {
 
             val buttonColors = ButtonDefaults.buttonColors(
                 containerColor = if (isSelected) {
-                    com.dorai.ai.ui.theme.DesignTokens.PrimaryCyan
+                    LocalDesignColorTokens.current.primary
                 } else {
                     LocalDesignColorTokens.current.surfaceElevated
                 },
@@ -305,6 +306,7 @@ private fun SessionChipRow(viewModel: SandboxSessionViewModel) {
                     style = com.dorai.ai.ui.DoraiTypography.labelMedium,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -365,8 +367,8 @@ private fun SandboxSubTabSelector(
 
             val buttonColors = ButtonDefaults.buttonColors(
                 containerColor = when {
-                    isSelected -> com.dorai.ai.ui.theme.DesignTokens.PrimaryCyan
-                    isFocused -> com.dorai.ai.ui.theme.DesignTokens.PrimaryCyan.copy(alpha = 0.25f)
+                    isSelected -> LocalDesignColorTokens.current.primary
+                    isFocused -> LocalDesignColorTokens.current.primary.copy(alpha = 0.25f)
                     else -> LocalDesignColorTokens.current.surfaceElevated
                 },
                 contentColor = if (isSelected) {
@@ -428,6 +430,7 @@ private fun SandboxSubTabSelector(
                     style = com.dorai.ai.ui.DoraiTypography.labelLarge,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }

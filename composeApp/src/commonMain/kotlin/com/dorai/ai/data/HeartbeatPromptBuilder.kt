@@ -51,6 +51,7 @@ internal data class HeartbeatPromotionCandidate(
  * @param pendingSms new SMS polled since the last heartbeat pickup; empty list = section omitted
  * @param pendingNotifications new notifications captured since the last heartbeat pickup; empty list = section omitted
  * @param promotionCandidates memory promotion candidates; empty list = section omitted
+ * @param activeLanguageName display name of the active app language (e.g. "বাংলা", "English"); when provided, the model is told to write its report in that language while keeping the HEARTBEAT_OK sentinel ASCII
  */
 internal fun buildHeartbeatPrompt(
     customOrDefaultPrompt: String,
@@ -62,9 +63,13 @@ internal fun buildHeartbeatPrompt(
     pendingSms: List<HeartbeatPendingSms>,
     pendingNotifications: List<HeartbeatPendingNotification>,
     promotionCandidates: List<HeartbeatPromotionCandidate>,
+    activeLanguageName: String? = null,
 ): String = buildString {
     append(customOrDefaultPrompt)
     append("\n")
+    if (activeLanguageName != null) {
+        append("\nReport your findings in $activeLanguageName (the active app language). The sentinel HEARTBEAT_OK must remain exactly ASCII HEARTBEAT_OK.\n")
+    }
 
     val hasUntrusted = pendingEmails.isNotEmpty() || pendingSms.isNotEmpty() ||
         pendingNotifications.isNotEmpty() || promotionCandidates.isNotEmpty() ||

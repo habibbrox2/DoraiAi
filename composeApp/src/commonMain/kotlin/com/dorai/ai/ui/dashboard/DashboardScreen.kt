@@ -47,6 +47,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -55,14 +57,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.BackIcon
 import com.dorai.ai.SandboxController
 import com.dorai.ai.WorkspaceController
-import com.dorai.ai.ui.AccentPrimary
-import com.dorai.ai.ui.BorderSoft
-import com.dorai.ai.ui.CardFill
 import com.dorai.ai.ui.DoraiBorders
 import com.dorai.ai.ui.DoraiElevation
 import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
-import com.dorai.ai.ui.SurfaceRaised
 import com.dorai.ai.ui.chat.ChatUiState
 import com.dorai.ai.ui.chat.ConversationSummary
 import com.dorai.ai.ui.components.CollectionEmptyState
@@ -93,6 +91,7 @@ import dorai.composeapp.generated.resources.dash_coming_soon
 import dorai.composeapp.generated.resources.dash_no_service_configured
 import dorai.composeapp.generated.resources.dash_shared_free_service
 import dorai.composeapp.generated.resources.dash_workspace_android_only
+import dorai.composeapp.generated.resources.dashboard_empty_no_saved_work
 import dorai.composeapp.generated.resources.dashboard_recent_conversations
 import dorai.composeapp.generated.resources.dashboard_recent_projects
 import dorai.composeapp.generated.resources.dashboard_setup_service
@@ -155,7 +154,8 @@ fun DashboardScreen(
 
 internal fun dashboardColumnsFor(width: Dp): Int = when {
     width < 600.dp -> 1
-    width < 1000.dp -> 2
+    width < 840.dp -> 2
+    width < 1200.dp -> 3
     else -> 4
 }
 
@@ -256,6 +256,7 @@ private fun DashboardHeader(
                     style = DoraiTypography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = LocalDesignColorTokens.current.textPrimary,
+                    modifier = Modifier.semantics { heading() },
                 )
                 Text(
                     text = stringResource(Res.string.dashboard_subtitle),
@@ -327,7 +328,7 @@ private fun ReadinessCard(
                             Text(
                                 text = stringResource(Res.string.dashboard_setup_service),
                                 style = DoraiTypography.labelLarge,
-                                color = AccentPrimary,
+                                color = LocalDesignColorTokens.current.primary,
                             )
                         }
                     }
@@ -359,7 +360,7 @@ private fun ReadinessCard(
                             Text(
                                 text = stringResource(Res.string.dashboard_setup_service),
                                 style = DoraiTypography.labelLarge,
-                                color = AccentPrimary,
+                                color = LocalDesignColorTokens.current.primary,
                             )
                         }
                     } else {
@@ -380,7 +381,7 @@ private fun ReadinessCard(
             }
             if (state.facts.isNotEmpty()) {
                 HorizontalDivider(
-                    color = BorderSoft,
+                    color = LocalDesignColorTokens.current.borderSoft,
                     thickness = 1.dp,
                 )
                 state.facts.forEach { fact ->
@@ -491,19 +492,19 @@ private fun DashboardActionCard(
 ) {
     val statusColors = rememberOperationalStatusColors()
     val iconBg = if (action.isPrimary) {
-        AccentPrimary.copy(alpha = 0.16f)
+        LocalDesignColorTokens.current.primary.copy(alpha = 0.16f)
     } else {
-        SurfaceRaised.copy(alpha = 0.8f)
+        LocalDesignColorTokens.current.surfaceRaised.copy(alpha = 0.8f)
     }
     val iconTint = if (action.isPrimary) {
-        AccentPrimary
+        LocalDesignColorTokens.current.primary
     } else {
         LocalDesignColorTokens.current.textPrimary
     }
     val border = if (action.isPrimary) {
-        BorderStroke(1.dp, AccentPrimary.copy(alpha = 0.5f))
+        BorderStroke(1.dp, LocalDesignColorTokens.current.primary.copy(alpha = 0.5f))
     } else {
-        BorderStroke(1.dp, BorderSoft)
+        BorderStroke(1.dp, LocalDesignColorTokens.current.borderSoft)
     }
 
     val cardShape = DoraiShapes.card
@@ -515,9 +516,9 @@ private fun DashboardActionCard(
                 .handCursor()
                 .fillMaxHeight(),
             colors = ButtonDefaults.buttonColors(
-                containerColor = CardFill,
+                containerColor = LocalDesignColorTokens.current.cardFill,
                 contentColor = LocalDesignColorTokens.current.textPrimary,
-                disabledContainerColor = CardFill.copy(alpha = 0.5f),
+                disabledContainerColor = LocalDesignColorTokens.current.cardFill.copy(alpha = 0.5f),
                 disabledContentColor = LocalDesignColorTokens.current.textPrimary.copy(alpha = 0.4f),
             ),
             shape = cardShape,
@@ -535,7 +536,7 @@ private fun DashboardActionCard(
                         .clip(DoraiShapes.sm)
                         .background(iconBg)
                         .border(
-                            BorderStroke(1.dp, if (action.isPrimary) AccentPrimary.copy(alpha = 0.4f) else BorderSoft),
+                            BorderStroke(1.dp, if (action.isPrimary) LocalDesignColorTokens.current.primary.copy(alpha = 0.4f) else LocalDesignColorTokens.current.borderSoft),
                             DoraiShapes.sm,
                         ),
                     contentAlignment = Alignment.Center,
@@ -578,8 +579,8 @@ private fun DashboardActionCard(
             modifier = modifier
                 .alpha(0.5f)
                 .fillMaxHeight(),
-            colors = CardDefaults.cardColors(containerColor = CardFill),
-            border = BorderStroke(1.dp, BorderSoft),
+            colors = CardDefaults.cardColors(containerColor = LocalDesignColorTokens.current.cardFill),
+            border = BorderStroke(1.dp, LocalDesignColorTokens.current.borderSoft),
             shape = cardShape,
         ) {
             Row(
@@ -593,7 +594,7 @@ private fun DashboardActionCard(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(DoraiShapes.sm)
-                        .background(SurfaceRaised.copy(alpha = 0.6f)),
+                        .background(LocalDesignColorTokens.current.surfaceRaised.copy(alpha = 0.6f)),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
@@ -648,8 +649,8 @@ private fun RecentWorkSection(
     if (conversations.isEmpty() && projects.isEmpty()) {
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = CardFill),
-            border = BorderStroke(1.dp, BorderSoft),
+            colors = CardDefaults.cardColors(containerColor = LocalDesignColorTokens.current.cardFill),
+            border = BorderStroke(1.dp, LocalDesignColorTokens.current.borderSoft),
             shape = DoraiShapes.card,
         ) {
             Box(
@@ -659,7 +660,7 @@ private fun RecentWorkSection(
                 contentAlignment = Alignment.Center,
             ) {
                 CollectionEmptyState(
-                    message = "No saved work yet — conversations and build projects will show up here.",
+                    message = stringResource(Res.string.dashboard_empty_no_saved_work),
                 )
             }
         }
@@ -690,7 +691,7 @@ private fun RecentWorkSection(
                         Text(
                             text = stringResource(Res.string.dashboard_view_all),
                             style = DoraiTypography.labelLarge,
-                            color = AccentPrimary,
+                            color = LocalDesignColorTokens.current.primary,
                         )
                     }
                 }
@@ -722,7 +723,7 @@ private fun RecentWorkSection(
                         Text(
                             text = stringResource(Res.string.dashboard_view_all),
                             style = DoraiTypography.labelLarge,
-                            color = AccentPrimary,
+                            color = LocalDesignColorTokens.current.primary,
                         )
                     }
                 }
@@ -751,11 +752,11 @@ private fun ConversationRow(
             .fillMaxWidth()
             .handCursor(),
         colors = ButtonDefaults.buttonColors(
-            containerColor = CardFill,
+            containerColor = LocalDesignColorTokens.current.cardFill,
             contentColor = LocalDesignColorTokens.current.textPrimary,
         ),
         shape = cardShape,
-        border = BorderStroke(1.dp, BorderSoft),
+        border = BorderStroke(1.dp, LocalDesignColorTokens.current.borderSoft),
         contentPadding = PaddingValues(horizontal = 18.dp, vertical = 16.dp),
     ) {
         Row(
@@ -767,14 +768,14 @@ private fun ConversationRow(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(DoraiShapes.sm)
-                    .background(AccentPrimary.copy(alpha = 0.14f))
-                    .border(BorderStroke(1.dp, AccentPrimary.copy(alpha = 0.4f)), DoraiShapes.sm),
+                    .background(LocalDesignColorTokens.current.primary.copy(alpha = 0.14f))
+                    .border(BorderStroke(1.dp, LocalDesignColorTokens.current.primary.copy(alpha = 0.4f)), DoraiShapes.sm),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Chat,
                     contentDescription = null,
-                    tint = AccentPrimary,
+                    tint = LocalDesignColorTokens.current.primary,
                     modifier = Modifier.size(20.dp),
                 )
             }
@@ -819,11 +820,11 @@ private fun ProjectRow(
             .fillMaxWidth()
             .handCursor(),
         colors = ButtonDefaults.buttonColors(
-            containerColor = CardFill,
+            containerColor = LocalDesignColorTokens.current.cardFill,
             contentColor = LocalDesignColorTokens.current.textPrimary,
         ),
         shape = cardShape,
-        border = BorderStroke(1.dp, BorderSoft),
+        border = BorderStroke(1.dp, LocalDesignColorTokens.current.borderSoft),
         contentPadding = PaddingValues(horizontal = 18.dp, vertical = 16.dp),
     ) {
         Row(
@@ -835,8 +836,8 @@ private fun ProjectRow(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(DoraiShapes.sm)
-                    .background(SurfaceRaised.copy(alpha = 0.8f))
-                    .border(BorderStroke(1.dp, BorderSoft), DoraiShapes.sm),
+                    .background(LocalDesignColorTokens.current.surfaceRaised.copy(alpha = 0.8f))
+                    .border(BorderStroke(1.dp, LocalDesignColorTokens.current.borderSoft), DoraiShapes.sm),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(

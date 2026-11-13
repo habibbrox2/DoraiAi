@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.markdown
+package com.dorai.ai.ui.markdown
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -41,7 +41,6 @@ import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.rememberCopyToClipboard
 import com.dorai.ai.ui.theme.DesignColorTokens
-import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.a11y_copy_diff
@@ -214,16 +213,6 @@ internal fun parseDiff(code: String): List<DiffEntry> {
     return entries
 }
 
-/** Semantic diff colors (kept as design constants); surface/text roles come from [LocalDesignColorTokens]. */
-private object DiffPalette {
-    val added = DesignTokens.Success
-    val removed = DesignTokens.Error
-    val hunkText = DesignTokens.SecondaryText
-    val addedBg = DesignTokens.Success.copy(alpha = 0.16f)
-    val removedBg = DesignTokens.Error.copy(alpha = 0.18f)
-    val hunkBg = DesignTokens.SurfaceRaised.copy(alpha = 0.55f)
-}
-
 @Composable
 internal fun DiffCard(
     code: String,
@@ -249,6 +238,8 @@ internal fun DiffCard(
     }
     val blockShape = RoundedCornerShape(10.dp)
     val tokens = LocalDesignColorTokens.current
+    val addedLocal = tokens.success
+    val removedLocal = tokens.error
 
     Column(
         modifier = modifier
@@ -281,8 +272,8 @@ internal fun DiffCard(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            DiffStat(text = "+$totalAdded", color = DiffPalette.added)
-            DiffStat(text = "-$totalRemoved", color = DiffPalette.removed)
+            DiffStat(text = "+$totalAdded", color = addedLocal)
+            DiffStat(text = "-$totalRemoved", color = removedLocal)
             if (isCopied) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -293,13 +284,13 @@ internal fun DiffCard(
                         imageVector = Icons.Default.Check,
                         contentDescription = stringResource(Res.string.chat_action_copied),
                         modifier = Modifier.size(14.dp),
-                        tint = DiffPalette.added,
+                        tint = addedLocal,
                     )
                     Text(
                         text = stringResource(Res.string.chat_action_copied),
                         style = DoraiTypography.labelSmall,
                         fontFamily = FontFamily.Monospace,
-                        color = DiffPalette.added,
+                        color = addedLocal,
                     )
                 }
             } else {
@@ -394,14 +385,14 @@ private fun FileStrip(entry: DiffEntry, tokens: DesignColorTokens) {
             modifier = Modifier.padding(start = 8.dp),
             style = DoraiTypography.labelSmall,
             fontFamily = FontFamily.Monospace,
-            color = DiffPalette.added,
+            color = tokens.success,
         )
         Text(
             text = "-${entry.removed}",
             modifier = Modifier.padding(start = 6.dp),
             style = DoraiTypography.labelSmall,
             fontFamily = FontFamily.Monospace,
-            color = DiffPalette.removed,
+            color = tokens.error,
         )
     }
 }
@@ -412,18 +403,18 @@ private fun DiffLineRow(line: DiffLine, tokens: DesignColorTokens) {
     val foreground: Color
     when (line.kind) {
         DiffLineKind.Add -> {
-            background = DiffPalette.addedBg
-            foreground = DiffPalette.added
+            background = tokens.success.copy(alpha = 0.16f)
+            foreground = tokens.success
         }
 
         DiffLineKind.Delete -> {
-            background = DiffPalette.removedBg
-            foreground = DiffPalette.removed
+            background = tokens.error.copy(alpha = 0.18f)
+            foreground = tokens.error
         }
 
         DiffLineKind.Hunk -> {
-            background = DiffPalette.hunkBg
-            foreground = DiffPalette.hunkText
+            background = tokens.surfaceRaised.copy(alpha = 0.55f)
+            foreground = tokens.textSecondary
         }
 
         DiffLineKind.FileHeader -> {

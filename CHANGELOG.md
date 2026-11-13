@@ -20,6 +20,43 @@
 
 ---
 
+## DORAI AI - UI/UX and Bangla/English Language System Remediation (Unreleased)
+
+### Fixed
+- **Bengali text corruption (mojibake) repaired** across `values-bn/strings.xml`; a locale-parity gate (`desktopTest` `LocaleParityTest` + `pwsh scripts/validate-locales.ps1`) now enforces placeholder/plural key parity across all `values-*` directories offline.
+- **App language is threaded into agent prompts and locale application**: Settings → Language changes the app locale immediately on Android and re-localizes Compose Resources; the system prompt and heartbeat prompt receive the chosen language rule (DORAI AI brand rules kept intact).
+- **Hardcoded UI English strings localized** across settings, chat, sandbox, dashboard, workspace and dynamic-UI surfaces (en + bn); all user-facing copy now flows through Compose Resources.
+- **Markdown safety**: link scheme allow-list (`https`, `http`, `mailto`);`javascript:`/`intent:`/`data:`/`file:` render as plain text; grapheme-safe truncation/wrapping (Bengali clusters and ZWJ emoji are never split; ellipsis counts as one grapheme); unicode-aware emphasis parsing.
+- **Bengali IME composition rendering preserved**: interactive text in dynamic UI stays on first-class surfaces (no inline error); selection containers wrap only text segments, keeping DORAI UI blocks outside the selection so interactive controls and text selection don't fight over gestures.
+- **Home screen no longer shows fabricated state**: hardcoded workspace/sandbox/storage/"Free FAST" defaults removed; state is derived from real sandbox/model/conversation data; model-not-configured fallback uses localized string.
+- **Approval affordances**: tool-approval buttons accept long/wrapped labels (2-line wrap, token font) instead of clipping;
+- **Status colors and typography unified** on theme tokens; `SettingsStatusColors` dead token removed; breakpoints unified to 600/840/1200dp; spacing delegates to canonical `DesignTokens` scale; Bengali-readable line heights.
+- **Terminal delete (Android)**: IME `deleteSurroundingText` is grapheme-aware — whole Bengali clusters are removed instead of splitting mid-cluster (Bengali IME on-device verification pending).
+- **Accessibility**: 48dp minimum touch targets, selection semantics, headings and state descriptions on expandable rows, labeled icon-only buttons.
+- **Fake workspace "completed" checkmarks corrected**; **Dynamic UI bad-input clamps** (NaN/Infinity/out-of-range) prevent crashes in image/slider/progress/icon/avatar/countdown widgets.
+
+### Changed
+- **DORAI UI blocks render outside any selection container** (text runs remain selectable); dynamic-UI rendering is closer to native behavior on long Bengali strings.
+- **`doradoUiRenderer` bad numeric input is clamped** rather than crashing the whole surface (widget-level error isolation pending; Compose lacks a public error boundary, so this is a safe fallback only).
+
+### Pending (not yet done on main)
+- Device verification (Android/iOS locale switch, Bengali IME behavior, real-device UX); propagation of new keys to the 53 stale locales and `য়`/`য়` normalization (maintainer approval pending); full widget-level error boundary in dynamic UI.
+
+---
+
+## DORAI AI - Device Actions & MCP-Only Tool Approval (Unreleased)
+
+### Added
+- **Device actions (Android)** — six tools ported from the Google AI Edge Gallery "Mobile Actions" pattern: `flashlight_on` / `flashlight_off` (direct CameraManager torch), `create_contact`, `send_email`, `show_location_on_map`, `open_wifi_settings` (intents into the system UI). Localized (en + bn), each with its own toggle in Settings → Connectors → Plugins, work in chat like every other native tool, and are exposed to on-device (LiteRT) models via the documented allowlist. Content-creating actions launch the system UI — contact editor, email composer — rather than writing Contacts/sending mail directly, so the user reviews every change.
+
+### Changed
+- **MCP-only tool approval** — by product decision, only MCP connector tools ask the user before running (the confirmation card is unchanged for MCP). **Every non-MCP tool — shell commands, file writes/deletes, GitHub write tools (`github_commit`, `github_push`, `github_create_pull_request`), device actions, SMS/USSD, email, everything — now executes without a per-call prompt**, in chat and in background/heartbeat runs alike. The on-device (LiteRT) tool exposure now follows the documented allowlist in `docs/features/tools.md` (previously all available tools were handed to on-device models).
+
+### Docs
+- `docs/features/tools.md` updated (approval policy, device-action tools, on-device allowlist implementation); `Last verified` bumped.
+
+---
+
 ## DORAI AI - MCP OAuth (Desktop Commander & OAuth-Native MCP Servers) (Unreleased)
 
 ### Added

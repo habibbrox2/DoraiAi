@@ -22,6 +22,7 @@ import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.a11y_search
+import dorai.composeapp.generated.resources.action_clear
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -30,6 +31,8 @@ fun DoraiSearchField(
     onQueryChange: (String) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
+    // Optional override; defaults to Res.string.action_clear so the button is
+    // never unlabeled.
     clearContentDescription: String? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions(
         keyboardType = KeyboardType.Text,
@@ -37,6 +40,7 @@ fun DoraiSearchField(
     ),
 ) {
     val tokens = LocalDesignTokens.current
+    val resolvedClearDescription = clearContentDescription ?: stringResource(Res.string.action_clear)
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
@@ -59,7 +63,7 @@ fun DoraiSearchField(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Clear,
-                        contentDescription = clearContentDescription,
+                        contentDescription = resolvedClearDescription,
                         tint = tokens.MutedText,
                     )
                 }

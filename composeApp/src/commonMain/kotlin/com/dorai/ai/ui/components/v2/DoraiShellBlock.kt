@@ -30,6 +30,8 @@ import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.rememberCopyToClipboard
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.a11y_copy
+import dorai.composeapp.generated.resources.shell_output_header
+import dorai.composeapp.generated.resources.tool_card_exit_format
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -65,7 +67,7 @@ fun DoraiShellBlock(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "TERMINAL",
+                    text = stringResource(Res.string.shell_output_header),
                     color = colors.muted.copy(alpha = 0.7f),
                     fontSize = 11.sp,
                     fontFamily = FontFamily.Monospace,
@@ -126,7 +128,7 @@ fun DoraiShellBlock(
             if (exitCode != null || durationText != null) {
                 Spacer(modifier = Modifier.height(DoraiSpacing.SM))
                 val footer = listOfNotNull(
-                    exitCode?.let { "exit $it" },
+                    exitCode?.let { stringResource(Res.string.tool_card_exit_format, it) },
                     durationText,
                 ).joinToString(" · ")
                 Text(

@@ -43,6 +43,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.data.ImportSection
@@ -57,6 +58,8 @@ import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.export_import_restore_backup_subtitle
+import dorai.composeapp.generated.resources.export_import_save_backup_subtitle
 import dorai.composeapp.generated.resources.settings_export
 import dorai.composeapp.generated.resources.settings_export_import_description
 import dorai.composeapp.generated.resources.settings_export_import_title
@@ -214,7 +217,7 @@ internal fun ExportImportSection(
                             color = colors.textPrimary,
                         )
                         Text(
-                            text = "Save configuration to JSON file",
+                            text = stringResource(Res.string.export_import_save_backup_subtitle),
                             style = DoraiTypography.bodySmall,
                             color = colors.textSecondary,
                         )
@@ -274,7 +277,7 @@ internal fun ExportImportSection(
                             color = colors.textPrimary,
                         )
                         Text(
-                            text = "Restore configuration from backup",
+                            text = stringResource(Res.string.export_import_restore_backup_subtitle),
                             style = DoraiTypography.bodySmall,
                             color = colors.textSecondary,
                         )
@@ -367,7 +370,7 @@ private fun ImportPreviewDialog(
                         verticalAlignment = CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { replace = !replace }
+                            .clickable(role = Role.Button) { replace = !replace }
                             .handCursor(),
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
@@ -396,7 +399,7 @@ private fun ImportPreviewDialog(
                             verticalAlignment = CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable {
+                                .clickable(role = Role.Button) {
                                     selectedSections = if (section in selectedSections) {
                                         selectedSections - section
                                     } else {
@@ -477,7 +480,7 @@ private fun ExportPreviewDialog(
                             verticalAlignment = CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable {
+                                .clickable(role = Role.Button) {
                                     selectedSections = if (section in selectedSections) {
                                         selectedSections - section
                                     } else {

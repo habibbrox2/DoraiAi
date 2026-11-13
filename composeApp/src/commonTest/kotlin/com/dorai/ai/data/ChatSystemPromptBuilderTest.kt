@@ -268,6 +268,7 @@ class ChatSystemPromptBuilderTest {
             schedulingEnabled = false,
         )
         val expected = "You're a personal assistant.\n\n" +
+            DEFAULT_LANGUAGE_POINTER + "\n\n" +
             DEFAULT_HONESTY_RULE + "\n\n" +
             DEFAULT_ACTING_SECTION + "\n\n" +
             "## Context\n" +
@@ -635,6 +636,7 @@ class ChatSystemPromptBuilderTest {
             uiMode = ChatPromptUiMode.DYNAMIC_UI,
         )
         val expected = "You are DORAI AI, a helpful assistant.\n\n" +
+            DEFAULT_LANGUAGE_POINTER + "\n\n" +
             DEFAULT_HONESTY_RULE + "\n\n" +
             DEFAULT_TOOL_USE_SECTION + "\n\n" +
             DEFAULT_ACTING_SECTION + "\n\n" +

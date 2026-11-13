@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.theme.data.contrastRatio
 import com.dorai.ai.theme.data.isValidHexColor
@@ -152,6 +153,7 @@ fun CreateThemeDialog(
                                 color = onBackground,
                                 fontWeight = FontWeight.Medium,
                                 maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                             )
                         }
                         Box(
@@ -285,7 +287,7 @@ private fun HexColorField(
                 val rgb = rgbReadoutOf(value)
                 val ratioText = if (contrastRatio != null) {
                     val formatted = ((contrastRatio * 10).toInt() / 10.0).toString()
-                    " · Contrast $formatted:1"
+                    " Ã‚Â· Contrast $formatted:1"
                 } else {
                     ""
                 }

@@ -16,10 +16,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.theme.tokens.LocalDoraiColors
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_loading
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Official DORAI brand loading animation.
@@ -39,10 +46,14 @@ fun DoraiLoadingSpinner(
     val colors = LocalDoraiColors.current
     val strokeColor = color ?: colors.primary
     val reducedMotion = prefersReducedMotion()
+    val loadingLabel = stringResource(Res.string.a11y_loading)
 
     if (reducedMotion) {
         Box(
-            modifier = modifier.size(size),
+            modifier = modifier.size(size).semantics {
+                contentDescription = loadingLabel
+                liveRegion = LiveRegionMode.Polite
+            },
             contentAlignment = Alignment.Center,
         ) {
             Box(
@@ -94,7 +105,10 @@ fun DoraiLoadingSpinner(
     )
 
     Box(
-        modifier = modifier.size(size),
+        modifier = modifier.size(size).semantics {
+            contentDescription = loadingLabel
+            liveRegion = LiveRegionMode.Polite
+        },
         contentAlignment = Alignment.Center,
     ) {
         // Expanding ring

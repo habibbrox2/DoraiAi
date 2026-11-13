@@ -31,12 +31,14 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -222,12 +224,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.prefersReducedMotion
-import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.BorderSoft
 import com.dorai.ai.ui.CardFill
-import com.dorai.ai.ui.DangerAlert
 import com.dorai.ai.ui.DoraiOutlinedTextField
 import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
@@ -244,6 +245,8 @@ import dorai.composeapp.generated.resources.bot_message_copy_content_description
 import dorai.composeapp.generated.resources.dorai_ui_code_copy
 import dorai.composeapp.generated.resources.dorai_ui_render_failed
 import dorai.composeapp.generated.resources.state_checked
+import dorai.composeapp.generated.resources.state_collapsed
+import dorai.composeapp.generated.resources.state_expanded
 import dorai.composeapp.generated.resources.state_not_selected
 import dorai.composeapp.generated.resources.state_off
 import dorai.composeapp.generated.resources.state_on
@@ -262,7 +265,7 @@ val LocalPreviewImages = staticCompositionLocalOf<Map<String, ImageBitmap>> { em
  * event of the button they pressed. Matching a button uses event + collected form data
  * rather than event alone (multiple buttons often share an event but carry distinct
  * per-button data payloads, e.g. a quiz with one event and different `choice` values).
- * `isPending` is a transient UI flag — true while the AI is still answering this submission;
+ * `isPending` is a transient UI flag Ã¢â‚¬â€ true while the AI is still answering this submission;
  * the pressed button pulses to signal the in-flight request.
  */
 @Immutable
@@ -302,7 +305,7 @@ fun DoraiUiRenderer(
         Text(
             text = stringResource(Res.string.dorai_ui_render_failed),
             style = DoraiTypography.bodySmall,
-            color = DangerAlert,
+            color = LocalDesignColorTokens.current.error,
             modifier = modifier,
         )
         return
@@ -358,6 +361,16 @@ private fun safeCallback(
 private const val MAX_DEPTH = 10
 private const val DEFAULT_IMAGE_HEIGHT = 220
 private const val DEFAULT_IMAGE_ASPECT_RATIO = 1.91f
+
+private fun safeFiniteFloat(value: Float?, fallback: Float): Float {
+    val v = value ?: return fallback
+    return if (v.isNaN() || v.isInfinite()) fallback else v
+}
+
+private fun safePositiveFloat(value: Float?, fallback: Float): Float {
+    val v = safeFiniteFloat(value, fallback)
+    return if (v > 0f) v else fallback
+}
 
 @Composable
 private fun RenderNode(
@@ -495,9 +508,9 @@ private fun RenderText(node: TextNode) {
         null -> DoraiTypography.bodyLarge
     }
     val color = when (node.color) {
-        "primary" -> AccentPrimary
+        "primary" -> LocalDesignColorTokens.current.primary
         "secondary" -> LocalDesignColorTokens.current.textSecondary
-        "error" -> DangerAlert
+        "error" -> LocalDesignColorTokens.current.error
         else -> LocalDesignColorTokens.current.textPrimary
     }
     Text(
@@ -574,7 +587,7 @@ private fun RenderButton(
         // against the greyed-out disabled siblings. `enabled=false` prevents clicks; the
         // override on disabled colors bypasses Material's auto-faded disabled appearance.
         val pressedColors = ButtonDefaults.buttonColors(
-            disabledContainerColor = AccentPrimary,
+            disabledContainerColor = LocalDesignColorTokens.current.primary,
             disabledContentColor = LocalDesignColorTokens.current.textPrimary,
         )
         Button(
@@ -659,6 +672,7 @@ private fun RenderCheckbox(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
+            .heightIn(min = 48.dp)
             .semantics(mergeDescendants = true) {
                 role = Role.Checkbox
                 stateDescription = checkedDescription
@@ -752,8 +766,8 @@ private fun RenderSelect(
 
 @Composable
 private fun RenderImage(node: ImageNode) {
-    val height = (node.height ?: DEFAULT_IMAGE_HEIGHT).dp
-    val aspectRatio = (node.aspectRatio ?: DEFAULT_IMAGE_ASPECT_RATIO)
+    val height = (node.height?.coerceIn(24, 480) ?: DEFAULT_IMAGE_HEIGHT).dp
+    val aspectRatio = safePositiveFloat(node.aspectRatio, DEFAULT_IMAGE_ASPECT_RATIO)
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val width = minOf(maxWidth, height * aspectRatio)
         val modifier = Modifier.height(width / aspectRatio).width(width).clip(DoraiShapes.xs)
@@ -905,10 +919,10 @@ private fun RenderSlider(
     isInteractive: Boolean,
     formState: SnapshotStateMap<String, String>,
 ) {
-    val min = node.min ?: 0f
-    val max = node.max ?: 100f
-    val step = node.step
-    val currentValue = formState[node.id]?.toFloatOrNull() ?: (node.value ?: min)
+    val min = safeFiniteFloat(node.min, 0f)
+    val max = safeFiniteFloat(node.max, 100f).let { if (it > min) it else min + 1f }
+    val step = node.step?.let { safePositiveFloat(it, 0f) }?.takeIf { it > 0f }
+    val currentValue = formState[node.id]?.toFloatOrNull()?.let { if (it.isFinite()) it else min } ?: safeFiniteFloat(node.value, min)
     val valueDescription = formatSliderValue(currentValue, step)
 
     Column(Modifier.fillMaxWidth()) {
@@ -921,7 +935,7 @@ private fun RenderSlider(
                 Text(
                     text = valueDescription,
                     style = DoraiTypography.bodyMedium,
-                    color = AccentPrimary,
+                    color = LocalDesignColorTokens.current.primary,
                 )
             }
         }
@@ -944,8 +958,8 @@ private fun RenderSlider(
                     contentDescription = "${node.label ?: "Slider"}: $valueDescription. Range $min to $max."
                 },
             colors = SliderDefaults.colors(
-                thumbColor = AccentPrimary,
-                activeTrackColor = AccentPrimary,
+                thumbColor = LocalDesignColorTokens.current.primary,
+                activeTrackColor = LocalDesignColorTokens.current.primary,
                 inactiveTrackColor = CardFill,
                 activeTickColor = Color.Transparent,
                 inactiveTickColor = Color.Transparent,
@@ -954,14 +968,14 @@ private fun RenderSlider(
                 Box(
                     modifier = Modifier
                         .size(20.dp)
-                        .background(AccentPrimary, DoraiShapes.pill),
+                        .background(LocalDesignColorTokens.current.primary, DoraiShapes.pill),
                 )
             },
             track = { sliderState ->
                 SliderDefaults.Track(
                     sliderState = sliderState,
                     colors = SliderDefaults.colors(
-                        activeTrackColor = AccentPrimary,
+                        activeTrackColor = LocalDesignColorTokens.current.primary,
                         inactiveTrackColor = CardFill,
                     ),
                     drawStopIndicator = null,
@@ -1070,7 +1084,7 @@ private fun RenderProgress(node: ProgressNode) {
         }
         if (node.value != null) {
             LinearProgressIndicator(
-                progress = { node.value.coerceIn(0f, 1f) },
+                progress = { safeFiniteFloat(node.value, 0f).coerceIn(0f, 1f) },
                 modifier = Modifier.fillMaxWidth(),
                 drawStopIndicator = {},
                 gapSize = 0.dp,
@@ -1092,12 +1106,13 @@ private fun RenderCountdown(
     toggleState: SnapshotStateMap<String, Boolean>,
     onCallback: (String, Map<String, String>) -> Unit,
 ) {
-    val targetMs = remember { Clock.System.now().toEpochMilliseconds() + node.seconds.toLong() * 1000L }
-    var remainingSeconds by remember { mutableStateOf<Long>(node.seconds.toLong()) }
+    val countdownSeconds = node.seconds.coerceIn(0, 86400)
+    val targetMs = remember { Clock.System.now().toEpochMilliseconds() + countdownSeconds.toLong() * 1000L }
+    var remainingSeconds by remember { mutableStateOf<Long>(countdownSeconds.toLong()) }
     var expired by remember { mutableStateOf(false) }
     val currentOnCallback by rememberUpdatedState(onCallback)
     // The timer restarts whenever the item re-enters composition (scrolling, reopening a chat),
-    // so only a still-interactive message may fire its callback — an older countdown must never
+    // so only a still-interactive message may fire its callback Ã¢â‚¬â€ an older countdown must never
     // send the model a message the user didn't ask for.
     val currentIsInteractive by rememberUpdatedState(isInteractive)
 
@@ -1154,29 +1169,22 @@ private fun RenderCountdown(
         Text(
             text = formatted,
             style = DoraiTypography.headlineMedium,
-            color = if (expired) DangerAlert else LocalDesignColorTokens.current.textPrimary,
+            color = if (expired) LocalDesignColorTokens.current.error else LocalDesignColorTokens.current.textPrimary,
         )
     }
 }
 
 @Composable
 private fun RenderAlert(node: AlertNode) {
-    val successContainer = DesignTokens.Success.copy(alpha = 0.15f)
-    val onSuccessContainer = DesignTokens.Success
-    val warningContainer = DesignTokens.Warning.copy(alpha = 0.15f)
-    val onWarningContainer = DesignTokens.Warning
+    val successContainer = LocalDesignColorTokens.current.success.copy(alpha = 0.15f)
+    val warningContainer = LocalDesignColorTokens.current.warning.copy(alpha = 0.15f)
     val containerColor = when (node.severity) {
         AlertSeverity.SUCCESS -> successContainer
         AlertSeverity.WARNING -> warningContainer
-        AlertSeverity.ERROR -> DangerAlert.copy(alpha = 0.2f)
-        AlertSeverity.INFO, null -> AccentPrimary.copy(alpha = 0.2f)
+        AlertSeverity.ERROR -> LocalDesignColorTokens.current.error.copy(alpha = 0.2f)
+        AlertSeverity.INFO, null -> LocalDesignColorTokens.current.primary.copy(alpha = 0.2f)
     }
-    val contentColor = when (node.severity) {
-        AlertSeverity.SUCCESS -> onSuccessContainer
-        AlertSeverity.WARNING -> onWarningContainer
-        AlertSeverity.ERROR -> LocalDesignColorTokens.current.textPrimary
-        AlertSeverity.INFO, null -> LocalDesignColorTokens.current.textPrimary
-    }
+    val contentColor = LocalDesignColorTokens.current.textPrimary
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -1278,12 +1286,12 @@ private fun RenderChipGroup(
 @Composable
 private fun RenderIcon(node: IconNode) {
     val imageVector = resolveIcon(node.name)
-    val size = (node.size ?: 24).dp
+    val size = (node.size ?: 24).coerceIn(8, 192).dp
     if (imageVector != null) {
         val color = when (node.color) {
-            "primary" -> AccentPrimary
+            "primary" -> LocalDesignColorTokens.current.primary
             "secondary" -> LocalDesignColorTokens.current.textSecondary
-            "error" -> DangerAlert
+            "error" -> LocalDesignColorTokens.current.error
             else -> LocalDesignColorTokens.current.textPrimary
         }
         Icon(
@@ -1362,7 +1370,7 @@ private fun RenderQuote(node: QuoteNode) {
             modifier = Modifier
                 .width(3.dp)
                 .fillMaxHeight()
-                .background(AccentPrimary, DoraiShapes.xs),
+                .background(LocalDesignColorTokens.current.primary, DoraiShapes.xs),
         )
         Spacer(Modifier.width(12.dp))
         Column {
@@ -1375,7 +1383,7 @@ private fun RenderQuote(node: QuoteNode) {
             if (node.source != null) {
                 Spacer(Modifier.height(2.dp))
                 Text(
-                    text = "— ${node.source}",
+                    text = "Ã¢â‚¬â€ ${node.source}",
                     style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
@@ -1387,10 +1395,10 @@ private fun RenderQuote(node: QuoteNode) {
 @Composable
 private fun RenderBadge(node: BadgeNode) {
     val backgroundColor = when (node.color) {
-        "primary" -> AccentPrimary
+        "primary" -> LocalDesignColorTokens.current.primary
         "secondary" -> BorderSoft
-        "error" -> DangerAlert
-        else -> AccentPrimary
+        "error" -> LocalDesignColorTokens.current.error
+        else -> LocalDesignColorTokens.current.primary
     }
     val contentColor = when (node.color) {
         "primary" -> LocalDesignColorTokens.current.textPrimary
@@ -1464,7 +1472,7 @@ private fun RenderAvatar(node: AvatarNode) {
             modifier = Modifier
                 .size(sizeDp)
                 .clip(androidx.compose.foundation.shape.CircleShape)
-                .background(AccentPrimary, androidx.compose.foundation.shape.CircleShape),
+                .background(LocalDesignColorTokens.current.primary, androidx.compose.foundation.shape.CircleShape),
         ) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.size(sizeDp)) {
                 Text(
@@ -1480,7 +1488,7 @@ private fun RenderAvatar(node: AvatarNode) {
             modifier = Modifier
                 .size(sizeDp)
                 .clip(androidx.compose.foundation.shape.CircleShape)
-                .background(AccentPrimary, androidx.compose.foundation.shape.CircleShape),
+                .background(LocalDesignColorTokens.current.primary, androidx.compose.foundation.shape.CircleShape),
         ) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.size(sizeDp)) {
                 Icon(
@@ -1583,19 +1591,23 @@ private fun RenderTabs(
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .defaultMinSize(minHeight = 32.dp)
+                            .defaultMinSize(minHeight = 48.dp)
                             .clip(pillShape)
                             .then(
                                 if (isSelected) {
                                     Modifier.background(
-                                        AccentPrimary.copy(alpha = 0.15f),
+                                        LocalDesignColorTokens.current.primary.copy(alpha = 0.15f),
                                         pillShape,
                                     )
                                 } else {
                                     Modifier
                                 },
                             )
-                            .clickable { selectedIndex = index }
+                            .selectable(
+                                selected = isSelected,
+                                onClick = { selectedIndex = index },
+                                role = Role.Tab,
+                            )
                             .handCursor()
                             .padding(horizontal = 16.dp, vertical = 4.dp),
                     ) {
@@ -1604,11 +1616,12 @@ private fun RenderTabs(
                             style = DoraiTypography.labelLarge,
                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                             color = if (isSelected) {
-                                AccentPrimary
+                                LocalDesignColorTokens.current.primary
                             } else {
                                 LocalDesignColorTokens.current.textSecondary
                             },
                             maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                 }
@@ -1641,11 +1654,16 @@ private fun RenderAccordion(
 ) {
     var expanded by remember { mutableStateOf(node.expanded ?: false) }
 
+    val expandedLabel = stringResource(
+        if (expanded) Res.string.state_expanded else Res.string.state_collapsed,
+    )
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .handCursor()
-            .clickable { expanded = !expanded }
+            .clickable(role = Role.Button) { expanded = !expanded }
+            .semantics { stateDescription = expandedLabel }
             .clip(DoraiShapes.xs)
             .background(SurfaceElevated, DoraiShapes.xs),
     ) {

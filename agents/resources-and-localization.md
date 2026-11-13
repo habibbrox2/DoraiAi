@@ -5,6 +5,15 @@
 - The default string resource file is `values/strings.xml`; many localized `values-xx/strings.xml` folders exist.
 - Android platform resources are separate under `composeApp/src/androidMain/res/`; do not confuse Android `R.string` resources with generated Compose Resources.
 
+## Locale parity gate (mandatory for locale changes)
+- `composeApp/src/desktopTest/kotlin/com/dorai/ai/resources/LocaleParityTest.kt` — XML parse; key parity across **all** `values-*` directories; duplicate key detection; placeholder/plural parity; mojibake scan for Bengali-like sequences.
+- `scripts/validate-locales.ps1` — standalone local/CI-runnable validator (`pwsh scripts/validate-locales.ps1`); regex-based; intentional fallback for environments without a JVM test runner.
+- Any string added/renamed/removed in `values/strings.xml` must land in every `values-xx/strings.xml` in the same change (or the parity gate goes red). The 53 stale locales are a currently-known drift — do not add new stale locales.
+- When adding a new locale: copy `values/strings.xml` wholesale, translate every value, then run the parity gate. Do not drop keys that exist in `values/`.
+- Do not normalize Bengali `য়`/`য়` inconsistently; if normalization is needed, do it once with a corpus test covering both forms.
+- The parity gate does not bless en/bn as the only supported locales; other locales follow the same rules.
+- Reminder: Bengali text edits require UTF-8 integrity (no mojibake repair by regex) — see `docs/development/bengali-language-and-rendering-policy.md`.
+
 ## Adding or repairing a string
 1. Search `values/strings.xml` for the intended key and inspect nearby naming conventions.
 2. Check whether the key is present in the target locale files and whether translations are expected for this feature.

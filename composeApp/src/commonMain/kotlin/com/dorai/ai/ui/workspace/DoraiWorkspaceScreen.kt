@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -380,7 +381,7 @@ private fun WorkspaceProjectsView(
                     .clip(projShape)
                     .background(colors.surface)
                     .border(1.dp, colors.line, projShape)
-                    .clickable { onOpenProject(proj) }
+                    .clickable(role = Role.Button) { onOpenProject(proj) }
                     .padding(DoraiSpacing.MD),
             ) {
                 Row(
@@ -607,7 +608,8 @@ private fun ActiveProjectView(
                 drawerContent = {
                     Column(
                         modifier = Modifier
-                            .width(300.dp)
+                            .widthIn(max = 300.dp)
+                            .fillMaxWidth()
                             .fillMaxHeight()
                             .background(colors.surface)
                             .padding(DoraiSpacing.SM),

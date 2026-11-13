@@ -64,6 +64,14 @@ expect fun getAppFilesDirectory(): String
 expect fun applyAppLanguage(languageCode: String)
 
 /**
+ * Android-only helper: persists the requested language to `dorai_locale` shared prefs (read by
+ * `MainActivity.attachBaseContext` on the next cold start) and recreates the current Activity when
+ * the active configuration's locale differs, so Compose Resources re-resolve with the new language.
+ * No-op on other platforms.
+ */
+expect fun applyAndroidLocale(languageCode: String)
+
+/**
  * Returns the SIM operator as MCC+MNC (e.g. "47001") if available, or null.
  * Android: TelephonyManager.getSimOperator(); iOS: CoreTelephony.
  * Desktop/Web return null.

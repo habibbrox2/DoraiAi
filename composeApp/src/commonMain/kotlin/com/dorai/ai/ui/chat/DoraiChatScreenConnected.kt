@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.chat
+﻿package com.dorai.ai.ui.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -47,6 +47,7 @@ import com.dorai.ai.data.imageExtensions
 import com.dorai.ai.exitApp
 import com.dorai.ai.getBackgroundDispatcher
 import com.dorai.ai.permissionQualifier
+import com.dorai.ai.text.graphemeSafeTruncateWithEllipsis
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.tools.AppPermission
@@ -85,6 +86,7 @@ import dorai.composeapp.generated.resources.chat_voice_unavailable
 import dorai.composeapp.generated.resources.chat_voice_unknown_error
 import dorai.composeapp.generated.resources.ic_file
 import dorai.composeapp.generated.resources.ic_image
+import dorai.composeapp.generated.resources.model_not_configured
 import dorai.composeapp.generated.resources.settings_model_label
 import dorai.composeapp.generated.resources.snackbar_conversation_deleted
 import dorai.composeapp.generated.resources.snackbar_undo
@@ -93,6 +95,7 @@ import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import kotlinx.coroutines.launch
 import nl.marc_apps.tts.TextToSpeechInstance
 import nl.marc_apps.tts.errors.TextToSpeechSynthesisInterruptedError
+import nl.marc_apps.tts.experimental.ExperimentalVoiceApi
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -104,6 +107,7 @@ import org.koin.compose.koinInject
  * collapsible reasoning/thinking blocks, TTS speech, tool authorization approvals, dynamic UI,
  * proactive heartbeat & SMS banners, conversation management, and undo actions.
  */
+@OptIn(ExperimentalVoiceApi::class)
 @Composable
 fun DoraiChatScreenConnected(
     viewModel: ChatViewModel,
@@ -168,7 +172,7 @@ fun DoraiChatScreenConnected(
             ?.content
             ?.trim()
             ?.replace(Regex("\\s+"), " ")
-            ?.take(90)
+            ?.let { graphemeSafeTruncateWithEllipsis(it, 90) }
             .orEmpty()
         uiState.savedConversations
             .filter { it.id != pendingId }
@@ -184,7 +188,7 @@ fun DoraiChatScreenConnected(
     }
 
     val activeService = uiState.availableServices.firstOrNull()
-    val currentModelName = activeService?.serviceName ?: "Free FAST"
+    val currentModelName = activeService?.serviceName ?: stringResource(Res.string.model_not_configured)
     val isModelLocal = activeService?.executionLocation == ExecutionLocation.LOCAL
     val maxContextTokens = remember(activeService) {
         val modelId = activeService?.modelId ?: activeService?.serviceId ?: ""
@@ -362,6 +366,22 @@ fun DoraiChatScreenConnected(
                                 } catch (_: Exception) {}
                                 try {
                                     textToSpeech.volume = (appSettings.getTtsVolume() * 100).toInt()
+                                } catch (_: Exception) {}
+                                // Bengali/English: pick a voice matching the app language when the
+                                // engine's current voice doesn't speak it (Google TTS ships bn-IN voices).
+                                try {
+                                    val appLangCode = appSettings.getAppLanguage().code
+                                    val currentVoiceLang = try {
+                                        textToSpeech.language
+                                    } catch (_: Exception) {
+                                        ""
+                                    }
+                                    if (!currentVoiceLang.startsWith(appLangCode)) {
+                                        val match = textToSpeech.voices.firstOrNull { voice ->
+                                            voice.languageTag.startsWith(appLangCode)
+                                        }
+                                        if (match != null) textToSpeech.currentVoice = match
+                                    }
                                 } catch (_: Exception) {}
                                 textToSpeech.say(msg.text.toSpeakableText())
                             } catch (_: TextToSpeechSynthesisInterruptedError) {

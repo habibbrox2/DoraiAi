@@ -145,6 +145,7 @@ class HeartbeatManager(
         }
         return buildHeartbeatPrompt(
             customOrDefaultPrompt = customPrompt.ifEmpty { DEFAULT_HEARTBEAT_PROMPT },
+            activeLanguageName = appSettings.getAppLanguage().displayName,
             heartbeatAdditions = heartbeatAdditions,
             recentResponses = recentResponses,
             pendingTasks = pendingTasks,
@@ -170,6 +171,11 @@ class HeartbeatManager(
     companion object {
         private const val MAX_LOG_ENTRIES = 5
         private const val MAX_NOTIFICATIONS_IN_PROMPT = 20
+
+        // The HEARTBEAT_OK suppression check below is ASCII-sentinel based on purpose:
+        // DEFAULT_HEARTBEAT_PROMPT instructs the model to emit exactly ASCII HEARTBEAT_OK.
+        // Any custom/localized heartbeat prompt must keep the sentinel ASCII or healthy
+        // heartbeats would surface in chat. Do not widen this check to non-ASCII markers.
         const val DEFAULT_HEARTBEAT_PROMPT =
             "[HEARTBEAT] This is an automatic self-check. Review your memories and pending tasks. " +
                 "If everything looks good and nothing needs attention, respond with exactly: HEARTBEAT_OK\n" +

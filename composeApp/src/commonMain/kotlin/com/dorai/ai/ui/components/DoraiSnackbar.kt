@@ -6,9 +6,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -19,14 +22,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.dorai.ai.ui.DangerAlert
 import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
-import com.dorai.ai.ui.InfoBlue
-import com.dorai.ai.ui.SuccessGreen
-import com.dorai.ai.ui.WarningAmber
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.action_close
+import org.jetbrains.compose.resources.stringResource
 
 /** Color configuration for a DoraiSnackbar variant. */
 private data class SnackbarColors(
@@ -58,7 +63,8 @@ fun DoraiSnackbar(
             .padding(16.dp)
             .clip(DoraiShapes.pill)
             .background(colors.background, DoraiShapes.pill)
-            .border(BorderStroke(1.dp, colors.border), DoraiShapes.pill),
+            .border(BorderStroke(1.dp, colors.border), DoraiShapes.pill)
+            .semantics { liveRegion = LiveRegionMode.Polite },
     ) {
         CompositionLocalProvider(LocalContentColor provides colors.text) {
             Row(
@@ -73,12 +79,12 @@ fun DoraiSnackbar(
                 onDismiss?.let {
                     IconButton(
                         onClick = it,
-                        modifier = Modifier.padding(start = 4.dp),
+                        modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp).padding(start = 4.dp),
                     ) {
-                        androidx.compose.material3.Text(
-                            text = "✕",
-                            style = DoraiTypography.labelSmall,
-                            color = colors.text,
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(Res.string.action_close),
+                            tint = colors.text,
                         )
                     }
                 }
@@ -92,33 +98,36 @@ private fun snackbarColors(
     variant: SnackbarVariant,
 ): SnackbarColors {
     val colors = LocalDesignColorTokens.current
+    // Tint the border/accent with the semantic color and keep textTheme text
+    // primary — a saturated fill with onPrimary-ish text failed contrast on
+    // light themes. Background uses the elevated surface, border carries the hue.
     return when (variant) {
         SnackbarVariant.Success ->
             SnackbarColors(
-                background = SuccessGreen,
+                background = colors.surfaceRaised,
                 text = colors.textPrimary,
-                border = SuccessGreen.copy(alpha = 0.4f),
+                border = colors.success.copy(alpha = 0.6f),
             )
 
         SnackbarVariant.Warning ->
             SnackbarColors(
-                background = WarningAmber,
+                background = colors.surfaceRaised,
                 text = colors.textPrimary,
-                border = WarningAmber.copy(alpha = 0.4f),
+                border = colors.warning.copy(alpha = 0.6f),
             )
 
         SnackbarVariant.Error ->
             SnackbarColors(
-                background = DangerAlert,
+                background = colors.surfaceRaised,
                 text = colors.textPrimary,
-                border = DangerAlert.copy(alpha = 0.4f),
+                border = colors.error.copy(alpha = 0.6f),
             )
 
         SnackbarVariant.Info ->
             SnackbarColors(
-                background = InfoBlue,
+                background = colors.surfaceRaised,
                 text = colors.textPrimary,
-                border = InfoBlue.copy(alpha = 0.4f),
+                border = colors.info.copy(alpha = 0.6f),
             )
     }
 }

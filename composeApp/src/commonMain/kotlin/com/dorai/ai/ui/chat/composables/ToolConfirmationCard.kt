@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +27,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -65,12 +63,12 @@ fun ToolConfirmationCard(
             .shadow(
                 elevation = 4.dp,
                 shape = RoundedCornerShape(DesignTokens.RadiusCard),
-                ambientColor = DesignTokens.Warning.copy(alpha = 0.18f),
-                spotColor = DesignTokens.Warning.copy(alpha = 0.3f),
+                ambientColor = LocalDesignColorTokens.current.warning.copy(alpha = 0.18f),
+                spotColor = LocalDesignColorTokens.current.warning.copy(alpha = 0.3f),
             )
             .background(LocalDesignColorTokens.current.surfaceElevated)
             .border(
-                BorderStroke(1.dp, DesignTokens.Warning.copy(alpha = 0.45f)),
+                BorderStroke(1.dp, LocalDesignColorTokens.current.warning.copy(alpha = 0.45f)),
                 RoundedCornerShape(12.dp),
             ),
     ) {
@@ -84,14 +82,14 @@ fun ToolConfirmationCard(
             Icon(
                 painter = painterResource(Res.drawable.ic_flag),
                 contentDescription = null,
-                tint = DesignTokens.Warning,
+                tint = LocalDesignColorTokens.current.warning,
                 modifier = Modifier.size(20.dp),
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = stringResource(Res.string.tool_request_title, displayName),
                     style = DoraiTypography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = LocalDesignColorTokens.current.textPrimary,
                 )
                 if (targetInfo.isNotEmpty()) {
                     Text(
@@ -118,9 +116,9 @@ fun ToolConfirmationCard(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(DesignTokens.RadiusHud),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = DesignTokens.Error,
+                        contentColor = LocalDesignColorTokens.current.error,
                     ),
-                    border = BorderStroke(1.dp, DesignTokens.Error.copy(alpha = 0.5f)),
+                    border = BorderStroke(1.dp, LocalDesignColorTokens.current.error.copy(alpha = 0.5f)),
                 ) {
                     Text(stringResource(Res.string.tool_action_deny), style = DoraiTypography.labelMedium)
                 }
@@ -129,7 +127,7 @@ fun ToolConfirmationCard(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(DesignTokens.RadiusHud),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = AccentPrimary.copy(alpha = 0.88f),
+                        containerColor = LocalDesignColorTokens.current.primary.copy(alpha = 0.88f),
                     ),
                 ) {
                     Text(stringResource(Res.string.tool_action_allow_once), style = DoraiTypography.labelMedium)
@@ -141,7 +139,7 @@ fun ToolConfirmationCard(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(DesignTokens.RadiusHud),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = DesignTokens.AgentViolet,
+                        containerColor = LocalDesignColorTokens.current.accent,
                     ),
                 ) {
                     Text(stringResource(Res.string.tool_action_allow_session), style = DoraiTypography.labelMedium)
@@ -151,7 +149,7 @@ fun ToolConfirmationCard(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(DesignTokens.RadiusHud),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = DesignTokens.Success,
+                        containerColor = LocalDesignColorTokens.current.success,
                     ),
                 ) {
                     Text(stringResource(Res.string.tool_action_always_allow), style = DoraiTypography.labelMedium)

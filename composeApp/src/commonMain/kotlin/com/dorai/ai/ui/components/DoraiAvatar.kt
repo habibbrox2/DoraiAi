@@ -13,13 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.hideFromAccessibility
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.dorai.ai.ui.AccentPrimary
-import com.dorai.ai.ui.BorderSoft
-import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
-import com.dorai.ai.ui.SurfaceElevated
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import org.jetbrains.compose.resources.vectorResource
@@ -37,24 +36,34 @@ import org.jetbrains.compose.resources.vectorResource
 fun DoraiAvatar(
     initials: String? = null,
     size: Dp = 40.dp,
-    borderColor: Color = BorderSoft,
+    borderColor: Color? = null,
     statusColor: Color? = null,
+    contentDescription: String? = null,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalDesignColorTokens.current
+    val resolvedBorder = borderColor ?: colors.borderSoft
+    val avatarDescription = contentDescription
     Box(
         modifier = modifier
             .size(size)
             .clip(CircleShape)
-            .border(BorderStroke(1.dp, borderColor), CircleShape)
-            .background(SurfaceElevated, CircleShape),
+            .border(BorderStroke(1.dp, resolvedBorder), CircleShape)
+            .background(colors.surfaceElevated, CircleShape)
+            .semantics {
+                if (avatarDescription == null) {
+                    hideFromAccessibility()
+                } else {
+                    this.contentDescription = avatarDescription
+                }
+            },
         contentAlignment = Alignment.Center,
     ) {
         if (initials != null && initials.isNotEmpty()) {
             Text(
-                text = initials.take(2).uppercase(),
+                text = initials.take(2),
                 style = DoraiTypography.labelMedium,
-                color = AccentPrimary,
+                color = colors.primary,
                 modifier = Modifier.align(Alignment.Center),
             )
         } else {
@@ -75,7 +84,7 @@ fun DoraiAvatar(
                     .size(size * 0.25f)
                     .clip(CircleShape)
                     .background(statusColor)
-                    .border(BorderStroke(1.dp, BorderSoft), CircleShape),
+                    .border(BorderStroke(1.dp, colors.borderSoft), CircleShape),
             )
         }
     }

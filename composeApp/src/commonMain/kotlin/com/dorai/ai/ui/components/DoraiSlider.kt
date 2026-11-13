@@ -82,7 +82,7 @@ fun DoraiRangeSlider(
 @Composable
 private fun DoraiSliderThumb() {
     val borderColor = LocalDesignColorTokens.current.surfaceRaised
-    val thumbColor = DesignTokens.PrimaryCyan
+    val thumbColor = LocalDesignColorTokens.current.primary
     Box(
         modifier = Modifier
             .size(20.dp)
@@ -101,8 +101,8 @@ private fun DoraiSliderThumb() {
 
 @Composable
 private fun doraiSliderColors() = SliderDefaults.colors(
-    thumbColor = DesignTokens.PrimaryCyan,
-    activeTrackColor = DesignTokens.PrimaryCyan,
+    thumbColor = LocalDesignColorTokens.current.primary,
+    activeTrackColor = LocalDesignColorTokens.current.primary,
     inactiveTrackColor = LocalDesignColorTokens.current.borderSubtle,
     activeTickColor = Color.Transparent,
     inactiveTickColor = Color.Transparent,
@@ -110,6 +110,6 @@ private fun doraiSliderColors() = SliderDefaults.colors(
 
 @Composable
 private fun doraiSliderTrackColors() = SliderDefaults.colors(
-    activeTrackColor = DesignTokens.PrimaryCyan,
+    activeTrackColor = LocalDesignColorTokens.current.primary,
     inactiveTrackColor = LocalDesignColorTokens.current.borderSubtle,
 )

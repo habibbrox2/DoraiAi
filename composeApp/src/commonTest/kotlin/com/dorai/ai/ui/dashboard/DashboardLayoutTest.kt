@@ -46,14 +46,20 @@ class DashboardLayoutTest {
     }
 
     @Test
-    fun tabletWidthUsesTwoColumns() {
+    fun mediumWidthUsesTwoColumns() {
         assertEquals(2, dashboardColumnsFor(600.dp))
-        assertEquals(2, dashboardColumnsFor(999.dp))
+        assertEquals(2, dashboardColumnsFor(839.dp))
     }
 
     @Test
-    fun expandedWidthUsesFourColumns() {
-        assertEquals(4, dashboardColumnsFor(1000.dp))
+    fun expandedWidthUsesThreeColumns() {
+        assertEquals(3, dashboardColumnsFor(840.dp))
+        assertEquals(3, dashboardColumnsFor(1199.dp))
+    }
+
+    @Test
+    fun wideWidthUsesFourColumns() {
+        assertEquals(4, dashboardColumnsFor(1200.dp))
     }
 
     @Test

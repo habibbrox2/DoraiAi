@@ -33,8 +33,13 @@ private fun itemToSpeakable(item: ListItem): String {
 
 private fun ensureSentenceEnd(text: String): String {
     if (text.isEmpty()) return text
+    if (text.isBlank()) return text
     val last = text.last()
-    return if (last == '.' || last == '?' || last == '!') text else "$text."
+    // Bengali prose ends with danda; don't append an ASCII period after a Bengali sentence.
+    if (last == '।') return text
+    if (last == '.' || last == '?' || last == '!') return text
+    val bengaliRange = 'ঀ'..'৿'
+    return if (text.last { !it.isWhitespace() } in bengaliRange) "$text।" else "$text."
 }
 
 private fun tableToSpeakable(table: Table): String {

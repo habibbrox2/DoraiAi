@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -57,6 +58,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -129,7 +133,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
-/** Where Debian mounts the project folders — the browser's root inside a project. */
+/** Where Debian mounts the project folders â€” the browser's root inside a project. */
 private const val PROJECTS_GUEST_DIR = "/root/projects"
 
 /** Keeps Workspace's browser out of the chat sandbox's ViewModel slot. */
@@ -583,7 +587,7 @@ private fun WorkspaceTabContent(
             .statusBarsPadding()
             .navigationBarsPadding(),
     ) {
-        // ─── Top bar ───
+        // â”€â”€â”€ Top bar â”€â”€â”€
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -611,6 +615,7 @@ private fun WorkspaceTabContent(
                         color = LocalDesignColorTokens.current.textPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.semantics { heading() },
                     )
                     Text(
                         text = state.build.activeSessionId?.take(7) ?: stringResource(Res.string.workspace_default_session_label),
@@ -644,7 +649,7 @@ private fun WorkspaceTabContent(
             }
         }
 
-        // ─── Tab body ───
+        // â”€â”€â”€ Tab body â”€â”€â”€
         when (tab) {
             WorkspaceTab.Agent -> {
                 if (project != null) {
@@ -766,7 +771,7 @@ private fun WorkspaceTabContent(
                                     Text(
                                         text = stringResource(saveMessage),
                                         style = DoraiTypography.labelMedium,
-                                        color = if (saveMessage == Res.string.sandbox_files_save_failed) DesignTokens.Error else DesignTokens.Success,
+                                        color = if (saveMessage == Res.string.sandbox_files_save_failed) LocalDesignColorTokens.current.error else LocalDesignColorTokens.current.success,
                                         modifier = Modifier.weight(1f),
                                     )
                                     TextButton(onClick = onConsumeSaveMessage) {
@@ -937,7 +942,7 @@ private fun WorkspaceTabContent(
             }
         }
 
-        // ─── Bottom navigation ───
+        // â”€â”€â”€ Bottom navigation â”€â”€â”€
         NavigationBar(
             modifier = Modifier.fillMaxWidth(),
             containerColor = MaterialTheme.colorScheme.surface,
@@ -1051,7 +1056,7 @@ private fun WorkspaceGitContent(
                     Text(
                         text = stringResource(Res.string.workspace_git_failed),
                         style = DoraiTypography.bodyMedium,
-                        color = DesignTokens.Error,
+                        color = LocalDesignColorTokens.current.error,
                     )
                 }
 
@@ -1132,7 +1137,7 @@ private fun WorkspaceGitDiffDialog(
                     Text(
                         text = stringResource(Res.string.workspace_git_diff_error),
                         style = DoraiTypography.bodyMedium,
-                        color = DesignTokens.Error,
+                        color = LocalDesignColorTokens.current.error,
                     )
                 } else {
                     if (diff.stagedDiff.isNotEmpty()) {
@@ -1217,7 +1222,7 @@ private fun WorkspaceGitChangesList(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable(onClick = { onOpenFile(change.path) }),
+                        .clickable(onClick = { onOpenFile(change.path) }, role = Role.Button),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
@@ -1236,34 +1241,40 @@ private fun WorkspaceGitChangesList(
                             style = DoraiTypography.bodyMedium,
                             color = colorTokens.textPrimary,
                             maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                         Text(
                             text = change.path,
                             style = DoraiTypography.labelSmall,
                             color = colorTokens.textSecondary,
                             maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
 
                     val (badgeColor, badgeText) = when (change.status) {
-                        WorkspaceGitStatus.Added -> Pair(DesignTokens.Success, stringResource(Res.string.workspace_git_status_added))
-                        WorkspaceGitStatus.Modified -> Pair(DesignTokens.Warning, stringResource(Res.string.workspace_git_status_modified))
-                        WorkspaceGitStatus.Deleted -> Pair(DesignTokens.Error, stringResource(Res.string.workspace_git_status_deleted))
-                        WorkspaceGitStatus.Renamed -> Pair(DesignTokens.AccentPrimary, stringResource(Res.string.workspace_git_status_renamed))
+                        WorkspaceGitStatus.Added -> Pair(colorTokens.success, stringResource(Res.string.workspace_git_status_added))
+                        WorkspaceGitStatus.Modified -> Pair(colorTokens.warning, stringResource(Res.string.workspace_git_status_modified))
+                        WorkspaceGitStatus.Deleted -> Pair(colorTokens.error, stringResource(Res.string.workspace_git_status_deleted))
+                        WorkspaceGitStatus.Renamed -> Pair(colorTokens.accent, stringResource(Res.string.workspace_git_status_renamed))
                         WorkspaceGitStatus.Untracked -> Pair(colorTokens.textMuted, stringResource(Res.string.workspace_git_status_untracked))
-                        WorkspaceGitStatus.Conflicted -> Pair(DesignTokens.Error, stringResource(Res.string.workspace_git_status_conflicted))
+                        WorkspaceGitStatus.Conflicted -> Pair(colorTokens.error, stringResource(Res.string.workspace_git_status_conflicted))
                     }
                     Box(
                         modifier = Modifier
-                            .size(20.dp)
+                            .heightIn(min = 22.dp)
+                            .defaultMinSize(minWidth = 22.dp)
                             .background(badgeColor)
-                            .clip(RoundedCornerShape(4.dp)),
+                            .clip(RoundedCornerShape(6.dp)),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
-                            text = badgeText.take(1).uppercase(),
-                            style = DoraiTypography.labelSmall.copy(fontSize = 9.sp),
-                            color = DesignTokens.BrandInk,
+                            text = badgeText,
+                            style = DoraiTypography.labelSmall,
+                            color = colorTokens.background,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                         )
                     }
                 }
@@ -1286,6 +1297,7 @@ private fun WorkspaceGitChangesList(
                         color = colorTokens.textSecondary,
                         modifier = Modifier.weight(1f),
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     if (change.staged) {
                         TextButton(

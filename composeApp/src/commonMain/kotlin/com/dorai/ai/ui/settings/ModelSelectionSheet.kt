@@ -48,6 +48,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -95,7 +96,7 @@ internal fun ModelSelection(
     canRetry: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    // Provider list only — synthetic manual entries stay out of the picker grid.
+    // Provider list only â€” synthetic manual entries stay out of the picker grid.
     val pickerModels = remember(models) { models.filter { !it.isManualEntry } }
     if (pickerModels.isNotEmpty()) {
         Box(
@@ -126,7 +127,7 @@ internal fun ModelSelection(
                 modifier = Modifier
                     .matchParentSize()
                     .handCursor()
-                    .clickable { expanded = true },
+                    .clickable(role = Role.Button) { expanded = true },
             )
         }
         if (expanded) {
@@ -317,7 +318,7 @@ private fun ModelCard(model: SettingsModel, isSelected: Boolean, onClick: () -> 
     val contextText = model.contextWindow?.let { formatContextWindow(it) }
     val releaseText = model.releaseDate?.let { formatReleaseDate(it) }
     val detailText = listOfNotNull(releaseText, model.parameterCount, contextText)
-        .joinToString("  ·  ").ifEmpty { null }
+        .joinToString("  Â·  ").ifEmpty { null }
 
     val primaryColor = if (isSelected) {
         LocalDesignColorTokens.current.textPrimary
@@ -333,7 +334,7 @@ private fun ModelCard(model: SettingsModel, isSelected: Boolean, onClick: () -> 
         modifier = Modifier
             .handCursor()
             .clip(DoraiShapes.card)
-            .clickable { onClick() }
+            .clickable(role = Role.Button) { onClick() }
             .background(if (isSelected) LocalDesignColorTokens.current.surfaceRaised else LocalDesignColorTokens.current.surfaceElevated, DoraiShapes.card)
             .border(BorderStroke(1.dp, LocalDesignColorTokens.current.borderSubtle), DoraiShapes.card),
     ) {
@@ -426,6 +427,7 @@ private fun FreeTierBadge(isSelected: Boolean) {
             style = DoraiTypography.labelMedium,
             color = content,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
         )
     }

@@ -37,11 +37,17 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.state_collapsed
+import dorai.composeapp.generated.resources.state_expanded
+import org.jetbrains.compose.resources.stringResource
 
 enum class TimelineNodeType {
     Task,
@@ -165,15 +171,24 @@ private fun TimelineRow(
         Spacer(modifier = Modifier.width(DoraiSpacing.MD))
 
         // Content
+        val expandable = !item.details.isNullOrEmpty()
+        val expandedState = if (isExpanded) {
+            stringResource(Res.string.state_expanded)
+        } else {
+            stringResource(Res.string.state_collapsed)
+        }
         Column(
             modifier = Modifier
                 .weight(1f)
-                .clickable(
-                    enabled = !item.details.isNullOrEmpty(),
-                    role = Role.Button,
-                ) {
-                    isExpanded = !isExpanded
-                }
+                .then(
+                    if (expandable) {
+                        Modifier
+                            .clickable(role = Role.Button) { isExpanded = !isExpanded }
+                            .semantics { stateDescription = expandedState }
+                    } else {
+                        Modifier
+                    },
+                )
                 .padding(bottom = if (isLast) 0.dp else DoraiSpacing.MD),
         ) {
             Text(

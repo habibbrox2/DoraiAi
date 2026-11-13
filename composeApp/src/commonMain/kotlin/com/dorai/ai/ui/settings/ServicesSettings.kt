@@ -165,6 +165,7 @@ import dorai.composeapp.generated.resources.services_group_hosted
 import dorai.composeapp.generated.resources.services_group_on_device
 import dorai.composeapp.generated.resources.services_needs_attention_many
 import dorai.composeapp.generated.resources.services_needs_attention_one
+import dorai.composeapp.generated.resources.services_sponsor_subtitle
 import dorai.composeapp.generated.resources.settings_add_service
 import dorai.composeapp.generated.resources.settings_api_key_label
 import dorai.composeapp.generated.resources.settings_api_key_optional_label
@@ -363,11 +364,12 @@ internal data class SupportProfile(
 internal fun buildSupportProfiles(
     current: ImmutableList<SponsorsResponseDto.Sponsor>,
     past: ImmutableList<SponsorsResponseDto.Sponsor>,
+    ownerSubtitle: String,
 ): List<SupportProfile> {
     val owner = SupportProfile(
         id = "brox-dorai-owner",
         name = "DORAI AI",
-        subtitle = "habibbrox2 · project maintainer",
+        subtitle = ownerSubtitle,
         avatarUrl = null,
         destinationUrl = SupportLinks.OWNER_PROFILE,
         isOwnerProfile = true,
@@ -426,7 +428,7 @@ private fun OwnerProfileCard(profile: SupportProfile) {
                 if (destination != null) {
                     Modifier
                         .handCursor()
-                        .clickable { uriHandler.openUri(destination) }
+                        .clickable(role = Role.Button) { uriHandler.openUri(destination) }
                         .semantics {
                             contentDescription =
                                 "Open ${profile.name} profile, ${destination.removePrefix("https://")}"
@@ -495,7 +497,7 @@ private fun SponsorTile(profile: SupportProfile, tileWidth: Dp) {
             .then(
                 if (destination != null) {
                     Modifier
-                        .clickable { uriHandler.openUri(destination) }
+                        .clickable(role = Role.Button) { uriHandler.openUri(destination) }
                         .handCursor()
                         .semantics {
                             // Link action is part of the name so screen readers
@@ -569,8 +571,9 @@ private fun SupportSection(
     currentSponsors: ImmutableList<SponsorsResponseDto.Sponsor>,
     pastSponsors: ImmutableList<SponsorsResponseDto.Sponsor>,
 ) {
-    val profiles = remember(currentSponsors, pastSponsors) {
-        buildSupportProfiles(currentSponsors, pastSponsors)
+    val ownerSubtitle = stringResource(Res.string.services_sponsor_subtitle)
+    val profiles = remember(currentSponsors, pastSponsors, ownerSubtitle) {
+        buildSupportProfiles(currentSponsors, pastSponsors, ownerSubtitle)
     }
     val owner = profiles.first { it.isOwnerProfile }
     val current = profiles.filter { !it.isOwnerProfile && it.isCurrentSponsor }
@@ -872,7 +875,7 @@ private fun ProviderRowItem(
         modifier = Modifier
             .fillMaxWidth()
             .handCursor()
-            .clickable { onClick() }
+            .clickable(role = Role.Button) { onClick() }
             .clip(itemShape)
             .background(CardFill, itemShape)
             .border(BorderStroke(1.dp, BorderSoft), itemShape)
@@ -1041,7 +1044,7 @@ private fun ConfiguredServiceCardContent(
         modifier = Modifier
             .doraiAdaptiveCardSurface()
             .fillMaxWidth()
-            .clickable { onExpand() }
+            .clickable(role = Role.Button) { onExpand() }
             .handCursor()
             .semantics {
                 role = Role.Button
@@ -1943,19 +1946,19 @@ private fun DevicePerformanceLabel(performance: DevicePerformance) {
         DevicePerformance.GOOD -> Text(
             text = stringResource(Res.string.litert_performance_good),
             style = DoraiTypography.labelSmall,
-            color = StatusColorConnected,
+            color = LocalDesignColorTokens.current.success,
         )
 
         DevicePerformance.OK -> Text(
             text = stringResource(Res.string.litert_performance_ok),
             style = DoraiTypography.labelSmall,
-            color = StatusColorChecking,
+            color = LocalDesignColorTokens.current.warning,
         )
 
         DevicePerformance.POOR -> Text(
             text = stringResource(Res.string.litert_performance_poor),
             style = DoraiTypography.labelSmall,
-            color = StatusColorError,
+            color = LocalDesignColorTokens.current.error,
         )
     }
 }

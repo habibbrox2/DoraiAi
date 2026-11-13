@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -50,8 +51,17 @@ import com.dorai.ai.ui.rememberCopyToClipboard
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_collapse
 import dorai.composeapp.generated.resources.a11y_copy_code
+import dorai.composeapp.generated.resources.a11y_expand
 import dorai.composeapp.generated.resources.chat_action_copied
+import dorai.composeapp.generated.resources.chat_shell_label
+import dorai.composeapp.generated.resources.chat_tool_call_label
+import dorai.composeapp.generated.resources.chat_tool_done
+import dorai.composeapp.generated.resources.chat_tool_failed
+import dorai.composeapp.generated.resources.chat_tool_input_label
+import dorai.composeapp.generated.resources.chat_tool_running
+import dorai.composeapp.generated.resources.chat_tool_running_plain
 import dorai.composeapp.generated.resources.tool_output_label
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
@@ -94,9 +104,9 @@ fun ShellExecutionCard(
     val borderColor = LocalDesignColorTokens.current.borderSubtle
     val textSlate = LocalDesignColorTokens.current.textPrimary
     val textMuted = LocalDesignColorTokens.current.textMuted
-    val accentCyan = DesignTokens.PrimaryCyan
-    val successGreen = DesignTokens.Success
-    val errorRed = DesignTokens.Error
+    val accentCyan = LocalDesignColorTokens.current.primary
+    val successGreen = LocalDesignColorTokens.current.success
+    val errorRed = LocalDesignColorTokens.current.error
 
     val cleanOutput = stdout?.trimEnd().orEmpty()
     val cleanError = stderr?.trimEnd().orEmpty()
@@ -122,7 +132,7 @@ fun ShellExecutionCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(headerBg)
-                    .clickable { isExpanded = !isExpanded }
+                    .clickable(role = Role.Button) { isExpanded = !isExpanded }
                     .handCursor()
                     .padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -147,7 +157,7 @@ fun ShellExecutionCard(
                         modifier = Modifier.size(14.dp),
                     )
                     Text(
-                        text = "Terminal / Shell",
+                        text = stringResource(Res.string.chat_shell_label),
                         style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
                         fontFamily = FontFamily.Monospace,
                         color = textSlate,
@@ -170,7 +180,7 @@ fun ShellExecutionCard(
                         ) {
                             AnimatedTypingDots(dotColor = accentCyan)
                             Text(
-                                text = "Running...",
+                                text = stringResource(Res.string.chat_tool_running),
                                 style = DoraiTypography.labelSmall,
                                 fontFamily = FontFamily.Monospace,
                                 color = accentCyan,
@@ -223,7 +233,9 @@ fun ShellExecutionCard(
 
                     Icon(
                         imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = if (isExpanded) "Collapse" else "Expand",
+                        contentDescription = stringResource(
+                            if (isExpanded) Res.string.a11y_collapse else Res.string.a11y_expand,
+                        ),
                         tint = textMuted,
                         modifier = Modifier.size(18.dp),
                     )
@@ -307,7 +319,7 @@ fun ShellExecutionCard(
                                 color = accentCyan,
                                 modifier = Modifier
                                     .padding(top = 8.dp)
-                                    .clickable { showAllLines = !showAllLines }
+                                    .clickable(role = Role.Button) { showAllLines = !showAllLines }
                                     .handCursor(),
                             )
                         }
@@ -361,9 +373,9 @@ fun ToolExecutionCard(
     val borderColor = LocalDesignColorTokens.current.borderSubtle
     val textSlate = LocalDesignColorTokens.current.textPrimary
     val textMuted = LocalDesignColorTokens.current.textMuted
-    val accentTeal = DesignTokens.PrimaryCyan
-    val successGreen = DesignTokens.Success
-    val errorRed = DesignTokens.Error
+    val accentTeal = LocalDesignColorTokens.current.primary
+    val successGreen = LocalDesignColorTokens.current.success
+    val errorRed = LocalDesignColorTokens.current.error
 
     val toolIcon = when {
         toolName.contains("search", ignoreCase = true) -> "??"
@@ -390,7 +402,7 @@ fun ToolExecutionCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { isExpanded = !isExpanded }
+                    .clickable(role = Role.Button) { isExpanded = !isExpanded }
                     .handCursor()
                     .padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -403,7 +415,7 @@ fun ToolExecutionCard(
                 ) {
                     Text(text = toolIcon, style = DoraiTypography.titleSmall)
                     Text(
-                        text = "Tool call",
+                        text = stringResource(Res.string.chat_tool_call_label),
                         style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                         fontFamily = FontFamily.Monospace,
                         color = textSlate,
@@ -427,7 +439,7 @@ fun ToolExecutionCard(
                         ) {
                             AnimatedTypingDots(dotColor = accentTeal)
                             Text(
-                                text = "Running",
+                                text = stringResource(Res.string.chat_tool_running_plain),
                                 style = DoraiTypography.labelSmall,
                                 fontFamily = FontFamily.Monospace,
                                 color = accentTeal,
@@ -435,7 +447,9 @@ fun ToolExecutionCard(
                             )
                         }
                     } else {
-                        val statusText = if (isError) "Failed" else "Done"
+                        val statusText = stringResource(
+                            if (isError) Res.string.chat_tool_failed else Res.string.chat_tool_done,
+                        )
                         val statusColor = if (isError) errorRed else successGreen
                         Text(
                             text = if (isError) "? $statusText" else "? $statusText",
@@ -452,7 +466,9 @@ fun ToolExecutionCard(
 
                     Icon(
                         imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = if (isExpanded) "Collapse" else "Expand",
+                        contentDescription = stringResource(
+                            if (isExpanded) Res.string.a11y_collapse else Res.string.a11y_expand,
+                        ),
                         tint = textMuted,
                         modifier = Modifier.size(18.dp),
                     )
@@ -475,7 +491,7 @@ fun ToolExecutionCard(
                     if (!arguments.isNullOrBlank()) {
                         Column {
                             Text(
-                                text = "Input:",
+                                text = stringResource(Res.string.chat_tool_input_label),
                                 style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
                                 fontFamily = FontFamily.Monospace,
                                 color = textMuted,

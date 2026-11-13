@@ -75,6 +75,10 @@ import dorai.composeapp.generated.resources.state_collapsed
 import dorai.composeapp.generated.resources.state_expanded
 import dorai.composeapp.generated.resources.tool_action_ask_fix
 import dorai.composeapp.generated.resources.tool_action_retry
+import dorai.composeapp.generated.resources.tool_card_command_header
+import dorai.composeapp.generated.resources.tool_card_exit_format
+import dorai.composeapp.generated.resources.tool_card_more_lines_format
+import dorai.composeapp.generated.resources.tool_card_output_header
 import dorai.composeapp.generated.resources.tool_execution_error
 import dorai.composeapp.generated.resources.tool_status_completed
 import dorai.composeapp.generated.resources.tool_status_failed
@@ -267,7 +271,7 @@ fun DoraiToolCard(
             if (model.exitCode != null) {
                 val exitColor = if (model.exitCode == 0) colors.ok else colors.err
                 Text(
-                    text = "exit ${model.exitCode}",
+                    text = stringResource(Res.string.tool_card_exit_format, model.exitCode),
                     color = exitColor,
                     fontSize = 10.5.sp,
                     fontFamily = FontFamily.Monospace,
@@ -360,7 +364,7 @@ fun DoraiToolCard(
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    text = "COMMAND",
+                                    text = stringResource(Res.string.tool_card_command_header),
                                     color = colors.muted.copy(alpha = 0.7f),
                                     fontSize = 10.5.sp,
                                     fontFamily = FontFamily.Monospace,
@@ -532,7 +536,7 @@ fun DoraiToolCard(
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
-                                        text = "OUTPUT",
+                                        text = stringResource(Res.string.tool_card_output_header),
                                         color = colors.muted.copy(alpha = 0.7f),
                                         fontSize = 10.5.sp,
                                         fontFamily = FontFamily.Monospace,
@@ -561,7 +565,7 @@ fun DoraiToolCard(
                                             fontWeight = FontWeight.SemiBold,
                                             modifier = Modifier
                                                 .defaultMinSize(minHeight = 48.dp)
-                                                .clickable { isOutputExpanded = !isOutputExpanded }
+                                                .clickable(role = Role.Button) { isOutputExpanded = !isOutputExpanded }
                                                 .padding(horizontal = 4.dp, vertical = 2.dp),
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
@@ -592,12 +596,12 @@ fun DoraiToolCard(
                                     lineHeight = 17.sp,
                                 )
                                 Text(
-                                    text = "… (${outputLines.size - 3} more lines · click to expand)",
+                                    text = stringResource(Res.string.tool_card_more_lines_format, outputLines.size - 3),
                                     color = colors.info.copy(alpha = 0.85f),
                                     fontFamily = FontFamily.Monospace,
                                     fontSize = 11.5.sp,
                                     modifier = Modifier
-                                        .clickable { isOutputExpanded = true }
+                                        .clickable(role = Role.Button) { isOutputExpanded = true }
                                         .padding(top = 2.dp),
                                 )
                             } else {

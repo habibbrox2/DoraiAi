@@ -10,6 +10,8 @@ import com.dorai.ai.splinterlands.SplinterlandsAccount
 import com.dorai.ai.splinterlands.SplinterlandsApi
 import com.dorai.ai.splinterlands.SplinterlandsBattleRunner
 import com.dorai.ai.splinterlands.SplinterlandsStore
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.login_failed
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 import kotlin.coroutines.CoroutineContext
 
 class SplinterlandsViewModel(
@@ -137,8 +140,13 @@ class SplinterlandsViewModel(
                     )
                 }
             } catch (e: Exception) {
+                val fallback = try {
+                    getString(Res.string.login_failed)
+                } catch (_: Exception) {
+                    "Login failed"
+                }
                 _state.update {
-                    it.copy(splinterlandsAddStatus = SplinterlandsAddStatus.Error(e.message ?: "Login failed"))
+                    it.copy(splinterlandsAddStatus = SplinterlandsAddStatus.Error(e.message ?: fallback))
                 }
             }
         }

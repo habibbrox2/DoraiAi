@@ -621,7 +621,7 @@ private fun ChatHistoryPane(
             onClick = onNewChat,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(44.dp),
+                .height(48.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = colors.primary,
@@ -1579,7 +1579,7 @@ private fun ChatMessageRow(
                             modifier = Modifier
                                 .align(Alignment.End)
                                 .padding(top = 4.dp)
-                                .semantics { contentDescription = sentAtCd ?: "" },
+                                .semantics { if (sentAtCd != null) contentDescription = sentAtCd },
                         )
                     }
                 }
@@ -1679,19 +1679,19 @@ private fun ChatMessageRow(
             // Final human-readable output (bottom) — rich Markdown, below the processing blocks
             if (message.text.isNotEmpty()) {
                 val document = remember(message.text) { parseMarkdown(message.text) }
-                SelectionContainer {
-                    // Pin the v2 text token: without an explicit LocalContentColor the
-                    // markdown falls back to MaterialTheme onSurface, which can resolve
-                    // dark-on-dark in some presets — rendering the answer unreadable.
-                    CompositionLocalProvider(LocalContentColor provides colors.text) {
-                        MarkdownContent(
-                            document = document,
-                            modifier = Modifier.fillMaxWidth(),
-                            isInteractive = isInteractive,
-                            onUiCallback = onUiCallback ?: { _, _ -> },
-                            frozen = frozen,
-                        )
-                    }
+                // Pin the v2 text token: without an explicit LocalContentColor the
+                // markdown falls back to MaterialTheme onSurface, which can resolve
+                // dark-on-dark in some presets — rendering the answer unreadable.
+                // Selection is handled inside MarkdownContent per text-run segment
+                // so interactive DORAI UI blocks stay outside any selection container.
+                CompositionLocalProvider(LocalContentColor provides colors.text) {
+                    MarkdownContent(
+                        document = document,
+                        modifier = Modifier.fillMaxWidth(),
+                        isInteractive = isInteractive,
+                        onUiCallback = onUiCallback ?: { _, _ -> },
+                        frozen = frozen,
+                    )
                 }
             }
 

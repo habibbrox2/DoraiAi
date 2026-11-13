@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -32,8 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -57,7 +56,7 @@ import dorai.composeapp.generated.resources.settings_plugins
 import dorai.composeapp.generated.resources.settings_skills
 import org.jetbrains.compose.resources.stringResource
 
-/** Primary library surfaces inside Settings → Tools. */
+/** Primary library surfaces inside Settings â†’ Tools. */
 internal enum class ConnectorLibrarySection {
     Connectors,
     Skills,
@@ -94,24 +93,23 @@ internal fun ConnectorLibraryTabs(
                 ConnectorLibrarySection.Plugins -> stringResource(Res.string.settings_plugins)
             }
             val background by animateColorAsState(
-                targetValue = if (isSelected) DesignTokens.PrimaryCyan.copy(alpha = 0.16f) else Color.Transparent,
+                targetValue = if (isSelected) LocalDesignColorTokens.current.primary.copy(alpha = 0.16f) else Color.Transparent,
                 animationSpec = tween(durationMillis = if (prefersReducedMotion()) 0 else 180),
                 label = "libraryTabBackground",
             )
             val foreground by animateColorAsState(
-                targetValue = if (isSelected) DesignTokens.PrimaryCyan else LocalDesignColorTokens.current.textSecondary,
+                targetValue = if (isSelected) LocalDesignColorTokens.current.primary else LocalDesignColorTokens.current.textSecondary,
                 animationSpec = tween(durationMillis = if (prefersReducedMotion()) 0 else 180),
                 label = "libraryTabForeground",
             )
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .defaultMinSize(minHeight = 42.dp)
+                    .defaultMinSize(minHeight = 48.dp)
                     .clip(SettingsShapes.pill)
                     .background(background)
                     .handCursor()
-                    .clickable(role = Role.Tab) { onSelect(section) }
-                    .semantics { this.selected = isSelected },
+                    .selectable(selected = isSelected, onClick = { onSelect(section) }, role = Role.Tab),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -120,6 +118,7 @@ internal fun ConnectorLibraryTabs(
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                     color = foreground,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -153,12 +152,11 @@ internal fun ConnectorScopeToggle(
             )
             Box(
                 modifier = Modifier
-                    .defaultMinSize(minWidth = 84.dp, minHeight = 36.dp)
+                    .defaultMinSize(minWidth = 84.dp, minHeight = 48.dp)
                     .clip(SettingsShapes.pill)
                     .background(background)
                     .handCursor()
-                    .clickable(role = Role.Tab) { onSelect(scope) }
-                    .semantics { this.selected = isSelected },
+                    .selectable(selected = isSelected, onClick = { onSelect(scope) }, role = Role.Tab),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -172,6 +170,7 @@ internal fun ConnectorScopeToggle(
                     },
                     modifier = Modifier.padding(horizontal = 14.dp),
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -207,7 +206,7 @@ internal fun ConnectorSearchBar(
         )
         if (showFilter && onToggleFilter != null) {
             val filterTint = if (isFilterActive) {
-                DesignTokens.PrimaryCyan
+                LocalDesignColorTokens.current.primary
             } else {
                 LocalDesignColorTokens.current.textSecondary
             }

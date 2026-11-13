@@ -2,7 +2,6 @@ package com.dorai.ai.ui.components.v2
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -40,6 +40,7 @@ import com.dorai.ai.theme.tokens.LocalDoraiColors
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.chat_interactive_reply
 import dorai.composeapp.generated.resources.dynamic_ui_confirm
+import dorai.composeapp.generated.resources.dynamic_ui_form_submission
 import dorai.composeapp.generated.resources.dynamic_ui_submitted
 import org.jetbrains.compose.resources.stringResource
 
@@ -50,7 +51,8 @@ data class DynamicUiOption(
 )
 
 data class DynamicUiModel(
-    val title: String,
+    /** Null means "use the built-in localized form-submission title". */
+    val title: String?,
     val description: String? = null,
     val options: List<DynamicUiOption>,
     val selectedOptionId: String? = null,
@@ -95,7 +97,7 @@ fun DoraiDynamicUiBlock(
         }
 
         Text(
-            text = model.title,
+            text = model.title ?: stringResource(Res.string.dynamic_ui_form_submission),
             color = colors.text,
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
@@ -132,13 +134,15 @@ fun DoraiDynamicUiBlock(
                         color = if (isSelected) colors.primary else colors.line,
                         shape = optShape,
                     )
-                    .clickable(
+                    .selectable(
                         enabled = !model.isLocked,
+                        selected = isSelected,
                         role = Role.RadioButton,
-                    ) {
-                        currentSelectedId = option.id
-                        onOptionSelected(option.id)
-                    }
+                        onClick = {
+                            currentSelectedId = option.id
+                            onOptionSelected(option.id)
+                        },
+                    )
                     .padding(DoraiSpacing.MD),
                 verticalAlignment = Alignment.Top,
             ) {

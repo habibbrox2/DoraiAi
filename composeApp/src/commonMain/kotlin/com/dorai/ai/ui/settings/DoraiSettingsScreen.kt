@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -69,6 +70,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -353,7 +356,7 @@ private fun SettingsCategoryListPane(
             color = colors.text,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = DoraiSpacing.SM),
+            modifier = Modifier.padding(bottom = DoraiSpacing.SM).semantics { heading() },
         )
 
         SettingsCategory.entries.forEach { cat ->
@@ -364,7 +367,11 @@ private fun SettingsCategoryListPane(
                     .fillMaxWidth()
                     .clip(shape)
                     .background(if (isSelected) colors.primary.copy(alpha = 0.16f) else Color.Transparent)
-                    .clickable { onCategorySelected(cat) }
+                    .selectable(
+                        selected = isSelected,
+                        onClick = { onCategorySelected(cat) },
+                        role = Role.Tab,
+                    )
                     .padding(horizontal = 12.dp, vertical = 10.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -614,7 +621,7 @@ private fun ToolsSettingsContent() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable {
+                    .clickable(role = Role.Button) {
                         val next = toolPolicies.toMutableMap()
                         next[id] = !isRisky
                         toolPolicies = next
@@ -691,7 +698,7 @@ private fun McpSettingsContent() {
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(containerColor = colors.surface2, contentColor = colors.primary),
         border = BorderStroke(1.dp, colors.line),
-        modifier = Modifier.fillMaxWidth().height(44.dp),
+        modifier = Modifier.fillMaxWidth().height(48.dp),
     ) {
         Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
         Spacer(modifier = Modifier.width(6.dp))
@@ -759,7 +766,7 @@ private fun AddMcpServerModalSheet(onDismiss: () -> Unit) {
                             .clip(CircleShape)
                             .background(if (isSel) colors.primary else colors.surface2)
                             .border(1.dp, if (isSel) colors.primary else colors.line, CircleShape)
-                            .clickable { authType = type }
+                            .clickable(role = Role.Button) { authType = type }
                             .padding(horizontal = 12.dp, vertical = 6.dp),
                     ) {
                         Text(label, color = if (isSel) colors.onPrimary else colors.text, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
@@ -813,7 +820,7 @@ private fun AddMcpServerModalSheet(onDismiss: () -> Unit) {
                 enabled = isValid,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = colors.primary, contentColor = colors.onPrimary),
-                modifier = Modifier.fillMaxWidth().height(44.dp),
+                modifier = Modifier.fillMaxWidth().height(48.dp),
             ) {
                 Text(stringResource(Res.string.settings_mcp_add_server), fontWeight = FontWeight.SemiBold)
             }
@@ -918,7 +925,7 @@ private fun AccountSettingsContent() {
                         onClick = { showDeleteConfirm = false },
                         colors = ButtonDefaults.buttonColors(containerColor = colors.surface2, contentColor = colors.text),
                         shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.weight(1f).height(44.dp),
+                        modifier = Modifier.weight(1f).height(48.dp),
                     ) {
                         Text(stringResource(Res.string.action_cancel))
                     }
@@ -926,7 +933,7 @@ private fun AccountSettingsContent() {
                         onClick = { showDeleteConfirm = false },
                         colors = ButtonDefaults.buttonColors(containerColor = colors.err, contentColor = colors.onPrimary),
                         shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.weight(1f).height(44.dp),
+                        modifier = Modifier.weight(1f).height(48.dp),
                     ) {
                         Text(stringResource(Res.string.action_delete))
                     }
@@ -974,7 +981,7 @@ private fun AgentPolicyHeader(
                         .clip(CircleShape)
                         .background(if (isSelected) colors.primary else colors.surface2)
                         .border(1.dp, if (isSelected) colors.primary else colors.line, CircleShape)
-                        .clickable {
+                        .clickable(role = Role.Button) {
                             defaultMode = id
                             appSettings.setDefaultAgentMode(id)
                         }
@@ -1011,7 +1018,7 @@ private fun AgentPolicyHeader(
                         .clip(CircleShape)
                         .background(if (isSelected) colors.primary else colors.surface2)
                         .border(1.dp, if (isSelected) colors.primary else colors.line, CircleShape)
-                        .clickable {
+                        .clickable(role = Role.Button) {
                             policy = id
                             appSettings.setApprovalPolicy(id)
                         }

@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.sandbox
+package com.dorai.ai.ui.sandbox
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -50,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
@@ -66,6 +67,10 @@ import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_file
+import dorai.composeapp.generated.resources.a11y_folder
+import dorai.composeapp.generated.resources.find_replace_toggle_hide
+import dorai.composeapp.generated.resources.find_replace_toggle_show
 import dorai.composeapp.generated.resources.sandbox_files_action_delete
 import dorai.composeapp.generated.resources.sandbox_files_action_import
 import dorai.composeapp.generated.resources.sandbox_files_action_more
@@ -249,7 +254,7 @@ private fun PathBar(
                         color = com.dorai.ai.ui.AccentPrimary,
                         modifier = Modifier
                             .clip(com.dorai.ai.ui.DoraiShapes.sm)
-                            .clickable { onNavigateTo(target) }
+                            .clickable(role = Role.Button) { onNavigateTo(target) }
                             .handCursor()
                             .padding(horizontal = 10.dp, vertical = 6.dp),
                     )
@@ -389,14 +394,16 @@ private fun FileRow(
             Row(
                 modifier = Modifier
                     .weight(1f)
-                    .clickable(onClick = onClick)
+                    .clickable(onClick = onClick, role = Role.Button)
                     .handCursor()
                     .padding(start = 12.dp, top = 10.dp, bottom = 10.dp, end = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     imageVector = if (entry.isDirectory) Icons.Filled.Folder else Icons.AutoMirrored.Filled.InsertDriveFile,
-                    contentDescription = if (entry.isDirectory) "Folder" else "File",
+                    contentDescription = stringResource(
+                        if (entry.isDirectory) Res.string.a11y_folder else Res.string.a11y_file,
+                    ),
                     tint = if (entry.isDirectory) com.dorai.ai.ui.AccentPrimary else LocalDesignColorTokens.current.textTertiary,
                 )
                 Spacer(Modifier.width(12.dp))
@@ -584,7 +591,13 @@ private fun EditorBody(
                             onClick = { findOpen = !findOpen },
                             modifier = Modifier.handCursor(),
                         ) {
-                            Text(if (findOpen) "Hide find" else "Find / Replace")
+                            Text(
+                                if (findOpen) {
+                                    stringResource(Res.string.find_replace_toggle_hide)
+                                } else {
+                                    stringResource(Res.string.find_replace_toggle_show)
+                                },
+                            )
                         }
                     }
                     TextButton(

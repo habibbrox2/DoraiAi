@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -78,14 +79,14 @@ private fun SkillRow(skill: SkillManifest, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable(role = Role.Button) { onClick() }
             .handCursor()
             .padding(horizontal = 14.dp, vertical = 10.dp),
     ) {
         Text(
             text = "/${skill.id}",
             style = DoraiTypography.bodyMedium,
-            color = DesignTokens.PrimaryCyan,
+            color = LocalDesignColorTokens.current.primary,
             fontWeight = FontWeight.SemiBold,
         )
         if (skill.description.isNotEmpty()) {

@@ -80,12 +80,14 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.BackIcon
@@ -108,6 +110,7 @@ import dorai.composeapp.generated.resources.a11y_navigate_back
 import dorai.composeapp.generated.resources.settings_ai_mistakes_warning
 import dorai.composeapp.generated.resources.settings_licenses
 import dorai.composeapp.generated.resources.settings_licenses_close
+import dorai.composeapp.generated.resources.settings_screen_title
 import dorai.composeapp.generated.resources.settings_tab_account
 import dorai.composeapp.generated.resources.settings_tab_agent
 import dorai.composeapp.generated.resources.settings_tab_appearance
@@ -128,11 +131,6 @@ import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-
-internal val StatusColorConnected = SettingsStatusColors.connected
-internal val StatusColorChecking = SettingsStatusColors.checking
-internal val StatusColorError = SettingsStatusColors.error
-internal val StatusColorUnknown = SettingsStatusColors.unknown
 
 @Composable
 fun SettingsScreen(
@@ -356,10 +354,11 @@ private fun TopBar(onNavigateBack: () -> Unit) {
             }
             Spacer(Modifier.width(8.dp))
             Text(
-                text = "Settings",
+                text = stringResource(Res.string.settings_screen_title),
                 style = DoraiTypography.titleMedium,
                 color = LocalDesignColorTokens.current.textPrimary,
                 fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.semantics { heading() },
             )
             Spacer(Modifier.weight(1f))
         }
@@ -535,6 +534,7 @@ private fun SettingsTabSelector(
                         },
                         style = DoraiTypography.labelLarge,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                     )
                 }
@@ -604,7 +604,7 @@ internal fun SettingsCard(
             .clip(cardShape)
             .background(cardBg)
             .border(cardBorder, cardShape)
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick).handCursor() else Modifier),
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick, role = Role.Button).handCursor() else Modifier),
     ) {
         Column(
             modifier = Modifier

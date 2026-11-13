@@ -1,4 +1,4 @@
-﻿@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.dorai.ai.ui.chat.composables
 
@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.AccentPrimary
@@ -60,6 +61,18 @@ import dorai.composeapp.generated.resources.chat_history_empty
 import dorai.composeapp.generated.resources.chat_history_heartbeat_label
 import dorai.composeapp.generated.resources.chat_history_title
 import dorai.composeapp.generated.resources.ic_history
+import dorai.composeapp.generated.resources.month_apr
+import dorai.composeapp.generated.resources.month_aug
+import dorai.composeapp.generated.resources.month_dec
+import dorai.composeapp.generated.resources.month_feb
+import dorai.composeapp.generated.resources.month_jan
+import dorai.composeapp.generated.resources.month_jul
+import dorai.composeapp.generated.resources.month_jun
+import dorai.composeapp.generated.resources.month_mar
+import dorai.composeapp.generated.resources.month_may
+import dorai.composeapp.generated.resources.month_nov
+import dorai.composeapp.generated.resources.month_oct
+import dorai.composeapp.generated.resources.month_sep
 import dorai.composeapp.generated.resources.snackbar_conversation_deleted
 import dorai.composeapp.generated.resources.snackbar_undo
 import kotlinx.collections.immutable.ImmutableList
@@ -84,6 +97,20 @@ internal fun ChatHistorySheet(
         val snackbarHostState = remember { SnackbarHostState() }
         val deletedMessage = stringResource(Res.string.snackbar_conversation_deleted)
         val undoLabel = stringResource(Res.string.snackbar_undo)
+        val monthNames = listOf(
+            stringResource(Res.string.month_jan),
+            stringResource(Res.string.month_feb),
+            stringResource(Res.string.month_mar),
+            stringResource(Res.string.month_apr),
+            stringResource(Res.string.month_may),
+            stringResource(Res.string.month_jun),
+            stringResource(Res.string.month_jul),
+            stringResource(Res.string.month_aug),
+            stringResource(Res.string.month_sep),
+            stringResource(Res.string.month_oct),
+            stringResource(Res.string.month_nov),
+            stringResource(Res.string.month_dec),
+        )
         val pendingDeletionState = rememberUpdatedState(pendingConversationDeletion)
 
         LaunchedEffect(pendingConversationDeletion) {
@@ -147,7 +174,7 @@ internal fun ChatHistorySheet(
                                     modifier = borderModifier
                                         .fillMaxWidth()
                                         .handCursor()
-                                        .clickable {
+                                        .clickable(role = Role.Button) {
                                             onConversationSelected()
                                             actions.loadConversation(conversation.id)
                                             onDismiss()
@@ -196,7 +223,7 @@ internal fun ChatHistorySheet(
                                             )
                                         }
                                         Text(
-                                            text = formatDate(conversation.updatedAt),
+                                            text = formatDate(conversation.updatedAt, monthNames),
                                             style = DoraiTypography.bodySmall,
                                             color = LocalDesignColorTokens.current.textSecondary,
                                         )
@@ -235,15 +262,10 @@ internal fun ChatHistorySheet(
     }
 }
 
-private val historyMonthNames = listOf(
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-)
-
-private fun formatDate(epochMillis: Long): String = try {
+private fun formatDate(epochMillis: Long, monthNames: List<String>): String = try {
     val local = kotlinx.datetime.Instant.fromEpochMilliseconds(epochMillis)
         .toLocalDateTime(TimeZone.currentSystemDefault())
-    "${local.day} ${historyMonthNames[local.monthNumber - 1]} ${local.year}"
+    "${local.day} ${monthNames[local.monthNumber - 1]} ${local.year}"
 } catch (_: Exception) {
     ""
 }

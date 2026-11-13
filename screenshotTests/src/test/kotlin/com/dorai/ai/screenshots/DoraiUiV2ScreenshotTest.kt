@@ -20,7 +20,6 @@ import com.dorai.ai.ui.adaptive.DoraiDestination
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
 import com.dorai.ai.ui.adaptive.calculateDoraiWindowWidthClass
 import com.dorai.ai.ui.chat.DoraiChatScreen
-import com.dorai.ai.ui.components.v2.DoraiComponentsPreviewContent
 import com.dorai.ai.ui.home.DoraiHomeScreen
 import com.dorai.ai.ui.home.HomeChatSummary
 import com.dorai.ai.ui.home.HomeProjectSummary
@@ -540,28 +539,6 @@ class DoraiUiV2ScreenshotTest {
     }
 
     // -------------------------------------------------------------------------
-    // 5. Shared Components Showcase
-    // -------------------------------------------------------------------------
-
-    @Test
-    fun components_showcase_ogshine() = snap(
-        destination = null,
-        device = DeviceConfig.PIXEL_9A,
-        palette = ThemePresets.ogShine,
-    ) {
-        DoraiComponentsPreviewContent()
-    }
-
-    @Test
-    fun components_showcase_light() = snap(
-        destination = null,
-        device = DeviceConfig.PIXEL_9A,
-        palette = ThemePresets.light,
-    ) {
-        DoraiComponentsPreviewContent()
-    }
-
-    // -------------------------------------------------------------------------
     // Helper snapshot renderer
     // -------------------------------------------------------------------------
 
@@ -630,7 +607,6 @@ class DoraiUiV2ScreenshotTest {
         currentModelName = "Google Gemini",
         isModelLocal = false,
         isSandboxRunning = true,
-        storageUsageText = "1.2 / 4 GB",
         recentChats = listOf(
             HomeChatSummary(
                 id = "1",

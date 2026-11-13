@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -35,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.theme.data.ThemePalette
@@ -76,7 +78,7 @@ fun <T> DoraiPillTabs(
                     .clip(CircleShape)
                     .background(if (isSelected) colors.primary else colors.surface)
                     .border(1.dp, if (isSelected) colors.primary else colors.line, CircleShape)
-                    .clickable(role = Role.Tab) { onItemSelected(item) }
+                    .selectable(selected = isSelected, onClick = { onItemSelected(item) }, role = Role.Tab)
                     .padding(horizontal = 14.dp, vertical = 10.dp),
                 contentAlignment = Alignment.Center,
             ) {
@@ -85,6 +87,8 @@ fun <T> DoraiPillTabs(
                     color = if (isSelected) colors.onPrimary else colors.muted,
                     fontSize = 13.sp,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -113,7 +117,7 @@ fun DoraiThemePresetTile(
                 color = if (isSelected) colors.primary else palette.outlineColor,
                 shape = shape,
             )
-            .clickable(role = Role.RadioButton, onClick = onSelect)
+            .selectable(selected = isSelected, onClick = onSelect, role = Role.RadioButton)
             .padding(DoraiSpacing.SM),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -164,6 +168,7 @@ fun DoraiThemePresetTile(
             fontSize = 12.sp,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

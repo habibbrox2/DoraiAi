@@ -7,6 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.dorai.ai.ui.DangerAlert
 import com.dorai.ai.ui.DoraiTypography
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.settings_confirm_dialog_cancel
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Confirmation dialog for destructive settings actions (Plan 2, Phase 4).
@@ -30,8 +33,9 @@ fun SettingsConfirmDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
-    dismissLabel: String = "Cancel",
+    dismissLabel: String? = null,
 ) {
+    val resolvedDismissLabel = dismissLabel ?: stringResource(Res.string.settings_confirm_dialog_cancel)
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = modifier,
@@ -44,7 +48,7 @@ fun SettingsConfirmDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(dismissLabel)
+                Text(resolvedDismissLabel)
             }
         },
     )

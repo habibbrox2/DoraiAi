@@ -62,18 +62,23 @@ private fun AnnotatedString.Builder.appendInline(
             append(node.code)
         }
 
-        is Link -> withLink(
-            LinkAnnotation.Url(
-                url = node.href,
-                styles = TextLinkStyles(
-                    style = SpanStyle(
-                        color = linkColor,
-                        fontWeight = FontWeight.Bold,
-                        textDecoration = TextDecoration.Underline,
+        is Link -> if (isSafeLinkUrl(node.href)) {
+            withLink(
+                LinkAnnotation.Url(
+                    url = node.href,
+                    styles = TextLinkStyles(
+                        style = SpanStyle(
+                            color = linkColor,
+                            fontWeight = FontWeight.Bold,
+                            textDecoration = TextDecoration.Underline,
+                        ),
                     ),
                 ),
-            ),
-        ) {
+            ) {
+                appendInlines(node.children, inlineCodeBackground, inlineCodeColor, linkColor)
+            }
+        } else {
+            // Unsafe scheme (javascript:, data:, intent:…) — render the label as plain text.
             appendInlines(node.children, inlineCodeBackground, inlineCodeColor, linkColor)
         }
 
@@ -87,4 +92,19 @@ private fun AnnotatedString.Builder.appendInline(
             append(node.latex)
         }
     }
+}
+
+/**
+ * Allow-list for clickable link schemes taken from untrusted (model) output.
+ * Only web-safe schemes pass; anything else renders as plain text. Case-insensitive,
+ * tolerates leading whitespace and mixed schemes such as `HTTPS://…`.
+ */
+private val allowedLinkSchemes = setOf("http", "https", "mailto")
+
+internal fun isSafeLinkUrl(url: String): Boolean {
+    val trimmed = url.trimStart()
+    val schemeEnd = trimmed.indexOf(':')
+    if (schemeEnd <= 0) return false // no scheme (relative/fragment) is not clickable
+    val scheme = trimmed.substring(0, schemeEnd).lowercase()
+    return scheme in allowedLinkSchemes
 }

@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.components
+package com.dorai.ai.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -21,13 +22,16 @@ import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.doraiAdaptiveCardSurface
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_refresh
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SettingsListItem(
     title: String,
     subtitle: String,
     onDelete: () -> Unit,
-    deleteContentDescription: String?,
+    deleteContentDescription: String,
     modifier: Modifier = Modifier,
     subtitleMaxLines: Int = 1,
     onClick: (() -> Unit)? = null,
@@ -40,7 +44,7 @@ fun SettingsListItem(
         modifier = modifier
             .fillMaxWidth()
             .doraiAdaptiveCardSurface(DoraiShapes.xs)
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick).handCursor() else Modifier)
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick, role = Role.Button).handCursor() else Modifier)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -62,7 +66,7 @@ fun SettingsListItem(
             RefreshIconButton(
                 onClick = onRefresh,
                 isRefreshing = isRefreshing,
-                contentDescription = refreshContentDescription.orEmpty(),
+                description = refreshContentDescription ?: stringResource(Res.string.a11y_refresh),
             )
         }
         IconButton(

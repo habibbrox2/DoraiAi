@@ -40,9 +40,14 @@ internal object InlineTokenizer {
     private val MATH_BRACKET_REGEX = Regex("\\\\\\[([\\s\\S]+?)\\\\\\]")
 
     private val STRONG_STAR_REGEX = Regex("(?<!\\\\)\\*\\*([\\s\\S]+?)\\*\\*")
-    private val STRONG_UNDER_REGEX = Regex("(?<![A-Za-z0-9_\\\\])__([\\s\\S]+?)__(?![A-Za-z0-9_])")
+
+    // Word-char for emphasis boundaries: ASCII + Bengali + Devanagari. Previously
+    // ASCII-only, which let `_stem_` inside Bengali prose italicize across words —
+    // Bengali letters are not ASCII, so the underscore looked like a word boundary.
+    private const val WORD_CHARS = "A-Za-z0-9_\\u0980-\\u09FF\\u0900-\\u097F"
+    private val STRONG_UNDER_REGEX = Regex("(?<![" + WORD_CHARS + "\\\\])__([\\s\\S]+?)__(?![" + WORD_CHARS + "])")
+    private val EMPH_UNDER_REGEX = Regex("(?<![" + WORD_CHARS + "\\\\])_([\\s\\S]+?)_(?![" + WORD_CHARS + "])")
     private val EMPH_STAR_REGEX = Regex("(?<!\\\\)\\*([\\s\\S]+?)\\*")
-    private val EMPH_UNDER_REGEX = Regex("(?<![A-Za-z0-9_\\\\])_([\\s\\S]+?)_(?![A-Za-z0-9_])")
     private val STRIKE_REGEX = Regex("(?<!\\\\)~~([\\s\\S]+?)~~")
 
     private val EMPHASIS_PATTERNS: List<Pair<Regex, (ImmutableList<InlineNode>) -> InlineNode>> = listOf(

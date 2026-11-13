@@ -56,6 +56,10 @@ import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.dashboard_title
 import dorai.composeapp.generated.resources.empty_state_subtitle
+import dorai.composeapp.generated.resources.home_quick_action_daily_reminders
+import dorai.composeapp.generated.resources.home_quick_action_new_chat
+import dorai.composeapp.generated.resources.home_quick_action_resume_project
+import dorai.composeapp.generated.resources.home_quick_action_run_sandbox
 import dorai.composeapp.generated.resources.privacy_agree_prefix
 import dorai.composeapp.generated.resources.privacy_policy
 import org.jetbrains.compose.resources.stringResource
@@ -125,7 +129,7 @@ internal fun EmptyState(
 
         if (isUsingSharedKey) {
             Spacer(Modifier.height(ChatSpacing.xl))
-            val linkColor = DesignTokens.PrimaryCyan
+            val linkColor = LocalDesignColorTokens.current.primary
             val prefixText = stringResource(Res.string.privacy_agree_prefix)
             val policyText = stringResource(Res.string.privacy_policy)
             val annotatedString = remember(prefixText, policyText, linkColor) {
@@ -147,7 +151,7 @@ internal fun EmptyState(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 style = DoraiTypography.bodySmall,
                 textAlign = TextAlign.Center,
-                color = DesignTokens.TertiaryText,
+                color = LocalDesignColorTokens.current.textTertiary,
             )
         }
     }
@@ -168,30 +172,30 @@ private fun QuickStartCards(
 ) {
     val items = listOf(
         QuickStartItem(
-            label = "New Chat",
+            label = stringResource(Res.string.home_quick_action_new_chat),
             prompt = "How can Dorai AI help me today?",
             icon = Icons.Default.Edit,
-            accentColor = DesignTokens.PrimaryCyan,
+            accentColor = LocalDesignColorTokens.current.primary,
         ),
         QuickStartItem(
-            label = "Resume Project",
+            label = stringResource(Res.string.home_quick_action_resume_project),
             prompt = "Continue with my current project and summarize progress",
             icon = Icons.Default.Code,
-            accentColor = DesignTokens.AgentViolet,
+            accentColor = LocalDesignColorTokens.current.accent,
         ),
         QuickStartItem(
-            label = "Daily Reminders",
+            label = stringResource(Res.string.home_quick_action_daily_reminders),
             prompt = "Set a reminder for me in 15 minutes",
             icon = Icons.Default.Build,
-            accentColor = DesignTokens.Success,
+            accentColor = LocalDesignColorTokens.current.success,
         ),
     ) + if (isSandboxAvailable) {
         listOf(
             QuickStartItem(
-                label = "Run Sandbox",
+                label = stringResource(Res.string.home_quick_action_run_sandbox),
                 prompt = "Check sandbox environment and available tools",
                 icon = Icons.Default.Terminal,
-                accentColor = DesignTokens.BrandCyan,
+                accentColor = LocalDesignColorTokens.current.info,
             ),
         )
     } else {

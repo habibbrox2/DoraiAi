@@ -46,11 +46,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -191,7 +193,7 @@ fun WorkspaceCodeEditor(
     Column(
         modifier = modifier.fillMaxSize(),
     ) {
-        // ─── Top bar ───
+        // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Top bar Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -212,12 +214,14 @@ fun WorkspaceCodeEditor(
                     style = DoraiTypography.titleMedium,
                     color = colorTokens.textPrimary,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = filePath,
                     style = DoraiTypography.labelSmall,
                     color = colorTokens.textSecondary,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             IconButton(onClick = onUndo, enabled = canUndo) {
@@ -231,24 +235,24 @@ fun WorkspaceCodeEditor(
                 Icon(
                     imageVector = Icons.Filled.Search,
                     contentDescription = stringResource(Res.string.workspace_editor_search),
-                    tint = if (showSearch) DesignTokens.AccentPrimary else colorTokens.textSecondary,
+                    tint = if (showSearch) colorTokens.primary else colorTokens.textSecondary,
                 )
             }
             // Diff and Run render only with real diff data / a safe execution
-            // contract ([showDiffRun]) — never as decorative, empty callbacks.
+            // contract ([showDiffRun]) Ã¢â‚¬â€ never as decorative, empty callbacks.
             if (showDiffRun) {
                 IconButton(onClick = { onDiffToggled(!isDiffMode) }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.CompareArrows,
                         contentDescription = stringResource(Res.string.workspace_editor_toggle_diff),
-                        tint = if (isDiffMode) DesignTokens.AccentPrimary else colorTokens.textSecondary,
+                        tint = if (isDiffMode) colorTokens.primary else colorTokens.textSecondary,
                     )
                 }
                 IconButton(onClick = onRun) {
                     Icon(
                         imageVector = Icons.Filled.PlayArrow,
                         contentDescription = stringResource(Res.string.workspace_editor_run),
-                        tint = DesignTokens.Success,
+                        tint = colorTokens.success,
                     )
                 }
             }
@@ -257,7 +261,7 @@ fun WorkspaceCodeEditor(
                     Icon(
                         imageVector = if (editable) Icons.Filled.Visibility else Icons.Filled.Edit,
                         contentDescription = if (editable) stringResource(Res.string.workspace_editor_preview) else stringResource(Res.string.workspace_editor_edit),
-                        tint = if (editable) DesignTokens.AccentPrimary else colorTokens.textSecondary,
+                        tint = if (editable) colorTokens.primary else colorTokens.textSecondary,
                     )
                 }
             }
@@ -266,13 +270,13 @@ fun WorkspaceCodeEditor(
                     Icon(
                         imageVector = Icons.Filled.Save,
                         contentDescription = if (isSaving) stringResource(Res.string.workspace_editor_saving) else stringResource(Res.string.workspace_editor_save),
-                        tint = if (isSaving) colorTokens.textMuted else DesignTokens.Success,
+                        tint = if (isSaving) colorTokens.textMuted else colorTokens.success,
                     )
                 }
             }
         }
 
-        // ─── Search/Replace panel ───
+        // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Search/Replace panel Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         if (showSearch) {
             SearchReplacePanel(
                 query = searchQuery,
@@ -294,7 +298,7 @@ fun WorkspaceCodeEditor(
             )
         }
 
-        // ─── Code area ───
+        // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Code area Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         if (editable && !readOnly) {
             EditableCodeArea(
                 content = content,
@@ -385,8 +389,8 @@ fun WorkspaceCodeEditor(
                 style = DoraiTypography.labelSmall,
                 color = when {
                     isSaving -> colorTokens.textSecondary
-                    isDirty -> DesignTokens.Warning
-                    else -> DesignTokens.Success
+                    isDirty -> colorTokens.warning
+                    else -> colorTokens.success
                 },
                 modifier = Modifier.weight(1f).padding(start = WorkspaceSpacing.sm),
             )
@@ -397,7 +401,7 @@ fun WorkspaceCodeEditor(
             )
         }
 
-        // ─── Code key row ───
+        // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Code key row Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         CodeKeyRow(
             onKeyClick = { key ->
                 if (editable && !readOnly) {
@@ -518,7 +522,7 @@ private fun SearchReplacePanel(
 fun CodeKeyRow(onKeyClick: (String) -> Unit = {}) {
     val colorTokens = LocalDesignColorTokens.current
     val keys = listOf(
-        "Tab", "↑", "←", "↓", "→", "{ }", "( )", "[ ]", ";", "\"", "=", "<", ">", "!",
+        "Tab", "Ã¢â€ â€˜", "Ã¢â€ Â", "Ã¢â€ â€œ", "Ã¢â€ â€™", "{ }", "( )", "[ ]", ";", "\"", "=", "<", ">", "!",
         ":",
     )
     Column(
@@ -545,7 +549,7 @@ private fun KeyCap(key: String, onClick: () -> Unit) {
             .sizeIn(minWidth = WorkspaceSpacing.minTouchTarget, minHeight = WorkspaceSpacing.minTouchTarget)
             .background(LocalDesignColorTokens.current.surfaceRaised)
             .clip(RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick, role = Role.Button)
             .padding(horizontal = WorkspaceSpacing.sm, vertical = WorkspaceSpacing.xs),
         contentAlignment = Alignment.Center,
     ) {

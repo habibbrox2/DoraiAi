@@ -57,7 +57,9 @@ class ToolPermissionManager(
             // System/shell commands
             "execute_shell_command" -> ToolRiskLevel.SYSTEM_COMMAND
 
-            // Device/location/dial tools require permission (per session)
+            // Device/location/dial tools require permission (per session) — retained for compatibility.
+            // NOTE: the name-based risk table below no longer drives approval policy;
+            // only MCP connector tools ask. See shouldAskForPermission.
             "get_device_info",
             "get_location_from_ip",
             "dial_phone",
@@ -70,8 +72,8 @@ class ToolPermissionManager(
             "mcp_connect_server",
             -> ToolRiskLevel.OTHER
 
-            // GitHub write tools — explicit approval-gated operations. OTHER means
-            // ASK_ALWAYS by default (classifyToolRisk feeds shouldAskForPermission).
+            // GitHub write tools — the risk classifier still reports OTHER for API
+            // compatibility, but approval policy is MCP-only: these run without a prompt.
             "github_commit",
             "github_push",
             "github_create_pull_request",
@@ -128,25 +130,23 @@ class ToolPermissionManager(
     }
 
     fun shouldAskForPermission(toolName: String, args: Map<String, Any> = emptyMap()): Boolean {
-        val riskLevel = classifyToolRisk(toolName, args)
-        // Read-only tools and master-toggle memory tools run directly.
-        if (riskLevel == ToolRiskLevel.READ_ONLY || riskLevel == ToolRiskLevel.MEMORY_WRITE) {
+        // Product policy: only MCP connector tools ask the user. Every other tool
+        // (shell, files, GitHub, SMS/USSD, device actions, …) executes directly —
+        // there is no confirmation card for them in chat or in background runs.
+        if (!isMcpTool(toolName)) {
             return false
         }
-        // Session-scoped allow: no prompt for the rest of this session
+        // MCP tools: keep per-session / once / always-allow handling.
         val scope = getScope(toolName, args)
         val sessionKey = "$toolName|$scope"
         if (sessionAllowed.contains(sessionKey)) {
             return false
         }
-        // Check stored permission
         val permission = appSettings.getToolPermission(toolName, scope)
         return when (permission?.policy) {
             ToolPermissionPolicy.ALWAYS_ALLOW -> false
 
-            ToolPermissionPolicy.ALLOW_ONCE -> {
-                false
-            }
+            ToolPermissionPolicy.ALLOW_ONCE -> false
 
             ToolPermissionPolicy.ALLOW_SESSION -> {
                 // Treat as allowed for this session

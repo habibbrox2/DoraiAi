@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.components
+package com.dorai.ai.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -27,11 +26,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.dorai.ai.ui.AccentPrimary
-import com.dorai.ai.ui.BorderSoft
-import com.dorai.ai.ui.DangerAlert
 import com.dorai.ai.ui.DoraiTypography
-import com.dorai.ai.ui.SurfaceRaised
 import com.dorai.ai.ui.doraiAdaptiveCardBorder
 import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.settings.SettingsSpacing
@@ -39,6 +34,14 @@ import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.a11y_status_with_label
+import dorai.composeapp.generated.resources.status_active
+import dorai.composeapp.generated.resources.status_connected
+import dorai.composeapp.generated.resources.status_installing
+import dorai.composeapp.generated.resources.status_needs_attention
+import dorai.composeapp.generated.resources.status_not_set_up
+import dorai.composeapp.generated.resources.status_ready
+import dorai.composeapp.generated.resources.status_some_disabled
+import dorai.composeapp.generated.resources.status_working
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -98,18 +101,17 @@ data class OperationalStatusColors(
 @Composable
 fun rememberOperationalStatusColors(): OperationalStatusColors {
     val colors = LocalDesignColorTokens.current
-    val materialColors = MaterialTheme.colorScheme
-    return remember(materialColors) {
+    return remember(colors) {
         OperationalStatusColors(
-            // Positive states use the theme's primary (a11y: distinct from Disabled).
-            connected = materialColors.primary,
-            connecting = AccentPrimary,
+            // Positive states use the palette's success token (a11y: distinct from Disabled).
+            connected = colors.success,
+            connecting = colors.primary,
             disabled = colors.textSecondary,
-            installing = AccentPrimary,
+            installing = colors.primary,
             needsSetup = colors.textTertiary,
-            error = DangerAlert,
-            active = materialColors.primary,
-            ready = materialColors.primary,
+            error = colors.error,
+            active = colors.success,
+            ready = colors.success,
         )
     }
 }
@@ -121,17 +123,27 @@ fun rememberOperationalStatusColors(): OperationalStatusColors {
  */
 @Composable
 fun StatusBadge(
-    label: String,
     status: OperationalStatus,
+    label: String? = null,
     modifier: Modifier = Modifier,
 ) {
+    val resolvedLabel = label ?: when (status) {
+        OperationalStatus.Connected -> stringResource(Res.string.status_connected)
+        OperationalStatus.Connecting -> stringResource(Res.string.status_working)
+        OperationalStatus.Disabled -> stringResource(Res.string.status_some_disabled)
+        OperationalStatus.Installing -> stringResource(Res.string.status_installing)
+        OperationalStatus.NeedsSetup -> stringResource(Res.string.status_not_set_up)
+        OperationalStatus.Error -> stringResource(Res.string.status_needs_attention)
+        OperationalStatus.Active -> stringResource(Res.string.status_active)
+        OperationalStatus.Ready -> stringResource(Res.string.status_ready)
+    }
     val designColors = LocalDesignColorTokens.current
     val colors = rememberOperationalStatusColors()
     val color = colors.forStatus(status)
     // Use neutral text color for status dot
     val dotColor = if (color == designColors.textSecondary) DesignTokens.MutedText else color
     // a11y: announce the badge as one unit with the label in the user's language.
-    val statusDescription = stringResource(Res.string.a11y_status_with_label, label)
+    val statusDescription = stringResource(Res.string.a11y_status_with_label, resolvedLabel)
     Row(
         modifier = modifier.semantics {
             contentDescription = statusDescription
@@ -146,7 +158,7 @@ fun StatusBadge(
                 .background(dotColor),
         )
         Text(
-            text = label,
+            text = resolvedLabel,
             style = DoraiTypography.labelSmall,
             color = color,
             fontWeight = FontWeight.Medium,
@@ -167,8 +179,8 @@ fun CapabilityCountCard(
     status: OperationalStatus? = null,
 ) {
     val colors = LocalDesignColorTokens.current
-    val cardBg = SurfaceRaised.copy(alpha = 0.5f)
-    val cardBorder = BorderStroke(1.dp, BorderSoft)
+    val cardBg = colors.surfaceRaised.copy(alpha = 0.5f)
+    val cardBorder = BorderStroke(1.dp, colors.borderSoft)
     val cardShape = com.dorai.ai.ui.settings.SettingsShapes.card
 
     Card(
@@ -194,16 +206,6 @@ fun CapabilityCountCard(
             )
             if (status != null) {
                 StatusBadge(
-                    label = when (status) {
-                        OperationalStatus.Error -> "Needs attention"
-                        OperationalStatus.NeedsSetup -> "Needs setup"
-                        OperationalStatus.Disabled -> "Some disabled"
-                        OperationalStatus.Ready -> "Ready"
-                        OperationalStatus.Active -> "Active"
-                        OperationalStatus.Connected -> "Connected"
-                        OperationalStatus.Connecting -> "Working"
-                        OperationalStatus.Installing -> "Installing"
-                    },
                     status = status,
                 )
             }
@@ -221,8 +223,8 @@ fun CollectionEmptyState(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalDesignColorTokens.current
-    val cardBg = SurfaceRaised.copy(alpha = 0.4f)
-    val cardBorder = BorderStroke(1.dp, BorderSoft.copy(alpha = 0.4f))
+    val cardBg = colors.surfaceRaised.copy(alpha = 0.4f)
+    val cardBorder = BorderStroke(1.dp, colors.borderSoft.copy(alpha = 0.4f))
     val cardShape = com.dorai.ai.ui.settings.SettingsShapes.card
 
     Box(

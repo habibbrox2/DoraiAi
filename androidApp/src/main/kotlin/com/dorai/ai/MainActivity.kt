@@ -1,5 +1,6 @@
 package com.dorai.ai
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -33,7 +34,25 @@ import org.koin.android.ext.android.get
 
 class MainActivity : ComponentActivity() {
 
+    override fun attachBaseContext(newBase: Context) {
+        val languageCode = newBase.applicationContext
+            .getSharedPreferences("dorai_locale", Context.MODE_PRIVATE)
+            .getString("app_language", null)
+        val wrapped = if (languageCode != null) {
+            // Cold start in the app-selected language. Compose Resources resolves against the
+            // context configuration, so wrapping with createConfigurationContext is enough for
+            // the whole UI (attachBaseContext runs before any inflation/composition).
+            val config = android.content.res.Configuration(newBase.resources.configuration)
+            config.setLocale(java.util.Locale.forLanguageTag(languageCode))
+            newBase.createConfigurationContext(config)
+        } else {
+            newBase
+        }
+        super.attachBaseContext(wrapped)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        DoraiLocaleActivityHolder.activity = this
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         FileKit.init(this)
@@ -93,6 +112,13 @@ class MainActivity : ComponentActivity() {
                 },
             )
         }
+    }
+
+    override fun onDestroy() {
+        if (DoraiLocaleActivityHolder.activity === this) {
+            DoraiLocaleActivityHolder.activity = null
+        }
+        super.onDestroy()
     }
 
     override fun onStart() {

@@ -262,7 +262,7 @@ private fun PackageRow(
             Icon(
                 imageVector = Icons.Filled.Inventory2,
                 contentDescription = null,
-                tint = if (installed) DesignTokens.PrimaryCyan else LocalDesignColorTokens.current.textSecondary,
+                tint = if (installed) LocalDesignColorTokens.current.primary else LocalDesignColorTokens.current.textSecondary,
             )
         },
         trailingContent = {

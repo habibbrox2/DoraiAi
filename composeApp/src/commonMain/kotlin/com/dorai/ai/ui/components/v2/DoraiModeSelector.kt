@@ -2,7 +2,6 @@ package com.dorai.ai.ui.components.v2
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.theme.tokens.DoraiSpacing
@@ -100,7 +101,7 @@ fun DoraiModeSelector(
                         .clip(CircleShape)
                         .background(if (isSelected) colors.primary else colors.surface)
                         .border(1.dp, if (isSelected) colors.primary else colors.line, CircleShape)
-                        .clickable(role = Role.RadioButton) { onModeSelected(mode.id) }
+                        .selectable(selected = isSelected, onClick = { onModeSelected(mode.id) }, role = Role.RadioButton)
                         .padding(horizontal = 14.dp, vertical = 10.dp),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -132,6 +133,7 @@ fun DoraiModeSelector(
             fontSize = 13.sp,
             modifier = Modifier.padding(horizontal = DoraiSpacing.XS),
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

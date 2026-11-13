@@ -36,6 +36,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.AccentPrimary
 import com.dorai.ai.ui.chat.ChatSpacing
@@ -160,7 +162,7 @@ private fun ActionButton(
     val chipColor = when {
         selected -> AccentPrimary.copy(alpha = 0.16f)
         pressed -> AccentPrimary.copy(alpha = 0.10f)
-        hovered -> Color.White.copy(alpha = 0.07f)
+        hovered -> LocalDesignColorTokens.current.surfaceRaised
         else -> Color.Transparent
     }
 
@@ -175,7 +177,8 @@ private fun ActionButton(
                 role = Role.Button,
                 onClick = onClick,
             )
-            .hoverable(interactionSource),
+            .hoverable(interactionSource)
+            .semantics { if (selected) this.selected = true },
         contentAlignment = Alignment.Center,
     ) {
         Box(

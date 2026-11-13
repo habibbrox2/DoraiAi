@@ -1,5 +1,7 @@
 package com.dorai.ai.ui.chat.composables
 
+import com.dorai.ai.text.graphemeSafeTake
+
 /**
  * Detects slash-command query string the user is currently typing, or null if
  * the cursor isn't inside a leading `/<token>`.
@@ -23,8 +25,8 @@ fun truncateFileName(name: String, maxChars: Int = 16): String {
         val base = name.substring(0, dotIndex)
         val ext = name.substring(dotIndex) // includes the dot
         val keep = (maxChars - ext.length - 1).coerceAtLeast(1)
-        "${base.take(keep)}…$ext"
+        "${graphemeSafeTake(base, keep)}…$ext"
     } else {
-        "${name.take(maxChars - 1)}…"
+        "${graphemeSafeTake(name, maxChars - 1)}…"
     }
 }

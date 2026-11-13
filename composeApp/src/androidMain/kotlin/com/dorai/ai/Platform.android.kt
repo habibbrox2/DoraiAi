@@ -40,6 +40,7 @@ import com.dorai.ai.tools.AppPermission
 import com.dorai.ai.tools.CalendarRepository
 import com.dorai.ai.tools.CommonTools
 import com.dorai.ai.tools.CreateCalendarEventTool
+import com.dorai.ai.tools.DeviceActionTools
 import com.dorai.ai.tools.DownloadsStatusTool
 import com.dorai.ai.tools.DownloadsStatusToolImpl
 import com.dorai.ai.tools.GalleryCopyTool
@@ -252,7 +253,7 @@ actual fun getPlatformToolDefinitions(): List<ToolInfo> = CommonTools.commonTool
         WorkflowTool.toolInfo,
         ParameterExtractionTool.toolInfo,
         ResultSummarizationTool.toolInfo,
-    )
+    ) + DeviceActionTools.toolInfos
 
 actual fun getAvailableTools(): List<Tool> {
     val context: Context by inject(Context::class.java)
@@ -294,6 +295,11 @@ actual fun getAvailableTools(): List<Tool> {
         if (appSettings.isToolEnabled(OpenFileTool.schema.name)) {
             add(OpenFileTool)
         }
+
+        // Device-action tools (ported from Google AI Edge Gallery mobile-actions):
+        // intents launch the system UI (contacts editor / email composer / maps / Wi-Fi),
+        // flashlight is a direct toggle. Toggleable individually in Settings → Connectors → Plugins.
+        addAll(DeviceActionTools.create(context).filter { appSettings.isToolEnabled(it.schema.name) })
 
         if (appSettings.isSandboxEnabled()) {
             val sandboxManager: LinuxSandboxManager by inject(LinuxSandboxManager::class.java)

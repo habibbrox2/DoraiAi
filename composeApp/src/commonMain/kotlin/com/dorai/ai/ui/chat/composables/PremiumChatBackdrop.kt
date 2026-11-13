@@ -28,7 +28,9 @@ import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.ui.theme.DesignTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.logo
+import dorai.composeapp.generated.resources.premium_backdrop_logo_description
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 /** Presentation state only; chat runtime state continues to be owned by ChatUiState. */
 internal enum class AgentPresentationState {
@@ -148,7 +150,7 @@ internal fun AgentOrb(
         ) {
             Icon(
                 painter = painterResource(Res.drawable.logo),
-                contentDescription = "DORAI AI Logo",
+                contentDescription = stringResource(Res.string.premium_backdrop_logo_description),
                 tint = Color.Unspecified,
                 modifier = Modifier.size(62.dp),
             )
