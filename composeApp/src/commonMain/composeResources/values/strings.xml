@@ -339,6 +339,8 @@
     <string name="settings_github_cancel_flow">Cancel</string>
     <string name="settings_github_loading">Loading…</string>
     <string name="settings_github_no_repositories">No repositories available.</string>
+    <string name="settings_github_repositories_not_connected">Connect to GitHub to see your repositories here.</string>
+    <string name="settings_github_repositories_error">Repositories could not be loaded. Use Retry above to reconnect.</string>
     <string name="settings_github_refresh_repositories">Refresh</string>
     <string name="settings_github_clear_selection">Clear selection</string>
     <string name="settings_github_retry">Retry</string>
@@ -1349,6 +1351,7 @@
     <string name="settings_voice_models_empty_body">Voice Mode still works with the device's own recognizer — models stored on the phone would enable fully offline, higher-quality output. Available models will appear here.</string>
     <string name="settings_voice_download">Download</string>
     <string name="settings_voice_downloading">Downloading… %1$d%%</string>
+    <string name="settings_voice_queued">Waiting to start — the download begins as soon as the network allows it.</string>
     <string name="settings_voice_paused">Paused — resume continues where it stopped</string>
     <string name="settings_voice_resume">Resume</string>
     <string name="settings_voice_pause">Pause</string>

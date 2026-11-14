@@ -1,6 +1,6 @@
 # GitHub Integration
 
-**Last verified:** 2026-11-14
+**Last verified:** 2026-11-14 (settings empty-state copy and retry visibility)
 
 DORAI AI can connect to GitHub through a GitHub App using the **Device Flow** and browse the repositories an installation can see — read-only. The integration is local-first: authentication, token custody, repository browsing, cloning and git operations all happen on the device.
 
@@ -30,7 +30,7 @@ The screen has two states:
 
 ### Not connected
 
-- "Connect to GitHub" button starts the Device Flow: `POST https://github.com/login/device/code` → while waiting, the screen shows the user code with a copy button, the verification URI with an "Open GitHub" button that launches the browser, and a Cancel button (`cancelDeviceFlow()`). Errors render as a localized card with a Retry button (`retry()`).
+- "Connect to GitHub" button starts the Device Flow: `POST https://github.com/login/device/code` → while waiting, the screen shows the user code with a copy button, the verification URI with an "Open GitHub" button that launches the browser, and a Cancel button (`cancelDeviceFlow()`). Errors render as a localized card with a Retry button (`retry()`); the build-time `MissingClientId` configuration error carries no Retry, because retrying repeats the same configuration error without any network attempt.
 - The app polls `POST /login/oauth/access_token` with `grant_type=device_code` and the OAuth `device_code` (never the user-facing `user_code`), honoring `authorization_pending` (keep polling), `slow_down` (interval + 5s), `expired_token` (stop and surface error), `access_denied`, `device_flow_disabled`, and `bad_refresh_token`.
 - On success the tokens are stored in the platform vault and `vault.isConnected()` is verified; a persist mismatch surfaces `Error("token could not be saved")`, never a fake Connected state.
 - The consent happens in a browser, so the app is in the background when it completes: a notification ("GitHub connected — return to DORAI AI to browse your repositories") tells the user it worked. Tapping it opens the app on the GitHub settings through the `dorai://github/done` deep link (`DeepLinks.GITHUB_RETURN_URI`).
@@ -39,6 +39,7 @@ The screen has two states:
 
 - Shows the connection status; the connect button is replaced by a **Disconnect** button that clears the vault after a confirmation dialog.
 - The account's installations (`GET /user/installations`) are listed and rendered (account name + type), followed by their repositories (`GET /user/installations/{installation_id}/repositories`) — read-only list from the **first installation** in v1; a Refresh button re-fetches (falls back to installations when none is loaded).
+- The repository list's empty copy follows the connection state: connected-but-empty points at the missing GitHub App installation, not-connected invites the user to connect, and a failed connection points at Retry — an error state never reads as "no repositories found".
 - **Refresh failures never destroy a valid session.** A missing/expired token (401) does end it; rate limits and transient network failures keep `Connected` and surface a dismissible banner instead of flipping to `Error`.
 - The authenticated user's `login` (`GET /user`) is fetched best-effort on connect and shown as "Signed in as …".
 - **Disconnect** clears the vault after a confirmation dialog.

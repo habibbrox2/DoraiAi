@@ -106,9 +106,13 @@ import dorai.composeapp.generated.resources.agent_default_mode
 import dorai.composeapp.generated.resources.agent_local_only_storage
 import dorai.composeapp.generated.resources.agent_local_only_storage_desc
 import dorai.composeapp.generated.resources.mode_ask
+import dorai.composeapp.generated.resources.mode_ask_desc
 import dorai.composeapp.generated.resources.mode_build
+import dorai.composeapp.generated.resources.mode_build_desc
 import dorai.composeapp.generated.resources.mode_plan
+import dorai.composeapp.generated.resources.mode_plan_desc
 import dorai.composeapp.generated.resources.mode_review
+import dorai.composeapp.generated.resources.mode_review_desc
 import dorai.composeapp.generated.resources.settings_approval_ask_all
 import dorai.composeapp.generated.resources.settings_approval_ask_edits
 import dorai.composeapp.generated.resources.settings_approval_auto_read
@@ -153,10 +157,6 @@ import dorai.composeapp.generated.resources.v2_https_required
 import dorai.composeapp.generated.resources.v2_local_sqlite_bridge
 import dorai.composeapp.generated.resources.v2_local_vault
 import dorai.composeapp.generated.resources.v2_mcp_bridge_summary
-import dorai.composeapp.generated.resources.v2_mode_ask_desc
-import dorai.composeapp.generated.resources.v2_mode_build_desc
-import dorai.composeapp.generated.resources.v2_mode_plan_desc
-import dorai.composeapp.generated.resources.v2_mode_review_desc
 import dorai.composeapp.generated.resources.v2_no_auth
 import dorai.composeapp.generated.resources.v2_oauth_2
 import dorai.composeapp.generated.resources.v2_private_blocked
@@ -957,11 +957,13 @@ private fun AgentPolicyHeader(
     var timelineEnabled by remember { mutableStateOf(appSettings.isTimelineEnabled()) }
     var autoReadEnabled by remember { mutableStateOf(appSettings.isAutoReadEnabled()) }
 
+    // The same strings the composer's mode selector uses, so a mode reads identically
+    // in both places.
     val modes = listOf(
-        Triple("ask", stringResource(Res.string.mode_ask), stringResource(Res.string.v2_mode_ask_desc)),
-        Triple("plan", stringResource(Res.string.mode_plan), stringResource(Res.string.v2_mode_plan_desc)),
-        Triple("build", stringResource(Res.string.mode_build), stringResource(Res.string.v2_mode_build_desc)),
-        Triple("review", stringResource(Res.string.mode_review), stringResource(Res.string.v2_mode_review_desc)),
+        Triple("ask", stringResource(Res.string.mode_ask), stringResource(Res.string.mode_ask_desc)),
+        Triple("plan", stringResource(Res.string.mode_plan), stringResource(Res.string.mode_plan_desc)),
+        Triple("build", stringResource(Res.string.mode_build), stringResource(Res.string.mode_build_desc)),
+        Triple("review", stringResource(Res.string.mode_review), stringResource(Res.string.mode_review_desc)),
     )
 
     val policies = listOf(

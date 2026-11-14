@@ -6,8 +6,8 @@ Nov 12, 2026 · @Habib Brox
 
 এই নথি **Android অ্যাপের** জন্য বাংলা offline voice-এর বাস্তবায়ন পরিকল্পনা। **Phase 1 এখন implement করা হয়েছে** — নিচের "বাস্তবায়িত Phase 1" অংশটি shipped অবস্থা বর্ণনা করে; বাকি অংশগুলো এখনো পরিকল্পনা, বর্তমান ফিচারের বিবরণ নয়।
 
-- **Status:** Phase 1 IMPLEMENTED (Android; platform speech recognizer)। Phase 2 infrastructure (catalog, worker, integrity) implemented; Coqui BN VITS-এ owner license sign-off recorded (2026-11-13, সব flavor) — ডাউনলোড enabled; pin/digest অপরিবর্তিত।
-- **Last verified:** 2026-11-13 (HuggingFace API; সাইজ ও pin Phase 0-এ আবার যাচাই হবে)।
+- **Status:** Phase 1 IMPLEMENTED (Android; platform speech recognizer)। Phase 2 infrastructure (catalog, worker, integrity) implemented; Coqui BN VITS-এ owner license sign-off recorded (2026-11-13, সব flavor) — ডাউনলোড enabled; pin/digest অপরিবর্তিত। enqueue হলে manifest-এ সাথেই DOWNLOADING লেখা হয় (queued অবস্থা), pause সবসমনের PAUSED রেখে, FAILED-এ Delete আছে।
+- **Last verified:** 2026-11-14 (HuggingFace API; সাইজ ও pin Phase 0-এ আবার যাচাই হবে)।
 - **লক্ষ্য:** DORAI AI-এর সাথে বাংলায় কথোপকথন — mic input, spoken output — সম্পূর্ণ on-device, API key, network বা per-turn খরচ ছাড়া।
 - **পরিসর:** শুধু Android। iOS ও Desktop আলাদা পরিকল্পনা; `commonMain`-এ interface থাকবে যাতে পরে যোগ করা যায়, কিন্তু সেসব `actual` এই নথির বাইরে।
 - **ভাষা:** launch ভাষা `bn`; architecture অন্য ভাষা আটকাবে না; English পুরো সমর্থিত থাকবে।
@@ -116,7 +116,7 @@ Voice Mode চালু করাই একমাত্র automatic trigger; �
 - Resume: `Range` header, `.part` ফাইলের দৈর্ঘ্য থেকে offset। unique work নাম `dorai-voice-model-download`, existing-work policy **`KEEP`** (`REPLACE` চলমান ডাউনলোড ভেঙে দিত)।
 - মডেল usable দেখানো হবে শুধু length **এবং** SHA-256 মিললে। না মিললে partial ফাইল মুছবে, ব্যর্থতা রেকর্ড করবে, inline দেখাবে।
 - একবারে একটি ডাউনলোড; অগ্রাধিকার STT, তারপর TTS।
-- প্রতি মডেলে নিয়ন্ত্রণ: Pause / Resume / Cancel / Delete / Re-download। Delete marker-ও মোছে; re-download শূন্য থেকে যাচাই করে।
+- প্রতি মডেলে নিয়ন্ত্রণ: Pause / Resume / Cancel / Delete / Re-download। Delete marker-ও মোছে; re-download শূন্য থেকে যাচাই করে। FAILED অবস্থায়ও Delete থাকে — নেটওয়ার্ক মাঝপথে গেলে worker `.part` রাখে, সেটি UI থেকে মুছنة যাবে।
 - Voice Mode বন্ধ বা মডেল delete করলে সংশ্লিষ্ট কাজ থামবে; অনুরোধ ছাড়া কিছু মুছবে না, তবে "X MB খালি করবেন?" প্রস্তাব দেখানো হবে।
 - Settings import কখনো ডাউনলোড শুরু করবে না।
 
@@ -201,7 +201,7 @@ Voice একটি আলাদা `com.dorai.ai.voice` module; এটি বি
 - **Retry:** `Result.retry()`, সর্বোচ্চ ≥ ৩ বার, exponential backoff। `429`/`5xx`-এ `Retry-After` মানা; `416` পেলে `.part` বাতিল করে ০ থেকে।
 - **Host নিরাপত্তা:** শুধু HTTPS ও allowlist-ভুক্ত host। HF `resolve` URL CDN host-এ redirect করে, তাই allowlist-এ redirect-এর গন্তব্য host-ও রাখতে হবে; pinned commit ছাড়া "latest" URL চলবে না।
 - **ডিস্ক পূর্ণ:** লেখার সময় `ENOSPC` পেলে `.part` রেখে স্পষ্ট বার্তা সহ `failed(storage)`।
-- **Doze / Battery Saver:** কাজ পিছিয়ে গেলে UI-তে "অপেক্ষমাণ — Wi‑Fi দরকার" ধরনের সৎ অবস্থা।
+- **Doze / Battery Saver / নেটওয়ার্ক constraint:** ডিফল্ট UNMETERED constraint-এ enqueue হলে WorkManager কাজ স্থগিত রাখতে পারে। manifest-এ enqueue-এর সাথেই DOWNLOADING লেখা হয় এবং 0% অবস্থায় "শুরু হওয়ার অপেক্ষায়" দেখা যায় — ডাউনলোড বাটন মৃত দেখায় না; Pause সেই মুহূর্তে কাজ করে (worker প্রথম progress লেখার আগেও PAUSED থাকে)।
 - **Notification:** Pause / Cancel action; progress শতাংশ ও বাকি সাইজ।
 - **পরীক্ষা:** WorkManager নিজে নয়; offset হিসাব, digest accumulation, state transition ও resume-এর ধারা pure orchestration layer-এ unit test।
 

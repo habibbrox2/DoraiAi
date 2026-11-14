@@ -1,3 +1,17 @@
+## DORAI AI - Settings state fixes: GitHub error copy, voice download controls, agent mode copy (Unreleased)
+
+### Fixed
+- **A failed GitHub connection no longer blames the account**: the repository list showed "No repositories available." next to the "Connection failed" card, so a failed or missing connection read as an empty account. The empty copy now follows the state — not connected invites you to connect, failed points at Retry, and only a connected-but-empty list points at the GitHub App installation.
+- **GitHub Retry no longer repeats a build configuration error**: when the build supplies no client ID, connect() fails closed before any network attempt; the error card now hides Retry, which could only reproduce the same configuration error.
+- **Voice model downloads no longer look dead**: tapping Download on a metered network enqueued the work under the Wi-Fi-only constraint, but nothing recorded the download until the first progress write (~1 MB, or never while the constraint was unmet), so the row kept showing an inert Download button. The manifest is marked downloading at enqueue and shows a "waiting to start" state until bytes flow.
+- **Pause works before the first progress write**: cancelling in that window previously left no manifest row, so the entry fell back to a plain Download button, the Resume/Delete controls vanished, and the already-downloaded `.part` bytes became unreachable. A pause now always persists the paused state.
+- **A failed voice download can be deleted**: the FAILED row offered only Download, leaving orphaned `.part` files from a mid-stream network failure on disk with no way to remove them.
+- **Voice settings stopped refreshing while paused**: the one-second manifest ticker also ran for paused rows, keeping a static screen recomposing forever; it now runs only while a download is active.
+- **Bengali voice settings copy no longer mixes in English**: "License sign-off pending" and the empty-state body left "sign-off", "recognizer" and "offline" untranslated; they now read fully in Bengali.
+- **Agent mode descriptions are consistent**: the Settings "Default mode" card used a second set of descriptions that differed from the composer's mode chips for the same Ask/Plan/Build/Review modes; both surfaces now show one pair of strings.
+
+---
+
 ## DORAI AI - Chat UI/UX accessibility and rendering fixes (Unreleased)
 
 ### Fixed
