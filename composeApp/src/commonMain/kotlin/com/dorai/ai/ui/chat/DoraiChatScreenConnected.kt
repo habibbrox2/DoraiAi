@@ -485,7 +485,7 @@ fun DoraiChatScreenConnected(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(DoraiSpacing.LG),
+                    .padding(ChatSpacing.lg),
             ) {
                 Text(
                     text = stringResource(Res.string.chat_model_picker_title),
@@ -493,13 +493,13 @@ fun DoraiChatScreenConnected(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                 )
-                Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+                Spacer(modifier = Modifier.height(ChatSpacing.md))
 
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = 420.dp),
-                    verticalArrangement = Arrangement.spacedBy(DoraiSpacing.SM),
+                    verticalArrangement = Arrangement.spacedBy(ChatSpacing.sm),
                 ) {
                     if (uiState.availableServices.isEmpty()) {
                         // No provider configured: show an explicit empty state instead of
@@ -509,7 +509,7 @@ fun DoraiChatScreenConnected(
                                 text = stringResource(Res.string.chat_model_picker_empty),
                                 color = colors.muted,
                                 fontSize = 14.sp,
-                                modifier = Modifier.padding(vertical = DoraiSpacing.LG),
+                                modifier = Modifier.padding(vertical = ChatSpacing.lg),
                             )
                         }
                     }
@@ -610,7 +610,7 @@ fun DoraiChatScreenConnected(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+                Spacer(modifier = Modifier.height(ChatSpacing.md))
 
                 TextButton(
                     onClick = {
@@ -639,7 +639,7 @@ fun DoraiChatScreenConnected(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(DoraiSpacing.LG),
+                    .padding(ChatSpacing.lg),
             ) {
                 Text(
                     text = stringResource(Res.string.chat_attach_title),
@@ -647,7 +647,7 @@ fun DoraiChatScreenConnected(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                 )
-                Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+                Spacer(modifier = Modifier.height(ChatSpacing.md))
 
                 // Photo row
                 Row(
@@ -709,7 +709,7 @@ fun DoraiChatScreenConnected(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+                Spacer(modifier = Modifier.height(ChatSpacing.md))
 
                 // Privacy disclosure footer from prototype
                 Text(
