@@ -1,4 +1,4 @@
-name: Play Store
+﻿name: Play Store
 
 on:
   workflow_dispatch:
@@ -32,7 +32,7 @@ jobs:
           RELEASE_REF: ${{ inputs.ref }}
         run: |
           set -euo pipefail
-          # Only strict release tags may reach the production track — never an
+          # Only strict release tags may reach the production track â€” never an
           # arbitrary branch, SHA, or workflow-dispatched commit.
           if [[ ! "$RELEASE_REF" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "::error::ref must be a release tag (vX.Y.Z); got: '$RELEASE_REF'"
@@ -45,7 +45,7 @@ jobs:
           git fetch origin main --no-tags 2>/dev/null || true
           TAG_COMMIT="$(git rev-parse "refs/tags/${RELEASE_REF}^{commit}")"
           if ! git merge-base --is-ancestor "$TAG_COMMIT" origin/main; then
-            echo "::error::tag ${RELEASE_REF} (${TAG_COMMIT}) is not reachable from origin/main — refusing to deploy"
+            echo "::error::tag ${RELEASE_REF} (${TAG_COMMIT}) is not reachable from origin/main â€” refusing to deploy"
             exit 1
           fi
           echo "Release ref ${RELEASE_REF} (${TAG_COMMIT}) validated against origin/main."
@@ -59,7 +59,8 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
         with:
-          packages: platform-tools      - name: Decode Play Store keystore
+          packages: platform-tools
+      - name: Decode Play Store keystore
         env:
           PLAY_STORE_KEYSTORE_B64: ${{ secrets.PLAY_STORE_KEYSTORE_B64 }}
         run: |
