@@ -917,6 +917,7 @@
     <string name="chat_copy_message">Copy</string>
     <string name="chat_regenerate_message">Regenerate</string>
     <string name="chat_model_picker_title">Select AI Model</string>
+<string name="chat_model_picker_empty">No providers configured yet — connect one in Settings.</string>
     <string name="chat_plan_title">Plan</string>
     <string name="chat_plan_run_build">Run in Build mode</string>
     <string name="chat_interactive_reply">Interactive reply</string>

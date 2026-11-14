@@ -177,7 +177,7 @@ The PTY hands DORAI AI a block of output as often as the program produces one �
 | `composeApp/src/androidMain/kotlin/com/dorai/ai/build/TerminalInputView.kt` | The Android IME plumbing: null input type, key events, committed text. |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/build/KaiBuildScreen.kt` | Screen shell and the setup / projects / terminal routing. |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/build/KaiBuildViewModel.kt` | Screen state, and the remembered "Open with" agent — read back at startup and checked against what is installed. |
-| `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/composables/EmptyState.kt` | Hosts the "Open DORAI Build" entry button. |
+| `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/chat/composables/EmptyState.kt` | Hosts the "Open DORAI Build" entry button. (Removed — the composable was never wired into the UI; see `docs/features/chat.md`) |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/workspace/DoraiWorkspaceScreen.kt` | UI v2 screen: setup / projects / active-project layout. Left file pane (Compact slide-in, Medium+ permanent) with the file explorer slot. Projects list also carries the "Open with" agent preference row and the coding-agents install card. |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/workspace/DoraiWorkspaceScreenConnected.kt` | Production bridge: binds the guest file browser (`WORKSPACE_FILES`), git state, projects folder mtimes and the Linux Sandbox management card (moved from Settings → Sandbox); no placeholder/mock rendering. |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/workspace/WorkspaceGitPanel.kt` | UI v2 Git panel: real `git status` list + stage/unstage/discard + unified-diff sheet. |
