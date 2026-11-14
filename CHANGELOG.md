@@ -1,3 +1,19 @@
+## DORAI AI - Chat UI/UX accessibility and rendering fixes (Unreleased)
+
+### Fixed
+- **Enter no longer sends a half-written Bengali word**: the composer sent the prompt on any Enter key press, even while an IME was still composing the word — the user typed "হ্যা", pressed Enter, and a broken prompt was posted. The composer now tracks the IME composition region and refuses to send until the composition is committed (Shift+Enter still inserts a newline, and a streaming turn still owns the key).
+- **Small controls are reachable again**: the tool-card copy buttons (24dp and 20dp), the command-palette rows, the history-sheet conversation rows and the heartbeat banner were all below the 48dp minimum touch target and were hard to hit. They now meet the 48dp target and the banner, palette and history rows carry an accessible action label for screen readers.
+- **A long tool result is no longer cut off silently**: the output was clamped to 15 lines with an ellipsis and no way to see the rest. An "Expand output" / "Collapse output" toggle reveals the full result in place (the copy button always copies the complete result).
+- **The chat top bar no longer clips its controls**: the bar had a fixed 56dp height, so a larger system font scale cut the icons off. It now has a minimum height and grows instead; the model name and the mode badge are bounded and ellipsize on narrow screens.
+- **The history search field is no longer squeezed**: it was pinned to a fixed 48dp, which clipped the Material text field. It now uses the field's natural height.
+- **A long error message no longer stretches the error badge**: the text is clamped to three lines with an ellipsis.
+
+### Changed
+- The model picker sheet is capped at 420dp tall, so a long provider list scrolls inside the sheet instead of pushing the actions off-screen.
+- The conversation list filter and the empty-state quick prompts are memoized, so typing in the search field no longer re-filters the whole list on every recomposition.
+
+---
+
 ## DORAI AI - OAuth hand-off page and Settings library redesign (Unreleased)
 
 ### Fixed

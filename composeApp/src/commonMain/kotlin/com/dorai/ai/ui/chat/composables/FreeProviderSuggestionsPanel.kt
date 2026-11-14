@@ -94,6 +94,7 @@ internal fun FreeProviderSuggestionsPanel(
                             .defaultMinSize(minHeight = 48.dp)
                             .clickable(
                                 role = Role.Button,
+                                onClickLabel = suggestion.service.displayName,
                                 onClick = { uriHandler.openUri(suggestion.signupUrl) },
                             )
                             .clip(DoraiShapes.pill)

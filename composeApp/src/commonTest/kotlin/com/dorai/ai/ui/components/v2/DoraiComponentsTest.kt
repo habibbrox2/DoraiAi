@@ -84,4 +84,79 @@ class DoraiComponentsTest {
         assertEquals(TimelineNodeType.Note, items[3].type)
         assertEquals(TimelineNodeState.Running, items[2].state)
     }
+
+    @Test
+    fun `enter sends the composer content`() {
+        assertTrue(
+            shouldSendOnEnter(
+                isEnter = true,
+                isShiftPressed = false,
+                isComposing = false,
+                text = "হ্যালো",
+                isStreaming = false,
+            ),
+        )
+    }
+
+    @Test
+    fun `shift enter inserts a newline instead of sending`() {
+        assertFalse(
+            shouldSendOnEnter(
+                isEnter = true,
+                isShiftPressed = true,
+                isComposing = false,
+                text = "হ্যালো",
+                isStreaming = false,
+            ),
+        )
+    }
+
+    @Test
+    fun `enter does not send while an ime is composing`() {
+        // A half-written Bengali word must be committed by the IME, never posted.
+        assertFalse(
+            shouldSendOnEnter(
+                isEnter = true,
+                isShiftPressed = false,
+                isComposing = true,
+                text = "হ্যা",
+                isStreaming = false,
+            ),
+        )
+    }
+
+    @Test
+    fun `enter does not send an empty composer or during a streaming turn`() {
+        assertFalse(
+            shouldSendOnEnter(
+                isEnter = true,
+                isShiftPressed = false,
+                isComposing = false,
+                text = "   ",
+                isStreaming = false,
+            ),
+        )
+        assertFalse(
+            shouldSendOnEnter(
+                isEnter = true,
+                isShiftPressed = false,
+                isComposing = false,
+                text = "হ্যালো",
+                isStreaming = true,
+            ),
+        )
+    }
+
+    @Test
+    fun `other keys never send`() {
+        assertFalse(
+            shouldSendOnEnter(
+                isEnter = false,
+                isShiftPressed = false,
+                isComposing = false,
+                text = "হ্যালো",
+                isStreaming = false,
+            ),
+        )
+    }
 }

@@ -33,6 +33,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,9 +48,11 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,6 +78,23 @@ import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
+/**
+ * True when the Enter key must send the composer content.
+ *
+ * - Shift+Enter inserts a newline instead of sending.
+ * - While an IME is still composing (Bengali, CJK, …) the key must not send: the word is
+ *   only half written, and sending it would post a broken prompt.
+ * - An empty composer has nothing to send, and while a turn is streaming the stop
+ *   button owns the keyboard.
+ */
+internal fun shouldSendOnEnter(
+    isEnter: Boolean,
+    isShiftPressed: Boolean,
+    isComposing: Boolean,
+    text: String,
+    isStreaming: Boolean,
+): Boolean = isEnter && !isShiftPressed && !isComposing && text.isNotBlank() && !isStreaming
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DoraiComposer(
@@ -93,6 +117,16 @@ fun DoraiComposer(
 ) {
     val colors = LocalDoraiColors.current
     val boxShape = RoundedCornerShape(26.dp)
+
+    // The field keeps its own TextFieldValue so the IME composition region stays observable.
+    // Enter-to-send must not fire while a Bengali/CJK IME is still composing — otherwise a
+    // half-written word is sent instead of being committed.
+    var fieldValue by remember { mutableStateOf(TextFieldValue(value)) }
+    LaunchedEffect(value) {
+        if (value != fieldValue.text) {
+            fieldValue = fieldValue.copy(text = value, selection = TextRange(value.length))
+        }
+    }
 
     Column(
         modifier = modifier
@@ -188,8 +222,11 @@ fun DoraiComposer(
                 }
 
                 BasicTextField(
-                    value = value,
-                    onValueChange = onValueChange,
+                    value = fieldValue,
+                    onValueChange = { newValue ->
+                        fieldValue = newValue
+                        onValueChange(newValue.text)
+                    },
                     textStyle = TextStyle(
                         color = colors.text,
                         fontSize = 15.sp,
@@ -201,7 +238,15 @@ fun DoraiComposer(
                         .fillMaxWidth()
                         .semantics { }
                         .onPreviewKeyEvent { event ->
-                            if (event.key == Key.Enter && !event.isShiftPressed && value.isNotBlank() && !isStreaming) {
+                            if (
+                                shouldSendOnEnter(
+                                    isEnter = event.key == Key.Enter,
+                                    isShiftPressed = event.isShiftPressed,
+                                    isComposing = fieldValue.composition != null,
+                                    text = fieldValue.text,
+                                    isStreaming = isStreaming,
+                                )
+                            ) {
                                 onSend()
                                 true
                             } else {

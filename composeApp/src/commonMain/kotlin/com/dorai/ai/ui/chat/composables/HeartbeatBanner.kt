@@ -48,12 +48,17 @@ internal fun HeartbeatBanner(
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 4.dp)
                 .handCursor()
-                .clickable(role = Role.Button) { onTap() },
+                .clickable(
+                    role = Role.Button,
+                    onClickLabel = stringResource(Res.string.heartbeat_banner_message),
+                ) { onTap() },
             colors = doraiAdaptiveCardColors(),
             border = doraiAdaptiveCardBorder(),
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                modifier = Modifier
+                    .defaultMinSize(minHeight = 48.dp)
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
