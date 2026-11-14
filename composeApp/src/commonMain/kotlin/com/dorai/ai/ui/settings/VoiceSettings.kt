@@ -34,6 +34,7 @@ import dorai.composeapp.generated.resources.settings_voice_models_empty_title
 import dorai.composeapp.generated.resources.settings_voice_models_title
 import dorai.composeapp.generated.resources.settings_voice_pause
 import dorai.composeapp.generated.resources.settings_voice_paused
+import dorai.composeapp.generated.resources.settings_voice_queued
 import dorai.composeapp.generated.resources.settings_voice_ready
 import dorai.composeapp.generated.resources.settings_voice_redownload
 import dorai.composeapp.generated.resources.settings_voice_resume
@@ -110,7 +111,9 @@ internal fun VoiceSettingsSection(
  */
 @Composable
 private fun VoiceModelsTicker(uiState: SettingsUiState, onTick: () -> Unit) {
-    val inFlight = uiState.voiceModels.any { it.state == VoiceModelState.DOWNLOADING || it.state == VoiceModelState.PAUSED }
+    // Only an active worker changes progress; a PAUSED model is static, so including it
+    // here would keep a one-second refresh loop running forever on an idle screen.
+    val inFlight = uiState.voiceModels.any { it.state == VoiceModelState.DOWNLOADING }
     if (!inFlight) return
     LaunchedEffect(inFlight) {
         while (true) {
@@ -150,7 +153,14 @@ internal fun VoiceModelRow(
                 )
                 when (entry.state) {
                     VoiceModelState.DOWNLOADING -> Text(
-                        text = stringResource(Res.string.settings_voice_downloading, (entry.progressFraction * 100).toInt()),
+                        // Zero bytes means the worker is still waiting for its constraint
+                        // (Wi-Fi only by default) or has not reported yet — say so instead
+                        // of pretending that a download is underway.
+                        text = if (entry.progressFraction <= 0f) {
+                            stringResource(Res.string.settings_voice_queued)
+                        } else {
+                            stringResource(Res.string.settings_voice_downloading, (entry.progressFraction * 100).toInt())
+                        },
                         style = DoraiTypography.bodySmall,
                         color = colors.textSecondary,
                     )
@@ -201,6 +211,13 @@ internal fun VoiceModelRow(
                     if (entry.canDownload) {
                         TextButton(onClick = onDownload) {
                             Text(text = stringResource(Res.string.settings_voice_download))
+                        }
+                    }
+                    // A failed download can leave `.part` files on disk; delete them from
+                    // here so the next attempt starts clean.
+                    if (entry.state == VoiceModelState.FAILED) {
+                        TextButton(onClick = onDelete) {
+                            Text(text = stringResource(Res.string.settings_voice_delete))
                         }
                     }
                 }

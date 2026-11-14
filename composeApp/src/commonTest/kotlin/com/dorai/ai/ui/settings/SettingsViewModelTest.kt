@@ -8,6 +8,7 @@ import com.dorai.ai.data.TaskScheduler
 import com.dorai.ai.testutil.FakeDataRepository
 import com.dorai.ai.tools.AppPermission
 import com.dorai.ai.tools.PermissionController
+import com.dorai.ai.voice.VoiceModelState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -711,5 +712,45 @@ class SettingsViewModelTest {
             assertEquals("Remember the user's cat is called Milo.", awaitItem().memoryInstructions)
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    // --- Voice model downloads ---
+
+    private val pinnedModelId = "coqui-vits-bn-custom-female"
+
+    @Test
+    fun `initial state joins the pinned voice catalog with an empty manifest`() = runTest {
+        val viewModel = SettingsViewModel(fakeRepository, fakeDaemonController, fakeNotificationPermissionController, noOpScheduler, testDispatcher)
+
+        val entry = viewModel.state.value.voiceModels.single { it.model.id == pinnedModelId }
+        assertEquals(VoiceModelState.ABSENT, entry.state)
+        assertTrue(entry.canDownload)
+    }
+
+    @Test
+    fun `a manifest READY row surfaces in the voice models state`() = runTest {
+        fakeRepository.setVoiceModelManifestJson(
+            """{"entries":[{"modelId":"$pinnedModelId","state":"READY","downloadedBytes":114295636,"totalBytes":114295636,"verifiedFileNames":["model.onnx","tokens.txt","config.json"]}]}""",
+        )
+        val viewModel = SettingsViewModel(fakeRepository, fakeDaemonController, fakeNotificationPermissionController, noOpScheduler, testDispatcher)
+
+        val entry = viewModel.state.value.voiceModels.single { it.model.id == pinnedModelId }
+        assertEquals(VoiceModelState.READY, entry.state)
+        assertEquals(1f, entry.progressFraction)
+        assertEquals(3, entry.verifiedFileNames.size)
+    }
+
+    @Test
+    fun `download on a platform that cannot download leaves the entry absent`() = runTest {
+        // Desktop (like iOS/Wasm) refuses the enqueue, so no DOWNLOADING row may be written:
+        // a fake downloading state would show a Pause button that stops nothing.
+        val viewModel = SettingsViewModel(fakeRepository, fakeDaemonController, fakeNotificationPermissionController, noOpScheduler, testDispatcher)
+
+        viewModel.actions.onVoiceModelDownload(pinnedModelId)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val entry = viewModel.state.value.voiceModels.single { it.model.id == pinnedModelId }
+        assertEquals(VoiceModelState.ABSENT, entry.state)
+        assertEquals("", fakeRepository.getVoiceModelManifestJson())
     }
 }

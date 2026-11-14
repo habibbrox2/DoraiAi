@@ -907,6 +907,8 @@
     <string name="settings_github_cancel_flow">বাতিল করুন</string>
     <string name="settings_github_loading">লোড হচ্ছে…</string>
     <string name="settings_github_no_repositories">কোনো রিপোজিটরি পাওয়া যায়নি।</string>
+    <string name="settings_github_repositories_not_connected">রিপোজিটরি দেখতে GitHub-এ সংযুক্ত করুন।</string>
+    <string name="settings_github_repositories_error">রিপোজিটরি লোড করা যায়নি। উপরের "পুনরায় চেষ্টা করুন" দিয়ে আবার চেষ্টা করুন।</string>
     <string name="settings_github_refresh_repositories">রিফ্রেশ</string>
     <string name="settings_github_clear_selection">নির্বাচন মুছুন</string>
     <string name="settings_github_retry">পুনরায় চেষ্টা করুন</string>
@@ -1316,9 +1318,10 @@
     <string name="settings_voice_mode_description">DORAI AI-এর সাথে কথা বলুন ও উত্তর শুনুন। ডিভাইসের নিজস্ব স্পিচ রিকগনাইজার ব্যবহার হয়; অফলাইন ল্যাঙ্গুয়েজ মডেল ইনস্টল থাকলে এটি অফলাইনেও কাজ করে।</string>
     <string name="settings_voice_models_title">অফলাইন ভয়েস মডেল</string>
     <string name="settings_voice_models_empty_title">এখনো কোনো অফলাইন মডেল নেই</string>
-    <string name="settings_voice_models_empty_body">Voice Mode ডিভাইসের নিজস্ব recognizer দিয়ে কাজ করে — ফোনে মডেল থাকলে আরও ভালো ও সম্পূর্ণ offline গুণমান পাওয়া যায়। উপলব্ধ মডেল এখানে দেখা যাবে।</string>
+    <string name="settings_voice_models_empty_body">ভয়েস মোড ডিভাইসের নিজস্ব স্পিচ রেকগনাইজার দিয়ে কাজ করে — ফোনে অতিরিক্ত মডেল থাকলে আরও ভালো ও সম্পূর্ণ অফলাইন মান পাওয়া যায়। উপলব্ধ মডেল এখানে দেখা যাবে।</string>
     <string name="settings_voice_download">ডাউনলোড</string>
     <string name="settings_voice_downloading">ডাউনলোড হচ্ছে… %1$d%%</string>
+    <string name="settings_voice_queued">শুরু হওয়ার অপেক্ষায় — নেটওয়ার্ক অনুমতি দিলেই ডাউনলোড শুরু হবে।</string>
     <string name="settings_voice_paused">বিরতি দেওয়া আছে — যেখানে থেমেছে সেখান থেকেই আবার চালু হবে</string>
     <string name="settings_voice_resume">আবার চালু করুন</string>
     <string name="settings_voice_pause">বিরতি</string>
@@ -1327,7 +1330,7 @@
     <string name="settings_voice_ready">প্রস্তুত (অফলাইন)</string>
     <string name="settings_voice_failed">ব্যর্থ</string>
     <string name="settings_voice_failed_body">কারণ: %1$s</string>
-    <string name="settings_voice_license_pending">লাইসেন্স sign-off বাকি — এখনো এই মডেলটি ডাউনলোড করা যাবে না</string>
+    <string name="settings_voice_license_pending">লাইসেন্স অনুমোদন বাকি — এখনো এই মডেলটি ডাউনলোড করা যাবে না</string>
     <string name="settings_voice_mobile_data">মোবাইল ডেটায় ডাউনলোড করুন</string>
     <string name="settings_voice_mobile_data_description">বন্ধ থাকলে শুধু Wi-Fi-তে হবে। চালু থাকলেও প্রতিটি ডাউনলোডের আগে জিজ্ঞেস করা হবে।</string>
     <string name="sidebar_older">পুরোনো</string>

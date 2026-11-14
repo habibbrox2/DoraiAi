@@ -68,13 +68,17 @@ internal object AndroidVoiceModelDownloadScheduler {
             appSettings::getVoiceModelManifestJson,
             appSettings::setVoiceModelManifestJson,
         )
+        // The user's pause must always land in the manifest. A cancel that arrives before the
+        // worker's first progress write (no manifest row yet, or still ABSENT) previously fell
+        // through, leaving the entry ABSENT: the row then flipped back to a plain "Download"
+        // button with no Resume or Delete, while the already-written `.part` bytes became
+        // unreachable. Persisting PAUSED unconditionally (with the bytes we know of) keeps the
+        // resume control honest.
         val entry = repository.entry(modelId)
-        if (entry != null && (entry.state == VoiceModelState.DOWNLOADING || entry.state == VoiceModelState.PAUSED)) {
-            repository.setModelState(
-                modelId,
-                VoiceModelState.PAUSED,
-                downloadedBytes = entry.downloadedBytes,
-            )
-        }
+        repository.setModelState(
+            modelId,
+            VoiceModelState.PAUSED,
+            downloadedBytes = entry?.downloadedBytes ?: 0L,
+        )
     }
 }

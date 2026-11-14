@@ -103,7 +103,6 @@ import dorai.composeapp.generated.resources.settings_github_hero_title
 import dorai.composeapp.generated.resources.settings_github_installations
 import dorai.composeapp.generated.resources.settings_github_last_sync
 import dorai.composeapp.generated.resources.settings_github_loading
-import dorai.composeapp.generated.resources.settings_github_no_repositories
 import dorai.composeapp.generated.resources.settings_github_no_repositories_hint
 import dorai.composeapp.generated.resources.settings_github_not_connected
 import dorai.composeapp.generated.resources.settings_github_not_supported
@@ -113,6 +112,8 @@ import dorai.composeapp.generated.resources.settings_github_project_name_label
 import dorai.composeapp.generated.resources.settings_github_refresh_repositories
 import dorai.composeapp.generated.resources.settings_github_refresh_status
 import dorai.composeapp.generated.resources.settings_github_repositories
+import dorai.composeapp.generated.resources.settings_github_repositories_error
+import dorai.composeapp.generated.resources.settings_github_repositories_not_connected
 import dorai.composeapp.generated.resources.settings_github_retry
 import dorai.composeapp.generated.resources.settings_github_signed_in
 import dorai.composeapp.generated.resources.settings_github_sync
@@ -121,6 +122,7 @@ import dorai.composeapp.generated.resources.settings_github_waiting_description
 import dorai.composeapp.generated.resources.settings_github_waiting_title
 import kotlinx.coroutines.delay
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -326,8 +328,12 @@ internal fun GitHubSection() {
                     style = DoraiTypography.bodySmall,
                     color = colors.textSecondary,
                 )
-                OutlinedButton(onClick = { vm.retry() }) {
-                    Text(text = stringResource(Res.string.settings_github_retry))
+                // A missing client ID is a build-time configuration failure, not a transient
+                // one: retrying repeats the same error forever, so the button is hidden here.
+                if (state.error != GitHubDeviceFlowError.MissingClientId) {
+                    OutlinedButton(onClick = { vm.retry() }) {
+                        Text(text = stringResource(Res.string.settings_github_retry))
+                    }
                 }
             }
         } else if (state.error != null) {
@@ -406,11 +412,7 @@ internal fun GitHubSection() {
                 }
             } else {
                 CollectionEmptyState(
-                    message = if (state.connectionStatus == GitHubConnectionStatus.Connected) {
-                        stringResource(Res.string.settings_github_no_repositories_hint)
-                    } else {
-                        stringResource(Res.string.settings_github_no_repositories)
-                    },
+                    message = stringResource(repositoryEmptyMessageRes(state.connectionStatus)),
                 )
             }
         } else {
@@ -737,6 +739,20 @@ private fun DeviceFlowWaitingCard(
             Text(text = stringResource(Res.string.settings_github_cancel_flow))
         }
     }
+}
+
+/**
+ * Repository-list empty copy for the current connection status.
+ *
+ * Only a list that actually loaded may read as "no repositories found": while the user is
+ * not connected there is nothing to find yet, and after a failed connection "no repositories"
+ * blames the account for what is really a connection error — the two cards then contradict
+ * each other on screen. Kept pure (no composition) so the mapping is unit-testable.
+ */
+internal fun repositoryEmptyMessageRes(status: GitHubConnectionStatus): StringResource = when (status) {
+    GitHubConnectionStatus.Connected -> Res.string.settings_github_no_repositories_hint
+    GitHubConnectionStatus.Error -> Res.string.settings_github_repositories_error
+    else -> Res.string.settings_github_repositories_not_connected
 }
 
 @Composable

@@ -40,6 +40,7 @@ import com.dorai.ai.tools.PermissionController
 import com.dorai.ai.tools.isLocalNetworkUrl
 import com.dorai.ai.voice.VoiceModelEntry
 import com.dorai.ai.voice.VoiceModelRepository
+import com.dorai.ai.voice.VoiceModelState
 import com.dorai.ai.voice.cancelVoiceDownload
 import com.dorai.ai.voice.deleteVoiceModelFiles
 import com.dorai.ai.voice.enqueueVoiceDownload
@@ -843,7 +844,14 @@ class SettingsViewModel(
     private fun onVoiceModelDownload(modelId: String) {
         val entry = voiceModelRepository.entry(modelId) ?: return
         if (!entry.model.isDownloadable()) return
-        enqueueVoiceDownload(modelId, dataRepository.isVoiceMobileDataAllowed())
+        val queued = enqueueVoiceDownload(modelId, dataRepository.isVoiceMobileDataAllowed())
+        if (queued) {
+            // The worker only records its first DOWNLOADING write after ~1 MB (or when a
+            // constraint like the default Wi-Fi-only network is unmet, not at all for a
+            // while). Mark it here so the row offers Pause immediately instead of looking
+            // like the Download button did nothing.
+            voiceModelRepository.setModelState(modelId, VoiceModelState.DOWNLOADING, downloadedBytes = 0L)
+        }
         refreshVoiceModels()
     }
 
@@ -860,7 +868,11 @@ class SettingsViewModel(
     private fun onVoiceModelReDownload(modelId: String) {
         val allowed = dataRepository.isVoiceMobileDataAllowed()
         deleteVoiceModelFiles(modelId)
-        enqueueVoiceDownload(modelId, allowed)
+        if (enqueueVoiceDownload(modelId, allowed)) {
+            // Delete removed the manifest row, so the queued DOWNLOADING state must be
+            // re-established here as well (same reason as onVoiceModelDownload).
+            voiceModelRepository.setModelState(modelId, VoiceModelState.DOWNLOADING, downloadedBytes = 0L)
+        }
         refreshVoiceModels()
     }
 
