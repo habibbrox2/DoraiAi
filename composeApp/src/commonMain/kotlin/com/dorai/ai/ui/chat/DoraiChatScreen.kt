@@ -407,7 +407,10 @@ fun DoraiChatScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .width(300.dp)
+                        // The drawer is 300dp wide on a normal phone, but never wider
+                        // than the screen itself on a small device.
+                        .fillMaxWidth()
+                        .widthIn(max = 300.dp)
                         .background(colors.surface),
                 ) {
                     ChatHistoryPane(
@@ -568,9 +571,14 @@ private fun ChatHistoryPane(
     var searchQuery by remember { mutableStateOf("") }
     var renamingConv by remember { mutableStateOf<ChatConversationSummary?>(null) }
 
-    val filtered = conversations.filter {
-        it.title.contains(searchQuery, ignoreCase = true) || it.preview.contains(searchQuery, ignoreCase = true)
-    }.sortedByDescending { it.isPinned }
+    val filtered = remember(conversations, searchQuery) {
+        conversations
+            .filter {
+                it.title.contains(searchQuery, ignoreCase = true) ||
+                    it.preview.contains(searchQuery, ignoreCase = true)
+            }
+            .sortedByDescending { it.isPinned }
+    }
 
     val todayConvs = remember(filtered) { filtered.filter { it.isToday } }
     val earlierConvs = remember(filtered) { filtered.filter { !it.isToday } }
@@ -621,7 +629,7 @@ private fun ChatHistoryPane(
             onClick = onNewChat,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp),
+                .heightIn(min = 48.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = colors.primary,
@@ -684,7 +692,7 @@ private fun ChatHistoryPane(
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp),
+                .heightIn(min = 48.dp),
             singleLine = true,
         )
 
@@ -1067,11 +1075,12 @@ private fun ChatDetailPane(
                 }
             },
     ) {
-        // Chat Top Bar (56dp fixed height matching prototype header.top)
+        // Chat Top Bar (56dp minimum height matching prototype header.top; it grows with
+        // the system font scale instead of clipping the controls).
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .heightIn(min = 56.dp)
                 .padding(horizontal = DoraiSpacing.MD),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -1104,7 +1113,7 @@ private fun ChatDetailPane(
                         fontWeight = FontWeight.SemiBold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.widthIn(max = 180.dp),
+                        modifier = Modifier.widthIn(max = 160.dp),
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     DoraiProviderBadge(isLocal = isModelLocal, iconOnly = true)
@@ -1147,6 +1156,7 @@ private fun ChatDetailPane(
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.widthIn(max = 120.dp),
                         )
                     }
                 }
@@ -1195,6 +1205,7 @@ private fun ChatDetailPane(
                 text = stringResource(warningRes),
                 color = colors.err,
                 fontSize = 13.sp,
+                lineHeight = 18.sp,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.SM),
@@ -1371,6 +1382,8 @@ private fun ChatDetailPane(
                             text = uiErrorText(error),
                             color = colors.text,
                             fontSize = 13.sp,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.widthIn(max = 260.dp),
                         )
                         if (onRetryError != null) {
@@ -2273,6 +2286,7 @@ private fun ChatEmptyState(
                 text = stringResource(Res.string.chat_empty_subtitle),
                 color = colors.muted,
                 fontSize = 13.5.sp,
+                lineHeight = 19.sp,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -2510,7 +2524,7 @@ private fun DoraiAccordionBlock(
     content: @Composable () -> Unit,
 ) {
     val colors = LocalDoraiColors.current
-    var expanded by remember { mutableStateOf(defaultExpanded) }
+    var expanded by remember(defaultExpanded) { mutableStateOf(defaultExpanded) }
     val expandedStateDescription = stringResource(Res.string.state_expanded)
     val collapsedStateDescription = stringResource(Res.string.state_collapsed)
     Column(

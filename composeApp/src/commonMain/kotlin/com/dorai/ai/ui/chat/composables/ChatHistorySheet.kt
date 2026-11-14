@@ -174,11 +174,15 @@ internal fun ChatHistorySheet(
                                     modifier = borderModifier
                                         .fillMaxWidth()
                                         .handCursor()
-                                        .clickable(role = Role.Button) {
+                                        .clickable(
+                                            role = Role.Button,
+                                            onClickLabel = conversation.title,
+                                        ) {
                                             onConversationSelected()
                                             actions.loadConversation(conversation.id)
                                             onDismiss()
                                         }
+                                        .defaultMinSize(minHeight = 48.dp)
                                         .padding(vertical = 8.dp, horizontal = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween,

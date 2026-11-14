@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -240,6 +241,7 @@ internal fun ChatCommandPalette(
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(10.dp))
                                     .background(if (selected) colors.surface2 else colors.surface)
+                                    .defaultMinSize(minHeight = 48.dp)
                                     .clickable(
                                         role = Role.Button,
                                         onClickLabel = item.title,

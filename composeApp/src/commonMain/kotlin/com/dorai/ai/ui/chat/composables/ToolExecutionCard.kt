@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -55,6 +56,8 @@ import dorai.composeapp.generated.resources.a11y_collapse
 import dorai.composeapp.generated.resources.a11y_copy_code
 import dorai.composeapp.generated.resources.a11y_expand
 import dorai.composeapp.generated.resources.chat_action_copied
+import dorai.composeapp.generated.resources.chat_collapse_output
+import dorai.composeapp.generated.resources.chat_expand_output
 import dorai.composeapp.generated.resources.chat_shell_label
 import dorai.composeapp.generated.resources.chat_tool_call_label
 import dorai.composeapp.generated.resources.chat_tool_done
@@ -65,6 +68,12 @@ import dorai.composeapp.generated.resources.chat_tool_running_plain
 import dorai.composeapp.generated.resources.tool_output_label
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
+
+/**
+ * How many lines of a tool result are shown before the output is clamped. The rest stays
+ * reachable through the expand toggle — the output is never dropped without a way to see it.
+ */
+private const val RESULT_PREVIEW_LINES = 15
 
 /**
  * ChatGPT-style Shell & Command Execution Window.
@@ -225,7 +234,7 @@ fun ShellExecutionCard(
                                 copyToClipboard(command)
                                 isCopied = true
                             },
-                            modifier = Modifier.size(24.dp).handCursor(),
+                            modifier = Modifier.size(48.dp).handCursor(),
                         ) {
                             Icon(Icons.Default.ContentCopy, contentDescription = stringResource(Res.string.a11y_copy_code), tint = textMuted, modifier = Modifier.size(13.dp))
                         }
@@ -320,6 +329,7 @@ fun ShellExecutionCard(
                                 modifier = Modifier
                                     .padding(top = 8.dp)
                                     .clickable(role = Role.Button) { showAllLines = !showAllLines }
+                                    .heightIn(min = 48.dp)
                                     .handCursor(),
                             )
                         }
@@ -360,6 +370,9 @@ fun ToolExecutionCard(
     val copyToClipboard = rememberCopyToClipboard()
     var isCopied by remember { mutableStateOf(false) }
     var isExpanded by remember(initiallyExpanded) { mutableStateOf(initiallyExpanded) }
+    // Long tool output is clamped so a single result cannot flood the conversation;
+    // the user can reveal the rest on demand instead of losing it silently.
+    var showFullResult by remember { mutableStateOf(false) }
 
     LaunchedEffect(isCopied) {
         if (isCopied) {
@@ -533,25 +546,42 @@ fun ToolExecutionCard(
                                             copyToClipboard(result)
                                             isCopied = true
                                         },
-                                        modifier = Modifier.size(20.dp).handCursor(),
+                                        modifier = Modifier.size(48.dp).handCursor(),
                                     ) {
                                         Icon(Icons.Default.ContentCopy, contentDescription = stringResource(Res.string.a11y_copy_code), tint = textMuted, modifier = Modifier.size(12.dp))
                                     }
                                 }
                             }
+                            val resultLineCount = remember(result) { result.lines().size }
+                            val isResultTruncated = resultLineCount > RESULT_PREVIEW_LINES
                             SelectionContainer {
                                 Text(
                                     text = result,
                                     style = DoraiTypography.bodySmall,
                                     fontFamily = FontFamily.Monospace,
                                     color = textSlate,
-                                    maxLines = 15,
+                                    maxLines = if (showFullResult || !isResultTruncated) Int.MAX_VALUE else RESULT_PREVIEW_LINES,
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(6.dp))
                                         .background(LocalDesignColorTokens.current.surfaceRaised)
                                         .padding(8.dp),
+                                )
+                            }
+                            if (isResultTruncated) {
+                                Text(
+                                    text = stringResource(
+                                        if (showFullResult) Res.string.chat_collapse_output else Res.string.chat_expand_output,
+                                    ),
+                                    style = DoraiTypography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                    fontFamily = FontFamily.Monospace,
+                                    color = accentTeal,
+                                    modifier = Modifier
+                                        .padding(top = 6.dp)
+                                        .clickable(role = Role.Button) { showFullResult = !showFullResult }
+                                        .heightIn(min = 48.dp)
+                                        .handCursor(),
                                 )
                             }
                         }
