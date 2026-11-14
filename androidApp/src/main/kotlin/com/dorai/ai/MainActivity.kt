@@ -60,9 +60,7 @@ class MainActivity : ComponentActivity() {
 
         val themeSettingsRepository: ThemeSettingsRepository = get()
         val appSettings: AppSettings = get()
-        if (BuildConfig.FLAVOR == "foss") {
-            AndroidUpdateAutoUpdate.start(this, appSettings)
-        }
+        AndroidUpdateAutoUpdate.start(this, appSettings)
         setContent {
             val themeState by themeSettingsRepository.state.collectAsStateWithLifecycle()
             val systemInDark = isSystemInDarkTheme()
@@ -105,10 +103,8 @@ class MainActivity : ComponentActivity() {
                         requestReview(this@MainActivity)
                     }
                 },
-                androidUpdateContent = if (BuildConfig.FLAVOR == "foss") {
-                    { AndroidUpdateSettingsSection(appSettings = appSettings) }
-                } else {
-                    null
+                androidUpdateContent = {
+                    AndroidUpdateSettingsSection(appSettings = appSettings)
                 },
             )
         }
