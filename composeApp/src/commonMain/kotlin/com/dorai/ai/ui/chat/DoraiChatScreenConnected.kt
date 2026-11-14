@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.chat
+package com.dorai.ai.ui.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -53,6 +54,7 @@ import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.tools.AppPermission
 import com.dorai.ai.tools.PermissionController
+import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.components.v2.DoraiModalSheet
 import com.dorai.ai.ui.components.v2.DoraiProviderBadge
 import com.dorai.ai.ui.components.v2.DoraiStatusBadge
@@ -70,6 +72,7 @@ import dorai.composeapp.generated.resources.chat_attach_file
 import dorai.composeapp.generated.resources.chat_attach_photo
 import dorai.composeapp.generated.resources.chat_attach_title
 import dorai.composeapp.generated.resources.chat_manage_providers
+import dorai.composeapp.generated.resources.chat_model_picker_empty
 import dorai.composeapp.generated.resources.chat_model_picker_title
 import dorai.composeapp.generated.resources.chat_press_back_to_exit
 import dorai.composeapp.generated.resources.chat_privacy_cloud
@@ -311,6 +314,13 @@ fun DoraiChatScreenConnected(
         }
     }
 
+    val composerFocusRequester = remember { FocusRequester() }
+    // When a modal sheet over the chat closes (scrim tap, selection, or explicit
+    // dismiss), put keyboard focus back on the composer so the user can keep typing.
+    val refocusComposer: () -> Unit = {
+        runCatching { composerFocusRequester.requestFocus() }
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         DoraiChatScreen(
             messages = messages,
@@ -448,6 +458,7 @@ fun DoraiChatScreenConnected(
             frozenByAssistantId = timelineData.frozenByAssistantId,
             composerPrefill = uiState.composerPrefill,
             onConsumeComposerPrefill = { uiState.actions.consumeComposerPrefill() },
+            composerFocusRequester = composerFocusRequester,
             // dorai-ui blocks in interactive answers call back here; the action routes to the
             // VM with the submission so it can be recorded and the answer regenerated.
             onUiCallback = { event, data -> uiState.actions.submitUiCallback(event, data) },
@@ -467,7 +478,10 @@ fun DoraiChatScreenConnected(
 
     if (showModelPicker) {
         val colors = LocalDoraiColors.current
-        DoraiModalSheet(onDismissRequest = { showModelPicker = false }) {
+        DoraiModalSheet(onDismissRequest = {
+            showModelPicker = false
+            refocusComposer()
+        }) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -487,6 +501,18 @@ fun DoraiChatScreenConnected(
                         .heightIn(max = 420.dp),
                     verticalArrangement = Arrangement.spacedBy(DoraiSpacing.SM),
                 ) {
+                    if (uiState.availableServices.isEmpty()) {
+                        // No provider configured: show an explicit empty state instead of
+                        // an empty list with only the "Manage providers" action below.
+                        item(key = "model-picker-empty") {
+                            Text(
+                                text = stringResource(Res.string.chat_model_picker_empty),
+                                color = colors.muted,
+                                fontSize = 14.sp,
+                                modifier = Modifier.padding(vertical = DoraiSpacing.LG),
+                            )
+                        }
+                    }
                     items(uiState.availableServices, key = { "service-" + it.instanceId }) { serviceEntry ->
                         val isSelected = serviceEntry.instanceId == activeService?.instanceId
                         val isLocal = serviceEntry.executionLocation == ExecutionLocation.LOCAL
@@ -501,6 +527,7 @@ fun DoraiChatScreenConnected(
                                 .clickable(role = Role.Button, onClickLabel = serviceEntry.serviceName) {
                                     uiState.actions.selectService(serviceEntry.instanceId)
                                     showModelPicker = false
+                                    refocusComposer()
                                 }
                                 .padding(horizontal = 14.dp, vertical = 12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -554,6 +581,7 @@ fun DoraiChatScreenConnected(
                                     .clickable(role = Role.Button, onClickLabel = model.displayName ?: model.id) {
                                         uiState.actions.selectModel(model.id)
                                         showModelPicker = false
+                                        refocusComposer()
                                     }
                                     .padding(horizontal = 14.dp, vertical = 12.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -604,7 +632,10 @@ fun DoraiChatScreenConnected(
 
     if (showAttachSheet) {
         val colors = LocalDoraiColors.current
-        DoraiModalSheet(onDismissRequest = { showAttachSheet = false }) {
+        DoraiModalSheet(onDismissRequest = {
+            showAttachSheet = false
+            refocusComposer()
+        }) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -647,7 +678,7 @@ fun DoraiChatScreenConnected(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(ChatSpacing.sm))
 
                 // File row
                 Row(
@@ -690,7 +721,7 @@ fun DoraiChatScreenConnected(
                     color = colors.muted,
                     fontSize = 12.sp,
                     lineHeight = 16.sp,
-                    modifier = Modifier.padding(horizontal = 4.dp),
+                    modifier = Modifier.padding(horizontal = ChatSpacing.xs),
                 )
             }
         }

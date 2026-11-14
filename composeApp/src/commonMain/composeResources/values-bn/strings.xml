@@ -635,6 +635,7 @@
     <string name="chat_copy_message">কপি করুন</string>
     <string name="chat_regenerate_message">পুনরায় তৈরি করুন</string>
     <string name="chat_model_picker_title">এআই মডেল নির্বাচন করুন</string>
+<string name="chat_model_picker_empty">এখনও কোনো প্রোভাইডার যোগ করা হয়নি — সেটিংসে একটি যোগ করুন।</string>
     <string name="chat_plan_title">পরিকল্পনা</string>
     <string name="chat_plan_run_build">বিল্ড মোডে চালান</string>
     <string name="chat_interactive_reply">ইন্টারঅ্যাক্টিভ উত্তর</string>

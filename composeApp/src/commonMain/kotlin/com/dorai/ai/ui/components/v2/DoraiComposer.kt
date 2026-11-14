@@ -41,6 +41,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.isShiftPressed
@@ -114,6 +116,11 @@ fun DoraiComposer(
     onRemoveFile: ((PlatformFile) -> Unit)? = null,
     placeholder: String = stringResource(Res.string.composer_input_hint),
     maxContextTokens: Int? = null,
+    /**
+     * Optional [FocusRequester] attached to the text field so callers can focus the
+     * composer (prefill open, return from a dismissed modal, refocus after send).
+     */
+    focusRequester: FocusRequester? = null,
 ) {
     val colors = LocalDoraiColors.current
     val boxShape = RoundedCornerShape(26.dp)
@@ -141,9 +148,9 @@ fun DoraiComposer(
             FlowRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                    .padding(horizontal = DoraiSpacing.SM, vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(DoraiSpacing.XS),
             ) {
                 for (file in files) {
                     val isImg = file.extension.lowercase() in imageExtensions
@@ -157,9 +164,9 @@ fun DoraiComposer(
                             modifier = Modifier
                                 .defaultMinSize(minHeight = 48.dp)
                                 .clickable(role = Role.Button) { onRemoveFile?.invoke(file) }
-                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                                .padding(horizontal = DoraiSpacing.SM, vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.XS),
                         ) {
                             Icon(
                                 painter = painterResource(icon),
@@ -237,6 +244,13 @@ fun DoraiComposer(
                     modifier = Modifier
                         .fillMaxWidth()
                         .semantics { }
+                        .then(
+                            if (focusRequester != null) {
+                                Modifier.focusRequester(focusRequester)
+                            } else {
+                                Modifier
+                            },
+                        )
                         .onPreviewKeyEvent { event ->
                             if (
                                 shouldSendOnEnter(

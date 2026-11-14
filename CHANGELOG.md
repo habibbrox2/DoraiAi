@@ -7,6 +7,8 @@
 - **The chat top bar no longer clips its controls**: the bar had a fixed 56dp height, so a larger system font scale cut the icons off. It now has a minimum height and grows instead; the model name and the mode badge are bounded and ellipsize on narrow screens.
 - **The history search field is no longer squeezed**: it was pinned to a fixed 48dp, which clipped the Material text field. It now uses the field's natural height.
 - **A long error message no longer stretches the error badge**: the text is clamped to three lines with an ellipsis.
+- **The model picker no longer shows a blank sheet**: with no provider configured, the sheet rendered an empty list with only the "Manage providers" action. It now says so ("No providers configured yet — connect one in Settings.").
+- **Keyboard focus follows the conversation**: a composer prefill (Share intent, Assist cold start, Design card) now focuses the input so typing can continue immediately; when the model-picker or attach sheet closes, focus returns to the composer; focus stays on the input after sending; and on a compact screen the history search field pulls focus when the drawer opens.
 
 ### Changed
 - The model picker sheet is capped at 420dp tall, so a long provider list scrolls inside the sheet instead of pushing the actions off-screen.
