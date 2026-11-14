@@ -152,11 +152,12 @@ fun ShellExecutionCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    // 3 window dots
+                    // 3 window dots - theme-aware so they never clash with the palette
                     Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Box(Modifier.size(9.dp).clip(CircleShape).background(Color(0xFFFF5F56)))
-                        Box(Modifier.size(9.dp).clip(CircleShape).background(Color(0xFFFFBD2E)))
-                        Box(Modifier.size(9.dp).clip(CircleShape).background(Color(0xFF27C93F)))
+                        val dotColors = LocalDesignColorTokens.current
+                        Box(Modifier.size(9.dp).clip(CircleShape).background(dotColors.error))
+                        Box(Modifier.size(9.dp).clip(CircleShape).background(dotColors.warning))
+                        Box(Modifier.size(9.dp).clip(CircleShape).background(dotColors.success))
                     }
                     Spacer(Modifier.width(4.dp))
                     Icon(

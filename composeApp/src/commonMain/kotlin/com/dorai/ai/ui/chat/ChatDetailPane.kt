@@ -475,7 +475,7 @@ internal fun ChatDetailPane(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 56.dp)
-                .padding(horizontal = DoraiSpacing.MD),
+                .padding(horizontal = ChatSpacing.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (widthClass.isCompact && onOpenDrawer != null) {
@@ -524,7 +524,7 @@ internal fun ChatDetailPane(
 
             // Active mode badge (all width classes; previously hidden on Compact).
             run {
-                Spacer(modifier = Modifier.width(DoraiSpacing.SM))
+                Spacer(modifier = Modifier.width(ChatSpacing.sm))
                 val activeMode = com.dorai.ai.ui.components.v2.DefaultAgentModes.firstOrNull { it.id == selectedModeId }
                 val activeModeIcon = activeMode?.icon ?: Icons.AutoMirrored.Filled.Chat
                 Box(
@@ -602,7 +602,7 @@ internal fun ChatDetailPane(
                 lineHeight = 18.sp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.SM),
+                    .padding(horizontal = ChatSpacing.md, vertical = ChatSpacing.sm),
             )
         }
 
@@ -638,8 +638,8 @@ internal fun ChatDetailPane(
                         modifier = Modifier
                             .widthIn(max = ChatAdaptivePolicy.conversationColumnMax)
                             .fillMaxSize()
-                            .padding(horizontal = DoraiSpacing.MD),
-                        verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD),
+                            .padding(horizontal = ChatSpacing.md),
+                        verticalArrangement = Arrangement.spacedBy(ChatSpacing.md),
                     ) {
                         itemsIndexed(messages, key = { _, msg -> msg.id }) { index, msg ->
                             // Consecutive assistant messages render as one continued block:
@@ -673,7 +673,7 @@ internal fun ChatDetailPane(
                                         shape = RoundedCornerShape(14.dp),
                                         color = colors.surface,
                                         border = BorderStroke(1.dp, colors.line.copy(alpha = 0.5f)),
-                                        modifier = Modifier.padding(horizontal = DoraiSpacing.XS, vertical = DoraiSpacing.XS),
+                                        modifier = Modifier.padding(horizontal = ChatSpacing.xs, vertical = ChatSpacing.xs),
                                     ) {
                                         Row(
                                             modifier = Modifier.padding(horizontal = ChatSpacing.md, vertical = 8.dp),
@@ -717,7 +717,7 @@ internal fun ChatDetailPane(
                 exit = fadeOut(),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = DoraiSpacing.SM),
+                    .padding(bottom = ChatSpacing.sm),
             ) {
                 FloatingActionButton(
                     onClick = {
@@ -776,6 +776,9 @@ internal fun ChatDetailPane(
                             text = uiErrorText(error),
                             color = colors.text,
                             fontSize = 13.sp,
+                            // Explicit line height keeps Bengali matras and conjuncts
+                            // inside the line box instead of being clipped.
+                            lineHeight = 18.sp,
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.widthIn(max = 260.dp),
@@ -820,7 +823,7 @@ internal fun ChatDetailPane(
                 modifier = Modifier
                     .widthIn(max = ChatAdaptivePolicy.conversationColumnMax)
                     .fillMaxWidth()
-                    .padding(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.SM),
+                    .padding(horizontal = ChatSpacing.md, vertical = ChatSpacing.sm),
             ) {
                 DoraiModeSelector(
                     selectedModeId = selectedModeId,

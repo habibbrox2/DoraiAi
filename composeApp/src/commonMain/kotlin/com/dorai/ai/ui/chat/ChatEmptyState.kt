@@ -298,21 +298,34 @@ import org.jetbrains.compose.resources.stringResource
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-internal data class QuickPromptItem(
-    val title: String,
-    val prompt: String,
+/**
+ * A quick-start prompt, described by resource ids rather than resolved strings.
+ *
+ * Resolving the strings happens inside the card, so the empty state no longer
+ * re-reads every localized string on each recomposition and the spec list can
+ * be memoized as a constant.
+ */
+private data class QuickPromptSpec(
+    val titleRes: StringResource,
+    val promptRes: StringResource,
     val icon: ImageVector,
-    val tag: String,
+    val tagRes: StringResource,
 )
 
 @Composable
-internal fun QuickPromptCard(
-    item: QuickPromptItem,
-    onClick: () -> Unit,
+private fun QuickPromptCard(
+    spec: QuickPromptSpec,
+    onSelectPrompt: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalDoraiColors.current
     val shape = RoundedCornerShape(12.dp)
+    val title = stringResource(spec.titleRes)
+    val prompt = stringResource(spec.promptRes)
+    val tag = stringResource(spec.tagRes)
+    // Stable click lambda: the card does not create a new callback on every
+    // recomposition of the empty state.
+    val onClick = remember(prompt, onSelectPrompt) { { onSelectPrompt(prompt) } }
 
     Box(
         modifier = modifier
@@ -320,7 +333,7 @@ internal fun QuickPromptCard(
             .clip(shape)
             .background(colors.surface)
             .border(1.dp, colors.line, shape)
-            .clickable(onClick = onClick, role = Role.Button, onClickLabel = item.title)
+            .clickable(onClick = onClick, role = Role.Button, onClickLabel = title)
             .padding(ChatSpacing.md),
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -336,7 +349,7 @@ internal fun QuickPromptCard(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        imageVector = item.icon,
+                        imageVector = spec.icon,
                         contentDescription = null,
                         tint = colors.primary,
                         modifier = Modifier.size(14.dp),
@@ -344,14 +357,14 @@ internal fun QuickPromptCard(
                 }
                 Spacer(modifier = Modifier.width(ChatSpacing.sm))
                 Text(
-                    text = item.title,
+                    text = title,
                     color = colors.text,
                     fontSize = 13.5.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
                 )
                 Text(
-                    text = item.tag,
+                    text = tag,
                     color = colors.muted,
                     fontSize = 10.5.sp,
                     fontFamily = FontFamily.Monospace,
@@ -363,7 +376,7 @@ internal fun QuickPromptCard(
             }
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = item.prompt,
+                text = prompt,
                 color = colors.muted,
                 fontSize = 12.sp,
                 lineHeight = 17.sp,
@@ -375,7 +388,7 @@ internal fun QuickPromptCard(
 }
 
 @Composable
-internal fun ActionShortcutPill(
+private fun ActionShortcutPill(
     label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -442,45 +455,49 @@ internal fun ChatEmptyState(
 
     val activeMode = com.dorai.ai.ui.components.v2.DefaultAgentModes.firstOrNull { it.id == selectedModeId }
     val modeBadge = if (activeMode != null) {
-        stringResource(activeMode.nameRes) + " · " + stringResource(activeMode.descRes)
+        stringResource(activeMode.nameRes) + " Â· " + stringResource(activeMode.descRes)
     } else {
         selectedModeId
     }
 
-    val prompts = when (selectedModeId) {
-        "plan" -> listOf(
-            QuickPromptItem(stringResource(Res.string.qp_plan_1_title), stringResource(Res.string.qp_plan_1_prompt), Icons.AutoMirrored.Filled.Rule, stringResource(Res.string.qp_plan_1_tag)),
-            QuickPromptItem(stringResource(Res.string.qp_plan_2_title), stringResource(Res.string.qp_plan_2_prompt), Icons.Default.Security, stringResource(Res.string.qp_plan_2_tag)),
-            QuickPromptItem(stringResource(Res.string.qp_plan_3_title), stringResource(Res.string.qp_plan_3_prompt), Icons.Default.Build, stringResource(Res.string.qp_plan_3_tag)),
-            QuickPromptItem(stringResource(Res.string.qp_plan_4_title), stringResource(Res.string.qp_plan_4_prompt), Icons.Default.CheckCircle, stringResource(Res.string.qp_plan_4_tag)),
-        )
+    // The prompt list only depends on the selected mode, so it is built once per
+    // mode instead of re-resolving twelve localized strings on every recomposition.
+    val prompts = remember(selectedModeId) {
+        when (selectedModeId) {
+            "plan" -> listOf(
+                QuickPromptSpec(Res.string.qp_plan_1_title, Res.string.qp_plan_1_prompt, Icons.AutoMirrored.Filled.Rule, Res.string.qp_plan_1_tag),
+                QuickPromptSpec(Res.string.qp_plan_2_title, Res.string.qp_plan_2_prompt, Icons.Default.Security, Res.string.qp_plan_2_tag),
+                QuickPromptSpec(Res.string.qp_plan_3_title, Res.string.qp_plan_3_prompt, Icons.Default.Build, Res.string.qp_plan_3_tag),
+                QuickPromptSpec(Res.string.qp_plan_4_title, Res.string.qp_plan_4_prompt, Icons.Default.CheckCircle, Res.string.qp_plan_4_tag),
+            )
 
-        "build" -> listOf(
-            QuickPromptItem(stringResource(Res.string.qp_build_1_title), stringResource(Res.string.qp_build_1_prompt), Icons.Default.Widgets, stringResource(Res.string.qp_build_1_tag)),
-            QuickPromptItem(stringResource(Res.string.qp_build_2_title), stringResource(Res.string.qp_build_2_prompt), Icons.Default.Code, stringResource(Res.string.qp_build_2_tag)),
-            QuickPromptItem(stringResource(Res.string.qp_build_3_title), stringResource(Res.string.qp_build_3_prompt), Icons.Default.Terminal, stringResource(Res.string.qp_build_3_tag)),
-            QuickPromptItem(stringResource(Res.string.qp_build_4_title), stringResource(Res.string.qp_build_4_prompt), Icons.Default.Build, stringResource(Res.string.qp_build_4_tag)),
-        )
+            "build" -> listOf(
+                QuickPromptSpec(Res.string.qp_build_1_title, Res.string.qp_build_1_prompt, Icons.Default.Widgets, Res.string.qp_build_1_tag),
+                QuickPromptSpec(Res.string.qp_build_2_title, Res.string.qp_build_2_prompt, Icons.Default.Code, Res.string.qp_build_2_tag),
+                QuickPromptSpec(Res.string.qp_build_3_title, Res.string.qp_build_3_prompt, Icons.Default.Terminal, Res.string.qp_build_3_tag),
+                QuickPromptSpec(Res.string.qp_build_4_title, Res.string.qp_build_4_prompt, Icons.Default.Build, Res.string.qp_build_4_tag),
+            )
 
-        "review" -> listOf(
-            QuickPromptItem(stringResource(Res.string.qp_review_1_title), stringResource(Res.string.qp_review_1_prompt), Icons.Default.Speed, stringResource(Res.string.qp_review_1_tag)),
-            QuickPromptItem(stringResource(Res.string.qp_review_2_title), stringResource(Res.string.qp_review_2_prompt), Icons.Default.Security, stringResource(Res.string.qp_review_2_tag)),
-            QuickPromptItem(stringResource(Res.string.qp_review_3_title), stringResource(Res.string.qp_review_3_prompt), Icons.Default.Search, stringResource(Res.string.qp_review_3_tag)),
-            QuickPromptItem(stringResource(Res.string.qp_review_4_title), stringResource(Res.string.qp_review_4_prompt), Icons.Default.Visibility, stringResource(Res.string.qp_review_4_tag)),
-        )
+            "review" -> listOf(
+                QuickPromptSpec(Res.string.qp_review_1_title, Res.string.qp_review_1_prompt, Icons.Default.Speed, Res.string.qp_review_1_tag),
+                QuickPromptSpec(Res.string.qp_review_2_title, Res.string.qp_review_2_prompt, Icons.Default.Security, Res.string.qp_review_2_tag),
+                QuickPromptSpec(Res.string.qp_review_3_title, Res.string.qp_review_3_prompt, Icons.Default.Search, Res.string.qp_review_3_tag),
+                QuickPromptSpec(Res.string.qp_review_4_title, Res.string.qp_review_4_prompt, Icons.Default.Visibility, Res.string.qp_review_4_tag),
+            )
 
-        else -> listOf(
-            QuickPromptItem(stringResource(Res.string.qp_ask_1_title), stringResource(Res.string.qp_ask_1_prompt), Icons.Default.Lightbulb, stringResource(Res.string.qp_ask_1_tag)),
-            QuickPromptItem(stringResource(Res.string.qp_ask_2_title), stringResource(Res.string.qp_ask_2_prompt), Icons.Default.Bolt, stringResource(Res.string.qp_ask_2_tag)),
-            QuickPromptItem(stringResource(Res.string.qp_ask_3_title), stringResource(Res.string.qp_ask_3_prompt), Icons.AutoMirrored.Filled.CompareArrows, stringResource(Res.string.qp_ask_3_tag)),
-            QuickPromptItem(stringResource(Res.string.qp_ask_4_title), stringResource(Res.string.qp_ask_4_prompt), Icons.Default.Extension, stringResource(Res.string.qp_ask_4_tag)),
-        )
+            else -> listOf(
+                QuickPromptSpec(Res.string.qp_ask_1_title, Res.string.qp_ask_1_prompt, Icons.Default.Lightbulb, Res.string.qp_ask_1_tag),
+                QuickPromptSpec(Res.string.qp_ask_2_title, Res.string.qp_ask_2_prompt, Icons.Default.Bolt, Res.string.qp_ask_2_tag),
+                QuickPromptSpec(Res.string.qp_ask_3_title, Res.string.qp_ask_3_prompt, Icons.AutoMirrored.Filled.CompareArrows, Res.string.qp_ask_3_tag),
+                QuickPromptSpec(Res.string.qp_ask_4_title, Res.string.qp_ask_4_prompt, Icons.Default.Extension, Res.string.qp_ask_4_tag),
+            )
+        }
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(DoraiSpacing.MD),
+            .padding(ChatSpacing.md),
         contentAlignment = Alignment.Center,
     ) {
         Column(
@@ -503,7 +520,7 @@ internal fun ChatEmptyState(
                 )
             }
 
-            Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+            Spacer(modifier = Modifier.height(ChatSpacing.md))
 
             Text(
                 text = welcomeTitle,
@@ -537,7 +554,7 @@ internal fun ChatEmptyState(
                     .padding(horizontal = 10.dp, vertical = 4.dp),
             )
 
-            Spacer(modifier = Modifier.height(DoraiSpacing.LG))
+            Spacer(modifier = Modifier.height(ChatSpacing.lg))
 
             // Quick Prompt Suggestions Grid
             if (widthClass.isCompact) {
@@ -545,10 +562,10 @@ internal fun ChatEmptyState(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(ChatSpacing.sm),
                 ) {
-                    prompts.forEach { item ->
+                    prompts.forEach { spec ->
                         QuickPromptCard(
-                            item = item,
-                            onClick = { onSelectQuickPrompt(item.prompt) },
+                            spec = spec,
+                            onSelectPrompt = onSelectQuickPrompt,
                         )
                     }
                 }
@@ -562,10 +579,10 @@ internal fun ChatEmptyState(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(ChatSpacing.sm),
                         ) {
-                            rowItems.forEach { item ->
+                            rowItems.forEach { spec ->
                                 QuickPromptCard(
-                                    item = item,
-                                    onClick = { onSelectQuickPrompt(item.prompt) },
+                                    spec = spec,
+                                    onSelectPrompt = onSelectQuickPrompt,
                                     modifier = Modifier.weight(1f),
                                 )
                             }
@@ -577,7 +594,7 @@ internal fun ChatEmptyState(
                 }
             }
 
-            Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+            Spacer(modifier = Modifier.height(ChatSpacing.md))
 
             // Quick Action Shortcuts Bar
             Row(
