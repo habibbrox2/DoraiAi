@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
    <uses-permission android:name="android.permission.INTERNET"/>
    <!-- Android 17+ blocks LAN traffic for apps targeting SDK 37+ without this runtime
@@ -107,6 +108,11 @@
             android:name="com.dorai.ai.inference.ModelDownloadService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
+        <!-- WorkManager foreground work (e.g. voice model download) uses DATA_SYNC. -->
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
         <uses-native-library android:name="libvndksupport.so" android:required="false"/>
         <uses-native-library android:name="libOpenCL.so" android:required="false"/>
     </application>

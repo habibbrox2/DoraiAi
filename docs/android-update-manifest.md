@@ -31,12 +31,12 @@ The canonical `update.json` is published at the repository root on `main` and at
 - Treat the manifest as untrusted remote input. HTTPS alone is not an integrity or signer-trust guarantee.
 - The installed signing certificate remains the trust anchor; never trust a signer fingerprint solely because it is supplied by the remote manifest.
 
-## Auto download and install (FOSS only)
+## Auto download and install
 
-The FOSS build persists an **App updates → Auto download and install** preference (`AppSettings.isAutoUpdateEnabled()`, off by default).
+Both the standard (Play Store flavor) and FOSS Android builds expose the **App updates → Auto download and install** preference (`AppSettings.isAutoUpdateEnabled()`, off by default) and run in-app update checks from the app.
 
 - When the switch is on, `AndroidUpdateAutoUpdate` checks at most once every four hours at app start (timestamp in `last_auto_update_check_ms`).
 - A discovered update is downloaded by `AndroidUpdateDownloadScheduler`, the verified manifest is copied to app-private `files/updates/pending-update.json`, and the app observes the WorkManager job.
 - When the download succeeds, the manifest and APK are re-verified (`AndroidUpdateManifest`, SHA-256, package, version code, signer certificate) and `AndroidUpdateInstaller` stages the APK via Android's `PackageInstaller.Session`. Android's own package-installer confirmation is always shown; the switch cannot install silently.
 - Install permission (`REQUEST_INSTALL_PACKAGES`) is requested when the switch is turned on. Until it is granted, the pending manifest is kept so the install can continue after the user returns.
-- The Play Store flavor keeps its existing behavior and never exposes this switch.
+- For installs distributed through Google Play, Play-managed updates remain the platform mechanism; this in-app GitHub-release flow is intended for sideloaded/standalone APK installs of the same package.

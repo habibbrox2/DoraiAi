@@ -1,10 +1,31 @@
 import org.gradle.api.GradleException
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
 }
+
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
+}
+
+fun signingCredential(
+    env: String,
+    prop: String,
+): String? =
+    System.getenv(env)?.takeIf { it.isNotBlank() }
+        ?: keystoreProperties.getProperty(prop)?.takeIf { it.isNotBlank() }
+
+val releaseKeystorePath = signingCredential("KEYSTORE_FILE", "storeFile")
+val releaseKeystorePassword = signingCredential("KEYSTORE_PASSWORD", "storePassword")
+val releaseKeyAlias = signingCredential("KEY_ALIAS", "keyAlias")
+val releaseKeyPassword = signingCredential("KEY_PASSWORD", "keyPassword") ?: releaseKeystorePassword
+val hasReleaseSigningCredentials =
+    listOf(releaseKeystorePath, releaseKeystorePassword, releaseKeyAlias, releaseKeyPassword).all { it != null }
 
 android {
     namespace = "com.dorai.ai"
@@ -53,14 +74,12 @@ android {
 
     signingConfigs {
         create("release") {
-            val ksFile = System.getenv("KEYSTORE_FILE")
-            val ksPassword = System.getenv("KEYSTORE_PASSWORD")
-            val ksAlias = System.getenv("KEY_ALIAS")
-            if (ksFile != null && ksPassword != null && ksAlias != null) {
-                storeFile = file(ksFile)
-                storePassword = ksPassword
-                keyAlias = ksAlias
-                keyPassword = ksPassword
+            if (hasReleaseSigningCredentials) {
+                val keystoreFile = file(releaseKeystorePath!!)
+                storeFile = if (keystoreFile.isAbsolute) keystoreFile else rootProject.file(releaseKeystorePath)
+                storePassword = releaseKeystorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
                 enableV1Signing = true
                 enableV2Signing = true
                 enableV3Signing = true
@@ -73,17 +92,16 @@ android {
         getByName("release") {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "../composeApp/proguard-rules.pro")
-            val ksFile = System.getenv("KEYSTORE_FILE")
-            val ksPassword = System.getenv("KEYSTORE_PASSWORD")
-            val ksAlias = System.getenv("KEY_ALIAS")
-            if (ksFile != null && ksPassword != null && ksAlias != null) {
+            if (hasReleaseSigningCredentials) {
                 signingConfig = signingConfigs.getByName("release")
             } else {
                 // Only enforce for CI/release workflows or when explicitly requested
                 val enforceSigning = System.getenv("ENFORCE_RELEASE_SIGNING") == "true"
                 if (enforceSigning) {
                     throw GradleException(
-                        "Release builds require KEYSTORE_FILE, KEYSTORE_PASSWORD, and KEY_ALIAS environment variables for release signing. Use release.yml workflow or provide signing credentials.",
+                        "Release builds require signing credentials via KEYSTORE_FILE/KEYSTORE_PASSWORD/KEY_ALIAS " +
+                            "(and optional KEY_PASSWORD) environment variables or keystore.properties " +
+                            "(storeFile/storePassword/keyAlias/keyPassword).",
                     )
                 }
                 // CI release workflows must explicitly set ENFORCE_RELEASE_SIGNING=true.
@@ -95,8 +113,9 @@ android {
                 // so any publishable release comes from a properly signed workflow run.
                 logger.warn(
                     "WARNING: Android release build is falling back to DEBUG signing " +
-                        "(KEYSTORE_FILE/KEYSTORE_PASSWORD/KEY_ALIAS not set and ENFORCE_RELEASE_SIGNING!=true). " +
-                        "The produced artifact is NOT production-ready and must not be distributed.",
+                        "(no release signing credentials found in env vars or keystore.properties and " +
+                        "ENFORCE_RELEASE_SIGNING!=true). The produced artifact is NOT production-ready " +
+                        "and must not be distributed.",
                 )
             }
         }

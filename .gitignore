@@ -22,6 +22,14 @@ fastlane/play-store-key.json
 fastlane/report.xml
 fastlane/README.md
 .build-native/
+
+# Local Android release signing (never commit private keys or credentials)
+keystore.properties
+*.jks
+*.keystore
+androidApp/release.keystore
+androidApp/dorai-release.keystore
+dorai-release.jks
 # Track shared Claude Code project config; keep per-user settings/session data private.
 .claude/**
 !.claude/
