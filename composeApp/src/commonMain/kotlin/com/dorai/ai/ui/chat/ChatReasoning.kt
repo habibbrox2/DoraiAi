@@ -303,7 +303,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
  * Displays an ordered step-by-step plan with a primary CTA button to run in Build mode.
  */
 @Composable
-fun DoraiPlanCard(
+internal fun DoraiPlanCard(
     items: List<String>,
     onRunPlan: () -> Unit,
     modifier: Modifier = Modifier,
@@ -551,7 +551,7 @@ internal fun DoraiReasoningBlock(
 }
 
 /** Format an elapsed span like "45s" / "2m 32s" / "1h 5m". */
-internal fun formatDuration(ms: Long): String {
+private fun formatDuration(ms: Long): String {
     val totalSeconds = (ms / 1000).coerceAtLeast(1L)
     val hours = totalSeconds / 3600
     val minutes = (totalSeconds % 3600) / 60
@@ -578,7 +578,7 @@ internal fun isShellToolName(name: String): Boolean {
 internal fun WorkedForIndicator(durationMs: Long, modifier: Modifier = Modifier) {
     val colors = LocalDoraiColors.current
     Row(
-        modifier = modifier.padding(bottom = DoraiSpacing.XS),
+        modifier = modifier.padding(bottom = ChatSpacing.xs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -664,7 +664,7 @@ internal fun DoraiAccordionBlock(
             HorizontalDivider(color = colors.line.copy(alpha = 0.4f), thickness = 1.dp)
             Column(
                 modifier = Modifier.padding(10.dp),
-                verticalArrangement = Arrangement.spacedBy(DoraiSpacing.XS),
+                verticalArrangement = Arrangement.spacedBy(ChatSpacing.xs),
             ) {
                 content()
             }

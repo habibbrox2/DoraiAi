@@ -417,6 +417,8 @@ internal fun ChatMessageRow(
                             text = formatMessageTimestamp(message.sentAt),
                             color = colors.muted,
                             fontSize = 11.sp,
+                            // Explicit line height so Bengali digits/matras are not clipped.
+                            lineHeight = 15.sp,
                             modifier = Modifier
                                 .align(Alignment.End)
                                 .padding(top = ChatSpacing.xs)
@@ -470,7 +472,7 @@ internal fun ChatMessageRow(
                 it.state != ToolExecutionState.PendingApproval && it.state != ToolExecutionState.Failed
             }
             attentionTools.forEach { tool ->
-                Spacer(modifier = Modifier.height(DoraiSpacing.XS))
+                Spacer(modifier = Modifier.height(ChatSpacing.xs))
                 DoraiToolCard(
                     model = tool,
                     onAllowOnce = onAllowOnce?.let { cb -> { cb(tool.toolCallId) } },
@@ -483,7 +485,7 @@ internal fun ChatMessageRow(
 
             // Collapsible processing blocks — chronological, collapsed by default; expandable for the raw logs
             if (backgroundTools.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+                Spacer(modifier = Modifier.height(ChatSpacing.sm))
                 val allShells = backgroundTools.all { isShellToolName(it.toolName) }
                 val toolCount = backgroundTools.size
                 val title = if (allShells) {
@@ -514,7 +516,7 @@ internal fun ChatMessageRow(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+                Spacer(modifier = Modifier.height(ChatSpacing.sm))
             }
 
             // Final human-readable output (bottom) — rich Markdown, below the processing blocks
@@ -548,7 +550,7 @@ internal fun ChatMessageRow(
 
             // Plan Card (matching prototype planCard)
             if (message.planItems.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+                Spacer(modifier = Modifier.height(ChatSpacing.sm))
                 DoraiPlanCard(
                     items = message.planItems,
                     onRunPlan = { onRunPlan?.invoke() },
@@ -558,7 +560,7 @@ internal fun ChatMessageRow(
 
             // Embedded Dynamic UI block
             if (message.dynamicUi != null) {
-                Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+                Spacer(modifier = Modifier.height(ChatSpacing.sm))
                 DoraiDynamicUiBlock(
                     model = message.dynamicUi,
                     onOptionSelected = { onDynamicUiOptionSelected?.invoke(it) },
@@ -633,6 +635,8 @@ internal fun ChatMessageRow(
                     text = formatMessageTimestamp(message.sentAt),
                     color = colors.muted,
                     fontSize = 11.sp,
+                    // Explicit line height so Bengali digits/matras are not clipped.
+                    lineHeight = 15.sp,
                     modifier = Modifier
                         .padding(top = ChatSpacing.xxs)
                         .semantics { contentDescription = sentAtCd ?: "" },
@@ -647,7 +651,7 @@ internal fun ChatMessageRow(
  * Extracted so consecutive assistant messages can omit it (see ChatMessageRow).
  */
 @Composable
-internal fun AssistantWhoRow(message: ChatMessageItem) {
+private fun AssistantWhoRow(message: ChatMessageItem) {
     val colors = LocalDoraiColors.current
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -694,7 +698,7 @@ internal fun AssistantWhoRow(message: ChatMessageItem) {
 }
 
 /** Formats an epoch-millis timestamp as HH:mm (24h, local zone). Returns "" on failure. */
-internal fun formatMessageTimestamp(epochMs: Long): String = try {
+private fun formatMessageTimestamp(epochMs: Long): String = try {
     val dt = Instant.fromEpochMilliseconds(epochMs).toLocalDateTime(TimeZone.currentSystemDefault())
     "${dt.hour.toString().padStart(2, '0')}:${dt.minute.toString().padStart(2, '0')}"
 } catch (_: Exception) {
@@ -703,7 +707,7 @@ internal fun formatMessageTimestamp(epochMs: Long): String = try {
 
 /** Blinking trailing bar shown on the in-flight assistant message. Static when reduced motion is on. */
 @Composable
-internal fun StreamingCaret(modifier: Modifier = Modifier) {
+private fun StreamingCaret(modifier: Modifier = Modifier) {
     val colors = LocalDoraiColors.current
     if (prefersReducedMotion()) {
         Box(

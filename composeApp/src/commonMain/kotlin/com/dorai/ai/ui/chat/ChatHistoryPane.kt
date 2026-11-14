@@ -343,13 +343,13 @@ internal fun ChatHistoryPane(
         modifier = modifier
             .fillMaxSize()
             .background(colors.surface)
-            .padding(DoraiSpacing.MD),
+            .padding(ChatSpacing.md),
     ) {
         if (widthClass.isCompact && onCloseDrawer != null) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = DoraiSpacing.SM),
+                    .padding(bottom = ChatSpacing.sm),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -405,7 +405,7 @@ internal fun ChatHistoryPane(
             )
         }
 
-        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+        Spacer(modifier = Modifier.height(ChatSpacing.sm))
 
         // Search box: <label class="sbox"><svg>search</svg><input placeholder="Search chats"></label>
         OutlinedTextField(
@@ -453,7 +453,7 @@ internal fun ChatHistoryPane(
             singleLine = true,
         )
 
-        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+        Spacer(modifier = Modifier.height(ChatSpacing.sm))
 
         // Conversation items with Today and Earlier grouping
         LazyColumn(
@@ -466,7 +466,7 @@ internal fun ChatHistoryPane(
                         text = stringResource(Res.string.chat_no_chats_found),
                         color = colors.muted,
                         fontSize = 13.sp,
-                        modifier = Modifier.padding(vertical = DoraiSpacing.MD, horizontal = 4.dp),
+                        modifier = Modifier.padding(vertical = ChatSpacing.md, horizontal = 4.dp),
                     )
                 }
             } else {
@@ -525,7 +525,7 @@ internal fun ChatHistoryPane(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(DoraiSpacing.LG),
+                    .padding(ChatSpacing.lg),
             ) {
                 Text(
                     text = stringResource(Res.string.chat_rename_title),
@@ -533,7 +533,7 @@ internal fun ChatHistoryPane(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                 )
-                Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+                Spacer(modifier = Modifier.height(ChatSpacing.md))
                 OutlinedTextField(
                     value = newTitle,
                     onValueChange = { newTitle = it },
@@ -547,7 +547,7 @@ internal fun ChatHistoryPane(
                         unfocusedTextColor = sheetColors.text,
                     ),
                 )
-                Spacer(modifier = Modifier.height(DoraiSpacing.MD))
+                Spacer(modifier = Modifier.height(ChatSpacing.md))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
