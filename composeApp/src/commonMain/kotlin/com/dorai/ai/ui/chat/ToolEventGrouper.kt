@@ -256,6 +256,18 @@ fun groupHistoryToChatMessages(
                     builder.outputText = parsed.stdout
                     builder.errorText = parsed.stderr
                 }
+
+                // Agent-style runs: the parent tool run settling means the spawned sub-agents
+                // settled too (failed sub-agents fail the parent; a successful parent means every
+                // sub-agent completed), so the timeline flips from Running to its final state.
+                if (builder.toolName.contains("agent", ignoreCase = true) && builder.subAgents.isNotEmpty()) {
+                    val subAgentState = if (builder.state == ToolExecutionState.Failed) {
+                        ToolExecutionState.Failed
+                    } else {
+                        ToolExecutionState.Completed
+                    }
+                    builder.subAgents = builder.subAgents.map { it.copy(state = subAgentState) }
+                }
             }
         }
 

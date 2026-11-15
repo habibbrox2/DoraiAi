@@ -44,6 +44,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,9 +68,11 @@ import com.dorai.ai.ui.rememberCopyToClipboard
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.a11y_copy
 import dorai.composeapp.generated.resources.a11y_copy_details
+import dorai.composeapp.generated.resources.chat_collapse_all
 import dorai.composeapp.generated.resources.chat_collapse_output
 import dorai.composeapp.generated.resources.chat_command_failed_with_exit
 import dorai.composeapp.generated.resources.chat_exit_code
+import dorai.composeapp.generated.resources.chat_expand_all
 import dorai.composeapp.generated.resources.chat_expand_output
 import dorai.composeapp.generated.resources.chat_lines_label
 import dorai.composeapp.generated.resources.chat_tool_done
@@ -87,6 +90,7 @@ import dorai.composeapp.generated.resources.tool_status_completed
 import dorai.composeapp.generated.resources.tool_status_failed
 import dorai.composeapp.generated.resources.tool_status_running
 import dorai.composeapp.generated.resources.tool_status_waiting_approval
+import kotlinx.coroutines.delay
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.jetbrains.compose.resources.stringResource
@@ -283,6 +287,38 @@ fun formatToolDisplayName(toolName: String): String = when (toolName) {
 }
 
 /**
+ * Collapse-all footer for a group of tool cards (prototype `.tfoot`): mirrors the tool row
+ * container's open/close-all action that expands or collapses every card in the group at once.
+ * Renders only for groups larger than one card, matching the prototype's `rows.length > 1` gate.
+ */
+@Composable
+internal fun DoraiToolCardCollapseAll(
+    expanded: Boolean,
+    onToggleAll: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = LocalDoraiColors.current
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(colors.background)
+            .border(1.dp, colors.line.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
+            .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+            .clickable(onClick = onToggleAll),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = stringResource(if (expanded) Res.string.chat_collapse_all else Res.string.chat_expand_all),
+            color = colors.muted,
+            fontSize = 12.5.sp,
+            fontWeight = FontWeight.SemiBold,
+            fontFamily = FontFamily.Monospace,
+        )
+    }
+}
+
+/**
  * Production-grade Agent Tool Execution Card:
  * - Compact tool header with semantic icon, tool name, arguments preview, and metadata.
  * - Semantic status badge (Running with indicator, Completed, Failed, Pending Approval).
@@ -302,6 +338,8 @@ fun DoraiToolCard(
     onDeny: (() -> Unit)? = null,
     onRetry: (() -> Unit)? = null,
     onAskFix: (() -> Unit)? = null,
+    expandedOverride: Boolean? = null,
+    onExpansionChange: ((Boolean) -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
     val copyToClipboard = rememberCopyToClipboard()
@@ -311,8 +349,26 @@ fun DoraiToolCard(
     // Default expanded state: Completed is collapsed by default to save space; Failed, Running, and
     // PendingApproval expand. Keyed on the tool-call identity rather than the state: keying on
     // state would reset the user's manual toggle whenever the tool transitions Running → Completed.
-    var isExpanded by remember(model.toolCallId) {
+    var internalExpanded by remember(model.toolCallId) {
         mutableStateOf(model.state != ToolExecutionState.Completed)
+    }
+    var isTouched by remember(model.toolCallId) { mutableStateOf(false) }
+
+    // When an external owner controls the value (e.g. the collapse-all footer), follow it instead of
+    // tracking local toggles.
+    val isExpanded: Boolean = expandedOverride ?: internalExpanded
+    val setExpanded: (Boolean) -> Unit = { value ->
+        if (expandedOverride == null) internalExpanded = value
+        onExpansionChange?.invoke(value)
+    }
+
+    // Auto-collapse agent sub-agent timelines shortly after completion when the user has not
+    // manually toggled the card (prototype: 800ms auto-collapse).
+    LaunchedEffect(model.toolCallId, model.state) {
+        if (model.state == ToolExecutionState.Completed && isAgentTool && model.subAgents.isNotEmpty() && !isTouched) {
+            delay(800)
+            setExpanded(false)
+        }
     }
 
     val borderColor = when (model.state) {
@@ -340,7 +396,10 @@ fun DoraiToolCard(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
                 .defaultMinSize(minHeight = 48.dp)
-                .clickable(role = Role.Button) { isExpanded = !isExpanded }
+                .clickable(role = Role.Button) {
+                    isTouched = true
+                    setExpanded(!isExpanded)
+                }
                 .semantics {
                     stateDescription = expandedDescription
                 }

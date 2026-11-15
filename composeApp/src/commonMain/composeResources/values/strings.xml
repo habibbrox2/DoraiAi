@@ -1479,6 +1479,8 @@
     <string name="chat_tool_thinking">Thinking</string>
     <string name="chat_tool_call_label">Tool call</string>
     <string name="chat_tool_failed">Failed</string>
+    <string name="chat_collapse_all">Collapse all</string>
+    <string name="chat_expand_all">Expand all</string>
     <string name="home_quick_action_new_chat">New Chat</string>
     <string name="home_quick_action_resume_project">Resume Project</string>
     <string name="home_quick_action_daily_reminders">Daily Reminders</string>
