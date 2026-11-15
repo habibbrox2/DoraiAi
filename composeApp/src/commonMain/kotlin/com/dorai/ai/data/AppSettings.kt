@@ -1,5 +1,8 @@
 package com.dorai.ai.data
 
+import com.dorai.ai.cloud.DORAI_CLOUD_DEFAULT_URL
+import com.dorai.ai.cloud.DoraiCloudSession
+import com.dorai.ai.cloud.DoraiCloudSessionDto
 import com.dorai.ai.defaultUiScale
 import com.dorai.ai.linux.LinuxDistro
 import com.russhwolf.settings.Settings
@@ -168,6 +171,8 @@ data class ServiceInstance(
 
 class AppSettings(internal val settings: Settings) {
 
+    private val cloudSessionJson = Json { ignoreUnknownKeys = true }
+
     // App open tracking
     fun trackAppOpen(): Int {
         val currentCount = settings.getInt(KEY_APP_OPENS, 0)
@@ -333,6 +338,45 @@ class AppSettings(internal val settings: Settings) {
     fun isSupabaseVectorMemoryEnabled(): Boolean = settings.getBoolean(KEY_SUPABASE_VECTOR_MEMORY_ENABLED, false)
     fun setSupabaseVectorMemoryEnabled(enabled: Boolean) {
         settings.putBoolean(KEY_SUPABASE_VECTOR_MEMORY_ENABLED, enabled)
+    }
+
+    // Dorai Cloud (first-party runtime backend)
+    fun getDoraiCloudUrl(): String = settings.getString(KEY_DORAI_CLOUD_URL, DORAI_CLOUD_DEFAULT_URL)
+
+    fun setDoraiCloudUrl(url: String) {
+        settings.putString(KEY_DORAI_CLOUD_URL, url)
+    }
+
+    fun getDoraiCloudSession(): DoraiCloudSession? {
+        val raw = settings.getString(KEY_DORAI_CLOUD_SESSION, "")
+        if (raw.isBlank()) return null
+        return try {
+            val dto = cloudSessionJson.decodeFromString(DoraiCloudSessionDto.serializer(), raw)
+            DoraiCloudSession(
+                userId = dto.userId,
+                email = dto.email,
+                accessToken = dto.accessToken,
+                refreshToken = dto.refreshToken,
+                expiresAtEpochSeconds = dto.expiresAt,
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun setDoraiCloudSession(session: DoraiCloudSession?) {
+        if (session == null) {
+            settings.remove(KEY_DORAI_CLOUD_SESSION)
+            return
+        }
+        val dto = DoraiCloudSessionDto(
+            userId = session.userId,
+            email = session.email,
+            accessToken = session.accessToken,
+            refreshToken = session.refreshToken,
+            expiresAt = session.expiresAtEpochSeconds,
+        )
+        settings.putString(KEY_DORAI_CLOUD_SESSION, cloudSessionJson.encodeToString(DoraiCloudSessionDto.serializer(), dto))
     }
 
     // Cloudflare Credentials for Embeddings / AI
@@ -840,6 +884,8 @@ class AppSettings(internal val settings: Settings) {
         const val KEY_SUPABASE_URL = "supabase_url"
         const val KEY_SUPABASE_ANON_KEY = "supabase_anon_key"
         const val KEY_SUPABASE_VECTOR_MEMORY_ENABLED = "supabase_vector_memory_enabled"
+        const val KEY_DORAI_CLOUD_URL = "dorai_cloud_url"
+        const val KEY_DORAI_CLOUD_SESSION = "dorai_cloud_session"
         const val KEY_CLOUDFLARE_ACCOUNT_ID = "cloudflare_account_id"
         const val KEY_CLOUDFLARE_API_TOKEN = "cloudflare_api_token"
         const val KEY_FIREBASE_PROJECT_ID = "firebase_project_id"

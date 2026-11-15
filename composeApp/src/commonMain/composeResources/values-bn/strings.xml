@@ -1486,4 +1486,13 @@
     <string name="tool_open_wifi_settings_name">ওয়াই-ফাই সেটিংস</string>
     <string name="tool_open_wifi_settings_description">ওয়াই-ফাই সেটিংস স্ক্রিন খুলুন</string>
     <string name="model_not_configured">কনফিগার করা হয়নি</string>
+    <string name="settings_dorai_cloud_title">ডোরাই ক্লাউড</string>
+    <string name="settings_dorai_cloud_description">মেমোরি, এনক্রিপ্টেড ভল্ট ও সেটিংস ডিভাইসগুলোর মধ্যে সিংক করতে সাইন ইন করুন।</string>
+    <string name="settings_dorai_cloud_email_label">ইমেইল</string>
+    <string name="settings_dorai_cloud_password_label">পাসয়ওয়ার্ড</string>
+    <string name="settings_dorai_cloud_sign_in">সাইন ইন</string>
+    <string name="settings_dorai_cloud_sign_out">সাইন আউট</string>
+    <string name="settings_dorai_cloud_signed_in_as">%1$s হিসেবে সাইন ইন করা আছে</string>
+    <string name="settings_dorai_cloud_usage">আজ: %1$dটি এমবেডিং, %2$dটি মেমোরি রাইট, %3$dটি ভল্ট রাইট</string>
+    <string name="settings_dorai_cloud_sign_in_failed">সাইন ইন ব্যর্থ হয়েছে। ইমেইল ও পাসয়ওয়ার্ড দেখুন।</string>
 </resources>

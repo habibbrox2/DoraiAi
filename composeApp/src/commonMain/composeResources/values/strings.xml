@@ -1516,5 +1516,14 @@
     <string name="tool_open_wifi_settings_name">Wi-Fi Settings</string>
     <string name="tool_open_wifi_settings_description">Open the Wi-Fi settings screen</string>
     <string name="model_not_configured">Not configured</string>
+    <string name="settings_dorai_cloud_title">Dorai Cloud</string>
+    <string name="settings_dorai_cloud_description">Sign in to sync memories, the encrypted vault and settings across your devices.</string>
+    <string name="settings_dorai_cloud_email_label">Email</string>
+    <string name="settings_dorai_cloud_password_label">Password</string>
+    <string name="settings_dorai_cloud_sign_in">Sign in</string>
+    <string name="settings_dorai_cloud_sign_out">Sign out</string>
+    <string name="settings_dorai_cloud_signed_in_as">Signed in as %1$s</string>
+    <string name="settings_dorai_cloud_usage">Today: %1$d embeddings, %2$d memory writes, %3$d vault writes</string>
+    <string name="settings_dorai_cloud_sign_in_failed">Sign-in failed. Check your email and password.</string>
 </resources>
 
