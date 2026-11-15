@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meridian · Chat</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0c0e13; --surface:#11141b; --raised:#171b24; --line:#222735; --line-soft:#1a1e2a;
+  --text:#e7e9ef; --muted:#8a92a6; --faint:#5a6277;
+  --accent:#7d8dff; --accent-ink:#0c0e13; --accent-soft:rgba(125,141,255,.12);
+  --ok:#5ed6a4;
+  --font:"Inter","SF Pro Text",system-ui,-apple-system,"Segoe UI","Noto Sans Bengali","Hind Siliguri","Kohinoor Bangla","Nirmala UI",sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f5f6fa; --surface:#ffffff; --raised:#ffffff; --line:#e2e5ee; --line-soft:#eceef4;
+  --text:#14171f; --muted:#667089; --faint:#9aa2b6;
+  --accent:#4a5ae0; --accent-ink:#fff; --accent-soft:rgba(74,90,224,.09); --ok:#17936a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:15px;line-height:1.75;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+svg{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:0 5px;background:var(--surface)}
+
+.shell{display:flex;flex-direction:column;height:100vh;position:relative}
+/* aurora behind everything, very quiet */
+.shell::before{content:"";position:absolute;inset:-20% -10% auto;height:60%;background:radial-gradient(50% 60% at 50% 0,var(--accent-soft),transparent 70%);pointer-events:none}
+
+.top{position:relative;display:flex;align-items:center;gap:10px;padding:12px 20px;z-index:2}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:-.01em}
+.mark{width:24px;height:24px;border-radius:7px;background:conic-gradient(from 210deg,var(--accent),#b58cff,var(--accent));display:grid;place-items:center}
+.mark i{width:8px;height:8px;border-radius:50%;background:var(--bg)}
+.model{display:inline-flex;align-items:center;gap:6px;margin-left:6px;padding:3px 10px;border:1px solid var(--line);border-radius:99px;font-size:12.5px;color:var(--muted);background:var(--surface)}
+.model:hover{color:var(--text);border-color:var(--faint)}
+.sp{margin-left:auto;display:flex;gap:2px}
+.ib{padding:7px;border-radius:8px;color:var(--muted)}
+.ib:hover{background:var(--raised);color:var(--text)}
+
+.feed{flex:1;overflow:auto;position:relative;scroll-behavior:smooth}
+.col{max-width:716px;margin:0 auto;padding:16px 20px 28px}
+
+/* Empty */
+.hero{padding:13vh 0 0;animation:in .6s ease both}
+.hero h1{font-size:30px;font-weight:600;letter-spacing:-.03em;line-height:1.3;margin-bottom:6px}
+.hero p{color:var(--muted);margin-bottom:28px}
+.sugs{display:flex;flex-direction:column;border-top:1px solid var(--line-soft)}
+.sug{display:flex;align-items:center;gap:14px;padding:13px 4px;border-bottom:1px solid var(--line-soft);text-align:left;color:var(--muted);transition:color .15s,padding .2s}
+.sug:hover{color:var(--text);padding-left:10px}
+.sug svg{color:var(--faint)}
+.sug:hover svg{color:var(--accent)}
+.sug span{flex:1}
+
+/* Messages */
+.msg{margin-top:26px;animation:in .35s ease both}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+.user{display:flex;justify-content:flex-end}
+.user .bubble{max-width:82%;padding:9px 16px;background:var(--raised);border:1px solid var(--line);border-radius:18px 18px 4px 18px;white-space:pre-wrap;line-height:1.65}
+.bot{display:grid;grid-template-columns:28px 1fr;gap:14px}
+.bot .mark{margin-top:4px}
+.bot .body{min-width:0}
+.bot p{margin-bottom:12px}
+.bot ul,.bot ol{padding-left:20px;margin-bottom:12px;color:var(--text)}
+.bot li{margin-bottom:4px}
+.bot li::marker{color:var(--accent)}
+.bot b{font-weight:600}
+.bot code{font-family:var(--mono);font-size:.88em;background:var(--raised);border:1px solid var(--line-soft);border-radius:5px;padding:1px 5px}
+
+/* Thinking + tool call */
+.think{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13.5px;margin-bottom:10px}
+.shimmer{background:linear-gradient(90deg,var(--faint) 30%,var(--text) 50%,var(--faint) 70%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sh 1.8s linear infinite}
+@keyframes sh{from{background-position:120% 0}to{background-position:-120% 0}}
+/* Collapsible tool rows */
+:root{--r-researcher:#6fb1ff;--r-analyst:#b58cff;--r-writer:#4fcf9b;--r-critic:#f0b35a}
+:root[data-theme="light"]{--r-researcher:#1f6fd1;--r-analyst:#7a49d6;--r-writer:#0f8a5f;--r-critic:#a8650a}
+[data-r="Researcher"]{--c:var(--r-researcher)}
+[data-r="Analyst"]{--c:var(--r-analyst)}
+[data-r="Writer"]{--c:var(--r-writer)}
+[data-r="Critic"]{--c:var(--r-critic)}
+.tools{border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:14px;overflow:hidden;animation:in .3s ease both}
+.tools:empty{display:none}
+.trow+.trow{border-top:1px solid var(--line-soft)}
+.thead{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;text-align:left;font-size:13.5px;color:var(--muted);min-height:38px}
+.thead:hover{background:var(--raised)}
+.thead:focus-visible{outline-offset:-2px}
+.chev{width:14px;height:14px;color:var(--faint);transition:transform .2s ease}
+.trow.open .chev{transform:rotate(90deg)}
+.sd{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;animation:pl 1.2s infinite}
+.trow[data-s="done"] .sd{background:var(--ok);animation:none}
+.trow[data-s="stop"] .sd{background:var(--faint);animation:none}
+.tname{font-family:var(--mono);font-size:12.5px;color:var(--text);flex:none}
+.tlabel{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chips{display:flex;gap:6px;flex:1;min-width:0;overflow:hidden}
+.ttime{font-family:var(--mono);font-size:12px;color:var(--faint);flex:none}
+.role{display:inline-flex;align-items:center;gap:6px;padding:0 9px 0 7px;border-radius:99px;font-size:12px;line-height:20px;white-space:nowrap;color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);border:1px solid color-mix(in srgb,var(--c) 32%,transparent)}
+.role::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c)}
+.tbody{display:grid;grid-template-rows:0fr;transition:grid-template-rows .25s ease}
+.trow.open .tbody{grid-template-rows:1fr}
+.tin{overflow:hidden;min-height:0}
+.tpad{padding:2px 14px 14px 38px;display:flex;flex-direction:column;gap:10px}
+.kv label{display:block;font-size:12px;color:var(--faint);margin-bottom:3px;line-height:1.4}
+.kv pre{font-family:var(--mono);font-size:12.5px;line-height:1.65;color:var(--muted);background:var(--bg);border:1px solid var(--line-soft);border-radius:8px;padding:8px 10px;white-space:pre-wrap;word-break:break-word}
+.agents{display:flex;flex-direction:column;gap:12px}
+.ag{padding-left:12px;border-left:2px solid var(--line);transition:border-color .3s}
+.ag[data-s="done"]{border-left-color:var(--c)}
+.agh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.agt{flex:1;min-width:150px;color:var(--text);font-size:13.5px;line-height:1.5}
+.agm{font-family:var(--mono);font-size:12px;color:var(--faint)}
+.ag[data-s="run"] .agm{animation:pl 1.2s infinite}
+.agr{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+.agr:empty{display:none}
+.agr .sl{font-family:var(--mono);font-size:12px;color:var(--faint);margin-right:8px}
+.tfoot{display:block;width:100%;text-align:left;padding:6px 12px;border-top:1px solid var(--line-soft);font-size:12.5px;color:var(--faint)}
+.tfoot:hover{color:var(--text);background:var(--raised)}
+.tfoot:focus-visible{outline-offset:-2px}
+@keyframes pl{50%{opacity:.3}}
+
+.caret::after{content:"";display:inline-block;width:7px;height:16px;margin-left:2px;vertical-align:-2px;border-radius:2px;background:var(--accent);animation:pl 1s infinite}
+
+/* Code */
+.code{margin:4px 0 14px;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:var(--surface)}
+.code header{display:flex;align-items:center;padding:6px 8px 6px 14px;border-bottom:1px solid var(--line-soft);font-size:12px;color:var(--faint);font-family:var(--mono)}
+.code header button{margin-left:auto;display:inline-flex;gap:6px;align-items:center;padding:3px 8px;border-radius:6px;color:var(--muted);font-family:var(--font);font-size:12px}
+.code header button:hover{background:var(--raised);color:var(--text)}
+.code pre{padding:12px 16px;overflow:auto;font-family:var(--mono);font-size:13px;line-height:1.7;color:var(--text)}
+.k{color:#b58cff}.f{color:var(--accent)}.s2{color:var(--ok)}.c{color:var(--faint)}
+
+/* Actions */
+.acts{display:flex;gap:2px;margin:2px 0 0 -7px;opacity:0;transition:opacity .2s}
+.msg:hover .acts,.acts:focus-within,.msg.last .acts{opacity:1}
+.acts button{padding:6px;border-radius:7px;color:var(--faint)}
+.acts button:hover{background:var(--raised);color:var(--text)}
+.acts button.on{color:var(--accent)}
+
+/* Composer */
+.dock{position:relative;padding:0 20px 16px}
+.dock::before{content:"";position:absolute;left:0;right:0;top:-34px;height:34px;background:linear-gradient(transparent,var(--bg));pointer-events:none}
+.box{max-width:716px;margin:0 auto;background:var(--raised);border:1px solid var(--line);border-radius:18px;padding:10px 10px 8px 16px;transition:border-color .2s,box-shadow .2s}
+.box:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+textarea{display:block;width:100%;background:none;border:0;outline:0;resize:none;color:var(--text);font:inherit;height:28px;max-height:160px;padding:2px 0;line-height:1.7}
+textarea::placeholder{color:var(--faint)}
+.row{display:flex;align-items:center;gap:2px;margin-top:4px}
+.row .ib{padding:6px}
+.send{margin-left:auto;width:34px;height:34px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;transition:transform .15s}
+.send:not(:disabled):hover{transform:scale(1.06)}
+.send:disabled{background:var(--line);color:var(--faint);cursor:default}
+.send.stop{background:var(--surface);color:var(--text);border:1px solid var(--line)}
+.fine{text-align:center;color:var(--faint);font-size:12px;margin-top:9px}
+
+.jump{position:absolute;left:50%;bottom:130px;transform:translateX(-50%);padding:5px 12px;border:1px solid var(--line);border-radius:99px;background:var(--raised);color:var(--muted);font-size:12.5px;display:none;z-index:3}
+.jump.show{display:inline-flex;gap:6px;align-items:center}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:560px){.hero h1{font-size:25px}.bot{grid-template-columns:24px 1fr;gap:10px}.model{display:none}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <div class="brand"><div class="mark"><i></i></div>Meridian</div>
+    <button class="model"><span>Meridian 2</span><svg viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg></button>
+    <div class="sp">
+      <button class="ib" id="newBtn" aria-label="নতুন চ্যাট"><svg viewBox="0 0 16 16"><path d="M8 3v10M3 8h10"/></svg></button>
+      <button class="ib" id="themeBtn" aria-label="থিম বদলান"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.2M8 13.3v1.2M1.5 8h1.2M13.3 8h1.2M3.4 3.4l.9.9M11.7 11.7l.9.9M12.6 3.4l-.9.9M4.3 11.7l-.9.9"/></svg></button>
+    </div>
+  </header>
+
+  <div class="feed" id="feed"><div class="col" id="col"></div></div>
+  <button class="jump" id="jump"><svg viewBox="0 0 16 16"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5"/></svg>নতুন বার্তা</button>
+
+  <div class="dock">
+    <div class="box">
+      <textarea id="in" rows="1" placeholder="কিছু জিজ্ঞেস করুন..." aria-label="বার্তা লিখুন"></textarea>
+      <div class="row">
+        <button class="ib" aria-label="ফাইল যুক্ত করুন"><svg viewBox="0 0 16 16"><path d="m13 7.5-5 5a3 3 0 0 1-4.2-4.2l5.3-5.3a2 2 0 0 1 2.8 2.8L6.6 11.1a1 1 0 0 1-1.4-1.4L10 5"/></svg></button>
+        <button class="ib" aria-label="ওয়েব সার্চ"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c2 2 2 10 0 12M8 2c-2 2-2 10 0 12"/></svg></button>
+        <button class="send" id="send" aria-label="পাঠান" disabled><svg viewBox="0 0 16 16"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5"/></svg></button>
+      </div>
+    </div>
+    <p class="fine"><kbd>Enter</kbd> পাঠান &nbsp; <kbd>Shift Enter</kbd> নতুন লাইন</p>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const feed=$('#feed'), col=$('#col'), input=$('#in'), send=$('#send'), jump=$('#jump');
+const MARK='<div class="mark"><i></i></div>';
+const ICON={
+  bolt:'<svg viewBox="0 0 16 16"><path d="M9 2 3.5 9H8l-1 5L12.5 7H8z"/></svg>',
+  code:'<svg viewBox="0 0 16 16"><path d="m5.5 4.5-3.5 3.5 3.5 3.5M10.5 4.5 14 8l-3.5 3.5"/></svg>',
+  mail:'<svg viewBox="0 0 16 16"><rect x="2" y="3.5" width="12" height="9" rx="2"/><path d="m2.5 5 5.5 4 5.5-4"/></svg>',
+  chart:'<svg viewBox="0 0 16 16"><path d="M3 13V8M8 13V3M13 13V6"/></svg>',
+  copy:'<svg viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8" rx="2"/><path d="M10.5 5.5v-1a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h1"/></svg>',
+  redo:'<svg viewBox="0 0 16 16"><path d="M13 3.5V7H9.5"/><path d="M12.6 7A5 5 0 1 0 13 9"/></svg>',
+  up:'<svg viewBox="0 0 16 16"><path d="M5.5 7.5v6h-2v-6zM5.5 7.5 8 2.5a1.6 1.6 0 0 1 1.6 1.8L9.3 6.5h3a1.3 1.3 0 0 1 1.3 1.6l-.9 4.2a1.5 1.5 0 0 1-1.5 1.2H5.5"/></svg>',
+  down:'<svg viewBox="0 0 16 16"><path d="M5.5 8.5v-6h-2v6zM5.5 8.5 8 13.5a1.6 1.6 0 0 0 1.6-1.8L9.3 9.5h3a1.3 1.3 0 0 0 1.3-1.6l-.9-4.2a1.5 1.5 0 0 0-1.5-1.2H5.5"/></svg>',
+  check:'<svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7"/></svg>'
+};
+
+/* ---------- Canned replies (blocks) ---------- */
+const R={
+ code:{tools:[{name:'code.run',label:'পাইথন স্নিপেট চালানো',think:'কোড চালিয়ে দেখছি…',time:'০.৮s',ms:900,
+   input:'unique(["ক", "খ", "ক", "গ"])',output:"['ক', 'খ', 'গ']\n৩টি আইটেম, ক্রম অপরিবর্তিত"}],blocks:[
+  {p:'অবশ্যই। নিচের ফাংশনটি একটি তালিকা থেকে ডুপ্লিকেট সরায়, কিন্তু আগের ক্রম ঠিক রাখে:'},
+  {code:'python',src:`<span class="k">def</span> <span class="f">unique</span>(items):\n    seen = <span class="f">set</span>()\n    <span class="k">return</span> [x <span class="k">for</span> x <span class="k">in</span> items\n            <span class="k">if</span> <span class="k">not</span> (x <span class="k">in</span> seen <span class="k">or</span> seen.add(x))]\n\n<span class="c"># ব্যবহার</span>\n<span class="f">print</span>(unique([<span class="s2">"ক"</span>, <span class="s2">"খ"</span>, <span class="s2">"ক"</span>, <span class="s2">"গ"</span>]))  <span class="c"># ['ক', 'খ', 'গ']</span>`,raw:'def unique(items):\n    seen = set()\n    return [x for x in items\n            if not (x in seen or seen.add(x))]'},
+  {p:'এখানে `seen.add(x)` সবসময় <code>None</code> ফেরত দেয়, তাই নতুন আইটেমে শর্তটি সত্য হয়। সময় জটিলতা <b>O(n)</b>।'}]},
+ mail:{tools:[{name:'agent.spawn',think:'সাব-এজেন্টরা কাজ করছে…',time:'১.৫s',agents:[
+   {role:'Writer',task:'ভদ্র সুরে প্রথম খসড়া লেখা',ms:1000,time:'১.০s',step:'draft',result:'১টি খসড়া, ৫০ শব্দ'},
+   {role:'Critic',task:'সুর ও স্পষ্টতা যাচাই',ms:1500,time:'১.৫s',step:'review',result:'সুর ঠিক আছে, কোনো বদল দরকার নেই'}]}],blocks:[
+  {p:'একটি ছোট, ভদ্র খসড়া দিলাম। আপনার প্রসঙ্গ অনুযায়ী বদলে নিতে পারেন:'},
+  {p:'<b>বিষয়:</b> বৃহস্পতিবারের মিটিং পিছিয়ে দেওয়ার অনুরোধ'},
+  {p:'প্রিয় করিম ভাই, বৃহস্পতিবার সকালে একটি জরুরি কাজ পড়ে গেছে। মিটিংটি শুক্রবার দুপুর ২টায় সরানো গেলে ভালো হয়। অসুবিধা হলে অন্য সময় জানালে মানিয়ে নেব। অসুবিধার জন্য দুঃখিত।'},
+  {p:'চাইলে আরও আনুষ্ঠানিক বা আরও সংক্ষিপ্ত করে দিতে পারি।'}]},
+ data:{tools:[
+  {name:'web.search',label:'বাংলাদেশ ডিজিটাল কন্টেন্ট প্রবণতা',think:'ওয়েবে খুঁজছি…',time:'১.৩s',ms:1000,
+   input:'বাংলাদেশ ডিজিটাল কন্টেন্ট বাজার প্রবণতা ২০২৬',output:'৮টি ফলাফল পাওয়া গেছে\n• ইন্টারনেট ব্যবহারের বার্ষিক প্রতিবেদন\n• ডিজিটাল মিডিয়া জরিপ\n• মোবাইল অপারেটরদের ডেটা ব্যবহারের তথ্য'},
+  {name:'agent.spawn',think:'সাব-এজেন্টরা কাজ করছে…',time:'১.৯s',agents:[
+   {role:'Researcher',task:'ফলাফল থেকে মূল সংখ্যা তোলা',ms:1100,time:'১.১s',step:'web.fetch',result:'১২টি তথ্যবিন্দু সংগ্রহ'},
+   {role:'Analyst',task:'প্রবণতা মিলিয়ে দেখা',ms:1500,time:'১.৫s',step:'stats.trend',result:'৩টি প্রধান প্রবণতা চিহ্নিত'},
+   {role:'Critic',task:'তথ্যের সামঞ্জস্য যাচাই',ms:1900,time:'১.৯s',step:'verify',result:'১টি অসঙ্গত সংখ্যা বাদ দেওয়া হয়েছে'}]}],blocks:[
+  {p:'সংক্ষেপে তিনটি প্রধান প্রবণতা দেখা যাচ্ছে:'},
+  {ul:['<b>মোবাইল ব্যবহার</b> মোট ট্রাফিকের প্রায় ৭০% ছাড়িয়েছে।','<b>ভিডিও কন্টেন্ট</b> সবচেয়ে দ্রুত বাড়ছে, বিশেষ করে ছোট ফরম্যাটে।','<b>স্থানীয় ভাষার কন্টেন্ট</b> থেকে এনগেজমেন্ট তুলনামূলক বেশি।']},
+  {p:'আপনি কোন খাত বা দেশের জন্য দেখতে চান জানালে আরও নির্দিষ্ট তথ্য খুঁজে দিতে পারি।'}]},
+ default:{tools:[],blocks:[
+  {p:'বুঝেছি। বিষয়টি নিয়ে এগোনোর একটি সহজ পথ দেখাচ্ছি:'},
+  {ol:['প্রথমে লক্ষ্যটি এক বাক্যে লিখে ফেলুন।','তারপর কাজটিকে ছোট ছোট ধাপে ভাগ করুন।','প্রতিটি ধাপের জন্য একটি সময়সীমা ঠিক করুন।']},
+  {p:'কোন ধাপে আটকে আছেন বললে সেখান থেকে বিস্তারিত সাহাজ্য করব।'}]}
+};
+const pick=t=>/কোড|ফাংশন|python|পাইথন|code/i.test(t)?R.code:/মেইল|ইমেইল|email|মিটিং/i.test(t)?R.mail:/ট্রেন্ড|ডেটা|প্রবণতা|বিশ্লেষণ|বাজার/i.test(t)?R.data:R.default;
+
+/* ---------- State ---------- */
+let busy=false, abort=false, lastUser='';
+
+function empty(){
+  col.innerHTML=`<div class="hero"><h1>আজ কী নিয়ে কাজ করবেন?</h1><p>প্রশ্ন করুন, কোড লিখান, বা কিছু বিশ্লেষণ করতে বলুন।</p>
+  <div class="sugs">
+   <button class="sug">${ICON.code}<span>একটি পাইথন ফাংশন লেখো যা ডুপ্লিকেট সরায়</span></button>
+   <button class="sug">${ICON.mail}<span>মিটিং পিছিয়ে দেওয়ার জন্য একটি ভদ্র ইমেইল লেখো</span></button>
+   <button class="sug">${ICON.chart}<span>বাংলাদেশের ডিজিটাল কন্টেন্টের বাজার প্রবণতা বিশ্লেষণ করো</span></button>
+   <button class="sug">${ICON.bolt}<span>নতুন একটি অভ্যাস গড়ার সহজ পরিকল্পনা দাও</span></button>
+  </div></div>`;
+  col.querySelectorAll('.sug').forEach(b=>b.onclick=()=>ask(b.querySelector('span').textContent));
+}
+
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const near=()=>feed.scrollHeight-feed.scrollTop-feed.clientHeight<140;
+function down(force){ if(force||near()){feed.scrollTop=feed.scrollHeight;jump.classList.remove('show')} else if(busy) jump.classList.add('show') }
+feed.addEventListener('scroll',()=>{if(near())jump.classList.remove('show')});
+jump.onclick=()=>down(true);
+
+async function ask(text){
+  if(busy||!text.trim()) return;
+  lastUser=text;
+  if(col.querySelector('.hero')) col.innerHTML='';
+  document.querySelectorAll('.msg.last').forEach(m=>m.classList.remove('last'));
+  const u=document.createElement('div'); u.className='msg user';
+  u.innerHTML=`<div class="bubble">${esc(text)}</div>`; col.appendChild(u);
+  down(true);
+  await reply(text);
+}
+
+/* ---------- Collapsible tool rows ---------- */
+const bn=n=>String(n).replace(/\d/g,d=>'০১২৩৪৫৬৭৮৯'[d]);
+const roleChip=r=>`<span class="role" data-r="${r}">${r}</span>`;
+let tid=0;
+function toolRow(t){
+  const id='tb'+(++tid), el=document.createElement('div');
+  el.className='trow'; el.dataset.s='run';
+  const mid=t.agents?`<span class="chips">${t.agents.map(a=>roleChip(a.role)).join('')}</span>`:`<span class="tlabel">${t.label}</span>`;
+  const body=t.agents
+    ?`<div class="agents">${t.agents.map(a=>`<div class="ag" data-s="run" data-r="${a.role}"><div class="agh">${roleChip(a.role)}<span class="agt">${a.task}</span><span class="agm">চলছে</span></div><div class="agr"></div></div>`).join('')}</div>`
+    :`<div class="kv"><label>Input</label><pre>${esc(t.input)}</pre></div><div class="kv"><label>Output</label><pre class="o">চলছে…</pre></div>`;
+  el.innerHTML=`<button class="thead" aria-expanded="false" aria-controls="${id}"><svg class="chev" viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg><span class="sd"></span><span class="tname">${t.name}</span>${mid}<span class="ttime"></span></button><div class="tbody" id="${id}"><div class="tin"><div class="tpad">${body}</div></div></div>`;
+  const head=el.querySelector('.thead');
+  const row={el,touched:false,set(v){el.classList.toggle('open',v);head.setAttribute('aria-expanded',v)}};
+  head.onclick=()=>{row.touched=true;row.set(!el.classList.contains('open'))};
+  return row;
+}
+async function runTool(t,box){
+  const row=toolRow(t); box.appendChild(row.el);
+  if(t.agents) row.set(true);               // show sub-agent progress live
+  down();
+  const tm=row.el.querySelector('.ttime'), t0=performance.now();
+  const tick=setInterval(()=>tm.textContent=bn(((performance.now()-t0)/1000).toFixed(1))+'s',100);
+  if(t.agents){
+    await Promise.all(t.agents.map(async(a,i)=>{
+      await sleep(a.ms); if(abort) return;
+      const ag=row.el.querySelectorAll('.ag')[i];
+      ag.dataset.s='done'; ag.querySelector('.agm').textContent=a.time;
+      ag.querySelector('.agr').innerHTML=`<span class="sl">${a.step}</span>${a.result}`;
+    }));
+  } else {
+    await sleep(t.ms); if(!abort) row.el.querySelector('.o').textContent=t.output;
+  }
+  clearInterval(tick);
+  row.el.dataset.s=abort?'stop':'done'; tm.textContent=t.time;
+  if(t.agents&&!row.touched) setTimeout(()=>{if(!row.touched)row.set(false)},800);
+  return row;
+}
+
+async function reply(text){
+  busy=true; abort=false; setSend(true);
+  const m=document.createElement('div'); m.className='msg bot last';
+  m.innerHTML=`${MARK}<div class="body"><div class="think"><span class="shimmer">ভাবছি…</span></div><div class="tools"></div><div class="out"></div></div>`;
+  col.appendChild(m); down(true);
+  const think=m.querySelector('.think'), tools=m.querySelector('.tools'), out=m.querySelector('.out');
+  const r=pick(text);
+  await sleep(900);
+
+  const rows=[];
+  for(const t of r.tools){
+    if(abort) break;
+    think.innerHTML=`<span class="shimmer">${t.think}</span>`;
+    rows.push(await runTool(t,tools));
+  }
+  think.remove();
+  if(rows.length>1){
+    const f=document.createElement('button'); f.className='tfoot'; f.textContent='সব খুলুন';
+    f.onclick=()=>{const open=f.dataset.o!=='1'; rows.forEach(x=>{x.touched=true;x.set(open)}); f.dataset.o=open?'1':'0'; f.textContent=open?'সব বন্ধ করুন':'সব খুলুন'};
+    tools.appendChild(f);
+  }
+
+  for(const b of r.blocks){
+    if(abort) break;
+    if(b.code){
+      const c=document.createElement('div'); c.className='code';
+      c.innerHTML=`<header>${b.code}<button>${ICON.copy}Copy</button></header><pre>${b.src}</pre>`;
+      c.querySelector('button').onclick=e=>copy(b.raw,e.currentTarget);
+      out.appendChild(c); down(); await sleep(250); continue;
+    }
+    const tag=b.ul?'ul':b.ol?'ol':'p';
+    const el=document.createElement(tag); out.appendChild(el);
+    if(b.p){ await stream(el,b.p.replace(/`([^`]+)`/g,'<code>$1</code>')) }
+    else{
+      for(const li of (b.ul||b.ol)){ const l=document.createElement('li'); el.appendChild(l); await stream(l,li); if(abort)break }
+    }
+  }
+  out.querySelectorAll('.caret').forEach(x=>x.classList.remove('caret'));
+
+  if(!tools.children.length) tools.remove();
+  const a=document.createElement('div'); a.className='acts';
+  a.innerHTML=`<button aria-label="কপি" data-a="c">${ICON.copy}</button><button aria-label="আবার তৈরি করুন" data-a="r">${ICON.redo}</button><button aria-label="ভালো" data-a="u">${ICON.up}</button><button aria-label="ভালো হয়নি" data-a="d">${ICON.down}</button>`;
+  m.querySelector('.body').appendChild(a);
+  a.onclick=e=>{const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.a==='c')copy(out.innerText,b);
+    if(b.dataset.a==='r'&&!busy){m.remove();reply(lastUser)}
+    if(b.dataset.a==='u'||b.dataset.a==='d'){a.querySelectorAll('[data-a=u],[data-a=d]').forEach(x=>x.classList.remove('on'));b.classList.add('on')}};
+  busy=false; setSend(false); down();
+}
+
+/* word-by-word streaming that preserves inline tags */
+async function stream(el,html){
+  el.classList.add('caret');
+  const parts=html.split(/(<[^>]+>)/).filter(Boolean);
+  let target=el, stack=[];
+  for(const p of parts){
+    if(abort) break;
+    if(p.startsWith('</')){ target=stack.pop()||el; continue }
+    if(p.startsWith('<')){ const tmp=document.createElement('div'); tmp.innerHTML=p+'</'+p.slice(1,p.indexOf('>')).split(' ')[0]+'>'; const n=tmp.firstChild; target.appendChild(n); stack.push(target); target=n; continue }
+    const words=p.split(/(\s+)/);
+    for(const w of words){ if(abort)break; target.appendChild(document.createTextNode(w)); if(w.trim()){ down(); await sleep(26+Math.random()*30) } }
+  }
+  el.classList.remove('caret');
+}
+
+function copy(t,btn){
+  navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{});
+  const old=btn.innerHTML; btn.innerHTML=ICON.check+(btn.textContent.trim()?'Copied':''); btn.classList.add('on');
+  setTimeout(()=>{btn.innerHTML=old;btn.classList.remove('on')},1400);
+}
+
+/* ---------- Composer ---------- */
+function setSend(running){
+  send.className='send'+(running?' stop':'');
+  send.innerHTML=running?'<svg viewBox="0 0 16 16"><rect x="4" y="4" width="8" height="8" rx="1.5" fill="currentColor"/></svg>':'<svg viewBox="0 0 16 16"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5"/></svg>';
+  send.disabled=running?false:!input.value.trim();
+  send.setAttribute('aria-label',running?'থামান':'পাঠান');
+}
+function grow(){input.style.height='28px';input.style.height=Math.min(input.scrollHeight,160)+'px';if(!busy)send.disabled=!input.value.trim()}
+input.addEventListener('input',grow);
+input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();submit()}});
+send.onclick=()=>busy?(abort=true):submit();
+function submit(){const v=input.value.trim();if(!v||busy)return;input.value='';grow();ask(v)}
+
+$('#newBtn').onclick=()=>{abort=true;setTimeout(()=>{busy=false;setSend(false);empty();input.focus()},60)};
+$('#themeBtn').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='light'?'dark':'light'};
+
+empty(); input.focus();
+</script>
+</body>
+</html>
