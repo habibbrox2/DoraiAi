@@ -319,6 +319,70 @@ class AppSettings(internal val settings: Settings) {
         settings.putString(KEY_MEMORY_INSTRUCTIONS, instructions)
     }
 
+    // Supabase Vector Memory
+    fun getSupabaseUrl(): String = settings.getString(KEY_SUPABASE_URL, "")
+    fun setSupabaseUrl(url: String) {
+        settings.putString(KEY_SUPABASE_URL, url)
+    }
+
+    fun getSupabaseAnonKey(): String = settings.getString(KEY_SUPABASE_ANON_KEY, "")
+    fun setSupabaseAnonKey(key: String) {
+        settings.putString(KEY_SUPABASE_ANON_KEY, key)
+    }
+
+    fun isSupabaseVectorMemoryEnabled(): Boolean = settings.getBoolean(KEY_SUPABASE_VECTOR_MEMORY_ENABLED, false)
+    fun setSupabaseVectorMemoryEnabled(enabled: Boolean) {
+        settings.putBoolean(KEY_SUPABASE_VECTOR_MEMORY_ENABLED, enabled)
+    }
+
+    // Cloudflare Credentials for Embeddings / AI
+    fun getCloudflareAccountId(): String {
+        val direct = settings.getString(KEY_CLOUDFLARE_ACCOUNT_ID, "")
+        if (direct.isNotBlank()) return direct
+        val cfInstance = getConfiguredServiceInstances().firstOrNull {
+            it.serviceId == "cloudflare" || it.serviceId == "cloudflare_ai_gateway"
+        } ?: return ""
+        return getInstanceBaseUrl(cfInstance.instanceId).trim()
+    }
+
+    fun setCloudflareAccountId(accountId: String) {
+        settings.putString(KEY_CLOUDFLARE_ACCOUNT_ID, accountId)
+    }
+
+    fun getCloudflareApiToken(): String {
+        val direct = settings.getString(KEY_CLOUDFLARE_API_TOKEN, "")
+        if (direct.isNotBlank()) return direct
+        val cfInstance = getConfiguredServiceInstances().firstOrNull {
+            it.serviceId == "cloudflare" || it.serviceId == "cloudflare_ai_gateway"
+        } ?: return ""
+        return getInstanceApiKey(cfInstance.instanceId).trim()
+    }
+
+    fun setCloudflareApiToken(token: String) {
+        settings.putString(KEY_CLOUDFLARE_API_TOKEN, token)
+    }
+
+    // Firebase Ops & Alerts
+    fun getFirebaseProjectId(): String = settings.getString(KEY_FIREBASE_PROJECT_ID, "")
+    fun setFirebaseProjectId(id: String) {
+        settings.putString(KEY_FIREBASE_PROJECT_ID, id)
+    }
+
+    fun getFirebaseApiKey(): String = settings.getString(KEY_FIREBASE_API_KEY, "")
+    fun setFirebaseApiKey(key: String) {
+        settings.putString(KEY_FIREBASE_API_KEY, key)
+    }
+
+    fun getFcmDeviceToken(): String = settings.getString(KEY_FCM_DEVICE_TOKEN, "")
+    fun setFcmDeviceToken(token: String) {
+        settings.putString(KEY_FCM_DEVICE_TOKEN, token)
+    }
+
+    fun isFirebaseAlertsEnabled(): Boolean = settings.getBoolean(KEY_FIREBASE_ALERTS_ENABLED, false)
+    fun setFirebaseAlertsEnabled(enabled: Boolean) {
+        settings.putBoolean(KEY_FIREBASE_ALERTS_ENABLED, enabled)
+    }
+
     // Agent memories
     fun getMemoriesJson(): String = settings.getString(KEY_AGENT_MEMORIES, "[]")
 
@@ -773,6 +837,15 @@ class AppSettings(internal val settings: Settings) {
         const val KEY_MEMORY_ENABLED = "memory_enabled"
         const val KEY_MEMORY_INSTRUCTIONS = "memory_instructions"
         const val KEY_AGENT_MEMORIES = "agent_memories"
+        const val KEY_SUPABASE_URL = "supabase_url"
+        const val KEY_SUPABASE_ANON_KEY = "supabase_anon_key"
+        const val KEY_SUPABASE_VECTOR_MEMORY_ENABLED = "supabase_vector_memory_enabled"
+        const val KEY_CLOUDFLARE_ACCOUNT_ID = "cloudflare_account_id"
+        const val KEY_CLOUDFLARE_API_TOKEN = "cloudflare_api_token"
+        const val KEY_FIREBASE_PROJECT_ID = "firebase_project_id"
+        const val KEY_FIREBASE_API_KEY = "firebase_api_key"
+        const val KEY_FCM_DEVICE_TOKEN = "fcm_device_token"
+        const val KEY_FIREBASE_ALERTS_ENABLED = "firebase_alerts_enabled"
         const val KEY_CORRUPT_JSON_BACKUP_PREFIX = "corrupt_json_backup."
         const val KEY_SCHEDULED_TASKS = "scheduled_tasks"
         const val KEY_SCHEDULING_ENABLED = "scheduling_enabled"

@@ -48,6 +48,7 @@ data class SettingsActions(
     val onRefreshEmailAccount: (String) -> Unit,
     val onToggleSms: (Boolean) -> Unit,
     val onToggleVoiceMode: (Boolean) -> Unit,
+    val onToggleFirebaseAlerts: (Boolean) -> Unit = {},
     val onToggleVoiceMobileData: (Boolean) -> Unit = {},
     val onVoiceModelDownload: (String) -> Unit = {},
     val onVoiceModelPause: (String) -> Unit = {},

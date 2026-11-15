@@ -96,6 +96,10 @@ internal fun ExportImportSection(
     onExportSettings: (Set<ImportSection>) -> String,
     onPrepareExport: () -> Map<ImportSection, String?>,
     onImportSettings: (ByteArray, Set<ImportSection>, Boolean) -> ImportResult,
+    onCloudBackup: ((passphrase: String) -> Unit)? = null,
+    onCloudRestore: ((passphrase: String) -> Unit)? = null,
+    isCloudSyncing: Boolean = false,
+    cloudSyncStatus: String? = null,
 ) {
     val isPreview = LocalInspectionMode.current
     val scope = rememberCoroutineScope()
@@ -344,6 +348,14 @@ internal fun ExportImportSection(
                 }
             }
         }
+
+        Spacer(Modifier.height(8.dp))
+        CloudVaultCard(
+            onBackup = { onCloudBackup?.invoke(it) },
+            onRestore = { onCloudRestore?.invoke(it) },
+            isSyncing = isCloudSyncing,
+            syncStatusMessage = cloudSyncStatus,
+        )
     }
 }
 

@@ -37,6 +37,9 @@ class MemoryStore(appSettings: AppSettings) {
         onCorrupt = { appSettings.backupCorruptJson("MemoryStore", it) },
     )
 
+    var onMemoryStored: (suspend (MemoryEntry) -> Unit)? = null
+    var onMemoryForgotten: (suspend (String) -> Unit)? = null
+
     suspend fun store(
         key: String,
         content: String,
@@ -52,7 +55,9 @@ class MemoryStore(appSettings: AppSettings) {
             val stored = entry
             if (existing != null) current.map { if (it.key == key) stored else it } else current + stored
         }
-        return entry
+        val storedEntry = entry
+        onMemoryStored?.invoke(storedEntry)
+        return storedEntry
     }
 
     suspend fun updateContent(key: String, content: String): MemoryEntry? = mutateEntry(key) { it.copy(content = content, updatedAt = Clock.System.now().toEpochMilliseconds()) }
@@ -68,6 +73,7 @@ class MemoryStore(appSettings: AppSettings) {
             updated = next
             current.map { if (it.key == key) next else it }
         }
+        updated?.let { onMemoryStored?.invoke(it) }
         return updated
     }
 
@@ -78,6 +84,9 @@ class MemoryStore(appSettings: AppSettings) {
         memories.update { current ->
             removed = current.any { it.key == key }
             if (removed) current.filterNot { it.key == key } else current
+        }
+        if (removed) {
+            onMemoryForgotten?.invoke(key)
         }
         return removed
     }

@@ -479,7 +479,7 @@ class FakeDataRepository : DataRepository {
         soulText = text
     }
 
-    override suspend fun getActiveSystemPrompt(variant: SystemPromptVariant): String? = soulText.ifEmpty { null }
+    override suspend fun getActiveSystemPrompt(variant: SystemPromptVariant, query: String?): String? = soulText.ifEmpty { null }
 
     // Memory management
     private var dynamicUiEnabled = true

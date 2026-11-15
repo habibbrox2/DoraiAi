@@ -33,12 +33,22 @@ class DesktopGitCommandRunner(
         }
 
         val gitPath = locator.locate() ?: return GitCommandResult(false, "", "git not found", -1)
+        val subcommand = subcommandOf(args)
+        val isClone = subcommand == "clone"
         val projectDir = File(projectsRoot, project)
-        if (!projectDir.isDirectory) {
-            return GitCommandResult(false, "", "Project directory not found: $project", -1)
+
+        val workingDir = if (isClone) {
+            if (projectDir.exists()) {
+                return GitCommandResult(false, "", "Project directory already exists: $project", -1)
+            }
+            projectsRoot
+        } else {
+            if (!projectDir.isDirectory) {
+                return GitCommandResult(false, "", "Project directory not found: $project", -1)
+            }
+            projectDir
         }
 
-        val subcommand = subcommandOf(args)
         val ctx = if (subcommand in NETWORK_COMMANDS) {
             broker.credentialGitConfigArgs(args)
         } else {
@@ -47,7 +57,12 @@ class DesktopGitCommandRunner(
 
         return try {
             val allArgs = (if (ctx != null) ctx.gitArgs else emptyList()) + args
-            runGitProcess(gitPath, allArgs, projectDir, timeoutSeconds)
+            val result = runGitProcess(gitPath, allArgs, workingDir, timeoutSeconds)
+            if (isClone && result.success && !projectDir.isDirectory) {
+                GitCommandResult(false, result.stdout, "Clone finished but project directory was not created: $project", -1)
+            } else {
+                result
+            }
         } finally {
             ctx?.release()
         }

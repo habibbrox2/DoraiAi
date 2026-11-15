@@ -1,5 +1,6 @@
 package com.dorai.ai.data
 
+import com.dorai.ai.network.dtos.supabase.SupabaseMatchMemoryResultDto
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -69,6 +70,7 @@ class ChatSystemPromptBuilderTest {
         uiMode: ChatPromptUiMode = ChatPromptUiMode.NONE,
         activeSkill: com.dorai.ai.skills.SkillManifest? = null,
         agentMode: String = "build",
+        retrievedMemories: List<SupabaseMatchMemoryResultDto> = emptyList(),
     ) = buildChatSystemPrompt(
         variant = variant,
         soul = soul,
@@ -87,6 +89,7 @@ class ChatSystemPromptBuilderTest {
         uiMode = uiMode,
         activeSkill = activeSkill,
         agentMode = agentMode,
+        retrievedMemories = retrievedMemories,
     )
 
     private fun skill(
@@ -329,6 +332,33 @@ class ChatSystemPromptBuilderTest {
         )
         assertTrue("## Known Issues & Resolutions" in out)
         assertTrue("- **flaky_test**: retry twice" in out)
+    }
+
+    @Test
+    fun `CHAT_REMOTE includes Retrieved Relevant Context when retrievedMemories present`() {
+        val matches = listOf(
+            SupabaseMatchMemoryResultDto(
+                id = "m1",
+                key = "user_favorite_theme",
+                content = "User prefers dark cyber theme",
+                category = "preference",
+                similarity = 0.892f,
+            ),
+            SupabaseMatchMemoryResultDto(
+                id = "m2",
+                key = "previous_project_note",
+                content = "Deploy to Supabase pgvector",
+                category = "general",
+                similarity = 0.754f,
+            ),
+        )
+        val out = build(
+            variant = SystemPromptVariant.CHAT_REMOTE,
+            retrievedMemories = matches,
+        )
+        assertTrue("## Retrieved Relevant Context (Semantic Search)" in out)
+        assertTrue("- **user_favorite_theme** [Relevance: 89%]: User prefers dark cyber theme" in out)
+        assertTrue("- **previous_project_note** [Relevance: 75%]: Deploy to Supabase pgvector" in out)
     }
 
     @Test

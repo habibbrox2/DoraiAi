@@ -206,6 +206,14 @@
     <string name="settings_import_section_tools">সরঞ্জাম</string>
     <string name="settings_import_section_mcp">MCP সার্ভার</string>
     <string name="settings_import_section_conversations">কথোপকথন</string>
+    <string name="cloud_sync_vault_title">ক্লাউড ভল্ট (E2EE)</string>
+    <string name="cloud_sync_vault_description">সুপাবেস চালিত এন্ড-টু-এন্ড এনক্রিপ্টেড ব্যাকআপ ও ক্রস-ডিভাইস সিঙ্ক।</string>
+    <string name="cloud_sync_passphrase_label">সিঙ্ক পাসফ্রেজ</string>
+    <string name="cloud_sync_backup_button">ক্লাউডে ব্যাকআপ</string>
+    <string name="cloud_sync_restore_button">ক্লাউড থেকে রিস্টোর</string>
+    <string name="cloud_sync_security_notice">জিরো-নলেজ: আপলোডের পূর্বেই ডিভাইসে AES-256-GCM দিয়ে এনক্রিপ্ট করা হয়।</string>
+    <string name="firebase_remote_alerts_title">রিমোট টাস্ক অ্যালার্ট</string>
+    <string name="firebase_remote_alerts_description">ব্যাকগ্রাউন্ড এজেন্ট দীর্ঘ টাস্ক শেষ করলে মোবাইলে পুশ নোটিফিকেশন পান।</string>
     <string name="settings_heartbeat_reset_confirm">এটি হৃৎস্পন্দন প্রম্পটকে ডিফল্টে রিসেট করবে। আপনি কি নিশ্চিত?</string>
     <string name="settings_heartbeat_model">মডেল</string>
     <string name="settings_heartbeat_model_default">ডিফল্ট</string>

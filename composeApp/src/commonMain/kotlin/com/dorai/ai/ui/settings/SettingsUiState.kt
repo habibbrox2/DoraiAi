@@ -143,6 +143,8 @@ data class SettingsUiState(
     val smsSendPermissionGranted: Boolean = false,
     val showNotificationsSection: Boolean = false,
     val isNotificationsEnabled: Boolean = false,
+    val isFirebaseAlertsEnabled: Boolean = false,
+    val fcmDeviceToken: String? = null,
     val notificationListenerAccessGranted: Boolean = false,
     val notificationListenerBound: Boolean = false,
     val notificationPendingCount: Int = 0,

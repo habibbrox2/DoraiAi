@@ -1,3 +1,5 @@
 package com.dorai.ai
 
-actual fun createWorkspaceController(): WorkspaceController = NoOpWorkspaceController()
+import com.dorai.ai.workspace.DesktopWorkspaceController
+
+actual fun createWorkspaceController(): WorkspaceController = DesktopWorkspaceController()

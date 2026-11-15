@@ -12,6 +12,7 @@ import com.dorai.ai.email.EmailPoller
 import com.dorai.ai.formatFileSize
 import com.dorai.ai.getAvailableTools
 import com.dorai.ai.getPlatformToolDefinitions
+import com.dorai.ai.httpClient
 import com.dorai.ai.inference.DownloadError
 import com.dorai.ai.inference.DownloadedModel
 import com.dorai.ai.inference.EngineState
@@ -33,6 +34,7 @@ import com.dorai.ai.network.AllServicesFailedException
 import com.dorai.ai.network.AnthropicInsufficientCreditsException
 import com.dorai.ai.network.AnthropicInvalidApiKeyException
 import com.dorai.ai.network.AnthropicRateLimitExceededException
+import com.dorai.ai.network.CloudflareEmbeddingClient
 import com.dorai.ai.network.ContextWindowExceededException
 import com.dorai.ai.network.FileTooLargeException
 import com.dorai.ai.network.GeminiInvalidApiKeyException
@@ -54,6 +56,9 @@ import com.dorai.ai.network.dtos.anthropic.extractText
 import com.dorai.ai.network.dtos.gemini.extractText
 import com.dorai.ai.network.dtos.openaicompatible.extractInlineToolCalls
 import com.dorai.ai.network.dtos.openairesponses.OpenAIResponsesResponseDto
+import com.dorai.ai.network.dtos.supabase.SupabaseMatchMemoryResultDto
+import com.dorai.ai.network.supabase.SupabaseConfig
+import com.dorai.ai.network.supabase.SupabaseRestClient
 import com.dorai.ai.network.toUiError
 import com.dorai.ai.network.tools.Tool
 import com.dorai.ai.network.tools.ToolInfo
@@ -81,6 +86,9 @@ import io.github.vinceglb.filekit.size
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -89,7 +97,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.offsetAt
 import kotlinx.datetime.toLocalDateTime
@@ -235,7 +245,57 @@ class RemoteDataRepository(
     private val localInferenceEngine: LocalInferenceEngine? = null,
     private val localRuntimeRegistry: LocalRuntimeRegistry? = null,
     private val routingPolicy: RoutingPolicy = RoutingPolicy(),
+    private val supabaseVectorStore: SupabaseVectorStore = SupabaseVectorStore(
+        supabaseRestClient = SupabaseRestClient(httpClient()),
+        embeddingClient = CloudflareEmbeddingClient(httpClient()),
+    ),
 ) : DataRepository {
+
+    private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    init {
+        memoryStore.onMemoryStored = { entry ->
+            if (appSettings.isSupabaseVectorMemoryEnabled()) {
+                val cfAccountId = appSettings.getCloudflareAccountId()
+                val cfToken = appSettings.getCloudflareApiToken()
+                val supaUrl = appSettings.getSupabaseUrl()
+                val supaKey = appSettings.getSupabaseAnonKey()
+                val supaConfig = SupabaseConfig(url = supaUrl, anonKey = supaKey)
+
+                if (cfAccountId.isNotBlank() && cfToken.isNotBlank() && supaConfig.isValid) {
+                    repositoryScope.launch {
+                        runCatching {
+                            supabaseVectorStore.saveMemory(
+                                config = supaConfig,
+                                entry = entry,
+                                cloudflareAccountId = cfAccountId,
+                                cloudflareToken = cfToken,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        memoryStore.onMemoryForgotten = { key ->
+            if (appSettings.isSupabaseVectorMemoryEnabled()) {
+                val supaUrl = appSettings.getSupabaseUrl()
+                val supaKey = appSettings.getSupabaseAnonKey()
+                val supaConfig = SupabaseConfig(url = supaUrl, anonKey = supaKey)
+
+                if (supaConfig.isValid) {
+                    repositoryScope.launch {
+                        runCatching {
+                            supabaseVectorStore.forgetMemory(
+                                config = supaConfig,
+                                key = key,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private val toolPermissionManager = ToolPermissionManager(appSettings, mcpServerManager)
 
@@ -1442,7 +1502,7 @@ class RemoteDataRepository(
         compactHistoryIfNeeded()
 
         val messages = chatHistory.value
-        val systemPrompt = getActiveSystemPrompt()
+        val systemPrompt = getActiveSystemPrompt(query = question)
 
         val entries = getOrderedFallbackEntries()
         // Renders the answer into a single in-place row while the provider is still generating.
@@ -2681,7 +2741,7 @@ class RemoteDataRepository(
         appSettings.setSoulText(text)
     }
 
-    override suspend fun getActiveSystemPrompt(variant: SystemPromptVariant): String? {
+    override suspend fun getActiveSystemPrompt(variant: SystemPromptVariant, query: String?): String? {
         val baseSoul = appSettings.getSoulText().ifEmpty { getString(Res.string.default_soul) }
         val languageRules = PromptLanguageRules.languageRulesFor(appSettings.getAppLanguage())
         val soul = if (!baseSoul.contains("DORAI AI")) {
@@ -2768,6 +2828,35 @@ class RemoteDataRepository(
 
         val activeSkill = pendingActiveSkillId?.let { skillManager.getSkill(it) }
 
+        val retrievedMemories: List<SupabaseMatchMemoryResultDto> = if (
+            memoryEnabled &&
+            appSettings.isSupabaseVectorMemoryEnabled() &&
+            !query.isNullOrBlank()
+        ) {
+            val cfAccountId = appSettings.getCloudflareAccountId()
+            val cfToken = appSettings.getCloudflareApiToken()
+            val supaUrl = appSettings.getSupabaseUrl()
+            val supaKey = appSettings.getSupabaseAnonKey()
+            val supaConfig = SupabaseConfig(url = supaUrl, anonKey = supaKey)
+
+            if (cfAccountId.isNotBlank() && cfToken.isNotBlank() && supaConfig.isValid) {
+                withTimeoutOrNull(1500) {
+                    supabaseVectorStore.searchMemories(
+                        config = supaConfig,
+                        query = query,
+                        cloudflareAccountId = cfAccountId,
+                        cloudflareToken = cfToken,
+                        threshold = 0.5f,
+                        limit = 3,
+                    ).getOrNull()
+                }.orEmpty()
+            } else {
+                emptyList()
+            }
+        } else {
+            emptyList()
+        }
+
         return buildChatSystemPrompt(
             variant = variant,
             soul = soul,
@@ -2786,6 +2875,7 @@ class RemoteDataRepository(
             uiMode = uiMode,
             activeSkill = activeSkill,
             agentMode = getActiveAgentMode(),
+            retrievedMemories = retrievedMemories,
         ).ifEmpty { null }
     }
 

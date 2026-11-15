@@ -44,8 +44,8 @@ private class DesktopGitCredentialBroker(
         helperScript = newHelperScript
         tokenFile = newTokenFile
 
-        val helperPath = newHelperScript.absolutePath
-        val gitArgs = listOf("-c", "credential.helper=!$helperPath")
+        val helperPath = newHelperScript.absolutePath.replace('\\', '/')
+        val gitArgs = listOf("-c", "credential.helper=!\"$helperPath\"")
 
         return GitCredentialBroker.CredentialContext(
             gitArgs = gitArgs,
