@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -84,6 +85,7 @@ import dorai.composeapp.generated.resources.tool_status_completed
 import dorai.composeapp.generated.resources.tool_status_failed
 import dorai.composeapp.generated.resources.tool_status_running
 import dorai.composeapp.generated.resources.tool_status_waiting_approval
+import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.stringResource
 
 enum class ToolExecutionState {
@@ -106,6 +108,43 @@ data class ToolExecutionModel(
     val exitCode: Int? = null,
     val startTimeMs: Long? = null,
     val endTimeMs: Long? = null,
+    val subAgents: List<SubAgentExecution> = emptyList(),
+)
+
+/**
+ * One sub-agent execution inside a parent agent tool run (e.g. `agent.spawn`).
+ *
+ * @property role Agent role label (e.g. "Writer", "Critic").
+ * @property task Task description the sub-agent was asked to run.
+ * @property status Lifecycle status of the sub-agent (e.g. "draft", "review").
+ * @property durationText Human-readable sub-agent duration (e.g. "১.০s").
+ * @property resultSummary Short human-readable result summary.
+ * @property state Latest known lifecycle state.
+ */
+@Serializable
+data class SubAgentExecution(
+    val role: String,
+    val task: String? = null,
+    val status: String? = null,
+    val durationText: String? = null,
+    val resultSummary: String? = null,
+    val state: ToolExecutionState = ToolExecutionState.Running,
+)
+
+/**
+ * Wire payload for agent-style tools (e.g. `agent.spawn`): the sub-agents to run.
+ * Unknown keys are tolerated via the lenient JSON config.
+ */
+@Serializable
+data class SubAgentSpawnArgs(
+    val agents: List<SubAgentSpawnAgent> = emptyList(),
+)
+
+@Serializable
+data class SubAgentSpawnAgent(
+    val role: String = "Agent",
+    val task: String? = null,
+    val status: String? = null,
 )
 
 /**
@@ -168,6 +207,8 @@ fun DoraiToolCard(
 ) {
     val colors = LocalDoraiColors.current
     val copyToClipboard = rememberCopyToClipboard()
+
+    val isAgentTool = model.toolName.contains("agent", ignoreCase = true)
 
     // Default expanded state: Completed is collapsed by default to save space; Failed, Running, and
     // PendingApproval expand. Keyed on the tool-call identity rather than the state: keying on
@@ -250,9 +291,32 @@ fun DoraiToolCard(
                 fontWeight = FontWeight.Bold,
             )
 
+            // Agent role chips (agent.spawn and friends) instead of raw arguments preview.
+            if (isAgentTool && model.subAgents.isNotEmpty()) {
+                Spacer(modifier = Modifier.width(DoraiSpacing.SM))
+                Row(horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.XS)) {
+                    model.subAgents.forEach { agent ->
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(999.dp))
+                                .background(colors.accent.copy(alpha = 0.12f))
+                                .padding(horizontal = 8.dp, vertical = 2.dp),
+                        ) {
+                            Text(
+                                text = agent.role,
+                                color = colors.accent,
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace,
+                            )
+                        }
+                    }
+                }
+            }
+
             // Arguments / Command Preview
             val previewText = model.argsSummary.ifBlank { model.commandText.orEmpty() }
-            if (previewText.isNotBlank()) {
+            if (previewText.isNotBlank() && !isAgentTool) {
                 Spacer(modifier = Modifier.width(DoraiSpacing.SM))
                 Text(
                     text = previewText,
@@ -348,6 +412,91 @@ fun DoraiToolCard(
                     .fillMaxWidth()
                     .padding(top = DoraiSpacing.SM),
             ) {
+                // Sub-agent timeline (agent.spawn and friends): one row per spawned agent.
+                if (isAgentTool && model.subAgents.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(DoraiSpacing.XS),
+                    ) {
+                        model.subAgents.forEach { agent ->
+                            val agentAccent = if (agent.state == ToolExecutionState.Failed) colors.err else colors.accent
+                            val agentStatusColor = when (agent.state) {
+                                ToolExecutionState.Running -> colors.info
+                                ToolExecutionState.Completed -> colors.ok
+                                ToolExecutionState.Failed -> colors.err
+                                ToolExecutionState.PendingApproval -> colors.warn
+                            }
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(colors.surface2)
+                                    .border(1.dp, agentAccent.copy(alpha = 0.30f), RoundedCornerShape(8.dp))
+                                    .padding(DoraiSpacing.SM),
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Box(
+                                        modifier = Modifier.size(7.dp).clip(CircleShape).background(agentStatusColor),
+                                    )
+                                    Spacer(modifier = Modifier.width(DoraiSpacing.XS))
+                                    Text(
+                                        text = agent.role,
+                                        color = agentAccent,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = FontFamily.Monospace,
+                                    )
+                                    Spacer(modifier = Modifier.width(DoraiSpacing.SM))
+                                    Text(
+                                        text = agent.task.orEmpty(),
+                                        color = colors.text,
+                                        fontSize = 12.5.sp,
+                                        modifier = Modifier.weight(1f, fill = false),
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                    Spacer(modifier = Modifier.width(DoraiSpacing.SM))
+                                    if (agent.durationText != null) {
+                                        Text(
+                                            text = agent.durationText,
+                                            color = colors.muted,
+                                            fontSize = 10.5.sp,
+                                            fontFamily = FontFamily.Monospace,
+                                        )
+                                    }
+                                }
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    DoraiStatusBadge(
+                                        text = agent.status ?: stringResource(Res.string.tool_status_completed),
+                                        color = when (agent.state) {
+                                            ToolExecutionState.Running -> colors.info
+                                            ToolExecutionState.Completed -> colors.ok
+                                            ToolExecutionState.Failed -> colors.err
+                                            ToolExecutionState.PendingApproval -> colors.warn
+                                        },
+                                    )
+                                    if (!agent.resultSummary.isNullOrEmpty()) {
+                                        Spacer(modifier = Modifier.width(DoraiSpacing.SM))
+                                        Text(
+                                            text = agent.resultSummary,
+                                            color = colors.muted,
+                                            fontSize = 11.5.sp,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // 1. Command Block (Expandable code block with Copy button)
                 if (!model.commandText.isNullOrEmpty()) {
                     Box(

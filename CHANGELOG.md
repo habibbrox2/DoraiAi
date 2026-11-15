@@ -1,3 +1,13 @@
+## DORAI AI - Chat UI: design-token alignment and sub-agent tool timeline (Unreleased)
+
+### Added
+- **Agent tool runs now render a sub-agent timeline**: `agent.spawn` tool cards expand to one row per spawned agent with its role, task, duration and result (sub-tool step + summary), status-colored chips in the collapsed header, and a role-colored left border that fills once the agent is done; the body auto-collapses after completion when the user has not manually toggled the card.
+
+### Changed
+- Chat surfaces now resolve from the Dorai design tokens (theme-preset aware) instead of legacy Material color-scheme defaults, so the active theme preset renders pixel-faithful chat surfaces (tool cards, waiting rows, markdown text fallback).
+
+---
+
 ## DORAI AI - Settings state fixes: GitHub error copy, voice download controls, agent mode copy (Unreleased)
 
 ### Fixed

@@ -1,6 +1,6 @@
 # Chat & Conversations
 
-**Last verified:** 2026-11-14
+**Last verified:** 2026-11-15
 
 DORAI AI's chat system manages the message history, conversation persistence, file attachments, and speech output. Conversations are service-independent — switching providers does not affect which conversation is loaded or restored. Multiple conversations are persisted and browsable via the chat drawer (compact) or an inline history pane (expanded).
 
@@ -76,6 +76,8 @@ Auto-derived from the first user message when a conversation is saved for the fi
 - Agent background work (reasoning, tool calls) renders as chronological, collapsed-by-default accordions — a "Thought process" block followed by a "Ran …" block — the final Markdown answer always renders below them, fully outside the processing blocks; tool calls awaiting approval or failed tools stay always visible outside the accordion because the agent turn is blocked until the user answers
 - Tool-approval and failed tool cards sit outside the accordion; the accordion header carries a ≥48dp button-role touch target with expanded/collapsed state description
 - A long tool result is clamped to 15 lines instead of being cut off silently: an "Expand output" / "Collapse output" toggle reveals the rest in place (the copy button copies the full result, not the clamped preview)
+- Agent-style tool runs (`agent.spawn`) render a sub-agent timeline inside the collapsible tool card: the header shows the spawned agent roles as status-colored chips plus the elapsed time, and the expanded body lists one row per agent with its task, duration and result (sub-tool step + summary). Each agent row carries a role-colored left border that fills with the role color once the agent is done; the list auto-collapses once the run completes when the user has not manually toggled the card
+- Tool rows with a label instead of a command preview (e.g. `web.search`) render an Input/Output key-value section inside the expanded body: the tool label as the row header, the Bengali query as Input, and the retrieved results as Output; agent rows render the agents list instead of Input/Output blocks
 - Only the last assistant message in the timeline shows the regenerate button; earlier ones keep copy/speak actions
 - User messages carry a trailing copy button (next to the bubble) with the same 2-second copied feedback as the assistant copy action
 - Timestamps (HH:mm, local 24h) render under user bubbles and assistant replies; they are persisted per-message in the conversation JSON blob (`Conversation.Message.sentAt`) so restored conversations show times too (messages saved before this field existed render without a timestamp)

@@ -4,8 +4,12 @@ import com.dorai.ai.data.ExecutionLocation
 import com.dorai.ai.data.ServiceEntry
 import com.dorai.ai.ui.components.v2.DynamicUiModel
 import com.dorai.ai.ui.components.v2.DynamicUiOption
+import com.dorai.ai.ui.components.v2.SubAgentExecution
+import com.dorai.ai.ui.components.v2.SubAgentSpawnAgent
+import com.dorai.ai.ui.components.v2.SubAgentSpawnArgs
 import com.dorai.ai.ui.components.v2.ToolExecutionModel
 import com.dorai.ai.ui.components.v2.ToolExecutionState
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.booleanOrNull
@@ -95,6 +99,23 @@ fun parseToolCommandText(args: String): String {
 }
 
 /**
+ * Best-effort parse of sub-agents for agent-style tools (e.g. `agent.spawn`).
+ * Reads the `agents` array from the tool arguments and maps it onto the UI model.
+ */
+private fun parseSubAgents(arguments: String): List<SubAgentExecution> {
+    if (!arguments.contains("agent", ignoreCase = true)) return emptyList()
+    val args = runCatching { toolOutputJson.decodeFromString<SubAgentSpawnArgs>(arguments) }.getOrNull()
+        ?: return emptyList()
+    return args.agents.map { agent ->
+        SubAgentExecution(
+            role = agent.role,
+            task = agent.task,
+            status = agent.status,
+        )
+    }
+}
+
+/**
  * Helper builder to consolidate lifecycle events for a single tool call ID.
  */
 private class ConsolidatedToolBuilder(
@@ -108,6 +129,7 @@ private class ConsolidatedToolBuilder(
     var exitCode: Int? = null,
     var durationText: String? = null,
     var state: ToolExecutionState = ToolExecutionState.Running,
+    var subAgents: List<SubAgentExecution> = emptyList(),
 ) {
     fun toModel(): ToolExecutionModel = ToolExecutionModel(
         toolName = toolName,
@@ -120,6 +142,7 @@ private class ConsolidatedToolBuilder(
         diffText = diffText,
         toolCallId = toolCallId,
         exitCode = exitCode,
+        subAgents = subAgents,
     )
 }
 
@@ -169,6 +192,9 @@ fun groupHistoryToChatMessages(
                 builder.argsSummary = tc.arguments
                 if (tc.name.contains("shell") || tc.name.contains("cmd") || tc.name == "execute_shell_command") {
                     builder.commandText = parseToolCommandText(tc.arguments)
+                }
+                if (tc.name.contains("agent", ignoreCase = true)) {
+                    builder.subAgents = parseSubAgents(tc.arguments)
                 }
                 val isPending = pendingToolConfirmations.any { it.toolCallId == tc.id }
                 if (isPending) {
