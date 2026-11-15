@@ -85,7 +85,24 @@ Server-side tables never receive plaintext end-user content; the pre-existing pe
 - **Build/CI**: release builds receive public endpoints and keys via GitHub Secrets, never committed.
 - **Logging**: request metadata only (route, status, latency, user id hash). No bodies, no ciphertext, no tokens.
 
-## 6. v1 plan
+## 6. Deployment status (2026-11-16)
+
+| Piece | Where | State |
+|---|---|---|
+| Supabase project | `dorai-ai-app` (ap-south-1, free tier, `ACTIVE_HEALTHY`) | live |
+| Schema | migration `dorai_cloud_runtime_schema` | applied (`profiles`, `devices`, `memories`, `vault_records`, `settings_snapshots`, `usage_events`, RLS on all) |
+| Search RPC | `match_user_memories(query_embedding, match_threshold, match_count)` | applied, `SECURITY INVOKER` so RLS filters the caller |
+| Edge façade | `dorai-cloud-api` Worker on `https://dorai-cloud-api.hrhabib.workers.dev` | live, all `/v1` routes verified end-to-end |
+| Worker source | `cloud/dorai-cloud-api/src/index.js` | PR #187 |
+
+Façade notes proven during the smoke test:
+
+- Supabase Auth issues **ES256** (ECDSA P-256) tokens, not RS256 — the Worker verifies both.
+- The Worker needs **no service-role key**: it forwards the caller's access token to PostgREST, so RLS is the only isolation boundary.
+- Workers AI through the **AI binding** returns `{ shape, data }` where `data` is a wrapped vector (`data[0]`), not a flat array.
+- The `devices`/`vault_records` tables are keyed per user; a session's user id comes only from the verified token.
+
+## 7. v1 plan
 
 1. **Schema + auth**: user-scoped tables and RLS (this branch), Supabase Auth email provider enabled, `profiles` auto-provisioning on first call.
 2. **Façade**: Worker with `/v1/*` routes, JWT verification, quota counters, `/v1/embeddings` proxy to Workers AI.
@@ -94,7 +111,7 @@ Server-side tables never receive plaintext end-user content; the pre-existing pe
 5. **Vault + settings**: encrypted backup/restore through the façade instead of direct PostgREST.
 6. **Devices**: registration and push-token storage for background alerts.
 
-## 7. Open items
+## 8. Open items
 
 - Email provider configuration (console or SQL) and magic-link redirect URLs per platform.
 - Quota policy per plan (free tier: e.g. N memories, M syncs/day) and abuse handling.
