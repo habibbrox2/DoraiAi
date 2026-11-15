@@ -2,7 +2,6 @@
   "$schema": "https://opencode.ai/config.json",
   "permissions": [
     { "action": "github_*", "resource": "*", "effect": "deny" },
-    { "action": "cloudflare_*", "resource": "*", "effect": "deny" },
     { "action": "context7_*", "resource": "*", "effect": "deny" },
     { "action": "sentry_*", "resource": "*", "effect": "deny" }
   ],
