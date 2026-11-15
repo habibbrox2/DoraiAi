@@ -397,4 +397,47 @@ class ToolEventGrouperTest {
         val msg = messages.first { !it.isUser }
         assertFalse(msg.isModelLocal, "keyless fallback targets are cloud-hosted; badge must say Cloud")
     }
+
+    @Test
+    fun `attributed model name wins over the active service name`() {
+        val history = listOf(
+            History(id = "u1", role = History.Role.USER, content = "hi"),
+            History(
+                id = "a1",
+                role = History.Role.ASSISTANT,
+                content = "answer",
+                modelName = "GPT-4o mini",
+                fallbackServiceName = "OpenAI",
+            ),
+        )
+        val messages = groupHistoryToChatMessages(
+            history = history,
+            pendingToolConfirmations = emptyList(),
+            reasoningByAssistantId = emptyMap(),
+            isSpeaking = false,
+            isSpeakingContentId = null,
+            availableServices = listOf(sampleService),
+        )
+        val msg = messages.first { !it.isUser }
+        assertEquals("GPT-4o mini", msg.modelName, "the who-row must name the model that answered")
+        assertEquals("OpenAI", msg.fallbackServiceName)
+    }
+
+    @Test
+    fun `unattributed turns still fall back to the active service name`() {
+        val history = listOf(
+            History(id = "u1", role = History.Role.USER, content = "hi"),
+            History(id = "a1", role = History.Role.ASSISTANT, content = "answer"),
+        )
+        val messages = groupHistoryToChatMessages(
+            history = history,
+            pendingToolConfirmations = emptyList(),
+            reasoningByAssistantId = emptyMap(),
+            isSpeaking = false,
+            isSpeakingContentId = null,
+            availableServices = listOf(sampleService),
+        )
+        val msg = messages.first { !it.isUser }
+        assertEquals(sampleService.serviceName, msg.modelName, "turns saved before attribution keep the service name")
+    }
 }

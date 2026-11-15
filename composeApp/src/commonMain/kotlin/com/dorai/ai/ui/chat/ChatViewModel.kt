@@ -2,6 +2,7 @@ package com.dorai.ai.ui.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dorai.ai.data.AutoModelSelection
 import com.dorai.ai.data.Conversation
 import com.dorai.ai.data.DataRepository
 import com.dorai.ai.data.FileCategory
@@ -673,12 +674,17 @@ class ChatViewModel(
     private fun refreshModelsForPrimary() {
         val primaryWithService = primaryServiceInstance()
         if (primaryWithService == null) {
-            _state.update { it.copy(availableModels = persistentListOf()) }
+            _state.update { it.copy(availableModels = persistentListOf(), isAutoModelSelected = false) }
             return
         }
         val (primary, service) = primaryWithService
         val models = dataRepository.getInstanceModels(primary.instanceId, service).value
-        _state.update { it.copy(availableModels = models.toImmutableList()) }
+        _state.update {
+            it.copy(
+                availableModels = models.toImmutableList(),
+                isAutoModelSelected = dataRepository.getInstanceAutoModelEnabled(primary.instanceId),
+            )
+        }
     }
 
     /**
@@ -687,11 +693,22 @@ class ChatViewModel(
      */
     private fun selectModel(modelId: String) {
         val (primary, service) = primaryServiceInstance() ?: return
+        if (modelId == AutoModelSelection.ID) {
+            // "Auto" selects the whole Model List rather than one model: the stored selection
+            // stays untouched (it is tried first) and the flag makes the request walk the list.
+            dataRepository.updateInstanceAutoModelEnabled(primary.instanceId, true)
+            updateAvailableServices()
+            return
+        }
         if (modelId.isBlank()) return
         // A custom model id overrides the list selection, so picking from the list has to
         // switch that off — otherwise the chat would keep running the custom model.
         if (dataRepository.getInstanceUseCustomModel(primary.instanceId)) {
             dataRepository.updateInstanceUseCustomModel(primary.instanceId, false)
+        }
+        // Pinning a concrete model leaves "Auto": the user picked one model again.
+        if (dataRepository.getInstanceAutoModelEnabled(primary.instanceId)) {
+            dataRepository.updateInstanceAutoModelEnabled(primary.instanceId, false)
         }
         dataRepository.updateInstanceSelectedModel(primary.instanceId, service, modelId)
         // The service entry carries the effective model id, so it has to be rebuilt for the

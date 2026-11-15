@@ -187,6 +187,14 @@ class FakeDataRepository : DataRepository {
 
     override fun getInstanceUseCustomModel(instanceId: String): Boolean = instanceUseCustomModel[instanceId] ?: false
 
+    private val instanceAutoModel = mutableMapOf<String, Boolean>()
+
+    override fun getInstanceAutoModelEnabled(instanceId: String): Boolean = instanceAutoModel[instanceId] ?: false
+
+    override fun updateInstanceAutoModelEnabled(instanceId: String, enabled: Boolean) {
+        instanceAutoModel[instanceId] = enabled
+    }
+
     override fun updateInstanceUseCustomModel(instanceId: String, useCustom: Boolean) {
         if (useCustom && instanceCustomModelIds[instanceId].isNullOrBlank()) {
             // Prefill is handled by callers via updateInstanceCustomModelId in production;

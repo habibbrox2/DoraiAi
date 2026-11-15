@@ -262,7 +262,11 @@ fun groupHistoryToChatMessages(
                         id = asst.id,
                         isUser = false,
                         text = asst.content,
-                        modelName = asst.fallbackServiceName ?: availableServices.firstOrNull()?.serviceName,
+                        // The repository attributes the turn to the model that produced it, so an
+                        // "Auto" walk or a fallback names the model the user actually got.
+                        modelName = asst.modelName
+                            ?: asst.fallbackServiceName
+                            ?: availableServices.firstOrNull()?.serviceName,
                         // Fallback answers always come from the cloud-hosted keyless targets,
                         // even when the primary configured service is local.
                         isModelLocal = activeServiceIsLocal && asst.fallbackServiceName == null,

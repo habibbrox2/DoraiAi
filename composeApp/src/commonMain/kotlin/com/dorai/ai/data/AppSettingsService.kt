@@ -110,6 +110,17 @@ fun AppSettings.setInstanceCustomModelId(instanceId: String, modelId: String) {
 }
 
 /**
+ * True when "Auto" is selected for this instance: chat tries the stored model first and then
+ * every other model in the instance's Model List (see [AutoModelSelection]). The flag is
+ * independent of the stored model id, so switching Auto on and off never loses the selection.
+ */
+fun AppSettings.getInstanceAutoModelEnabled(instanceId: String): Boolean = settings.getBoolean("instance_${instanceId}_auto_model", false)
+
+fun AppSettings.setInstanceAutoModelEnabled(instanceId: String, enabled: Boolean) {
+    settings.putBoolean("instance_${instanceId}_auto_model", enabled)
+}
+
+/**
  * Model id sent to the provider: custom free-text when enabled, otherwise the list selection.
  * Falls back to empty string when neither is set (caller may apply service defaults).
  */
@@ -166,6 +177,7 @@ fun AppSettings.removeInstanceSettings(instanceId: String) {
     settings.remove("instance_${instanceId}_custom_model_id")
     settings.remove("instance_${instanceId}_display_name")
     settings.remove("instance_${instanceId}_connection_status")
+    settings.remove("instance_${instanceId}_auto_model")
 }
 
 fun AppSettings.generateInstanceId(serviceId: String): String {

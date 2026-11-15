@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
@@ -44,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.PlatformBackHandler
 import com.dorai.ai.data.AppSettings
+import com.dorai.ai.data.AutoModelSelection
 import com.dorai.ai.data.ExecutionLocation
 import com.dorai.ai.data.imageExtensions
 import com.dorai.ai.exitApp
@@ -71,6 +74,8 @@ import dorai.composeapp.generated.resources.chat_active_badge
 import dorai.composeapp.generated.resources.chat_attach_file
 import dorai.composeapp.generated.resources.chat_attach_photo
 import dorai.composeapp.generated.resources.chat_attach_title
+import dorai.composeapp.generated.resources.chat_auto_model
+import dorai.composeapp.generated.resources.chat_auto_model_hint
 import dorai.composeapp.generated.resources.chat_manage_providers
 import dorai.composeapp.generated.resources.chat_model_picker_empty
 import dorai.composeapp.generated.resources.chat_model_picker_title
@@ -192,7 +197,12 @@ fun DoraiChatScreenConnected(
     }
 
     val activeService = uiState.availableServices.firstOrNull()
-    val currentModelName = activeService?.serviceName ?: stringResource(Res.string.model_not_configured)
+    // "Auto" replaces the pinned model selection, so the pill names the mode the user picked.
+    val currentModelName = if (uiState.isAutoModelSelected) {
+        stringResource(Res.string.chat_auto_model)
+    } else {
+        activeService?.serviceName ?: stringResource(Res.string.model_not_configured)
+    }
     val isModelLocal = activeService?.executionLocation == ExecutionLocation.LOCAL
     val maxContextTokens = remember(activeService) {
         val modelId = activeService?.modelId ?: activeService?.serviceId ?: ""
@@ -338,7 +348,12 @@ fun DoraiChatScreenConnected(
             isStreaming = uiState.isLoading,
             onStopStreaming = { uiState.actions.cancel() },
             onRegenerate = { uiState.actions.regenerate() },
-            onOpenModelPicker = { showModelPicker = true },
+            onOpenModelPicker = {
+                showModelPicker = true
+                // The provider's model list is fetched on demand; without this the picker (and
+                // "Auto", which walks that list) would only ever show the stored selection.
+                uiState.actions.loadModels()
+            },
             onAllowOnce = { toolCallId ->
                 uiState.actions.confirmToolExecution(toolCallId, true, false, false)
             },
@@ -556,10 +571,71 @@ fun DoraiChatScreenConnected(
                         }
                     }
 
-                    // Models of the active provider. The provider rows above switch
-                    // services; these switch the model within the active one so the
-                    // user never has to leave chat for a model change.
+                    // "Auto" walks every model of the active provider instead of pinning
+                    // one, so it only makes sense once the provider has a Model List.
                     if (uiState.availableModels.isNotEmpty()) {
+                        item(key = "model-auto") {
+                            val autoShape = RoundedCornerShape(12.dp)
+                            val isAutoActive = uiState.isAutoModelSelected
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(autoShape)
+                                    .background(if (isAutoActive) colors.surface2 else colors.surface)
+                                    .border(1.dp, if (isAutoActive) colors.primary else colors.line, autoShape)
+                                    .clickable(
+                                        role = Role.Button,
+                                        onClickLabel = stringResource(Res.string.chat_auto_model),
+                                    ) {
+                                        uiState.actions.selectModel(AutoModelSelection.ID)
+                                        showModelPicker = false
+                                        refocusComposer()
+                                    }
+                                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.weight(1f),
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Bolt,
+                                            contentDescription = null,
+                                            tint = if (isAutoActive) colors.primary else colors.muted,
+                                            modifier = Modifier.size(18.dp),
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = stringResource(Res.string.chat_auto_model),
+                                            color = colors.text,
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                        )
+                                    }
+                                    if (isAutoActive) {
+                                        DoraiStatusBadge(
+                                            text = stringResource(Res.string.chat_active_badge),
+                                            color = colors.ok,
+                                        )
+                                    }
+                                }
+                                Text(
+                                    text = stringResource(Res.string.chat_auto_model_hint),
+                                    color = colors.muted,
+                                    fontSize = 12.sp,
+                                    modifier = Modifier.padding(top = 4.dp),
+                                )
+                            }
+                        }
+
+                        // Models of the active provider. The provider rows above switch
+                        // services; these switch the model within the active one (or Auto for
+                        // the whole list) so the user never has to leave chat for a model change.
                         item(key = "models-header") {
                             Text(
                                 text = stringResource(Res.string.settings_model_label),

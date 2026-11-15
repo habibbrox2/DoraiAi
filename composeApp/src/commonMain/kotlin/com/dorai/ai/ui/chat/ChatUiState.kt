@@ -97,6 +97,8 @@ data class ChatUiState(
     val isLoadingModels: Boolean = false,
     /** The service instance whose provider model list was already fetched this session. */
     val modelsLoadedInstanceId: String? = null,
+    /** True when "Auto" is selected for the active service instance (walks its whole Model List). */
+    val isAutoModelSelected: Boolean = false,
     val savedConversations: ImmutableList<ConversationSummary> = persistentListOf(),
     val currentConversationId: String? = null,
     val hasUnreadHeartbeat: Boolean = false,
@@ -136,6 +138,12 @@ data class History(
     val isThinking: Boolean = false,
     val isStatusMessage: Boolean = false,
     val fallbackServiceName: String? = null,
+    /**
+     * Display name of the model that actually produced this turn. Set by the repository when
+     * the answer is written, so an "Auto" walk or a fallback names the model the user got.
+     * Null on turns saved before attribution existed — the UI falls back to the active service.
+     */
+    val modelName: String? = null,
     val uiSubmission: UiSubmission? = null,
     // Preserved from a tool-call assistant turn so it can be round-tripped
     // back to providers (e.g. DeepSeek) that require it on the next request.

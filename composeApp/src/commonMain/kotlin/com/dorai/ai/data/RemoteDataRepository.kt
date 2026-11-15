@@ -176,6 +176,19 @@ private data class LoopChatResult(
 private data class AssistantTurn(
     val content: String,
     val reasoningContent: String? = null,
+    /** Display name of the service that actually produced this answer. */
+    val answeredByService: String? = null,
+    /** Display name of the model that actually produced this answer. */
+    val answeredByModel: String? = null,
+    /** True when the answer came from a fallback (another service or model) instead of the selection. */
+    val isFallbackAnswer: Boolean = false,
+)
+
+/** Which service/model produced an answer, so the chat can attribute the response row. */
+private data class AnsweredBy(
+    val serviceName: String,
+    val modelName: String,
+    val isFallback: Boolean,
 )
 
 private enum class BailoutReason { LIMIT_REACHED, REPEATING }
@@ -450,7 +463,51 @@ class RemoteDataRepository(
         }
     }
 
+    /**
+     * Models one request may run for [instanceId], in the order they should be tried: the
+     * user's own selection first, then every other model in the instance's Model List when
+     * "Auto" is selected. A normal selection — or a list the provider has not exposed yet —
+     * stays a single entry, so the request path is unchanged when Auto is off.
+     */
+    private fun instanceModelCandidates(instanceId: String, service: Service): List<String> {
+        if (service == Service.Free || service.isOnDevice) {
+            // Free walks the keyless target list and local inference runs one downloaded
+            // model; neither has a Model List to expand.
+            return listOf(instanceCredentials(instanceId, service).modelId)
+        }
+        val selected = appSettings.getInstanceEffectiveModelId(instanceId)
+            .ifEmpty { appSettings.getSelectedModelId(service) }
+        val listed = getInstanceModels(instanceId, service).value.map { it.id }
+        // "Auto" walks the whole Model List (selection first); a pinned model stays single.
+        return AutoModelSelection.ordered(
+            selectedModelId = selected,
+            autoEnabled = appSettings.getInstanceAutoModelEnabled(instanceId),
+            listedModelIds = listed,
+        )
+    }
+
+    /** Attribution for the chat row: which service/model actually produced the answer. */
+    private fun answeredByFor(entry: FallbackEntry, modelId: String, isFallback: Boolean): AnsweredBy = AnsweredBy(
+        serviceName = appSettings.getInstanceCustomName(entry.instanceId).ifBlank { entry.service.displayName },
+        modelName = modelDisplayName(entry.instanceId, entry.service, modelId),
+        isFallback = isFallback,
+    )
+
+    /** Human-readable model name: the provider list's display name when it is known. */
+    private fun modelDisplayName(instanceId: String, service: Service, modelId: String): String {
+        if (service == Service.Free) return KeylessFreeTierFallback.DISPLAY_NAME
+        if (modelId.isBlank()) return appSettings.getInstanceCustomName(instanceId).ifBlank { service.displayName }
+        val listed = getInstanceModels(instanceId, service).value.firstOrNull { it.id == modelId }
+        return listed?.displayName?.takeIf { it.isNotBlank() } ?: modelId
+    }
+
     override fun getInstanceUseCustomModel(instanceId: String): Boolean = appSettings.getInstanceUseCustomModel(instanceId)
+
+    override fun getInstanceAutoModelEnabled(instanceId: String): Boolean = appSettings.getInstanceAutoModelEnabled(instanceId)
+
+    override fun updateInstanceAutoModelEnabled(instanceId: String, enabled: Boolean) {
+        appSettings.setInstanceAutoModelEnabled(instanceId, enabled)
+    }
 
     override fun updateInstanceUseCustomModel(instanceId: String, useCustom: Boolean) {
         if (useCustom && appSettings.getInstanceCustomModelId(instanceId).isBlank()) {
@@ -937,6 +994,11 @@ class RemoteDataRepository(
         instanceId: String,
         history: MutableStateFlow<List<History>> = chatHistory,
         credentialsOverride: ServiceCredentials? = null,
+        /**
+         * Model id to run instead of the instance's stored selection. Used by "Auto" to walk
+         * the Model List; null keeps the stored selection.
+         */
+        modelIdOverride: String? = null,
         stream: StreamedAssistantRow? = null,
     ): AssistantTurn {
         if (service.isOnDevice) {
@@ -949,7 +1011,12 @@ class RemoteDataRepository(
             return AssistantTurn(askWithLocalEngine(messages, localPrompt, instanceId, history))
         }
 
-        val creds = credentialsOverride ?: instanceCredentials(instanceId, service)
+        val baseCreds = credentialsOverride ?: instanceCredentials(instanceId, service)
+        val creds = if (modelIdOverride.isNullOrBlank() || modelIdOverride == baseCreds.modelId) {
+            baseCreds
+        } else {
+            baseCreds.copy(modelId = modelIdOverride)
+        }
         val tools = if (supportsTools(creds.modelId)) getAvailableTools() else emptyList()
 
         if (tools.isEmpty()) {
@@ -1381,54 +1448,92 @@ class RemoteDataRepository(
         // Renders the answer into a single in-place row while the provider is still generating.
         // Only the visible turn gets one; silent asks and tool-only runs pass null.
         val stream = StreamedAssistantRow(chatHistory)
+        // Which service/model finally produced the answer, so the chat row can attribute it.
+        var answeredBy: AnsweredBy? = null
         val turn = try {
             var successfulTurn: AssistantTurn? = null
             for ((index, entry) in entries.withIndex()) {
                 val historyBeforeAttempt = chatHistory.value
-                try {
-                    successfulTurn = if (entry.service == Service.Free) {
-                        askWithKeylessFreeTierFallback(
-                            messages = messages,
-                            systemPrompt = systemPrompt,
-                            historyBeforeAttempt = historyBeforeAttempt,
-                            stream = stream,
-                        )
-                    } else {
-                        validateContextWindow(
-                            service = entry.service,
-                            instanceId = entry.instanceId,
-                            messages = messages,
-                            systemPrompt = systemPrompt,
-                        )
-                        askWithService(entry.service, messages, systemPrompt, entry.instanceId, stream = stream)
-                    }
-                    break
-                } catch (failure: Exception) {
-                    if (failure is kotlinx.coroutines.CancellationException) throw failure
-                    val nextEntry = entries.getOrNull(index + 1)
-                    // On-device failures fall through to the next chain entry exactly like any
-                    // other provider's failures: LOCAL_FIRST/hybrid routing must not become a
-                    // dead end. canContinueAfterFailure still vetoes a fallback when the failed
-                    // attempt already ran tools (don't re-run them on another provider).
-                    if (
-                        nextEntry == null ||
-                        !KeylessFreeTierFallback.canContinueAfterFailure(historyBeforeAttempt, chatHistory.value)
-                    ) {
-                        throw failure
-                    }
-                    // Another provider will answer from scratch: drop the partial text this one
-                    // already streamed so the transcript does not show two half-answers.
-                    stream.discard()
-                    _fallbackStatus.value = FallbackStatus(
-                        serviceName = if (entry.service == Service.Free) KeylessFreeTierFallback.DISPLAY_NAME else entry.service.displayName,
-                        errorReason = if (entry.service == Service.Free) {
-                            UiError.Resource(Res.string.error_service_unavailable)
+                // "Auto" expands one entry into every model in its Model List; a normal
+                // selection is a single-model list, so the request path is unchanged.
+                val attemptModels = instanceModelCandidates(entry.instanceId, entry.service)
+                var entryAnswered = false
+                for ((modelIndex, modelId) in attemptModels.withIndex()) {
+                    try {
+                        successfulTurn = if (entry.service == Service.Free) {
+                            askWithKeylessFreeTierFallback(
+                                messages = messages,
+                                systemPrompt = systemPrompt,
+                                historyBeforeAttempt = historyBeforeAttempt,
+                                stream = stream,
+                            )
                         } else {
-                            failure.toUiError()
-                        },
-                        nextServiceName = if (nextEntry.service == Service.Free) KeylessFreeTierFallback.DISPLAY_NAME else nextEntry.service.displayName,
-                    )
+                            validateContextWindow(
+                                service = entry.service,
+                                instanceId = entry.instanceId,
+                                modelId = modelId,
+                                messages = messages,
+                                systemPrompt = systemPrompt,
+                            )
+                            askWithService(
+                                service = entry.service,
+                                messages = messages,
+                                systemPrompt = systemPrompt,
+                                instanceId = entry.instanceId,
+                                modelIdOverride = modelId,
+                                stream = stream,
+                            )
+                        }
+                        val isFallback = index > 0 || modelIndex > 0
+                        answeredBy = successfulTurn.answeredByModel?.let { answeredModel ->
+                            AnsweredBy(
+                                serviceName = successfulTurn.answeredByService ?: entry.service.displayName,
+                                modelName = answeredModel,
+                                isFallback = successfulTurn.isFallbackAnswer || isFallback,
+                            )
+                        } ?: answeredByFor(entry, modelId, isFallback)
+                        entryAnswered = true
+                        break
+                    } catch (failure: Exception) {
+                        if (failure is kotlinx.coroutines.CancellationException) throw failure
+                        val nextEntry = entries.getOrNull(index + 1)
+                        val nextModelId = attemptModels.getOrNull(modelIndex + 1)
+                        // On-device failures fall through to the next chain entry exactly like any
+                        // other provider's failures: LOCAL_FIRST/hybrid routing must not become a
+                        // dead end. canContinueAfterFailure still vetoes a fallback when the failed
+                        // attempt already ran tools (don't re-run them on another provider).
+                        if (
+                            (nextEntry == null && nextModelId == null) ||
+                            !KeylessFreeTierFallback.canContinueAfterFailure(historyBeforeAttempt, chatHistory.value)
+                        ) {
+                            throw failure
+                        }
+                        // Another provider/model will answer from scratch: drop the partial text this
+                        // one already streamed so the transcript does not show two half-answers.
+                        stream.discard()
+                        // The next attempt is the next model of this provider when "Auto" is
+                        // walking the Model List, otherwise the next provider in the chain.
+                        val nextServiceName = when {
+                            nextModelId != null ->
+                                if (entry.service == Service.Free) KeylessFreeTierFallback.DISPLAY_NAME else entry.service.displayName
+
+                            nextEntry != null ->
+                                if (nextEntry.service == Service.Free) KeylessFreeTierFallback.DISPLAY_NAME else nextEntry.service.displayName
+
+                            else -> null
+                        }
+                        _fallbackStatus.value = FallbackStatus(
+                            serviceName = if (entry.service == Service.Free) KeylessFreeTierFallback.DISPLAY_NAME else entry.service.displayName,
+                            errorReason = if (entry.service == Service.Free) {
+                                UiError.Resource(Res.string.error_service_unavailable)
+                            } else {
+                                failure.toUiError()
+                            },
+                            nextServiceName = nextServiceName,
+                        )
+                    }
                 }
+                if (entryAnswered) break
             }
             successfulTurn ?: throw AllServicesFailedException()
         } catch (failure: Throwable) {
@@ -1450,10 +1555,16 @@ class RemoteDataRepository(
         chatHistory.update {
             it.toMutableList().apply {
                 val streamedIndex = streamedEntryId?.let { id -> indexOfFirst { entry -> entry.id == id } } ?: -1
+                // The answer is attributed to the model that produced it, so a fallback (or an
+                // "Auto" walk) names the model the user actually got instead of the selection.
+                val answeredModelName = answeredBy?.modelName?.takeIf { it.isNotBlank() }
+                val answeredFallbackName = answeredBy?.serviceName?.takeIf { answeredBy.isFallback && it.isNotBlank() }
                 if (streamedIndex >= 0) {
                     this[streamedIndex] = this[streamedIndex].copy(
                         content = turn.content,
                         reasoningContent = turn.reasoningContent,
+                        modelName = answeredModelName,
+                        fallbackServiceName = answeredFallbackName,
                     )
                 } else {
                     add(
@@ -1462,6 +1573,8 @@ class RemoteDataRepository(
                             content = turn.content,
                             reasoningContent = turn.reasoningContent,
                             sentAt = Clock.System.now().toEpochMilliseconds(),
+                            modelName = answeredModelName,
+                            fallbackServiceName = answeredFallbackName,
                         ),
                     )
                 }
@@ -1480,36 +1593,47 @@ class RemoteDataRepository(
         systemPrompt: String?,
         historyBeforeAttempt: List<History>,
         stream: StreamedAssistantRow? = null,
-    ): AssistantTurn = KeylessFreeTierFallback.execute(
-        canContinueAfterFailure = {
-            KeylessFreeTierFallback.canContinueAfterFailure(historyBeforeAttempt, chatHistory.value)
-        },
-        onFailure = { _, failure, nextTarget ->
-            if (nextTarget != null) {
-                // The next free target answers from scratch — drop this one's partial text.
-                stream?.discard()
-                _fallbackStatus.value = FallbackStatus(
-                    serviceName = KeylessFreeTierFallback.DISPLAY_NAME,
-                    errorReason = failure.toUiError(),
-                    nextServiceName = KeylessFreeTierFallback.DISPLAY_NAME,
-                )
-            }
-        },
-    ) { target ->
-        validateContextWindow(
-            service = target.service,
-            instanceId = "keyless-auto",
-            modelId = target.modelId,
-            messages = messages,
-            systemPrompt = systemPrompt,
-        )
-        askWithService(
-            service = target.service,
-            messages = messages,
-            systemPrompt = systemPrompt,
-            instanceId = "keyless-auto",
-            credentialsOverride = KeylessFreeTierFallback.credentialsFor(target),
-            stream = stream,
+    ): AssistantTurn {
+        // Which keyless target answered: the walk itself decides, so it is captured here
+        // instead of guessed by the caller.
+        var answeredTarget: KeylessFallbackTarget? = null
+        val turn = KeylessFreeTierFallback.execute(
+            canContinueAfterFailure = {
+                KeylessFreeTierFallback.canContinueAfterFailure(historyBeforeAttempt, chatHistory.value)
+            },
+            onFailure = { _, failure, nextTarget ->
+                if (nextTarget != null) {
+                    // The next free target answers from scratch — drop this one's partial text.
+                    stream?.discard()
+                    _fallbackStatus.value = FallbackStatus(
+                        serviceName = KeylessFreeTierFallback.DISPLAY_NAME,
+                        errorReason = failure.toUiError(),
+                        nextServiceName = KeylessFreeTierFallback.DISPLAY_NAME,
+                    )
+                }
+            },
+        ) { target ->
+            answeredTarget = target
+            validateContextWindow(
+                service = target.service,
+                instanceId = "keyless-auto",
+                modelId = target.modelId,
+                messages = messages,
+                systemPrompt = systemPrompt,
+            )
+            askWithService(
+                service = target.service,
+                messages = messages,
+                systemPrompt = systemPrompt,
+                instanceId = "keyless-auto",
+                credentialsOverride = KeylessFreeTierFallback.credentialsFor(target),
+                stream = stream,
+            )
+        }
+        return turn.copy(
+            answeredByService = KeylessFreeTierFallback.DISPLAY_NAME,
+            answeredByModel = answeredTarget?.modelId ?: KeylessFreeTierFallback.DISPLAY_NAME,
+            isFallbackAnswer = answeredTarget != null && answeredTarget != KeylessFreeTierFallback.targets.firstOrNull(),
         )
     }
 

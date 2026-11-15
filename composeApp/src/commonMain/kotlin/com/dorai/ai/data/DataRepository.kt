@@ -61,6 +61,10 @@ interface DataRepository {
     fun updateInstanceSelectedModel(instanceId: String, service: Service, modelId: String)
     fun getInstanceUseCustomModel(instanceId: String): Boolean
     fun updateInstanceUseCustomModel(instanceId: String, useCustom: Boolean)
+
+    /** True when "Auto" is selected for this instance: try every model in the Model List. */
+    fun getInstanceAutoModelEnabled(instanceId: String): Boolean
+    fun updateInstanceAutoModelEnabled(instanceId: String, enabled: Boolean)
     fun getInstanceCustomModelId(instanceId: String): String
     fun updateInstanceCustomModelId(instanceId: String, modelId: String)
     fun clearInstanceModels(instanceId: String, service: Service)
