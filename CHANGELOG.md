@@ -1,3 +1,14 @@
+## DORAI AI - Free Platform Integrations: Cloudflare, Supabase, Firebase, and GitHub (Unreleased)
+
+### Added
+- **Cloudflare Text Embeddings & AI Inference**: Integrated Cloudflare Workers AI free embedding model `@cf/baai/bge-small-en-v1.5` with dense 384-dimensional vectors and optional Cloudflare AI Gateway routing for edge caching and rate limiting.
+- **Supabase pgvector Long-Term Semantic Memory**: Added lightweight Ktor-based PostgREST and pgvector store with cosine similarity vector search (`match_memories` RPC), bounded 1.5s timeout, and write-through asynchronous learning.
+- **Supabase Zero-Knowledge E2EE Cloud Vault**: Implemented cross-device client-side authenticated AES-256-GCM encryption with PBKDF2/SHA-256 key derivation and SHA-256 integrity checksums for settings and chat archives.
+- **Firebase Remote Push Alerts & Dynamic Config**: Added FCM v1 push notifications for background agent completion alerts with localized Bengali/English copy and REST-based Remote Config fetching without native Google Play Services dependencies.
+- **GitHub Desktop Git CLI Runner**: Activated `DesktopWorkspaceController` connecting the host Git CLI to the desktop workspace UI for seamless clone, sync, status, and commit workflows.
+
+---
+
 ## DORAI AI - iOS Config.xcconfig kept in sync with the release catalog (Unreleased)
 
 ### Fixed
