@@ -1,4 +1,4 @@
-﻿@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.dorai.ai.ui.settings
 
@@ -146,6 +146,11 @@ internal fun AgentContent(uiState: SettingsUiState, actions: SettingsActions) {
                     onRefresh = actions.onRefreshHeartbeat,
                 )
             }
+            FirebaseAlertsCard(
+                enabled = uiState.isFirebaseAlertsEnabled,
+                onToggleEnabled = actions.onToggleFirebaseAlerts,
+                deviceToken = uiState.fcmDeviceToken,
+            )
             if (uiState.showEmailToggle) {
                 SettingsCard {
                     EmailSection(

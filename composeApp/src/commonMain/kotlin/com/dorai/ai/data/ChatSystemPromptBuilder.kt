@@ -8,6 +8,7 @@
 
 package com.dorai.ai.data
 
+import com.dorai.ai.network.dtos.supabase.SupabaseMatchMemoryResultDto
 import com.dorai.ai.skills.SkillManifest
 import kotlin.time.Instant
 
@@ -210,6 +211,7 @@ internal fun buildChatSystemPrompt(
     uiMode: ChatPromptUiMode,
     activeSkill: SkillManifest? = null,
     agentMode: String = "build",
+    retrievedMemories: List<SupabaseMatchMemoryResultDto> = emptyList(),
 ): String = buildString {
     agentModeSection(agentMode)?.let { section ->
         append(section)
@@ -264,6 +266,10 @@ internal fun buildChatSystemPrompt(
     remaining = appendMemoryCategorySection("User Preferences", preferenceMemories, withHitCount = false, remaining)
     remaining = appendMemoryCategorySection("Learnings", learningMemories, withHitCount = true, remaining)
     appendMemoryCategorySection("Known Issues & Resolutions", errorMemories, withHitCount = false, remaining)
+
+    if (retrievedMemories.isNotEmpty()) {
+        appendRetrievedMemoriesSection(retrievedMemories)
+    }
 
     // Automation guidance + Email Accounts + Scheduled Tasks stay remote-only — the
     // matching tools aren't in the local allowlist. The Automation guidance references
@@ -365,6 +371,17 @@ private fun StringBuilder.appendMemoryCategorySection(
     }
     append(section)
     return (remainingBudget - section.length).coerceAtLeast(0)
+}
+
+private fun StringBuilder.appendRetrievedMemoriesSection(memories: List<SupabaseMatchMemoryResultDto>) {
+    if (memories.isEmpty()) return
+    if (isNotEmpty()) append("\n\n")
+    append("## Retrieved Relevant Context (Semantic Search)\n")
+    append("The following memories are semantically relevant to the user's current query:\n")
+    for (m in memories) {
+        val scorePct = (m.similarity * 100).toInt().coerceIn(0, 100)
+        append("- **${m.key}** [Relevance: $scorePct%]: ${m.content}\n")
+    }
 }
 
 private fun StringBuilder.appendEmailAccountsSection(accounts: List<EmailAccountSummary>) {
