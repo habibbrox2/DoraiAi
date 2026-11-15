@@ -72,6 +72,8 @@ import dorai.composeapp.generated.resources.chat_command_failed_with_exit
 import dorai.composeapp.generated.resources.chat_exit_code
 import dorai.composeapp.generated.resources.chat_expand_output
 import dorai.composeapp.generated.resources.chat_lines_label
+import dorai.composeapp.generated.resources.chat_tool_done
+import dorai.composeapp.generated.resources.chat_tool_input_label
 import dorai.composeapp.generated.resources.state_collapsed
 import dorai.composeapp.generated.resources.state_expanded
 import dorai.composeapp.generated.resources.tool_action_ask_fix
@@ -86,6 +88,7 @@ import dorai.composeapp.generated.resources.tool_status_failed
 import dorai.composeapp.generated.resources.tool_status_running
 import dorai.composeapp.generated.resources.tool_status_waiting_approval
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.jetbrains.compose.resources.stringResource
 
 enum class ToolExecutionState {
@@ -146,6 +149,101 @@ data class SubAgentSpawnAgent(
     val task: String? = null,
     val status: String? = null,
 )
+
+/**
+ * Wire payload for key-value tool arguments (web.search query, code.run snippet).
+ * Any of the known argument names is accepted as the human-facing input line.
+ */
+@Serializable
+data class KeyValueArgsWire(
+    val query: String? = null,
+    val code: String? = null,
+    val command: String? = null,
+    val source: String? = null,
+    val input: String? = null,
+) {
+    /** First non-blank argument in a stable priority order. */
+    fun firstInput(): String? = listOfNotNull(query, code, command, source, input)
+        .firstOrNull { it.isNotBlank() }
+}
+
+/** Wire payload for `web_search` results: a small list of title/url pairs plus an optional message. */
+@Serializable
+data class WebSearchResultWire(
+    val title: String? = null,
+    val url: String? = null,
+)
+
+@Serializable
+data class WebSearchOutputWire(
+    val results: List<WebSearchResultWire> = emptyList(),
+    val message: String? = null,
+)
+
+private val keyValueJson = Json {
+    ignoreUnknownKeys = true
+    isLenient = true
+}
+
+/**
+ * Tools whose argument is a query/code snippet and whose result reads as text rather than a
+ * command transcript (e.g. `web_search`, `code.run`). They render Input/Output rows instead of
+ * the command/output blocks.
+ */
+private fun isKeyValueTool(toolName: String): Boolean {
+    val name = toolName.lowercase()
+    return name.contains("web_search") || name.contains("web.search") ||
+        name.contains("code.run") || name.contains("code_run")
+}
+
+/**
+ * Human-facing input line for a key-value tool row: the tool's primary argument, or the raw
+ * arguments string when the payload shape is unknown.
+ */
+private fun parseKeyValueInput(toolName: String, args: String): String {
+    if (args.isBlank()) return ""
+    val parsed = when {
+        isKeyValueTool(toolName) ->
+            runCatching { keyValueJson.decodeFromString<KeyValueArgsWire>(args) }.getOrNull()
+
+        else -> null
+    }
+    return parsed?.firstInput()?.takeIf { it.isNotBlank() } ?: args
+}
+
+/** Parses a `web_search` JSON result payload; null when the payload is not web-search shaped. */
+private fun parseWebSearchOutput(output: String): WebSearchOutputWire? = runCatching { keyValueJson.decodeFromString<WebSearchOutputWire>(output) }.getOrNull()
+
+/** Input/Output label-and-value row used by key-value tool rows (prototype `.kv`). */
+@Composable
+private fun ToolKeyValueRow(label: String, value: String, modifier: Modifier = Modifier) {
+    val colors = LocalDoraiColors.current
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            color = colors.muted.copy(alpha = 0.7f),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Spacer(modifier = Modifier.height(3.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .background(colors.background)
+                .border(1.dp, colors.line.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+        ) {
+            Text(
+                text = value,
+                color = colors.muted,
+                fontFamily = FontFamily.Monospace,
+                fontSize = 12.5.sp,
+                lineHeight = 18.sp,
+            )
+        }
+    }
+}
 
 /**
  * Maps tool name to a semantic icon.
@@ -314,8 +412,14 @@ fun DoraiToolCard(
                 }
             }
 
-            // Arguments / Command Preview
-            val previewText = model.argsSummary.ifBlank { model.commandText.orEmpty() }
+            // Arguments / Command Preview (key-value tools show their primary argument)
+            val previewText = remember(model.argsSummary, model.commandText, model.toolName) {
+                if (isKeyValueTool(model.toolName)) {
+                    parseKeyValueInput(model.toolName, model.argsSummary)
+                } else {
+                    model.argsSummary.ifBlank { model.commandText.orEmpty() }
+                }
+            }
             if (previewText.isNotBlank() && !isAgentTool) {
                 Spacer(modifier = Modifier.width(DoraiSpacing.SM))
                 Text(
@@ -412,6 +516,38 @@ fun DoraiToolCard(
                     .fillMaxWidth()
                     .padding(top = DoraiSpacing.SM),
             ) {
+                // Input/Output key-value rows (web.search, code.run — prototype `.kv` tool rows).
+                if (isKeyValueTool(model.toolName)) {
+                    val inputText = remember(model.argsSummary, model.toolName) {
+                        parseKeyValueInput(model.toolName, model.argsSummary)
+                    }
+                    val outputDisplay = remember(model.outputText) {
+                        val titles = model.outputText
+                            ?.let { parseWebSearchOutput(it) }
+                            ?.results
+                            ?.mapNotNull { it.title?.takeIf { title -> title.isNotBlank() } }
+                            .orEmpty()
+                        if (titles.isNotEmpty()) {
+                            titles.joinToString("\n") { "• $it" }
+                        } else {
+                            model.outputText.orEmpty()
+                        }
+                    }
+                    if (inputText.isNotBlank()) {
+                        ToolKeyValueRow(
+                            label = stringResource(Res.string.chat_tool_input_label),
+                            value = inputText,
+                        )
+                    }
+                    if (outputDisplay.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+                        ToolKeyValueRow(
+                            label = stringResource(Res.string.tool_card_output_header),
+                            value = outputDisplay,
+                        )
+                    }
+                }
+
                 // Sub-agent timeline (agent.spawn and friends): one row per spawned agent.
                 if (isAgentTool && model.subAgents.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(DoraiSpacing.SM))
@@ -662,8 +798,8 @@ fun DoraiToolCard(
                     }
                 }
 
-                // 3. Collapsible Output (stdout)
-                if (!model.outputText.isNullOrEmpty()) {
+                // 3. Collapsible Output (stdout) — key-value tools render their own Input/Output rows
+                if (!model.outputText.isNullOrEmpty() && !isKeyValueTool(model.toolName)) {
                     Spacer(modifier = Modifier.height(DoraiSpacing.SM))
                     val outputLines = remember(model.outputText) { model.outputText.lines() }
                     var isOutputExpanded by remember(model.toolCallId) {
