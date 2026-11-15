@@ -1,10 +1,10 @@
 # GitHub Integration
 
-**Last verified:** 2026-11-14 (settings empty-state copy and retry visibility)
+**Last verified:** 2026-11-16 (Desktop Git CLI runner wired via DesktopWorkspaceController)
 
 DORAI AI can connect to GitHub through a GitHub App using the **Device Flow** and browse the repositories an installation can see — read-only. The integration is local-first: authentication, token custody, repository browsing, cloning and git operations all happen on the device.
 
-> **Status: read-only P0 integration.** Clone/sync/status are functional on Android only (guest/proot git). Write operations (`git add` / `commit` / `push`, pull-request creation) are implemented behind a default-off maintainer opt-in (`writeOperationsEnabled`), are not reachable from any UI yet. Note: the original "every write requires explicit user approval" design was retired 2026-11-13 — approval is now MCP-only, so the gate is the maintainer opt-in plus the hard tool constraints; the `confirmToolExecution` flow no longer fires for these tools.
+> **Status: read-only P0 integration.** Clone/sync/status are functional on both Android (guest/proot git) and Desktop (host Git CLI via `DesktopWorkspaceController`). Write operations (`git add` / `commit` / `push`, pull-request creation) are implemented behind a default-off maintainer opt-in (`writeOperationsEnabled`), are not reachable from any UI yet. Note: the original "every write requires explicit user approval" design was retired 2026-11-13 — approval is now MCP-only, so the gate is the maintainer opt-in plus the hard tool constraints; the `confirmToolExecution` flow no longer fires for these tools.
 
 ## GitHub App pre-flight (required, manual)
 
@@ -61,7 +61,7 @@ The screen has two states:
 | Platform | Token vault | Git CLI | Clone/sync | Notes |
 |---|---|---|---|---|
 | Android | EncryptedSharedPreferences (`dorai_github_vault_v1`, dedicated file) | Guest/proot Debian one-shot executors via `WorkspaceEnvironmentManager` | **Working** | Clone/status/log/fetch/pull executed inside the guest for `/root/projects/<project>` |
-| Desktop (Windows/macOS/Linux) | Dedicated AES-256-GCM file under `~/.dorai` (`github-vault.aes` + owner-only `github-vault.key`) | `DesktopGitCommandRunner` + `GitExecutableLocator` + credential broker | **Not wired yet** | The GitHub section uses `WorkspaceController`, which is a no-op on desktop, so clone/sync fail on desktop today. Wiring the desktop runner into the section is pending. |
+| Desktop (Windows/macOS/Linux) | Dedicated AES-256-GCM file under `~/.dorai` (`github-vault.aes` + owner-only `github-vault.key`) | `DesktopGitCommandRunner` + `GitExecutableLocator` + credential broker | **Working** | Clone/status/log/fetch/pull executed on host Git CLI via `DesktopWorkspaceController` |
 | iOS | Keychain (`com.dorai.ai.github.vault`, `KeychainSettings`) | none | Not supported | Section shows the "not supported" notice |
 | Web (WasmJs) | no-op vault | none | Not supported | Section shows the "not supported" notice |
 
@@ -77,8 +77,7 @@ The screen has two states:
 ## Known limitations
 
 - The device-flow screen waits indefinitely while the token is pending — there is no countdown/UX for expiry beyond the terminal `expired_token` error state.
-- Desktop clone/sync is not functional (no-op desktop `WorkspaceController`; the desktop CLI layer exists but is unwired).
-- iOS has no `GitCommandRunner`/`GitCredentialBroker` actuals yet (latent compile break for iOS; iOS not in CI).
+- iOS and Web platforms have no Git CLI runner implementations (GitHub integration disabled on these targets).
 - `Pull requests: Read-only` keeps PR creation disabled until `writeOperationsEnabled` and the App is re-registered with `Pull requests: Write`.
 - The first installation is used for repository listing in v1; there is no installation selection UI yet (multi-installation accounts see only the first).
 - Foreground refresh only; no background polling in v1 — the device-flow wait is cancelled when the tab leaves composition.
@@ -105,6 +104,7 @@ The screen has two states:
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitUrlValidator.kt` | `github.com` URL validation (https-only, shell-safe segment charset), project-name rules, safe relative paths |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitCredentialBroker.kt` | Ephemeral owner-only credential helper; token never in argv/logs |
 | `composeApp/src/desktopMain/kotlin/com/dorai/ai/github/GitCommandRunner.desktop.kt` | Desktop git runner (ProcessBuilder, policy-checked, broker for network commands) |
+| `composeApp/src/desktopMain/kotlin/com/dorai/ai/workspace/DesktopWorkspaceController.kt` | Desktop `WorkspaceController` implementation bridging host Git CLI runner to UI |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/workspace/WorkspaceController.kt` | Interface: clone/status/log/fetch/pull-ff-only + write methods; `NoOpWorkspaceController` default |
 | `composeApp/src/androidMain/kotlin/com/dorai/ai/workspace/runtime/WorkspaceEnvironmentManager.kt` | Guest one-shot proot git executors, path validation |
 | `composeApp/src/commonTest/kotlin/com/dorai/ai/github/GitHubIntegrationViewModelTest.kt` | Connect/clone/sync/write-gate tests with fakes |
