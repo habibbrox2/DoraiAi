@@ -1,3 +1,11 @@
+## DORAI AI - iOS Config.xcconfig kept in sync with the release catalog (Unreleased)
+
+### Fixed
+- **`iosApp/Configuration/Config.xcconfig` no longer shows up as a perpetual modification in every worktree**: the committed `APP_VERSION` was stuck at a stale value (`2.1.32`) while the Gradle build sync rewrote the file from `gradle/libs.versions.toml` on every build (`composeApp/build.gradle.kts`). The committed value now matches the catalog (`2.1.40`).
+- **The release workflow's version-metadata auto-bump now syncs `Config.xcconfig` in the same `chore(release)` PR**: `APP_VERSION` is rewritten in the bump branch alongside `appVersion`/`android-versionCode` (and when the catalog is already at the target but the xcconfig lags, only the xcconfig is synced), with a post-merge verification on `origin/main` before any build runs — so future releases never re-introduce the spurious diff.
+
+---
+
 ## DORAI AI - Release workflow: drop Play Store lane, ship both Android APKs (Unreleased)
 
 ### Fixed

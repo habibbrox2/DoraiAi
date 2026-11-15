@@ -21,7 +21,7 @@ Before running a production release, ensure:
    - `KEY_ALIAS`
    - `KEYSTORE_PASSWORD`
 3. The workflow builds and attaches **both** Android APKs to the GitHub Release: the FOSS APK (`foss` flavor) and the Standard APK (`playStore` flavor, distributed via GitHub Release only — it is **not** uploaded to Google Play). Play Store publishing is intentionally not part of the release workflow; neither `DORAI_PLAY_STORE_ENABLED` nor any Play Store secrets are consulted.
-4. `gradle/libs.versions.toml` contains a valid `appVersion` and `android-versionCode` that match the latest strict semantic-version Git tag (`vMAJOR.MINOR.PATCH`). If they are behind, the workflow auto-bumps them via a `chore(release)` PR + auto-merge and waits for the merge before any build runs.
+4. `gradle/libs.versions.toml` contains a valid `appVersion` and `android-versionCode` that match the latest strict semantic-version Git tag (`vMAJOR.MINOR.PATCH`). If they are behind, the workflow auto-bumps them via a `chore(release)` PR + auto-merge and waits for the merge before any build runs. The same PR keeps `iosApp/Configuration/Config.xcconfig`'s `APP_VERSION` in sync (Gradle rewrites that file from the catalog on every build), and the merge is verified before builds consume it.
 5. The target version/tag does not already exist.
 
 ## How to run a production release
