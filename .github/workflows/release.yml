@@ -160,15 +160,35 @@ jobs:
             exit 1
           fi
 
-          if [[ "$APP_VERSION" == "$TARGET_VERSION" ]]; then
+          # The iOS Xcode config carries the same APP_VERSION (Gradle syncs it from the
+          # catalog on every build). It must move in the same bump PR, otherwise every
+          # release leaves the worktree with a spurious Config.xcconfig modification.
+          XC_FILE="iosApp/Configuration/Config.xcconfig"
+          XC_VERSION=""
+          if [[ -f "$XC_FILE" ]]; then
+            XC_VERSION=$(sed -nE 's/^APP_VERSION=([0-9]+\.[0-9]+\.[0-9]+)/\1/p' "$XC_FILE" | head -n1)
+          fi
+          NEEDS_XC_SYNC=0
+          if [[ -f "$XC_FILE" && "$XC_VERSION" != "$TARGET_VERSION" ]]; then
+            NEEDS_XC_SYNC=1
+          fi
+
+          if [[ "$APP_VERSION" == "$TARGET_VERSION" && $NEEDS_XC_SYNC -eq 0 ]]; then
             # Version metadata was already PR-merged to the release target; use it as-is.
             FINAL_CODE="$CODE"
             echo "Version metadata already at v${TARGET_VERSION} (code ${FINAL_CODE}); no bump required."
           else
             # Automatic bump: appVersion -> TARGET_VERSION, android-versionCode -> +1.
-            FINAL_CODE=$((10#$CODE + 1))
-            sed -i "s/^appVersion = .*/appVersion = \"${TARGET_VERSION}\"/" gradle/libs.versions.toml
-            sed -i "s/^android-versionCode = .*/android-versionCode = \"${FINAL_CODE}\"/" gradle/libs.versions.toml
+            # (If the catalog is already at the target, only the xcconfig sync is needed.)
+            FINAL_CODE="$CODE"
+            if [[ "$APP_VERSION" != "$TARGET_VERSION" ]]; then
+              FINAL_CODE=$((10#$CODE + 1))
+              sed -i "s/^appVersion = .*/appVersion = \"${TARGET_VERSION}\"/" gradle/libs.versions.toml
+              sed -i "s/^android-versionCode = .*/android-versionCode = \"${FINAL_CODE}\"/" gradle/libs.versions.toml
+            fi
+            if [[ $NEEDS_XC_SYNC -eq 1 ]]; then
+              sed -i "s/^APP_VERSION=.*/APP_VERSION=${TARGET_VERSION}/" "$XC_FILE"
+            fi
 
             # Main is protected: publish the bump via PR + auto-merge, then wait for the
             # merge so downstream build jobs (fresh checkout of main) read the bumped values.
@@ -177,14 +197,26 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git fetch origin main
             git checkout -B "$BRANCH" origin/main
+            # Re-apply the bump on top of origin/main (it may have moved) rather than
+            # pushing the pre-fetch state; sed-based edits are idempotent here.
+            if [[ "$APP_VERSION" != "$TARGET_VERSION" ]]; then
+              sed -i "s/^appVersion = .*/appVersion = \"${TARGET_VERSION}\"/" gradle/libs.versions.toml
+              sed -i "s/^android-versionCode = .*/android-versionCode = \"${FINAL_CODE}\"/" gradle/libs.versions.toml
+            fi
+            if [[ $NEEDS_XC_SYNC -eq 1 ]]; then
+              sed -i "s/^APP_VERSION=.*/APP_VERSION=${TARGET_VERSION}/" "$XC_FILE"
+            fi
             git add gradle/libs.versions.toml
-            git commit -m "[skip ci] chore(release): bump version metadata to v${TARGET_VERSION} (code ${FINAL_CODE})"
+            if [[ -f "$XC_FILE" ]]; then
+              git add "$XC_FILE"
+            fi
+            git commit -m "[skip ci] chore(release): sync release metadata to v${TARGET_VERSION} (code ${FINAL_CODE})"
             git push origin "HEAD:refs/heads/${BRANCH}" --force
             PR_URL=$(gh pr create \
               --repo "${REPO_OWNER}/${REPO_NAME}" \
               --base main --head "$BRANCH" \
-              --title "chore(release): bump version metadata to v${TARGET_VERSION}" \
-              --body "Auto-bump appVersion and android-versionCode for DORAI v${TARGET_VERSION}. Created by the release workflow.")
+              --title "chore(release): sync release metadata to v${TARGET_VERSION}" \
+              --body "Auto-bump appVersion/android-versionCode and sync iOS Config.xcconfig (APP_VERSION) for DORAI v${TARGET_VERSION}. Created by the release workflow.")
             for i in $(seq 1 12); do
               if gh pr merge "$BRANCH" --repo "${REPO_OWNER}/${REPO_NAME}" --merge 2>/dev/null; then
                 echo "Version-metadata PR merged."
@@ -205,6 +237,13 @@ jobs:
           if [[ "$MERGED_VERSION" != "$TARGET_VERSION" || "$MERGED_CODE" != "$FINAL_CODE" ]]; then
             echo "::error::Merged metadata (v${MERGED_VERSION}/code ${MERGED_CODE}) does not match target (v${TARGET_VERSION}/code ${FINAL_CODE})."
             exit 1
+          fi
+          if git cat-file -e "origin/main:$XC_FILE" 2>/dev/null; then
+            MERGED_XC=$(git show "origin/main:$XC_FILE" | sed -nE 's/^APP_VERSION=([0-9]+\.[0-9]+\.[0-9]+)/\1/p')
+            if [[ "$MERGED_XC" != "$TARGET_VERSION" ]]; then
+              echo "::error::Merged iOS Config.xcconfig (APP_VERSION=${MERGED_XC:-missing}) does not match target (v${TARGET_VERSION})."
+              exit 1
+            fi
           fi
 
           echo "version=${TARGET_VERSION}" >> "$GITHUB_OUTPUT"
