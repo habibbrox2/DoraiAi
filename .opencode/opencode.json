@@ -5,8 +5,7 @@
     { "action": "cloudflare_*", "resource": "*", "effect": "deny" },
     { "action": "supabase_*", "resource": "*", "effect": "deny" },
     { "action": "context7_*", "resource": "*", "effect": "deny" },
-    { "action": "sentry_*", "resource": "*", "effect": "deny" },
-    { "action": "firebase_*", "resource": "*", "effect": "deny" }
+    { "action": "sentry_*", "resource": "*", "effect": "deny" }
   ],
   "mcp": {
     "servers": {
@@ -37,7 +36,10 @@
           "-y",
           "firebase-tools@latest",
           "mcp"
-        ]
+        ],
+        "environment": {
+          "npm_config_engine_strict": "false"
+        }
       }
     }
   }
