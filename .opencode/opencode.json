@@ -5,7 +5,8 @@
     { "action": "cloudflare_*", "resource": "*", "effect": "deny" },
     { "action": "supabase_*", "resource": "*", "effect": "deny" },
     { "action": "context7_*", "resource": "*", "effect": "deny" },
-    { "action": "sentry_*", "resource": "*", "effect": "deny" }
+    { "action": "sentry_*", "resource": "*", "effect": "deny" },
+    { "action": "firebase_*", "resource": "*", "effect": "deny" }
   ],
   "mcp": {
     "servers": {
@@ -28,6 +29,15 @@
       "sentry": {
         "type": "remote",
         "url": "https://mcp.sentry.dev/mcp"
+      },
+      "firebase": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "firebase-tools@latest",
+          "mcp"
+        ]
       }
     }
   }
