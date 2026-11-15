@@ -1,6 +1,6 @@
 # Dorai AI: চার ব্যাকএন্ড ইন্টিগ্রেশন বাস্তবায়ন চেকলিস্ট
 
-**শাখা (Branch):** `dorai_ai_free_integrations` (মূল `main` শাখা সম্পূর্ণ অক্ষত)  
+**শাখা (Branch):** `dorai_ai_free_integrations` (মূল `main` শাখা সম্পূর্ণ অক্ষত)
 **নীতিমালা:** Single Responsibility per Platform, Zero Overhead, KMP Common-First Architecture, Local-First Privacy.
 
 ---
