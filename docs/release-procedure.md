@@ -20,7 +20,7 @@ Before running a production release, ensure:
    - `KEYSTORE_B64`
    - `KEY_ALIAS`
    - `KEYSTORE_PASSWORD`
-3. For the **optional** Play Store lane (AAB → production track), additionally configure the repository **variable** `DORAI_PLAY_STORE_ENABLED=true` (the job is skipped otherwise) and repository **secrets** `PLAY_STORE_KEYSTORE_B64`, `PLAY_STORE_KEYSTORE_PASSWORD`, `PLAY_STORE_KEY_ALIAS`, `PLAY_STORE_KEY_JSON` (base64-encoded service-account JSON). The Play Store job (`play-store.yml`) re-validates the requested `ref` as an existing `vX.Y.Z` tag that is reachable from `origin/main` before building, requires `DORAI_PLAY_STORE_ENABLED=true`, and deletes the decoded credentials after the job.
+3. The workflow builds and attaches **both** Android APKs to the GitHub Release: the FOSS APK (`foss` flavor) and the Standard APK (`playStore` flavor, distributed via GitHub Release only — it is **not** uploaded to Google Play). Play Store publishing is intentionally not part of the release workflow; neither `DORAI_PLAY_STORE_ENABLED` nor any Play Store secrets are consulted.
 4. `gradle/libs.versions.toml` contains a valid `appVersion` and `android-versionCode` that match the latest strict semantic-version Git tag (`vMAJOR.MINOR.PATCH`). If they are behind, the workflow auto-bumps them via a `chore(release)` PR + auto-merge and waits for the merge before any build runs.
 5. The target version/tag does not already exist.
 
@@ -51,7 +51,7 @@ Click **Run workflow**. The pipeline executes five phases automatically:
 | Phase | Job | What happens |
 |-------|-----|-------------|
 | A — Preflight & Auto-Bump | `preflight` | Validates the `workflow_dispatch` event, the `main` branch, `origin/main` HEAD, the latest tag, and signing secrets; if the catalog version is behind, auto-bumps `appVersion`/`android-versionCode` via a `chore(release)` PR + auto-merge and **waits for the merge** so downstream builds read the bumped values. The decoded keystore is deleted immediately after validation. |
-| B — Build All | `apk`, `android-standard`, `windows`, `macos`, `linux-deb`, `linux-rpm`, `linux-tarball`, `flatpak`, `appimage`, `play-store` | Builds all release targets: signed Android FOSS APK, Windows MSI + ZIP, macOS DMG, Linux DEB + RPM + AppImage + Flatpak + tarball. Optional Play Store AAB if `DORAI_PLAY_STORE_ENABLED=true`. The signing keystore is removed (`if: always()`) when each Android job finishes. |
+| B — Build All | `apk`, `android-standard`, `windows`, `macos`, `linux-deb`, `linux-rpm`, `linux-tarball`, `flatpak`, `appimage` | Builds all release targets: signed Android FOSS APK, signed Android Standard APK (`playStore` flavor, attached to the GitHub Release only — no Play Store upload), Windows MSI + ZIP, macOS DMG, Linux DEB + RPM + AppImage + Flatpak + tarball. The signing keystore is removed (`if: always()`) when each Android job finishes. |
 | C — Signing & Metadata | (inside `apk`) | Verifies the APK signature via `apksigner`, extracts certificate SHA-256 and APK SHA-256, generates `update.json` with the full schema. |
 | D — Tag & Publish Release | `release` | Runs only after the mandatory builds pass: creates and pushes the immutable `vX.Y.Z` tag on `origin/main` (never before), creates exactly one GitHub Release with verified artifacts, generates `SHA256SUMS`, and publishes/verifies the canonical root-level `update.json` on `main`. |
 
@@ -64,6 +64,7 @@ For each successful release, the following assets are attached to the GitHub Rel
 | Asset | Pattern |
 |-------|---------|
 | Android FOSS APK | `DORAI-AI-vX.Y.Z-Android.apk` |
+| Android Standard APK | `DORAI-AI-vX.Y.Z-Android-standard.apk` |
 | Windows MSI | `DORAI-AI-vX.Y.Z-windows.msi` |
 | Windows ZIP | `DORAI-AI-vX.Y.Z-Windows-x64.zip` |
 | macOS DMG | `DORAI-AI-vX.Y.Z-macos.dmg` |
@@ -74,6 +75,8 @@ For each successful release, the following assets are attached to the GitHub Rel
 | Linux tarball | `DORAI-AI-vX.Y.Z-linux-x86_64.tar.gz` |
 | Checksums | `SHA256SUMS` |
 | Update manifest | `update.json` (also published to root of `main`) |
+
+Note: `update.json` (the in-app auto-update manifest) always points at the FOSS APK asset (`DORAI-AI-vX.Y.Z-Android.apk`); the Standard APK is distributed as a release asset only.
 
 ## Version and Android versionCode generation
 
@@ -110,7 +113,7 @@ After a successful release:
 ## Credential hygiene on the runner
 
 - The decoded release keystore is deleted immediately after preflight validation and again (as a safety net, `if: always()`) after the `apk` and `android-standard` jobs finish — a production signing key should not linger on the runner for the remaining jobs.
-- The Play Store job (`play-store.yml`) validates the `ref` input as a strict `vX.Y.Z` tag that exists and is reachable from `origin/main` before building, decodes the Play keystore and service-account key into temporary files, and removes both on an `if: always()` cleanup step — secrets are passed between steps via `env:`, never inlined into shell.
+- Google Play is not part of this workflow: no Play Store service-account key is decoded or used, and no AAB is built or uploaded. If Play Store publishing is reintroduced later, it must come back as a reviewed, separately-dispatchable lane with its own credential validation and cleanup.
 - Known limitation: `keytool` requires the keystore password via `-storepass` argv (it has no environment-variable or stdin option); the value is GitHub-masked in logs and the runner is ephemeral.
 
 ## What must NOT happen

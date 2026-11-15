@@ -13,7 +13,7 @@ name: DORAI Production Release
 #
 # Architecture:
 #   Phase A: Preflight Validation (Branch, secrets, release target version)
-#   Phase B: Build Required Targets (Android APK, Windows MSI & ZIP) & Optional Targets (macOS, Linux)
+#   Phase B: Build Required Targets (Android FOSS + Standard APKs, Windows MSI & ZIP) & Optional Targets (macOS, Linux)
 #   Phase C: Post-Build Tagging & Release (Tag created ONLY if required builds succeed, then published)
 
 on:
@@ -212,7 +212,7 @@ jobs:
           echo "Release target validated: v${TARGET_VERSION} (versionCode ${FINAL_CODE})."
 
   ###############################################################################
-  # Phase B — Build Targets (APK & MSI required; Others optional)
+  # Phase B — Build Targets (FOSS + Standard Android APKs and MSI required; Others optional)
   ###############################################################################
   apk:
     name: Build signed Android FOSS APK (Required)
@@ -326,9 +326,8 @@ jobs:
         run: rm -f "$KEYSTORE_PATH"
 
   android-standard:
-    name: Build signed Android Standard APK (Optional)
+    name: Build signed Android Standard APK (Required)
     needs: preflight
-    continue-on-error: true
     runs-on: ubuntu-latest
     env:
       KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
@@ -374,7 +373,7 @@ jobs:
           keytool -list -keystore "$KEYSTORE_PATH" -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null
           echo "KEYSTORE_FILE=$KEYSTORE_PATH" >> "$GITHUB_ENV"
 
-      - name: Build production-signed PlayStore APK
+      - name: Build production-signed Standard APK
         run: ./gradlew :androidApp:assemblePlayStoreRelease --stacktrace
 
       - name: Upload Standard APK Artifact
@@ -382,7 +381,7 @@ jobs:
         with:
           name: android-standard-package
           path: androidApp/build/outputs/apk/playStore/release/androidApp-playStore-release.apk
-          if-no-files-found: warn
+          if-no-files-found: error
 
       - name: Remove signing keystore from runner
         if: always()
@@ -730,7 +729,7 @@ jobs:
   release:
     name: Tag and Publish GitHub Release
     needs: [preflight, apk, android-standard, windows, macos, linux-deb, linux-rpm, linux-tarball, flatpak, appimage]
-    if: always() && needs.preflight.result == 'success' && needs.apk.result == 'success' && needs.windows.result == 'success'
+    if: always() && needs.preflight.result == 'success' && needs.apk.result == 'success' && needs.android-standard.result == 'success' && needs.windows.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
@@ -765,10 +764,11 @@ jobs:
           VERSION="${{ needs.preflight.outputs.version }}"
           cd dist
           test -s androidApp-foss-release.apk || { echo "::error::Required APK artifact missing."; exit 1; }
+          test -s androidApp-playStore-release.apk || { echo "::error::Required Standard APK artifact missing."; exit 1; }
           test -s *.msi || { echo "::error::Required MSI artifact missing."; exit 1; }
           test -s DORAI-AI-*-Windows-x64.zip || { echo "::error::Required Windows ZIP artifact missing."; exit 1; }
           test -s update.json || { echo "::error::Required update.json artifact missing."; exit 1; }
-          echo "All required artifacts (APK, MSI, ZIP, update.json) are present."
+          echo "All required artifacts (FOSS APK, Standard APK, MSI, ZIP, update.json) are present."
 
       - name: Rename assets to DORAI branding
         shell: bash
@@ -778,8 +778,8 @@ jobs:
           cd dist
           mv androidApp-foss-release.apk "DORAI-AI-v${VERSION}-Android.apk"
           mv *.msi "DORAI-AI-v${VERSION}-windows.msi"
+          mv androidApp-playStore-release.apk "DORAI-AI-v${VERSION}-Android-standard.apk"
           # Optional artifacts: rename only if present
-          for f in androidApp-playStore-release.apk; do [ -e "$f" ] && mv "$f" "DORAI-AI-v${VERSION}-Android-standard.apk" || true; break; done
           for f in *.dmg; do [ -e "$f" ] && mv "$f" "DORAI-AI-v${VERSION}-macos.dmg" || true; break; done
           for f in *.deb; do [ -e "$f" ] && mv "$f" "DORAI-AI-v${VERSION}-linux.deb" || true; break; done
           for f in *.rpm; do [ -e "$f" ] && mv "$f" "DORAI-AI-v${VERSION}-linux.rpm" || true; break; done
@@ -820,14 +820,14 @@ jobs:
           VERSION="${{ needs.preflight.outputs.version }}"
           FILES=(
             dist/DORAI-AI-v${VERSION}-Android.apk
+            dist/DORAI-AI-v${VERSION}-Android-standard.apk
             dist/DORAI-AI-v${VERSION}-windows.msi
             dist/DORAI-AI-*-Windows-x64.zip
             dist/update.json
             dist/SHA256SUMS
           )
           # Add any optional artifacts that were successfully built
-          for f in dist/DORAI-AI-v${VERSION}-Android-standard.apk \
-                   dist/DORAI-AI-v${VERSION}-macos.dmg \
+          for f in dist/DORAI-AI-v${VERSION}-macos.dmg \
                    dist/DORAI-AI-v${VERSION}-linux.deb \
                    dist/DORAI-AI-v${VERSION}-linux.rpm \
                    dist/DORAI-AI-v${VERSION}-linux.AppImage \
@@ -913,12 +913,3 @@ jobs:
             echo "::warning::Automatic merge of the update-manifest PR was blocked by repository rules. Merge ${PR_URL} manually."
           fi
           echo "Published canonical update.json for DORAI v${VERSION}."
-
-  play-store:
-    name: Upload AAB to Play Store
-    needs: [preflight, release]
-    if: ${{ vars.DORAI_PLAY_STORE_ENABLED == 'true' }}
-    uses: ./.github/workflows/play-store.yml
-    with:
-      ref: v${{ needs.preflight.outputs.version }}
-    secrets: inherit
