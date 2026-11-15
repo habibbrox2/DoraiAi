@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -210,7 +209,7 @@ internal fun WaitingResponseRow(
                     ambientColor = AccentPrimary.copy(alpha = 0.35f),
                     spotColor = AccentPrimary.copy(alpha = 0.35f),
                 )
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                .background(LocalDesignColorTokens.current.surfaceElevated)
                 .border(
                     BorderStroke(1.dp, AccentPrimary.copy(alpha = 0.30f)),
                     RoundedCornerShape(12.dp),

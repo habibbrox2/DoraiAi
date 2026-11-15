@@ -969,6 +969,8 @@
     <string name="chat_privacy_cloud">You will be told before a file goes to a cloud model.</string>
     <string name="chat_manage_providers">Manage providers</string>
     <string name="chat_active_badge">Active</string>
+    <string name="chat_auto_model">Auto</string>
+    <string name="chat_auto_model_hint">Tries every model in the list until one answers</string>
     <string name="chat_voice_unavailable">Voice input is not available yet. Please type instead.</string>
     <string name="chat_voice_listening">Listening…</string>
     <string name="chat_voice_transcribing">Transcribing…</string>
@@ -1477,6 +1479,8 @@
     <string name="chat_tool_thinking">Thinking</string>
     <string name="chat_tool_call_label">Tool call</string>
     <string name="chat_tool_failed">Failed</string>
+    <string name="chat_collapse_all">Collapse all</string>
+    <string name="chat_expand_all">Expand all</string>
     <string name="home_quick_action_new_chat">New Chat</string>
     <string name="home_quick_action_resume_project">Resume Project</string>
     <string name="home_quick_action_daily_reminders">Daily Reminders</string>

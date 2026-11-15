@@ -55,6 +55,9 @@ fun AppSettings.exportToJson(
                             if (customModelId.isNotBlank()) {
                                 put("custom_model_id", JsonPrimitive(customModelId))
                             }
+                            if (getInstanceAutoModelEnabled(instance.instanceId)) {
+                                put("auto_model", JsonPrimitive(true))
+                            }
                         },
                     )
                 },
@@ -214,6 +217,9 @@ fun AppSettings.importFromJson(
                 }
                 obj["custom_model_id"]?.jsonPrimitive?.content?.let {
                     setInstanceCustomModelId(instanceId, it)
+                }
+                obj["auto_model"]?.jsonPrimitive?.content?.toBooleanStrictOrNull()?.let {
+                    setInstanceAutoModelEnabled(instanceId, it)
                 }
             }
         } catch (_: Exception) {

@@ -140,6 +140,26 @@ class AppSettingsTest {
     }
 
     @Test
+    fun `auto model flag defaults off and round-trips`() {
+        val appSettings = AppSettings(MapSettings())
+        val id = "compat1"
+        assertFalse(appSettings.getInstanceAutoModelEnabled(id), "Auto must default off")
+        appSettings.setInstanceAutoModelEnabled(id, true)
+        assertTrue(appSettings.getInstanceAutoModelEnabled(id))
+        // Auto never replaces the stored model selection.
+        assertEquals("", appSettings.getInstanceModelId(id))
+    }
+
+    @Test
+    fun `removeInstanceSettings clears the auto model flag`() {
+        val appSettings = AppSettings(MapSettings())
+        val id = "compat1"
+        appSettings.setInstanceAutoModelEnabled(id, true)
+        appSettings.removeInstanceSettings(id)
+        assertFalse(appSettings.getInstanceAutoModelEnabled(id))
+    }
+
+    @Test
     fun `base URL migration handles trailing slash`() {
         val settings = MapSettings()
         val appSettings = AppSettings(settings)

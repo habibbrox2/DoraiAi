@@ -1,7 +1,6 @@
 package com.dorai.ai.ui.chat
 
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
@@ -73,13 +72,15 @@ object ChatStatusColors {
 
 /**
  * Surface resolvers. Updated for glassmorphism design system.
+ * Resolved from the active Dorai design tokens (theme preset aware) so light/dark
+ * presets render pixel-faithful surfaces instead of legacy Material defaults.
  */
 object ChatSurfaces {
     @Composable
-    fun page(): Color = MaterialTheme.colorScheme.background
+    fun page(): Color = LocalDesignColorTokens.current.background
 
     @Composable
-    fun elevated(): Color = MaterialTheme.colorScheme.surfaceContainerHigh
+    fun elevated(): Color = LocalDesignColorTokens.current.surfaceElevated
 
     @Composable
     fun border(): Color = LocalDesignColorTokens.current.borderSoft
@@ -88,5 +89,5 @@ object ChatSurfaces {
     fun assistantMessage(): Color = LocalDesignColorTokens.current.cardFill
 
     @Composable
-    fun composer(): Color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.9f)
+    fun composer(): Color = LocalDesignColorTokens.current.surfaceElevated.copy(alpha = 0.9f)
 }

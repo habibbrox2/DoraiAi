@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -43,6 +44,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,11 +68,15 @@ import com.dorai.ai.ui.rememberCopyToClipboard
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.a11y_copy
 import dorai.composeapp.generated.resources.a11y_copy_details
+import dorai.composeapp.generated.resources.chat_collapse_all
 import dorai.composeapp.generated.resources.chat_collapse_output
 import dorai.composeapp.generated.resources.chat_command_failed_with_exit
 import dorai.composeapp.generated.resources.chat_exit_code
+import dorai.composeapp.generated.resources.chat_expand_all
 import dorai.composeapp.generated.resources.chat_expand_output
 import dorai.composeapp.generated.resources.chat_lines_label
+import dorai.composeapp.generated.resources.chat_tool_done
+import dorai.composeapp.generated.resources.chat_tool_input_label
 import dorai.composeapp.generated.resources.state_collapsed
 import dorai.composeapp.generated.resources.state_expanded
 import dorai.composeapp.generated.resources.tool_action_ask_fix
@@ -84,6 +90,9 @@ import dorai.composeapp.generated.resources.tool_status_completed
 import dorai.composeapp.generated.resources.tool_status_failed
 import dorai.composeapp.generated.resources.tool_status_running
 import dorai.composeapp.generated.resources.tool_status_waiting_approval
+import kotlinx.coroutines.delay
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.jetbrains.compose.resources.stringResource
 
 enum class ToolExecutionState {
@@ -106,7 +115,139 @@ data class ToolExecutionModel(
     val exitCode: Int? = null,
     val startTimeMs: Long? = null,
     val endTimeMs: Long? = null,
+    val subAgents: List<SubAgentExecution> = emptyList(),
 )
+
+/**
+ * One sub-agent execution inside a parent agent tool run (e.g. `agent.spawn`).
+ *
+ * @property role Agent role label (e.g. "Writer", "Critic").
+ * @property task Task description the sub-agent was asked to run.
+ * @property status Lifecycle status of the sub-agent (e.g. "draft", "review").
+ * @property durationText Human-readable sub-agent duration (e.g. "১.০s").
+ * @property resultSummary Short human-readable result summary.
+ * @property state Latest known lifecycle state.
+ */
+@Serializable
+data class SubAgentExecution(
+    val role: String,
+    val task: String? = null,
+    val status: String? = null,
+    val durationText: String? = null,
+    val resultSummary: String? = null,
+    val state: ToolExecutionState = ToolExecutionState.Running,
+)
+
+/**
+ * Wire payload for agent-style tools (e.g. `agent.spawn`): the sub-agents to run.
+ * Unknown keys are tolerated via the lenient JSON config.
+ */
+@Serializable
+data class SubAgentSpawnArgs(
+    val agents: List<SubAgentSpawnAgent> = emptyList(),
+)
+
+@Serializable
+data class SubAgentSpawnAgent(
+    val role: String = "Agent",
+    val task: String? = null,
+    val status: String? = null,
+)
+
+/**
+ * Wire payload for key-value tool arguments (web.search query, code.run snippet).
+ * Any of the known argument names is accepted as the human-facing input line.
+ */
+@Serializable
+data class KeyValueArgsWire(
+    val query: String? = null,
+    val code: String? = null,
+    val command: String? = null,
+    val source: String? = null,
+    val input: String? = null,
+) {
+    /** First non-blank argument in a stable priority order. */
+    fun firstInput(): String? = listOfNotNull(query, code, command, source, input)
+        .firstOrNull { it.isNotBlank() }
+}
+
+/** Wire payload for `web_search` results: a small list of title/url pairs plus an optional message. */
+@Serializable
+data class WebSearchResultWire(
+    val title: String? = null,
+    val url: String? = null,
+)
+
+@Serializable
+data class WebSearchOutputWire(
+    val results: List<WebSearchResultWire> = emptyList(),
+    val message: String? = null,
+)
+
+private val keyValueJson = Json {
+    ignoreUnknownKeys = true
+    isLenient = true
+}
+
+/**
+ * Tools whose argument is a query/code snippet and whose result reads as text rather than a
+ * command transcript (e.g. `web_search`, `code.run`). They render Input/Output rows instead of
+ * the command/output blocks.
+ */
+private fun isKeyValueTool(toolName: String): Boolean {
+    val name = toolName.lowercase()
+    return name.contains("web_search") || name.contains("web.search") ||
+        name.contains("code.run") || name.contains("code_run")
+}
+
+/**
+ * Human-facing input line for a key-value tool row: the tool's primary argument, or the raw
+ * arguments string when the payload shape is unknown.
+ */
+private fun parseKeyValueInput(toolName: String, args: String): String {
+    if (args.isBlank()) return ""
+    val parsed = when {
+        isKeyValueTool(toolName) ->
+            runCatching { keyValueJson.decodeFromString<KeyValueArgsWire>(args) }.getOrNull()
+
+        else -> null
+    }
+    return parsed?.firstInput()?.takeIf { it.isNotBlank() } ?: args
+}
+
+/** Parses a `web_search` JSON result payload; null when the payload is not web-search shaped. */
+private fun parseWebSearchOutput(output: String): WebSearchOutputWire? = runCatching { keyValueJson.decodeFromString<WebSearchOutputWire>(output) }.getOrNull()
+
+/** Input/Output label-and-value row used by key-value tool rows (prototype `.kv`). */
+@Composable
+private fun ToolKeyValueRow(label: String, value: String, modifier: Modifier = Modifier) {
+    val colors = LocalDoraiColors.current
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            color = colors.muted.copy(alpha = 0.7f),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Spacer(modifier = Modifier.height(3.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .background(colors.background)
+                .border(1.dp, colors.line.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+        ) {
+            Text(
+                text = value,
+                color = colors.muted,
+                fontFamily = FontFamily.Monospace,
+                fontSize = 12.5.sp,
+                lineHeight = 18.sp,
+            )
+        }
+    }
+}
 
 /**
  * Maps tool name to a semantic icon.
@@ -146,6 +287,38 @@ fun formatToolDisplayName(toolName: String): String = when (toolName) {
 }
 
 /**
+ * Collapse-all footer for a group of tool cards (prototype `.tfoot`): mirrors the tool row
+ * container's open/close-all action that expands or collapses every card in the group at once.
+ * Renders only for groups larger than one card, matching the prototype's `rows.length > 1` gate.
+ */
+@Composable
+internal fun DoraiToolCardCollapseAll(
+    expanded: Boolean,
+    onToggleAll: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = LocalDoraiColors.current
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(colors.background)
+            .border(1.dp, colors.line.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
+            .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+            .clickable(onClick = onToggleAll),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = stringResource(if (expanded) Res.string.chat_collapse_all else Res.string.chat_expand_all),
+            color = colors.muted,
+            fontSize = 12.5.sp,
+            fontWeight = FontWeight.SemiBold,
+            fontFamily = FontFamily.Monospace,
+        )
+    }
+}
+
+/**
  * Production-grade Agent Tool Execution Card:
  * - Compact tool header with semantic icon, tool name, arguments preview, and metadata.
  * - Semantic status badge (Running with indicator, Completed, Failed, Pending Approval).
@@ -165,15 +338,37 @@ fun DoraiToolCard(
     onDeny: (() -> Unit)? = null,
     onRetry: (() -> Unit)? = null,
     onAskFix: (() -> Unit)? = null,
+    expandedOverride: Boolean? = null,
+    onExpansionChange: ((Boolean) -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
     val copyToClipboard = rememberCopyToClipboard()
 
+    val isAgentTool = model.toolName.contains("agent", ignoreCase = true)
+
     // Default expanded state: Completed is collapsed by default to save space; Failed, Running, and
     // PendingApproval expand. Keyed on the tool-call identity rather than the state: keying on
     // state would reset the user's manual toggle whenever the tool transitions Running → Completed.
-    var isExpanded by remember(model.toolCallId) {
+    var internalExpanded by remember(model.toolCallId) {
         mutableStateOf(model.state != ToolExecutionState.Completed)
+    }
+    var isTouched by remember(model.toolCallId) { mutableStateOf(false) }
+
+    // When an external owner controls the value (e.g. the collapse-all footer), follow it instead of
+    // tracking local toggles.
+    val isExpanded: Boolean = expandedOverride ?: internalExpanded
+    val setExpanded: (Boolean) -> Unit = { value ->
+        if (expandedOverride == null) internalExpanded = value
+        onExpansionChange?.invoke(value)
+    }
+
+    // Auto-collapse agent sub-agent timelines shortly after completion when the user has not
+    // manually toggled the card (prototype: 800ms auto-collapse).
+    LaunchedEffect(model.toolCallId, model.state) {
+        if (model.state == ToolExecutionState.Completed && isAgentTool && model.subAgents.isNotEmpty() && !isTouched) {
+            delay(800)
+            setExpanded(false)
+        }
     }
 
     val borderColor = when (model.state) {
@@ -201,7 +396,10 @@ fun DoraiToolCard(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
                 .defaultMinSize(minHeight = 48.dp)
-                .clickable(role = Role.Button) { isExpanded = !isExpanded }
+                .clickable(role = Role.Button) {
+                    isTouched = true
+                    setExpanded(!isExpanded)
+                }
                 .semantics {
                     stateDescription = expandedDescription
                 }
@@ -250,9 +448,38 @@ fun DoraiToolCard(
                 fontWeight = FontWeight.Bold,
             )
 
-            // Arguments / Command Preview
-            val previewText = model.argsSummary.ifBlank { model.commandText.orEmpty() }
-            if (previewText.isNotBlank()) {
+            // Agent role chips (agent.spawn and friends) instead of raw arguments preview.
+            if (isAgentTool && model.subAgents.isNotEmpty()) {
+                Spacer(modifier = Modifier.width(DoraiSpacing.SM))
+                Row(horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.XS)) {
+                    model.subAgents.forEach { agent ->
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(999.dp))
+                                .background(colors.accent.copy(alpha = 0.12f))
+                                .padding(horizontal = 8.dp, vertical = 2.dp),
+                        ) {
+                            Text(
+                                text = agent.role,
+                                color = colors.accent,
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace,
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Arguments / Command Preview (key-value tools show their primary argument)
+            val previewText = remember(model.argsSummary, model.commandText, model.toolName) {
+                if (isKeyValueTool(model.toolName)) {
+                    parseKeyValueInput(model.toolName, model.argsSummary)
+                } else {
+                    model.argsSummary.ifBlank { model.commandText.orEmpty() }
+                }
+            }
+            if (previewText.isNotBlank() && !isAgentTool) {
                 Spacer(modifier = Modifier.width(DoraiSpacing.SM))
                 Text(
                     text = previewText,
@@ -348,6 +575,123 @@ fun DoraiToolCard(
                     .fillMaxWidth()
                     .padding(top = DoraiSpacing.SM),
             ) {
+                // Input/Output key-value rows (web.search, code.run — prototype `.kv` tool rows).
+                if (isKeyValueTool(model.toolName)) {
+                    val inputText = remember(model.argsSummary, model.toolName) {
+                        parseKeyValueInput(model.toolName, model.argsSummary)
+                    }
+                    val outputDisplay = remember(model.outputText) {
+                        val titles = model.outputText
+                            ?.let { parseWebSearchOutput(it) }
+                            ?.results
+                            ?.mapNotNull { it.title?.takeIf { title -> title.isNotBlank() } }
+                            .orEmpty()
+                        if (titles.isNotEmpty()) {
+                            titles.joinToString("\n") { "• $it" }
+                        } else {
+                            model.outputText.orEmpty()
+                        }
+                    }
+                    if (inputText.isNotBlank()) {
+                        ToolKeyValueRow(
+                            label = stringResource(Res.string.chat_tool_input_label),
+                            value = inputText,
+                        )
+                    }
+                    if (outputDisplay.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+                        ToolKeyValueRow(
+                            label = stringResource(Res.string.tool_card_output_header),
+                            value = outputDisplay,
+                        )
+                    }
+                }
+
+                // Sub-agent timeline (agent.spawn and friends): one row per spawned agent.
+                if (isAgentTool && model.subAgents.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(DoraiSpacing.XS),
+                    ) {
+                        model.subAgents.forEach { agent ->
+                            val agentAccent = if (agent.state == ToolExecutionState.Failed) colors.err else colors.accent
+                            val agentStatusColor = when (agent.state) {
+                                ToolExecutionState.Running -> colors.info
+                                ToolExecutionState.Completed -> colors.ok
+                                ToolExecutionState.Failed -> colors.err
+                                ToolExecutionState.PendingApproval -> colors.warn
+                            }
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(colors.surface2)
+                                    .border(1.dp, agentAccent.copy(alpha = 0.30f), RoundedCornerShape(8.dp))
+                                    .padding(DoraiSpacing.SM),
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Box(
+                                        modifier = Modifier.size(7.dp).clip(CircleShape).background(agentStatusColor),
+                                    )
+                                    Spacer(modifier = Modifier.width(DoraiSpacing.XS))
+                                    Text(
+                                        text = agent.role,
+                                        color = agentAccent,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFamily = FontFamily.Monospace,
+                                    )
+                                    Spacer(modifier = Modifier.width(DoraiSpacing.SM))
+                                    Text(
+                                        text = agent.task.orEmpty(),
+                                        color = colors.text,
+                                        fontSize = 12.5.sp,
+                                        modifier = Modifier.weight(1f, fill = false),
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                    Spacer(modifier = Modifier.width(DoraiSpacing.SM))
+                                    if (agent.durationText != null) {
+                                        Text(
+                                            text = agent.durationText,
+                                            color = colors.muted,
+                                            fontSize = 10.5.sp,
+                                            fontFamily = FontFamily.Monospace,
+                                        )
+                                    }
+                                }
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    DoraiStatusBadge(
+                                        text = agent.status ?: stringResource(Res.string.tool_status_completed),
+                                        color = when (agent.state) {
+                                            ToolExecutionState.Running -> colors.info
+                                            ToolExecutionState.Completed -> colors.ok
+                                            ToolExecutionState.Failed -> colors.err
+                                            ToolExecutionState.PendingApproval -> colors.warn
+                                        },
+                                    )
+                                    if (!agent.resultSummary.isNullOrEmpty()) {
+                                        Spacer(modifier = Modifier.width(DoraiSpacing.SM))
+                                        Text(
+                                            text = agent.resultSummary,
+                                            color = colors.muted,
+                                            fontSize = 11.5.sp,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // 1. Command Block (Expandable code block with Copy button)
                 if (!model.commandText.isNullOrEmpty()) {
                     Box(
@@ -513,8 +857,8 @@ fun DoraiToolCard(
                     }
                 }
 
-                // 3. Collapsible Output (stdout)
-                if (!model.outputText.isNullOrEmpty()) {
+                // 3. Collapsible Output (stdout) — key-value tools render their own Input/Output rows
+                if (!model.outputText.isNullOrEmpty() && !isKeyValueTool(model.toolName)) {
                     Spacer(modifier = Modifier.height(DoraiSpacing.SM))
                     val outputLines = remember(model.outputText) { model.outputText.lines() }
                     var isOutputExpanded by remember(model.toolCallId) {

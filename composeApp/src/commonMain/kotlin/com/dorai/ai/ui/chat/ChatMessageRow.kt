@@ -94,6 +94,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -152,6 +153,7 @@ import com.dorai.ai.ui.components.v2.DoraiModeSelector
 import com.dorai.ai.ui.components.v2.DoraiProviderBadge
 import com.dorai.ai.ui.components.v2.DoraiStatusBadge
 import com.dorai.ai.ui.components.v2.DoraiToolCard
+import com.dorai.ai.ui.components.v2.DoraiToolCardCollapseAll
 import com.dorai.ai.ui.components.v2.DynamicUiModel
 import com.dorai.ai.ui.components.v2.ToolExecutionModel
 import com.dorai.ai.ui.components.v2.ToolExecutionState
@@ -322,6 +324,9 @@ internal fun ChatMessageRow(
     val copyToClipboard = rememberCopyToClipboard()
     var isUserCopied by remember { mutableStateOf(false) }
     val sentAtCd = message.sentAt?.let { stringResource(Res.string.chat_message_sent_at, formatMessageTimestamp(it)) }
+    // Tool-card expansion overrides for this message; the collapse-all footer writes here so a
+    // group of tool cards can be opened/closed as one unit (prototype `.tfoot`).
+    val expandedToolOverrides = remember(message.id) { mutableStateMapOf<String, Boolean>() }
     LaunchedEffect(isUserCopied) {
         if (isUserCopied) {
             delay(2000)
@@ -506,13 +511,30 @@ internal fun ChatMessageRow(
                     icon = if (allShells) Icons.Default.Terminal else Icons.Default.Bolt,
                 ) {
                     backgroundTools.forEach { tool ->
+                        val toolExpanded: Boolean =
+                            expandedToolOverrides[tool.toolCallId] ?: (tool.state != ToolExecutionState.Completed)
                         DoraiToolCard(
                             model = tool,
+                            expandedOverride = toolExpanded,
+                            onExpansionChange = { expanded -> expandedToolOverrides[tool.toolCallId] = expanded },
                             onAllowOnce = onAllowOnce?.let { cb -> { cb(tool.toolCallId) } },
                             onAllowSession = onAllowSession?.let { cb -> { cb(tool.toolCallId) } },
                             onDeny = onDeny?.let { cb -> { cb(tool.toolCallId) } },
                             onRetry = onRetryTool?.let { cb -> { cb(tool.toolCallId) } },
                             onAskFix = onAskFixTool?.let { cb -> { cb(tool.toolCallId) } },
+                        )
+                    }
+                    if (backgroundTools.size > 1) {
+                        DoraiToolCardCollapseAll(
+                            expanded = backgroundTools.all { tool ->
+                                expandedToolOverrides[tool.toolCallId] ?: (tool.state != ToolExecutionState.Completed)
+                            },
+                            onToggleAll = {
+                                backgroundTools.forEach { tool ->
+                                    val current = expandedToolOverrides[tool.toolCallId] ?: (tool.state != ToolExecutionState.Completed)
+                                    expandedToolOverrides[tool.toolCallId] = !current
+                                }
+                            },
                         )
                     }
                 }

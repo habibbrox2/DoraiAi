@@ -685,6 +685,8 @@
     <string name="chat_privacy_cloud">ক্লাউড মডেলে ফাইল যাওয়ার আগে আপনাকে জানানো হবে।</string>
     <string name="chat_manage_providers">প্রোভাইডার পরিচালনা করুন</string>
     <string name="chat_active_badge">সক্রিয়</string>
+    <string name="chat_auto_model">অটো</string>
+    <string name="chat_auto_model_hint">একটি উত্তর পাওয়া পর্যন্ত তালিকার প্রতিটি মডেল চেষ্টা করে</string>
     <string name="chat_voice_unavailable">ভয়েস ইনপুট এখনো চালু নয়। অনুগ্রহ করে টাইপ করুন।</string>
     <string name="chat_voice_listening">শুনছি…</string>
     <string name="chat_voice_transcribing">লিখে নিচ্ছি…</string>
@@ -1447,6 +1449,8 @@
     <string name="chat_tool_thinking">চিন্তা করছে</string>
     <string name="chat_tool_call_label">টুল কল</string>
     <string name="chat_tool_failed">ব্যর্থ</string>
+    <string name="chat_collapse_all">সব বন্ধ করুন</string>
+    <string name="chat_expand_all">সব খুলুন</string>
     <string name="home_quick_action_new_chat">নতুন চ্যাট</string>
     <string name="home_quick_action_resume_project">প্রজেক্ট চালিয়ে যান</string>
     <string name="home_quick_action_daily_reminders">দৈনিক রিমাইন্ডার</string>
