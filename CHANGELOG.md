@@ -1,3 +1,15 @@
+## DORAI AI - Release workflow: drop Play Store lane, ship both Android APKs (Unreleased)
+
+### Fixed
+- **`release.yml` no longer references the removed `play-store.yml` reusable workflow**: the `play-store` job was left behind after the Play Store lane was deleted (PR #170), making the whole workflow file invalid on GitHub ("workflow was not found" parse error). The dangling job is removed.
+
+### Changed
+- **The release workflow now builds and attaches both Android APKs to the GitHub Release**: the signed FOSS APK (`foss` flavor, `DORAI-AI-vX.Y.Z-Android.apk`) and the signed Standard APK (`playStore` flavor, `DORAI-AI-vX.Y.Z-Android-standard.apk`). The Standard APK build is now a mandatory job gating the release (previously optional/best-effort).
+- **Google Play publishing is intentionally out of scope for now**: no AAB is built, no Play Store secrets are consulted, and `DORAI_PLAY_STORE_ENABLED` is no longer read. Play Store publishing can return later as a deliberately reviewed lane.
+- Release procedure docs updated to match (both APKs listed as release assets; Standard APK noted as GitHub Release-only; `update.json` remains pointed at the FOSS APK).
+
+---
+
 ## DORAI AI - Chat UI: design-token alignment and sub-agent tool timeline (Unreleased)
 
 ### Added
