@@ -501,6 +501,7 @@ private fun SettingsCategoryContent(
                 SettingsCategory.Account -> {
                     AccountProfileCard()
                     DataControlContent(uiState = uiState, actions = actions)
+                    DoraiCloudSection()
                     AccountPlanContent(uiState = uiState)
                 }
             }
@@ -528,6 +529,7 @@ private fun SettingsCategoryContent(
 
                 SettingsCategory.Account -> {
                     AccountProfileCard()
+                    DoraiCloudSection()
                     AccountSettingsContent()
                 }
             }
