@@ -1,0 +1,13 @@
+name = "dorai-cloud-api"
+main = "src/index.js"
+compatibility_date = "2025-11-01"
+
+# Secrets (never commit values):
+#   wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+#   wrangler secret put SUPABASE_ANON_KEY
+#   wrangler secret put CLOUDFLARE_API_TOKEN
+# Vars (non-sensitive):
+#   SUPABASE_URL, CLOUDFLARE_ACCOUNT_ID
+#
+# This package is intentionally outside the Gradle build and outside the
+# frontend pnpm workspace: it is deployed infrastructure, not app code.

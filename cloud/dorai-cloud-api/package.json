@@ -1,0 +1,15 @@
+{
+  "name": "dorai-cloud-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "DORAI AI Cloud API — edge facade in front of Supabase (auth, quotas, embeddings proxy).",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
