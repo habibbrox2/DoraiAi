@@ -24,7 +24,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
@@ -79,7 +78,7 @@ fun MarkdownContent(
     val effectiveColor = if (currentContentColor != androidx.compose.ui.graphics.Color.Unspecified) {
         currentContentColor
     } else {
-        MaterialTheme.colorScheme.onSurface
+        LocalDesignColorTokens.current.textPrimary
     }
     CompositionLocalProvider(LocalContentColor provides effectiveColor) {
         Column(modifier) {
