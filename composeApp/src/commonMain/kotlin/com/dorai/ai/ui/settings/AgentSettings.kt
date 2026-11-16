@@ -53,6 +53,9 @@ import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.default_soul
 import dorai.composeapp.generated.resources.execution_log_status_fail
 import dorai.composeapp.generated.resources.execution_log_status_ok
+import dorai.composeapp.generated.resources.settings_agent_memory
+import dorai.composeapp.generated.resources.settings_agent_notifications
+import dorai.composeapp.generated.resources.settings_agent_tasks
 import dorai.composeapp.generated.resources.settings_heartbeat_recent
 import dorai.composeapp.generated.resources.settings_memories
 import dorai.composeapp.generated.resources.settings_memories_all_title
@@ -92,15 +95,28 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
+private fun AgentSectionHeading(text: String) {
+    Text(
+        text = text,
+        style = DoraiTypography.titleSmall,
+        color = LocalDesignColorTokens.current.textSecondary,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.padding(vertical = 4.dp),
+    )
+}
+
+@Composable
 internal fun AgentContent(uiState: SettingsUiState, actions: SettingsActions) {
     StaggeredSettingsColumns(
         start = {
+            AgentSectionHeading(stringResource(Res.string.settings_agent_memory))
             SettingsCard {
                 SoulEditor(
                     soulText = uiState.soulText,
                     onSaveSoul = actions.onSaveSoul,
                 )
             }
+            AgentSectionHeading(stringResource(Res.string.settings_agent_tasks))
             SettingsCard {
                 ScheduledTaskList(
                     tasks = uiState.scheduledTasks,
@@ -127,6 +143,7 @@ internal fun AgentContent(uiState: SettingsUiState, actions: SettingsActions) {
             }
         },
         end = {
+            AgentSectionHeading(stringResource(Res.string.settings_agent_notifications))
             SettingsCard {
                 HeartbeatSection(
                     isHeartbeatEnabled = uiState.isHeartbeatEnabled,

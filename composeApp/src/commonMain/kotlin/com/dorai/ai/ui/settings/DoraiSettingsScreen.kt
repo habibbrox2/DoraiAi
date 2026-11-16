@@ -155,10 +155,12 @@ import dorai.composeapp.generated.resources.settings_page_github_description
 import dorai.composeapp.generated.resources.settings_page_services_description
 import dorai.composeapp.generated.resources.settings_page_tools_description
 import dorai.composeapp.generated.resources.settings_plugins
+import dorai.composeapp.generated.resources.settings_providers_discover
 import dorai.composeapp.generated.resources.settings_screen_title
 import dorai.composeapp.generated.resources.settings_theme_presets
 import dorai.composeapp.generated.resources.settings_timeline_desc
 import dorai.composeapp.generated.resources.settings_timeline_toggle
+import dorai.composeapp.generated.resources.settings_tools_integrations
 import dorai.composeapp.generated.resources.settings_version
 import dorai.composeapp.generated.resources.settings_your_connectors
 import dorai.composeapp.generated.resources.status_connected
@@ -635,7 +637,7 @@ private fun SettingsCategoryContent(
                     }
 
                     SettingsCategory.Providers -> {
-                        SettingsDetailSectionHeading(stringResource(Res.string.settings_manage_providers))
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_providers_discover))
                         ServicesContent(uiState = uiState, actions = actions)
                     }
 
@@ -662,8 +664,8 @@ private fun SettingsCategoryContent(
                             onNavigateToSandbox = onNavigateToWorkspace,
                             onBrowseSkills = actions.onBrowseSkills,
                         )
-                        // Integrations used to be a separate Settings tab; the request entry
-                        // point now closes the Tools page.
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_tools_integrations))
+
                         IntegrationRequestCard()
                     }
 
@@ -672,6 +674,7 @@ private fun SettingsCategoryContent(
                         McpServersSection(
                             mcpServers = uiState.mcpServers,
                             onAddMcpServer = actions.onAddMcpServer,
+                            onAddMcpServerWithOAuth = actions.onAddMcpServerWithOAuth,
                             onRemoveMcpServer = actions.onRemoveMcpServer,
                             onToggleMcpServer = actions.onToggleMcpServer,
                             onRefreshMcpServer = actions.onRefreshMcpServer,
@@ -709,7 +712,7 @@ private fun SettingsCategoryContent(
                     }
 
                     SettingsCategory.Providers -> {
-                        SettingsDetailSectionHeading(stringResource(Res.string.settings_manage_providers))
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_providers_discover))
                         ServicesContent(uiState = SettingsUiState(), actions = SettingsActions.NoOp)
                     }
 
@@ -1276,10 +1279,6 @@ internal fun SettingsDetailSectionHeading(text: String) {
 private fun AccountFlowContent(uiState: SettingsUiState, actions: SettingsActions) {
     // Profile
     AccountProfileCard()
-
-    // Subscription
-    SettingsDetailSectionHeading(stringResource(Res.string.account_section_subscription))
-    AccountPlanContent(uiState = uiState)
 
     // Privacy & Security â€” Authentication & Sessions
     SettingsDetailSectionHeading(stringResource(Res.string.account_section_privacy))

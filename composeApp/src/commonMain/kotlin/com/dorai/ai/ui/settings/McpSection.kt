@@ -83,6 +83,8 @@ import dorai.composeapp.generated.resources.settings_mcp_add_header
 import dorai.composeapp.generated.resources.settings_mcp_add_server
 import dorai.composeapp.generated.resources.settings_mcp_api_key
 import dorai.composeapp.generated.resources.settings_mcp_api_key_help
+import dorai.composeapp.generated.resources.settings_mcp_auth_headers
+import dorai.composeapp.generated.resources.settings_mcp_auth_oauth
 import dorai.composeapp.generated.resources.settings_mcp_authorize
 import dorai.composeapp.generated.resources.settings_mcp_authorized
 import dorai.composeapp.generated.resources.settings_mcp_header_key
@@ -109,6 +111,7 @@ import org.jetbrains.compose.resources.vectorResource
 internal fun McpServersSection(
     mcpServers: ImmutableList<McpServerUiState>,
     onAddMcpServer: (String, String, Map<String, String>) -> Unit,
+    onAddMcpServerWithOAuth: (String, String) -> Unit = { _, _ -> },
     onRemoveMcpServer: (String) -> Unit,
     onToggleMcpServer: (String, Boolean) -> Unit,
     onRefreshMcpServer: (String) -> Unit,
@@ -277,6 +280,7 @@ internal fun McpServersSection(
                 prefillPopular = null
             },
             onAdd = onAddMcpServer,
+            onAddWithOAuth = onAddMcpServerWithOAuth,
             onAddPopular = onAddPopularMcpServer,
             initialPopular = prefillPopular,
         )
@@ -540,11 +544,13 @@ private data class HeaderEntry(val key: String = "Authorization", val value: Str
 private fun AddMcpServerDialog(
     onDismiss: () -> Unit,
     onAdd: (String, String, Map<String, String>) -> Unit,
+    onAddWithOAuth: (String, String) -> Unit,
     onAddPopular: (PopularMcpServer) -> Unit,
     initialPopular: PopularMcpServer? = null,
 ) {
     var name by remember { mutableStateOf(initialPopular?.name.orEmpty()) }
     var url by remember { mutableStateOf(initialPopular?.url.orEmpty()) }
+    var useOAuth by remember { mutableStateOf(initialPopular?.requiresAuth != true) }
     val headers = remember {
         mutableStateListOf<HeaderEntry>().apply {
             val defaults = initialPopular?.headers.orEmpty()
@@ -605,7 +611,17 @@ private fun AddMcpServerDialog(
                 )
                 Spacer(Modifier.height(12.dp))
 
-                if (requiresAuth) {
+                SettingsChipRow(
+                    options = listOf(
+                        SettingsChip("oauth", stringResource(Res.string.settings_mcp_auth_oauth)),
+                        SettingsChip("headers", stringResource(Res.string.settings_mcp_auth_headers)),
+                    ),
+                    selectedId = if (useOAuth) "oauth" else "headers",
+                    onSelect = { useOAuth = it == "oauth" },
+                )
+                Spacer(Modifier.height(12.dp))
+
+                if (!useOAuth && requiresAuth) {
                     DoraiOutlinedTextField(
                         value = apiKey,
                         onValueChange = { apiKey = it },
@@ -620,7 +636,7 @@ private fun AddMcpServerDialog(
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
                     Spacer(Modifier.height(12.dp))
-                } else {
+                } else if (!useOAuth) {
                     headers.forEachIndexed { index, entry ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -699,7 +715,11 @@ private fun AddMcpServerDialog(
                                     put("Authorization", authorizationHeaderValue(apiKey))
                                 }
                             }
-                            onAdd(name, url, headerMap)
+                            if (useOAuth) {
+                                onAddWithOAuth(name, url)
+                            } else {
+                                onAdd(name, url, headerMap)
+                            }
                         },
                         // Auth-required popular servers (e.g. Jina) can still be added without a
                         // key — some tools work unauthenticated; search needs a key later.

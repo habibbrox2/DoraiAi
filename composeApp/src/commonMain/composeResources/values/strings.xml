@@ -289,6 +289,8 @@
     <string name="settings_mcp_refresh">Refresh</string>
     <string name="settings_mcp_status_connecting">Connecting…</string>
     <string name="settings_mcp_status_connected">Connected</string>
+    <string name="settings_mcp_auth_oauth">OAuth (recommended)</string>
+    <string name="settings_mcp_auth_headers">API key / headers</string>
     <string name="settings_mcp_status_error">Connection failed</string>
     <string name="settings_mcp_no_tools">No tools discovered</string>
     <string name="settings_mcp_tool_count">%1$d tools</string>
@@ -1082,6 +1084,20 @@
     <string name="settings_cat_github">GitHub</string>
     <string name="settings_cat_sandbox">Linux Sandbox</string>
     <string name="settings_cat_account">Account &amp; Data</string>
+    <string name="settings_home_subtitle">Customize your Dorai AI experience</string>
+    <string name="settings_general_language_region">Language &amp; Region</string>
+    <string name="settings_general_voice_tts">Voice &amp; Text-to-Speech</string>
+    <string name="settings_general_behavior">Behavior</string>
+    <string name="settings_general_updates">Updates</string>
+    <string name="settings_general_data_storage">Data &amp; Storage</string>
+    <string name="settings_agent_memory">Memory</string>
+    <string name="settings_agent_tasks">Tasks &amp; Heartbeat</string>
+    <string name="settings_agent_notifications">Notifications &amp; Messaging</string>
+    <string name="settings_providers_discover">Discover &amp; Add</string>
+    <string name="settings_mcp_discover">Discover</string>
+    <string name="settings_mcp_security">Security &amp; Authorization</string>
+    <string name="settings_github_clone_sync">Clone &amp; Sync</string>
+    <string name="settings_tools_integrations">Integration Requests</string>
     <string name="account_section_subscription">Subscription</string>
     <string name="account_section_privacy">Privacy &amp; Security</string>
     <string name="account_section_data">Data Controls</string>
@@ -1542,6 +1558,7 @@
     <string name="settings_dorai_cloud_sign_in_failed">Sign-in failed. Check your email and password.</string>
     <string name="settings_dorai_cloud_social_title">Sign in with a social account</string>
     <string name="settings_dorai_cloud_or_email">or sign in with email</string>
+    <string name="settings_dorai_cloud_sign_in_with_email">Sign in with email</string>
     <string name="settings_dorai_cloud_provider_google">Continue with Google</string>
     <string name="settings_dorai_cloud_provider_facebook">Continue with Facebook</string>
     <string name="settings_dorai_cloud_provider_github">Continue with GitHub</string>

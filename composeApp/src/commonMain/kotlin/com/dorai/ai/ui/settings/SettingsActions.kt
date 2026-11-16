@@ -66,6 +66,7 @@ data class SettingsActions(
     val onToggleFreeFallback: (Boolean) -> Unit,
     val onChangeUiScale: (Float) -> Unit,
     val onAddMcpServer: (String, String, Map<String, String>) -> Unit,
+    val onAddMcpServerWithOAuth: (String, String) -> Unit = { _, _ -> },
     val onRemoveMcpServer: (String) -> Unit,
     val onToggleMcpServer: (String, Boolean) -> Unit,
     val onRefreshMcpServer: (String) -> Unit,

@@ -182,6 +182,8 @@
     <string name="settings_mcp_refresh">রিফ্রেশ</string>
     <string name="settings_mcp_status_connecting">সংযোগ হচ্ছে…</string>
     <string name="settings_mcp_status_connected">সংযুক্ত</string>
+    <string name="settings_mcp_auth_oauth">OAuth (প্রস্তাবিত)</string>
+    <string name="settings_mcp_auth_headers">API কী / হেডার</string>
     <string name="settings_mcp_status_error">সংযোগ ব্যর্থ</string>
     <string name="settings_mcp_no_tools">কোনো টুল পাওয়া যায়নি</string>
     <string name="settings_mcp_tool_count">%1$dটি টুল</string>
@@ -797,6 +799,20 @@
     <string name="settings_cat_mcp">ইন্টিগ্রেশন ও MCP</string>
     <string name="settings_cat_sandbox">Linux Sandbox</string>
     <string name="settings_cat_account">অ্যাকাউন্ট ও ডেটা</string>
+    <string name="settings_home_subtitle">আপনার Dorai AI অভিজ্ঞতা কাস্টমাইজ করুন</string>
+    <string name="settings_general_language_region">ভাষা ও অঞ্চল</string>
+    <string name="settings_general_voice_tts">ভয়েস ও টেক্সট-টু-স্পিচ</string>
+    <string name="settings_general_behavior">আচরণ</string>
+    <string name="settings_general_updates">আপডেট</string>
+    <string name="settings_general_data_storage">ডেটা ও স্টোরেজ</string>
+    <string name="settings_agent_memory">মেমরি</string>
+    <string name="settings_agent_tasks">টাস্ক ও হার্টবিট</string>
+    <string name="settings_agent_notifications">বিজ্ঞপ্তি ও মেসেজিং</string>
+    <string name="settings_providers_discover">আবিষ্কার ও যোগ করুন</string>
+    <string name="settings_mcp_discover">আবিষ্কার</string>
+    <string name="settings_mcp_security">নিরাপত্তা ও অনুমোদন</string>
+    <string name="settings_github_clone_sync">ক্লোন ও সিঙ্ক</string>
+    <string name="settings_tools_integrations">ইন্টিগ্রেশন অনুরোধ</string>
     <string name="account_section_subscription">সাবস্ক্রিপশন</string>
     <string name="account_section_privacy">গোপনীয়তা ও নিরাপত্তা</string>
     <string name="account_section_data">ডেটা নিয়ন্ত্রণ</string>
@@ -1512,6 +1528,7 @@
     <string name="settings_dorai_cloud_sign_in_failed">সাইন ইন ব্যর্থ হয়েছে। ইমেইল ও পাসয়ওয়ার্ড দেখুন।</string>
     <string name="settings_dorai_cloud_social_title">সোশ্যাল অ্যাকাউন্টে সাইন ইন করুন</string>
     <string name="settings_dorai_cloud_or_email">অথবা ইমেইল দিয়ে সাইন ইন করুন</string>
+    <string name="settings_dorai_cloud_sign_in_with_email">ইমেল দিয়ে সাইন ইন করুন</string>
     <string name="settings_dorai_cloud_provider_google">Google দিয়ে সরতর করুন</string>
     <string name="settings_dorai_cloud_provider_facebook">Facebook দিয়ে সরতর করুন</string>
     <string name="settings_dorai_cloud_provider_github">GitHub দিয়ে সরতর করুন</string>

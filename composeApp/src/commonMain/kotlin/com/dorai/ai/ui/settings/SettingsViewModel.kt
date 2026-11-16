@@ -223,6 +223,7 @@ class SettingsViewModel(
         onToggleFreeFallback = ::onToggleFreeFallback,
         onChangeUiScale = ::onChangeUiScale,
         onAddMcpServer = ::onAddMcpServer,
+        onAddMcpServerWithOAuth = ::onAddMcpServerWithOAuth,
         onRemoveMcpServer = ::onRemoveMcpServer,
         onToggleMcpServer = ::onToggleMcpServer,
         onRefreshMcpServer = ::onRefreshMcpServer,
@@ -1111,6 +1112,22 @@ class SettingsViewModel(
             val config = dataRepository.addMcpServer(name, url, headers)
             refreshMcpServers()
             connectMcpServerWithStatus(config.id)
+        }
+        _state.update { it.copy(showAddMcpServerDialog = false) }
+    }
+
+    private fun onAddMcpServerWithOAuth(name: String, url: String) {
+        viewModelScope.launch(backgroundDispatcher) {
+            val config = dataRepository.addMcpServer(name, url, emptyMap())
+            refreshMcpServers()
+            updateMcpConnectionStatus(config.id, McpConnectionStatus.Connecting)
+            val result = dataRepository.authorizeMcpServer(config.id)
+            if (result.isSuccess) {
+                connectMcpServerWithStatus(config.id)
+            } else {
+                updateMcpConnectionStatus(config.id, McpConnectionStatus.Error)
+                refreshMcpServers()
+            }
         }
         _state.update { it.copy(showAddMcpServerDialog = false) }
     }

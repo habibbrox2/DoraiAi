@@ -40,6 +40,11 @@ import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.settings_daemon_mode
 import dorai.composeapp.generated.resources.settings_daemon_mode_description
+import dorai.composeapp.generated.resources.settings_general_behavior
+import dorai.composeapp.generated.resources.settings_general_data_storage
+import dorai.composeapp.generated.resources.settings_general_language_region
+import dorai.composeapp.generated.resources.settings_general_updates
+import dorai.composeapp.generated.resources.settings_general_voice_tts
 import dorai.composeapp.generated.resources.settings_language
 import dorai.composeapp.generated.resources.settings_language_description
 import dorai.composeapp.generated.resources.settings_restore_last_chat
@@ -77,33 +82,30 @@ internal fun GeneralContent(
 ) {
     StaggeredSettingsColumns(
         start = {
-            // Concept order: Language & Region, TTS, Voice, Android Updates.
-            GeneralSectionHeading(stringResource(Res.string.settings_language))
+            // Professional IA: Language/Region → Voice & TTS → Behavior.
+            GeneralSectionHeading(stringResource(Res.string.settings_general_language_region))
             SettingsCard {
                 LanguageSwitch(
                     appLanguage = uiState.appLanguage,
                     onChangeAppLanguage = actions.onChangeAppLanguage,
                 )
             }
-            GeneralSectionHeading(stringResource(Res.string.tts_title))
+            GeneralSectionHeading(stringResource(Res.string.settings_general_voice_tts))
             SettingsCard {
                 TtsSettingsSection(appLanguage = uiState.appLanguage)
             }
             if (uiState.showVoiceSection) {
-                GeneralSectionHeading(stringResource(Res.string.settings_voice_mode))
                 SettingsCard {
                     VoiceSettingsSection(uiState = uiState, actions = actions)
                 }
             }
-            androidUpdateContent?.invoke()
+            GeneralSectionHeading(stringResource(Res.string.settings_general_behavior))
             SettingsCard {
                 RestoreLastChatToggle(
                     isRestoreLastChatEnabled = uiState.isRestoreLastChatEnabled,
                     onToggleRestoreLastChat = actions.onToggleRestoreLastChat,
                 )
             }
-        },
-        end = {
             if (uiState.showDaemonToggle) {
                 SettingsCard {
                     DaemonModeToggle(
@@ -112,20 +114,6 @@ internal fun GeneralContent(
                     )
                 }
             }
-            Text(
-                text = stringResource(Res.string.settings_tab_data),
-                style = DoraiTypography.titleSmall,
-                color = LocalDesignColorTokens.current.textPrimary,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(vertical = 4.dp),
-            )
-            SettingsCard {
-                ExportImportSection(
-                    onExportSettings = actions.onExportSettings,
-                    onPrepareExport = actions.onPrepareExport,
-                    onImportSettings = actions.onImportSettings,
-                )
-            }
             if (uiState.showUiScale) {
                 SettingsCard {
                     UiScaleSection(
@@ -133,6 +121,19 @@ internal fun GeneralContent(
                         onChangeUiScale = actions.onChangeUiScale,
                     )
                 }
+            }
+        },
+        end = {
+            // Professional IA: Updates → Data & Storage.
+            GeneralSectionHeading(stringResource(Res.string.settings_general_updates))
+            androidUpdateContent?.invoke()
+            GeneralSectionHeading(stringResource(Res.string.settings_general_data_storage))
+            SettingsCard {
+                ExportImportSection(
+                    onExportSettings = actions.onExportSettings,
+                    onPrepareExport = actions.onPrepareExport,
+                    onImportSettings = actions.onImportSettings,
+                )
             }
         },
     )
