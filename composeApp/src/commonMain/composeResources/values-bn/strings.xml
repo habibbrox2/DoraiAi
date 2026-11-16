@@ -182,6 +182,7 @@
     <string name="settings_mcp_refresh">রিফ্রেশ</string>
     <string name="settings_mcp_status_connecting">সংযোগ হচ্ছে…</string>
     <string name="settings_mcp_status_connected">সংযুক্ত</string>
+    <string name="settings_mcp_status_disabled">নিষ্ক্রিয়</string>
     <string name="settings_mcp_auth_oauth">OAuth (প্রস্তাবিত)</string>
     <string name="settings_mcp_auth_headers">API কী / হেডার</string>
     <string name="settings_mcp_status_error">সংযোগ ব্যর্থ</string>

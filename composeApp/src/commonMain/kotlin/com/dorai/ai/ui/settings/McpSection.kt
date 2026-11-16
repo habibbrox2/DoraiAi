@@ -98,6 +98,7 @@ import dorai.composeapp.generated.resources.settings_mcp_server_name
 import dorai.composeapp.generated.resources.settings_mcp_server_url
 import dorai.composeapp.generated.resources.settings_mcp_status_connected
 import dorai.composeapp.generated.resources.settings_mcp_status_connecting
+import dorai.composeapp.generated.resources.settings_mcp_status_disabled
 import dorai.composeapp.generated.resources.settings_mcp_status_error
 import dorai.composeapp.generated.resources.settings_mcp_tool_count
 import dorai.composeapp.generated.resources.settings_mcp_tool_enabled_count
@@ -387,7 +388,7 @@ private fun McpServerCard(
                 else -> OperationalStatus.Ready
             }
             val statusLabel = when {
-                !server.isEnabled -> "Disabled"
+                !server.isEnabled -> stringResource(Res.string.settings_mcp_status_disabled)
 
                 server.connectionStatus == McpConnectionStatus.Connected ->
                     stringResource(Res.string.settings_mcp_status_connected)

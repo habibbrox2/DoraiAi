@@ -289,6 +289,7 @@
     <string name="settings_mcp_refresh">Refresh</string>
     <string name="settings_mcp_status_connecting">Connecting…</string>
     <string name="settings_mcp_status_connected">Connected</string>
+    <string name="settings_mcp_status_disabled">Disabled</string>
     <string name="settings_mcp_auth_oauth">OAuth (recommended)</string>
     <string name="settings_mcp_auth_headers">API key / headers</string>
     <string name="settings_mcp_status_error">Connection failed</string>

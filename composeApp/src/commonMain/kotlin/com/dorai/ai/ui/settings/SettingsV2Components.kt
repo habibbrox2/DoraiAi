@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -247,6 +248,7 @@ internal fun SettingsChipRow(
                     .background(if (isSelected) colors.primary else colors.surface2)
                     .border(1.dp, if (isSelected) colors.primary else colors.line, shape)
                     .clickable(role = Role.RadioButton) { onSelect(option.id) }
+                    .semantics { selected = isSelected }
                     .padding(horizontal = 16.dp),
                 contentAlignment = Alignment.Center,
             ) {
