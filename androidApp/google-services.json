@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "736090437450",
+    "project_id": "dorai-ai-app",
+    "storage_bucket": "dorai-ai-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:736090437450:android:c7f1bc88007e507fd7f3b3",
+        "android_client_info": {
+          "package_name": "com.dorai.ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGrlguBPYPOX9Fa-dEjHLymtz5JUcBRAs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

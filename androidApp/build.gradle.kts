@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.google.services)
 }
 
 val keystoreProperties = Properties()
@@ -144,6 +145,10 @@ dependencies {
     implementation(libs.filekit.compose)
     implementation(libs.tts)
     implementation(libs.tts.compose)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.config)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.messaging)
     implementation(libs.compose.components.uiToolingPreview)
     debugImplementation(libs.compose.ui.tooling)
     testImplementation("junit:junit:4.13.2")
