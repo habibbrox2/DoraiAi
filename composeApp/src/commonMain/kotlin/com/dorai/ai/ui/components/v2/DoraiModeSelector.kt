@@ -71,7 +71,7 @@ val DefaultAgentModes = listOf(
 
 /**
  * UI v2 Mode Selector:
- * Horizontally scrollable mode chips with one-line active mode description below.
+ * Container-matching segmented pill control with one-line active mode description below.
  */
 @Composable
 fun DoraiModeSelector(
@@ -81,50 +81,18 @@ fun DoraiModeSelector(
     modes: List<AgentMode> = DefaultAgentModes,
 ) {
     val colors = LocalDoraiColors.current
-    val scrollState = rememberScrollState()
     val activeMode = modes.firstOrNull { it.id == selectedModeId } ?: modes.first()
 
     Column(modifier = modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(scrollState),
-            horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.SM),
-        ) {
-            modes.forEach { mode ->
-                val isSelected = mode.id == activeMode.id
-                val label = stringResource(mode.nameRes)
+        SegmentedPillSelector(
+            items = modes,
+            selectedItem = activeMode,
+            onItemSelected = { onModeSelected(it.id) },
+            labelProvider = { stringResource(it.nameRes) },
+            iconProvider = { it.icon },
+        )
 
-                Box(
-                    modifier = Modifier
-                        .defaultMinSize(minHeight = 48.dp)
-                        .clip(CircleShape)
-                        .background(if (isSelected) colors.primary else colors.surface)
-                        .border(1.dp, if (isSelected) colors.primary else colors.line, CircleShape)
-                        .selectable(selected = isSelected, onClick = { onModeSelected(mode.id) }, role = Role.RadioButton)
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = mode.icon,
-                            contentDescription = null,
-                            tint = if (isSelected) colors.onPrimary else colors.muted,
-                            modifier = Modifier.size(16.dp),
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = label,
-                            color = if (isSelected) colors.onPrimary else colors.muted,
-                            fontSize = 13.sp,
-                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-                        )
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(DoraiSpacing.XS))
+        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
 
         // One-line mode description
         Text(

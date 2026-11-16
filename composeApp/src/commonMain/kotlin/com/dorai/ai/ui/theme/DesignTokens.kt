@@ -16,12 +16,13 @@ import com.dorai.ai.theme.tokens.DoraiSemanticColors
  * Brand hues remain consistent; surface and semantic roles adapt to the active theme.
  */
 object DesignTokens {
-    // AURORA surfaces
+    // AURORA surfaces - 3 levels with 1dp border / tonal elevation
     val Background: Color = Color(0xFF050A1C)
     val BackgroundOled: Color = Color(0xFF000000)
     val TerminalBackground: Color = Color(0xFF070D20)
     val Surface: Color = Color(0x0AFFFFFF)
     val SurfaceDark: Color = Color(0xFF08132B)
+    val SurfaceCard: Color = Color(0xFF0D1933)
     val SurfaceElevated: Color = Color(0xFF0D1C38)
     val SurfaceRaised: Color = Color(0xFF13284A)
 
@@ -29,7 +30,7 @@ object DesignTokens {
     val BorderSubtle: Color = Color(0x1AFFFFFF)
     val BorderSoft: Color = Color(0x2BFFFFFF)
     val BorderStrong: Color = Color(0x4DFFFFFF)
-    val BorderFocus: Color = Color(0x9925E2F5)
+    val BorderFocus: Color = Color(0x99D81B60)
 
     // AURORA brand palette
     val BrandNavy: Color = Color(0xFF08132B)
@@ -39,10 +40,13 @@ object DesignTokens {
     val BrandWhite: Color = Color(0xFFF1F8FF)
     val BrandInk: Color = Color(0xFF10213D)
 
-    // Accents
+    // Accents - Primary magenta/pink for toggles, buttons, selected states, sliders.
+    // Cyan is strictly secondary/info accent, NEVER used for toggles.
+    val PrimaryMagenta: Color = Color(0xFFD81B60)
     val PrimaryCyan: Color = Color(0xFF25CDE2)
     val AgentViolet: Color = Color(0xFF8B78FF)
-    val AccentPrimary: Color = PrimaryCyan
+    val AccentPrimary: Color = PrimaryMagenta
+    val AccentSecondary: Color = PrimaryCyan
     val AccentAgent: Color = AgentViolet
 
     // Semantic typography colors (dark defaults)
@@ -51,13 +55,13 @@ object DesignTokens {
     val TertiaryText: Color = Color(0xFF91ABCD)
     val MutedText: Color = Color(0xFF7186A5)
 
-    // Status colors
-    val Success: Color = Color(0xFF10B981)
-    val Warning: Color = Color(0xFFF59E0B)
-    val Error: Color = Color(0xFFEF4444)
-    val Info: Color = Color(0xFF377CFF)
+    // Status colors (soft pastel red on dark, paired with icons)
+    val Success: Color = Color(0xFF34D399)
+    val Warning: Color = Color(0xFFFBBF24)
+    val Error: Color = Color(0xFFFB7185)
+    val Info: Color = Color(0xFF22D3EE)
 
-    // Spacing (single source of truth shared by chat, settings, and workspace)
+    // Spacing scale: 4, 8, 12, 16, 20, 24, 32 dp
     val SpacingXxs: Dp = 2.dp
     val SpacingXs: Dp = 4.dp
     val SpacingSm: Dp = 8.dp
@@ -75,6 +79,11 @@ object DesignTokens {
     val RadiusHud: Dp = 24.dp
     val RadiusPill: Dp = 999.dp
     val RadiusSheet: Dp = 20.dp
+
+    // Motion durations (150-300ms)
+    val MotionDurationShort: Int = 150
+    val MotionDurationMedium: Int = 200
+    val MotionDurationLong: Int = 300
 }
 
 val LocalDesignTokens = staticCompositionLocalOf { DesignTokens }
@@ -91,7 +100,7 @@ data class DesignColorTokens(
     val borderSubtle: Color,
     val borderSoft: Color,
     val borderStrong: Color,
-    val primary: Color = DesignTokens.PrimaryCyan,
+    val primary: Color = DesignTokens.AccentPrimary,
     val accent: Color = DesignTokens.AgentViolet,
     val background: Color = DesignTokens.Background,
     val surface: Color = DesignTokens.SurfaceDark,
@@ -101,6 +110,8 @@ data class DesignColorTokens(
     val error: Color = DesignTokens.Error,
     val info: Color = DesignTokens.Info,
 ) {
+    val accentPrimary: Color get() = primary
+    val surfaceCard: Color get() = cardSurface
     companion object {
         fun from(
             colorScheme: ColorScheme,
@@ -174,7 +185,7 @@ val LocalDesignColorTokens = staticCompositionLocalOf {
         borderSubtle = DesignTokens.BorderSubtle,
         borderSoft = DesignTokens.BorderSoft,
         borderStrong = DesignTokens.BorderStrong,
-        primary = DesignTokens.PrimaryCyan,
+        primary = DesignTokens.AccentPrimary,
         accent = DesignTokens.AgentViolet,
         background = DesignTokens.Background,
         surface = DesignTokens.SurfaceDark,

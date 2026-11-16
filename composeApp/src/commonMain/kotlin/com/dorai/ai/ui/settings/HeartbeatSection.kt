@@ -1,8 +1,9 @@
-﻿@file:OptIn(kotlin.time.ExperimentalTime::class)
+@file:OptIn(kotlin.time.ExperimentalTime::class)
 
 package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,8 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -33,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -52,6 +56,11 @@ import com.dorai.ai.ui.components.DoraiRangeSlider
 import com.dorai.ai.ui.components.DoraiSlider
 import com.dorai.ai.ui.components.RefreshIconButton
 import com.dorai.ai.ui.components.SettingsListItem
+import com.dorai.ai.ui.components.v2.ActionButton
+import com.dorai.ai.ui.components.v2.ActionButtonVariant
+import com.dorai.ai.ui.components.v2.ErrorLogItem
+import com.dorai.ai.ui.components.v2.StatusChip
+import com.dorai.ai.ui.components.v2.StatusType
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
@@ -65,6 +74,8 @@ import dorai.composeapp.generated.resources.cron_day_tuesday
 import dorai.composeapp.generated.resources.cron_day_wednesday
 import dorai.composeapp.generated.resources.cron_monthly_on_day
 import dorai.composeapp.generated.resources.cron_weekly_at
+import dorai.composeapp.generated.resources.error_hint_model_not_found
+import dorai.composeapp.generated.resources.error_hint_timeout
 import dorai.composeapp.generated.resources.execution_log_status_fail
 import dorai.composeapp.generated.resources.execution_log_status_ok
 import dorai.composeapp.generated.resources.relative_time_days
@@ -416,41 +427,63 @@ internal fun HeartbeatSection(
                 )
             }
             if (heartbeatLog.isNotEmpty()) {
-                Spacer(Modifier.height(4.dp))
-                for (entry in heartbeatLog) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = if (entry.success) {
-                                stringResource(Res.string.execution_log_status_ok)
-                            } else {
-                                stringResource(Res.string.execution_log_status_fail)
-                            },
-                            style = DoraiTypography.labelSmall,
-                            color = if (entry.success) {
-                                AccentPrimary
-                            } else {
-                                DangerAlert
-                            },
-                            modifier = Modifier.widthIn(min = 36.dp * LocalDensity.current.fontScale),
-                        )
-                        Column {
-                            Text(
-                                text = formatHeartbeatTime(entry.timestampEpochMs),
-                                style = DoraiTypography.bodySmall,
-                                color = LocalDesignColorTokens.current.textSecondary,
-                            )
-                            if (!entry.success && entry.error != null) {
+                Spacer(Modifier.height(8.dp))
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    for (entry in heartbeatLog) {
+                        if (entry.success) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(LocalDesignColorTokens.current.surfaceCard)
+                                    .border(1.dp, LocalDesignColorTokens.current.borderSubtle, RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    StatusChip(
+                                        text = stringResource(Res.string.execution_log_status_ok),
+                                        type = StatusType.SUCCESS,
+                                    )
+                                    Text(
+                                        text = stringResource(Res.string.settings_heartbeat),
+                                        style = DoraiTypography.bodySmall,
+                                        color = LocalDesignColorTokens.current.textPrimary,
+                                    )
+                                }
                                 Text(
-                                    text = entry.error,
+                                    text = formatHeartbeatTime(entry.timestampEpochMs),
                                     style = DoraiTypography.labelSmall,
-                                    color = DangerAlert,
-                                    maxLines = 3,
-                                    overflow = TextOverflow.Ellipsis,
+                                    color = LocalDesignColorTokens.current.textSecondary,
                                 )
                             }
+                        } else {
+                            val rawError = entry.error ?: "Unknown error"
+                            val hintText = when {
+                                rawError.contains("404") -> stringResource(Res.string.error_hint_model_not_found)
+                                rawError.contains("timeout", ignoreCase = true) -> stringResource(Res.string.error_hint_timeout)
+                                else -> null
+                            }
+                            val shortMessage = when {
+                                rawError.contains("404") -> "Model endpoint not found (HTTP 404)"
+                                rawError.contains("timeout", ignoreCase = true) -> "Connection timed out"
+                                else -> rawError.lineSequence().firstOrNull()?.take(80) ?: "Heartbeat failed"
+                            }
+                            ErrorLogItem(
+                                title = stringResource(Res.string.settings_heartbeat),
+                                timeText = formatHeartbeatTime(entry.timestampEpochMs),
+                                shortMessage = shortMessage,
+                                detailsText = rawError,
+                                hintText = hintText,
+                                onRetry = onRefresh,
+                            )
                         }
                     }
                 }
@@ -687,14 +720,40 @@ private fun PermissionRequiredRow(
     buttonLabel: String,
     onGrant: () -> Unit,
 ) {
-    Text(
-        text = message,
-        style = DoraiTypography.bodySmall,
-        color = LocalDesignColorTokens.current.textSecondary,
-    )
-    Spacer(Modifier.height(8.dp))
-    OutlinedButton(onClick = onGrant) {
-        Text(buttonLabel)
+    val tokens = LocalDesignColorTokens.current
+    val shape = RoundedCornerShape(10.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(tokens.warning.copy(alpha = 0.08f))
+            .border(1.dp, tokens.warning.copy(alpha = 0.35f), shape)
+            .padding(12.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Default.WarningAmber,
+                contentDescription = "Permission Required",
+                tint = tokens.warning,
+                modifier = Modifier.size(20.dp),
+            )
+            Text(
+                text = message,
+                style = DoraiTypography.bodySmall,
+                color = tokens.textPrimary,
+                modifier = Modifier.weight(1f),
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        ActionButton(
+            text = buttonLabel,
+            onClick = onGrant,
+            variant = ActionButtonVariant.OUTLINED,
+            modifier = Modifier.align(Alignment.End),
+        )
     }
 }
 

@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -60,6 +61,7 @@ import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.export_import_restore_backup_subtitle
 import dorai.composeapp.generated.resources.export_import_save_backup_subtitle
+import dorai.composeapp.generated.resources.export_warning_message
 import dorai.composeapp.generated.resources.settings_export
 import dorai.composeapp.generated.resources.settings_export_import_description
 import dorai.composeapp.generated.resources.settings_export_import_title
@@ -487,6 +489,30 @@ private fun ExportPreviewDialog(
             val exportScrollState = rememberScrollState()
             Box {
                 Column(modifier = Modifier.verticalScroll(exportScrollState)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(LocalDesignColorTokens.current.warning.copy(alpha = 0.12f))
+                            .border(1.dp, LocalDesignColorTokens.current.warning.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                            .padding(10.dp),
+                        verticalAlignment = CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.WarningAmber,
+                            contentDescription = "Warning",
+                            tint = LocalDesignColorTokens.current.warning,
+                            modifier = Modifier.size(20.dp),
+                        )
+                        Text(
+                            text = stringResource(Res.string.export_warning_message),
+                            style = DoraiTypography.bodySmall,
+                            color = LocalDesignColorTokens.current.textPrimary,
+                        )
+                    }
+                    Spacer(Modifier.height(12.dp))
+
                     for ((section, count) in sortedEntries) {
                         Row(
                             verticalAlignment = CenterVertically,

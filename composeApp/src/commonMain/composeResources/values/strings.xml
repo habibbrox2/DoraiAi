@@ -1566,5 +1566,20 @@
     <string name="settings_dorai_cloud_provider_facebook">Continue with Facebook</string>
     <string name="settings_dorai_cloud_provider_github">Continue with GitHub</string>
     <string name="settings_dorai_cloud_oauth_failed">Could not open the sign-in page.</string>
+    <string name="settings_page_mcp_description">Model Context Protocol servers and developer integrations</string>
+    <string name="export_warning_title">Security Notice: Plaintext Keys</string>
+    <string name="export_warning_message">This export includes saved API keys and credentials in plain text. Keep the exported backup file in a safe location.</string>
+    <string name="export_warning_confirm">I understand, Export</string>
+    <string name="cloud_sync_passphrase_min_length">Passphrase must be at least 8 characters to encrypt and backup data</string>
+    <string name="settings_provider_remove_title">Remove Provider?</string>
+    <string name="settings_provider_remove_message">Are you sure you want to remove this provider and its saved API credentials?</string>
+    <string name="settings_provider_remove_confirm">Remove</string>
+    <string name="settings_fallback_privacy_note">When enabled, requests may be routed to this provider if primary fails. Queries will leave local device.</string>
+    <string name="settings_github_scopes_title">Required Permissions</string>
+    <string name="settings_github_scopes_desc">DORAI AI requires repository read/write access (repo) and basic user profile (read:user) to inspect repositories and open pull requests.</string>
+    <string name="settings_local_storage_cloud_conflict">Local-only storage is enabled. Cloud Vault sync is disabled to preserve complete on-device privacy.</string>
+    <string name="error_hint_model_not_found">Model endpoint not found (404) – check provider and model ID</string>
+    <string name="error_hint_timeout">Connection timed out – check network connection or retry</string>
+    <string name="permission_settings_button">Open System Settings</string>
 </resources>
 

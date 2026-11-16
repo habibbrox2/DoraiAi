@@ -1,4 +1,4 @@
-﻿package com.dorai.ai.ui.settings
+package com.dorai.ai.ui.settings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PlayArrow
@@ -87,6 +88,7 @@ import com.dorai.ai.data.AppSettings
 import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
+import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.adaptive.DoraiListDetailPaneScaffold
 import com.dorai.ai.ui.adaptive.DoraiWindowWidthClass
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
@@ -95,6 +97,7 @@ import com.dorai.ai.ui.components.v2.DoraiModalSheet
 import com.dorai.ai.ui.components.v2.DoraiProviderBadge
 import com.dorai.ai.ui.components.v2.DoraiStatusBadge
 import com.dorai.ai.ui.components.v2.DoraiThemePresetTile
+import com.dorai.ai.ui.theme.DesignTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.account_auth_sessions
 import dorai.composeapp.generated.resources.account_chat_history
@@ -142,6 +145,7 @@ import dorai.composeapp.generated.resources.settings_delete_all_chats
 import dorai.composeapp.generated.resources.settings_delete_chats_confirm
 import dorai.composeapp.generated.resources.settings_github_connection
 import dorai.composeapp.generated.resources.settings_github_description
+import dorai.composeapp.generated.resources.settings_local_storage_cloud_conflict
 import dorai.composeapp.generated.resources.settings_manage_providers
 import dorai.composeapp.generated.resources.settings_mcp_add_server
 import dorai.composeapp.generated.resources.settings_mcp_invalid_url
@@ -152,6 +156,7 @@ import dorai.composeapp.generated.resources.settings_page_agent_description
 import dorai.composeapp.generated.resources.settings_page_appearance_description
 import dorai.composeapp.generated.resources.settings_page_general_description
 import dorai.composeapp.generated.resources.settings_page_github_description
+import dorai.composeapp.generated.resources.settings_page_mcp_description
 import dorai.composeapp.generated.resources.settings_page_services_description
 import dorai.composeapp.generated.resources.settings_page_tools_description
 import dorai.composeapp.generated.resources.settings_plugins
@@ -217,7 +222,7 @@ enum class SettingsCategory(
     Agent("agent", Res.string.settings_cat_agent, Res.string.settings_page_agent_description, Icons.Default.SmartToy),
     Providers("providers", Res.string.settings_cat_providers, Res.string.settings_page_services_description, Icons.Default.VpnKey),
     Tools("tools", Res.string.settings_cat_tools, Res.string.settings_page_tools_description, Icons.Default.Build),
-    Mcp("mcp", Res.string.settings_cat_mcp, Res.string.settings_page_tools_description, Icons.Default.Extension),
+    Mcp("mcp", Res.string.settings_cat_mcp, Res.string.settings_page_mcp_description, Icons.Default.Extension),
     GitHub("github", Res.string.settings_cat_github, Res.string.settings_page_github_description, Icons.Default.Code),
     Account("account", Res.string.settings_cat_account, Res.string.settings_page_account_description, Icons.Default.AccountCircle),
 }
@@ -384,7 +389,7 @@ fun DoraiSettingsScreenConnected(
         actions = settingsViewModel.actions,
         sandboxState = sandboxState,
         androidUpdateContent = androidUpdateContent,
-        debugBuildStamp = "v${Version.appVersion} Â· uiV2=on",
+        debugBuildStamp = "v${Version.appVersion}",
         onNavigateToWorkspace = onNavigateToWorkspace,
         modifier = modifier,
     )
@@ -408,40 +413,46 @@ private fun SettingsHome(
             .padding(DoraiSpacing.MD),
         verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD),
     ) {
-        // Hero banner (theme-driven gradient, no hardcoded palette).
+        // Compact, bordered dark header card (WCAG AA compliant, subtle separation).
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(20.dp))
-                .background(
-                    androidx.compose.ui.graphics.Brush.horizontalGradient(
-                        listOf(colors.primary, colors.accent),
-                    ),
-                )
-                .padding(20.dp),
+                .clip(RoundedCornerShape(DesignTokens.RadiusCard))
+                .background(colors.surface2)
+                .border(1.dp, colors.line, RoundedCornerShape(DesignTokens.RadiusCard))
+                .padding(DoraiSpacing.LG),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(Res.string.settings_screen_title),
-                        color = colors.onPrimary,
-                        fontSize = 28.sp,
+                        color = colors.text,
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.semantics { heading() },
                     )
                     Spacer(modifier = Modifier.height(DoraiSpacing.XS))
                     Text(
                         text = stringResource(Res.string.settings_page_general_description),
-                        color = colors.onPrimary,
+                        color = colors.muted,
                         fontSize = 13.sp,
                     )
                 }
-                Icon(
-                    imageVector = Icons.Default.SmartToy,
-                    contentDescription = null,
-                    tint = colors.onPrimary,
-                    modifier = Modifier.size(56.dp),
-                )
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .background(colors.primary.copy(alpha = 0.16f))
+                        .border(1.dp, colors.primary.copy(alpha = 0.35f), CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.SmartToy,
+                        contentDescription = null,
+                        tint = colors.primary,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
             }
         }
 
@@ -1295,21 +1306,6 @@ private fun AccountFlowContent(uiState: SettingsUiState, actions: SettingsAction
     SettingsDetailSectionHeading(stringResource(Res.string.account_chat_history))
     DataControlContent(uiState = uiState, actions = actions)
 
-    if (uiState.showNotificationsSection) {
-        SettingsDetailSectionHeading(stringResource(Res.string.account_section_notifications))
-        SettingsSectionCard {
-            NotificationsSection(
-                isEnabled = uiState.isNotificationsEnabled,
-                accessGranted = uiState.notificationListenerAccessGranted,
-                listenerBound = uiState.notificationListenerBound,
-                pendingCount = uiState.notificationPendingCount,
-                onToggle = actions.onToggleNotifications,
-                onOpenAccessSettings = actions.onOpenNotificationListenerSettings,
-                onClearPending = actions.onClearPendingNotifications,
-            )
-        }
-    }
-
     // About Dorai AI
     SettingsDetailSectionHeading(stringResource(Res.string.account_section_about))
     SettingsSectionCard {
@@ -1362,10 +1358,37 @@ private fun AccountProfileCard() {
         }
     }
 
+    val isLocalOnly = !syncEnabled
     SettingsSwitchCard(
         title = stringResource(Res.string.agent_local_only_storage),
         description = stringResource(Res.string.agent_local_only_storage_desc),
-        checked = !syncEnabled,
+        checked = isLocalOnly,
         onCheckedChange = { syncEnabled = !it },
     )
+
+    if (isLocalOnly) {
+        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .background(colors.surface2)
+                .border(1.dp, colors.line, RoundedCornerShape(8.dp))
+                .padding(DoraiSpacing.MD),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.SM),
+        ) {
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = null,
+                tint = colors.info,
+                modifier = Modifier.size(16.dp),
+            )
+            Text(
+                text = stringResource(Res.string.settings_local_storage_cloud_conflict),
+                style = DoraiTypography.bodySmall,
+                color = colors.muted,
+            )
+        }
+    }
 }

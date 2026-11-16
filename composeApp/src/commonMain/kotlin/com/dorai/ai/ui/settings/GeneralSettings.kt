@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,6 +35,7 @@ import com.dorai.ai.data.AppLanguage
 import com.dorai.ai.data.AppSettings
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.components.DoraiSlider
+import com.dorai.ai.ui.components.v2.AppSlider
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -209,8 +211,8 @@ private fun ThemeModeButton(
     isSelected: Boolean,
     onClick: () -> Unit,
 ) {
-    val selectedBg = DesignTokens.PrimaryCyan
-    val selectedText = DesignTokens.BrandNavy
+    val selectedBg = DesignTokens.AccentPrimary
+    val selectedText = Color.White
     val unselectedBg = LocalDesignColorTokens.current.surfaceRaised
     val unselectedText = LocalDesignColorTokens.current.textPrimary
     val unselectedBorder = LocalDesignColorTokens.current.borderSubtle
@@ -225,7 +227,7 @@ private fun ThemeModeButton(
                 if (!isSelected) {
                     BorderStroke(1.dp, unselectedBorder)
                 } else {
-                    BorderStroke(1.dp, DesignTokens.PrimaryCyan)
+                    BorderStroke(1.dp, DesignTokens.AccentPrimary)
                 },
                 SettingsShapes.pill,
             ),
@@ -251,28 +253,21 @@ private fun UiScaleSection(
     val steps = 14 // 16 snap points from 50% to 200% in 10% increments (14 intermediate)
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = stringResource(Res.string.settings_ui_scale),
-                style = DoraiTypography.titleMedium,
-                color = LocalDesignColorTokens.current.textPrimary,
-            )
-            Text(
-                text = "${(sliderValue * 100).roundToInt()}%",
-                style = DoraiTypography.labelLarge,
-                color = LocalDesignColorTokens.current.textPrimary,
-            )
-        }
-        DoraiSlider(
+        Text(
+            text = stringResource(Res.string.settings_ui_scale),
+            style = DoraiTypography.titleMedium,
+            color = LocalDesignColorTokens.current.textPrimary,
+        )
+        Spacer(Modifier.height(8.dp))
+        AppSlider(
             value = sliderValue,
             onValueChange = { sliderValue = it },
             onValueChangeFinished = { onChangeUiScale(sliderValue) },
             valueRange = 0.5f..2.0f,
             steps = steps,
+            valueLabel = "${(sliderValue * 100).roundToInt()}%",
+            minRangeLabel = "50%",
+            maxRangeLabel = "200%",
         )
     }
 }
@@ -301,29 +296,38 @@ private fun TtsSettingsSection(appLanguage: AppLanguage) {
             modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
         )
 
-        Text(text = stringResource(Res.string.tts_value_format, stringResource(Res.string.tts_speech_speed), (rate * 100).roundToInt()) + "%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
-        DoraiSlider(
+        Text(text = stringResource(Res.string.tts_speech_speed), style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        AppSlider(
             value = rate,
             onValueChange = { rate = it },
             valueRange = 0.7f..1.3f,
+            valueLabel = "${(rate * 100).roundToInt()}%",
+            minRangeLabel = "70%",
+            maxRangeLabel = "130%",
             modifier = Modifier.fillMaxWidth(),
         )
 
         Spacer(Modifier.height(8.dp))
-        Text(text = stringResource(Res.string.tts_value_format, stringResource(Res.string.tts_voice_pitch), (pitch * 100).roundToInt()) + "%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
-        DoraiSlider(
+        Text(text = stringResource(Res.string.tts_voice_pitch), style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        AppSlider(
             value = pitch,
             onValueChange = { pitch = it },
             valueRange = 0.8f..1.2f,
+            valueLabel = "${(pitch * 100).roundToInt()}%",
+            minRangeLabel = "80%",
+            maxRangeLabel = "120%",
             modifier = Modifier.fillMaxWidth(),
         )
 
         Spacer(Modifier.height(8.dp))
-        Text(text = stringResource(Res.string.tts_value_format, stringResource(Res.string.tts_volume), (volume * 100).roundToInt()) + "%", style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
-        DoraiSlider(
+        Text(text = stringResource(Res.string.tts_volume), style = DoraiTypography.labelLarge, color = LocalDesignColorTokens.current.textPrimary)
+        AppSlider(
             value = volume,
             onValueChange = { volume = it },
             valueRange = 0.0f..1.0f,
+            valueLabel = "${(volume * 100).roundToInt()}%",
+            minRangeLabel = "0%",
+            maxRangeLabel = "100%",
             modifier = Modifier.fillMaxWidth(),
         )
 

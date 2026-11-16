@@ -11,6 +11,7 @@ import dorai.composeapp.generated.resources.error_content_moderation
 import dorai.composeapp.generated.resources.error_context_window_exceeded
 import dorai.composeapp.generated.resources.error_empty_response
 import dorai.composeapp.generated.resources.error_file_too_large
+import dorai.composeapp.generated.resources.error_hint_timeout
 import dorai.composeapp.generated.resources.error_image_too_large
 import dorai.composeapp.generated.resources.error_insufficient_credits
 import dorai.composeapp.generated.resources.error_invalid_api_key
@@ -36,6 +37,7 @@ sealed class GeminiApiException(message: String? = null, cause: Throwable? = nul
 class GeminiGenericException(message: String, cause: Throwable? = null) : GeminiApiException(message, cause)
 class GeminiRateLimitExceededException(val retryAfterSeconds: Long? = null) : GeminiApiException()
 class GeminiInvalidApiKeyException : GeminiApiException()
+class GeminiModelNotFoundException(val modelId: String? = null) : GeminiApiException(modelId)
 
 sealed class AnthropicApiException(message: String? = null, cause: Throwable? = null) : ApiException(message, cause)
 class AnthropicGenericException(message: String, cause: Throwable? = null) : AnthropicApiException(message, cause)
@@ -144,11 +146,11 @@ fun Exception.toUiError(): UiError = when (this) {
 
     is OpenAICompatibleConnectionException -> UiError.Resource(Res.string.error_openai_compatible_connection)
 
-    is OpenAICompatibleModelNotFoundException -> UiError.Resource(Res.string.error_openai_compatible_model_not_found)
+    is GeminiModelNotFoundException, is OpenAICompatibleModelNotFoundException -> UiError.Resource(Res.string.error_openai_compatible_model_not_found)
 
     is OpenAICompatibleEmptyResponseException -> UiError.Resource(Res.string.error_empty_response)
 
-    is OpenAICompatibleTimeoutException -> UiError.Resource(Res.string.error_openai_compatible_connection)
+    is OpenAICompatibleTimeoutException -> UiError.Resource(Res.string.error_hint_timeout)
 
     is OpenAICompatibleServiceUnavailableException -> UiError.Resource(Res.string.error_service_unavailable)
 

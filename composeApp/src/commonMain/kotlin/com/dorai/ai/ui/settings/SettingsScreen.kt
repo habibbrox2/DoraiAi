@@ -1,4 +1,4 @@
-﻿@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.dorai.ai.ui.settings
 
@@ -252,6 +252,7 @@ internal fun ToggleableHeadline(
             )
         }
         actions()
+        Spacer(Modifier.width(12.dp))
         androidx.compose.material3.Switch(
             checked = checked,
             onCheckedChange = null,
@@ -263,5 +264,6 @@ internal fun ToggleableHeadline(
                 uncheckedTrackColor = BorderSoft,
             ),
         )
+        Spacer(Modifier.width(4.dp))
     }
 }

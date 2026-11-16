@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -62,6 +63,8 @@ import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.components.CollectionEmptyState
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.components.StatusBadge
+import com.dorai.ai.ui.components.v2.ActionButton
+import com.dorai.ai.ui.components.v2.ActionButtonVariant
 import com.dorai.ai.ui.doraiAdaptiveCardBorder
 import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.rememberCopyToClipboard
@@ -115,6 +118,8 @@ import dorai.composeapp.generated.resources.settings_github_repositories
 import dorai.composeapp.generated.resources.settings_github_repositories_error
 import dorai.composeapp.generated.resources.settings_github_repositories_not_connected
 import dorai.composeapp.generated.resources.settings_github_retry
+import dorai.composeapp.generated.resources.settings_github_scopes_desc
+import dorai.composeapp.generated.resources.settings_github_scopes_title
 import dorai.composeapp.generated.resources.settings_github_signed_in
 import dorai.composeapp.generated.resources.settings_github_sync
 import dorai.composeapp.generated.resources.settings_github_user_code
@@ -240,27 +245,60 @@ internal fun GitHubSection() {
                     color = colors.textSecondary,
                 )
 
+                if (!isConnected) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(colors.surfaceRaised)
+                            .border(1.dp, colors.borderSubtle, RoundedCornerShape(8.dp))
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.Top,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = colors.info,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Column {
+                            Text(
+                                text = stringResource(Res.string.settings_github_scopes_title),
+                                style = DoraiTypography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = colors.textPrimary,
+                            )
+                            Spacer(Modifier.height(2.dp))
+                            Text(
+                                text = stringResource(Res.string.settings_github_scopes_desc),
+                                style = DoraiTypography.bodySmall,
+                                color = colors.textSecondary,
+                            )
+                        }
+                    }
+                }
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                 ) {
                     if (isConnected) {
-                        OutlinedButton(onClick = { showDisconnectConfirm.value = true }) {
-                            Text(text = stringResource(Res.string.settings_github_disconnect))
-                        }
+                        ActionButton(
+                            text = stringResource(Res.string.settings_github_disconnect),
+                            onClick = { showDisconnectConfirm.value = true },
+                            variant = ActionButtonVariant.DESTRUCTIVE,
+                        )
                     } else if (!isWaiting) {
-                        Button(
+                        ActionButton(
+                            text = if (state.isLoading) {
+                                stringResource(Res.string.settings_github_connecting)
+                            } else {
+                                stringResource(Res.string.settings_github_connect)
+                            },
                             onClick = { vm.connect() },
                             enabled = !state.isLoading,
-                        ) {
-                            Text(
-                                text = if (state.isLoading) {
-                                    stringResource(Res.string.settings_github_connecting)
-                                } else {
-                                    stringResource(Res.string.settings_github_connect)
-                                },
-                            )
-                        }
+                            variant = ActionButtonVariant.PRIMARY,
+                        )
                     }
                 }
             }

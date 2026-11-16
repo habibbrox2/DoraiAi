@@ -52,8 +52,13 @@ import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.adaptive.DoraiWindowWidthClass
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
 import com.dorai.ai.ui.components.LogoAnimation
+import com.dorai.ai.ui.components.v2.ActionButton
+import com.dorai.ai.ui.components.v2.ActionButtonVariant
 import com.dorai.ai.ui.components.v2.DoraiProviderBadge
 import com.dorai.ai.ui.components.v2.DoraiStatusBadge
+import com.dorai.ai.ui.components.v2.StatusChip
+import com.dorai.ai.ui.components.v2.StatusType
+import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.app_updated_recently
 import dorai.composeapp.generated.resources.home_continue_project
@@ -270,22 +275,12 @@ private fun ContinueOrSetupCard(
                 }
             }
             Spacer(modifier = Modifier.height(DoraiSpacing.MD))
-            Button(
+            ActionButton(
+                text = stringResource(Res.string.home_start_setup),
                 onClick = onNavigateToWorkspace,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colors.primary,
-                    contentColor = colors.onPrimary,
-                ),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .doraiEdgeStyle(shape = RoundedCornerShape(12.dp), cornerRadius = 12.dp, edgeColor = colors.primary),
-            ) {
-                Text(
-                    text = stringResource(Res.string.home_start_setup),
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
+                variant = ActionButtonVariant.PRIMARY,
+                modifier = Modifier.fillMaxWidth(),
+            )
         } else {
             val proj = state.activeProject
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -311,22 +306,12 @@ private fun ContinueOrSetupCard(
                 }
             }
             Spacer(modifier = Modifier.height(DoraiSpacing.MD))
-            Button(
+            ActionButton(
+                text = stringResource(Res.string.home_continue_project),
                 onClick = onNavigateToWorkspace,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colors.primary,
-                    contentColor = colors.onPrimary,
-                ),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .doraiEdgeStyle(shape = RoundedCornerShape(12.dp), cornerRadius = 12.dp, edgeColor = colors.primary),
-            ) {
-                Text(
-                    text = stringResource(Res.string.home_continue_project),
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
+                variant = ActionButtonVariant.PRIMARY,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }
@@ -534,7 +519,11 @@ private fun StatusCard(state: HomeUiState) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(state.currentModelName, color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 Spacer(modifier = Modifier.width(6.dp))
-                DoraiProviderBadge(isLocal = state.isModelLocal, iconOnly = true)
+                if (state.currentModelName.equals("Auto", ignoreCase = true)) {
+                    StatusChip(text = "Auto", type = StatusType.INFO)
+                } else {
+                    DoraiProviderBadge(isLocal = state.isModelLocal, iconOnly = true)
+                }
             }
         }
 
@@ -545,10 +534,22 @@ private fun StatusCard(state: HomeUiState) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(stringResource(Res.string.home_sandbox_label), color = colors.muted, fontSize = 13.sp)
-            DoraiStatusBadge(
-                text = if (state.isSandboxRunning) stringResource(Res.string.home_running) else stringResource(Res.string.home_stopped),
-                color = if (state.isSandboxRunning) colors.ok else colors.muted,
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                DoraiStatusBadge(
+                    text = if (state.isSandboxRunning) stringResource(Res.string.home_running) else stringResource(Res.string.home_stopped),
+                    color = if (state.isSandboxRunning) colors.ok else colors.muted,
+                )
+                if (!state.isSandboxRunning) {
+                    ActionButton(
+                        text = "Start",
+                        onClick = { /* Start sandbox */ },
+                        variant = ActionButtonVariant.OUTLINED,
+                    )
+                }
+            }
         }
     }
 }
@@ -604,7 +605,7 @@ private fun RecentChatsCard(
                         )
                         Text(
                             text = chat.snippet ?: stringResource(Res.string.app_updated_recently),
-                            color = colors.muted,
+                            color = LocalDesignColorTokens.current.textSecondary,
                             fontSize = 12.5.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,

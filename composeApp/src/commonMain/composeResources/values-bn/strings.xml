@@ -1536,4 +1536,19 @@
     <string name="settings_dorai_cloud_provider_facebook">Facebook দিয়ে সরতর করুন</string>
     <string name="settings_dorai_cloud_provider_github">GitHub দিয়ে সরতর করুন</string>
     <string name="settings_dorai_cloud_oauth_failed">সাইন ইন পেড খোলা সমর্বে সমর্বেন পরসেলিন।</string>
+    <string name="settings_page_mcp_description">মডেল কনটেক্সট প্রোটোকল (MCP) সার্ভার এবং ডেভেলপার ইন্টিগ্রেশন</string>
+    <string name="export_warning_title">নিরাপত্তা সতর্কতা: প্লেইনটেক্সট কি</string>
+    <string name="export_warning_message">এই এক্সপোর্ট ফাইলের মধ্যে সংরক্ষিত API কী এবং প্রমাণপত্রাদি সাধারণ পাঠ্য হিসেবে অন্তর্ভুক্ত রয়েছে। ব্যাকআপ ফাইলটি নিরাপদ স্থানে সংরক্ষণ করুন।</string>
+    <string name="export_warning_confirm">আমি বুঝতে পেরেছি, এক্সপোর্ট করুন</string>
+    <string name="cloud_sync_passphrase_min_length">ডেটা এনক্রিপ্ট এবং ব্যাকআপ করতে পাসফ্রেজ কমপক্ষে ৮ অক্ষরের হতে হবে</string>
+    <string name="settings_provider_remove_title">প্রোভাইডার অপসারণ করবেন?</string>
+    <string name="settings_provider_remove_message">আপনি কি নিশ্চিত যে আপনি এই প্রোভাইডার এবং এর সংরক্ষিত API তথ্য অপসারণ করতে চান?</string>
+    <string name="settings_provider_remove_confirm">অপসারণ করুন</string>
+    <string name="settings_fallback_privacy_note">সক্রিয় থাকলে, প্রাইমারি ব্যর্থ হলে এই প্রোভাইডারে অনুরোধ পাঠানো হতে পারে। অনুরোধগুলো স্থানীয় ডিভাইস ত্যাগ করবে।</string>
+    <string name="settings_github_scopes_title">প্রয়োজনীয় অনুমতিসমূহ</string>
+    <string name="settings_github_scopes_desc">রিপোজিটরি পরিদর্শন এবং পুল রিকোয়েস্ট তৈরি করতে DORAI AI-এর রিপোজিটরি রিড/রাইট অ্যাক্সেস (repo) এবং মৌলিক ব্যবহারকারী প্রোফাইল (read:user) প্রয়োজন।</string>
+    <string name="settings_local_storage_cloud_conflict">শুধুমাত্র স্থানীয় সঞ্চয়স্থান সক্রিয় রয়েছে। সম্পূর্ণ অন-ডিভাইস গোপনীয়তা বজায় রাখতে ক্লাউড ভল্ট সিঙ্ক নিষ্ক্রিয় রাখা হয়েছে।</string>
+    <string name="error_hint_model_not_found">মডেলের এন্ডপয়েন্ট পাওয়া যায়নি (৪০৪) – প্রোভাইডার এবং মডেল আইডি যাচাই করুন</string>
+    <string name="error_hint_timeout">সংযোগের সময় শেষ হয়েছে – ইন্টারনেট সংযোগ যাচাই করুন বা পুনরায় চেষ্টা করুন</string>
+    <string name="permission_settings_button">সিস্টেম সেটিংস খুলুন</string>
 </resources>

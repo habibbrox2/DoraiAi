@@ -77,6 +77,7 @@ private fun HttpRequestBuilder.applyTimeout(requestTimeoutMs: Long?) {
     timeout {
         requestTimeoutMillis = requestTimeoutMs
         socketTimeoutMillis = requestTimeoutMs
+        connectTimeoutMillis = 30.seconds.inWholeMilliseconds
     }
 }
 
@@ -185,6 +186,7 @@ class Requests(
         install(HttpTimeout) {
             requestTimeoutMillis = 180.seconds.inWholeMilliseconds
             socketTimeoutMillis = 180.seconds.inWholeMilliseconds
+            connectTimeoutMillis = 30.seconds.inWholeMilliseconds
         }
         install(Logging) {
             if (isDebugBuild) {
@@ -238,7 +240,9 @@ class Requests(
         requestTimeoutMs: Long? = null,
     ): Result<GeminiChatResponseDto> = try {
         val apiKey = credentials.apiKey.ifEmpty { throw GeminiInvalidApiKeyException() }
-        val selectedModelId = credentials.modelId
+        val selectedModelId = credentials.modelId.trim()
+            .removePrefix("models/")
+            .removeSuffix(":free")
 
         val systemContent = systemInstruction?.let {
             GeminiChatRequestDto.Content(
@@ -263,6 +267,8 @@ class Requests(
             Result.success(response.body())
         } else {
             when (response.status.value) {
+                404 -> throw GeminiModelNotFoundException(selectedModelId)
+
                 429 -> throw GeminiRateLimitExceededException(parseRetryAfterSeconds(response.headers["Retry-After"]))
 
                 403 -> throw GeminiInvalidApiKeyException()
@@ -297,7 +303,9 @@ class Requests(
         requestTimeoutMs: Long? = null,
     ): Result<OpenAICompatibleChatResponseDto> = try {
         val apiKey = getApiKeyOrThrow(service, credentials)
-        val model = credentials.modelId.ifEmpty { null }
+        val model = credentials.modelId.trim().let { id ->
+            if (service == Service.Nvidia) id.removeSuffix(":free") else id
+        }.ifEmpty { null }
         val url = resolveUrl(service, credentials, service.chatUrl)
         val response: HttpResponse =
             defaultClient.post(url) {
@@ -360,7 +368,9 @@ class Requests(
         onDelta: suspend (String) -> Unit,
     ): Result<OpenAICompatibleCompletion> = try {
         val apiKey = getApiKeyOrThrow(service, credentials)
-        val model = credentials.modelId.ifEmpty { null }
+        val model = credentials.modelId.trim().let { id ->
+            if (service == Service.Nvidia) id.removeSuffix(":free") else id
+        }.ifEmpty { null }
         val url = resolveUrl(service, credentials, service.chatUrl)
 
         val completion = defaultClient.preparePost(url) {
@@ -528,7 +538,9 @@ class Requests(
                 setBody(
                     OpenAIResponsesRequestDto(
                         input = input,
-                        model = credentials.modelId.ifEmpty { null },
+                        model = credentials.modelId.trim().let { id ->
+                            if (service == Service.Nvidia) id.removeSuffix(":free") else id
+                        }.ifEmpty { null },
                         tools = tools.toRequestTools { it.toResponsesTool() },
                     ),
                 )

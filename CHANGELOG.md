@@ -1,3 +1,28 @@
+## DORAI AI - Unified Design System, Accessibility & Bug Fixes (Unreleased)
+
+### Added
+- **Unified Design Tokens**: Centralized token architecture in `DesignTokens.kt` featuring a single WCAG AA primary accent (`#D81B60`), 3 surface elevation tiers (`Background`, `SurfaceCard`, `SurfaceElevated`), 4/8/12/16/24 dp spacing, and motion tokens (150-300ms).
+- **Reusable Component Library (`DoraiDesignSystemComponents.kt`)**: 11 production-ready components including `SettingsCard`, `SettingsRow`, `SectionHeader`, `AppSwitch`, `AppSlider`, `SegmentedPillSelector`, `StatusChip`, `ActionButton`, `AppTextField`, `EmptyState`, and `ErrorLogItem`.
+- **404 & Timeout Friendly Diagnostics**: Added specific error hint mapping for HTTP 404 (`error_hint_model_not_found`) and network timeouts (`error_hint_timeout`) across Gemini, NVIDIA NIM, and background heartbeat logs.
+
+### Changed
+- **Settings Landing Hero**: Replaced loud yellow/pink hero banner with a compact, bordered dark card with 1dp border and muted tonal surface.
+- **Provider API Key Fields**: Enhanced with password visibility toggle, clipboard paste button, and clear action.
+- **General Settings Sliders**: Upgraded to `AppSlider` with thin 4dp track, ≥20dp thumb, and real-time range indicators.
+- **Agent Mode Selector**: Replaced loose chips with container-matching `SegmentedPillSelector` displaying single-line mode descriptions.
+- **GitHub Integration**: Added permissions and scopes rationale card (`settings_github_scopes_title`, `settings_github_scopes_desc`) and empty state before connection.
+- **MCP & Connectors**: Unified "Added" state to `StatusChip` with checkmark icon and "+" to an outlined pill action button; failed connectors surface failure reasons, a "Reconnect" button, and automatic switch disabling.
+- **Cloud Vault & Data**: Added helper text for passphrase length (< 8 chars), clear warning banner for API key exports in plain text, and destructive red outlined styling for "Clear all conversations" with confirmation dialog.
+
+### Fixed
+- **Bengali Typography Clipping**: Fixed Bengali text line clipping by enforcing a 1.6x line-height multiplier on `bodyLarge`, `bodyMedium`, and `bodySmall`.
+- **Mojibake & Internal Flags**: Removed `"Â· uiV2=on"` artifact from settings version footer, showing clean public app version.
+- **Duplicate Notification Setting**: Removed duplicate "Read notifications" row from Account & Data, preserving the single source of truth in Agent settings.
+- **Gemini & NVIDIA NIM 404s**: Sanitized `models/` prefix and `:free` suffix from Gemini request paths and stripped `:free` from NVIDIA NIM requests to avoid upstream 404 responses.
+- **Ktor Connect Timeout**: Set explicit `connectTimeoutMillis = 30s` in `install(HttpTimeout)` and per-request timeouts to eliminate `connect_timeout=unknown ms`.
+
+---
+
 ## DORAI AI - Meridian chat UI alignment (Unreleased)
 
 ### Changed

@@ -248,24 +248,30 @@ fun DoraiCloudSection(modifier: Modifier = Modifier) {
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    SocialProviderButton(
-                        icon = Res.drawable.google_mark,
-                        label = stringResource(Res.string.settings_dorai_cloud_provider_google),
-                        enabled = !isBusy,
-                        onClick = { startSocialSignIn(CloudSocialProvider.Google.id) },
-                    )
-                    SocialProviderButton(
-                        icon = Res.drawable.facebook_mark,
-                        label = stringResource(Res.string.settings_dorai_cloud_provider_facebook),
-                        enabled = !isBusy,
-                        onClick = { startSocialSignIn(CloudSocialProvider.Facebook.id) },
-                    )
-                    SocialProviderButton(
-                        icon = Res.drawable.github_mark,
-                        label = stringResource(Res.string.settings_dorai_cloud_provider_github),
-                        enabled = !isBusy,
-                        onClick = { startSocialSignIn(CloudSocialProvider.GitHub.id) },
-                    )
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        SocialProviderButton(
+                            icon = Res.drawable.google_mark,
+                            label = stringResource(Res.string.settings_dorai_cloud_provider_google),
+                            enabled = !isBusy,
+                            onClick = { startSocialSignIn(CloudSocialProvider.Google.id) },
+                        )
+                    }
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        SocialProviderButton(
+                            icon = Res.drawable.facebook_mark,
+                            label = stringResource(Res.string.settings_dorai_cloud_provider_facebook),
+                            enabled = !isBusy,
+                            onClick = { startSocialSignIn(CloudSocialProvider.Facebook.id) },
+                        )
+                    }
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        SocialProviderButton(
+                            icon = Res.drawable.github_mark,
+                            label = stringResource(Res.string.settings_dorai_cloud_provider_github),
+                            enabled = !isBusy,
+                            onClick = { startSocialSignIn(CloudSocialProvider.GitHub.id) },
+                        )
+                    }
                 }
 
                 Spacer(Modifier.height(12.dp))

@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -24,10 +25,13 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +46,8 @@ import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.components.DoraiSearchField
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.components.StatusBadge
+import com.dorai.ai.ui.components.v2.StatusChip
+import com.dorai.ai.ui.components.v2.StatusType
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -49,6 +55,7 @@ import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.settings_connectors
 import dorai.composeapp.generated.resources.settings_library_added
 import dorai.composeapp.generated.resources.settings_library_filter_no_setup
+import dorai.composeapp.generated.resources.settings_mcp_add
 import dorai.composeapp.generated.resources.settings_plugins
 import dorai.composeapp.generated.resources.settings_skills
 import org.jetbrains.compose.resources.stringResource
@@ -296,6 +303,8 @@ internal fun ConnectorDiscoverRow(
     addContentDescription: String,
     modifier: Modifier = Modifier,
 ) {
+    var expanded by remember { mutableStateOf(false) }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -321,8 +330,9 @@ internal fun ConnectorDiscoverRow(
                 text = description,
                 style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
-                maxLines = 2,
+                maxLines = if (expanded) Int.MAX_VALUE else 2,
                 overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.clickable { expanded = !expanded },
             )
             Spacer(Modifier.size(4.dp))
             Text(
@@ -335,19 +345,29 @@ internal fun ConnectorDiscoverRow(
         }
         Spacer(Modifier.width(8.dp))
         if (isAdded) {
-            StatusBadge(
-                label = stringResource(Res.string.settings_library_added),
-                status = OperationalStatus.Connected,
+            StatusChip(
+                text = stringResource(Res.string.settings_library_added),
+                type = StatusType.SUCCESS,
             )
         } else {
-            FilledTonalIconButton(
+            OutlinedButton(
                 onClick = onAdd,
-                modifier = Modifier.size(40.dp).handCursor(),
+                shape = RoundedCornerShape(20.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                modifier = Modifier.defaultMinSize(minHeight = 36.dp).handCursor(),
+                border = BorderStroke(1.dp, LocalDesignColorTokens.current.accentPrimary),
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = addContentDescription,
-                    modifier = Modifier.size(20.dp),
+                    tint = LocalDesignColorTokens.current.accentPrimary,
+                    modifier = Modifier.size(16.dp),
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = stringResource(Res.string.settings_mcp_add),
+                    style = DoraiTypography.labelMedium,
+                    color = LocalDesignColorTokens.current.accentPrimary,
                 )
             }
         }

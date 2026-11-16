@@ -34,8 +34,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -48,6 +52,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -71,6 +77,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalUriHandler
@@ -120,6 +127,7 @@ import com.dorai.ai.ui.components.DoraiSlider
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.components.StatusBadge
 import com.dorai.ai.ui.components.VerticalScrollbarForScroll
+import com.dorai.ai.ui.components.v2.AppSwitch
 import com.dorai.ai.ui.doraiAdaptiveCardBorder
 import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.doraiAdaptiveCardSurface
@@ -179,6 +187,7 @@ import dorai.composeapp.generated.resources.settings_cloudflare_gateway_id_hint
 import dorai.composeapp.generated.resources.settings_contact_sponsorship
 import dorai.composeapp.generated.resources.settings_custom_model_hint
 import dorai.composeapp.generated.resources.settings_custom_model_label
+import dorai.composeapp.generated.resources.settings_fallback_privacy_note
 import dorai.composeapp.generated.resources.settings_free_fallback
 import dorai.composeapp.generated.resources.settings_free_fallback_description
 import dorai.composeapp.generated.resources.settings_free_tier_description
@@ -190,6 +199,9 @@ import dorai.composeapp.generated.resources.settings_open_app_settings
 import dorai.composeapp.generated.resources.settings_openai_compatible_or_other_service
 import dorai.composeapp.generated.resources.settings_openai_compatible_providers
 import dorai.composeapp.generated.resources.settings_openai_compatible_setup_ollama
+import dorai.composeapp.generated.resources.settings_provider_remove_confirm
+import dorai.composeapp.generated.resources.settings_provider_remove_message
+import dorai.composeapp.generated.resources.settings_provider_remove_title
 import dorai.composeapp.generated.resources.settings_remove_service
 import dorai.composeapp.generated.resources.settings_reorder_content_description
 import dorai.composeapp.generated.resources.settings_sign_in_copy_api_key_from
@@ -753,19 +765,19 @@ internal fun ServicesContent(uiState: SettingsUiState, actions: SettingsActions)
                         style = DoraiTypography.bodySmall,
                         color = LocalDesignColorTokens.current.textSecondary,
                     )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(Res.string.settings_fallback_privacy_note),
+                        style = DoraiTypography.labelSmall,
+                        color = LocalDesignColorTokens.current.warning,
+                    )
                 }
 
                 Spacer(Modifier.width(16.dp))
 
-                Switch(
+                AppSwitch(
                     checked = uiState.isFreeFallbackEnabled,
                     onCheckedChange = null,
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = AccentPrimary,
-                        checkedTrackColor = AccentPrimary.copy(alpha = 0.3f),
-                        uncheckedThumbColor = LocalDesignColorTokens.current.textSecondary,
-                        uncheckedTrackColor = BorderSoft.copy(alpha = 0.5f),
-                    ),
                 )
             }
         }
@@ -1176,6 +1188,7 @@ private fun ConfiguredServiceCardContent(
                 } else if (entry.service is Service.OpenAICompatible || entry.service is Service.Cloudflare || entry.service.modelsUrl != null || entry.service.chatUrl.isNotBlank()) {
                     OpenAICompatibleSettings(
                         isCloudflare = entry.service is Service.Cloudflare || entry.service is Service.CloudflareAIGateway,
+                        isNvidia = entry.service is Service.Nvidia,
                         displayName = entry.customName,
                         onChangeDisplayName = onChangeDisplayName,
                         isCloudflareGateway = entry.service is Service.CloudflareAIGateway,
@@ -1219,6 +1232,8 @@ private fun ConfiguredServiceCardContent(
 
                 Spacer(Modifier.height(12.dp))
 
+                var showRemoveConfirm by remember { mutableStateOf(false) }
+
                 // Remove action
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -1226,7 +1241,7 @@ private fun ConfiguredServiceCardContent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     TextButton(
-                        onClick = onRemove,
+                        onClick = { showRemoveConfirm = true },
                         modifier = Modifier.handCursor(),
                     ) {
                         Text(
@@ -1234,6 +1249,19 @@ private fun ConfiguredServiceCardContent(
                             color = DangerAlert,
                         )
                     }
+                }
+
+                if (showRemoveConfirm) {
+                    SettingsConfirmDialog(
+                        title = stringResource(Res.string.settings_provider_remove_title),
+                        message = stringResource(Res.string.settings_provider_remove_message),
+                        confirmLabel = stringResource(Res.string.settings_provider_remove_confirm),
+                        onConfirm = {
+                            showRemoveConfirm = false
+                            onRemove()
+                        },
+                        onDismiss = { showRemoveConfirm = false },
+                    )
                 }
             }
         }
@@ -1374,6 +1402,7 @@ private fun ModelFetchFeedback(
 @Composable
 private fun OpenAICompatibleSettings(
     isCloudflare: Boolean = false,
+    isNvidia: Boolean = false,
     displayName: String = "",
     onChangeDisplayName: (String) -> Unit = {},
     /** Only the Cloudflare AI Gateway shows this — blank means the account's auto-created "default" gateway. */
@@ -1519,7 +1548,24 @@ private fun OpenAICompatibleSettings(
             }
         }
     }
-    if (!isCloudflare) {
+    if (isNvidia) {
+        val linkColor = AccentPrimary
+        val annotatedNvidia = remember(linkColor) {
+            buildAnnotatedString {
+                append("Build and deploy with NVIDIA NIM microservices at ")
+                withLink(LinkAnnotation.Url(url = "https://build.nvidia.com")) {
+                    withStyle(style = SpanStyle(color = linkColor)) {
+                        append("build.nvidia.com")
+                    }
+                }
+            }
+        }
+        Text(
+            annotatedNvidia,
+            modifier = Modifier.fillMaxWidth(),
+            color = LocalDesignColorTokens.current.textPrimary,
+        )
+    } else if (!isCloudflare) {
         Text(
             annotatedString,
             modifier = Modifier.fillMaxWidth(),
@@ -2079,21 +2125,80 @@ private fun ApiKeyField(
     singleLine: Boolean = false,
     isPassword: Boolean = true,
 ) {
-    DoraiClearableTextField(
-        modifier = if (testTag != null) Modifier.testTag(testTag) else Modifier,
+    val clipboardManager = LocalClipboardManager.current
+    var showPassword by remember { mutableStateOf(!isPassword) }
+    val colors = LocalDesignColorTokens.current
+
+    OutlinedTextField(
+        modifier = (if (testTag != null) Modifier.testTag(testTag) else Modifier).fillMaxWidth(),
         value = apiKey,
         onValueChange = onChangeApiKey,
         label = {
             Text(
                 labelText,
-                color = LocalDesignColorTokens.current.textPrimary,
+                color = colors.textPrimary,
             )
         },
         singleLine = singleLine,
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
+            keyboardType = if (showPassword) KeyboardType.Text else KeyboardType.Password,
             imeAction = ImeAction.Done,
         ),
-        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+        visualTransformation = if (!showPassword && isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+        shape = RoundedCornerShape(10.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = colors.surfaceElevated,
+            unfocusedContainerColor = colors.surface,
+            focusedBorderColor = colors.primary,
+            unfocusedBorderColor = colors.borderSoft,
+            focusedTextColor = colors.textPrimary,
+            unfocusedTextColor = colors.textPrimary,
+        ),
+        trailingIcon = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (isPassword) {
+                    IconButton(
+                        onClick = { showPassword = !showPassword },
+                        modifier = Modifier.handCursor(),
+                    ) {
+                        Icon(
+                            imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            contentDescription = if (showPassword) "Hide password" else "Show password",
+                            tint = colors.textSecondary,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                }
+                IconButton(
+                    onClick = {
+                        val text = clipboardManager.getText()?.text
+                        if (!text.isNullOrBlank()) {
+                            onChangeApiKey(text.trim())
+                        }
+                    },
+                    modifier = Modifier.handCursor(),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ContentPaste,
+                        contentDescription = "Paste from clipboard",
+                        tint = colors.textSecondary,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+                if (apiKey.isNotEmpty()) {
+                    IconButton(
+                        onClick = { onChangeApiKey("") },
+                        modifier = Modifier.handCursor(),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Clear",
+                            tint = colors.textSecondary,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                }
+            }
+        },
     )
 }
