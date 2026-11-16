@@ -92,7 +92,6 @@ import com.dorai.ai.ui.adaptive.DoraiWindowWidthClass
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
 import com.dorai.ai.ui.components.LogoAnimation
 import com.dorai.ai.ui.components.v2.DoraiModalSheet
-import com.dorai.ai.ui.components.v2.DoraiPillTabs
 import com.dorai.ai.ui.components.v2.DoraiProviderBadge
 import com.dorai.ai.ui.components.v2.DoraiStatusBadge
 import com.dorai.ai.ui.components.v2.DoraiThemePresetTile
@@ -255,17 +254,6 @@ fun DoraiSettingsScreen(
                     .fillMaxSize()
                     .background(colors.background),
             ) {
-                DoraiPillTabs(
-                    items = SettingsCategory.entries,
-                    selectedItem = category,
-                    onItemSelected = {
-                        selectedCat = it
-                        onCategoryChanged(it)
-                    },
-                    labelProvider = { stringResource(it.titleRes) },
-                    modifier = Modifier.padding(DoraiSpacing.MD),
-                )
-
                 Box(
                     modifier = Modifier
                         .weight(1f)
