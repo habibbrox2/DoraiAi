@@ -603,6 +603,8 @@
     <string name="composer_mic_content_description">ভয়েস ইনপুট</string>
     <string name="composer_stop_voice">ভয়েস ইনপুট বন্ধ করুন</string>
     <string name="composer_input_hint">DORAI-কে জিজ্ঞাসা করুন বা নির্দেশ দিন…</string>
+    <string name="composer_hint_send">পাঠান</string>
+    <string name="composer_hint_newline">নতুন লাইন</string>
     <string name="dynamic_ui_confirm">নিশ্চিত করুন</string>
     <string name="dynamic_ui_submitted">নিশ্চিত করা হয়েছে</string>
     <string name="mode_ask">জিজ্ঞাসা</string>
@@ -685,7 +687,7 @@
     <string name="chat_stop_speaking">পড়া বন্ধ করুন</string>
     <string name="chat_empty_subtitle">নিচের প্রম্পটে ক্লিক করুন অথবা কম্পোজারে লিখুন</string>
     <string name="chat_agent_activity">এজেন্ট কার্যক্রম · %1$dটি ধাপ</string>
-    <string name="chat_welcome_ask">আজ আপনাকে কীভাবে সাহায্য করতে পারি?</string>
+    <string name="chat_welcome_ask">আজ কী নিয়ে কাজ করবেন?</string>
     <string name="chat_welcome_plan">কোন ফিচার পরিকল্পনা করতে চান?</string>
     <string name="chat_welcome_build">আপনি কী বানাতে চান?</string>
     <string name="chat_welcome_review">কোড রিভিউ ও উন্নতির জন্য প্রস্তুত।</string>

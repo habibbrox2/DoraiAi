@@ -23,6 +23,17 @@
 
 ---
 
+## DORAI AI - Meridian chat UI alignment (Unreleased)
+
+### Changed
+- **Chat empty state now uses Meridian-style suggestion rows**: full-width icon + prompt rows with hairline dividers on every screen size, localized hero "What would you like to work on today?" / "আজ কী নিয়ে কাজ করবেন?", and a wrapping shortcut row. Colors still follow the active preset theme.
+- **Composer shows keyboard hints** below the input on desktop/web (Enter → Send, Shift+Enter → New line).
+
+### Fixed
+- **Mojibake in the empty-state mode badge** (`Â·` → `·`), collapse-all tool toggle not converging on mixed tool states, Bengali mode-badge typography, model-pill touch target, and hardcoded English logo accessibility label.
+
+---
+
 ## DORAI AI - Settings concept alignment (Unreleased)
 
 ### Changed

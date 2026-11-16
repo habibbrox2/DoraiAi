@@ -525,14 +525,14 @@ internal fun ChatMessageRow(
                         )
                     }
                     if (backgroundTools.size > 1) {
+                        val footerExpanded = backgroundTools.all { tool ->
+                            expandedToolOverrides[tool.toolCallId] ?: (tool.state != ToolExecutionState.Completed)
+                        }
                         DoraiToolCardCollapseAll(
-                            expanded = backgroundTools.all { tool ->
-                                expandedToolOverrides[tool.toolCallId] ?: (tool.state != ToolExecutionState.Completed)
-                            },
+                            expanded = footerExpanded,
                             onToggleAll = {
                                 backgroundTools.forEach { tool ->
-                                    val current = expandedToolOverrides[tool.toolCallId] ?: (tool.state != ToolExecutionState.Completed)
-                                    expandedToolOverrides[tool.toolCallId] = !current
+                                    expandedToolOverrides[tool.toolCallId] = !footerExpanded
                                 }
                             },
                         )

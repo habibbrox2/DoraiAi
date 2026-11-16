@@ -887,6 +887,8 @@
     <string name="composer_mic_content_description">Voice input</string>
     <string name="composer_stop_voice">Stop voice input</string>
     <string name="composer_input_hint">Ask or instruct DORAI…</string>
+    <string name="composer_hint_send">Send</string>
+    <string name="composer_hint_newline">New line</string>
     <string name="dynamic_ui_confirm">Confirm</string>
     <string name="dynamic_ui_submitted">Confirmed</string>
     <string name="mode_ask">Ask</string>
@@ -969,7 +971,7 @@
     <string name="chat_stop_speaking">Stop speaking</string>
     <string name="chat_empty_subtitle">Select a prompt suggestion below or start typing in the composer</string>
     <string name="chat_agent_activity">Agent activity · %1$d steps</string>
-    <string name="chat_welcome_ask">How can I help you today?</string>
+    <string name="chat_welcome_ask">What would you like to work on today?</string>
     <string name="chat_welcome_plan">What feature would you like to plan?</string>
     <string name="chat_welcome_build">What would you like to build?</string>
     <string name="chat_welcome_review">Ready to review and optimize code.</string>

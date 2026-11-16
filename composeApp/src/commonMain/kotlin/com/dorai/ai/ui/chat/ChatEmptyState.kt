@@ -136,7 +136,6 @@ import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.adaptive.DoraiListDetailPaneScaffold
-import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
 import com.dorai.ai.ui.chat.ChatSpacing
 import com.dorai.ai.ui.chat.composables.AnimatedTypingDots
 import com.dorai.ai.ui.chat.composables.ChatCommandPalette
@@ -319,71 +318,41 @@ private fun QuickPromptCard(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalDoraiColors.current
-    val shape = RoundedCornerShape(12.dp)
     val title = stringResource(spec.titleRes)
     val prompt = stringResource(spec.promptRes)
-    val tag = stringResource(spec.tagRes)
-    // Stable click lambda: the card does not create a new callback on every
+    // Stable click lambda: the row does not create a new callback on every
     // recomposition of the empty state.
     val onClick = remember(prompt, onSelectPrompt) { { onSelectPrompt(prompt) } }
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .background(colors.surface)
-            .border(1.dp, colors.line, shape)
-            .clickable(onClick = onClick, role = Role.Button, onClickLabel = title)
-            .padding(ChatSpacing.md),
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(colors.primary.copy(alpha = 0.12f)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = spec.icon,
-                        contentDescription = null,
-                        tint = colors.primary,
-                        modifier = Modifier.size(14.dp),
-                    )
-                }
-                Spacer(modifier = Modifier.width(ChatSpacing.sm))
-                Text(
-                    text = title,
-                    color = colors.text,
-                    fontSize = 13.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f),
-                )
-                Text(
-                    text = tag,
-                    color = colors.muted,
-                    fontSize = 10.5.sp,
-                    fontFamily = FontFamily.Monospace,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(colors.surface2)
-                        .padding(horizontal = 5.dp, vertical = 2.dp),
-                )
-            }
-            Spacer(modifier = Modifier.height(6.dp))
+    // Meridian-style flat suggestion row: leading icon + prompt text, hairline
+    // divider below. No card surface, so the list reads like the prototype.
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick, role = Role.Button, onClickLabel = title)
+                .minimumInteractiveComponentSize()
+                .padding(vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = spec.icon,
+                contentDescription = null,
+                tint = colors.muted,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(modifier = Modifier.width(ChatSpacing.md))
             Text(
                 text = prompt,
-                color = colors.muted,
-                fontSize = 12.sp,
-                lineHeight = 17.sp,
+                color = colors.text,
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
             )
         }
+        HorizontalDivider(color = colors.line, thickness = 0.5.dp)
     }
 }
 
@@ -434,6 +403,7 @@ private fun ActionShortcutPill(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun ChatEmptyState(
     selectedModeId: String,
@@ -443,7 +413,6 @@ internal fun ChatEmptyState(
     onNavigateToWorkspace: (() -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
-    val widthClass = LocalDoraiWindowWidthClass.current
 
     val welcomeTitleRes = when (selectedModeId) {
         "plan" -> Res.string.chat_welcome_plan
@@ -455,7 +424,7 @@ internal fun ChatEmptyState(
 
     val activeMode = com.dorai.ai.ui.components.v2.DefaultAgentModes.firstOrNull { it.id == selectedModeId }
     val modeBadge = if (activeMode != null) {
-        stringResource(activeMode.nameRes) + " Â· " + stringResource(activeMode.descRes)
+        stringResource(activeMode.nameRes) + " · " + stringResource(activeMode.descRes)
     } else {
         selectedModeId
     }
@@ -545,7 +514,7 @@ internal fun ChatEmptyState(
                 text = modeBadge,
                 color = colors.primary,
                 fontSize = 12.5.sp,
-                fontFamily = FontFamily.Monospace,
+                lineHeight = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
@@ -556,51 +525,25 @@ internal fun ChatEmptyState(
 
             Spacer(modifier = Modifier.height(ChatSpacing.lg))
 
-            // Quick Prompt Suggestions Grid
-            if (widthClass.isCompact) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(ChatSpacing.sm),
-                ) {
-                    prompts.forEach { spec ->
-                        QuickPromptCard(
-                            spec = spec,
-                            onSelectPrompt = onSelectQuickPrompt,
-                        )
-                    }
-                }
-            } else {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(ChatSpacing.sm),
-                ) {
-                    prompts.chunked(2).forEach { rowItems ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(ChatSpacing.sm),
-                        ) {
-                            rowItems.forEach { spec ->
-                                QuickPromptCard(
-                                    spec = spec,
-                                    onSelectPrompt = onSelectQuickPrompt,
-                                    modifier = Modifier.weight(1f),
-                                )
-                            }
-                            if (rowItems.size == 1) {
-                                Spacer(modifier = Modifier.weight(1f))
-                            }
-                        }
-                    }
+            // Meridian-style suggestion list: full-width rows with dividers on
+            // every width class (the prototype shows the same list on desktop
+            // and mobile).
+            Column(modifier = Modifier.fillMaxWidth()) {
+                prompts.forEach { spec ->
+                    QuickPromptCard(
+                        spec = spec,
+                        onSelectPrompt = onSelectQuickPrompt,
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.height(ChatSpacing.md))
 
-            // Quick Action Shortcuts Bar
-            Row(
+            // Quick Action Shortcuts Bar — wraps on narrow screens.
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(ChatSpacing.sm, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.spacedBy(ChatSpacing.xs),
             ) {
                 if (onAttachImage != null) {
                     ActionShortcutPill(
@@ -608,7 +551,6 @@ internal fun ChatEmptyState(
                         painter = painterResource(Res.drawable.ic_image),
                         onClick = onAttachImage,
                     )
-                    Spacer(modifier = Modifier.width(ChatSpacing.sm))
                 }
                 if (onAttachFile != null) {
                     ActionShortcutPill(
@@ -616,7 +558,6 @@ internal fun ChatEmptyState(
                         painter = painterResource(Res.drawable.ic_file),
                         onClick = onAttachFile,
                     )
-                    Spacer(modifier = Modifier.width(ChatSpacing.sm))
                 }
                 if (onNavigateToWorkspace != null) {
                     ActionShortcutPill(
