@@ -212,7 +212,7 @@ private fun AppContent(
                     chatViewModel.refreshServices()
                 }
                 val pendingApprovalsCount = chatUiState.pendingToolConfirmations.size
-                var currentSettingsCategory by remember { mutableStateOf(SettingsCategory.General) }
+                var currentSettingsCategory by remember { mutableStateOf<SettingsCategory?>(null) }
 
                 // The MCP OAuth hand-off page links back into the app; land on the
                 // Integrations / MCP category so the authorized connector is in view.

@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +32,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Delete
@@ -90,11 +92,18 @@ import com.dorai.ai.ui.adaptive.DoraiWindowWidthClass
 import com.dorai.ai.ui.adaptive.LocalDoraiWindowWidthClass
 import com.dorai.ai.ui.components.LogoAnimation
 import com.dorai.ai.ui.components.v2.DoraiModalSheet
-import com.dorai.ai.ui.components.v2.DoraiPillTabs
 import com.dorai.ai.ui.components.v2.DoraiProviderBadge
 import com.dorai.ai.ui.components.v2.DoraiStatusBadge
 import com.dorai.ai.ui.components.v2.DoraiThemePresetTile
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.account_auth_sessions
+import dorai.composeapp.generated.resources.account_chat_history
+import dorai.composeapp.generated.resources.account_export_data
+import dorai.composeapp.generated.resources.account_section_about
+import dorai.composeapp.generated.resources.account_section_data
+import dorai.composeapp.generated.resources.account_section_notifications
+import dorai.composeapp.generated.resources.account_section_privacy
+import dorai.composeapp.generated.resources.account_section_subscription
 import dorai.composeapp.generated.resources.action_cancel
 import dorai.composeapp.generated.resources.action_delete
 import dorai.composeapp.generated.resources.agent_activity_timeline
@@ -115,6 +124,7 @@ import dorai.composeapp.generated.resources.mode_plan
 import dorai.composeapp.generated.resources.mode_plan_desc
 import dorai.composeapp.generated.resources.mode_review
 import dorai.composeapp.generated.resources.mode_review_desc
+import dorai.composeapp.generated.resources.settings_agent_behavior
 import dorai.composeapp.generated.resources.settings_approval_ask_all
 import dorai.composeapp.generated.resources.settings_approval_ask_edits
 import dorai.composeapp.generated.resources.settings_approval_auto_read
@@ -130,15 +140,29 @@ import dorai.composeapp.generated.resources.settings_cat_providers
 import dorai.composeapp.generated.resources.settings_cat_tools
 import dorai.composeapp.generated.resources.settings_delete_all_chats
 import dorai.composeapp.generated.resources.settings_delete_chats_confirm
+import dorai.composeapp.generated.resources.settings_github_connection
 import dorai.composeapp.generated.resources.settings_github_description
+import dorai.composeapp.generated.resources.settings_manage_providers
 import dorai.composeapp.generated.resources.settings_mcp_add_server
 import dorai.composeapp.generated.resources.settings_mcp_invalid_url
 import dorai.composeapp.generated.resources.settings_mcp_test_connection
 import dorai.composeapp.generated.resources.settings_mcp_url_hint
+import dorai.composeapp.generated.resources.settings_page_account_description
+import dorai.composeapp.generated.resources.settings_page_agent_description
+import dorai.composeapp.generated.resources.settings_page_appearance_description
+import dorai.composeapp.generated.resources.settings_page_general_description
+import dorai.composeapp.generated.resources.settings_page_github_description
+import dorai.composeapp.generated.resources.settings_page_services_description
+import dorai.composeapp.generated.resources.settings_page_tools_description
+import dorai.composeapp.generated.resources.settings_plugins
+import dorai.composeapp.generated.resources.settings_providers_discover
 import dorai.composeapp.generated.resources.settings_screen_title
 import dorai.composeapp.generated.resources.settings_theme_presets
 import dorai.composeapp.generated.resources.settings_timeline_desc
 import dorai.composeapp.generated.resources.settings_timeline_toggle
+import dorai.composeapp.generated.resources.settings_tools_integrations
+import dorai.composeapp.generated.resources.settings_version
+import dorai.composeapp.generated.resources.settings_your_connectors
 import dorai.composeapp.generated.resources.status_connected
 import dorai.composeapp.generated.resources.tools_group_title
 import dorai.composeapp.generated.resources.v2_account_local_title
@@ -185,16 +209,17 @@ import org.koin.compose.viewmodel.koinViewModel
 enum class SettingsCategory(
     val id: String,
     val titleRes: StringResource,
+    val subtitleRes: StringResource,
     val icon: ImageVector,
 ) {
-    General("general", Res.string.settings_cat_general, Icons.Default.Tune),
-    Appearance("appearance", Res.string.settings_cat_appearance, Icons.Default.Palette),
-    Agent("agent", Res.string.settings_cat_agent, Icons.Default.SmartToy),
-    Providers("providers", Res.string.settings_cat_providers, Icons.Default.VpnKey),
-    Tools("tools", Res.string.settings_cat_tools, Icons.Default.Build),
-    Mcp("mcp", Res.string.settings_cat_mcp, Icons.Default.Extension),
-    GitHub("github", Res.string.settings_cat_github, Icons.Default.Code),
-    Account("account", Res.string.settings_cat_account, Icons.Default.AccountCircle),
+    General("general", Res.string.settings_cat_general, Res.string.settings_page_general_description, Icons.Default.Tune),
+    Appearance("appearance", Res.string.settings_cat_appearance, Res.string.settings_page_appearance_description, Icons.Default.Palette),
+    Agent("agent", Res.string.settings_cat_agent, Res.string.settings_page_agent_description, Icons.Default.SmartToy),
+    Providers("providers", Res.string.settings_cat_providers, Res.string.settings_page_services_description, Icons.Default.VpnKey),
+    Tools("tools", Res.string.settings_cat_tools, Res.string.settings_page_tools_description, Icons.Default.Build),
+    Mcp("mcp", Res.string.settings_cat_mcp, Res.string.settings_page_tools_description, Icons.Default.Extension),
+    GitHub("github", Res.string.settings_cat_github, Res.string.settings_page_github_description, Icons.Default.Code),
+    Account("account", Res.string.settings_cat_account, Res.string.settings_page_account_description, Icons.Default.AccountCircle),
 }
 
 /**
@@ -209,8 +234,8 @@ enum class SettingsCategory(
  */
 @Composable
 fun DoraiSettingsScreen(
-    activeCategory: SettingsCategory = SettingsCategory.General,
-    onCategoryChanged: (SettingsCategory) -> Unit,
+    activeCategory: SettingsCategory? = null,
+    onCategoryChanged: (SettingsCategory?) -> Unit,
     selectedThemeId: String,
     onThemeSelected: (String) -> Unit,
     appearanceActions: AppearanceSettingsActions? = null,
@@ -228,43 +253,48 @@ fun DoraiSettingsScreen(
     var selectedCat by remember(activeCategory) { mutableStateOf(activeCategory) }
 
     if (widthClass.isCompact) {
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .background(colors.background),
-        ) {
-            DoraiPillTabs(
-                items = SettingsCategory.entries,
-                selectedItem = selectedCat,
-                onItemSelected = {
+        if (selectedCat == null) {
+            SettingsHome(
+                modifier = modifier,
+                onCategorySelected = {
                     selectedCat = it
                     onCategoryChanged(it)
                 },
-                labelProvider = { stringResource(it.titleRes) },
-                modifier = Modifier.padding(DoraiSpacing.MD),
+                debugBuildStamp = debugBuildStamp,
             )
-
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
+        } else {
+            val category = selectedCat!!
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .background(colors.background),
             ) {
-                SettingsCategoryContent(
-                    category = selectedCat,
-                    selectedThemeId = selectedThemeId,
-                    onThemeSelected = onThemeSelected,
-                    appearanceActions = appearanceActions,
-                    uiState = uiState,
-                    actions = actions,
-                    sandboxState = sandboxState,
-                    androidUpdateContent = androidUpdateContent,
-                    debugBuildStamp = debugBuildStamp,
-                    onNavigateToWorkspace = onNavigateToWorkspace,
-                    onNavigateToCategory = {
-                        selectedCat = it
-                        onCategoryChanged(it)
-                    },
-                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                ) {
+                    SettingsCategoryContent(
+                        category = category,
+                        selectedThemeId = selectedThemeId,
+                        onThemeSelected = onThemeSelected,
+                        appearanceActions = appearanceActions,
+                        uiState = uiState,
+                        actions = actions,
+                        sandboxState = sandboxState,
+                        androidUpdateContent = androidUpdateContent,
+                        debugBuildStamp = debugBuildStamp,
+                        onNavigateToWorkspace = onNavigateToWorkspace,
+                        onNavigateToCategory = {
+                            selectedCat = it
+                            onCategoryChanged(it)
+                        },
+                        onNavigateHome = {
+                            selectedCat = null
+                            onCategoryChanged(null)
+                        },
+                    )
+                }
             }
         }
     } else {
@@ -279,22 +309,38 @@ fun DoraiSettingsScreen(
                 )
             },
             detailPane = {
-                SettingsCategoryContent(
-                    category = selectedCat,
-                    selectedThemeId = selectedThemeId,
-                    onThemeSelected = onThemeSelected,
-                    appearanceActions = appearanceActions,
-                    uiState = uiState,
-                    actions = actions,
-                    sandboxState = sandboxState,
-                    androidUpdateContent = androidUpdateContent,
-                    debugBuildStamp = debugBuildStamp,
-                    onNavigateToWorkspace = onNavigateToWorkspace,
-                    onNavigateToCategory = {
-                        selectedCat = it
-                        onCategoryChanged(it)
-                    },
-                )
+                val category = selectedCat
+                if (category == null) {
+                    SettingsHome(
+                        modifier = Modifier,
+                        onCategorySelected = {
+                            selectedCat = it
+                            onCategoryChanged(it)
+                        },
+                        debugBuildStamp = debugBuildStamp,
+                    )
+                } else {
+                    SettingsCategoryContent(
+                        category = category,
+                        selectedThemeId = selectedThemeId,
+                        onThemeSelected = onThemeSelected,
+                        appearanceActions = appearanceActions,
+                        uiState = uiState,
+                        actions = actions,
+                        sandboxState = sandboxState,
+                        androidUpdateContent = androidUpdateContent,
+                        debugBuildStamp = debugBuildStamp,
+                        onNavigateToWorkspace = onNavigateToWorkspace,
+                        onNavigateToCategory = {
+                            selectedCat = it
+                            onCategoryChanged(it)
+                        },
+                        onNavigateHome = {
+                            selectedCat = null
+                            onCategoryChanged(null)
+                        },
+                    )
+                }
             },
             modifier = modifier,
         )
@@ -309,8 +355,8 @@ fun DoraiSettingsScreen(
  */
 @Composable
 fun DoraiSettingsScreenConnected(
-    activeCategory: SettingsCategory = SettingsCategory.General,
-    onCategoryChanged: (SettingsCategory) -> Unit,
+    activeCategory: SettingsCategory? = null,
+    onCategoryChanged: (SettingsCategory?) -> Unit,
     selectedThemeId: String,
     onThemeSelected: (String) -> Unit,
     appearanceActions: AppearanceSettingsActions? = null,
@@ -338,15 +384,131 @@ fun DoraiSettingsScreenConnected(
         actions = settingsViewModel.actions,
         sandboxState = sandboxState,
         androidUpdateContent = androidUpdateContent,
-        debugBuildStamp = "v${Version.appVersion} · uiV2=on",
+        debugBuildStamp = "v${Version.appVersion} Â· uiV2=on",
         onNavigateToWorkspace = onNavigateToWorkspace,
         modifier = modifier,
     )
 }
 
+/**
+ * Settings landing page: a hero banner plus one card per category, matching the
+ * product concept. Tapping a card opens that category's detail page.
+ */
+@Composable
+private fun SettingsHome(
+    modifier: Modifier = Modifier,
+    onCategorySelected: (SettingsCategory) -> Unit,
+    debugBuildStamp: String? = null,
+) {
+    val colors = LocalDoraiColors.current
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(DoraiSpacing.MD),
+        verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD),
+    ) {
+        // Hero banner (theme-driven gradient, no hardcoded palette).
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(
+                    androidx.compose.ui.graphics.Brush.horizontalGradient(
+                        listOf(colors.primary, colors.accent),
+                    ),
+                )
+                .padding(20.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(Res.string.settings_screen_title),
+                        color = colors.onPrimary,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.semantics { heading() },
+                    )
+                    Spacer(modifier = Modifier.height(DoraiSpacing.XS))
+                    Text(
+                        text = stringResource(Res.string.settings_page_general_description),
+                        color = colors.onPrimary,
+                        fontSize = 13.sp,
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Default.SmartToy,
+                    contentDescription = null,
+                    tint = colors.onPrimary,
+                    modifier = Modifier.size(56.dp),
+                )
+            }
+        }
+
+        SettingsCategory.entries.forEach { category ->
+            val shape = RoundedCornerShape(16.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape)
+                    .background(colors.surface)
+                    .border(1.dp, colors.line, shape)
+                    .clickable(role = Role.Button) { onCategorySelected(category) }
+                    .defaultMinSize(minHeight = 72.dp)
+                    .padding(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.SM),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(colors.primary.copy(alpha = 0.14f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = category.icon,
+                        contentDescription = null,
+                        tint = colors.primary,
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
+                Spacer(modifier = Modifier.width(DoraiSpacing.MD))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(category.titleRes),
+                        color = colors.text,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = stringResource(category.subtitleRes),
+                        color = colors.muted,
+                        fontSize = 12.5.sp,
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    tint = colors.muted,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+        }
+
+        debugBuildStamp?.let {
+            Text(
+                text = it,
+                color = colors.muted,
+                fontSize = 11.sp,
+                modifier = Modifier.fillMaxWidth().padding(vertical = DoraiSpacing.SM),
+            )
+        }
+    }
+}
+
 @Composable
 private fun SettingsCategoryListPane(
-    selectedCategory: SettingsCategory,
+    selectedCategory: SettingsCategory?,
     onCategorySelected: (SettingsCategory) -> Unit,
 ) {
     val colors = LocalDoraiColors.current
@@ -423,6 +585,7 @@ private fun SettingsCategoryContent(
     debugBuildStamp: String? = null,
     onNavigateToWorkspace: (() -> Unit)? = null,
     onNavigateToCategory: (SettingsCategory) -> Unit = {},
+    onNavigateHome: () -> Unit = {},
 ) {
     val colors = LocalDoraiColors.current
     // A fresh scroll position per category: switching tabs always lands on the header.
@@ -436,6 +599,7 @@ private fun SettingsCategoryContent(
         SettingsPageHeader(
             title = stringResource(category.titleRes),
             icon = category.icon,
+            onBack = onNavigateHome.takeIf { true },
         )
         Spacer(modifier = Modifier.height(DoraiSpacing.LG))
 
@@ -467,17 +631,23 @@ private fun SettingsCategoryContent(
                     )
 
                     SettingsCategory.Agent -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_agent_behavior))
                         AgentPolicyHeader()
                         AgentContent(uiState = uiState, actions = actions)
                     }
 
-                    SettingsCategory.Providers -> ServicesContent(uiState = uiState, actions = actions)
+                    SettingsCategory.Providers -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_providers_discover))
+                        ServicesContent(uiState = uiState, actions = actions)
+                    }
 
                     SettingsCategory.Tools -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_plugins))
                         PluginsSection(tools = uiState.tools, onToggleTool = actions.onToggleTool)
                         // Skills stay visible on every platform: without the sandbox the section
                         // explains what is missing and links to the sandbox setup, so the capability
                         // is never silently hidden.
+                        SettingsDetailSectionHeading(stringResource(Res.string.v2_skills_title))
                         SkillsSection(
                             skills = uiState.skills,
                             onUninstallSkill = actions.onUninstallSkill,
@@ -494,15 +664,17 @@ private fun SettingsCategoryContent(
                             onNavigateToSandbox = onNavigateToWorkspace,
                             onBrowseSkills = actions.onBrowseSkills,
                         )
-                        // Integrations used to be a separate Settings tab; the request entry
-                        // point now closes the Tools page.
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_tools_integrations))
+
                         IntegrationRequestCard()
                     }
 
                     SettingsCategory.Mcp -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_your_connectors))
                         McpServersSection(
                             mcpServers = uiState.mcpServers,
                             onAddMcpServer = actions.onAddMcpServer,
+                            onAddMcpServerWithOAuth = actions.onAddMcpServerWithOAuth,
                             onRemoveMcpServer = actions.onRemoveMcpServer,
                             onToggleMcpServer = actions.onToggleMcpServer,
                             onRefreshMcpServer = actions.onRefreshMcpServer,
@@ -516,14 +688,12 @@ private fun SettingsCategoryContent(
                     }
 
                     SettingsCategory.GitHub -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_github_connection))
                         GitHubSection()
                     }
 
                     SettingsCategory.Account -> {
-                        AccountProfileCard()
-                        DataControlContent(uiState = uiState, actions = actions)
-                        DoraiCloudSection()
-                        AccountPlanContent(uiState = uiState)
+                        AccountFlowContent(uiState = uiState, actions = actions)
                     }
                 }
             } else {
@@ -537,22 +707,35 @@ private fun SettingsCategoryContent(
                     )
 
                     SettingsCategory.Agent -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_agent_behavior))
                         AgentPolicyHeader()
-                        AgentSettingsContent()
                     }
 
-                    SettingsCategory.Providers -> ServicesContent(uiState = SettingsUiState(), actions = SettingsActions.NoOp)
+                    SettingsCategory.Providers -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_providers_discover))
+                        ServicesContent(uiState = SettingsUiState(), actions = SettingsActions.NoOp)
+                    }
 
-                    SettingsCategory.Tools -> ToolsSettingsContent()
+                    SettingsCategory.Tools -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_plugins))
+                        ToolsSettingsContent()
+                    }
 
-                    SettingsCategory.Mcp -> McpSettingsContent()
+                    SettingsCategory.Mcp -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_your_connectors))
+                        McpSettingsContent()
+                    }
 
-                    SettingsCategory.GitHub -> GitHubSection()
+                    SettingsCategory.GitHub -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_github_connection))
+                        GitHubSection()
+                    }
 
                     SettingsCategory.Account -> {
-                        AccountProfileCard()
-                        DoraiCloudSection()
-                        AccountSettingsContent()
+                        AccountFlowContent(
+                            uiState = SettingsUiState(),
+                            actions = SettingsActions.NoOp,
+                        )
                     }
                 }
             }
@@ -561,7 +744,7 @@ private fun SettingsCategoryContent(
 }
 
 /**
- * Appearance controls owned by [com.dorai.ai.theme.ThemeViewModel] — the single
+ * Appearance controls owned by [com.dorai.ai.theme.ThemeViewModel] â€” the single
  * state writer for theme selection. App.kt builds this from the collected theme state;
  * `null` hides the advanced controls in preview/screenshot compositions, exactly as
  * the legacy Appearance tab never exposed them.
@@ -1075,6 +1258,67 @@ private fun AgentPolicyHeader(
             appSettings.setAutoReadEnabled(it)
         },
     )
+}
+
+@Composable
+internal fun SettingsDetailSectionHeading(text: String) {
+    val colors = LocalDoraiColors.current
+    Text(
+        text = text,
+        color = colors.muted,
+        fontSize = 12.5.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { heading() },
+    )
+}
+
+/** Account page arranged to the product flow: Profile â†’ Subscription â†’ Privacy â†’ Data â†’ Notifications â†’ About. */
+@Composable
+private fun AccountFlowContent(uiState: SettingsUiState, actions: SettingsActions) {
+    // Profile
+    AccountProfileCard()
+
+    // Privacy & Security â€” Authentication & Sessions
+    SettingsDetailSectionHeading(stringResource(Res.string.account_section_privacy))
+    SettingsDetailSectionHeading(stringResource(Res.string.account_auth_sessions))
+    DoraiCloudSection()
+
+    SettingsDetailSectionHeading(stringResource(Res.string.account_section_data))
+    SettingsDetailSectionHeading(stringResource(Res.string.account_export_data))
+    ExportImportSection(
+        onExportSettings = actions.onExportSettings,
+        onPrepareExport = actions.onPrepareExport,
+        onImportSettings = actions.onImportSettings,
+    )
+    SettingsDetailSectionHeading(stringResource(Res.string.account_chat_history))
+    DataControlContent(uiState = uiState, actions = actions)
+
+    if (uiState.showNotificationsSection) {
+        SettingsDetailSectionHeading(stringResource(Res.string.account_section_notifications))
+        SettingsSectionCard {
+            NotificationsSection(
+                isEnabled = uiState.isNotificationsEnabled,
+                accessGranted = uiState.notificationListenerAccessGranted,
+                listenerBound = uiState.notificationListenerBound,
+                pendingCount = uiState.notificationPendingCount,
+                onToggle = actions.onToggleNotifications,
+                onOpenAccessSettings = actions.onOpenNotificationListenerSettings,
+                onClearPending = actions.onClearPendingNotifications,
+            )
+        }
+    }
+
+    // About Dorai AI
+    SettingsDetailSectionHeading(stringResource(Res.string.account_section_about))
+    SettingsSectionCard {
+        Text(
+            text = stringResource(Res.string.settings_version, com.dorai.ai.Version.appVersion),
+            color = LocalDoraiColors.current.muted,
+            fontSize = 12.5.sp,
+        )
+    }
 }
 
 @Composable

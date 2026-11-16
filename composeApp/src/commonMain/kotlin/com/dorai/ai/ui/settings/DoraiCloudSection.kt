@@ -1,5 +1,6 @@
 package com.dorai.ai.ui.settings
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,10 +21,13 @@ import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -58,6 +62,9 @@ import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.facebook_mark
+import dorai.composeapp.generated.resources.github_mark
+import dorai.composeapp.generated.resources.google_mark
 import dorai.composeapp.generated.resources.settings_dorai_cloud_description
 import dorai.composeapp.generated.resources.settings_dorai_cloud_email_label
 import dorai.composeapp.generated.resources.settings_dorai_cloud_oauth_failed
@@ -67,6 +74,7 @@ import dorai.composeapp.generated.resources.settings_dorai_cloud_provider_facebo
 import dorai.composeapp.generated.resources.settings_dorai_cloud_provider_github
 import dorai.composeapp.generated.resources.settings_dorai_cloud_provider_google
 import dorai.composeapp.generated.resources.settings_dorai_cloud_sign_in
+import dorai.composeapp.generated.resources.settings_dorai_cloud_sign_in_with_email
 import dorai.composeapp.generated.resources.settings_dorai_cloud_sign_out
 import dorai.composeapp.generated.resources.settings_dorai_cloud_signed_in_as
 import dorai.composeapp.generated.resources.settings_dorai_cloud_social_title
@@ -74,6 +82,8 @@ import dorai.composeapp.generated.resources.settings_dorai_cloud_title
 import dorai.composeapp.generated.resources.settings_dorai_cloud_usage
 import io.ktor.http.Url
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
@@ -98,6 +108,7 @@ private val GitHubBlack = Color(0xFF24292F)
  * opens the provider's consent screen in the system browser, and redeems the
  * authorization code that comes back through the `dorai://cloud/auth` deep link.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DoraiCloudSection(modifier: Modifier = Modifier) {
     val appSettings: AppSettings = koinInject()
@@ -113,6 +124,7 @@ fun DoraiCloudSection(modifier: Modifier = Modifier) {
     var usage by remember { mutableStateOf(DoraiCloudUsageDto()) }
     var isBusy by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var showEmailSignIn by remember { mutableStateOf(false) }
 
     val httpClient = remember { httpClient { } }
     val cloudClient = remember {
@@ -237,22 +249,19 @@ fun DoraiCloudSection(modifier: Modifier = Modifier) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     SocialProviderButton(
-                        monogram = "G",
-                        background = GoogleBlue,
+                        icon = Res.drawable.google_mark,
                         label = stringResource(Res.string.settings_dorai_cloud_provider_google),
                         enabled = !isBusy,
                         onClick = { startSocialSignIn(CloudSocialProvider.Google.id) },
                     )
                     SocialProviderButton(
-                        monogram = "f",
-                        background = FacebookBlue,
+                        icon = Res.drawable.facebook_mark,
                         label = stringResource(Res.string.settings_dorai_cloud_provider_facebook),
                         enabled = !isBusy,
                         onClick = { startSocialSignIn(CloudSocialProvider.Facebook.id) },
                     )
                     SocialProviderButton(
-                        monogram = "GH",
-                        background = GitHubBlack,
+                        icon = Res.drawable.github_mark,
                         label = stringResource(Res.string.settings_dorai_cloud_provider_github),
                         enabled = !isBusy,
                         onClick = { startSocialSignIn(CloudSocialProvider.GitHub.id) },
@@ -260,64 +269,12 @@ fun DoraiCloudSection(modifier: Modifier = Modifier) {
                 }
 
                 Spacer(Modifier.height(12.dp))
-                Text(
-                    text = stringResource(Res.string.settings_dorai_cloud_or_email),
-                    style = DoraiTypography.bodySmall,
-                    color = LocalDesignColorTokens.current.textSecondary,
-                )
-                Spacer(Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text(stringResource(Res.string.settings_dorai_cloud_email_label)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text(stringResource(Res.string.settings_dorai_cloud_password_label)) },
-                    singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                if (!errorMessage.isNullOrBlank()) {
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = errorMessage.orEmpty(),
-                        style = DoraiTypography.bodySmall,
-                        color = LocalDesignColorTokens.current.error,
-                    )
-                }
-                Spacer(Modifier.height(16.dp))
-                Button(
-                    onClick = {
-                        isBusy = true
-                        errorMessage = null
-                        scope.launch {
-                            authClient.signInWithPassword(email, password)
-                                .onSuccess { signedIn ->
-                                    appSettings.setDoraiCloudSession(signedIn)
-                                    session = signedIn
-                                    password = ""
-                                    refreshUsage(signedIn)
-                                }
-                                .onFailure { errorMessage = it.message }
-                            isBusy = false
-                        }
-                    },
-                    enabled = !isBusy && email.isNotBlank() && password.length >= 6,
-                    modifier = Modifier.fillMaxWidth().handCursor(),
+                OutlinedButton(
+                    onClick = { showEmailSignIn = true },
+                    enabled = !isBusy,
+                    modifier = Modifier.fillMaxWidth().height(48.dp).handCursor(),
                 ) {
-                    if (isBusy) {
-                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                    } else {
-                        Text(stringResource(Res.string.settings_dorai_cloud_sign_in))
-                    }
+                    Text(stringResource(Res.string.settings_dorai_cloud_sign_in_with_email))
                 }
             } else {
                 Spacer(Modifier.height(12.dp))
@@ -363,31 +320,98 @@ fun DoraiCloudSection(modifier: Modifier = Modifier) {
             }
         }
     }
+
+    if (showEmailSignIn) {
+        ModalBottomSheet(
+            onDismissRequest = { showEmailSignIn = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    text = stringResource(Res.string.settings_dorai_cloud_sign_in_with_email),
+                    style = DoraiTypography.titleMedium,
+                    color = LocalDesignColorTokens.current.textPrimary,
+                )
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text(stringResource(Res.string.settings_dorai_cloud_email_label)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(stringResource(Res.string.settings_dorai_cloud_password_label)) },
+                    singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                if (!errorMessage.isNullOrBlank()) {
+                    Text(
+                        text = errorMessage.orEmpty(),
+                        style = DoraiTypography.bodySmall,
+                        color = LocalDesignColorTokens.current.error,
+                    )
+                }
+                Button(
+                    onClick = {
+                        isBusy = true
+                        errorMessage = null
+                        scope.launch {
+                            authClient.signInWithPassword(email, password)
+                                .onSuccess { signedIn ->
+                                    appSettings.setDoraiCloudSession(signedIn)
+                                    session = signedIn
+                                    password = ""
+                                    refreshUsage(signedIn)
+                                    showEmailSignIn = false
+                                }
+                                .onFailure { errorMessage = it.message }
+                            isBusy = false
+                        }
+                    },
+                    enabled = !isBusy && email.isNotBlank() && password.length >= 6,
+                    modifier = Modifier.fillMaxWidth().height(48.dp).handCursor(),
+                ) {
+                    if (isBusy) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                    } else {
+                        Text(stringResource(Res.string.settings_dorai_cloud_sign_in))
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
 private fun SocialProviderButton(
-    monogram: String,
-    background: Color,
+    icon: DrawableResource,
     label: String,
     enabled: Boolean,
     onClick: () -> Unit,
 ) {
     Box(
         modifier = Modifier
-            .size(44.dp)
+            .size(48.dp)
             .clip(CircleShape)
-            .background(if (enabled) background else background.copy(alpha = 0.4f))
+            .background(if (enabled) Color.White else Color.White.copy(alpha = 0.4f))
             .border(1.dp, LocalDesignColorTokens.current.textSecondary.copy(alpha = 0.25f), CircleShape)
             .semantics { contentDescription = label }
             .clickable(enabled = enabled, onClick = onClick)
             .handCursor(),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = monogram,
-            style = DoraiTypography.titleMedium,
-            color = Color.White,
+        Image(
+            painter = painterResource(icon),
+            contentDescription = null,
+            modifier = Modifier.size(24.dp),
         )
     }
 }

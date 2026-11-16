@@ -391,6 +391,20 @@ class DoraiUiV2ScreenshotTest {
     // -------------------------------------------------------------------------
 
     @Test
+    fun settings_home_compact_ogshine() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = null,
+            onCategoryChanged = {},
+            selectedThemeId = "ogshine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
     fun settings_general_compact_ogshine() = snap(
         destination = DoraiDestination.Settings,
         device = DeviceConfig.PIXEL_9A,

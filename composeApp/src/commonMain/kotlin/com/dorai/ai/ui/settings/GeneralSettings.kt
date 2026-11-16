@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.data.AppLanguage
@@ -39,11 +40,18 @@ import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.settings_daemon_mode
 import dorai.composeapp.generated.resources.settings_daemon_mode_description
+import dorai.composeapp.generated.resources.settings_general_behavior
+import dorai.composeapp.generated.resources.settings_general_data_storage
+import dorai.composeapp.generated.resources.settings_general_language_region
+import dorai.composeapp.generated.resources.settings_general_updates
+import dorai.composeapp.generated.resources.settings_general_voice_tts
 import dorai.composeapp.generated.resources.settings_language
 import dorai.composeapp.generated.resources.settings_language_description
 import dorai.composeapp.generated.resources.settings_restore_last_chat
 import dorai.composeapp.generated.resources.settings_restore_last_chat_description
+import dorai.composeapp.generated.resources.settings_tab_data
 import dorai.composeapp.generated.resources.settings_ui_scale
+import dorai.composeapp.generated.resources.settings_voice_mode
 import dorai.composeapp.generated.resources.tts_description
 import dorai.composeapp.generated.resources.tts_speech_speed
 import dorai.composeapp.generated.resources.tts_tip
@@ -56,6 +64,17 @@ import org.koin.compose.koinInject
 import kotlin.math.roundToInt
 
 @Composable
+private fun GeneralSectionHeading(text: String) {
+    Text(
+        text = text,
+        style = DoraiTypography.titleSmall,
+        color = LocalDesignColorTokens.current.textSecondary,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.padding(vertical = 4.dp),
+    )
+}
+
+@Composable
 internal fun GeneralContent(
     uiState: SettingsUiState,
     actions: SettingsActions,
@@ -63,26 +82,15 @@ internal fun GeneralContent(
 ) {
     StaggeredSettingsColumns(
         start = {
-            if (uiState.showDaemonToggle) {
-                SettingsCard {
-                    DaemonModeToggle(
-                        isDaemonEnabled = uiState.isDaemonEnabled,
-                        onToggleDaemon = actions.onToggleDaemon,
-                    )
-                }
-            }
-            SettingsCard {
-                RestoreLastChatToggle(
-                    isRestoreLastChatEnabled = uiState.isRestoreLastChatEnabled,
-                    onToggleRestoreLastChat = actions.onToggleRestoreLastChat,
-                )
-            }
+            // Professional IA: Language/Region → Voice & TTS → Behavior.
+            GeneralSectionHeading(stringResource(Res.string.settings_general_language_region))
             SettingsCard {
                 LanguageSwitch(
                     appLanguage = uiState.appLanguage,
                     onChangeAppLanguage = actions.onChangeAppLanguage,
                 )
             }
+            GeneralSectionHeading(stringResource(Res.string.settings_general_voice_tts))
             SettingsCard {
                 TtsSettingsSection(appLanguage = uiState.appLanguage)
             }
@@ -91,8 +99,21 @@ internal fun GeneralContent(
                     VoiceSettingsSection(uiState = uiState, actions = actions)
                 }
             }
-        },
-        end = {
+            GeneralSectionHeading(stringResource(Res.string.settings_general_behavior))
+            SettingsCard {
+                RestoreLastChatToggle(
+                    isRestoreLastChatEnabled = uiState.isRestoreLastChatEnabled,
+                    onToggleRestoreLastChat = actions.onToggleRestoreLastChat,
+                )
+            }
+            if (uiState.showDaemonToggle) {
+                SettingsCard {
+                    DaemonModeToggle(
+                        isDaemonEnabled = uiState.isDaemonEnabled,
+                        onToggleDaemon = actions.onToggleDaemon,
+                    )
+                }
+            }
             if (uiState.showUiScale) {
                 SettingsCard {
                     UiScaleSection(
@@ -101,6 +122,12 @@ internal fun GeneralContent(
                     )
                 }
             }
+        },
+        end = {
+            // Professional IA: Updates → Data & Storage.
+            GeneralSectionHeading(stringResource(Res.string.settings_general_updates))
+            androidUpdateContent?.invoke()
+            GeneralSectionHeading(stringResource(Res.string.settings_general_data_storage))
             SettingsCard {
                 ExportImportSection(
                     onExportSettings = actions.onExportSettings,
@@ -110,7 +137,6 @@ internal fun GeneralContent(
             }
         },
     )
-    androidUpdateContent?.invoke()
 }
 
 @Composable
