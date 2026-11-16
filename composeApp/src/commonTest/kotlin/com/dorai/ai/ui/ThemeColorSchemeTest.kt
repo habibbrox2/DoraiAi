@@ -143,7 +143,8 @@ class ThemeColorSchemeTest {
         assertEquals(Color(0xFF6F5BFF), DesignTokens.BrandViolet)
         assertEquals(Color(0xFF25CDE2), DesignTokens.PrimaryCyan)
         assertEquals(Color(0xFF8B78FF), DesignTokens.AgentViolet)
-        assertEquals(DesignTokens.PrimaryCyan, DesignTokens.AccentPrimary)
+        assertEquals(DesignTokens.PrimaryMagenta, DesignTokens.AccentPrimary)
+        assertEquals(DesignTokens.PrimaryCyan, DesignTokens.AccentSecondary)
         assertEquals(DesignTokens.AgentViolet, DesignTokens.AccentAgent)
     }
 

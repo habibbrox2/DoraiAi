@@ -161,19 +161,19 @@ val DoraiTypography = Typography(
         fontSize = 16.sp,
         fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
         letterSpacing = 0.5.sp,
-        lineHeight = 24.sp,
+        lineHeight = 25.6.sp,
     ),
     bodyMedium = TextStyle(
         fontSize = 14.sp,
         fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
         letterSpacing = 0.25.sp,
-        lineHeight = 20.sp,
+        lineHeight = 22.4.sp,
     ),
     bodySmall = TextStyle(
         fontSize = 12.sp,
         fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
         letterSpacing = 0.4.sp,
-        lineHeight = 18.sp,
+        lineHeight = 19.2.sp,
     ),
     labelLarge = TextStyle(
         fontSize = 14.sp,

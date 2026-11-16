@@ -45,6 +45,7 @@ import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.cloud_sync_backup_button
 import dorai.composeapp.generated.resources.cloud_sync_passphrase_label
+import dorai.composeapp.generated.resources.cloud_sync_passphrase_min_length
 import dorai.composeapp.generated.resources.cloud_sync_restore_button
 import dorai.composeapp.generated.resources.cloud_sync_security_notice
 import dorai.composeapp.generated.resources.cloud_sync_vault_description
@@ -134,6 +135,15 @@ fun CloudVaultCard(
                 },
                 modifier = Modifier.fillMaxWidth(),
             )
+
+            if (passphrase.length < 8) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = stringResource(Res.string.cloud_sync_passphrase_min_length),
+                    style = DoraiTypography.labelSmall,
+                    color = LocalDesignColorTokens.current.textSecondary,
+                )
+            }
 
             if (!syncStatusMessage.isNullOrBlank()) {
                 Spacer(Modifier.height(8.dp))

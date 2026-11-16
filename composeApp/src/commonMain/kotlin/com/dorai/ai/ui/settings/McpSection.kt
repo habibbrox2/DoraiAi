@@ -1,6 +1,7 @@
 package com.dorai.ai.ui.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,10 +16,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,6 +48,7 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.mcp.PopularMcpServer
@@ -59,6 +63,9 @@ import com.dorai.ai.ui.components.CollectionEmptyState
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.components.StatusBadge
 import com.dorai.ai.ui.components.VerticalScrollbarForScroll
+import com.dorai.ai.ui.components.v2.ActionButton
+import com.dorai.ai.ui.components.v2.ActionButtonVariant
+import com.dorai.ai.ui.components.v2.AppSwitch
 import com.dorai.ai.ui.doraiAdaptiveCardBorder
 import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.handCursor
@@ -362,9 +369,10 @@ private fun McpServerCard(
                     )
                 }
 
-                Switch(
-                    checked = server.isEnabled,
-                    onCheckedChange = onToggle,
+                AppSwitch(
+                    checked = server.isEnabled && server.connectionStatus != McpConnectionStatus.Error,
+                    onCheckedChange = if (server.connectionStatus == McpConnectionStatus.Error) null else onToggle,
+                    enabled = server.connectionStatus != McpConnectionStatus.Error,
                 )
 
                 Spacer(Modifier.width(8.dp))
@@ -402,6 +410,52 @@ private fun McpServerCard(
                 else -> stringResource(Res.string.status_not_checked)
             }
             StatusBadge(label = statusLabel, status = status)
+
+            if (server.connectionStatus == McpConnectionStatus.Error) {
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(LocalDesignColorTokens.current.error.copy(alpha = 0.1f))
+                        .border(1.dp, LocalDesignColorTokens.current.error.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = null,
+                            tint = LocalDesignColorTokens.current.error,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Column {
+                            Text(
+                                text = stringResource(Res.string.settings_mcp_status_error),
+                                style = DoraiTypography.labelMedium,
+                                color = LocalDesignColorTokens.current.error,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Text(
+                                text = if (!server.oauthAuthorized) "Auth failed / token required" else "Endpoint unreachable or timed out",
+                                style = DoraiTypography.bodySmall,
+                                color = LocalDesignColorTokens.current.textSecondary,
+                            )
+                        }
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    ActionButton(
+                        text = "Reconnect",
+                        onClick = onRefresh,
+                        variant = ActionButtonVariant.OUTLINED,
+                    )
+                }
+            }
 
             if (expanded) {
                 Spacer(Modifier.height(12.dp))

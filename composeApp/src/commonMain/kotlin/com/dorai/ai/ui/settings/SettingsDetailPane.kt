@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.ui.DoraiTypography
+import com.dorai.ai.ui.components.v2.ActionButton
+import com.dorai.ai.ui.components.v2.ActionButtonVariant
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.conversations_clear_all
@@ -54,9 +55,11 @@ fun DataControlContent(
                     style = DoraiTypography.bodyMedium,
                     color = LocalDesignColorTokens.current.textSecondary,
                 )
-                Button(onClick = { showClearAllConfirmationDialog = true }) {
-                    Text(stringResource(Res.string.conversations_clear_all))
-                }
+                ActionButton(
+                    text = stringResource(Res.string.conversations_clear_all),
+                    onClick = { showClearAllConfirmationDialog = true },
+                    variant = ActionButtonVariant.DESTRUCTIVE,
+                )
             }
         }
     }
