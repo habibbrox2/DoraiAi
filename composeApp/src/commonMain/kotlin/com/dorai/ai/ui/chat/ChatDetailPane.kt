@@ -496,6 +496,7 @@ internal fun ChatDetailPane(
                     .background(colors.surface2)
                     .border(1.dp, colors.line, CircleShape)
                     .clickable(onClickLabel = stringResource(Res.string.chat_choose_model), role = androidx.compose.ui.semantics.Role.Button) { onOpenModelPicker?.invoke() }
+                    .minimumInteractiveComponentSize()
                     .padding(horizontal = ChatSpacing.md, vertical = 6.dp),
                 contentAlignment = Alignment.Center,
             ) {
