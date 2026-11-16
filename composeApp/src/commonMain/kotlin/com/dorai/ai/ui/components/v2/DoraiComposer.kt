@@ -64,6 +64,8 @@ import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.composer_attach_content_description
+import dorai.composeapp.generated.resources.composer_hint_newline
+import dorai.composeapp.generated.resources.composer_hint_send
 import dorai.composeapp.generated.resources.composer_input_hint
 import dorai.composeapp.generated.resources.composer_mic_content_description
 import dorai.composeapp.generated.resources.composer_remove_file
@@ -135,234 +137,291 @@ fun DoraiComposer(
         }
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(boxShape)
-            .background(colors.surface)
-            .border(1.dp, colors.line, boxShape)
-            .doraiEdgeStyle(shape = boxShape, cornerRadius = 26.dp)
-            .padding(horizontal = 6.dp, vertical = 4.dp),
-    ) {
-        if (files.isNotEmpty()) {
-            FlowRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = DoraiSpacing.SM, vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(DoraiSpacing.XS),
-            ) {
-                for (file in files) {
-                    val isImg = file.extension.lowercase() in imageExtensions
-                    val icon = if (isImg) Res.drawable.ic_image else Res.drawable.ic_file
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = colors.surface2,
-                        border = BorderStroke(1.dp, colors.line),
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .defaultMinSize(minHeight = 48.dp)
-                                .clickable(role = Role.Button) { onRemoveFile?.invoke(file) }
-                                .padding(horizontal = DoraiSpacing.SM, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.XS),
+    Column(modifier = modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(boxShape)
+                .background(colors.surface)
+                .border(1.dp, colors.line, boxShape)
+                .doraiEdgeStyle(shape = boxShape, cornerRadius = 26.dp)
+                .padding(horizontal = 6.dp, vertical = 4.dp),
+        ) {
+            if (files.isNotEmpty()) {
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = DoraiSpacing.SM, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(DoraiSpacing.XS),
+                ) {
+                    for (file in files) {
+                        val isImg = file.extension.lowercase() in imageExtensions
+                        val icon = if (isImg) Res.drawable.ic_image else Res.drawable.ic_file
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = colors.surface2,
+                            border = BorderStroke(1.dp, colors.line),
                         ) {
-                            Icon(
-                                painter = painterResource(icon),
-                                contentDescription = null,
-                                tint = colors.primary,
-                                modifier = Modifier.size(13.dp),
-                            )
-                            Text(
-                                text = file.name,
-                                color = colors.text,
-                                fontSize = 12.sp,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = stringResource(Res.string.composer_remove_file),
-                                tint = colors.muted,
-                                modifier = Modifier.size(13.dp),
-                            )
+                            Row(
+                                modifier = Modifier
+                                    .defaultMinSize(minHeight = 48.dp)
+                                    .clickable(role = Role.Button) { onRemoveFile?.invoke(file) }
+                                    .padding(horizontal = DoraiSpacing.SM, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.XS),
+                            ) {
+                                Icon(
+                                    painter = painterResource(icon),
+                                    contentDescription = null,
+                                    tint = colors.primary,
+                                    modifier = Modifier.size(13.dp),
+                                )
+                                Text(
+                                    text = file.name,
+                                    color = colors.text,
+                                    fontSize = 12.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(Res.string.composer_remove_file),
+                                    tint = colors.muted,
+                                    modifier = Modifier.size(13.dp),
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            // Attach (+) Button
-            IconButton(
-                onClick = { onAttach?.invoke() },
-                modifier = Modifier
-                    .size(48.dp),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Bottom,
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(Res.string.composer_attach_content_description),
-                    tint = colors.muted,
-                    modifier = Modifier.size(22.dp),
-                )
-            }
-
-            // Multiline Input
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .heightIn(min = 40.dp, max = 132.dp)
-                    .padding(vertical = 10.dp, horizontal = 4.dp),
-                contentAlignment = Alignment.CenterStart,
-            ) {
-                if (value.isEmpty()) {
-                    Text(
-                        text = placeholder,
-                        color = colors.muted,
-                        fontSize = 15.sp,
-                        lineHeight = 22.sp,
-                    )
-                }
-
-                BasicTextField(
-                    value = fieldValue,
-                    onValueChange = { newValue ->
-                        fieldValue = newValue
-                        onValueChange(newValue.text)
-                    },
-                    textStyle = TextStyle(
-                        color = colors.text,
-                        fontSize = 15.sp,
-                        lineHeight = 22.sp,
-                    ),
-                    cursorBrush = SolidColor(colors.primary),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .semantics { }
-                        .then(
-                            if (focusRequester != null) {
-                                Modifier.focusRequester(focusRequester)
-                            } else {
-                                Modifier
-                            },
-                        )
-                        .onPreviewKeyEvent { event ->
-                            if (
-                                shouldSendOnEnter(
-                                    isEnter = event.key == Key.Enter,
-                                    isShiftPressed = event.isShiftPressed,
-                                    isComposing = fieldValue.composition != null,
-                                    text = fieldValue.text,
-                                    isStreaming = isStreaming,
-                                )
-                            ) {
-                                onSend()
-                                true
-                            } else {
-                                false
-                            }
-                        },
-                )
-            }
-
-            // Right Button: Stop if streaming, Send if non-empty, Mic if empty
-            if (isStreaming) {
+                // Attach (+) Button
                 IconButton(
-                    onClick = { onStopStreaming?.invoke() },
+                    onClick = { onAttach?.invoke() },
                     modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(colors.err),
+                        .size(48.dp),
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Stop,
-                        contentDescription = stringResource(Res.string.composer_stop),
-                        tint = colors.text,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
-            } else if (value.isNotBlank() || files.isNotEmpty()) {
-                IconButton(
-                    onClick = onSend,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(colors.primary),
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Send,
-                        contentDescription = stringResource(Res.string.composer_send_content_description),
-                        tint = colors.onPrimary,
-                        modifier = Modifier.size(18.dp),
-                    )
-                }
-            } else {
-                // The mic button turns into a stop button while a voice turn is running.
-                // The modifier chain is left untouched when idle so the resting state
-                // renders exactly as before.
-                val micModifier = if (isVoiceRecording) {
-                    Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(colors.err)
-                } else {
-                    Modifier.size(48.dp)
-                }
-                IconButton(
-                    onClick = { onMicClick?.invoke() },
-                    modifier = micModifier,
-                ) {
-                    Icon(
-                        imageVector = if (isVoiceRecording) Icons.Default.Stop else Icons.Default.Mic,
-                        contentDescription = stringResource(
-                            if (isVoiceRecording) {
-                                Res.string.composer_stop_voice
-                            } else {
-                                Res.string.composer_mic_content_description
-                            },
-                        ),
-                        tint = if (isVoiceRecording) colors.text else colors.muted,
+                        imageVector = Icons.Default.Add,
+                        contentDescription = stringResource(Res.string.composer_attach_content_description),
+                        tint = colors.muted,
                         modifier = Modifier.size(22.dp),
                     )
                 }
-            }
-        }
 
-        if (isVoiceRecording && voiceStatusText != null) {
-            Text(
-                text = voiceStatusText,
-                color = colors.muted,
-                fontSize = 12.sp,
-                modifier = Modifier.padding(start = 48.dp, bottom = 4.dp),
-            )
-        }
+                // Multiline Input
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .heightIn(min = 40.dp, max = 132.dp)
+                        .padding(vertical = 10.dp, horizontal = 4.dp),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    if (value.isEmpty()) {
+                        Text(
+                            text = placeholder,
+                            color = colors.muted,
+                            fontSize = 15.sp,
+                            lineHeight = 22.sp,
+                        )
+                    }
 
-        if (value.isNotBlank() && (value.length > 120 || (maxContextTokens != null && maxContextTokens > 0))) {
-            val estimatedTokens = ((value.length + 3) / 4).coerceAtLeast(1)
-            val tokenText = if (maxContextTokens != null && maxContextTokens > 0) {
-                val limitDisplay = if (maxContextTokens >= 1_000_000) {
-                    "${maxContextTokens / 1_000_000}M"
-                } else if (maxContextTokens >= 1_000) {
-                    "${maxContextTokens / 1_000}k"
-                } else {
-                    "$maxContextTokens"
+                    BasicTextField(
+                        value = fieldValue,
+                        onValueChange = { newValue ->
+                            fieldValue = newValue
+                            onValueChange(newValue.text)
+                        },
+                        textStyle = TextStyle(
+                            color = colors.text,
+                            fontSize = 15.sp,
+                            lineHeight = 22.sp,
+                        ),
+                        cursorBrush = SolidColor(colors.primary),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics { }
+                            .then(
+                                if (focusRequester != null) {
+                                    Modifier.focusRequester(focusRequester)
+                                } else {
+                                    Modifier
+                                },
+                            )
+                            .onPreviewKeyEvent { event ->
+                                if (
+                                    shouldSendOnEnter(
+                                        isEnter = event.key == Key.Enter,
+                                        isShiftPressed = event.isShiftPressed,
+                                        isComposing = fieldValue.composition != null,
+                                        text = fieldValue.text,
+                                        isStreaming = isStreaming,
+                                    )
+                                ) {
+                                    onSend()
+                                    true
+                                } else {
+                                    false
+                                }
+                            },
+                    )
                 }
-                "~$estimatedTokens / $limitDisplay tokens"
-            } else {
-                "~$estimatedTokens tokens"
+
+                // Right Button: Stop if streaming, Send if non-empty, Mic if empty
+                if (isStreaming) {
+                    IconButton(
+                        onClick = { onStopStreaming?.invoke() },
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(colors.err),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Stop,
+                            contentDescription = stringResource(Res.string.composer_stop),
+                            tint = colors.text,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                } else if (value.isNotBlank() || files.isNotEmpty()) {
+                    IconButton(
+                        onClick = onSend,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(colors.primary),
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Send,
+                            contentDescription = stringResource(Res.string.composer_send_content_description),
+                            tint = colors.onPrimary,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
+                } else {
+                    // The mic button turns into a stop button while a voice turn is running.
+                    // The modifier chain is left untouched when idle so the resting state
+                    // renders exactly as before.
+                    val micModifier = if (isVoiceRecording) {
+                        Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(colors.err)
+                    } else {
+                        Modifier.size(48.dp)
+                    }
+                    IconButton(
+                        onClick = { onMicClick?.invoke() },
+                        modifier = micModifier,
+                    ) {
+                        Icon(
+                            imageVector = if (isVoiceRecording) Icons.Default.Stop else Icons.Default.Mic,
+                            contentDescription = stringResource(
+                                if (isVoiceRecording) {
+                                    Res.string.composer_stop_voice
+                                } else {
+                                    Res.string.composer_mic_content_description
+                                },
+                            ),
+                            tint = if (isVoiceRecording) colors.text else colors.muted,
+                            modifier = Modifier.size(22.dp),
+                        )
+                    }
+                }
             }
-            Text(
-                text = tokenText,
-                color = colors.muted,
-                fontSize = 11.sp,
-                fontFamily = FontFamily.Monospace,
-                modifier = Modifier.padding(start = 48.dp, bottom = 4.dp),
-            )
+
+            if (isVoiceRecording && voiceStatusText != null) {
+                Text(
+                    text = voiceStatusText,
+                    color = colors.muted,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(start = 48.dp, bottom = 4.dp),
+                )
+            }
+
+            if (value.isNotBlank() && (value.length > 120 || (maxContextTokens != null && maxContextTokens > 0))) {
+                val estimatedTokens = ((value.length + 3) / 4).coerceAtLeast(1)
+                val tokenText = if (maxContextTokens != null && maxContextTokens > 0) {
+                    val limitDisplay = if (maxContextTokens >= 1_000_000) {
+                        "${maxContextTokens / 1_000_000}M"
+                    } else if (maxContextTokens >= 1_000) {
+                        "${maxContextTokens / 1_000}k"
+                    } else {
+                        "$maxContextTokens"
+                    }
+                    "~$estimatedTokens / $limitDisplay tokens"
+                } else {
+                    "~$estimatedTokens tokens"
+                }
+                Text(
+                    text = tokenText,
+                    color = colors.muted,
+                    fontSize = 11.sp,
+                    fontFamily = FontFamily.Monospace,
+                    modifier = Modifier.padding(start = 48.dp, bottom = 4.dp),
+                )
+            }
+        } // close inner (clipped) column
+        // Keyboard hints (Meridian-style): Enter to send, Shift+Enter for newline.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(4.dp),
+                    color = colors.surface2,
+                    border = BorderStroke(1.dp, colors.line),
+                ) {
+                    Text(
+                        text = "Enter",
+                        color = colors.muted,
+                        fontSize = 10.sp,
+                        fontFamily = FontFamily.Monospace,
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
+                    )
+                }
+                Text(
+                    text = stringResource(Res.string.composer_hint_send),
+                    color = colors.muted,
+                    fontSize = 11.sp,
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(4.dp),
+                    color = colors.surface2,
+                    border = BorderStroke(1.dp, colors.line),
+                ) {
+                    Text(
+                        text = "Shift+Enter",
+                        color = colors.muted,
+                        fontSize = 10.sp,
+                        fontFamily = FontFamily.Monospace,
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp),
+                    )
+                }
+                Text(
+                    text = stringResource(Res.string.composer_hint_newline),
+                    color = colors.muted,
+                    fontSize = 11.sp,
+                )
+            }
         }
     }
 }

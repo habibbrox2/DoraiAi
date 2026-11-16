@@ -41,7 +41,7 @@ fun LogoAnimation(
     modifier: Modifier = Modifier,
     size: Dp = 72.dp,
     animate: Boolean = true,
-    contentDescription: String? = "DORAI AI Logo",
+    contentDescription: String? = null,
 ) {
     val isInspection = LocalInspectionMode.current
     val shouldAnimate = animate && !isInspection && !prefersReducedMotion()
