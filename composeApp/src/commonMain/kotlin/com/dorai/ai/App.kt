@@ -236,6 +236,17 @@ private fun AppContent(
                     }
                 }
 
+                // Social sign-in: land on the Account & Data category; the Dorai Cloud
+                // card there consumes the callback (it owns the PKCE exchange), so the
+                // URI is intentionally left pending here.
+                val pendingCloudAuthUri by dataRepository.pendingCloudAuthUri.collectAsStateWithLifecycle()
+                LaunchedEffect(pendingCloudAuthUri) {
+                    if (pendingCloudAuthUri != null) {
+                        currentSettingsCategory = SettingsCategory.Account
+                        shellState.navigateTo(DoraiDestination.Settings)
+                    }
+                }
+
                 val activeService = chatUiState.availableServices.firstOrNull()
                 val currentModelName = activeService?.serviceName ?: stringResource(Res.string.model_not_configured)
                 val isModelLocal = activeService?.executionLocation == ExecutionLocation.LOCAL

@@ -157,6 +157,7 @@ class MainActivity : ComponentActivity() {
             when (intent.data?.host) {
                 DeepLinks.OAUTH_HOST -> dataRepository.requestOpenMcpSettings()
                 DeepLinks.GITHUB_HOST -> dataRepository.requestOpenGitHubSettings()
+                DeepLinks.CLOUD_HOST -> intent.data?.toString()?.let(dataRepository::requestCloudAuthCallback)
             }
             // Clear the data so a rotation does not re-apply the deep link.
             intent.data = null

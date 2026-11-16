@@ -1,6 +1,8 @@
 package com.dorai.ai.data
 
 import com.dorai.ai.cloud.DORAI_CLOUD_DEFAULT_URL
+import com.dorai.ai.cloud.DoraiCloudOAuthPending
+import com.dorai.ai.cloud.DoraiCloudOAuthPendingDto
 import com.dorai.ai.cloud.DoraiCloudSession
 import com.dorai.ai.cloud.DoraiCloudSessionDto
 import com.dorai.ai.defaultUiScale
@@ -377,6 +379,41 @@ class AppSettings(internal val settings: Settings) {
             expiresAt = session.expiresAtEpochSeconds,
         )
         settings.putString(KEY_DORAI_CLOUD_SESSION, cloudSessionJson.encodeToString(DoraiCloudSessionDto.serializer(), dto))
+    }
+
+    // Dorai Cloud OAuth (PKCE) — the pending verifier is needed to redeem the
+    // authorization code that arrives through the deep link.
+    fun setDoraiCloudOAuthPending(pending: DoraiCloudOAuthPending?) {
+        if (pending == null) {
+            settings.remove(KEY_DORAI_CLOUD_OAUTH_PENDING)
+            return
+        }
+        settings.putString(
+            KEY_DORAI_CLOUD_OAUTH_PENDING,
+            cloudSessionJson.encodeToString(
+                DoraiCloudOAuthPendingDto.serializer(),
+                DoraiCloudOAuthPendingDto(
+                    code_verifier = pending.codeVerifier,
+                    state = pending.state,
+                    redirect_to = pending.redirectTo,
+                ),
+            ),
+        )
+    }
+
+    fun getDoraiCloudOAuthPending(): DoraiCloudOAuthPending? {
+        val raw = settings.getString(KEY_DORAI_CLOUD_OAUTH_PENDING, "")
+        if (raw.isBlank()) return null
+        return try {
+            val dto = cloudSessionJson.decodeFromString(DoraiCloudOAuthPendingDto.serializer(), raw)
+            DoraiCloudOAuthPending(
+                codeVerifier = dto.code_verifier,
+                state = dto.state,
+                redirectTo = dto.redirect_to,
+            )
+        } catch (e: Exception) {
+            null
+        }
     }
 
     // Cloudflare Credentials for Embeddings / AI
@@ -886,6 +923,7 @@ class AppSettings(internal val settings: Settings) {
         const val KEY_SUPABASE_VECTOR_MEMORY_ENABLED = "supabase_vector_memory_enabled"
         const val KEY_DORAI_CLOUD_URL = "dorai_cloud_url"
         const val KEY_DORAI_CLOUD_SESSION = "dorai_cloud_session"
+        const val KEY_DORAI_CLOUD_OAUTH_PENDING = "dorai_cloud_oauth_pending"
         const val KEY_CLOUDFLARE_ACCOUNT_ID = "cloudflare_account_id"
         const val KEY_CLOUDFLARE_API_TOKEN = "cloudflare_api_token"
         const val KEY_FIREBASE_PROJECT_ID = "firebase_project_id"
