@@ -533,20 +533,7 @@ class SettingsViewModelTest {
         }
     }
 
-    // --- Tab selection ---
-
-    @Test
-    fun `onSelectTab updates currentTab`() = runTest {
-        val viewModel = SettingsViewModel(fakeRepository, fakeDaemonController, fakeNotificationPermissionController, noOpScheduler, testDispatcher)
-
-        viewModel.state.test {
-            val initialState = awaitItem()
-            viewModel.actions.onSelectTab(SettingsTab.General)
-            val updated = awaitItem()
-            assertEquals(SettingsTab.General, updated.currentTab)
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
+    // --- Provider services ---
 
     // --- Soul / dynamic UI / memory toggles ---
 

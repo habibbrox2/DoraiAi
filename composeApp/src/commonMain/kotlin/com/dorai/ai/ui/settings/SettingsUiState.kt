@@ -59,42 +59,8 @@ enum class ConnectionStatus {
     Error,
 }
 
-/**
- * The settings tabs, one per feature category.
- *
- * Every category owns its own tab: the app-level preferences stay in [General], while the agent
- * behaviour, the tool surface and the third-party integrations each live in
- * their own tab instead of being folded into a single long page.
- */
-enum class SettingsTab {
-    /** App-level preferences: UI scale, dynamic UI, daemon mode, export/import. */
-    General,
-
-    /** Visual appearance: theme, colors. */
-    Appearance,
-
-    /** The agent itself: soul, memories, scheduled tasks, heartbeat, email, SMS, notifications. */
-    Agent,
-
-    /** Model providers, API keys and model selection. */
-    Services,
-
-    /**
-     * What the agent can do: native tools, MCP connectors, skills and integration requests.
-     * Merged from the former Tools and Integrations tabs.
-     */
-    Tools,
-
-    /** GitHub App connection: Device Flow sign-in, repository clone and sync. */
-    GitHub,
-
-    /** Account and plan information. */
-    Account,
-}
-
 @Immutable
 data class SettingsUiState(
-    val currentTab: SettingsTab = SettingsTab.Services,
     val configuredServices: ImmutableList<ConfiguredServiceEntry> = persistentListOf(),
     val expandedServiceId: String? = null,
     val availableServicesToAdd: ImmutableList<Service> = persistentListOf(),

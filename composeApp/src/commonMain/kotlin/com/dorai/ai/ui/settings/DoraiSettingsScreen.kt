@@ -2,6 +2,7 @@ package com.dorai.ai.ui.settings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,7 +22,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -60,6 +61,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -80,9 +82,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.Version
 import com.dorai.ai.data.AppSettings
-import com.dorai.ai.theme.data.ThemePalette
 import com.dorai.ai.theme.data.ThemePresets
-import com.dorai.ai.theme.data.ThemeStyle
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.adaptive.DoraiListDetailPaneScaffold
@@ -105,6 +105,8 @@ import dorai.composeapp.generated.resources.agent_auto_run_readonly_desc
 import dorai.composeapp.generated.resources.agent_default_mode
 import dorai.composeapp.generated.resources.agent_local_only_storage
 import dorai.composeapp.generated.resources.agent_local_only_storage_desc
+import dorai.composeapp.generated.resources.appearance_match_device
+import dorai.composeapp.generated.resources.appearance_match_device_desc
 import dorai.composeapp.generated.resources.mode_ask
 import dorai.composeapp.generated.resources.mode_ask_desc
 import dorai.composeapp.generated.resources.mode_build
@@ -197,9 +199,13 @@ enum class SettingsCategory(
 
 /**
  * UI v2 Settings screen:
- * - 9 categories, strictly ordered.
+ * - 8 categories, strictly ordered.
+ * - Fixed page header (icon + title, semantic heading) above the scrollable content.
  * - Compact: scrollable pill tab bar at top + content below.
  * - Medium+: category list in the list pane + content in detail pane.
+ *
+ * The visible design is built from the shared primitives in
+ * [SettingsV2Components.kt]; category content composables are unchanged entry points.
  */
 @Composable
 fun DoraiSettingsScreen(
@@ -207,8 +213,7 @@ fun DoraiSettingsScreen(
     onCategoryChanged: (SettingsCategory) -> Unit,
     selectedThemeId: String,
     onThemeSelected: (String) -> Unit,
-    currentThemeStyle: ThemeStyle = ThemeStyle.Flat,
-    onThemeStyleSelected: ((ThemeStyle) -> Unit)? = null,
+    appearanceActions: AppearanceSettingsActions? = null,
     modifier: Modifier = Modifier,
     uiState: SettingsUiState? = null,
     actions: SettingsActions? = null,
@@ -248,8 +253,7 @@ fun DoraiSettingsScreen(
                     category = selectedCat,
                     selectedThemeId = selectedThemeId,
                     onThemeSelected = onThemeSelected,
-                    currentThemeStyle = currentThemeStyle,
-                    onThemeStyleSelected = onThemeStyleSelected,
+                    appearanceActions = appearanceActions,
                     uiState = uiState,
                     actions = actions,
                     sandboxState = sandboxState,
@@ -279,8 +283,7 @@ fun DoraiSettingsScreen(
                     category = selectedCat,
                     selectedThemeId = selectedThemeId,
                     onThemeSelected = onThemeSelected,
-                    currentThemeStyle = currentThemeStyle,
-                    onThemeStyleSelected = onThemeStyleSelected,
+                    appearanceActions = appearanceActions,
                     uiState = uiState,
                     actions = actions,
                     sandboxState = sandboxState,
@@ -310,8 +313,7 @@ fun DoraiSettingsScreenConnected(
     onCategoryChanged: (SettingsCategory) -> Unit,
     selectedThemeId: String,
     onThemeSelected: (String) -> Unit,
-    currentThemeStyle: ThemeStyle = ThemeStyle.Flat,
-    onThemeStyleSelected: ((ThemeStyle) -> Unit)? = null,
+    appearanceActions: AppearanceSettingsActions? = null,
     settingsViewModel: SettingsViewModel = koinViewModel(),
     sandboxViewModel: SandboxViewModel = koinViewModel(),
     androidUpdateContent: (@Composable () -> Unit)? = null,
@@ -321,13 +323,17 @@ fun DoraiSettingsScreenConnected(
     val uiState by settingsViewModel.state.collectAsStateWithLifecycle()
     val sandboxState by sandboxViewModel.state.collectAsStateWithLifecycle()
 
+    // Every visit re-validates connection status, connects enabled MCP servers,
+    // refreshes sponsors and re-reads notification-listener state (mirrors the
+    // legacy screen's lifecycle hook, which never ran in the UI v2 path).
+    LaunchedEffect(Unit) { settingsViewModel.onScreenVisible() }
+
     DoraiSettingsScreen(
         activeCategory = activeCategory,
         onCategoryChanged = onCategoryChanged,
         selectedThemeId = selectedThemeId,
         onThemeSelected = onThemeSelected,
-        currentThemeStyle = currentThemeStyle,
-        onThemeStyleSelected = onThemeStyleSelected,
+        appearanceActions = appearanceActions,
         uiState = uiState,
         actions = settingsViewModel.actions,
         sandboxState = sandboxState,
@@ -361,32 +367,42 @@ private fun SettingsCategoryListPane(
 
         SettingsCategory.entries.forEach { cat ->
             val isSelected = cat == selectedCategory
-            val shape = RoundedCornerShape(10.dp)
+            val shape = RoundedCornerShape(12.dp)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .defaultMinSize(minHeight = 48.dp)
                     .clip(shape)
-                    .background(if (isSelected) colors.primary.copy(alpha = 0.16f) else Color.Transparent)
+                    .background(if (isSelected) colors.primary.copy(alpha = 0.14f) else Color.Transparent)
                     .selectable(
                         selected = isSelected,
                         onClick = { onCategorySelected(cat) },
                         role = Role.Tab,
                     )
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                    .padding(horizontal = 10.dp, vertical = 8.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = cat.icon,
-                        contentDescription = null,
-                        tint = if (isSelected) colors.primary else colors.muted,
-                        modifier = Modifier.size(18.dp),
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clip(RoundedCornerShape(9.dp))
+                            .background(if (isSelected) colors.primary.copy(alpha = 0.16f) else colors.surface2),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = cat.icon,
+                            contentDescription = null,
+                            tint = if (isSelected) colors.primary else colors.muted,
+                            modifier = Modifier.size(17.dp),
+                        )
+                    }
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
                         text = stringResource(cat.titleRes),
                         color = if (isSelected) colors.primary else colors.text,
                         fontSize = 14.sp,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                        modifier = Modifier.weight(1f),
                     )
                 }
             }
@@ -399,8 +415,7 @@ private fun SettingsCategoryContent(
     category: SettingsCategory,
     selectedThemeId: String,
     onThemeSelected: (String) -> Unit,
-    currentThemeStyle: ThemeStyle = ThemeStyle.Flat,
-    onThemeStyleSelected: ((ThemeStyle) -> Unit)? = null,
+    appearanceActions: AppearanceSettingsActions? = null,
     uiState: SettingsUiState? = null,
     actions: SettingsActions? = null,
     sandboxState: SandboxUiState? = null,
@@ -410,140 +425,176 @@ private fun SettingsCategoryContent(
     onNavigateToCategory: (SettingsCategory) -> Unit = {},
 ) {
     val colors = LocalDoraiColors.current
-    val scrollState = rememberScrollState()
+    // A fresh scroll position per category: switching tabs always lands on the header.
+    val scrollState = remember(category) { ScrollState(initial = 0) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(DoraiSpacing.MD)
-            .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD),
+            .padding(DoraiSpacing.MD),
     ) {
-        Text(
-            text = stringResource(category.titleRes),
-            color = colors.text,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
+        SettingsPageHeader(
+            title = stringResource(category.titleRes),
+            icon = category.icon,
         )
+        Spacer(modifier = Modifier.height(DoraiSpacing.LG))
 
-        if (uiState != null && actions != null) {
-            when (category) {
-                SettingsCategory.General -> {
-                    if (debugBuildStamp != null) {
-                        SettingsSectionCard {
-                            Text(stringResource(Res.string.settings_build_environment), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                            Spacer(modifier = Modifier.height(DoraiSpacing.XS))
-                            Text(debugBuildStamp, color = colors.muted, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD),
+        ) {
+            if (uiState != null && actions != null) {
+                when (category) {
+                    SettingsCategory.General -> {
+                        if (debugBuildStamp != null) {
+                            SettingsSectionCard {
+                                Text(stringResource(Res.string.settings_build_environment), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.height(DoraiSpacing.XS))
+                                Text(debugBuildStamp, color = colors.muted, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
+                            }
                         }
+                        GeneralContent(uiState = uiState, actions = actions, androidUpdateContent = androidUpdateContent)
+                        BottomInfo()
                     }
-                    GeneralContent(uiState = uiState, actions = actions, androidUpdateContent = androidUpdateContent)
-                    BottomInfo()
-                }
 
-                SettingsCategory.Appearance -> AppearanceSettingsContent(
-                    selectedThemeId = selectedThemeId,
-                    onThemeSelected = onThemeSelected,
-                )
-
-                SettingsCategory.Agent -> {
-                    AgentPolicyHeader()
-                    AgentContent(uiState = uiState, actions = actions)
-                }
-
-                SettingsCategory.Providers -> ServicesContent(uiState = uiState, actions = actions)
-
-                SettingsCategory.Tools -> {
-                    PluginsSection(tools = uiState.tools, onToggleTool = actions.onToggleTool)
-                    // Skills stay visible on every platform: without the sandbox the section
-                    // explains what is missing and links to the sandbox setup, so the capability
-                    // is never silently hidden.
-                    SkillsSection(
-                        skills = uiState.skills,
-                        onUninstallSkill = actions.onUninstallSkill,
-                        showAddDialog = uiState.showAddSkillDialog,
-                        onShowAddDialog = actions.onShowAddSkillDialog,
-                        onInstallGitHub = actions.onInstallGitHubSkill,
-                        onInstallBrowsed = actions.onInstallBrowsedSkill,
-                        isInstalling = uiState.isInstallingSkill,
-                        installError = uiState.skillInstallError,
-                        browsableSkills = uiState.browsableSkills,
-                        isBrowsing = uiState.isBrowsingSkills,
-                        browseFailed = uiState.browseSkillsFailed,
-                        isSandboxInstalled = sandboxState?.sandboxInstalled ?: false,
-                        onNavigateToSandbox = onNavigateToWorkspace,
-                        onBrowseSkills = actions.onBrowseSkills,
+                    SettingsCategory.Appearance -> AppearanceSettingsContent(
+                        selectedThemeId = selectedThemeId,
+                        onThemeSelected = onThemeSelected,
+                        appearanceActions = appearanceActions,
                     )
-                    // Integrations used to be a separate Settings tab; the request entry
-                    // point now closes the Tools page.
-                    IntegrationRequestCard()
-                }
 
-                SettingsCategory.Mcp -> {
-                    McpServersSection(
-                        mcpServers = uiState.mcpServers,
-                        onAddMcpServer = actions.onAddMcpServer,
-                        onRemoveMcpServer = actions.onRemoveMcpServer,
-                        onToggleMcpServer = actions.onToggleMcpServer,
-                        onRefreshMcpServer = actions.onRefreshMcpServer,
-                        onToggleTool = actions.onToggleTool,
-                        showAddDialog = uiState.showAddMcpServerDialog,
-                        onShowAddDialog = actions.onShowAddMcpServerDialog,
-                        onAddPopularMcpServer = actions.onAddPopularMcpServer,
-                        onAuthorizeMcpServer = actions.onAuthorizeMcpServer,
-                        onRevokeMcpServerOAuth = actions.onRevokeMcpServerOAuth,
+                    SettingsCategory.Agent -> {
+                        AgentPolicyHeader()
+                        AgentContent(uiState = uiState, actions = actions)
+                    }
+
+                    SettingsCategory.Providers -> ServicesContent(uiState = uiState, actions = actions)
+
+                    SettingsCategory.Tools -> {
+                        PluginsSection(tools = uiState.tools, onToggleTool = actions.onToggleTool)
+                        // Skills stay visible on every platform: without the sandbox the section
+                        // explains what is missing and links to the sandbox setup, so the capability
+                        // is never silently hidden.
+                        SkillsSection(
+                            skills = uiState.skills,
+                            onUninstallSkill = actions.onUninstallSkill,
+                            showAddDialog = uiState.showAddSkillDialog,
+                            onShowAddDialog = actions.onShowAddSkillDialog,
+                            onInstallGitHub = actions.onInstallGitHubSkill,
+                            onInstallBrowsed = actions.onInstallBrowsedSkill,
+                            isInstalling = uiState.isInstallingSkill,
+                            installError = uiState.skillInstallError,
+                            browsableSkills = uiState.browsableSkills,
+                            isBrowsing = uiState.isBrowsingSkills,
+                            browseFailed = uiState.browseSkillsFailed,
+                            isSandboxInstalled = sandboxState?.sandboxInstalled ?: false,
+                            onNavigateToSandbox = onNavigateToWorkspace,
+                            onBrowseSkills = actions.onBrowseSkills,
+                        )
+                        // Integrations used to be a separate Settings tab; the request entry
+                        // point now closes the Tools page.
+                        IntegrationRequestCard()
+                    }
+
+                    SettingsCategory.Mcp -> {
+                        McpServersSection(
+                            mcpServers = uiState.mcpServers,
+                            onAddMcpServer = actions.onAddMcpServer,
+                            onRemoveMcpServer = actions.onRemoveMcpServer,
+                            onToggleMcpServer = actions.onToggleMcpServer,
+                            onRefreshMcpServer = actions.onRefreshMcpServer,
+                            onToggleTool = actions.onToggleTool,
+                            showAddDialog = uiState.showAddMcpServerDialog,
+                            onShowAddDialog = actions.onShowAddMcpServerDialog,
+                            onAddPopularMcpServer = actions.onAddPopularMcpServer,
+                            onAuthorizeMcpServer = actions.onAuthorizeMcpServer,
+                            onRevokeMcpServerOAuth = actions.onRevokeMcpServerOAuth,
+                        )
+                    }
+
+                    SettingsCategory.GitHub -> {
+                        GitHubSection()
+                    }
+
+                    SettingsCategory.Account -> {
+                        AccountProfileCard()
+                        DataControlContent(uiState = uiState, actions = actions)
+                        DoraiCloudSection()
+                        AccountPlanContent(uiState = uiState)
+                    }
+                }
+            } else {
+                when (category) {
+                    SettingsCategory.General -> GeneralContent(uiState = SettingsUiState(), actions = SettingsActions.NoOp)
+
+                    SettingsCategory.Appearance -> AppearanceSettingsContent(
+                        selectedThemeId = selectedThemeId,
+                        onThemeSelected = onThemeSelected,
+                        appearanceActions = appearanceActions,
                     )
-                }
 
-                SettingsCategory.GitHub -> {
-                    GitHubSection()
-                }
+                    SettingsCategory.Agent -> {
+                        AgentPolicyHeader()
+                        AgentSettingsContent()
+                    }
 
-                SettingsCategory.Account -> {
-                    AccountProfileCard()
-                    DataControlContent(uiState = uiState, actions = actions)
-                    DoraiCloudSection()
-                    AccountPlanContent(uiState = uiState)
-                }
-            }
-        } else {
-            when (category) {
-                SettingsCategory.General -> GeneralContent(uiState = SettingsUiState(), actions = SettingsActions.NoOp)
+                    SettingsCategory.Providers -> ServicesContent(uiState = SettingsUiState(), actions = SettingsActions.NoOp)
 
-                SettingsCategory.Appearance -> AppearanceSettingsContent(
-                    selectedThemeId = selectedThemeId,
-                    onThemeSelected = onThemeSelected,
-                )
+                    SettingsCategory.Tools -> ToolsSettingsContent()
 
-                SettingsCategory.Agent -> {
-                    AgentPolicyHeader()
-                    AgentSettingsContent()
-                }
+                    SettingsCategory.Mcp -> McpSettingsContent()
 
-                SettingsCategory.Providers -> ServicesContent(uiState = SettingsUiState(), actions = SettingsActions.NoOp)
+                    SettingsCategory.GitHub -> GitHubSection()
 
-                SettingsCategory.Tools -> ToolsSettingsContent()
-
-                SettingsCategory.Mcp -> McpSettingsContent()
-
-                SettingsCategory.GitHub -> GitHubSection()
-
-                SettingsCategory.Account -> {
-                    AccountProfileCard()
-                    DoraiCloudSection()
-                    AccountSettingsContent()
+                    SettingsCategory.Account -> {
+                        AccountProfileCard()
+                        DoraiCloudSection()
+                        AccountSettingsContent()
+                    }
                 }
             }
         }
     }
 }
 
+/**
+ * Appearance controls owned by [com.dorai.ai.theme.ThemeViewModel] — the single
+ * state writer for theme selection. App.kt builds this from the collected theme state;
+ * `null` hides the advanced controls in preview/screenshot compositions, exactly as
+ * the legacy Appearance tab never exposed them.
+ */
+class AppearanceSettingsActions(
+    val matchDevice: Boolean,
+    val onMatchDeviceChanged: (Boolean) -> Unit,
+)
+
+/**
+ * Appearance content entry point for the Runtime Settings screen.
+ *
+ * The preset grid is the original [AppearanceSettingsContent] implementation, extended
+ * with Match Device, Flat/3D surface style and custom theme management sourced from the
+ * same theme repository (no duplicate theme state is introduced).
+ */
 @Composable
 private fun AppearanceSettingsContent(
     selectedThemeId: String,
     onThemeSelected: (String) -> Unit,
+    appearanceActions: AppearanceSettingsActions? = null,
 ) {
     val colors = LocalDoraiColors.current
     val widthClass = LocalDoraiWindowWidthClass.current
+
+    if (appearanceActions != null) {
+        SettingsSwitchCard(
+            title = stringResource(Res.string.appearance_match_device),
+            description = stringResource(Res.string.appearance_match_device_desc),
+            checked = appearanceActions.matchDevice,
+            onCheckedChange = appearanceActions.onMatchDeviceChanged,
+        )
+    }
 
     SettingsSectionCard {
         Text(stringResource(Res.string.settings_theme_presets, ThemePresets.all.size), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
@@ -975,35 +1026,15 @@ private fun AgentPolicyHeader(
     )
 
     // Card 1: Default Mode
-    SettingsSectionCard {
-        Text(stringResource(Res.string.agent_default_mode), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.SM),
-        ) {
-            modes.forEach { (id, label, _) ->
-                val isSelected = defaultMode == id
-                Box(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(if (isSelected) colors.primary else colors.surface2)
-                        .border(1.dp, if (isSelected) colors.primary else colors.line, CircleShape)
-                        .clickable(role = Role.Button) {
-                            defaultMode = id
-                            appSettings.setDefaultAgentMode(id)
-                        }
-                        .padding(horizontal = 14.dp, vertical = 7.dp),
-                ) {
-                    Text(
-                        text = label,
-                        color = if (isSelected) colors.onPrimary else colors.text,
-                        fontSize = 13.sp,
-                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                    )
-                }
-            }
-        }
+    SettingsGroup(title = stringResource(Res.string.agent_default_mode)) {
+        SettingsChipRow(
+            options = modes.map { SettingsChip(it.first, it.second) },
+            selectedId = defaultMode,
+            onSelect = { id ->
+                defaultMode = id
+                appSettings.setDefaultAgentMode(id)
+            },
+        )
         val currentDesc = modes.firstOrNull { it.first == defaultMode }?.third.orEmpty()
         if (currentDesc.isNotEmpty()) {
             Spacer(modifier = Modifier.height(DoraiSpacing.XS))
@@ -1012,86 +1043,38 @@ private fun AgentPolicyHeader(
     }
 
     // Card 2: Approval Policy
-    SettingsSectionCard {
-        Text(stringResource(Res.string.agent_approval_policy), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(DoraiSpacing.SM))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.SM),
-        ) {
-            policies.forEach { (id, label) ->
-                val isSelected = policy == id
-                Box(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(if (isSelected) colors.primary else colors.surface2)
-                        .border(1.dp, if (isSelected) colors.primary else colors.line, CircleShape)
-                        .clickable(role = Role.Button) {
-                            policy = id
-                            appSettings.setApprovalPolicy(id)
-                        }
-                        .padding(horizontal = 12.dp, vertical = 7.dp),
-                ) {
-                    Text(
-                        text = label,
-                        color = if (isSelected) colors.onPrimary else colors.text,
-                        fontSize = 12.5.sp,
-                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                    )
-                }
-            }
-        }
+    SettingsGroup(title = stringResource(Res.string.agent_approval_policy)) {
+        SettingsChipRow(
+            options = policies.map { SettingsChip(it.first, it.second) },
+            selectedId = policy,
+            onSelect = { id ->
+                policy = id
+                appSettings.setApprovalPolicy(id)
+            },
+        )
     }
 
     // Card 3: Activity Timeline Toggle
-    SettingsSectionCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(stringResource(Res.string.agent_activity_timeline), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text(stringResource(Res.string.agent_activity_timeline_desc), color = colors.muted, fontSize = 12.5.sp)
-            }
-            Switch(
-                checked = timelineEnabled,
-                onCheckedChange = {
-                    timelineEnabled = it
-                    appSettings.setTimelineEnabled(it)
-                },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = colors.onPrimary,
-                    checkedTrackColor = colors.primary,
-                ),
-            )
-        }
-    }
+    SettingsSwitchCard(
+        title = stringResource(Res.string.agent_activity_timeline),
+        description = stringResource(Res.string.agent_activity_timeline_desc),
+        checked = timelineEnabled,
+        onCheckedChange = {
+            timelineEnabled = it
+            appSettings.setTimelineEnabled(it)
+        },
+    )
 
     // Card 4: Auto-run read-only tools
-    SettingsSectionCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(stringResource(Res.string.agent_auto_run_readonly), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text(stringResource(Res.string.agent_auto_run_readonly_desc), color = colors.muted, fontSize = 12.5.sp)
-            }
-            Switch(
-                checked = autoReadEnabled,
-                onCheckedChange = {
-                    autoReadEnabled = it
-                    appSettings.setAutoReadEnabled(it)
-                },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = colors.onPrimary,
-                    checkedTrackColor = colors.primary,
-                ),
-            )
-        }
-    }
+    SettingsSwitchCard(
+        title = stringResource(Res.string.agent_auto_run_readonly),
+        description = stringResource(Res.string.agent_auto_run_readonly_desc),
+        checked = autoReadEnabled,
+        onCheckedChange = {
+            autoReadEnabled = it
+            appSettings.setAutoReadEnabled(it)
+        },
+    )
 }
 
 @Composable
@@ -1135,40 +1118,10 @@ private fun AccountProfileCard() {
         }
     }
 
-    SettingsSectionCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(stringResource(Res.string.agent_local_only_storage), color = colors.text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text(stringResource(Res.string.agent_local_only_storage_desc), color = colors.muted, fontSize = 12.5.sp)
-            }
-            Switch(
-                checked = !syncEnabled,
-                onCheckedChange = { syncEnabled = !it },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = colors.onPrimary,
-                    checkedTrackColor = colors.primary,
-                ),
-            )
-        }
-    }
-}
-
-@Composable
-private fun SettingsSectionCard(content: @Composable () -> Unit) {
-    val colors = LocalDoraiColors.current
-    val shape = RoundedCornerShape(14.dp)
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .background(colors.surface)
-            .border(1.dp, colors.line, shape)
-            .padding(DoraiSpacing.MD),
-    ) {
-        content()
-    }
+    SettingsSwitchCard(
+        title = stringResource(Res.string.agent_local_only_storage),
+        description = stringResource(Res.string.agent_local_only_storage_desc),
+        checked = !syncEnabled,
+        onCheckedChange = { syncEnabled = !it },
+    )
 }

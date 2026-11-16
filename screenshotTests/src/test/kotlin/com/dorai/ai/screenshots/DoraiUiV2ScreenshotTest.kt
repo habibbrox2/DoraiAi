@@ -13,7 +13,6 @@ import app.cash.paparazzi.Paparazzi
 import com.dorai.ai.data.Service
 import com.dorai.ai.theme.data.ThemePalette
 import com.dorai.ai.theme.data.ThemePresets
-import com.dorai.ai.theme.data.ThemeStyle
 import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.ui.adaptive.DoraiAdaptiveScaffold
 import com.dorai.ai.ui.adaptive.DoraiDestination
@@ -30,7 +29,6 @@ import com.dorai.ai.ui.settings.DoraiSettingsScreen
 import com.dorai.ai.ui.settings.SettingsActions
 import com.dorai.ai.ui.settings.SettingsCategory
 import com.dorai.ai.ui.settings.SettingsModel
-import com.dorai.ai.ui.settings.SettingsTab
 import com.dorai.ai.ui.settings.SettingsUiState
 import com.dorai.ai.ui.workspace.DoraiWorkspaceScreen
 import com.dorai.ai.ui.workspace.ProjectFile
@@ -403,8 +401,6 @@ class DoraiUiV2ScreenshotTest {
             onCategoryChanged = {},
             selectedThemeId = "ogshine",
             onThemeSelected = {},
-            currentThemeStyle = ThemeStyle.Flat,
-            onThemeStyleSelected = {},
         )
     }
 
@@ -419,8 +415,6 @@ class DoraiUiV2ScreenshotTest {
             onCategoryChanged = {},
             selectedThemeId = "ogshine",
             onThemeSelected = {},
-            currentThemeStyle = ThemeStyle.Flat,
-            onThemeStyleSelected = {},
         )
     }
 
@@ -435,8 +429,6 @@ class DoraiUiV2ScreenshotTest {
             onCategoryChanged = {},
             selectedThemeId = "ogshine",
             onThemeSelected = {},
-            currentThemeStyle = ThemeStyle.Flat,
-            onThemeStyleSelected = {},
         )
     }
 
@@ -451,8 +443,6 @@ class DoraiUiV2ScreenshotTest {
             onCategoryChanged = {},
             selectedThemeId = "ogshine",
             onThemeSelected = {},
-            currentThemeStyle = ThemeStyle.Flat,
-            onThemeStyleSelected = {},
             uiState = customGatewayState(),
             actions = SettingsActions.NoOp,
         )
@@ -469,8 +459,6 @@ class DoraiUiV2ScreenshotTest {
             onCategoryChanged = {},
             selectedThemeId = "ogshine",
             onThemeSelected = {},
-            currentThemeStyle = ThemeStyle.Flat,
-            onThemeStyleSelected = {},
         )
     }
 
@@ -485,8 +473,6 @@ class DoraiUiV2ScreenshotTest {
             onCategoryChanged = {},
             selectedThemeId = "ogshine",
             onThemeSelected = {},
-            currentThemeStyle = ThemeStyle.Flat,
-            onThemeStyleSelected = {},
         )
     }
 
@@ -501,8 +487,6 @@ class DoraiUiV2ScreenshotTest {
             onCategoryChanged = {},
             selectedThemeId = "ogshine",
             onThemeSelected = {},
-            currentThemeStyle = ThemeStyle.Flat,
-            onThemeStyleSelected = {},
         )
     }
 
@@ -517,8 +501,6 @@ class DoraiUiV2ScreenshotTest {
             onCategoryChanged = {},
             selectedThemeId = "ogshine",
             onThemeSelected = {},
-            currentThemeStyle = ThemeStyle.Flat,
-            onThemeStyleSelected = {},
         )
     }
 
@@ -533,8 +515,6 @@ class DoraiUiV2ScreenshotTest {
             onCategoryChanged = {},
             selectedThemeId = "ogshine",
             onThemeSelected = {},
-            currentThemeStyle = ThemeStyle.Flat,
-            onThemeStyleSelected = {},
         )
     }
 
@@ -627,7 +607,6 @@ class DoraiUiV2ScreenshotTest {
     )
 
     private fun customGatewayState() = SettingsUiState(
-        currentTab = SettingsTab.Services,
         configuredServices = persistentListOf(
             ConfiguredServiceEntry(
                 instanceId = "custom-gateway",

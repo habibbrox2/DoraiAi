@@ -46,9 +46,9 @@ import com.dorai.ai.ui.home.DoraiHomeScreen
 import com.dorai.ai.ui.home.HomeChatSummary
 import com.dorai.ai.ui.home.HomeUiState
 import com.dorai.ai.ui.rememberSandboxAwareUriHandler
+import com.dorai.ai.ui.settings.AppearanceSettingsActions
 import com.dorai.ai.ui.settings.DoraiSettingsScreenConnected
 import com.dorai.ai.ui.settings.SettingsCategory
-import com.dorai.ai.ui.settings.SettingsTab
 import com.dorai.ai.ui.workspace.DoraiWorkspaceScreenConnected
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.model_not_configured
@@ -73,20 +73,21 @@ object Home
 /**
  * Settings destination.
  *
- * The tab travels as its [SettingsTab] *name* instead of the enum itself: typed routes only
- * support a fixed set of NavTypes, and an enum NavType exists on Android only. On desktop, iOS
- * and wasm the enum resolves to `UNKNOWN` and the app crashes while the route pattern is built
- * ("Route settings could not find any NavType for argument tab of type SettingsTab?").
+ * The category travels as its [SettingsCategory] *id* string instead of the enum itself:
+ * typed routes only support a fixed set of NavTypes, and an enum NavType exists on Android
+ * only. On desktop, iOS and wasm the enum resolves to `UNKNOWN` and the app crashes while
+ * the route pattern is built ("Route settings could not find any NavType for argument
+ * category of type SettingsCategory?").
  */
 @Serializable
 @SerialName("settings")
-data class Settings(val tab: String? = null) {
+data class Settings(val category: String? = null) {
     companion object {
-        /** Route to the given settings [tab], or to the default tab when [tab] is null. */
-        fun of(tab: SettingsTab?): Settings = Settings(tab?.name)
+        /** Route to the given settings [category], or to the default category when null. */
+        fun of(category: SettingsCategory?): Settings = Settings(category?.id)
 
-        /** The settings tab this route points at, or null when it points at the default tab. */
-        fun tabOf(route: Settings): SettingsTab? = route.tab?.let { value -> SettingsTab.entries.find { it.name == value } }
+        /** The settings category this route points at, or null when it points at the default. */
+        fun categoryOf(route: Settings): SettingsCategory? = route.category?.let { value -> SettingsCategory.entries.find { it.id == value } }
     }
 }
 
@@ -314,8 +315,10 @@ private fun AppContent(
                             onCategoryChanged = { currentSettingsCategory = it },
                             selectedThemeId = themeState.selectedThemeId,
                             onThemeSelected = { themeViewModel.selectTheme(it) },
-                            currentThemeStyle = themeState.activeStyle,
-                            onThemeStyleSelected = { themeViewModel.setThemeStyle(it) },
+                            appearanceActions = AppearanceSettingsActions(
+                                matchDevice = themeState.matchDevice,
+                                onMatchDeviceChanged = { themeViewModel.setMatchDevice(it) },
+                            ),
                             androidUpdateContent = androidUpdateContent,
                             onNavigateToWorkspace = {
                                 shellState.navigateTo(DoraiDestination.Workspace)

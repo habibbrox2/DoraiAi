@@ -1,6 +1,6 @@
 # Appearance
 
-**Last verified:** 2026-11-11
+**Last verified:** 2026-11-16
 
 DORAI AI ships a 2027 premium dynamic theme engine that runs identically on Android, iOS, Desktop (JVM) and Web (Wasm/JS). Appearance is configured from **Settings → Appearance** with a grid of live preview swatches; changes apply immediately — no restart, no Gradle rebuild.
 
@@ -110,7 +110,9 @@ An existing legacy `theme_mode` (`System` / `Light` / `Dark`) migrates one-time 
 | `composeApp/.../theme/ui/components/ThemeSwatchCard.kt` | Preview swatch with mockup bars, accent dots, accent pill, spring selection ring |
 | `composeApp/.../theme/ui/components/CreateThemeDialog.kt` | Hex/RGB theme builder dialog |
 | `composeApp/.../App.kt` | Root `DoraiTheme` wrapper (was `Theme(colorScheme = ...)`) |
-| `composeApp/.../ui/settings/AppearanceSettings.kt` | Appearance tab adapter |
+| `composeApp/.../ui/settings/DoraiSettingsScreen.kt` | Runtime Settings shell + Appearance content entry point (Match Device + preset grid) |
+| `composeApp/.../ui/settings/SettingsV2Components.kt` | Shared v2 primitives (`SettingsSectionCard`, `SettingsPageHeader`, `SettingsGroup`, `SettingsSwitchCard`, `SettingsChipRow`) |
+| `composeApp/.../ui/settings/AppearanceSettings.kt` | *(removed — Appearance now lives in DoraiSettingsScreen)* |
 | `composeApp/.../AppModule.kt` | Koin registrations (`ThemeSettingsRepository` singleton, `ThemeViewModel`) |
 | `composeApp/.../ui/theme/DesignTokens.kt` | AURORA brand tokens (`BrandCyan`, `BrandBlue`, `BrandViolet`, etc.) |
 | `composeApp/.../theme/ThemeEngineTest.kt` | Tests preset resolution, Match Device luminance guard, persistence |

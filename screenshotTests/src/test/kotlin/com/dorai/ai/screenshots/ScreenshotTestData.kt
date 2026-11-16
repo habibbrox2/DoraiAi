@@ -1,4 +1,4 @@
-package com.dorai.ai.screenshots
+﻿package com.dorai.ai.screenshots
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -21,7 +21,6 @@ import com.dorai.ai.ui.settings.McpConnectionStatus
 import com.dorai.ai.ui.settings.McpServerUiState
 import com.dorai.ai.ui.settings.SandboxUiState
 import com.dorai.ai.ui.settings.SettingsModel
-import com.dorai.ai.ui.settings.SettingsTab
 import com.dorai.ai.ui.settings.SettingsUiState
 import com.dorai.ai.ui.workspace.WorkspaceProjectItem
 import com.dorai.ai.ui.workspace.WorkspaceUiState
@@ -94,20 +93,19 @@ object ScreenshotTestData {
             "```"
 
     val freeConnected = SettingsUiState(
-        currentTab = SettingsTab.Services,
         configuredServices = persistentListOf(
             ConfiguredServiceEntry(
                 instanceId = "moonshot",
                 service = Service.Moonshot,
                 connectionStatus = ConnectionStatus.Connected,
-                apiKey = "sk-••••••••••••••••••••••••••••••••••••",
+                apiKey = "sk-â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢",
                 selectedModel = SettingsModel(id = "kimi-k2.5", subtitle = "Kimi K2.5", isSelected = true, displayName = "Kimi K2.5"),
             ),
             ConfiguredServiceEntry(
                 instanceId = "anthropic",
                 service = Service.Anthropic,
                 connectionStatus = ConnectionStatus.Connected,
-                apiKey = "sk-ant-••••••••••••••••••••••••••••••••",
+                apiKey = "sk-ant-â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢",
                 selectedModel = SettingsModel(id = "claude-opus-4-6", subtitle = "Claude Opus 4.6", isSelected = true, displayName = "Claude Opus 4.6"),
             ),
         ),
@@ -115,7 +113,6 @@ object ScreenshotTestData {
     )
 
     val settingsAgent = SettingsUiState(
-        currentTab = SettingsTab.Agent,
         soulText = "",
         isMemoryEnabled = true,
         memories = persistentListOf(
@@ -185,7 +182,6 @@ object ScreenshotTestData {
     )
 
     val settingsTools = SettingsUiState(
-        currentTab = SettingsTab.Tools,
         tools = getPlatformToolDefinitions().toImmutableList(),
         mcpServers = persistentListOf(
             McpServerUiState(
@@ -317,17 +313,11 @@ object ScreenshotTestData {
 
     // --- Settings tab states ---
 
-    val settingsGeneralState = SettingsUiState(
-        currentTab = SettingsTab.General,
-    )
+    val settingsGeneralState = SettingsUiState()
 
-    val settingsAppearanceState = SettingsUiState(
-        currentTab = SettingsTab.Appearance,
-    )
+    val settingsAppearanceState = SettingsUiState()
 
-    val settingsAccountState = SettingsUiState(
-        currentTab = SettingsTab.Account,
-    )
+    val settingsAccountState = SettingsUiState()
 
     // --- Build Workspace states ---
 
@@ -379,20 +369,20 @@ object ScreenshotTestData {
     val v2Conversations = listOf(
         ChatConversationSummary(
             id = "1",
-            title = "ডার্ক-মোড সুইচ",
-            preview = "সেটিংস স্ক্রিনে ডার্ক-মোড সুইচ যোগ করো।",
+            title = "à¦¡à¦¾à¦°à§à¦•-à¦®à§‹à¦¡ à¦¸à§à¦‡à¦š",
+            preview = "à¦¸à§‡à¦Ÿà¦¿à¦‚à¦¸ à¦¸à§à¦•à§à¦°à¦¿à¦¨à§‡ à¦¡à¦¾à¦°à§à¦•-à¦®à§‹à¦¡ à¦¸à§à¦‡à¦š à¦¯à§‹à¦— à¦•à¦°à§‹à¥¤",
             isToday = true,
         ),
         ChatConversationSummary(
             id = "2",
-            title = "কোন ডেটাবেস নেব",
-            preview = "লোকাল স্টোরেজে কোন ডেটাবেস ব্যবহার করব?",
+            title = "à¦•à§‹à¦¨ à¦¡à§‡à¦Ÿà¦¾à¦¬à§‡à¦¸ à¦¨à§‡à¦¬",
+            preview = "à¦²à§‹à¦•à¦¾à¦² à¦¸à§à¦Ÿà§‹à¦°à§‡à¦œà§‡ à¦•à§‹à¦¨ à¦¡à§‡à¦Ÿà¦¾à¦¬à§‡à¦¸ à¦¬à§à¦¯à¦¬à¦¹à¦¾à¦° à¦•à¦°à¦¬?",
             isToday = true,
         ),
         ChatConversationSummary(
             id = "3",
-            title = "ব্যর্থ টেস্ট ঠিক করা",
-            preview = "টেস্ট ফেইল করছে, দেখো তো।",
+            title = "à¦¬à§à¦¯à¦°à§à¦¥ à¦Ÿà§‡à¦¸à§à¦Ÿ à¦ à¦¿à¦• à¦•à¦°à¦¾",
+            preview = "à¦Ÿà§‡à¦¸à§à¦Ÿ à¦«à§‡à¦‡à¦² à¦•à¦°à¦›à§‡, à¦¦à§‡à¦–à§‹ à¦¤à§‹à¥¤",
             isToday = false,
         ),
     )
@@ -401,12 +391,12 @@ object ScreenshotTestData {
         ChatMessageItem(
             id = "1",
             isUser = true,
-            text = "সেটিংস স্ক্রিনে ডার্ক-মোড সুইচ যোগ করো।",
+            text = "à¦¸à§‡à¦Ÿà¦¿à¦‚à¦¸ à¦¸à§à¦•à§à¦°à¦¿à¦¨à§‡ à¦¡à¦¾à¦°à§à¦•-à¦®à§‹à¦¡ à¦¸à§à¦‡à¦š à¦¯à§‹à¦— à¦•à¦°à§‹à¥¤",
         ),
         ChatMessageItem(
             id = "2",
             isUser = false,
-            text = "আগে থিমের কোড পড়ছি, তারপর সুইচটি যোগ করব।",
+            text = "à¦†à¦—à§‡ à¦¥à¦¿à¦®à§‡à¦° à¦•à§‹à¦¡ à¦ªà¦¡à¦¼à¦›à¦¿, à¦¤à¦¾à¦°à¦ªà¦° à¦¸à§à¦‡à¦šà¦Ÿà¦¿ à¦¯à§‹à¦— à¦•à¦°à¦¬à¥¤",
             modelName = "Google Gemini",
             isModelLocal = false,
             toolExecutions = listOf(
@@ -432,11 +422,11 @@ object ScreenshotTestData {
                 ),
             ),
             dynamicUi = DynamicUiModel(
-                title = "Kotlin Multiplatform-এ কাজ করে এমন তিনটি অপশন নিচে। একটি বেছে নিন:",
+                title = "Kotlin Multiplatform-à¦ à¦•à¦¾à¦œ à¦•à¦°à§‡ à¦à¦®à¦¨ à¦¤à¦¿à¦¨à¦Ÿà¦¿ à¦…à¦ªà¦¶à¦¨ à¦¨à¦¿à¦šà§‡à¥¤ à¦à¦•à¦Ÿà¦¿ à¦¬à§‡à¦›à§‡ à¦¨à¦¿à¦¨:",
                 options = listOf(
-                    DynamicUiOption("sq", "SQLDelight", "SQL আগে লিখুন, টাইপ-সেফ কোড তৈরি হবে"),
-                    DynamicUiOption("room", "Room", "Android-এ পরিচিত, KMP সমর্থন বাড়ছে"),
-                    DynamicUiOption("kv", "Key-value store", "সহজ সেটিংস ও ক্যাশের জন্য"),
+                    DynamicUiOption("sq", "SQLDelight", "SQL à¦†à¦—à§‡ à¦²à¦¿à¦–à§à¦¨, à¦Ÿà¦¾à¦‡à¦ª-à¦¸à§‡à¦« à¦•à§‹à¦¡ à¦¤à§ˆà¦°à¦¿ à¦¹à¦¬à§‡"),
+                    DynamicUiOption("room", "Room", "Android-à¦ à¦ªà¦°à¦¿à¦šà¦¿à¦¤, KMP à¦¸à¦®à¦°à§à¦¥à¦¨ à¦¬à¦¾à¦¡à¦¼à¦›à§‡"),
+                    DynamicUiOption("kv", "Key-value store", "à¦¸à¦¹à¦œ à¦¸à§‡à¦Ÿà¦¿à¦‚à¦¸ à¦“ à¦•à§à¦¯à¦¾à¦¶à§‡à¦° à¦œà¦¨à§à¦¯"),
                 ),
                 selectedOptionId = "sq",
                 isLocked = false,
