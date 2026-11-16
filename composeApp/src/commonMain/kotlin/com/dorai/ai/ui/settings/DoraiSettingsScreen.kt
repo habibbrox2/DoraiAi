@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +32,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Delete
@@ -135,10 +137,18 @@ import dorai.composeapp.generated.resources.settings_mcp_add_server
 import dorai.composeapp.generated.resources.settings_mcp_invalid_url
 import dorai.composeapp.generated.resources.settings_mcp_test_connection
 import dorai.composeapp.generated.resources.settings_mcp_url_hint
+import dorai.composeapp.generated.resources.settings_page_account_description
+import dorai.composeapp.generated.resources.settings_page_agent_description
+import dorai.composeapp.generated.resources.settings_page_appearance_description
+import dorai.composeapp.generated.resources.settings_page_general_description
+import dorai.composeapp.generated.resources.settings_page_github_description
+import dorai.composeapp.generated.resources.settings_page_services_description
+import dorai.composeapp.generated.resources.settings_page_tools_description
 import dorai.composeapp.generated.resources.settings_screen_title
 import dorai.composeapp.generated.resources.settings_theme_presets
 import dorai.composeapp.generated.resources.settings_timeline_desc
 import dorai.composeapp.generated.resources.settings_timeline_toggle
+import dorai.composeapp.generated.resources.settings_version
 import dorai.composeapp.generated.resources.status_connected
 import dorai.composeapp.generated.resources.tools_group_title
 import dorai.composeapp.generated.resources.v2_account_local_title
@@ -185,16 +195,17 @@ import org.koin.compose.viewmodel.koinViewModel
 enum class SettingsCategory(
     val id: String,
     val titleRes: StringResource,
+    val subtitleRes: StringResource,
     val icon: ImageVector,
 ) {
-    General("general", Res.string.settings_cat_general, Icons.Default.Tune),
-    Appearance("appearance", Res.string.settings_cat_appearance, Icons.Default.Palette),
-    Agent("agent", Res.string.settings_cat_agent, Icons.Default.SmartToy),
-    Providers("providers", Res.string.settings_cat_providers, Icons.Default.VpnKey),
-    Tools("tools", Res.string.settings_cat_tools, Icons.Default.Build),
-    Mcp("mcp", Res.string.settings_cat_mcp, Icons.Default.Extension),
-    GitHub("github", Res.string.settings_cat_github, Icons.Default.Code),
-    Account("account", Res.string.settings_cat_account, Icons.Default.AccountCircle),
+    General("general", Res.string.settings_cat_general, Res.string.settings_page_general_description, Icons.Default.Tune),
+    Appearance("appearance", Res.string.settings_cat_appearance, Res.string.settings_page_appearance_description, Icons.Default.Palette),
+    Agent("agent", Res.string.settings_cat_agent, Res.string.settings_page_agent_description, Icons.Default.SmartToy),
+    Providers("providers", Res.string.settings_cat_providers, Res.string.settings_page_services_description, Icons.Default.VpnKey),
+    Tools("tools", Res.string.settings_cat_tools, Res.string.settings_page_tools_description, Icons.Default.Build),
+    Mcp("mcp", Res.string.settings_cat_mcp, Res.string.settings_page_tools_description, Icons.Default.Extension),
+    GitHub("github", Res.string.settings_cat_github, Res.string.settings_page_github_description, Icons.Default.Code),
+    Account("account", Res.string.settings_cat_account, Res.string.settings_page_account_description, Icons.Default.AccountCircle),
 }
 
 /**
@@ -209,8 +220,8 @@ enum class SettingsCategory(
  */
 @Composable
 fun DoraiSettingsScreen(
-    activeCategory: SettingsCategory = SettingsCategory.General,
-    onCategoryChanged: (SettingsCategory) -> Unit,
+    activeCategory: SettingsCategory? = null,
+    onCategoryChanged: (SettingsCategory?) -> Unit,
     selectedThemeId: String,
     onThemeSelected: (String) -> Unit,
     appearanceActions: AppearanceSettingsActions? = null,
@@ -228,43 +239,59 @@ fun DoraiSettingsScreen(
     var selectedCat by remember(activeCategory) { mutableStateOf(activeCategory) }
 
     if (widthClass.isCompact) {
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .background(colors.background),
-        ) {
-            DoraiPillTabs(
-                items = SettingsCategory.entries,
-                selectedItem = selectedCat,
-                onItemSelected = {
+        if (selectedCat == null) {
+            SettingsHome(
+                modifier = modifier,
+                onCategorySelected = {
                     selectedCat = it
                     onCategoryChanged(it)
                 },
-                labelProvider = { stringResource(it.titleRes) },
-                modifier = Modifier.padding(DoraiSpacing.MD),
+                debugBuildStamp = debugBuildStamp,
             )
-
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
+        } else {
+            val category = selectedCat!!
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .background(colors.background),
             ) {
-                SettingsCategoryContent(
-                    category = selectedCat,
-                    selectedThemeId = selectedThemeId,
-                    onThemeSelected = onThemeSelected,
-                    appearanceActions = appearanceActions,
-                    uiState = uiState,
-                    actions = actions,
-                    sandboxState = sandboxState,
-                    androidUpdateContent = androidUpdateContent,
-                    debugBuildStamp = debugBuildStamp,
-                    onNavigateToWorkspace = onNavigateToWorkspace,
-                    onNavigateToCategory = {
+                DoraiPillTabs(
+                    items = SettingsCategory.entries,
+                    selectedItem = category,
+                    onItemSelected = {
                         selectedCat = it
                         onCategoryChanged(it)
                     },
+                    labelProvider = { stringResource(it.titleRes) },
+                    modifier = Modifier.padding(DoraiSpacing.MD),
                 )
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                ) {
+                    SettingsCategoryContent(
+                        category = category,
+                        selectedThemeId = selectedThemeId,
+                        onThemeSelected = onThemeSelected,
+                        appearanceActions = appearanceActions,
+                        uiState = uiState,
+                        actions = actions,
+                        sandboxState = sandboxState,
+                        androidUpdateContent = androidUpdateContent,
+                        debugBuildStamp = debugBuildStamp,
+                        onNavigateToWorkspace = onNavigateToWorkspace,
+                        onNavigateToCategory = {
+                            selectedCat = it
+                            onCategoryChanged(it)
+                        },
+                        onNavigateHome = {
+                            selectedCat = null
+                            onCategoryChanged(null)
+                        },
+                    )
+                }
             }
         }
     } else {
@@ -279,22 +306,38 @@ fun DoraiSettingsScreen(
                 )
             },
             detailPane = {
-                SettingsCategoryContent(
-                    category = selectedCat,
-                    selectedThemeId = selectedThemeId,
-                    onThemeSelected = onThemeSelected,
-                    appearanceActions = appearanceActions,
-                    uiState = uiState,
-                    actions = actions,
-                    sandboxState = sandboxState,
-                    androidUpdateContent = androidUpdateContent,
-                    debugBuildStamp = debugBuildStamp,
-                    onNavigateToWorkspace = onNavigateToWorkspace,
-                    onNavigateToCategory = {
-                        selectedCat = it
-                        onCategoryChanged(it)
-                    },
-                )
+                val category = selectedCat
+                if (category == null) {
+                    SettingsHome(
+                        modifier = Modifier,
+                        onCategorySelected = {
+                            selectedCat = it
+                            onCategoryChanged(it)
+                        },
+                        debugBuildStamp = debugBuildStamp,
+                    )
+                } else {
+                    SettingsCategoryContent(
+                        category = category,
+                        selectedThemeId = selectedThemeId,
+                        onThemeSelected = onThemeSelected,
+                        appearanceActions = appearanceActions,
+                        uiState = uiState,
+                        actions = actions,
+                        sandboxState = sandboxState,
+                        androidUpdateContent = androidUpdateContent,
+                        debugBuildStamp = debugBuildStamp,
+                        onNavigateToWorkspace = onNavigateToWorkspace,
+                        onNavigateToCategory = {
+                            selectedCat = it
+                            onCategoryChanged(it)
+                        },
+                        onNavigateHome = {
+                            selectedCat = null
+                            onCategoryChanged(null)
+                        },
+                    )
+                }
             },
             modifier = modifier,
         )
@@ -309,8 +352,8 @@ fun DoraiSettingsScreen(
  */
 @Composable
 fun DoraiSettingsScreenConnected(
-    activeCategory: SettingsCategory = SettingsCategory.General,
-    onCategoryChanged: (SettingsCategory) -> Unit,
+    activeCategory: SettingsCategory? = null,
+    onCategoryChanged: (SettingsCategory?) -> Unit,
     selectedThemeId: String,
     onThemeSelected: (String) -> Unit,
     appearanceActions: AppearanceSettingsActions? = null,
@@ -344,9 +387,125 @@ fun DoraiSettingsScreenConnected(
     )
 }
 
+/**
+ * Settings landing page: a hero banner plus one card per category, matching the
+ * product concept. Tapping a card opens that category's detail page.
+ */
+@Composable
+private fun SettingsHome(
+    modifier: Modifier = Modifier,
+    onCategorySelected: (SettingsCategory) -> Unit,
+    debugBuildStamp: String? = null,
+) {
+    val colors = LocalDoraiColors.current
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(DoraiSpacing.MD),
+        verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD),
+    ) {
+        // Hero banner (theme-driven gradient, no hardcoded palette).
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(20.dp))
+                .background(
+                    androidx.compose.ui.graphics.Brush.horizontalGradient(
+                        listOf(colors.primary, colors.accent),
+                    ),
+                )
+                .padding(20.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(Res.string.settings_screen_title),
+                        color = colors.onPrimary,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.semantics { heading() },
+                    )
+                    Spacer(modifier = Modifier.height(DoraiSpacing.XS))
+                    Text(
+                        text = stringResource(Res.string.settings_page_general_description),
+                        color = colors.onPrimary,
+                        fontSize = 13.sp,
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Default.SmartToy,
+                    contentDescription = null,
+                    tint = colors.onPrimary,
+                    modifier = Modifier.size(56.dp),
+                )
+            }
+        }
+
+        SettingsCategory.entries.forEach { category ->
+            val shape = RoundedCornerShape(16.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape)
+                    .background(colors.surface)
+                    .border(1.dp, colors.line, shape)
+                    .clickable(role = Role.Button) { onCategorySelected(category) }
+                    .defaultMinSize(minHeight = 72.dp)
+                    .padding(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.SM),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(colors.primary.copy(alpha = 0.14f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = category.icon,
+                        contentDescription = null,
+                        tint = colors.primary,
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
+                Spacer(modifier = Modifier.width(DoraiSpacing.MD))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(category.titleRes),
+                        color = colors.text,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = stringResource(category.subtitleRes),
+                        color = colors.muted,
+                        fontSize = 12.5.sp,
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    tint = colors.muted,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+        }
+
+        debugBuildStamp?.let {
+            Text(
+                text = it,
+                color = colors.muted,
+                fontSize = 11.sp,
+                modifier = Modifier.fillMaxWidth().padding(vertical = DoraiSpacing.SM),
+            )
+        }
+    }
+}
+
 @Composable
 private fun SettingsCategoryListPane(
-    selectedCategory: SettingsCategory,
+    selectedCategory: SettingsCategory?,
     onCategorySelected: (SettingsCategory) -> Unit,
 ) {
     val colors = LocalDoraiColors.current
@@ -423,6 +582,7 @@ private fun SettingsCategoryContent(
     debugBuildStamp: String? = null,
     onNavigateToWorkspace: (() -> Unit)? = null,
     onNavigateToCategory: (SettingsCategory) -> Unit = {},
+    onNavigateHome: () -> Unit = {},
 ) {
     val colors = LocalDoraiColors.current
     // A fresh scroll position per category: switching tabs always lands on the header.
@@ -436,6 +596,7 @@ private fun SettingsCategoryContent(
         SettingsPageHeader(
             title = stringResource(category.titleRes),
             icon = category.icon,
+            onBack = onNavigateHome.takeIf { true },
         )
         Spacer(modifier = Modifier.height(DoraiSpacing.LG))
 
@@ -538,7 +699,6 @@ private fun SettingsCategoryContent(
 
                     SettingsCategory.Agent -> {
                         AgentPolicyHeader()
-                        AgentSettingsContent()
                     }
 
                     SettingsCategory.Providers -> ServicesContent(uiState = SettingsUiState(), actions = SettingsActions.NoOp)

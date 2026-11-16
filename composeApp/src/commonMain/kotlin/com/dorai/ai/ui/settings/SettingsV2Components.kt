@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -39,6 +41,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_navigate_back
+import org.jetbrains.compose.resources.stringResource
 
 /** The rounded surface card that groups one Settings section. */
 @Composable
@@ -68,12 +73,26 @@ internal fun SettingsPageHeader(
     title: String,
     icon: ImageVector,
     modifier: Modifier = Modifier,
+    onBack: (() -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (onBack != null) {
+            androidx.compose.material3.IconButton(
+                onClick = onBack,
+                modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp),
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(Res.string.a11y_navigate_back),
+                    tint = colors.text,
+                )
+            }
+            Spacer(modifier = Modifier.width(4.dp))
+        }
         Box(
             modifier = Modifier
                 .size(40.dp)

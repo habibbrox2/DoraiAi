@@ -1,3 +1,11 @@
+## DORAI AI - Settings concept alignment (Unreleased)
+
+### Changed
+- **Settings now opens on a Home landing page**: hero banner plus one card per category (icon, title, subtitle, chevron), matching the product concept. Category pages keep a back arrow to Home.
+- **Fixed a duplicated "Default mode" section** in the Agent preview/screenshot fallback.
+
+---
+
 ## DORAI AI - Runtime Settings UI redesign (Unreleased)
 
 ### Changed
