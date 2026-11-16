@@ -1,4 +1,4 @@
-package com.dorai.ai.screenshots
+﻿package com.dorai.ai.screenshots
 
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -399,7 +399,7 @@ class DoraiUiV2ScreenshotTest {
         DoraiSettingsScreen(
             activeCategory = null,
             onCategoryChanged = {},
-            selectedThemeId = "ogshine",
+            selectedThemeId = "og_shine",
             onThemeSelected = {},
         )
     }
@@ -413,7 +413,7 @@ class DoraiUiV2ScreenshotTest {
         DoraiSettingsScreen(
             activeCategory = SettingsCategory.General,
             onCategoryChanged = {},
-            selectedThemeId = "ogshine",
+            selectedThemeId = "og_shine",
             onThemeSelected = {},
         )
     }
@@ -427,7 +427,7 @@ class DoraiUiV2ScreenshotTest {
         DoraiSettingsScreen(
             activeCategory = SettingsCategory.Appearance,
             onCategoryChanged = {},
-            selectedThemeId = "ogshine",
+            selectedThemeId = "og_shine",
             onThemeSelected = {},
         )
     }
@@ -441,7 +441,7 @@ class DoraiUiV2ScreenshotTest {
         DoraiSettingsScreen(
             activeCategory = SettingsCategory.Agent,
             onCategoryChanged = {},
-            selectedThemeId = "ogshine",
+            selectedThemeId = "og_shine",
             onThemeSelected = {},
         )
     }
@@ -455,7 +455,7 @@ class DoraiUiV2ScreenshotTest {
         DoraiSettingsScreen(
             activeCategory = SettingsCategory.Providers,
             onCategoryChanged = {},
-            selectedThemeId = "ogshine",
+            selectedThemeId = "og_shine",
             onThemeSelected = {},
             uiState = customGatewayState(),
             actions = SettingsActions.NoOp,
@@ -471,7 +471,7 @@ class DoraiUiV2ScreenshotTest {
         DoraiSettingsScreen(
             activeCategory = SettingsCategory.Providers,
             onCategoryChanged = {},
-            selectedThemeId = "ogshine",
+            selectedThemeId = "og_shine",
             onThemeSelected = {},
         )
     }
@@ -485,7 +485,7 @@ class DoraiUiV2ScreenshotTest {
         DoraiSettingsScreen(
             activeCategory = SettingsCategory.Tools,
             onCategoryChanged = {},
-            selectedThemeId = "ogshine",
+            selectedThemeId = "og_shine",
             onThemeSelected = {},
         )
     }
@@ -499,7 +499,7 @@ class DoraiUiV2ScreenshotTest {
         DoraiSettingsScreen(
             activeCategory = SettingsCategory.Mcp,
             onCategoryChanged = {},
-            selectedThemeId = "ogshine",
+            selectedThemeId = "og_shine",
             onThemeSelected = {},
         )
     }
@@ -513,7 +513,7 @@ class DoraiUiV2ScreenshotTest {
         DoraiSettingsScreen(
             activeCategory = SettingsCategory.Account,
             onCategoryChanged = {},
-            selectedThemeId = "ogshine",
+            selectedThemeId = "og_shine",
             onThemeSelected = {},
         )
     }
@@ -527,7 +527,7 @@ class DoraiUiV2ScreenshotTest {
         DoraiSettingsScreen(
             activeCategory = SettingsCategory.General,
             onCategoryChanged = {},
-            selectedThemeId = "ogshine",
+            selectedThemeId = "og_shine",
             onThemeSelected = {},
         )
     }
@@ -604,18 +604,18 @@ class DoraiUiV2ScreenshotTest {
         recentChats = listOf(
             HomeChatSummary(
                 id = "1",
-                title = "ডার্ক-মোড সুইচ",
-                snippet = "সেটিংস স্ক্রিনে ডার্ক-মোড সুইচ যোগ করো।",
+                title = "à¦¡à¦¾à¦°à§à¦•-à¦®à§‹à¦¡ à¦¸à§à¦‡à¦š",
+                snippet = "à¦¸à§‡à¦Ÿà¦¿à¦‚à¦¸ à¦¸à§à¦•à§à¦°à¦¿à¦¨à§‡ à¦¡à¦¾à¦°à§à¦•-à¦®à§‹à¦¡ à¦¸à§à¦‡à¦š à¦¯à§‹à¦— à¦•à¦°à§‹à¥¤",
             ),
             HomeChatSummary(
                 id = "2",
-                title = "কোন ডেটাবেস নেব",
-                snippet = "লোকাল স্টোরেজে কোন ডেটাবেস ব্যবহার করব?",
+                title = "à¦•à§‹à¦¨ à¦¡à§‡à¦Ÿà¦¾à¦¬à§‡à¦¸ à¦¨à§‡à¦¬",
+                snippet = "à¦²à§‹à¦•à¦¾à¦² à¦¸à§à¦Ÿà§‹à¦°à§‡à¦œà§‡ à¦•à§‹à¦¨ à¦¡à§‡à¦Ÿà¦¾à¦¬à§‡à¦¸ à¦¬à§à¦¯à¦¬à¦¹à¦¾à¦° à¦•à¦°à¦¬?",
             ),
             HomeChatSummary(
                 id = "3",
-                title = "ব্যর্থ টেস্ট ঠিক করা",
-                snippet = "টেস্ট ফেইল করছে, দেখো তো।",
+                title = "à¦¬à§à¦¯à¦°à§à¦¥ à¦Ÿà§‡à¦¸à§à¦Ÿ à¦ à¦¿à¦• à¦•à¦°à¦¾",
+                snippet = "à¦Ÿà§‡à¦¸à§à¦Ÿ à¦«à§‡à¦‡à¦² à¦•à¦°à¦›à§‡, à¦¦à§‡à¦–à§‹ à¦¤à§‹à¥¤",
             ),
         ),
     )
@@ -626,7 +626,7 @@ class DoraiUiV2ScreenshotTest {
                 instanceId = "custom-gateway",
                 service = Service.OpenAICompatible,
                 connectionStatus = ConnectionStatus.Connected,
-                apiKey = "sk-••••••••••••••••••••••",
+                apiKey = "sk-â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢",
                 baseUrl = "https://litellm.example.com/v1",
                 selectedModel = SettingsModel(id = "gpt-4o-mini", subtitle = "gpt-4o-mini", displayName = "gpt-4o-mini", isSelected = true),
                 models = persistentListOf(
@@ -662,21 +662,21 @@ class DoraiUiV2ScreenshotTest {
             name = "dorai-notes",
             path = "~/projects/dorai-notes",
             branch = "main",
-            lastUpdatedText = "২ ঘণ্টা আগে",
+            lastUpdatedText = "à§¨ à¦˜à¦£à§à¦Ÿà¦¾ à¦†à¦—à§‡",
             changesCount = 3,
         ),
         WorkspaceProjectItem(
             name = "weather-app",
             path = "~/projects/weather-app",
             branch = "dev",
-            lastUpdatedText = "গতকাল",
+            lastUpdatedText = "à¦—à¦¤à¦•à¦¾à¦²",
             changesCount = 0,
         ),
         WorkspaceProjectItem(
             name = "landing-page",
             path = "~/projects/landing-page",
             branch = "main",
-            lastUpdatedText = "গত সপ্তাহ",
+            lastUpdatedText = "à¦—à¦¤ à¦¸à¦ªà§à¦¤à¦¾à¦¹",
             changesCount = 0,
         ),
     )
