@@ -124,7 +124,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 private const val MAX_TOOL_ITERATIONS = 15
-private const val MIN_TOOL_DISPLAY_MS = 2000L
+private const val MIN_TOOL_DISPLAY_MS = 400L
 private const val MAX_REPEATED_TOOL_CALLS = 3
 private const val MAX_API_RETRIES = 2
 private const val MAX_HEARTBEAT_MESSAGES = 50
@@ -137,7 +137,7 @@ private const val COMPACTION_KEEP_RECENT = 4 // Number of recent user exchanges 
  * second; coalescing to ~20 updates/s keeps the timeline smooth without re-deriving the whole
  * chat state on every token.
  */
-private const val STREAM_FLUSH_INTERVAL_MS = 50L
+private const val STREAM_FLUSH_INTERVAL_MS = 24L
 
 // Explicit allowlist of tools exposed to the on-device (LiteRT) model. We use a
 // hardcoded name list rather than a structural filter because small Gemma models hit
