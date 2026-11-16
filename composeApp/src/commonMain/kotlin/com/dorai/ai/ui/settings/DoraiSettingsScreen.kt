@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.settings
+﻿package com.dorai.ai.ui.settings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
@@ -96,6 +96,14 @@ import com.dorai.ai.ui.components.v2.DoraiProviderBadge
 import com.dorai.ai.ui.components.v2.DoraiStatusBadge
 import com.dorai.ai.ui.components.v2.DoraiThemePresetTile
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.account_auth_sessions
+import dorai.composeapp.generated.resources.account_chat_history
+import dorai.composeapp.generated.resources.account_export_data
+import dorai.composeapp.generated.resources.account_section_about
+import dorai.composeapp.generated.resources.account_section_data
+import dorai.composeapp.generated.resources.account_section_notifications
+import dorai.composeapp.generated.resources.account_section_privacy
+import dorai.composeapp.generated.resources.account_section_subscription
 import dorai.composeapp.generated.resources.action_cancel
 import dorai.composeapp.generated.resources.action_delete
 import dorai.composeapp.generated.resources.agent_activity_timeline
@@ -116,6 +124,7 @@ import dorai.composeapp.generated.resources.mode_plan
 import dorai.composeapp.generated.resources.mode_plan_desc
 import dorai.composeapp.generated.resources.mode_review
 import dorai.composeapp.generated.resources.mode_review_desc
+import dorai.composeapp.generated.resources.settings_agent_behavior
 import dorai.composeapp.generated.resources.settings_approval_ask_all
 import dorai.composeapp.generated.resources.settings_approval_ask_edits
 import dorai.composeapp.generated.resources.settings_approval_auto_read
@@ -131,7 +140,9 @@ import dorai.composeapp.generated.resources.settings_cat_providers
 import dorai.composeapp.generated.resources.settings_cat_tools
 import dorai.composeapp.generated.resources.settings_delete_all_chats
 import dorai.composeapp.generated.resources.settings_delete_chats_confirm
+import dorai.composeapp.generated.resources.settings_github_connection
 import dorai.composeapp.generated.resources.settings_github_description
+import dorai.composeapp.generated.resources.settings_manage_providers
 import dorai.composeapp.generated.resources.settings_mcp_add_server
 import dorai.composeapp.generated.resources.settings_mcp_invalid_url
 import dorai.composeapp.generated.resources.settings_mcp_test_connection
@@ -143,11 +154,13 @@ import dorai.composeapp.generated.resources.settings_page_general_description
 import dorai.composeapp.generated.resources.settings_page_github_description
 import dorai.composeapp.generated.resources.settings_page_services_description
 import dorai.composeapp.generated.resources.settings_page_tools_description
+import dorai.composeapp.generated.resources.settings_plugins
 import dorai.composeapp.generated.resources.settings_screen_title
 import dorai.composeapp.generated.resources.settings_theme_presets
 import dorai.composeapp.generated.resources.settings_timeline_desc
 import dorai.composeapp.generated.resources.settings_timeline_toggle
 import dorai.composeapp.generated.resources.settings_version
+import dorai.composeapp.generated.resources.settings_your_connectors
 import dorai.composeapp.generated.resources.status_connected
 import dorai.composeapp.generated.resources.tools_group_title
 import dorai.composeapp.generated.resources.v2_account_local_title
@@ -369,7 +382,7 @@ fun DoraiSettingsScreenConnected(
         actions = settingsViewModel.actions,
         sandboxState = sandboxState,
         androidUpdateContent = androidUpdateContent,
-        debugBuildStamp = "v${Version.appVersion} · uiV2=on",
+        debugBuildStamp = "v${Version.appVersion} Â· uiV2=on",
         onNavigateToWorkspace = onNavigateToWorkspace,
         modifier = modifier,
     )
@@ -616,17 +629,23 @@ private fun SettingsCategoryContent(
                     )
 
                     SettingsCategory.Agent -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_agent_behavior))
                         AgentPolicyHeader()
                         AgentContent(uiState = uiState, actions = actions)
                     }
 
-                    SettingsCategory.Providers -> ServicesContent(uiState = uiState, actions = actions)
+                    SettingsCategory.Providers -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_manage_providers))
+                        ServicesContent(uiState = uiState, actions = actions)
+                    }
 
                     SettingsCategory.Tools -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_plugins))
                         PluginsSection(tools = uiState.tools, onToggleTool = actions.onToggleTool)
                         // Skills stay visible on every platform: without the sandbox the section
                         // explains what is missing and links to the sandbox setup, so the capability
                         // is never silently hidden.
+                        SettingsDetailSectionHeading(stringResource(Res.string.v2_skills_title))
                         SkillsSection(
                             skills = uiState.skills,
                             onUninstallSkill = actions.onUninstallSkill,
@@ -649,6 +668,7 @@ private fun SettingsCategoryContent(
                     }
 
                     SettingsCategory.Mcp -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_your_connectors))
                         McpServersSection(
                             mcpServers = uiState.mcpServers,
                             onAddMcpServer = actions.onAddMcpServer,
@@ -665,14 +685,12 @@ private fun SettingsCategoryContent(
                     }
 
                     SettingsCategory.GitHub -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_github_connection))
                         GitHubSection()
                     }
 
                     SettingsCategory.Account -> {
-                        AccountProfileCard()
-                        DataControlContent(uiState = uiState, actions = actions)
-                        DoraiCloudSection()
-                        AccountPlanContent(uiState = uiState)
+                        AccountFlowContent(uiState = uiState, actions = actions)
                     }
                 }
             } else {
@@ -686,21 +704,35 @@ private fun SettingsCategoryContent(
                     )
 
                     SettingsCategory.Agent -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_agent_behavior))
                         AgentPolicyHeader()
                     }
 
-                    SettingsCategory.Providers -> ServicesContent(uiState = SettingsUiState(), actions = SettingsActions.NoOp)
+                    SettingsCategory.Providers -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_manage_providers))
+                        ServicesContent(uiState = SettingsUiState(), actions = SettingsActions.NoOp)
+                    }
 
-                    SettingsCategory.Tools -> ToolsSettingsContent()
+                    SettingsCategory.Tools -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_plugins))
+                        ToolsSettingsContent()
+                    }
 
-                    SettingsCategory.Mcp -> McpSettingsContent()
+                    SettingsCategory.Mcp -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_your_connectors))
+                        McpSettingsContent()
+                    }
 
-                    SettingsCategory.GitHub -> GitHubSection()
+                    SettingsCategory.GitHub -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_github_connection))
+                        GitHubSection()
+                    }
 
                     SettingsCategory.Account -> {
-                        AccountProfileCard()
-                        DoraiCloudSection()
-                        AccountSettingsContent()
+                        AccountFlowContent(
+                            uiState = SettingsUiState(),
+                            actions = SettingsActions.NoOp,
+                        )
                     }
                 }
             }
@@ -709,7 +741,7 @@ private fun SettingsCategoryContent(
 }
 
 /**
- * Appearance controls owned by [com.dorai.ai.theme.ThemeViewModel] — the single
+ * Appearance controls owned by [com.dorai.ai.theme.ThemeViewModel] â€” the single
  * state writer for theme selection. App.kt builds this from the collected theme state;
  * `null` hides the advanced controls in preview/screenshot compositions, exactly as
  * the legacy Appearance tab never exposed them.
@@ -1223,6 +1255,71 @@ private fun AgentPolicyHeader(
             appSettings.setAutoReadEnabled(it)
         },
     )
+}
+
+@Composable
+internal fun SettingsDetailSectionHeading(text: String) {
+    val colors = LocalDoraiColors.current
+    Text(
+        text = text,
+        color = colors.muted,
+        fontSize = 12.5.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { heading() },
+    )
+}
+
+/** Account page arranged to the product flow: Profile â†’ Subscription â†’ Privacy â†’ Data â†’ Notifications â†’ About. */
+@Composable
+private fun AccountFlowContent(uiState: SettingsUiState, actions: SettingsActions) {
+    // Profile
+    AccountProfileCard()
+
+    // Subscription
+    SettingsDetailSectionHeading(stringResource(Res.string.account_section_subscription))
+    AccountPlanContent(uiState = uiState)
+
+    // Privacy & Security â€” Authentication & Sessions
+    SettingsDetailSectionHeading(stringResource(Res.string.account_section_privacy))
+    SettingsDetailSectionHeading(stringResource(Res.string.account_auth_sessions))
+    DoraiCloudSection()
+
+    SettingsDetailSectionHeading(stringResource(Res.string.account_section_data))
+    SettingsDetailSectionHeading(stringResource(Res.string.account_export_data))
+    ExportImportSection(
+        onExportSettings = actions.onExportSettings,
+        onPrepareExport = actions.onPrepareExport,
+        onImportSettings = actions.onImportSettings,
+    )
+    SettingsDetailSectionHeading(stringResource(Res.string.account_chat_history))
+    DataControlContent(uiState = uiState, actions = actions)
+
+    if (uiState.showNotificationsSection) {
+        SettingsDetailSectionHeading(stringResource(Res.string.account_section_notifications))
+        SettingsSectionCard {
+            NotificationsSection(
+                isEnabled = uiState.isNotificationsEnabled,
+                accessGranted = uiState.notificationListenerAccessGranted,
+                listenerBound = uiState.notificationListenerBound,
+                pendingCount = uiState.notificationPendingCount,
+                onToggle = actions.onToggleNotifications,
+                onOpenAccessSettings = actions.onOpenNotificationListenerSettings,
+                onClearPending = actions.onClearPendingNotifications,
+            )
+        }
+    }
+
+    // About Dorai AI
+    SettingsDetailSectionHeading(stringResource(Res.string.account_section_about))
+    SettingsSectionCard {
+        Text(
+            text = stringResource(Res.string.settings_version, com.dorai.ai.Version.appVersion),
+            color = LocalDoraiColors.current.muted,
+            fontSize = 12.5.sp,
+        )
+    }
 }
 
 @Composable

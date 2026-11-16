@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.dorai.ai.data.AppLanguage
@@ -43,7 +44,9 @@ import dorai.composeapp.generated.resources.settings_language
 import dorai.composeapp.generated.resources.settings_language_description
 import dorai.composeapp.generated.resources.settings_restore_last_chat
 import dorai.composeapp.generated.resources.settings_restore_last_chat_description
+import dorai.composeapp.generated.resources.settings_tab_data
 import dorai.composeapp.generated.resources.settings_ui_scale
+import dorai.composeapp.generated.resources.settings_voice_mode
 import dorai.composeapp.generated.resources.tts_description
 import dorai.composeapp.generated.resources.tts_speech_speed
 import dorai.composeapp.generated.resources.tts_tip
@@ -56,6 +59,17 @@ import org.koin.compose.koinInject
 import kotlin.math.roundToInt
 
 @Composable
+private fun GeneralSectionHeading(text: String) {
+    Text(
+        text = text,
+        style = DoraiTypography.titleSmall,
+        color = LocalDesignColorTokens.current.textSecondary,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.padding(vertical = 4.dp),
+    )
+}
+
+@Composable
 internal fun GeneralContent(
     uiState: SettingsUiState,
     actions: SettingsActions,
@@ -63,6 +77,33 @@ internal fun GeneralContent(
 ) {
     StaggeredSettingsColumns(
         start = {
+            // Concept order: Language & Region, TTS, Voice, Android Updates.
+            GeneralSectionHeading(stringResource(Res.string.settings_language))
+            SettingsCard {
+                LanguageSwitch(
+                    appLanguage = uiState.appLanguage,
+                    onChangeAppLanguage = actions.onChangeAppLanguage,
+                )
+            }
+            GeneralSectionHeading(stringResource(Res.string.tts_title))
+            SettingsCard {
+                TtsSettingsSection(appLanguage = uiState.appLanguage)
+            }
+            if (uiState.showVoiceSection) {
+                GeneralSectionHeading(stringResource(Res.string.settings_voice_mode))
+                SettingsCard {
+                    VoiceSettingsSection(uiState = uiState, actions = actions)
+                }
+            }
+            androidUpdateContent?.invoke()
+            SettingsCard {
+                RestoreLastChatToggle(
+                    isRestoreLastChatEnabled = uiState.isRestoreLastChatEnabled,
+                    onToggleRestoreLastChat = actions.onToggleRestoreLastChat,
+                )
+            }
+        },
+        end = {
             if (uiState.showDaemonToggle) {
                 SettingsCard {
                     DaemonModeToggle(
@@ -71,28 +112,20 @@ internal fun GeneralContent(
                     )
                 }
             }
+            Text(
+                text = stringResource(Res.string.settings_tab_data),
+                style = DoraiTypography.titleSmall,
+                color = LocalDesignColorTokens.current.textPrimary,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(vertical = 4.dp),
+            )
             SettingsCard {
-                RestoreLastChatToggle(
-                    isRestoreLastChatEnabled = uiState.isRestoreLastChatEnabled,
-                    onToggleRestoreLastChat = actions.onToggleRestoreLastChat,
+                ExportImportSection(
+                    onExportSettings = actions.onExportSettings,
+                    onPrepareExport = actions.onPrepareExport,
+                    onImportSettings = actions.onImportSettings,
                 )
             }
-            SettingsCard {
-                LanguageSwitch(
-                    appLanguage = uiState.appLanguage,
-                    onChangeAppLanguage = actions.onChangeAppLanguage,
-                )
-            }
-            SettingsCard {
-                TtsSettingsSection(appLanguage = uiState.appLanguage)
-            }
-            if (uiState.showVoiceSection) {
-                SettingsCard {
-                    VoiceSettingsSection(uiState = uiState, actions = actions)
-                }
-            }
-        },
-        end = {
             if (uiState.showUiScale) {
                 SettingsCard {
                     UiScaleSection(
@@ -101,16 +134,8 @@ internal fun GeneralContent(
                     )
                 }
             }
-            SettingsCard {
-                ExportImportSection(
-                    onExportSettings = actions.onExportSettings,
-                    onPrepareExport = actions.onPrepareExport,
-                    onImportSettings = actions.onImportSettings,
-                )
-            }
         },
     )
-    androidUpdateContent?.invoke()
 }
 
 @Composable
