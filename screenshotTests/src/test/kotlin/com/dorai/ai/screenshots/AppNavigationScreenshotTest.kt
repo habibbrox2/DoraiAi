@@ -1,4 +1,4 @@
-package com.dorai.ai.screenshots
+﻿package com.dorai.ai.screenshots
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,8 +27,9 @@ import com.dorai.ai.ui.dashboard.DashboardUiState
 import com.dorai.ai.ui.dashboard.FactText
 import com.dorai.ai.ui.dashboard.ReadinessFact
 import com.dorai.ai.ui.dashboard.ServiceReadiness
-import com.dorai.ai.ui.settings.SettingsScreenContent
-import com.dorai.ai.ui.settings.SettingsTab
+import com.dorai.ai.ui.settings.DoraiSettingsScreen
+import com.dorai.ai.ui.settings.SettingsActions
+import com.dorai.ai.ui.settings.SettingsCategory
 import com.dorai.ai.ui.workspace.WorkspaceActions
 import com.dorai.ai.ui.workspace.WorkspaceScreenContent
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -62,7 +63,7 @@ class AppNavigationScreenshotTest {
     fun settings_destination_dark() = paparazzi.snapDestination(Settings())
 
     @Test
-    fun settings_tools_destination_dark() = paparazzi.snapDestination(Settings.of(SettingsTab.Tools))
+    fun settings_tools_destination_dark() = paparazzi.snapDestination(Settings.of(SettingsCategory.Tools))
 
     @Test
     fun workspace_destination_dark() = paparazzi.snapDestination(Build("brox-kai-2.0"))
@@ -145,26 +146,31 @@ private fun AppNavigationGraph(startDestination: Any) {
         }
         composable<Settings> { entry ->
             val route = entry.toRoute<Settings>()
-            val selectedTab = Settings.tabOf(route) ?: SettingsTab.General
-            SettingsScreenContent(
-                uiState = when (selectedTab) {
-                    SettingsTab.Agent -> ScreenshotTestData.settingsAgent
+            val selectedCategory = Settings.categoryOf(route) ?: SettingsCategory.General
+            DoraiSettingsScreen(
+                activeCategory = selectedCategory,
+                onCategoryChanged = {},
+                selectedThemeId = "og_shine",
+                onThemeSelected = {},
+                uiState = when (selectedCategory) {
+                    SettingsCategory.Agent -> ScreenshotTestData.settingsAgent
 
-                    SettingsTab.Appearance -> ScreenshotTestData.settingsAppearanceState
+                    SettingsCategory.Appearance -> ScreenshotTestData.settingsAppearanceState
 
-                    SettingsTab.Services -> ScreenshotTestData.freeConnected
+                    SettingsCategory.Providers -> ScreenshotTestData.freeConnected
 
-                    SettingsTab.Tools -> ScreenshotTestData.settingsTools
+                    SettingsCategory.Tools -> ScreenshotTestData.settingsTools
 
-                    // Not yet snapshotted — stand-in until a GitHub fixture is recorded.
-                    SettingsTab.GitHub -> ScreenshotTestData.settingsTools
+                    // Not yet snapshotted â€” stand-in until a GitHub fixture is recorded.
+                    SettingsCategory.GitHub -> ScreenshotTestData.settingsTools
 
-                    SettingsTab.Account -> ScreenshotTestData.settingsAccountState
+                    SettingsCategory.Account -> ScreenshotTestData.settingsAccountState
 
-                    SettingsTab.General -> ScreenshotTestData.settingsGeneralState
+                    SettingsCategory.General -> ScreenshotTestData.settingsGeneralState
+
+                    SettingsCategory.Mcp -> ScreenshotTestData.settingsTools
                 },
-                sandboxState = ScreenshotTestData.sandboxState,
-                onNavigateBack = { navController.navigateUp() },
+                actions = SettingsActions.NoOp,
             )
         }
         composable<Build> {

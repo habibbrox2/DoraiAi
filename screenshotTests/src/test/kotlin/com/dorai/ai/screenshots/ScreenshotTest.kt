@@ -1,4 +1,4 @@
-package com.dorai.ai.screenshots
+﻿package com.dorai.ai.screenshots
 
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.layout.Box
@@ -29,7 +29,6 @@ import com.dorai.ai.ui.chat.composables.ShellExecutionCard
 import com.dorai.ai.ui.chat.composables.ToolConfirmationCard
 import com.dorai.ai.ui.chat.composables.ToolExecutionCard
 import com.dorai.ai.ui.dynamicui.LocalPreviewImages
-import com.dorai.ai.ui.settings.SettingsScreenContent
 import com.dorai.ai.ui.workspace.WorkspaceActions
 import com.dorai.ai.ui.workspace.WorkspaceScreenContent
 import com.dorai.ai.ui.workspace.WorkspaceStatusKind
@@ -143,7 +142,7 @@ class ScreenshotTest {
                 messages = emptyList(),
                 conversations = ScreenshotTestData.v2Conversations,
                 isVoiceRecording = true,
-                voiceStatusText = "Listening…",
+                voiceStatusText = "Listeningâ€¦",
             )
         }
     }
@@ -155,36 +154,6 @@ class ScreenshotTest {
                 messages = ScreenshotTestData.v2DynamicUiMessages,
                 conversations = ScreenshotTestData.v2Conversations,
                 selectedModeId = "build",
-            )
-        }
-    }
-
-    @Test
-    fun settingsAgent_dark() {
-        paparazzi.snap(ThemePresets.dark) {
-            SettingsScreenContent(
-                uiState = ScreenshotTestData.settingsAgent,
-                sandboxState = ScreenshotTestData.sandboxState,
-            )
-        }
-    }
-
-    @Test
-    fun settingsFree_dark() {
-        paparazzi.snap(ThemePresets.dark) {
-            SettingsScreenContent(
-                uiState = ScreenshotTestData.freeConnected,
-                sandboxState = ScreenshotTestData.sandboxState,
-            )
-        }
-    }
-
-    @Test
-    fun settingsTools_light() {
-        paparazzi.snap(ThemePresets.light) {
-            SettingsScreenContent(
-                uiState = ScreenshotTestData.settingsTools,
-                sandboxState = ScreenshotTestData.sandboxState,
             )
         }
     }
@@ -334,36 +303,6 @@ class ScreenshotTest {
     // --- Phase C: Settings tab states ---
 
     @Test
-    fun settingsGeneral_dark() {
-        paparazzi.snap(ThemePresets.dark) {
-            SettingsScreenContent(
-                uiState = ScreenshotTestData.settingsGeneralState,
-                sandboxState = ScreenshotTestData.sandboxState,
-            )
-        }
-    }
-
-    @Test
-    fun settingsAppearance_dark() {
-        paparazzi.snap(ThemePresets.dark) {
-            SettingsScreenContent(
-                uiState = ScreenshotTestData.settingsAppearanceState,
-                sandboxState = ScreenshotTestData.sandboxState,
-            )
-        }
-    }
-
-    @Test
-    fun settingsAccount_dark() {
-        paparazzi.snap(ThemePresets.dark) {
-            SettingsScreenContent(
-                uiState = ScreenshotTestData.settingsAccountState,
-                sandboxState = ScreenshotTestData.sandboxState,
-            )
-        }
-    }
-
-    @Test
     fun appearancePresets_dark() {
         val repository = screenshotThemeRepository(ThemePresets.dark)
         paparazzi.snap(ThemePresets.dark, repository) {
@@ -379,16 +318,6 @@ class ScreenshotTest {
         }
     }
     // --- Phase C: Settings light theme ---
-
-    @Test
-    fun settingsAgent_light() {
-        paparazzi.snap(ThemePresets.light) {
-            SettingsScreenContent(
-                uiState = ScreenshotTestData.settingsAgent,
-                sandboxState = ScreenshotTestData.sandboxState,
-            )
-        }
-    }
 
     // --- Phase C: Dynamic UI states ---
 

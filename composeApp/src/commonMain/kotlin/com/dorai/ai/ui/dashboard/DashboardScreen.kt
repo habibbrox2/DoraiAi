@@ -1,4 +1,4 @@
-package com.dorai.ai.ui.dashboard
+﻿package com.dorai.ai.ui.dashboard
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -73,7 +73,7 @@ import com.dorai.ai.ui.glassmorphicCard
 import com.dorai.ai.ui.glassmorphicCardBorder
 import com.dorai.ai.ui.glassmorphicCardColors
 import com.dorai.ai.ui.handCursor
-import com.dorai.ai.ui.settings.SettingsTab
+import com.dorai.ai.ui.settings.SettingsCategory
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.a11y_back_to_chat
@@ -120,7 +120,7 @@ fun DashboardScreen(
     isDesignAvailable: Boolean,
     onNavigateToChat: () -> Unit,
     onOpenBuild: (String) -> Unit,
-    onOpenSettings: (SettingsTab) -> Unit,
+    onOpenSettings: (SettingsCategory) -> Unit,
     onStartDesign: (String) -> Unit,
     onOpenConversation: (String) -> Unit,
     onNavigateBack: (() -> Unit)? = null,
@@ -171,7 +171,7 @@ fun DashboardScreenContent(
     state: DashboardUiState,
     onNavigateToChat: () -> Unit,
     onOpenBuild: (String) -> Unit,
-    onOpenSettings: (SettingsTab) -> Unit,
+    onOpenSettings: (SettingsCategory) -> Unit,
     onStartDesign: (String) -> Unit,
     onOpenConversation: (String) -> Unit,
     onNavigateBack: (() -> Unit)? = null,
@@ -287,7 +287,7 @@ private fun DashboardHeader(
 @Composable
 private fun ReadinessCard(
     state: DashboardUiState,
-    onOpenSettings: (SettingsTab) -> Unit,
+    onOpenSettings: (SettingsCategory) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -322,7 +322,7 @@ private fun ReadinessCard(
                         )
                         Spacer(modifier = Modifier.weight(1f))
                         TextButton(
-                            onClick = { onOpenSettings(SettingsTab.Services) },
+                            onClick = { onOpenSettings(SettingsCategory.Providers) },
                             modifier = Modifier.handCursor(),
                         ) {
                             Text(
@@ -354,7 +354,7 @@ private fun ReadinessCard(
                     if (service.isSharedKey) {
                         Spacer(modifier = Modifier.weight(1f))
                         TextButton(
-                            onClick = { onOpenSettings(SettingsTab.Services) },
+                            onClick = { onOpenSettings(SettingsCategory.Providers) },
                             modifier = Modifier.handCursor(),
                         ) {
                             Text(
@@ -368,7 +368,7 @@ private fun ReadinessCard(
                             text = if (service.modelId.isBlank()) {
                                 service.serviceName
                             } else {
-                                "${service.serviceName} · ${service.modelId}"
+                                "${service.serviceName} Â· ${service.modelId}"
                             },
                             style = DoraiTypography.bodyMedium,
                             color = LocalDesignColorTokens.current.textSecondary,
@@ -420,7 +420,7 @@ private fun DashboardActionGrid(
     columns: Int,
     onNavigateToChat: () -> Unit,
     onOpenBuild: (String) -> Unit,
-    onOpenSettings: (SettingsTab) -> Unit,
+    onOpenSettings: (SettingsCategory) -> Unit,
     onStartDesign: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -459,7 +459,7 @@ private fun DashboardActionGrid(
             isPrimary = false,
             isEnabled = true,
             disabledNote = null,
-            onClick = { onOpenSettings(SettingsTab.Tools) },
+            onClick = { onOpenSettings(SettingsCategory.Tools) },
         ),
     )
     Column(

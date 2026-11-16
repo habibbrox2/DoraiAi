@@ -1,4 +1,4 @@
-package com.dorai.ai.screenshots
+﻿package com.dorai.ai.screenshots
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -35,9 +35,10 @@ import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.ui.chat.ChatMessageItem
 import com.dorai.ai.ui.settings.ConfiguredServiceEntry
 import com.dorai.ai.ui.settings.ConnectionStatus
+import com.dorai.ai.ui.settings.DoraiSettingsScreen
+import com.dorai.ai.ui.settings.SettingsActions
+import com.dorai.ai.ui.settings.SettingsCategory
 import com.dorai.ai.ui.settings.SettingsModel
-import com.dorai.ai.ui.settings.SettingsScreenContent
-import com.dorai.ai.ui.settings.SettingsTab
 import com.dorai.ai.ui.settings.SettingsUiState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -115,7 +116,7 @@ class GemmaLocalScreenshotTest {
     @Test
     fun gemmaLocal_modelCard_dark() {
         paparazzi.snap(ThemePresets.dark) {
-            SettingsScreenContent(uiState = GemmaLocalTestData.services())
+            DoraiSettingsScreen(activeCategory = SettingsCategory.Providers, onCategoryChanged = {}, selectedThemeId = "og_shine", onThemeSelected = {}, uiState = GemmaLocalTestData.services(), actions = SettingsActions.NoOp)
         }
     }
 
@@ -124,20 +125,25 @@ class GemmaLocalScreenshotTest {
         // LFM2.5's export tops out at its own default, so its card carries the context
         // size as a label with no slider under it.
         paparazzi.snap(ThemePresets.dark) {
-            SettingsScreenContent(uiState = GemmaLocalTestData.services(availableModels = listOf(MODEL_LFM25)))
+            DoraiSettingsScreen(activeCategory = SettingsCategory.Providers, onCategoryChanged = {}, selectedThemeId = "og_shine", onThemeSelected = {}, uiState = GemmaLocalTestData.services(availableModels = listOf(MODEL_LFM25)), actions = SettingsActions.NoOp)
         }
     }
 
     @Test
     fun gemmaLocal_contextSlider_dark() {
         paparazzi.snap(ThemePresets.dark) {
-            SettingsScreenContent(
+            DoraiSettingsScreen(
+                activeCategory = SettingsCategory.Providers,
+                onCategoryChanged = {},
+                selectedThemeId = "og_shine",
+                onThemeSelected = {},
                 uiState = GemmaLocalTestData.services(
                     modelContextTokens = mapOf(
                         MODEL_E2B.id to 16_384,
                         MODEL_E4B.id to 8_192,
                     ),
                 ),
+                actions = SettingsActions.NoOp,
             )
         }
     }
@@ -145,11 +151,16 @@ class GemmaLocalScreenshotTest {
     @Test
     fun gemmaLocal_download_dark() {
         paparazzi.snap(ThemePresets.dark) {
-            SettingsScreenContent(
+            DoraiSettingsScreen(
+                activeCategory = SettingsCategory.Providers,
+                onCategoryChanged = {},
+                selectedThemeId = "og_shine",
+                onThemeSelected = {},
                 uiState = GemmaLocalTestData.services(
                     downloadingModelId = MODEL_E2B.id,
                     downloadProgress = 0.42f,
                 ),
+                actions = SettingsActions.NoOp,
             )
         }
     }
@@ -157,11 +168,16 @@ class GemmaLocalScreenshotTest {
     @Test
     fun gemmaLocal_select_dark() {
         paparazzi.snap(ThemePresets.dark) {
-            SettingsScreenContent(
+            DoraiSettingsScreen(
+                activeCategory = SettingsCategory.Providers,
+                onCategoryChanged = {},
+                selectedThemeId = "og_shine",
+                onThemeSelected = {},
                 uiState = GemmaLocalTestData.services(
                     downloadedIds = listOf(MODEL_E2B.id),
                     selectedId = MODEL_E2B.id,
                 ),
+                actions = SettingsActions.NoOp,
             )
         }
     }
@@ -300,7 +316,6 @@ private object GemmaLocalTestData {
         val selectedModel = selectedId?.let { id -> downloadedModels.firstOrNull { it.id == id } }
 
         return SettingsUiState(
-            currentTab = SettingsTab.Services,
             configuredServices = persistentListOf(
                 ConfiguredServiceEntry(
                     instanceId = LITERT_INSTANCE_ID,

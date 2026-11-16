@@ -171,7 +171,6 @@ class SettingsViewModel(
     // Bound once so downstream Compose skipping works — a new SettingsActions
     // instance on every state emission would defeat it.
     val actions: SettingsActions = SettingsActions(
-        onSelectTab = ::onSelectTab,
         onAddService = ::onAddService,
         onRemoveService = ::onRemoveService,
         onReorderServices = ::onReorderServices,
@@ -444,10 +443,6 @@ class SettingsViewModel(
                 availableServicesToAdd = computeAvailableServices().toImmutableList(),
             )
         }
-    }
-
-    private fun onSelectTab(tab: SettingsTab) {
-        _state.update { it.copy(currentTab = tab) }
     }
 
     private fun onAddService(service: Service) {
@@ -1046,13 +1041,12 @@ class SettingsViewModel(
     private fun onPrepareExport(): Map<ImportSection, String?> = dataRepository.getExportPreview()
 
     private fun onImportSettings(bytes: ByteArray, sections: Set<ImportSection>, replace: Boolean): ImportResult = try {
-        val currentTab = _state.value.currentTab
         val errors = dataRepository.importSettingsFromJson(bytes.decodeToString(), sections, replace)
         // Import writes conversations to settings, but the chat list reads them from
         // ConversationStorage's in-memory flow — refresh it so imported chats appear
         // without an app restart.
         dataRepository.loadConversations()
-        _state.value = buildFullState().copy(currentTab = currentTab)
+        _state.value = buildFullState()
         checkAllConnections()
         connectEnabledMcpServers()
         if (errors == 0) ImportResult.Success else ImportResult.PartialSuccess(errors)

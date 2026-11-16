@@ -1,3 +1,16 @@
+## DORAI AI - Runtime Settings UI redesign (Unreleased)
+
+### Changed
+- **Settings screen rebuilt on the v2 design system**: the legacy `SettingsScreen`/`SettingsNavRail`/`SettingsDetailPane`/`SettingsOverview`/`SettingsTabSelector` stack is removed; the production UI v2 (`DoraiSettingsScreen`) is now the only settings surface, with a fixed page header, per-category scroll reset, 48dp touch targets, `Role.Switch`/`Role.RadioButton` semantics and `heading()` announcements.
+- **Appearance tab now exposes Match Device** (system light/dark follow) alongside the preset grid, sourced from the existing `ThemeViewModel` (no duplicate theme state).
+- **Legacy dead code removed**: `SettingsTab` enum, `SettingsTabScroll`, `AppearanceContent`/`ToolsContent`/`ToolsTabContent` adapters, and their screenshot goldens.
+
+### Fixed
+- **`SettingsViewModel.onScreenVisible()` now runs on every Settings open** in the production path (MCP auto-connect, sponsor fetch, connection re-check, notification-listener re-read) — previously it only fired through the removed legacy screen.
+- **Screenshot fixture theme id** corrected from `"ogshine"` to the real preset id `"og_shine"`.
+
+---
+
 ## DORAI AI - Free Platform Integrations: Cloudflare, Supabase, Firebase, and GitHub (Unreleased)
 
 ### Added

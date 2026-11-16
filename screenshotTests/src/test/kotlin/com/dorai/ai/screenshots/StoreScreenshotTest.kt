@@ -1,4 +1,4 @@
-package com.dorai.ai.screenshots
+﻿package com.dorai.ai.screenshots
 
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.layout.Box
@@ -15,7 +15,9 @@ import com.dorai.ai.theme.data.ThemePalette
 import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.ui.dynamicui.LocalPreviewImages
-import com.dorai.ai.ui.settings.SettingsScreenContent
+import com.dorai.ai.ui.settings.DoraiSettingsScreen
+import com.dorai.ai.ui.settings.SettingsActions
+import com.dorai.ai.ui.settings.SettingsCategory
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
 import org.junit.After
@@ -147,24 +149,21 @@ class StoreScreenshotTest(
     @Test
     fun settingsFree() {
         snap("04", ThemePresets.dark) {
-            SettingsScreenContent(uiState = ScreenshotTestData.freeConnected)
+            DoraiSettingsScreen(activeCategory = SettingsCategory.Providers, onCategoryChanged = {}, selectedThemeId = "og_shine", onThemeSelected = {}, uiState = ScreenshotTestData.freeConnected, actions = SettingsActions.NoOp)
         }
     }
 
     @Test
     fun settingsTools() {
         snap("05", ThemePresets.light) {
-            SettingsScreenContent(
-                uiState = ScreenshotTestData.settingsTools,
-                sandboxState = ScreenshotTestData.sandboxState,
-            )
+            DoraiSettingsScreen(activeCategory = SettingsCategory.Tools, onCategoryChanged = {}, selectedThemeId = "og_shine", onThemeSelected = {}, uiState = ScreenshotTestData.settingsTools, actions = SettingsActions.NoOp)
         }
     }
 
     @Test
     fun settingsAgent() {
         snap("06", ThemePresets.dark) {
-            SettingsScreenContent(uiState = ScreenshotTestData.settingsAgent)
+            DoraiSettingsScreen(activeCategory = SettingsCategory.Agent, onCategoryChanged = {}, selectedThemeId = "og_shine", onThemeSelected = {}, uiState = ScreenshotTestData.settingsAgent, actions = SettingsActions.NoOp)
         }
     }
 
