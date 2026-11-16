@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.dorai.ai.data.AppSettings
 import com.dorai.ai.data.DataRepository
@@ -25,8 +26,12 @@ import com.dorai.ai.theme.data.ThemeSettingsRepository
 import com.dorai.ai.theme.data.resolve
 import com.dorai.ai.updater.AndroidUpdateAutoUpdate
 import com.dorai.ai.updater.AndroidUpdateSettingsSection
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.init
+import kotlinx.coroutines.launch
 import nl.marc_apps.tts.TextToSpeechEngine
 import nl.marc_apps.tts.TextToSpeechFactory
 import nl.marc_apps.tts.TextToSpeechInstance
@@ -57,6 +62,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         FileKit.init(this)
         handleDeepLinkIntent(intent)
+
+        // Firebase Remote Config: set in-app defaults and fetch+activate in background.
+        lifecycleScope.launch {
+            val remoteConfig = FirebaseRemoteConfig.getInstance()
+            val configSettings = FirebaseRemoteConfigSettings.Builder()
+                .setMinimumFetchIntervalInSeconds(3600)
+                .build()
+            remoteConfig.setConfigSettingsAsync(configSettings)
+            remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
+            remoteConfig.fetchAndActivate()
+        }
 
         val themeSettingsRepository: ThemeSettingsRepository = get()
         val appSettings: AppSettings = get()

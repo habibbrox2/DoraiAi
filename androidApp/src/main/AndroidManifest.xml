@@ -122,7 +122,13 @@
             android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="dataSync"
             tools:node="merge" />
-        <uses-native-library android:name="libvndksupport.so" android:required="false"/>
+        <service
+            android:name="com.dorai.ai.DoraiFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
         <uses-native-library android:name="libOpenCL.so" android:required="false"/>
     </application>
 
