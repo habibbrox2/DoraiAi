@@ -3271,6 +3271,17 @@ class RemoteDataRepository(
         _openGitHubSettingsRequested.value = false
     }
 
+    private val _pendingCloudAuthUri = MutableStateFlow<String?>(null)
+    override val pendingCloudAuthUri: StateFlow<String?> = _pendingCloudAuthUri
+
+    override fun requestCloudAuthCallback(uri: String) {
+        _pendingCloudAuthUri.value = uri
+    }
+
+    override fun consumeCloudAuthCallback() {
+        _pendingCloudAuthUri.value = null
+    }
+
     override fun confirmToolExecution(toolCallId: String, allowOnce: Boolean, alwaysAllow: Boolean, allowSession: Boolean) {
         val pending = pendingToolExecutions[toolCallId]
         if (pending != null) {

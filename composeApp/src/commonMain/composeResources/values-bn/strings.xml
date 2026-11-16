@@ -1495,4 +1495,10 @@
     <string name="settings_dorai_cloud_signed_in_as">%1$s হিসেবে সাইন ইন করা আছে</string>
     <string name="settings_dorai_cloud_usage">আজ: %1$dটি এমবেডিং, %2$dটি মেমোরি রাইট, %3$dটি ভল্ট রাইট</string>
     <string name="settings_dorai_cloud_sign_in_failed">সাইন ইন ব্যর্থ হয়েছে। ইমেইল ও পাসয়ওয়ার্ড দেখুন।</string>
+    <string name="settings_dorai_cloud_social_title">সোশ্যাল অ্যাকাউন্টে সাইন ইন করুন</string>
+    <string name="settings_dorai_cloud_or_email">অথবা ইমেইল দিয়ে সাইন ইন করুন</string>
+    <string name="settings_dorai_cloud_provider_google">Google দিয়ে সরতর করুন</string>
+    <string name="settings_dorai_cloud_provider_facebook">Facebook দিয়ে সরতর করুন</string>
+    <string name="settings_dorai_cloud_provider_github">GitHub দিয়ে সরতর করুন</string>
+    <string name="settings_dorai_cloud_oauth_failed">সাইন ইন পেড খোলা সমর্বে সমর্বেন পরসেলিন।</string>
 </resources>

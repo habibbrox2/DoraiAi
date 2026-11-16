@@ -83,6 +83,15 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="dorai" android:host="github" />
             </intent-filter>
+            <!-- Dorai Cloud social sign-in: the provider redirects back with an
+                 authorization code and the PKCE state (no credential). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="dorai" android:host="cloud" />
+            </intent-filter>
         </activity>
         <provider
             android:name="androidx.core.content.FileProvider"

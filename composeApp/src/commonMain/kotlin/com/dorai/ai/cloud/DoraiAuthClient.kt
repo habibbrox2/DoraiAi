@@ -6,6 +6,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.URLBuilder
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.serialization.Serializable
@@ -44,6 +45,20 @@ private data class PasswordGrantRequestDto(val email: String, val password: Stri
 
 @Serializable
 private data class RefreshGrantRequestDto(val refresh_token: String)
+
+@Serializable
+private data class PkceGrantRequestDto(
+    val code: String,
+    val code_verifier: String,
+    val redirect_to: String,
+)
+
+/** A started social sign-in: the browser URL plus the values the callback needs. */
+data class SocialSignInStart(
+    val url: String,
+    val codeVerifier: String,
+    val state: String,
+)
 
 /**
  * Minimal Supabase Auth client (password grant + refresh + sign-out).
@@ -84,6 +99,40 @@ class DoraiAuthClient(
             throw IllegalStateException("Sign-out failed [${response.status.value}]: ${text.take(200)}")
         }
     }
+
+    /**
+     * Starts a social sign-in (Google, Facebook, GitHub) with PKCE.
+     *
+     * The returned URL opens the provider's consent screen in the system browser;
+     * Supabase redirects back to [redirectTo] with an authorization code, which
+     * [exchangePkce] turns into a session.
+     */
+    fun socialSignInStart(provider: String, redirectTo: String): Result<SocialSignInStart> = runCatching {
+        val codeVerifier = base64UrlEncode(secureRandomBytes(32))
+        val state = base64UrlEncode(secureRandomBytes(16))
+        val challenge = base64UrlEncode(sha256(codeVerifier.encodeToByteArray()))
+        val url = URLBuilder("$root/auth/v1/authorize").apply {
+            parameters.append("provider", provider)
+            parameters.append("redirect_to", redirectTo)
+            parameters.append("code_challenge", challenge)
+            parameters.append("code_challenge_method", "s256")
+            parameters.append("state", state)
+        }.build().toString()
+        SocialSignInStart(url = url, codeVerifier = codeVerifier, state = state)
+    }
+
+    /** Exchanges the authorization code from the redirect for a session. */
+    suspend fun exchangePkce(
+        code: String,
+        codeVerifier: String,
+        redirectTo: String,
+    ): Result<DoraiCloudSession> = grant(
+        "$root/auth/v1/token?grant_type=pkce",
+        json.encodeToString(
+            PkceGrantRequestDto.serializer(),
+            PkceGrantRequestDto(code = code, code_verifier = codeVerifier, redirect_to = redirectTo),
+        ),
+    )
 
     private suspend inline fun grant(
         path: String,

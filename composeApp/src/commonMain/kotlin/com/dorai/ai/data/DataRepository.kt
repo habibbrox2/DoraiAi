@@ -328,6 +328,17 @@ interface DataRepository {
     fun consumeOpenGitHubSettingsRequest()
 
     /**
+     * The pending Dorai Cloud sign-in callback (the `dorai://cloud/auth` deep link).
+     *
+     * Non-null means "the browser finished a social sign-in; redeem the
+     * authorization code", then call [consumeCloudAuthCallback]. The URI carries
+     * an authorization code and PKCE state, never a credential.
+     */
+    val pendingCloudAuthUri: StateFlow<String?>
+    fun requestCloudAuthCallback(uri: String)
+    fun consumeCloudAuthCallback()
+
+    /**
      * Pulse that fires when another app shares plain text into DORAI AI via Android
      * `ACTION_SEND`. Non-null means "start a fresh chat, put this text in the
      * composer, then call [consumeOpenShareRequest]". Collected by `ChatViewModel`

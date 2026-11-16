@@ -34,4 +34,19 @@ object DeepLinks {
 
     /** `dorai://github/done` — brings the user back to the GitHub settings. */
     const val GITHUB_RETURN_URI = "$SCHEME://$GITHUB_HOST$GITHUB_PATH"
+
+    /** Host of the Dorai Cloud sign-in callback. */
+    const val CLOUD_HOST = "cloud"
+
+    /** Path of the Dorai Cloud sign-in callback. */
+    const val CLOUD_AUTH_PATH = "/auth"
+
+    /**
+     * `dorai://cloud/auth` — brings the user back after a social sign-in.
+     *
+     * The URI carries the authorization code and the PKCE state, never a
+     * credential; the code is only usable with the code verifier that the
+     * device generated for this sign-in attempt.
+     */
+    const val CLOUD_AUTH_RETURN_URI = "$SCHEME://$CLOUD_HOST$CLOUD_AUTH_PATH"
 }

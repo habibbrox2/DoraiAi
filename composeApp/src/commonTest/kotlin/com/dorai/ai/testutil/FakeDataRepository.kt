@@ -664,6 +664,16 @@ class FakeDataRepository : DataRepository {
         openGitHubSettingsRequested.value = false
     }
 
+    override val pendingCloudAuthUri: MutableStateFlow<String?> = MutableStateFlow(null)
+
+    override fun requestCloudAuthCallback(uri: String) {
+        pendingCloudAuthUri.value = uri
+    }
+
+    override fun consumeCloudAuthCallback() {
+        pendingCloudAuthUri.value = null
+    }
+
     override val pendingShareText: MutableStateFlow<String?> = MutableStateFlow(null)
     override fun requestOpenShare(text: String) {
         pendingShareText.value = text
