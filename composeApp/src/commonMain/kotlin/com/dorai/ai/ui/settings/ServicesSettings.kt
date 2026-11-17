@@ -127,6 +127,8 @@ import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.components.StatusBadge
 import com.dorai.ai.ui.components.VerticalScrollbarForScroll
 import com.dorai.ai.ui.components.v2.AppSwitch
+import com.dorai.ai.ui.components.v2.SettingsCard
+import com.dorai.ai.ui.components.v2.SettingsRow
 import com.dorai.ai.ui.doraiAdaptiveCardBorder
 import com.dorai.ai.ui.doraiAdaptiveCardColors
 import com.dorai.ai.ui.doraiAdaptiveCardSurface
@@ -735,49 +737,40 @@ internal fun ServicesContent(uiState: SettingsUiState, actions: SettingsActions)
 
         // Free-fallback control. With it off, a failed primary provider fails visibly
         // instead of silently routing the turn to the keyless Free service — the
-        // routing layer gates its automatic Free fallback on this flag.
-        val fallbackShape = RoundedCornerShape(12.dp)
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(fallbackShape)
-                .background(CardFill, fallbackShape)
-                .border(BorderStroke(1.dp, BorderSoft), fallbackShape)
-                .toggleable(
-                    value = uiState.isFreeFallbackEnabled,
-                    role = Role.Switch,
-                    onValueChange = actions.onToggleFreeFallback,
-                ),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(Res.string.settings_free_fallback),
-                        style = DoraiTypography.titleSmall,
-                        color = LocalDesignColorTokens.current.textPrimary,
-                    )
-                    Text(
-                        text = stringResource(Res.string.settings_free_fallback_description),
-                        style = DoraiTypography.bodySmall,
-                        color = LocalDesignColorTokens.current.textSecondary,
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = stringResource(Res.string.settings_fallback_privacy_note),
-                        style = DoraiTypography.labelSmall,
-                        color = LocalDesignColorTokens.current.warning,
+        // routing layer gates its automatic Free fallback on this flag. Composed from
+        // the shared design-system card + switch primitives (no bespoke toggleable box).
+        SettingsCard(modifier = Modifier.fillMaxWidth()) {
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(Res.string.settings_free_fallback),
+                            style = DoraiTypography.titleSmall,
+                            color = LocalDesignColorTokens.current.textPrimary,
+                        )
+                        Text(
+                            text = stringResource(Res.string.settings_free_fallback_description),
+                            style = DoraiTypography.bodySmall,
+                            color = LocalDesignColorTokens.current.textSecondary,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = stringResource(Res.string.settings_fallback_privacy_note),
+                            style = DoraiTypography.labelSmall,
+                            color = LocalDesignColorTokens.current.warning,
+                        )
+                    }
+
+                    Spacer(Modifier.width(16.dp))
+
+                    AppSwitch(
+                        checked = uiState.isFreeFallbackEnabled,
+                        onCheckedChange = actions.onToggleFreeFallback,
                     )
                 }
-
-                Spacer(Modifier.width(16.dp))
-
-                AppSwitch(
-                    checked = uiState.isFreeFallbackEnabled,
-                    onCheckedChange = null,
-                )
             }
         }
 
@@ -813,8 +806,6 @@ internal fun ServicesContent(uiState: SettingsUiState, actions: SettingsActions)
                     }
                     val onDevice = services.filter { it.isOnDevice }
                     val custom = services.filter { it is Service.OpenAICompatible }
-                    val totalItems = services.size
-                    var itemCounter = 0
                     listOf(
                         stringResource(Res.string.services_group_hosted) to hosted,
                         stringResource(Res.string.services_group_on_device) to onDevice,
@@ -823,11 +814,8 @@ internal fun ServicesContent(uiState: SettingsUiState, actions: SettingsActions)
                         if (group.isEmpty()) return@forEach
                         ProviderGroupHeader(title)
                         group.forEach { service ->
-                            val index = itemCounter++
                             ProviderRowItem(
                                 service = service,
-                                isFirst = index == 0,
-                                isLast = index == totalItems - 1,
                                 onClick = {
                                     actions.onAddService(service)
                                     showAddServiceSheet = false
@@ -871,70 +859,24 @@ private fun ProviderGroupHeader(title: String) {
 @Composable
 private fun ProviderRowItem(
     service: Service,
-    isFirst: Boolean,
-    isLast: Boolean,
     onClick: () -> Unit,
 ) {
-    val itemShape = RoundedCornerShape(
-        topStart = if (isFirst) 12.dp else 0.dp,
-        topEnd = if (isFirst) 12.dp else 0.dp,
-        bottomStart = if (isLast) 12.dp else 0.dp,
-        bottomEnd = if (isLast) 12.dp else 0.dp,
+    // Shared design-system row: leading icon + title + requirement subtitle; the add
+    // action is the row click itself (Plan 5, Phase 2 setup-requirement copy preserved).
+    SettingsRow(
+        title = service.displayName,
+        modifier = Modifier.fillMaxWidth(),
+        subtitle = setupRequirement(service),
+        leadingIcon = {
+            Icon(
+                imageVector = vectorResource(service.icon),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = LocalDesignColorTokens.current.textPrimary,
+            )
+        },
+        onClick = onClick,
     )
-    val isSpecial = service.isOnDevice || service is Service.OpenAICompatible || service is Service.AtlasCloud || service is Service.Cloudflare
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .handCursor()
-            .clickable(role = Role.Button) { onClick() }
-            .clip(itemShape)
-            .background(CardFill, itemShape)
-            .border(BorderStroke(1.dp, BorderSoft), itemShape)
-            .semantics { role = Role.Button },
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .then(
-                        if (isSpecial) {
-                            Modifier.background(
-                                color = SurfaceRaised,
-                                shape = DoraiShapes.xs,
-                            )
-                        } else {
-                            Modifier
-                        },
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = vectorResource(service.icon),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = LocalDesignColorTokens.current.textPrimary,
-                )
-            }
-            Spacer(Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = service.displayName,
-                    style = DoraiTypography.bodyLarge,
-                    color = LocalDesignColorTokens.current.textPrimary,
-                )
-                Text(
-                    // Requirement summary so nobody adds a service and only then
-                    // discovers it needs a key or a base URL (Plan 5, Phase 2).
-                    text = setupRequirement(service),
-                    style = DoraiTypography.bodySmall,
-                    color = LocalDesignColorTokens.current.textSecondary,
-                )
-            }
-        }
-    }
 }
 
 /** True when a connection status represents a failure worth surfacing. */
