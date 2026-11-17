@@ -43,7 +43,7 @@ actual fun sendAuthorizationNotification(
 
     val returnUri = when (destination) {
         AuthorizationDestination.Mcp -> DeepLinks.OAUTH_RETURN_URI
-        AuthorizationDestination.GitHub -> DeepLinks.GITHUB_RETURN_URI
+        AuthorizationDestination.Workspace -> DeepLinks.WORKSPACE_RETURN_URI
     }
     val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP

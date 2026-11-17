@@ -14,9 +14,14 @@ class DoraiSettingsScreenTest {
             "providers",
             "tools",
             "mcp",
-            "github",
+            "workspace",
             "account",
         )
         assertEquals(expected, SettingsCategory.entries.map { it.id })
+    }
+
+    @Test
+    fun `settings exposes the workspace category`() {
+        assertEquals("workspace", SettingsCategory.Workspace.id)
     }
 }

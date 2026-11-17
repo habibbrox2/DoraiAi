@@ -53,7 +53,6 @@ import com.dorai.ai.ui.DoraiOutlinedTextField
 import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
-import com.dorai.ai.ui.components.CollectionEmptyState
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.components.StatusBadge
 import com.dorai.ai.ui.components.VerticalScrollbarForScroll
@@ -175,11 +174,11 @@ internal fun SkillsSection(
                 }
             }
             when {
-                skills.isEmpty() -> CollectionEmptyState(
+                skills.isEmpty() -> SettingsEmptyState(
                     message = stringResource(Res.string.settings_skills_none),
                 )
 
-                visible.isEmpty() -> CollectionEmptyState(
+                visible.isEmpty() -> SettingsEmptyState(
                     message = stringResource(Res.string.settings_skills_no_match),
                 )
 
@@ -231,7 +230,7 @@ internal fun SkillsSection(
                         }
                     }
                     if (filtered.isEmpty()) {
-                        CollectionEmptyState(
+                        SettingsEmptyState(
                             message = stringResource(Res.string.settings_skills_empty_discover),
                         )
                     } else {

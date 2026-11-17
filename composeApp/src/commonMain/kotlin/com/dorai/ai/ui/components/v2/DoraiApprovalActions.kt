@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -73,9 +74,9 @@ fun DoraiApprovalActions(
             )
         }
 
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.SM),
+            verticalArrangement = Arrangement.spacedBy(DoraiSpacing.SM),
         ) {
             if (onAllowOnce != null) {
                 Button(
@@ -86,7 +87,8 @@ fun DoraiApprovalActions(
                     ),
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
-                        .weight(1f)
+                        .fillMaxWidth()
+                        .defaultMinSize(minHeight = 48.dp)
                         .doraiEdgeStyle(
                             shape = RoundedCornerShape(10.dp),
                             cornerRadius = 10.dp,
@@ -95,11 +97,9 @@ fun DoraiApprovalActions(
                 ) {
                     Text(
                         text = stringResource(Res.string.tool_action_allow_once),
-                        style = DoraiTypography.labelMedium,
+                        style = DoraiTypography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -112,14 +112,14 @@ fun DoraiApprovalActions(
                         contentColor = colors.text,
                     ),
                     shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .defaultMinSize(minHeight = 48.dp),
                 ) {
                     Text(
                         text = stringResource(Res.string.tool_action_allow_session),
-                        style = DoraiTypography.labelMedium,
+                        style = DoraiTypography.labelLarge,
                         textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -132,15 +132,15 @@ fun DoraiApprovalActions(
                         contentColor = colors.err,
                     ),
                     shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .defaultMinSize(minHeight = 48.dp),
                 ) {
                     Text(
                         text = stringResource(Res.string.tool_action_deny),
-                        style = DoraiTypography.labelMedium,
+                        style = DoraiTypography.labelLarge,
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }

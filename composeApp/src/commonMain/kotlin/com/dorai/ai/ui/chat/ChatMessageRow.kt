@@ -145,6 +145,7 @@ import com.dorai.ai.ui.chat.composables.FreeProviderSuggestionsPanel
 import com.dorai.ai.ui.chat.composables.HeartbeatBanner
 import com.dorai.ai.ui.chat.composables.PendingSmsBanners
 import com.dorai.ai.ui.chat.composables.uiErrorText
+import com.dorai.ai.ui.components.LocalShowFullScreenImage
 import com.dorai.ai.ui.components.LogoAnimation
 import com.dorai.ai.ui.components.v2.DoraiComposer
 import com.dorai.ai.ui.components.v2.DoraiDynamicUiBlock
@@ -525,14 +526,18 @@ internal fun ChatMessageRow(
                         )
                     }
                     if (backgroundTools.size > 1) {
+                        // [collapse-all convergence] Compute the group's current expanded state once,
+                        // then set ALL tool overrides to the same target on each toggle so the
+                        // group converges uniformly rather than staying mixed after manual per-card toggles.
                         val footerExpanded = backgroundTools.all { tool ->
                             expandedToolOverrides[tool.toolCallId] ?: (tool.state != ToolExecutionState.Completed)
                         }
                         DoraiToolCardCollapseAll(
                             expanded = footerExpanded,
                             onToggleAll = {
+                                val targetExpanded = !footerExpanded
                                 backgroundTools.forEach { tool ->
-                                    expandedToolOverrides[tool.toolCallId] = !footerExpanded
+                                    expandedToolOverrides[tool.toolCallId] = targetExpanded
                                 }
                             },
                         )
@@ -781,7 +786,7 @@ private fun AttachmentImage(
         bitmap = image,
         contentDescription = contentDescription,
         modifier = modifier
-            .widthIn(max = 240.dp)
+            .widthIn(max = 200.dp)
             .heightIn(max = 360.dp)
             .clip(RoundedCornerShape(10.dp))
             .padding(bottom = 6.dp),

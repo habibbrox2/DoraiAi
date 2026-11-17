@@ -18,16 +18,6 @@ import com.dorai.ai.data.runMigrations
 import com.dorai.ai.email.EmailPoller
 import com.dorai.ai.filereview.FileReviewController
 import com.dorai.ai.filereview.NoOpFileReviewController
-import com.dorai.ai.github.GitCommandRunner
-import com.dorai.ai.github.GitCredentialBroker
-import com.dorai.ai.github.GitHubApiClient
-import com.dorai.ai.github.GitHubAppConfig
-import com.dorai.ai.github.GitHubDeviceFlow
-import com.dorai.ai.github.GitHubIntegrationViewModel
-import com.dorai.ai.github.GitHubTokenVault
-import com.dorai.ai.github.createGitCommandRunner
-import com.dorai.ai.github.createGitCredentialBroker
-import com.dorai.ai.github.createGitHubTokenVault
 import com.dorai.ai.inference.LocalRuntimeRegistry
 import com.dorai.ai.inference.createLocalInferenceEngine
 import com.dorai.ai.inference.createLocalRuntimeRegistry
@@ -38,6 +28,16 @@ import com.dorai.ai.skills.SkillManager
 import com.dorai.ai.sms.SmsPoller
 import com.dorai.ai.sms.SmsReader
 import com.dorai.ai.sms.SmsSender
+import com.dorai.ai.source.GitCommandRunner
+import com.dorai.ai.source.GitCredentialBroker
+import com.dorai.ai.source.GitHubAppConfig
+import com.dorai.ai.source.GitHubDeviceFlow
+import com.dorai.ai.source.GitHubTokenVault
+import com.dorai.ai.source.WorkspaceApiClient
+import com.dorai.ai.source.WorkspaceIntegrationViewModel
+import com.dorai.ai.source.createGitCommandRunner
+import com.dorai.ai.source.createGitCredentialBroker
+import com.dorai.ai.source.createGitHubTokenVault
 import com.dorai.ai.splinterlands.SplinterlandsApi
 import com.dorai.ai.splinterlands.SplinterlandsBattleRunner
 import com.dorai.ai.splinterlands.SplinterlandsStore
@@ -193,7 +193,7 @@ val appModule = module {
     single<GitCredentialBroker> { createGitCredentialBroker() }
     single<GitCommandRunner> { createGitCommandRunner() }
     single<GitHubDeviceFlow> { GitHubDeviceFlow(GitHubAppConfig.clientId) }
-    single<GitHubApiClient> { GitHubApiClient(get(), httpClient()) }
-    viewModel { GitHubIntegrationViewModel(get(), get(), get(), get(), notificationPermissionController = get(permissionQualifier(AppPermission.POST_NOTIFICATIONS))) }
+    single<WorkspaceApiClient> { WorkspaceApiClient(get(), httpClient()) }
+    viewModel { WorkspaceIntegrationViewModel(get(), get(), get(), get(), notificationPermissionController = get(permissionQualifier(AppPermission.POST_NOTIFICATIONS))) }
     viewModel { ChatViewModel(get<DataRepository>(), get<TaskScheduler>(), localNetworkPermissionController = get(permissionQualifier(AppPermission.LOCAL_NETWORK)), fileReviewController = getOrNull<FileReviewController>() ?: NoOpFileReviewController()) }
 }

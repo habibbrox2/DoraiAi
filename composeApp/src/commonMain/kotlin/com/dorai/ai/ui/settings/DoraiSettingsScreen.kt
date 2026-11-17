@@ -99,14 +99,9 @@ import com.dorai.ai.ui.components.v2.DoraiStatusBadge
 import com.dorai.ai.ui.components.v2.DoraiThemePresetTile
 import com.dorai.ai.ui.theme.DesignTokens
 import dorai.composeapp.generated.resources.Res
-import dorai.composeapp.generated.resources.account_auth_sessions
-import dorai.composeapp.generated.resources.account_chat_history
-import dorai.composeapp.generated.resources.account_export_data
 import dorai.composeapp.generated.resources.account_section_about
 import dorai.composeapp.generated.resources.account_section_data
-import dorai.composeapp.generated.resources.account_section_notifications
 import dorai.composeapp.generated.resources.account_section_privacy
-import dorai.composeapp.generated.resources.account_section_subscription
 import dorai.composeapp.generated.resources.action_cancel
 import dorai.composeapp.generated.resources.action_delete
 import dorai.composeapp.generated.resources.agent_activity_timeline
@@ -137,14 +132,12 @@ import dorai.composeapp.generated.resources.settings_cat_account
 import dorai.composeapp.generated.resources.settings_cat_agent
 import dorai.composeapp.generated.resources.settings_cat_appearance
 import dorai.composeapp.generated.resources.settings_cat_general
-import dorai.composeapp.generated.resources.settings_cat_github
 import dorai.composeapp.generated.resources.settings_cat_mcp
 import dorai.composeapp.generated.resources.settings_cat_providers
 import dorai.composeapp.generated.resources.settings_cat_tools
+import dorai.composeapp.generated.resources.settings_cat_workspace
 import dorai.composeapp.generated.resources.settings_delete_all_chats
 import dorai.composeapp.generated.resources.settings_delete_chats_confirm
-import dorai.composeapp.generated.resources.settings_github_connection
-import dorai.composeapp.generated.resources.settings_github_description
 import dorai.composeapp.generated.resources.settings_local_storage_cloud_conflict
 import dorai.composeapp.generated.resources.settings_manage_providers
 import dorai.composeapp.generated.resources.settings_mcp_add_server
@@ -155,10 +148,10 @@ import dorai.composeapp.generated.resources.settings_page_account_description
 import dorai.composeapp.generated.resources.settings_page_agent_description
 import dorai.composeapp.generated.resources.settings_page_appearance_description
 import dorai.composeapp.generated.resources.settings_page_general_description
-import dorai.composeapp.generated.resources.settings_page_github_description
 import dorai.composeapp.generated.resources.settings_page_mcp_description
 import dorai.composeapp.generated.resources.settings_page_services_description
 import dorai.composeapp.generated.resources.settings_page_tools_description
+import dorai.composeapp.generated.resources.settings_page_workspace_description
 import dorai.composeapp.generated.resources.settings_plugins
 import dorai.composeapp.generated.resources.settings_providers_discover
 import dorai.composeapp.generated.resources.settings_screen_title
@@ -167,6 +160,8 @@ import dorai.composeapp.generated.resources.settings_timeline_desc
 import dorai.composeapp.generated.resources.settings_timeline_toggle
 import dorai.composeapp.generated.resources.settings_tools_integrations
 import dorai.composeapp.generated.resources.settings_version
+import dorai.composeapp.generated.resources.settings_workspace_connection
+import dorai.composeapp.generated.resources.settings_workspace_description
 import dorai.composeapp.generated.resources.settings_your_connectors
 import dorai.composeapp.generated.resources.status_connected
 import dorai.composeapp.generated.resources.tools_group_title
@@ -223,7 +218,7 @@ enum class SettingsCategory(
     Providers("providers", Res.string.settings_cat_providers, Res.string.settings_page_services_description, Icons.Default.VpnKey),
     Tools("tools", Res.string.settings_cat_tools, Res.string.settings_page_tools_description, Icons.Default.Build),
     Mcp("mcp", Res.string.settings_cat_mcp, Res.string.settings_page_mcp_description, Icons.Default.Extension),
-    GitHub("github", Res.string.settings_cat_github, Res.string.settings_page_github_description, Icons.Default.Code),
+    Workspace("workspace", Res.string.settings_cat_workspace, Res.string.settings_page_workspace_description, Icons.Default.Code),
     Account("account", Res.string.settings_cat_account, Res.string.settings_page_account_description, Icons.Default.AccountCircle),
 }
 
@@ -607,9 +602,10 @@ private fun SettingsCategoryContent(
             .fillMaxSize()
             .padding(DoraiSpacing.MD),
     ) {
-        SettingsPageHeader(
+        SettingsDetailHeader(
             title = stringResource(category.titleRes),
             icon = category.icon,
+            description = stringResource(category.subtitleRes),
             onBack = onNavigateHome.takeIf { true },
         )
         Spacer(modifier = Modifier.height(DoraiSpacing.LG))
@@ -653,7 +649,6 @@ private fun SettingsCategoryContent(
                     }
 
                     SettingsCategory.Tools -> {
-                        SettingsDetailSectionHeading(stringResource(Res.string.settings_plugins))
                         PluginsSection(tools = uiState.tools, onToggleTool = actions.onToggleTool)
                         // Skills stay visible on every platform: without the sandbox the section
                         // explains what is missing and links to the sandbox setup, so the capability
@@ -698,9 +693,9 @@ private fun SettingsCategoryContent(
                         )
                     }
 
-                    SettingsCategory.GitHub -> {
-                        SettingsDetailSectionHeading(stringResource(Res.string.settings_github_connection))
-                        GitHubSection()
+                    SettingsCategory.Workspace -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_workspace_connection))
+                        WorkspaceSection()
                     }
 
                     SettingsCategory.Account -> {
@@ -737,9 +732,9 @@ private fun SettingsCategoryContent(
                         McpSettingsContent()
                     }
 
-                    SettingsCategory.GitHub -> {
-                        SettingsDetailSectionHeading(stringResource(Res.string.settings_github_connection))
-                        GitHubSection()
+                    SettingsCategory.Workspace -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_workspace_connection))
+                        WorkspaceSection()
                     }
 
                     SettingsCategory.Account -> {
@@ -750,6 +745,7 @@ private fun SettingsCategoryContent(
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(DoraiSpacing.XL))
         }
     }
 }
@@ -782,7 +778,7 @@ private fun AppearanceSettingsContent(
     val widthClass = LocalDoraiWindowWidthClass.current
 
     if (appearanceActions != null) {
-        SettingsSwitchCard(
+        SettingsSwitchRow(
             title = stringResource(Res.string.appearance_match_device),
             description = stringResource(Res.string.appearance_match_device_desc),
             checked = appearanceActions.matchDevice,
@@ -896,13 +892,6 @@ private fun ToolsSettingsContent() {
         }
     }
 
-    Text(
-        text = stringResource(Res.string.v2_skills_title),
-        color = colors.muted,
-        fontSize = 12.5.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(start = 4.dp, top = 8.dp),
-    )
     SettingsSectionCard {
         val skills = listOf(
             Triple("code_review", stringResource(Res.string.v2_skill_code_review_title), stringResource(Res.string.v2_skill_code_review_desc)),
@@ -1249,7 +1238,7 @@ private fun AgentPolicyHeader(
     }
 
     // Card 3: Activity Timeline Toggle
-    SettingsSwitchCard(
+    SettingsSwitchRow(
         title = stringResource(Res.string.agent_activity_timeline),
         description = stringResource(Res.string.agent_activity_timeline_desc),
         checked = timelineEnabled,
@@ -1260,7 +1249,7 @@ private fun AgentPolicyHeader(
     )
 
     // Card 4: Auto-run read-only tools
-    SettingsSwitchCard(
+    SettingsSwitchRow(
         title = stringResource(Res.string.agent_auto_run_readonly),
         description = stringResource(Res.string.agent_auto_run_readonly_desc),
         checked = autoReadEnabled,
@@ -1276,34 +1265,34 @@ internal fun SettingsDetailSectionHeading(text: String) {
     val colors = LocalDoraiColors.current
     Text(
         text = text,
-        color = colors.muted,
-        fontSize = 12.5.sp,
-        fontWeight = FontWeight.Bold,
+        color = colors.text,
+        style = DoraiTypography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
         modifier = Modifier
             .fillMaxWidth()
+            .padding(top = DoraiSpacing.SM, bottom = DoraiSpacing.XS)
             .semantics { heading() },
     )
 }
 
-/** Account page arranged to the product flow: Profile â†’ Subscription â†’ Privacy â†’ Data â†’ Notifications â†’ About. */
+/** Account page arranged to the product flow: Profile → Privacy & Security → Data Controls → About. */
 @Composable
 private fun AccountFlowContent(uiState: SettingsUiState, actions: SettingsActions) {
     // Profile
     AccountProfileCard()
 
-    // Privacy & Security â€” Authentication & Sessions
+    // Privacy & Security — Authentication & Sessions
     SettingsDetailSectionHeading(stringResource(Res.string.account_section_privacy))
-    SettingsDetailSectionHeading(stringResource(Res.string.account_auth_sessions))
     DoraiCloudSection()
 
+    // Data Controls — export/import and chat history management
     SettingsDetailSectionHeading(stringResource(Res.string.account_section_data))
-    SettingsDetailSectionHeading(stringResource(Res.string.account_export_data))
     ExportImportSection(
         onExportSettings = actions.onExportSettings,
         onPrepareExport = actions.onPrepareExport,
         onImportSettings = actions.onImportSettings,
+        showHeader = false,
     )
-    SettingsDetailSectionHeading(stringResource(Res.string.account_chat_history))
     DataControlContent(uiState = uiState, actions = actions)
 
     // About Dorai AI
@@ -1359,7 +1348,7 @@ private fun AccountProfileCard() {
     }
 
     val isLocalOnly = !syncEnabled
-    SettingsSwitchCard(
+    SettingsSwitchRow(
         title = stringResource(Res.string.agent_local_only_storage),
         description = stringResource(Res.string.agent_local_only_storage_desc),
         checked = isLocalOnly,

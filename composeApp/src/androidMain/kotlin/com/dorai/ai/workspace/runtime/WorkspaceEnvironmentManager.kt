@@ -2,7 +2,6 @@ package com.dorai.ai.workspace.runtime
 
 import android.os.StatFs
 import android.util.Log
-import com.dorai.ai.github.GitUrlValidator
 import com.dorai.ai.linux.DEFAULT_GUEST_PATH
 import com.dorai.ai.linux.DebianSpec
 import com.dorai.ai.linux.InstallStep
@@ -11,6 +10,7 @@ import com.dorai.ai.linux.LinuxInstaller
 import com.dorai.ai.linux.LinuxPaths
 import com.dorai.ai.linux.ProotHandle
 import com.dorai.ai.linux.ProotLauncher
+import com.dorai.ai.source.GitUrlValidator
 import com.dorai.ai.workspace.WorkspaceAgent
 import com.dorai.ai.workspace.WorkspaceAgents
 import com.dorai.ai.workspace.WorkspaceEnvironmentState

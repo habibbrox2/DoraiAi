@@ -64,7 +64,7 @@ class DoraiUiV2ReachabilityTest {
             "providers",
             "tools",
             "mcp",
-            "github",
+            "workspace",
             "account",
         )
         assertEquals(expected, SettingsCategory.entries.map { it.id })

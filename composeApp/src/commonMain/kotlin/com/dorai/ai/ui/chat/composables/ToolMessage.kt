@@ -257,30 +257,76 @@ internal fun PulsingStatusIndicator(
 ) {
     val reducedMotion = prefersReducedMotion()
 
-    val infiniteTransition = if (reducedMotion) null else rememberInfiniteTransition(label = "toolStatusPulse")
-    val pulseScale: Float
-    val pulseAlpha: Float
-    if (infiniteTransition == null) {
-        pulseScale = 1.0f
-        pulseAlpha = 1.0f
-    } else {
-        pulseScale = infiniteTransition.animateFloat(
-            initialValue = 0.6f,
-            targetValue = 1.0f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        ).value
-        pulseAlpha = infiniteTransition.animateFloat(
-            initialValue = 0.4f,
-            targetValue = 1.0f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        ).value
+    // Early return for reduced-motion: render static state, no transitions.
+    if (reducedMotion) {
+        Row(
+            modifier = modifier,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(dotSize)
+                    .background(dotColor, CircleShape),
+            )
+            Spacer(Modifier.width(8.dp))
+            if (isStatusOnly && toolSummary != null) {
+                Text(
+                    text = toolSummary,
+                    color = textColor,
+                    style = textStyle,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            } else {
+                AnimatedContent(
+                    targetState = 0,
+                    transitionSpec = {
+                        (fadeIn(tween(300)) togetherWith fadeOut(tween(300)))
+                            .using(SizeTransform(clip = false) { _, _ -> tween(300) })
+                    },
+                ) { targetIndex ->
+                    Text(
+                        text = stringResource(
+                            Res.string.waiting_thinking,
+                        ),
+                        color = textColor,
+                        style = textStyle,
+                    )
+                }
+                if (toolSummary != null) {
+                    Text(
+                        text = " · $toolSummary",
+                        modifier = Modifier.weight(1f, fill = false),
+                        color = textColor,
+                        style = textStyle,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+        }
+        return
     }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "toolStatusPulse")
+    val pulseScale = infiniteTransition.animateFloat(
+        initialValue = 0.6f,
+        targetValue = 1.0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+    ).value
+    val pulseAlpha = infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 1.0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+    ).value
+
     val waitingTexts = remember {
         listOf(
             Res.string.waiting_thinking,
@@ -288,20 +334,17 @@ internal fun PulsingStatusIndicator(
             Res.string.waiting_brewing,
         )
     }
-    val index: Int = if (reducedMotion) {
-        0
-    } else {
-        val progress = rememberInfiniteTransition(label = "waitingTextIndex").animateFloat(
-            initialValue = 0f,
-            targetValue = 1f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 3000, delayMillis = 0, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart,
-            ),
-            label = "textIndex",
-        ).value
-        (progress * waitingTexts.size).toInt().coerceIn(0, waitingTexts.size - 1)
-    }
+    val progress = rememberInfiniteTransition(label = "waitingTextIndex").animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 3000, delayMillis = 0, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "textIndex",
+    )
+    val scaledProgress = progress.value * waitingTexts.size.toFloat()
+    val index = scaledProgress.toInt().coerceIn(0, waitingTexts.size - 1)
 
     Row(
         modifier = modifier,

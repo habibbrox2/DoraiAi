@@ -36,7 +36,6 @@ import com.dorai.ai.skills.SkillManifest
 import com.dorai.ai.ui.BorderSoft
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
-import com.dorai.ai.ui.components.CollectionEmptyState
 import com.dorai.ai.ui.components.DoraiSearchField
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
@@ -80,7 +79,7 @@ internal fun PluginsSection(
         Spacer(Modifier.height(16.dp))
 
         if (tools.isEmpty()) {
-            CollectionEmptyState(
+            SettingsEmptyState(
                 message = stringResource(Res.string.settings_tools_none_available),
             )
         } else {
@@ -103,7 +102,7 @@ internal fun PluginsSection(
                 }
             }
             if (visibleTools.isEmpty()) {
-                CollectionEmptyState(
+                SettingsEmptyState(
                     message = stringResource(Res.string.settings_plugins_no_match),
                 )
             } else {

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
+import com.dorai.ai.ui.DoraiTypography
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.a11y_navigate_back
 import org.jetbrains.compose.resources.stringResource
@@ -66,58 +68,80 @@ internal fun SettingsSectionCard(
 }
 
 /**
- * Page header for a Settings category: icon in a tinted rounded square plus the
- * category title, announced as a semantic heading.
+ * Shared header for every Settings detail screen: back navigation, category icon,
+ * screen title (semantic heading), optional description, and contextual actions.
+ *
+ * Formerly named `SettingsPageHeader`; renamed to make the single shared header
+ * explicit. All Settings detail screens must use this one header so interaction
+ * language, accessibility semantics, and spacing stay consistent.
  */
 @Composable
-internal fun SettingsPageHeader(
+internal fun SettingsDetailHeader(
     title: String,
     icon: ImageVector,
     modifier: Modifier = Modifier,
+    description: String? = null,
     onBack: (() -> Unit)? = null,
+    actions: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val colors = LocalDoraiColors.current
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (onBack != null) {
-            androidx.compose.material3.IconButton(
-                onClick = onBack,
-                modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp),
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (onBack != null) {
+                androidx.compose.material3.IconButton(
+                    onClick = onBack,
+                    modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp),
+                ) {
+                    androidx.compose.material3.Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(Res.string.a11y_navigate_back),
+                        tint = colors.text,
+                    )
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+            }
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(colors.primary.copy(alpha = 0.14f)),
+                contentAlignment = Alignment.Center,
             ) {
-                androidx.compose.material3.Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(Res.string.a11y_navigate_back),
-                    tint = colors.text,
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = colors.primary,
+                    modifier = Modifier.size(22.dp),
                 )
             }
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(DoraiSpacing.MD))
+            Text(
+                text = title,
+                color = colors.text,
+                style = DoraiTypography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(1f)
+                    .semantics { heading() },
+            )
+            if (actions != null) Row(content = actions)
         }
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(colors.primary.copy(alpha = 0.14f)),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = colors.primary,
-                modifier = Modifier.size(22.dp),
+        if (!description.isNullOrBlank()) {
+            Text(
+                text = description,
+                style = DoraiTypography.bodyMedium,
+                color = colors.muted,
+                modifier = Modifier.padding(
+                    start = 48.dp + 4.dp + 40.dp + DoraiSpacing.MD,
+                    top = DoraiSpacing.XS,
+                ),
             )
         }
-        Spacer(modifier = Modifier.width(DoraiSpacing.MD))
-        Text(
-            text = title,
-            color = colors.text,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.semantics { heading() },
-        )
     }
 }
 

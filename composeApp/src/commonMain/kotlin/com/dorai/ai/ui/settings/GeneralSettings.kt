@@ -67,13 +67,7 @@ import kotlin.math.roundToInt
 
 @Composable
 private fun GeneralSectionHeading(text: String) {
-    Text(
-        text = text,
-        style = DoraiTypography.titleSmall,
-        color = LocalDesignColorTokens.current.textSecondary,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.padding(vertical = 4.dp),
-    )
+    SettingsDetailSectionHeading(text = text)
 }
 
 @Composable
@@ -129,14 +123,6 @@ internal fun GeneralContent(
             // Professional IA: Updates → Data & Storage.
             GeneralSectionHeading(stringResource(Res.string.settings_general_updates))
             androidUpdateContent?.invoke()
-            GeneralSectionHeading(stringResource(Res.string.settings_general_data_storage))
-            SettingsCard {
-                ExportImportSection(
-                    onExportSettings = actions.onExportSettings,
-                    onPrepareExport = actions.onPrepareExport,
-                    onImportSettings = actions.onImportSettings,
-                )
-            }
         },
     )
 }

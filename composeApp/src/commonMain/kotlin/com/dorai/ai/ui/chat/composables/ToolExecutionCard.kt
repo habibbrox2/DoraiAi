@@ -2,6 +2,8 @@ package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.rememberCopyToClipboard
@@ -75,6 +78,17 @@ import org.jetbrains.compose.resources.stringResource
 private const val RESULT_PREVIEW_LINES = 15
 
 /**
+ * ⚠️ LEGACY / DEAD CODE ⚠️
+ *
+ * This file defines [ShellExecutionCard] and [ToolExecutionCard] composables that were
+ * the original v1 tool-rendering implementation. They have zero call sites in the current
+ * codebase — the live timeline renders v2 [DoraiToolCard] from
+ * `com.dorai.ai.ui.components.v2.DoraiToolCard` instead.
+ *
+ * Do not revive or wire these composables without re-confirming the intent below.
+ * If the 15-line output clamp behavior is desired, update [DoraiToolCard] and [docs/features/chat.md]
+ * accordingly; do not re-introduce these dead paths.
+ *
  * ChatGPT-style Shell & Command Execution Window.
  * Features:
  * - macOS / Terminal styled window bar with 3 dots (Red, Yellow, Green)
@@ -289,9 +303,9 @@ fun ShellExecutionCard(
 
             // Expandable Output Body
             AnimatedVisibility(
-                visible = isExpanded && (cleanOutput.isNotEmpty() || cleanError.isNotEmpty()),
-                enter = expandVertically(),
-                exit = shrinkVertically(),
+                visible = isExpanded || prefersReducedMotion(),
+                enter = if (prefersReducedMotion()) fadeIn() else expandVertically(),
+                exit = if (prefersReducedMotion()) fadeOut() else shrinkVertically(),
             ) {
                 Column(
                     modifier = Modifier
@@ -490,9 +504,9 @@ fun ToolExecutionCard(
 
             // Expanded Arguments & Result
             AnimatedVisibility(
-                visible = isExpanded,
-                enter = expandVertically(),
-                exit = shrinkVertically(),
+                visible = isExpanded || prefersReducedMotion(),
+                enter = if (prefersReducedMotion()) fadeIn() else expandVertically(),
+                exit = if (prefersReducedMotion()) fadeOut() else shrinkVertically(),
             ) {
                 Column(
                     modifier = Modifier

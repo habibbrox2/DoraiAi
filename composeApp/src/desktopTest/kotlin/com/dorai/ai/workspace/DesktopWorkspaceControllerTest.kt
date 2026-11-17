@@ -1,7 +1,7 @@
 package com.dorai.ai.workspace
 
-import com.dorai.ai.github.GitCommandResult
-import com.dorai.ai.github.GitCommandRunner
+import com.dorai.ai.source.GitCommandResult
+import com.dorai.ai.source.GitCommandRunner
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
