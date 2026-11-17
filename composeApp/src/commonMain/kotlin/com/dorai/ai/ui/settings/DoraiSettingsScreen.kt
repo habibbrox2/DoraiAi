@@ -695,7 +695,7 @@ private fun SettingsCategoryContent(
 
                     SettingsCategory.Workspace -> {
                         SettingsDetailSectionHeading(stringResource(Res.string.settings_workspace_connection))
-                        GitHubSection()
+                        WorkspaceSection()
                     }
 
                     SettingsCategory.Account -> {
@@ -734,7 +734,7 @@ private fun SettingsCategoryContent(
 
                     SettingsCategory.Workspace -> {
                         SettingsDetailSectionHeading(stringResource(Res.string.settings_workspace_connection))
-                        GitHubSection()
+                        WorkspaceSection()
                     }
 
                     SettingsCategory.Account -> {

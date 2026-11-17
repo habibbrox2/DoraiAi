@@ -9,6 +9,7 @@ import dorai.composeapp.generated.resources.settings_github_repositories_not_con
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 
 /**
  * The repository-list empty copy follows the connection status: only a list that actually
@@ -16,7 +17,7 @@ import kotlin.test.assertNotEquals
  * yet, and after a failed connection that copy contradicts the "Connection failed" card —
  * the screen used to blame the account for what is really a connection error.
  */
-class GitHubSectionTest {
+class WorkspaceSectionTest {
 
     @Test
     fun `connected but empty explains the missing installation`() {
@@ -56,5 +57,11 @@ class GitHubSectionTest {
             Res.string.settings_github_repositories_not_connected,
             repositoryEmptyMessageRes(GitHubConnectionStatus.WaitingForDevice),
         )
+    }
+
+    @Test
+    fun `workspace section composable is exposed`() {
+        val reference: Any = ::WorkspaceSection
+        assertTrue(reference.toString().contains("WorkspaceSection"))
     }
 }

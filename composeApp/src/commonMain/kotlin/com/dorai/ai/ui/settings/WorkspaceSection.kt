@@ -134,7 +134,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun GitHubSection() {
+internal fun WorkspaceSection() {
     val colors = LocalDesignColorTokens.current
 
     // GitHub integration is Android + desktop only; iOS/Web show an unsupported notice.

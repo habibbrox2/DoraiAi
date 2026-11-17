@@ -99,7 +99,7 @@ The screen has two states:
 | `composeApp/src/wasmJsMain/kotlin/com/dorai/ai/github/GitHubTokenVault.wasmJs.kt` | No-op vault |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitHubIntegrationViewModel.kt` | Connect/cancel/disconnect Device Flow (userCode + verificationUri in VM state), installation + automatic repository loading, select-and-clone, sync, write-gated commit/push/PR |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitHubIntegrationState.kt` | UI/domain state incl. `CloneState`, `writeOperationsEnabled`, `userCode`/`verificationUri` (waiting-state display only) |
-| `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/settings/GitHubSection.kt` | Settings → GitHub screen (Android/desktop gate, clone/sync UI, confirmation dialog) |
+| `composeApp/src/commonMain/kotlin/com/dorai/ai/ui/settings/WorkspaceSection.kt` | Settings → Workspace screen (Android/desktop gate, clone/sync UI, confirmation dialog) |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitCommandPolicy.kt` | Read-only allowlist + flag deny-list + exact write shapes (gated by `writeEnabled`) |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitUrlValidator.kt` | `github.com` URL validation (https-only, shell-safe segment charset), project-name rules, safe relative paths |
 | `composeApp/src/commonMain/kotlin/com/dorai/ai/github/GitCredentialBroker.kt` | Ephemeral owner-only credential helper; token never in argv/logs |
