@@ -334,7 +334,7 @@
     <string name="settings_workspace_not_supported">Workspace integration is available on Android and desktop only.</string>
     <string name="settings_workspace_connecting">Connecting…</string>
     <string name="settings_workspace_waiting_title">Waiting for authorization</string>
-    <string name="settings_workspace_waiting_description">Go to %1$s and enter this code to authorize DORAI AI on GitHub:</string>
+    <string name="settings_workspace_waiting_description">Go to %1$s and enter this code to authorize DORAI AI:</string>
     <string name="settings_workspace_user_code">Your code</string>
     <string name="settings_workspace_open_github">Open GitHub</string>
     <string name="settings_workspace_copy_code">Copy code</string>
