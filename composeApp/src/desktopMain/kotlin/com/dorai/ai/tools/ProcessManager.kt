@@ -1,6 +1,6 @@
 package com.dorai.ai.tools
 
-import com.dorai.ai.github.GitCommandPolicy
+import com.dorai.ai.source.GitCommandPolicy
 import java.io.File
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap

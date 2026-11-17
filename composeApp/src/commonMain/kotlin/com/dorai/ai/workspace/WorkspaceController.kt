@@ -53,7 +53,7 @@ interface WorkspaceController {
     /**
      * Stages the explicit relative [files] (`git add -- <files>`) and creates a commit with
      * [message] (1..200 chars, non-blank). Refused entirely unless the caller has enabled
-     * write operations (`GitHubIntegrationState.writeOperationsEnabled`) — the maintainer
+     * write operations (`WorkspaceIntegrationState.writeOperationsEnabled`) — the maintainer
      * opt-in gate. Never stages anything outside [files].
      */
     suspend fun gitCommit(project: String, files: List<String>, message: String): WorkspaceGitResult

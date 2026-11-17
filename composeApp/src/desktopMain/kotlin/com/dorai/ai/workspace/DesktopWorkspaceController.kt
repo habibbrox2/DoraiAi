@@ -3,9 +3,9 @@ package com.dorai.ai.workspace
 import com.dorai.ai.NoOpWorkspaceController
 import com.dorai.ai.WorkspaceController
 import com.dorai.ai.getAppFilesDirectory
-import com.dorai.ai.github.GitCommandRunner
-import com.dorai.ai.github.GitUrlValidator
-import com.dorai.ai.github.createGitCommandRunner
+import com.dorai.ai.source.GitCommandRunner
+import com.dorai.ai.source.GitUrlValidator
+import com.dorai.ai.source.createGitCommandRunner
 import java.io.File
 
 class DesktopWorkspaceController(

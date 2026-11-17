@@ -1,6 +1,6 @@
 package com.dorai.ai.ui.settings
 
-import com.dorai.ai.github.GitHubConnectionStatus
+import com.dorai.ai.source.GitHubConnectionStatus
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.settings_github_no_repositories
 import dorai.composeapp.generated.resources.settings_github_no_repositories_hint

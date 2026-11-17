@@ -53,11 +53,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dorai.ai.Platform
 import com.dorai.ai.currentPlatform
-import com.dorai.ai.github.CloneState
-import com.dorai.ai.github.GitHubConnectionStatus
-import com.dorai.ai.github.GitHubDeviceFlowError
-import com.dorai.ai.github.GitHubIntegrationViewModel
-import com.dorai.ai.github.GitHubRepository
+import com.dorai.ai.source.CloneState
+import com.dorai.ai.source.GitHubConnectionStatus
+import com.dorai.ai.source.GitHubDeviceFlowError
+import com.dorai.ai.source.GitHubRepository
+import com.dorai.ai.source.WorkspaceIntegrationViewModel
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.components.CollectionEmptyState
@@ -151,7 +151,7 @@ internal fun WorkspaceSection() {
         return
     }
 
-    val vm: GitHubIntegrationViewModel = koinViewModel()
+    val vm: WorkspaceIntegrationViewModel = koinViewModel()
     val state by vm.state.collectAsStateWithLifecycle()
 
     val showConfirm = remember { mutableStateOf(false) }

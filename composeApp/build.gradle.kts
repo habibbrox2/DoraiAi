@@ -318,20 +318,20 @@ private object GitHubClientIdConfig {
     ) {
         val target =
             project.layout.buildDirectory
-                .file("generated/src/commonMain/kotlin/com/dorai/ai/github/GitHubBuildConfig.kt")
+                .file("generated/src/commonMain/kotlin/com/dorai/ai/source/WorkspaceBuildConfig.kt")
                 .get()
                 .asFile
         target.parentFile?.mkdirs()
         val literal = clientId?.let { "\"${it.replace("\\", "\\\\").replace("\"", "\\\"")}\"" } ?: "null"
         target.writeText(
             """
-            package com.dorai.ai.github
+            package com.dorai.ai.source
 
             /** Build-time constants injected by the Gradle build — generated, never edited by hand. */
-            object GitHubBuildConfig {
+            object WorkspaceBuildConfig {
                 /**
-                 * GitHub OAuth App client id for the Device Flow, or null when the build supplies
-                 * none. A null value keeps the GitHub integration fail-closed.
+                 * OAuth App client id for the Device Flow, or null when the build supplies
+                 * none. A null value keeps the integration fail-closed.
                  */
                 val clientId: String? = $literal
             }
