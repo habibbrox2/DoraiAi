@@ -99,14 +99,9 @@ import com.dorai.ai.ui.components.v2.DoraiStatusBadge
 import com.dorai.ai.ui.components.v2.DoraiThemePresetTile
 import com.dorai.ai.ui.theme.DesignTokens
 import dorai.composeapp.generated.resources.Res
-import dorai.composeapp.generated.resources.account_auth_sessions
-import dorai.composeapp.generated.resources.account_chat_history
-import dorai.composeapp.generated.resources.account_export_data
 import dorai.composeapp.generated.resources.account_section_about
 import dorai.composeapp.generated.resources.account_section_data
-import dorai.composeapp.generated.resources.account_section_notifications
 import dorai.composeapp.generated.resources.account_section_privacy
-import dorai.composeapp.generated.resources.account_section_subscription
 import dorai.composeapp.generated.resources.action_cancel
 import dorai.composeapp.generated.resources.action_delete
 import dorai.composeapp.generated.resources.agent_activity_timeline
@@ -607,9 +602,10 @@ private fun SettingsCategoryContent(
             .fillMaxSize()
             .padding(DoraiSpacing.MD),
     ) {
-        SettingsPageHeader(
+        SettingsDetailHeader(
             title = stringResource(category.titleRes),
             icon = category.icon,
+            description = stringResource(category.subtitleRes),
             onBack = onNavigateHome.takeIf { true },
         )
         Spacer(modifier = Modifier.height(DoraiSpacing.LG))
@@ -653,7 +649,6 @@ private fun SettingsCategoryContent(
                     }
 
                     SettingsCategory.Tools -> {
-                        SettingsDetailSectionHeading(stringResource(Res.string.settings_plugins))
                         PluginsSection(tools = uiState.tools, onToggleTool = actions.onToggleTool)
                         // Skills stay visible on every platform: without the sandbox the section
                         // explains what is missing and links to the sandbox setup, so the capability
@@ -750,6 +745,7 @@ private fun SettingsCategoryContent(
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(DoraiSpacing.XL))
         }
     }
 }
@@ -896,13 +892,6 @@ private fun ToolsSettingsContent() {
         }
     }
 
-    Text(
-        text = stringResource(Res.string.v2_skills_title),
-        color = colors.muted,
-        fontSize = 12.5.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(start = 4.dp, top = 8.dp),
-    )
     SettingsSectionCard {
         val skills = listOf(
             Triple("code_review", stringResource(Res.string.v2_skill_code_review_title), stringResource(Res.string.v2_skill_code_review_desc)),
@@ -1276,34 +1265,34 @@ internal fun SettingsDetailSectionHeading(text: String) {
     val colors = LocalDoraiColors.current
     Text(
         text = text,
-        color = colors.muted,
-        fontSize = 12.5.sp,
-        fontWeight = FontWeight.Bold,
+        color = colors.text,
+        style = DoraiTypography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
         modifier = Modifier
             .fillMaxWidth()
+            .padding(top = DoraiSpacing.SM, bottom = DoraiSpacing.XS)
             .semantics { heading() },
     )
 }
 
-/** Account page arranged to the product flow: Profile â†’ Subscription â†’ Privacy â†’ Data â†’ Notifications â†’ About. */
+/** Account page arranged to the product flow: Profile → Privacy & Security → Data Controls → About. */
 @Composable
 private fun AccountFlowContent(uiState: SettingsUiState, actions: SettingsActions) {
     // Profile
     AccountProfileCard()
 
-    // Privacy & Security â€” Authentication & Sessions
+    // Privacy & Security — Authentication & Sessions
     SettingsDetailSectionHeading(stringResource(Res.string.account_section_privacy))
-    SettingsDetailSectionHeading(stringResource(Res.string.account_auth_sessions))
     DoraiCloudSection()
 
+    // Data Controls — export/import and chat history management
     SettingsDetailSectionHeading(stringResource(Res.string.account_section_data))
-    SettingsDetailSectionHeading(stringResource(Res.string.account_export_data))
     ExportImportSection(
         onExportSettings = actions.onExportSettings,
         onPrepareExport = actions.onPrepareExport,
         onImportSettings = actions.onImportSettings,
+        showHeader = false,
     )
-    SettingsDetailSectionHeading(stringResource(Res.string.account_chat_history))
     DataControlContent(uiState = uiState, actions = actions)
 
     // About Dorai AI

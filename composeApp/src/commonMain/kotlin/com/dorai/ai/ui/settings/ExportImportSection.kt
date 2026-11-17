@@ -102,6 +102,7 @@ internal fun ExportImportSection(
     onCloudRestore: ((passphrase: String) -> Unit)? = null,
     isCloudSyncing: Boolean = false,
     cloudSyncStatus: String? = null,
+    showHeader: Boolean = true,
 ) {
     val isPreview = LocalInspectionMode.current
     val scope = rememberCoroutineScope()
@@ -167,19 +168,21 @@ internal fun ExportImportSection(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Column {
-            Text(
-                text = stringResource(Res.string.settings_export_import_title),
-                style = DoraiTypography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = colors.textPrimary,
-            )
-            Spacer(Modifier.height(2.dp))
-            Text(
-                text = stringResource(Res.string.settings_export_import_description),
-                style = DoraiTypography.bodySmall,
-                color = colors.textSecondary,
-            )
+        if (showHeader) {
+            Column {
+                Text(
+                    text = stringResource(Res.string.settings_export_import_title),
+                    style = DoraiTypography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = colors.textPrimary,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = stringResource(Res.string.settings_export_import_description),
+                    style = DoraiTypography.bodySmall,
+                    color = colors.textSecondary,
+                )
+            }
         }
 
         // Export Tile

@@ -574,15 +574,15 @@ fun ActionButton(
         }
 
         ActionButtonVariant.DESTRUCTIVE -> {
-            OutlinedButton(
+            Button(
                 onClick = onClick,
                 enabled = enabled,
                 shape = shape,
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = colors.err,
-                ),
-                border = ButtonDefaults.outlinedButtonBorder.copy(
-                    brush = androidx.compose.ui.graphics.SolidColor(colors.err),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colors.err,
+                    contentColor = Color.White,
+                    disabledContainerColor = colors.err.copy(alpha = 0.38f),
+                    disabledContentColor = Color.White.copy(alpha = 0.7f),
                 ),
                 modifier = modifier.defaultMinSize(minHeight = DesignTokens.MinTouchTarget).handCursor(),
             ) {
@@ -590,7 +590,7 @@ fun ActionButton(
                     Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                 }
-                Text(text = text, fontWeight = FontWeight.SemiBold, color = colors.err)
+                Text(text = text, fontWeight = FontWeight.SemiBold)
             }
         }
 
