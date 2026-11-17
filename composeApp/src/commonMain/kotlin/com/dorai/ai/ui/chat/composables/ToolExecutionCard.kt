@@ -2,6 +2,8 @@ package com.dorai.ai.ui.chat.composables
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.rememberCopyToClipboard
@@ -301,8 +304,8 @@ fun ShellExecutionCard(
             // Expandable Output Body
             AnimatedVisibility(
                 visible = isExpanded || prefersReducedMotion(),
-                enter = if (prefersReducedMotion()) tween(durationMillis = 0) else expandVertically(),
-                exit = if (prefersReducedMotion()) tween(durationMillis = 0) else shrinkVertically(),
+                enter = if (prefersReducedMotion()) fadeIn() else expandVertically(),
+                exit = if (prefersReducedMotion()) fadeOut() else shrinkVertically(),
             ) {
                 Column(
                     modifier = Modifier
@@ -502,8 +505,8 @@ fun ToolExecutionCard(
             // Expanded Arguments & Result
             AnimatedVisibility(
                 visible = isExpanded || prefersReducedMotion(),
-                enter = if (prefersReducedMotion()) tween(durationMillis = 0) else expandVertically(),
-                exit = if (prefersReducedMotion()) tween(durationMillis = 0) else shrinkVertically(),
+                enter = if (prefersReducedMotion()) fadeIn() else expandVertically(),
+                exit = if (prefersReducedMotion()) fadeOut() else shrinkVertically(),
             ) {
                 Column(
                     modifier = Modifier

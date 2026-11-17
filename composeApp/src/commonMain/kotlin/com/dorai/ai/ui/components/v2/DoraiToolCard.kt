@@ -1,6 +1,10 @@
 package com.dorai.ai.ui.components.v2
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -61,6 +65,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.theme.engine.doraiSurfaceStyle
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
@@ -571,8 +576,8 @@ fun DoraiToolCard(
         // Expanded Body
         AnimatedVisibility(
             visible = isExpanded || prefersReducedMotion(),
-            enter = if (prefersReducedMotion()) tween(durationMillis = 0) else expandVertically(),
-            exit = if (prefersReducedMotion()) tween(durationMillis = 0) else shrinkVertically(),
+            enter = if (prefersReducedMotion()) fadeIn() else expandVertically(),
+            exit = if (prefersReducedMotion()) fadeOut() else shrinkVertically(),
         ) {
             Column(
                 modifier = Modifier

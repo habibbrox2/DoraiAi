@@ -792,15 +792,4 @@ private fun AttachmentImage(
             .padding(bottom = 6.dp),
         contentScale = ContentScale.Fit,
     )
-    // Full-screen viewer for user-attached images (prototype: tap-to-zoom).
-    // When reduced motion is on, show a static bar instead of blinking caret
-    // semantics already handled at the caller level.
-    clickable(
-        role = Role.Button,
-        onClick = {
-            LocalShowFullScreenImage.current?.invoke(image)
-        },
-    ) {
-        // empty — clickable layer provides the tap target
-    }
 }

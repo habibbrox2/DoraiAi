@@ -260,8 +260,8 @@ internal fun PulsingStatusIndicator(
     // Early return for reduced-motion: render static state, no transitions.
     if (reducedMotion) {
         Row(
-            modifier = modifier
-                .verticalAlignment(Alignment.CenterVertically),
+            modifier = modifier,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
                 modifier = Modifier
@@ -281,7 +281,10 @@ internal fun PulsingStatusIndicator(
             } else {
                 AnimatedContent(
                     targetState = 0,
-                    transitionSpec = { fadeIn(tween(300)) },
+                    transitionSpec = {
+                        (fadeIn(tween(300)) togetherWith fadeOut(tween(300)))
+                            .using(SizeTransform(clip = false) { _, _ -> tween(300) })
+                    },
                 ) { targetIndex ->
                     Text(
                         text = stringResource(
@@ -340,11 +343,12 @@ internal fun PulsingStatusIndicator(
         ),
         label = "textIndex",
     )
-    val index = (progress * waitingTexts.size).toInt().coerceIn(0, waitingTexts.size - 1)
+    val scaledProgress = progress.value * waitingTexts.size.toFloat()
+    val index = scaledProgress.toInt().coerceIn(0, waitingTexts.size - 1)
 
     Row(
-        modifier = modifier
-            .verticalAlignment(Alignment.CenterVertically),
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             modifier = Modifier

@@ -778,7 +778,7 @@ private fun AppearanceSettingsContent(
     val widthClass = LocalDoraiWindowWidthClass.current
 
     if (appearanceActions != null) {
-        SettingsSwitchCard(
+        SettingsSwitchRow(
             title = stringResource(Res.string.appearance_match_device),
             description = stringResource(Res.string.appearance_match_device_desc),
             checked = appearanceActions.matchDevice,
@@ -1238,7 +1238,7 @@ private fun AgentPolicyHeader(
     }
 
     // Card 3: Activity Timeline Toggle
-    SettingsSwitchCard(
+    SettingsSwitchRow(
         title = stringResource(Res.string.agent_activity_timeline),
         description = stringResource(Res.string.agent_activity_timeline_desc),
         checked = timelineEnabled,
@@ -1249,7 +1249,7 @@ private fun AgentPolicyHeader(
     )
 
     // Card 4: Auto-run read-only tools
-    SettingsSwitchCard(
+    SettingsSwitchRow(
         title = stringResource(Res.string.agent_auto_run_readonly),
         description = stringResource(Res.string.agent_auto_run_readonly_desc),
         checked = autoReadEnabled,
@@ -1348,7 +1348,7 @@ private fun AccountProfileCard() {
     }
 
     val isLocalOnly = !syncEnabled
-    SettingsSwitchCard(
+    SettingsSwitchRow(
         title = stringResource(Res.string.agent_local_only_storage),
         description = stringResource(Res.string.agent_local_only_storage_desc),
         checked = isLocalOnly,

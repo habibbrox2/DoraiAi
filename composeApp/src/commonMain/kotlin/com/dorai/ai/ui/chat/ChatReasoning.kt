@@ -499,8 +499,8 @@ internal fun DoraiReasoningBlock(
 
         AnimatedVisibility(
             visible = expanded || prefersReducedMotion(),
-            enter = if (prefersReducedMotion()) tween(durationMillis = 0) else expandVertically(),
-            exit = if (prefersReducedMotion()) tween(durationMillis = 0) else shrinkVertically(),
+            enter = if (prefersReducedMotion()) fadeIn() else expandVertically(),
+            exit = if (prefersReducedMotion()) fadeOut() else shrinkVertically(),
         ) {
             Column(
                 modifier = Modifier
