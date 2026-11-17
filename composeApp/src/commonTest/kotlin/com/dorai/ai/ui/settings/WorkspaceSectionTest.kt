@@ -2,10 +2,10 @@ package com.dorai.ai.ui.settings
 
 import com.dorai.ai.source.GitHubConnectionStatus
 import dorai.composeapp.generated.resources.Res
-import dorai.composeapp.generated.resources.settings_github_no_repositories
-import dorai.composeapp.generated.resources.settings_github_no_repositories_hint
-import dorai.composeapp.generated.resources.settings_github_repositories_error
-import dorai.composeapp.generated.resources.settings_github_repositories_not_connected
+import dorai.composeapp.generated.resources.settings_workspace_no_repositories
+import dorai.composeapp.generated.resources.settings_workspace_no_repositories_hint
+import dorai.composeapp.generated.resources.settings_workspace_repositories_error
+import dorai.composeapp.generated.resources.settings_workspace_repositories_not_connected
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -22,7 +22,7 @@ class WorkspaceSectionTest {
     @Test
     fun `connected but empty explains the missing installation`() {
         assertEquals(
-            Res.string.settings_github_no_repositories_hint,
+            Res.string.settings_workspace_no_repositories_hint,
             repositoryEmptyMessageRes(GitHubConnectionStatus.Connected),
         )
     }
@@ -30,7 +30,7 @@ class WorkspaceSectionTest {
     @Test
     fun `error state points at retry instead of claiming no repositories`() {
         assertEquals(
-            Res.string.settings_github_repositories_error,
+            Res.string.settings_workspace_repositories_error,
             repositoryEmptyMessageRes(GitHubConnectionStatus.Error),
         )
     }
@@ -38,7 +38,7 @@ class WorkspaceSectionTest {
     @Test
     fun `error state never reuses the empty-list copy`() {
         assertNotEquals(
-            Res.string.settings_github_no_repositories,
+            Res.string.settings_workspace_no_repositories,
             repositoryEmptyMessageRes(GitHubConnectionStatus.Error),
         )
     }
@@ -46,7 +46,7 @@ class WorkspaceSectionTest {
     @Test
     fun `not connected tells the user to connect first`() {
         assertEquals(
-            Res.string.settings_github_repositories_not_connected,
+            Res.string.settings_workspace_repositories_not_connected,
             repositoryEmptyMessageRes(GitHubConnectionStatus.NotConnected),
         )
     }
@@ -54,7 +54,7 @@ class WorkspaceSectionTest {
     @Test
     fun `waiting for device authorization keeps the connect-first copy`() {
         assertEquals(
-            Res.string.settings_github_repositories_not_connected,
+            Res.string.settings_workspace_repositories_not_connected,
             repositoryEmptyMessageRes(GitHubConnectionStatus.WaitingForDevice),
         )
     }

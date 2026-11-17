@@ -10,8 +10,8 @@ import com.dorai.ai.tools.PermissionController
 import com.dorai.ai.workspace.WorkspaceGitError
 import com.dorai.ai.workspace.WorkspaceGitResult
 import dorai.composeapp.generated.resources.Res
-import dorai.composeapp.generated.resources.notification_github_connected_body
-import dorai.composeapp.generated.resources.notification_github_connected_title
+import dorai.composeapp.generated.resources.notification_workspace_connected_body
+import dorai.composeapp.generated.resources.notification_workspace_connected_title
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -210,9 +210,9 @@ class WorkspaceIntegrationViewModel(
                         // Tell the user it worked and that they can come back.
                         scope.launch {
                             runCatching {
-                                val title = getString(Res.string.notification_github_connected_title)
-                                val body = getString(Res.string.notification_github_connected_body)
-                                sendAuthorizationNotification(title, body, AuthorizationDestination.GitHub)
+                                val title = getString(Res.string.notification_workspace_connected_title)
+                                val body = getString(Res.string.notification_workspace_connected_body)
+                                sendAuthorizationNotification(title, body, AuthorizationDestination.Workspace)
                             }
                         }
                         scope.launch {

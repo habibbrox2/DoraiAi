@@ -26,14 +26,14 @@ object DeepLinks {
     /** `dorai://oauth/done` — brings the user back to the Integrations / MCP settings. */
     const val OAUTH_RETURN_URI = "$SCHEME://$OAUTH_HOST$OAUTH_PATH"
 
-    /** Host of the GitHub authorization link. */
-    const val GITHUB_HOST = "github"
+    /** Host of the Workspace source-repo authorization link. */
+    const val WORKSPACE_HOST = "workspace"
 
-    /** Path of the GitHub authorization link. */
-    const val GITHUB_PATH = "/done"
+    /** Path of the Workspace source-repo authorization link. */
+    const val WORKSPACE_PATH = "/done"
 
-    /** `dorai://github/done` — brings the user back to the GitHub settings. */
-    const val GITHUB_RETURN_URI = "$SCHEME://$GITHUB_HOST$GITHUB_PATH"
+    /** `dorai://workspace/done` — brings the user back to the Workspace settings. */
+    const val WORKSPACE_RETURN_URI = "$SCHEME://$WORKSPACE_HOST$WORKSPACE_PATH"
 
     /** Host of the Dorai Cloud sign-in callback. */
     const val CLOUD_HOST = "cloud"

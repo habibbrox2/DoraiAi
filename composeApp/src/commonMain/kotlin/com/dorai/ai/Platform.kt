@@ -150,8 +150,8 @@ enum class AuthorizationDestination {
     /** Integrations / MCP — used by the OAuth hand-off page. */
     Mcp,
 
-    /** GitHub — used by the device flow, which completes in the browser. */
-    GitHub,
+    /** Workspace source-repo — used by the device flow, which completes in the browser. */
+    Workspace,
 }
 
 /**

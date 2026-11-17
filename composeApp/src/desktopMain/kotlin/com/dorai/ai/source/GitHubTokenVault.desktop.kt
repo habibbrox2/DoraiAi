@@ -4,8 +4,8 @@ import com.dorai.ai.data.EncryptedFileSettings
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-private const val VAULT_FILE = "github-vault.aes"
-private const val VAULT_KEY_FILE = "github-vault.key"
+private const val VAULT_FILE = "workspace-vault.aes"
+private const val VAULT_KEY_FILE = "workspace-vault.key"
 
 private const val KEY_ACCESS_TOKEN = "access_token"
 private const val KEY_REFRESH_TOKEN = "refresh_token"
@@ -18,7 +18,7 @@ actual fun createGitHubTokenVault(): GitHubTokenVault = DesktopGitHubTokenVault(
 
 private class DesktopGitHubTokenVault : GitHubTokenVault {
 
-    // Dedicated AES-256-GCM encrypted files under ~/.dorai (github-vault.aes + github-vault.key),
+    // Dedicated AES-256-GCM encrypted files under ~/.dorai (workspace-vault.aes + workspace-vault.key),
     // reusing the EncryptedFileSettings atomic-write pattern with owner-only permissions on both
     // files. Legacy Preferences migration is disabled so the vault never touches shared state.
     // DPAPI migration required before production release — do not ship without OS-bound key.

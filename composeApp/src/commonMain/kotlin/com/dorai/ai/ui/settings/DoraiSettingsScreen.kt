@@ -138,7 +138,6 @@ import dorai.composeapp.generated.resources.settings_cat_tools
 import dorai.composeapp.generated.resources.settings_cat_workspace
 import dorai.composeapp.generated.resources.settings_delete_all_chats
 import dorai.composeapp.generated.resources.settings_delete_chats_confirm
-import dorai.composeapp.generated.resources.settings_github_description
 import dorai.composeapp.generated.resources.settings_local_storage_cloud_conflict
 import dorai.composeapp.generated.resources.settings_manage_providers
 import dorai.composeapp.generated.resources.settings_mcp_add_server
@@ -162,6 +161,7 @@ import dorai.composeapp.generated.resources.settings_timeline_toggle
 import dorai.composeapp.generated.resources.settings_tools_integrations
 import dorai.composeapp.generated.resources.settings_version
 import dorai.composeapp.generated.resources.settings_workspace_connection
+import dorai.composeapp.generated.resources.settings_workspace_description
 import dorai.composeapp.generated.resources.settings_your_connectors
 import dorai.composeapp.generated.resources.status_connected
 import dorai.composeapp.generated.resources.tools_group_title

@@ -75,13 +75,14 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="dorai" android:host="oauth" />
             </intent-filter>
-            <!-- GitHub authorization: the completion notification opens the GitHub settings. -->
+            <!-- Workspace source-repo authorization: the completion notification opens the
+                 Workspace settings. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="dorai" android:host="github" />
+                <data android:scheme="dorai" android:host="workspace" />
             </intent-filter>
             <!-- Dorai Cloud social sign-in: the provider redirects back with an
                  authorization code and the PKCE state (no credential). -->

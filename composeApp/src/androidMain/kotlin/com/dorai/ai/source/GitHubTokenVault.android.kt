@@ -10,7 +10,7 @@ import org.koin.java.KoinJavaComponent.inject
 
 // Dedicated vault file — deliberately separate from the provider `kai_secure_prefs` file so a
 // GitHub vault decrypt failure can wipe only GitHub state and never provider credentials.
-private const val VAULT_FILE = "dorai_github_vault_v1"
+private const val VAULT_FILE = "dorai_workspace_vault_v1"
 
 private const val KEY_ACCESS_TOKEN = "access_token"
 private const val KEY_REFRESH_TOKEN = "refresh_token"

@@ -71,60 +71,60 @@ import com.dorai.ai.ui.rememberCopyToClipboard
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.github_mark
-import dorai.composeapp.generated.resources.settings_github_account_connected
-import dorai.composeapp.generated.resources.settings_github_cancel_flow
-import dorai.composeapp.generated.resources.settings_github_clear_selection
-import dorai.composeapp.generated.resources.settings_github_clone_button
-import dorai.composeapp.generated.resources.settings_github_clone_cancel
-import dorai.composeapp.generated.resources.settings_github_clone_error_failed
-import dorai.composeapp.generated.resources.settings_github_clone_error_missing_git
-import dorai.composeapp.generated.resources.settings_github_clone_error_not_repository
-import dorai.composeapp.generated.resources.settings_github_cloned
-import dorai.composeapp.generated.resources.settings_github_cloning
-import dorai.composeapp.generated.resources.settings_github_code_copied
-import dorai.composeapp.generated.resources.settings_github_confirm_clone_message
-import dorai.composeapp.generated.resources.settings_github_confirm_clone_title
-import dorai.composeapp.generated.resources.settings_github_connect
-import dorai.composeapp.generated.resources.settings_github_connected
-import dorai.composeapp.generated.resources.settings_github_connecting
-import dorai.composeapp.generated.resources.settings_github_copy_code
-import dorai.composeapp.generated.resources.settings_github_description
-import dorai.composeapp.generated.resources.settings_github_disconnect
-import dorai.composeapp.generated.resources.settings_github_disconnect_confirm_message
-import dorai.composeapp.generated.resources.settings_github_disconnect_confirm_title
-import dorai.composeapp.generated.resources.settings_github_dismiss
-import dorai.composeapp.generated.resources.settings_github_error
-import dorai.composeapp.generated.resources.settings_github_error_access_denied
-import dorai.composeapp.generated.resources.settings_github_error_device_disabled
-import dorai.composeapp.generated.resources.settings_github_error_expired
-import dorai.composeapp.generated.resources.settings_github_error_network
-import dorai.composeapp.generated.resources.settings_github_error_not_configured
-import dorai.composeapp.generated.resources.settings_github_error_rate_limited
-import dorai.composeapp.generated.resources.settings_github_error_section_title
-import dorai.composeapp.generated.resources.settings_github_error_unauthorized
-import dorai.composeapp.generated.resources.settings_github_hero_title
-import dorai.composeapp.generated.resources.settings_github_installations
-import dorai.composeapp.generated.resources.settings_github_last_sync
-import dorai.composeapp.generated.resources.settings_github_loading
-import dorai.composeapp.generated.resources.settings_github_no_repositories_hint
-import dorai.composeapp.generated.resources.settings_github_not_connected
-import dorai.composeapp.generated.resources.settings_github_not_supported
-import dorai.composeapp.generated.resources.settings_github_open_github
-import dorai.composeapp.generated.resources.settings_github_project_name_hint
-import dorai.composeapp.generated.resources.settings_github_project_name_label
-import dorai.composeapp.generated.resources.settings_github_refresh_repositories
-import dorai.composeapp.generated.resources.settings_github_refresh_status
-import dorai.composeapp.generated.resources.settings_github_repositories
-import dorai.composeapp.generated.resources.settings_github_repositories_error
-import dorai.composeapp.generated.resources.settings_github_repositories_not_connected
-import dorai.composeapp.generated.resources.settings_github_retry
-import dorai.composeapp.generated.resources.settings_github_scopes_desc
-import dorai.composeapp.generated.resources.settings_github_scopes_title
-import dorai.composeapp.generated.resources.settings_github_signed_in
-import dorai.composeapp.generated.resources.settings_github_sync
-import dorai.composeapp.generated.resources.settings_github_user_code
-import dorai.composeapp.generated.resources.settings_github_waiting_description
-import dorai.composeapp.generated.resources.settings_github_waiting_title
+import dorai.composeapp.generated.resources.settings_workspace_account_connected
+import dorai.composeapp.generated.resources.settings_workspace_cancel_flow
+import dorai.composeapp.generated.resources.settings_workspace_clear_selection
+import dorai.composeapp.generated.resources.settings_workspace_clone_button
+import dorai.composeapp.generated.resources.settings_workspace_clone_cancel
+import dorai.composeapp.generated.resources.settings_workspace_clone_error_failed
+import dorai.composeapp.generated.resources.settings_workspace_clone_error_missing_git
+import dorai.composeapp.generated.resources.settings_workspace_clone_error_not_repository
+import dorai.composeapp.generated.resources.settings_workspace_cloned
+import dorai.composeapp.generated.resources.settings_workspace_cloning
+import dorai.composeapp.generated.resources.settings_workspace_code_copied
+import dorai.composeapp.generated.resources.settings_workspace_confirm_clone_message
+import dorai.composeapp.generated.resources.settings_workspace_confirm_clone_title
+import dorai.composeapp.generated.resources.settings_workspace_connect
+import dorai.composeapp.generated.resources.settings_workspace_connected
+import dorai.composeapp.generated.resources.settings_workspace_connecting
+import dorai.composeapp.generated.resources.settings_workspace_copy_code
+import dorai.composeapp.generated.resources.settings_workspace_description
+import dorai.composeapp.generated.resources.settings_workspace_disconnect
+import dorai.composeapp.generated.resources.settings_workspace_disconnect_confirm_message
+import dorai.composeapp.generated.resources.settings_workspace_disconnect_confirm_title
+import dorai.composeapp.generated.resources.settings_workspace_dismiss
+import dorai.composeapp.generated.resources.settings_workspace_error
+import dorai.composeapp.generated.resources.settings_workspace_error_access_denied
+import dorai.composeapp.generated.resources.settings_workspace_error_device_disabled
+import dorai.composeapp.generated.resources.settings_workspace_error_expired
+import dorai.composeapp.generated.resources.settings_workspace_error_network
+import dorai.composeapp.generated.resources.settings_workspace_error_not_configured
+import dorai.composeapp.generated.resources.settings_workspace_error_rate_limited
+import dorai.composeapp.generated.resources.settings_workspace_error_section_title
+import dorai.composeapp.generated.resources.settings_workspace_error_unauthorized
+import dorai.composeapp.generated.resources.settings_workspace_hero_title
+import dorai.composeapp.generated.resources.settings_workspace_installations
+import dorai.composeapp.generated.resources.settings_workspace_last_sync
+import dorai.composeapp.generated.resources.settings_workspace_loading
+import dorai.composeapp.generated.resources.settings_workspace_no_repositories_hint
+import dorai.composeapp.generated.resources.settings_workspace_not_connected
+import dorai.composeapp.generated.resources.settings_workspace_not_supported
+import dorai.composeapp.generated.resources.settings_workspace_open_github
+import dorai.composeapp.generated.resources.settings_workspace_project_name_hint
+import dorai.composeapp.generated.resources.settings_workspace_project_name_label
+import dorai.composeapp.generated.resources.settings_workspace_refresh_repositories
+import dorai.composeapp.generated.resources.settings_workspace_refresh_status
+import dorai.composeapp.generated.resources.settings_workspace_repositories
+import dorai.composeapp.generated.resources.settings_workspace_repositories_error
+import dorai.composeapp.generated.resources.settings_workspace_repositories_not_connected
+import dorai.composeapp.generated.resources.settings_workspace_retry
+import dorai.composeapp.generated.resources.settings_workspace_scopes_desc
+import dorai.composeapp.generated.resources.settings_workspace_scopes_title
+import dorai.composeapp.generated.resources.settings_workspace_signed_in
+import dorai.composeapp.generated.resources.settings_workspace_sync
+import dorai.composeapp.generated.resources.settings_workspace_user_code
+import dorai.composeapp.generated.resources.settings_workspace_waiting_description
+import dorai.composeapp.generated.resources.settings_workspace_waiting_title
 import kotlinx.coroutines.delay
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.StringResource
@@ -143,7 +143,7 @@ internal fun WorkspaceSection() {
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(
-                text = stringResource(Res.string.settings_github_not_supported),
+                text = stringResource(Res.string.settings_workspace_not_supported),
                 style = DoraiTypography.bodyMedium,
                 color = colors.textSecondary,
             )
@@ -181,18 +181,18 @@ internal fun WorkspaceSection() {
         val isFailed = state.connectionStatus == GitHubConnectionStatus.Error
         val headline = when {
             isConnected -> state.user?.login?.let {
-                stringResource(Res.string.settings_github_signed_in, it)
-            } ?: stringResource(Res.string.settings_github_account_connected)
+                stringResource(Res.string.settings_workspace_signed_in, it)
+            } ?: stringResource(Res.string.settings_workspace_account_connected)
 
-            isWaiting -> stringResource(Res.string.settings_github_waiting_title)
+            isWaiting -> stringResource(Res.string.settings_workspace_waiting_title)
 
-            else -> stringResource(Res.string.settings_github_hero_title)
+            else -> stringResource(Res.string.settings_workspace_hero_title)
         }
         val statusLabel = when {
-            isConnected -> stringResource(Res.string.settings_github_connected)
-            isWaiting -> stringResource(Res.string.settings_github_waiting_title)
-            isFailed -> stringResource(Res.string.settings_github_error_section_title)
-            else -> stringResource(Res.string.settings_github_not_connected)
+            isConnected -> stringResource(Res.string.settings_workspace_connected)
+            isWaiting -> stringResource(Res.string.settings_workspace_waiting_title)
+            isFailed -> stringResource(Res.string.settings_workspace_error_section_title)
+            else -> stringResource(Res.string.settings_workspace_not_connected)
         }
         val statusKind = when {
             isConnected -> OperationalStatus.Connected
@@ -240,7 +240,7 @@ internal fun WorkspaceSection() {
                 }
 
                 Text(
-                    text = stringResource(Res.string.settings_github_description),
+                    text = stringResource(Res.string.settings_workspace_description),
                     style = DoraiTypography.bodySmall,
                     color = colors.textSecondary,
                 )
@@ -264,13 +264,13 @@ internal fun WorkspaceSection() {
                         )
                         Column {
                             Text(
-                                text = stringResource(Res.string.settings_github_scopes_title),
+                                text = stringResource(Res.string.settings_workspace_scopes_title),
                                 style = DoraiTypography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
                                 color = colors.textPrimary,
                             )
                             Spacer(Modifier.height(2.dp))
                             Text(
-                                text = stringResource(Res.string.settings_github_scopes_desc),
+                                text = stringResource(Res.string.settings_workspace_scopes_desc),
                                 style = DoraiTypography.bodySmall,
                                 color = colors.textSecondary,
                             )
@@ -284,16 +284,16 @@ internal fun WorkspaceSection() {
                 ) {
                     if (isConnected) {
                         ActionButton(
-                            text = stringResource(Res.string.settings_github_disconnect),
+                            text = stringResource(Res.string.settings_workspace_disconnect),
                             onClick = { showDisconnectConfirm.value = true },
                             variant = ActionButtonVariant.DESTRUCTIVE,
                         )
                     } else if (!isWaiting) {
                         ActionButton(
                             text = if (state.isLoading) {
-                                stringResource(Res.string.settings_github_connecting)
+                                stringResource(Res.string.settings_workspace_connecting)
                             } else {
-                                stringResource(Res.string.settings_github_connect)
+                                stringResource(Res.string.settings_workspace_connect)
                             },
                             onClick = { vm.connect() },
                             enabled = !state.isLoading,
@@ -309,7 +309,7 @@ internal fun WorkspaceSection() {
             if (state.installations.isNotEmpty()) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
-                        text = stringResource(Res.string.settings_github_installations),
+                        text = stringResource(Res.string.settings_workspace_installations),
                         style = DoraiTypography.titleSmall,
                         color = colors.textPrimary,
                     )
@@ -357,7 +357,7 @@ internal fun WorkspaceSection() {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
-                    text = stringResource(Res.string.settings_github_error_section_title),
+                    text = stringResource(Res.string.settings_workspace_error_section_title),
                     style = DoraiTypography.titleSmall,
                     color = colors.error,
                 )
@@ -370,7 +370,7 @@ internal fun WorkspaceSection() {
                 // one: retrying repeats the same error forever, so the button is hidden here.
                 if (state.error != GitHubDeviceFlowError.MissingClientId) {
                     OutlinedButton(onClick = { vm.retry() }) {
-                        Text(text = stringResource(Res.string.settings_github_retry))
+                        Text(text = stringResource(Res.string.settings_workspace_retry))
                     }
                 }
             }
@@ -397,7 +397,7 @@ internal fun WorkspaceSection() {
                 ) {
                     Icon(
                         imageVector = Icons.Default.Clear,
-                        contentDescription = stringResource(Res.string.settings_github_dismiss),
+                        contentDescription = stringResource(Res.string.settings_workspace_dismiss),
                     )
                 }
             }
@@ -411,7 +411,7 @@ internal fun WorkspaceSection() {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = stringResource(Res.string.settings_github_repositories),
+                    text = stringResource(Res.string.settings_workspace_repositories),
                     style = DoraiTypography.titleMedium,
                     color = colors.textPrimary,
                 )
@@ -429,7 +429,7 @@ internal fun WorkspaceSection() {
                     onClick = { vm.refreshRepositories() },
                     enabled = !state.isLoading,
                 ) {
-                    Text(text = stringResource(Res.string.settings_github_refresh_repositories))
+                    Text(text = stringResource(Res.string.settings_workspace_refresh_repositories))
                 }
             }
         }
@@ -443,7 +443,7 @@ internal fun WorkspaceSection() {
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = stringResource(Res.string.settings_github_loading),
+                        text = stringResource(Res.string.settings_workspace_loading),
                         style = DoraiTypography.bodySmall,
                         color = colors.textSecondary,
                     )
@@ -491,7 +491,7 @@ internal fun WorkspaceSection() {
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Clear,
-                                contentDescription = stringResource(Res.string.settings_github_clear_selection),
+                                contentDescription = stringResource(Res.string.settings_workspace_clear_selection),
                             )
                         }
                     }
@@ -503,14 +503,14 @@ internal fun WorkspaceSection() {
         repositoryToClone.value?.let { repo ->
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = stringResource(Res.string.settings_github_project_name_label),
+                    text = stringResource(Res.string.settings_workspace_project_name_label),
                     style = DoraiTypography.bodySmall,
                     color = colors.textSecondary,
                 )
                 OutlinedTextField(
                     value = projectName.value,
                     onValueChange = { projectName.value = it },
-                    label = { Text(text = stringResource(Res.string.settings_github_project_name_hint)) },
+                    label = { Text(text = stringResource(Res.string.settings_workspace_project_name_hint)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -522,19 +522,19 @@ internal fun WorkspaceSection() {
                         onClick = { vm.refreshGitStatus() },
                         enabled = state.cloneState !is CloneState.Cloning,
                     ) {
-                        Text(text = stringResource(Res.string.settings_github_refresh_status))
+                        Text(text = stringResource(Res.string.settings_workspace_refresh_status))
                     }
                     TextButton(
                         onClick = { vm.sync() },
                         enabled = state.cloneState !is CloneState.Cloning,
                     ) {
-                        Text(text = stringResource(Res.string.settings_github_sync))
+                        Text(text = stringResource(Res.string.settings_workspace_sync))
                     }
                     Button(
                         onClick = { showConfirm.value = true },
                         enabled = projectName.value.isNotBlank() && state.cloneState !is CloneState.Cloning,
                     ) {
-                        Text(text = stringResource(Res.string.settings_github_clone_button))
+                        Text(text = stringResource(Res.string.settings_workspace_clone_button))
                     }
                 }
 
@@ -542,7 +542,7 @@ internal fun WorkspaceSection() {
                 when (val clone = state.cloneState) {
                     is CloneState.Cloning -> {
                         Text(
-                            text = stringResource(Res.string.settings_github_cloning),
+                            text = stringResource(Res.string.settings_workspace_cloning),
                             style = DoraiTypography.bodySmall,
                             color = colors.textSecondary,
                         )
@@ -550,7 +550,7 @@ internal fun WorkspaceSection() {
 
                     is CloneState.Success -> {
                         Text(
-                            text = stringResource(Res.string.settings_github_cloned),
+                            text = stringResource(Res.string.settings_workspace_cloned),
                             style = DoraiTypography.bodySmall,
                             color = colors.textPrimary,
                         )
@@ -559,7 +559,7 @@ internal fun WorkspaceSection() {
                     is CloneState.Failure -> {
                         Text(
                             text = cloneErrorMessage(clone.error)
-                                ?: stringResource(Res.string.settings_github_error, clone.error),
+                                ?: stringResource(Res.string.settings_workspace_error, clone.error),
                             style = DoraiTypography.bodySmall,
                             color = colors.error,
                         )
@@ -573,7 +573,7 @@ internal fun WorkspaceSection() {
                         .toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault())
                     Text(
                         text = stringResource(
-                            Res.string.settings_github_last_sync,
+                            Res.string.settings_workspace_last_sync,
                             "${local.day}/${local.monthNumber}/${local.year} ${local.hour.toString().padStart(2, '0')}:${local.minute.toString().padStart(2, '0')}",
                         ),
                         style = DoraiTypography.bodySmall,
@@ -583,7 +583,7 @@ internal fun WorkspaceSection() {
 
                 state.lastError?.let { error ->
                     Text(
-                        text = cloneErrorMessage(error) ?: stringResource(Res.string.settings_github_error, error),
+                        text = cloneErrorMessage(error) ?: stringResource(Res.string.settings_workspace_error, error),
                         style = DoraiTypography.bodySmall,
                         color = colors.error,
                     )
@@ -600,12 +600,12 @@ internal fun WorkspaceSection() {
                     repositoryToClone.value = null
                 },
                 title = {
-                    Text(text = stringResource(Res.string.settings_github_confirm_clone_title))
+                    Text(text = stringResource(Res.string.settings_workspace_confirm_clone_title))
                 },
                 text = {
                     Text(
                         text = stringResource(
-                            Res.string.settings_github_confirm_clone_message,
+                            Res.string.settings_workspace_confirm_clone_message,
                             repo.fullName,
                             projectName.value.ifBlank { repo.name },
                         ),
@@ -620,7 +620,7 @@ internal fun WorkspaceSection() {
                             repositoryToClone.value = null
                         },
                     ) {
-                        Text(text = stringResource(Res.string.settings_github_clone_button))
+                        Text(text = stringResource(Res.string.settings_workspace_clone_button))
                     }
                 },
                 dismissButton = {
@@ -630,7 +630,7 @@ internal fun WorkspaceSection() {
                             repositoryToClone.value = null
                         },
                     ) {
-                        Text(text = stringResource(Res.string.settings_github_clone_cancel))
+                        Text(text = stringResource(Res.string.settings_workspace_clone_cancel))
                     }
                 },
             )
@@ -641,22 +641,22 @@ internal fun WorkspaceSection() {
             AlertDialog(
                 onDismissRequest = { showDisconnectConfirm.value = false },
                 title = {
-                    Text(text = stringResource(Res.string.settings_github_disconnect_confirm_title))
+                    Text(text = stringResource(Res.string.settings_workspace_disconnect_confirm_title))
                 },
                 text = {
-                    Text(text = stringResource(Res.string.settings_github_disconnect_confirm_message))
+                    Text(text = stringResource(Res.string.settings_workspace_disconnect_confirm_message))
                 },
                 confirmButton = {
                     Button(onClick = {
                         vm.disconnect()
                         showDisconnectConfirm.value = false
                     }) {
-                        Text(text = stringResource(Res.string.settings_github_disconnect))
+                        Text(text = stringResource(Res.string.settings_workspace_disconnect))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDisconnectConfirm.value = false }) {
-                        Text(text = stringResource(Res.string.settings_github_clone_cancel))
+                        Text(text = stringResource(Res.string.settings_workspace_clone_cancel))
                     }
                 },
             )
@@ -706,7 +706,7 @@ private fun DeviceFlowWaitingCard(
                 color = colors.primary,
             )
             Text(
-                text = stringResource(Res.string.settings_github_waiting_title),
+                text = stringResource(Res.string.settings_workspace_waiting_title),
                 style = DoraiTypography.titleSmall,
                 color = colors.textPrimary,
             )
@@ -714,7 +714,7 @@ private fun DeviceFlowWaitingCard(
 
         Text(
             text = stringResource(
-                Res.string.settings_github_waiting_description,
+                Res.string.settings_workspace_waiting_description,
                 verificationUri ?: "github.com/login/device",
             ),
             style = DoraiTypography.bodySmall,
@@ -722,7 +722,7 @@ private fun DeviceFlowWaitingCard(
         )
 
         Text(
-            text = stringResource(Res.string.settings_github_user_code),
+            text = stringResource(Res.string.settings_workspace_user_code),
             style = DoraiTypography.labelSmall,
             color = colors.textSecondary,
         )
@@ -752,7 +752,7 @@ private fun DeviceFlowWaitingCard(
                 }) {
                     Icon(
                         imageVector = if (copied) Icons.Default.Check else Icons.Default.ContentCopy,
-                        contentDescription = stringResource(if (copied) Res.string.settings_github_code_copied else Res.string.settings_github_copy_code),
+                        contentDescription = stringResource(if (copied) Res.string.settings_workspace_code_copied else Res.string.settings_workspace_copy_code),
                         tint = colors.primary,
                     )
                 }
@@ -767,14 +767,14 @@ private fun DeviceFlowWaitingCard(
                     modifier = Modifier.size(18.dp),
                 )
                 Text(
-                    text = stringResource(Res.string.settings_github_open_github),
+                    text = stringResource(Res.string.settings_workspace_open_github),
                     modifier = Modifier.padding(start = 8.dp),
                 )
             }
         }
 
         TextButton(onClick = onCancel) {
-            Text(text = stringResource(Res.string.settings_github_cancel_flow))
+            Text(text = stringResource(Res.string.settings_workspace_cancel_flow))
         }
     }
 }
@@ -788,33 +788,33 @@ private fun DeviceFlowWaitingCard(
  * each other on screen. Kept pure (no composition) so the mapping is unit-testable.
  */
 internal fun repositoryEmptyMessageRes(status: GitHubConnectionStatus): StringResource = when (status) {
-    GitHubConnectionStatus.Connected -> Res.string.settings_github_no_repositories_hint
-    GitHubConnectionStatus.Error -> Res.string.settings_github_repositories_error
-    else -> Res.string.settings_github_repositories_not_connected
+    GitHubConnectionStatus.Connected -> Res.string.settings_workspace_no_repositories_hint
+    GitHubConnectionStatus.Error -> Res.string.settings_workspace_repositories_error
+    else -> Res.string.settings_workspace_repositories_not_connected
 }
 
 @Composable
 private fun githubErrorMessage(error: GitHubDeviceFlowError): String = when (error) {
-    GitHubDeviceFlowError.MissingClientId -> stringResource(Res.string.settings_github_error_not_configured)
+    GitHubDeviceFlowError.MissingClientId -> stringResource(Res.string.settings_workspace_error_not_configured)
 
-    GitHubDeviceFlowError.ExpiredToken -> stringResource(Res.string.settings_github_error_expired)
+    GitHubDeviceFlowError.ExpiredToken -> stringResource(Res.string.settings_workspace_error_expired)
 
-    GitHubDeviceFlowError.AccessDenied -> stringResource(Res.string.settings_github_error_access_denied)
+    GitHubDeviceFlowError.AccessDenied -> stringResource(Res.string.settings_workspace_error_access_denied)
 
-    GitHubDeviceFlowError.DeviceFlowDisabled -> stringResource(Res.string.settings_github_error_device_disabled)
+    GitHubDeviceFlowError.DeviceFlowDisabled -> stringResource(Res.string.settings_workspace_error_device_disabled)
 
-    GitHubDeviceFlowError.BadRefreshToken -> stringResource(Res.string.settings_github_error_network)
+    GitHubDeviceFlowError.BadRefreshToken -> stringResource(Res.string.settings_workspace_error_network)
 
     GitHubDeviceFlowError.AuthorizationPending,
     GitHubDeviceFlowError.SlowDown,
-    -> stringResource(Res.string.settings_github_waiting_title)
+    -> stringResource(Res.string.settings_workspace_waiting_title)
 
     is GitHubDeviceFlowError.Network -> {
         val message = error.message
         when {
-            message.contains("rate limit", ignoreCase = true) -> stringResource(Res.string.settings_github_error_rate_limited)
-            message.contains("unauthorized", ignoreCase = true) -> stringResource(Res.string.settings_github_error_unauthorized)
-            else -> stringResource(Res.string.settings_github_error_network)
+            message.contains("rate limit", ignoreCase = true) -> stringResource(Res.string.settings_workspace_error_rate_limited)
+            message.contains("unauthorized", ignoreCase = true) -> stringResource(Res.string.settings_workspace_error_unauthorized)
+            else -> stringResource(Res.string.settings_workspace_error_network)
         }
     }
 }
@@ -826,8 +826,8 @@ private fun githubErrorMessage(error: GitHubDeviceFlowError): String = when (err
  */
 @Composable
 private fun cloneErrorMessage(raw: String): String? = when (raw) {
-    "NotRepository" -> stringResource(Res.string.settings_github_clone_error_not_repository)
-    "MissingGit" -> stringResource(Res.string.settings_github_clone_error_missing_git)
-    "Failed" -> stringResource(Res.string.settings_github_clone_error_failed)
+    "NotRepository" -> stringResource(Res.string.settings_workspace_clone_error_not_repository)
+    "MissingGit" -> stringResource(Res.string.settings_workspace_clone_error_missing_git)
+    "Failed" -> stringResource(Res.string.settings_workspace_clone_error_failed)
     else -> null
 }
