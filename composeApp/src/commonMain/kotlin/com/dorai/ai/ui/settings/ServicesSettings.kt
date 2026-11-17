@@ -92,7 +92,6 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -122,7 +121,7 @@ import com.dorai.ai.ui.DoraiShapes
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
 import com.dorai.ai.ui.WarningAmber
-import com.dorai.ai.ui.components.CollectionEmptyState
+import com.dorai.ai.ui.components.CapabilityCountCard
 import com.dorai.ai.ui.components.DoraiSlider
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.components.StatusBadge
@@ -679,7 +678,7 @@ internal fun ServicesContent(uiState: SettingsUiState, actions: SettingsActions)
     // Compact Services overview (Plan 5, Phase 1): configured count and any
     // service requiring attention, readable before any card is opened.
     if (entries.isEmpty()) {
-        CollectionEmptyState(
+        SettingsEmptyState(
             message = stringResource(Res.string.services_empty_state),
         )
         Spacer(Modifier.height(12.dp))
@@ -956,54 +955,30 @@ private fun ConnectionStatus.needsAttention(): Boolean = when (this) {
 private fun ServicesOverview(entries: ImmutableList<ConfiguredServiceEntry>) {
     val attention = entries.count { it.connectionStatus.needsAttention() }
     val checking = entries.count { it.connectionStatus == ConnectionStatus.Checking }
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = doraiAdaptiveCardColors(),
-        border = doraiAdaptiveCardBorder(),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = entries.size.toString(),
-                style = DoraiTypography.headlineSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = LocalDesignColorTokens.current.textPrimary,
-            )
-            Spacer(Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = if (entries.size == 1) {
-                        stringResource(Res.string.services_configured_one)
-                    } else {
-                        stringResource(Res.string.services_configured_many)
-                    },
-                    style = DoraiTypography.bodySmall,
-                    color = LocalDesignColorTokens.current.textSecondary,
-                )
-                Spacer(Modifier.height(2.dp))
-                StatusBadge(
-                    label = when {
-                        attention > 0 -> if (attention == 1) {
-                            stringResource(Res.string.services_needs_attention_one)
-                        } else {
-                            stringResource(Res.string.services_needs_attention_many, attention)
-                        }
-
-                        checking > 0 -> stringResource(Res.string.services_checking_connections)
-
-                        else -> stringResource(Res.string.services_all_connected)
-                    },
-                    status = when {
-                        attention > 0 -> OperationalStatus.Error
-                        checking > 0 -> OperationalStatus.Connecting
-                        else -> OperationalStatus.Connected
-                    },
-                )
+    CapabilityCountCard(
+        label = if (entries.size == 1) {
+            stringResource(Res.string.services_configured_one)
+        } else {
+            stringResource(Res.string.services_configured_many)
+        },
+        count = entries.size.toString(),
+        status = when {
+            attention > 0 -> OperationalStatus.Error
+            checking > 0 -> OperationalStatus.Connecting
+            else -> OperationalStatus.Connected
+        },
+        statusLabel = when {
+            attention > 0 -> if (attention == 1) {
+                stringResource(Res.string.services_needs_attention_one)
+            } else {
+                stringResource(Res.string.services_needs_attention_many, attention)
             }
-        }
-    }
+
+            checking > 0 -> stringResource(Res.string.services_checking_connections)
+
+            else -> stringResource(Res.string.services_all_connected)
+        },
+    )
 }
 
 @Composable

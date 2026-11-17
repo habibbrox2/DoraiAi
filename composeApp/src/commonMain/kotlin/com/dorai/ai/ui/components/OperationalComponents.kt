@@ -177,6 +177,7 @@ fun CapabilityCountCard(
     count: String,
     modifier: Modifier = Modifier,
     status: OperationalStatus? = null,
+    statusLabel: String? = null,
 ) {
     val colors = LocalDesignColorTokens.current
     val cardBg = colors.surfaceRaised.copy(alpha = 0.5f)
@@ -207,6 +208,7 @@ fun CapabilityCountCard(
             if (status != null) {
                 StatusBadge(
                     status = status,
+                    label = statusLabel,
                 )
             }
         }
