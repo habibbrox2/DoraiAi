@@ -59,7 +59,6 @@ import com.dorai.ai.ui.CardFill
 import com.dorai.ai.ui.DangerAlert
 import com.dorai.ai.ui.DoraiOutlinedTextField
 import com.dorai.ai.ui.DoraiTypography
-import com.dorai.ai.ui.components.CollectionEmptyState
 import com.dorai.ai.ui.components.OperationalStatus
 import com.dorai.ai.ui.components.StatusBadge
 import com.dorai.ai.ui.components.VerticalScrollbarForScroll
@@ -190,11 +189,11 @@ internal fun McpServersSection(
         )
         Spacer(Modifier.height(8.dp))
         when {
-            mcpServers.isEmpty() -> CollectionEmptyState(
+            mcpServers.isEmpty() -> SettingsEmptyState(
                 message = stringResource(Res.string.settings_connectors_empty),
             )
 
-            installedServers.isEmpty() -> CollectionEmptyState(
+            installedServers.isEmpty() -> SettingsEmptyState(
                 message = stringResource(Res.string.settings_connectors_no_match),
             )
 
@@ -223,7 +222,7 @@ internal fun McpServersSection(
         )
         Spacer(Modifier.height(8.dp))
         if (popularServers.isEmpty()) {
-            CollectionEmptyState(
+            SettingsEmptyState(
                 message = stringResource(Res.string.settings_connectors_no_match),
             )
         } else {
