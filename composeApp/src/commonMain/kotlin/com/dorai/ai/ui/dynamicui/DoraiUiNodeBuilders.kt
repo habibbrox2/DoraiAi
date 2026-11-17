@@ -191,32 +191,14 @@ internal fun JsonElement.toStringLike(): String = when (this) {
 }
 
 // =============================================================================================
-// Enum parsers — hand-rolled to avoid reflection, match @SerialName strings exactly
+// Enum parsers — resolved through the enum entries (unknown values stay null)
 // =============================================================================================
 
-private fun parseTextStyle(raw: String?): TextNodeStyle? = when (raw) {
-    "headline" -> TextNodeStyle.HEADLINE
-    "title" -> TextNodeStyle.TITLE
-    "body" -> TextNodeStyle.BODY
-    "caption" -> TextNodeStyle.CAPTION
-    else -> null
-}
+private fun parseTextStyle(raw: String?): TextNodeStyle? = raw?.let { value -> TextNodeStyle.entries.firstOrNull { it.name.lowercase() == value.lowercase() } }
 
-private fun parseButtonVariant(raw: String?): ButtonVariant? = when (raw) {
-    "filled" -> ButtonVariant.FILLED
-    "outlined" -> ButtonVariant.OUTLINED
-    "text" -> ButtonVariant.TEXT
-    "tonal" -> ButtonVariant.TONAL
-    else -> null
-}
+private fun parseButtonVariant(raw: String?): ButtonVariant? = raw?.let { value -> ButtonVariant.entries.firstOrNull { it.name.lowercase() == value.lowercase() } }
 
-private fun parseAlertSeverity(raw: String?): AlertSeverity? = when (raw) {
-    "info" -> AlertSeverity.INFO
-    "success" -> AlertSeverity.SUCCESS
-    "warning" -> AlertSeverity.WARNING
-    "error" -> AlertSeverity.ERROR
-    else -> null
-}
+private fun parseAlertSeverity(raw: String?): AlertSeverity? = raw?.let { value -> AlertSeverity.entries.firstOrNull { it.name.lowercase() == value.lowercase() } }
 
 // =============================================================================================
 // Collection readers
