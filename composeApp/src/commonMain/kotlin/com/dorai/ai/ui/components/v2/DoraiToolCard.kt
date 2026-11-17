@@ -569,7 +569,11 @@ fun DoraiToolCard(
         }
 
         // Expanded Body
-        AnimatedVisibility(visible = isExpanded) {
+        AnimatedVisibility(
+            visible = isExpanded || prefersReducedMotion(),
+            enter = if (prefersReducedMotion()) tween(durationMillis = 0) else expandVertically(),
+            exit = if (prefersReducedMotion()) tween(durationMillis = 0) else shrinkVertically(),
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

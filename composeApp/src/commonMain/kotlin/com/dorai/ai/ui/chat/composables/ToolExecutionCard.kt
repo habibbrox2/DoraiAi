@@ -75,6 +75,17 @@ import org.jetbrains.compose.resources.stringResource
 private const val RESULT_PREVIEW_LINES = 15
 
 /**
+ * ⚠️ LEGACY / DEAD CODE ⚠️
+ *
+ * This file defines [ShellExecutionCard] and [ToolExecutionCard] composables that were
+ * the original v1 tool-rendering implementation. They have zero call sites in the current
+ * codebase — the live timeline renders v2 [DoraiToolCard] from
+ * `com.dorai.ai.ui.components.v2.DoraiToolCard` instead.
+ *
+ * Do not revive or wire these composables without re-confirming the intent below.
+ * If the 15-line output clamp behavior is desired, update [DoraiToolCard] and [docs/features/chat.md]
+ * accordingly; do not re-introduce these dead paths.
+ *
  * ChatGPT-style Shell & Command Execution Window.
  * Features:
  * - macOS / Terminal styled window bar with 3 dots (Red, Yellow, Green)
@@ -289,9 +300,9 @@ fun ShellExecutionCard(
 
             // Expandable Output Body
             AnimatedVisibility(
-                visible = isExpanded && (cleanOutput.isNotEmpty() || cleanError.isNotEmpty()),
-                enter = expandVertically(),
-                exit = shrinkVertically(),
+                visible = isExpanded || prefersReducedMotion(),
+                enter = if (prefersReducedMotion()) tween(durationMillis = 0) else expandVertically(),
+                exit = if (prefersReducedMotion()) tween(durationMillis = 0) else shrinkVertically(),
             ) {
                 Column(
                     modifier = Modifier
@@ -490,9 +501,9 @@ fun ToolExecutionCard(
 
             // Expanded Arguments & Result
             AnimatedVisibility(
-                visible = isExpanded,
-                enter = expandVertically(),
-                exit = shrinkVertically(),
+                visible = isExpanded || prefersReducedMotion(),
+                enter = if (prefersReducedMotion()) tween(durationMillis = 0) else expandVertically(),
+                exit = if (prefersReducedMotion()) tween(durationMillis = 0) else shrinkVertically(),
             ) {
                 Column(
                     modifier = Modifier
