@@ -162,7 +162,7 @@ private fun AppNavigationGraph(startDestination: Any) {
                     SettingsCategory.Tools -> ScreenshotTestData.settingsTools
 
                     // Not yet snapshotted â€” stand-in until a GitHub fixture is recorded.
-                    SettingsCategory.GitHub -> ScreenshotTestData.settingsTools
+                    SettingsCategory.Workspace -> ScreenshotTestData.settingsTools
 
                     SettingsCategory.Account -> ScreenshotTestData.settingsAccountState
 

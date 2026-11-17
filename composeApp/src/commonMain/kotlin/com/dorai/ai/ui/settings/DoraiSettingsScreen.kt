@@ -132,13 +132,12 @@ import dorai.composeapp.generated.resources.settings_cat_account
 import dorai.composeapp.generated.resources.settings_cat_agent
 import dorai.composeapp.generated.resources.settings_cat_appearance
 import dorai.composeapp.generated.resources.settings_cat_general
-import dorai.composeapp.generated.resources.settings_cat_github
 import dorai.composeapp.generated.resources.settings_cat_mcp
 import dorai.composeapp.generated.resources.settings_cat_providers
 import dorai.composeapp.generated.resources.settings_cat_tools
+import dorai.composeapp.generated.resources.settings_cat_workspace
 import dorai.composeapp.generated.resources.settings_delete_all_chats
 import dorai.composeapp.generated.resources.settings_delete_chats_confirm
-import dorai.composeapp.generated.resources.settings_github_connection
 import dorai.composeapp.generated.resources.settings_github_description
 import dorai.composeapp.generated.resources.settings_local_storage_cloud_conflict
 import dorai.composeapp.generated.resources.settings_manage_providers
@@ -150,10 +149,10 @@ import dorai.composeapp.generated.resources.settings_page_account_description
 import dorai.composeapp.generated.resources.settings_page_agent_description
 import dorai.composeapp.generated.resources.settings_page_appearance_description
 import dorai.composeapp.generated.resources.settings_page_general_description
-import dorai.composeapp.generated.resources.settings_page_github_description
 import dorai.composeapp.generated.resources.settings_page_mcp_description
 import dorai.composeapp.generated.resources.settings_page_services_description
 import dorai.composeapp.generated.resources.settings_page_tools_description
+import dorai.composeapp.generated.resources.settings_page_workspace_description
 import dorai.composeapp.generated.resources.settings_plugins
 import dorai.composeapp.generated.resources.settings_providers_discover
 import dorai.composeapp.generated.resources.settings_screen_title
@@ -162,6 +161,7 @@ import dorai.composeapp.generated.resources.settings_timeline_desc
 import dorai.composeapp.generated.resources.settings_timeline_toggle
 import dorai.composeapp.generated.resources.settings_tools_integrations
 import dorai.composeapp.generated.resources.settings_version
+import dorai.composeapp.generated.resources.settings_workspace_connection
 import dorai.composeapp.generated.resources.settings_your_connectors
 import dorai.composeapp.generated.resources.status_connected
 import dorai.composeapp.generated.resources.tools_group_title
@@ -218,7 +218,7 @@ enum class SettingsCategory(
     Providers("providers", Res.string.settings_cat_providers, Res.string.settings_page_services_description, Icons.Default.VpnKey),
     Tools("tools", Res.string.settings_cat_tools, Res.string.settings_page_tools_description, Icons.Default.Build),
     Mcp("mcp", Res.string.settings_cat_mcp, Res.string.settings_page_mcp_description, Icons.Default.Extension),
-    GitHub("github", Res.string.settings_cat_github, Res.string.settings_page_github_description, Icons.Default.Code),
+    Workspace("workspace", Res.string.settings_cat_workspace, Res.string.settings_page_workspace_description, Icons.Default.Code),
     Account("account", Res.string.settings_cat_account, Res.string.settings_page_account_description, Icons.Default.AccountCircle),
 }
 
@@ -693,8 +693,8 @@ private fun SettingsCategoryContent(
                         )
                     }
 
-                    SettingsCategory.GitHub -> {
-                        SettingsDetailSectionHeading(stringResource(Res.string.settings_github_connection))
+                    SettingsCategory.Workspace -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_workspace_connection))
                         GitHubSection()
                     }
 
@@ -732,8 +732,8 @@ private fun SettingsCategoryContent(
                         McpSettingsContent()
                     }
 
-                    SettingsCategory.GitHub -> {
-                        SettingsDetailSectionHeading(stringResource(Res.string.settings_github_connection))
+                    SettingsCategory.Workspace -> {
+                        SettingsDetailSectionHeading(stringResource(Res.string.settings_workspace_connection))
                         GitHubSection()
                     }
 

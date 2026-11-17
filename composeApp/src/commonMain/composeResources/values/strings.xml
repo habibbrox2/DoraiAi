@@ -70,7 +70,7 @@
     <string name="settings_tab_agent">Agent</string>
     <string name="settings_tab_services">AI Providers</string>
     <string name="settings_tab_tools">Tools</string>
-    <string name="settings_tab_github">GitHub</string>
+    <string name="settings_tab_workspace">Workspace</string>
     <string name="settings_tab_sandbox">Linux Sandbox</string>
     <string name="settings_tab_integrations">Integrations</string>
     <string name="tools_count">%1$d\u00A0Tools</string>
@@ -1084,7 +1084,7 @@
     <string name="settings_cat_providers">AI Providers</string>
     <string name="settings_cat_tools">Tools / Skills</string>
     <string name="settings_cat_mcp">Integrations / MCP</string>
-    <string name="settings_cat_github">GitHub</string>
+    <string name="settings_cat_workspace">Workspace</string>
     <string name="settings_cat_sandbox">Linux Sandbox</string>
     <string name="settings_cat_account">Account &amp; Data</string>
     <string name="settings_home_subtitle">Customize your Dorai AI experience</string>
@@ -1115,7 +1115,7 @@
     <string name="settings_manage_providers">Manage Providers</string>
     <string name="settings_installed_tools">Installed Tools</string>
     <string name="settings_your_connectors">Your Connectors</string>
-    <string name="settings_github_connection">Connection</string>
+    <string name="settings_workspace_connection">Connection</string>
     <string name="settings_approval_policy">Approval Policy</string>
     <string name="settings_approval_ask_all">Ask for everything</string>
     <string name="settings_approval_ask_edits">Ask for edits &amp; shell commands</string>
@@ -1461,7 +1461,7 @@
     <string name="settings_page_agent_description">Configure agent behavior, reasoning, and model defaults.</string>
     <string name="settings_page_services_description">Connect providers and manage the models available to DORAI AI.</string>
     <string name="settings_page_tools_description">Connect your agent to the tools, services and skills you trust.</string>
-    <string name="settings_page_github_description">Connect GitHub, browse repositories and clone them into your workspace.</string>
+    <string name="settings_page_workspace_description">Connect source repositories and clone them into your workspace.</string>
     <string name="settings_page_account_description">Review your account, application and data controls.</string>
     <string name="settings_overview_title">Overview</string>
     <string name="settings_overview_active_service">Active service</string>

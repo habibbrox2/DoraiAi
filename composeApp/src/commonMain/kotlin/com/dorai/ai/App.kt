@@ -227,11 +227,11 @@ private fun AppContent(
                 }
 
                 // The GitHub device flow completes in the browser, so the app announces it and
-                // the notification brings the user back to the GitHub settings.
+                // the notification brings the user back to the Workspace settings.
                 val openGitHubSettingsRequested by dataRepository.openGitHubSettingsRequested.collectAsStateWithLifecycle()
                 LaunchedEffect(openGitHubSettingsRequested) {
                     if (openGitHubSettingsRequested) {
-                        currentSettingsCategory = SettingsCategory.GitHub
+                        currentSettingsCategory = SettingsCategory.Workspace
                         shellState.navigateTo(DoraiDestination.Settings)
                         dataRepository.consumeOpenGitHubSettingsRequest()
                     }

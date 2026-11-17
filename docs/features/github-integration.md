@@ -1,6 +1,6 @@
 # GitHub Integration
 
-**Last verified:** 2026-11-16 (Desktop Git CLI runner wired via DesktopWorkspaceController)
+**Last verified:** 2026-11-17 (Task 1 of the GitHub → Workspace move landed — Desktop Git CLI runner wired via DesktopWorkspaceController)
 
 DORAI AI can connect to GitHub through a GitHub App using the **Device Flow** and browse the repositories an installation can see — read-only. The integration is local-first: authentication, token custody, repository browsing, cloning and git operations all happen on the device.
 
@@ -18,7 +18,7 @@ Phase 0 registration is a manual owner step and is **not** part of the codebase.
 
 ## Settings
 
-**Settings → GitHub** (dedicated category, icon: code) — visible on all platforms, but the integration itself is supported on **Android and desktop only**. iOS and Web render a "GitHub integration is available on Android and desktop only" notice.
+**Settings → Workspace** (dedicated category, icon: code) — visible on all platforms, but the integration itself is supported on **Android and desktop only**. iOS and Web render a "GitHub integration is available on Android and desktop only" notice.
 
 The screen opens with a **hero card**: the GitHub mark, a headline that states the current state
 (not a second "GitHub" title — the category chip already names it), a status badge

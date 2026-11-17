@@ -830,7 +830,7 @@
     <string name="settings_manage_providers">প্রভাইডার ব্যবস্থাপনা</string>
     <string name="settings_installed_tools">ইনস্টল করা টুল</string>
     <string name="settings_your_connectors">আপনার কনেক্টর</string>
-    <string name="settings_github_connection">সংযোগ</string>
+    <string name="settings_workspace_connection">সংযোগ</string>
     <string name="settings_approval_policy">অনুমোদন নীতি</string>
     <string name="settings_approval_ask_all">সবকিছুর জন্য অনুমতি নিন</string>
     <string name="settings_approval_ask_edits">ফাইল পরিবর্তন ও শেলের জন্য অনুমতি নিন</string>
@@ -916,8 +916,8 @@
     <string name="dynamic_ui_form_submission">ফর্ম সাবমিশন</string>
     <string name="agent_fallback_name">এজেন্ট</string>
     <string name="chat_press_back_to_exit">বের হতে আবার ব্যাক চাপুন</string>
-    <string name="settings_tab_github">GitHub</string>
-    <string name="settings_cat_github">GitHub</string>
+    <string name="settings_tab_workspace">ওয়ার্কস্পেস</string>
+    <string name="settings_cat_workspace">ওয়ার্কস্পেস</string>
     <string name="settings_github_not_supported">GitHub ইন্টিগ্রেশন শুধুমাত্র অ্যান্ড্রয়েড এবং ডেস্কটপে উপলব্ধ।</string>
     <string name="settings_github_section_title">GitHub</string>
     <string name="settings_github_description">GitHub থেকে রিপোজিটরি ক্লোন করে আপনার লোকাল ওয়ার্কস্পেসে রাখুন (ডিফল্টভাবে শুধুমাত্র পঠনযোগ্য)।</string>
@@ -1431,7 +1431,7 @@
     <string name="settings_page_agent_description">এজেন্টের আচরণ, রিজনিং ও মডেল ডিফল্ট কনফিগার করুন।</string>
     <string name="settings_page_services_description">প্রোভাইডার সংযুক্ত করুন এবং DORAI AI-এর জন্য উপলব্ধ মডেল পরিচালনা করুন।</string>
     <string name="settings_page_tools_description">আপনার এজেন্টকে আপনার বিশ্বস্ত টুল, পরিষেবা ও স্কিলের সাথে সংযুক্ত করুন।</string>
-    <string name="settings_page_github_description">GitHub সংযুক্ত করুন, রিপোজিটরি ব্রাউজ করুন এবং ওয়ার্কস্পেসে ক্লোন করুন।</string>
+    <string name="settings_page_workspace_description">সোর্স রিপোজিটরিগুলো সংযুক্ত করুন এবং আপনার ওয়ার্কস্পেসে ক্লোন করুন।</string>
     <string name="settings_page_account_description">আপনার অ্যাকাউন্ট, অ্যাপ্লিকেশন ও ডেটা নিয়ন্ত্রণ পর্যালোচনা করুন।</string>
     <string name="settings_overview_title">ওভারভিউ</string>
     <string name="settings_overview_active_service">সক্রিয় পরিষেবা</string>

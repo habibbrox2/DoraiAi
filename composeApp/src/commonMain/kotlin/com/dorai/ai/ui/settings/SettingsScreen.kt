@@ -116,9 +116,9 @@ import dorai.composeapp.generated.resources.settings_tab_agent
 import dorai.composeapp.generated.resources.settings_tab_appearance
 import dorai.composeapp.generated.resources.settings_tab_data
 import dorai.composeapp.generated.resources.settings_tab_general
-import dorai.composeapp.generated.resources.settings_tab_github
 import dorai.composeapp.generated.resources.settings_tab_services
 import dorai.composeapp.generated.resources.settings_tab_tools
+import dorai.composeapp.generated.resources.settings_tab_workspace
 import dorai.composeapp.generated.resources.snackbar_email_removed
 import dorai.composeapp.generated.resources.snackbar_mcp_server_removed
 import dorai.composeapp.generated.resources.snackbar_memory_deleted
