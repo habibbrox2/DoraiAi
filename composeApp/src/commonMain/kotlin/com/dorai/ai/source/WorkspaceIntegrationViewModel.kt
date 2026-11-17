@@ -384,7 +384,7 @@ class WorkspaceIntegrationViewModel(
             return
         }
         if (_state.value.connectionStatus != GitHubConnectionStatus.Connected) {
-            val message = "Not connected to GitHub"
+            val message = "Not connected to Workspace"
             _state.value = _state.value.copy(
                 selectedRepository = null,
                 cloneState = CloneState.Failure(message),

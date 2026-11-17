@@ -485,7 +485,7 @@ class WorkspaceIntegrationViewModelTest {
         vm.selectAndClone(repo, "myproject")
 
         assertIs<CloneState.Failure>(vm.state.value.cloneState)
-        assertEquals("Not connected to GitHub", vm.state.value.lastError)
+        assertEquals("Not connected to Workspace", vm.state.value.lastError)
         assertNull(vm.state.value.selectedRepository)
         assertTrue(controller.gitCloneCalls.isEmpty())
     }

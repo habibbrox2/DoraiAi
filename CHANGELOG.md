@@ -8,6 +8,7 @@
 ### Changed
 - **Settings Landing Hero**: Replaced loud yellow/pink hero banner with a compact, bordered dark card with 1dp border and muted tonal surface.
 - **Settings category renamed to "Workspace"**: The GitHub integration's Settings category, tab label, category title and section heading now present the user-facing identity as **Workspace** (the underlying GitHub App integration remains the first supported host/provider). Category id, Compose Resources keys and Bengali strings updated together.
+- **GitHub → Workspace user-facing copy**: Hero, connect, notification, disconnect and error copy now present the **Workspace** identity ("Connect to Workspace", "Workspace account connected", "Workspace connected" authorization notification, "Disconnect from Workspace?", "Workspace is not configured in this build"); hardcoded status copy aligned; Bengali (`values-bn`) strings updated in lockstep. The underlying GitHub App integration (first supported host/provider) is unchanged.
 - **Provider API Key Fields**: Enhanced with password visibility toggle, clipboard paste button, and clear action.
 - **General Settings Sliders**: Upgraded to `AppSlider` with thin 4dp track, ≥20dp thumb, and real-time range indicators.
 - **Agent Mode Selector**: Replaced loose chips with container-matching `SegmentedPillSelector` displaying single-line mode descriptions.
