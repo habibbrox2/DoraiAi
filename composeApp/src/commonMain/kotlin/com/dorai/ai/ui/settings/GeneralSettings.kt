@@ -67,13 +67,7 @@ import kotlin.math.roundToInt
 
 @Composable
 private fun GeneralSectionHeading(text: String) {
-    Text(
-        text = text,
-        style = DoraiTypography.titleMedium,
-        color = LocalDesignColorTokens.current.textPrimary,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.padding(top = SettingsSpacing.sm, bottom = SettingsSpacing.xs),
-    )
+    SettingsDetailSectionHeading(text = text)
 }
 
 @Composable
