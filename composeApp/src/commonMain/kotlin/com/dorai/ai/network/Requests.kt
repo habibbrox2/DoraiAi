@@ -24,6 +24,7 @@ import com.dorai.ai.network.dtos.openaicompatible.OpenAICompatibleCompletion
 import com.dorai.ai.network.dtos.openaicompatible.OpenAICompatibleModelResponseDto
 import com.dorai.ai.network.dtos.openairesponses.OpenAIResponsesRequestDto
 import com.dorai.ai.network.dtos.openairesponses.OpenAIResponsesResponseDto
+import com.dorai.ai.network.modeldiscovery.DiscoveryHttp
 import com.dorai.ai.network.tools.Tool
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -46,7 +47,6 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.content.TextContent
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
@@ -128,7 +128,7 @@ internal fun requestTooLargeException(service: Service, detail: String?): OpenAI
 }
 
 private fun HttpRequestBuilder.applySessionHeader(service: Service, credentials: ServiceCredentials, sessionId: String?) {
-    sessionHeadersFor(service, sessionId, credentials.baseUrl).forEach { (k, v) -> header(k, v) }
+    DiscoveryHttp.sessionHeaders(service, credentials, sessionId).forEach { (k, v) -> header(k, v) }
 }
 
 /**
@@ -139,9 +139,7 @@ internal fun parseRetryAfterSeconds(value: String?): Long? = value?.trim()?.toLo
 
 /** Gateway header for Service.CloudflareAIGateway — blank gateway id means the account's auto-created "default" gateway. */
 private fun HttpRequestBuilder.applyCloudflareGatewayHeader(service: Service, credentials: ServiceCredentials) {
-    if (service == Service.CloudflareAIGateway) {
-        header("cf-aig-gateway-id", credentials.cloudflareGatewayId.ifBlank { "default" })
-    }
+    DiscoveryHttp.cloudflareGatewayHeader(service, credentials)?.let { (k, v) -> header(k, v) }
 }
 
 /**
@@ -155,8 +153,9 @@ private fun <T> List<Tool>.toRequestTools(convert: (Tool) -> T): List<T>? = mapN
  * Shared failure mapping for the OpenAI-compatible endpoints that have no bespoke error handling:
  * API exceptions propagate as-is, anything else (I/O, serialization) becomes a connection error.
  * Kept separate from [Requests.openAICompatibleChat], which additionally distinguishes timeouts.
+ * Shared with [com.dorai.ai.network.modeldiscovery.DiscoveryHttp]'s key-validation probes.
  */
-private inline fun <T> openAICompatibleResult(block: () -> Result<T>): Result<T> = try {
+internal inline fun <T> openAICompatibleResult(block: () -> Result<T>): Result<T> = try {
     block()
 } catch (e: OpenAICompatibleApiException) {
     Result.failure(e)
@@ -302,11 +301,11 @@ class Requests(
         sessionId: String? = null,
         requestTimeoutMs: Long? = null,
     ): Result<OpenAICompatibleChatResponseDto> = try {
-        val apiKey = getApiKeyOrThrow(service, credentials)
+        val apiKey = DiscoveryHttp.apiKeyFor(service, credentials, required = true)
         val model = credentials.modelId.trim().let { id ->
             if (service == Service.Nvidia) id.removeSuffix(":free") else id
         }.ifEmpty { null }
-        val url = resolveUrl(service, credentials, service.chatUrl)
+        val url = DiscoveryHttp.resolveUrl(service, credentials, service.chatUrl)
         val response: HttpResponse =
             defaultClient.post(url) {
                 applyTimeout(requestTimeoutMs)
@@ -326,7 +325,7 @@ class Requests(
         if (response.status.isSuccess()) {
             Result.success(response.body())
         } else {
-            handleOpenAICompatibleError(service, credentials, response)
+            DiscoveryHttp.mapOpenAICompatibleFailure(service, credentials, response)
         }
     } catch (e: OpenAICompatibleApiException) {
         Result.failure(e)
@@ -367,11 +366,11 @@ class Requests(
         requestTimeoutMs: Long? = null,
         onDelta: suspend (String) -> Unit,
     ): Result<OpenAICompatibleCompletion> = try {
-        val apiKey = getApiKeyOrThrow(service, credentials)
+        val apiKey = DiscoveryHttp.apiKeyFor(service, credentials, required = true)
         val model = credentials.modelId.trim().let { id ->
             if (service == Service.Nvidia) id.removeSuffix(":free") else id
         }.ifEmpty { null }
-        val url = resolveUrl(service, credentials, service.chatUrl)
+        val url = DiscoveryHttp.resolveUrl(service, credentials, service.chatUrl)
 
         val completion = defaultClient.preparePost(url) {
             timeout {
@@ -394,7 +393,7 @@ class Requests(
             )
         }.execute { response ->
             if (!response.status.isSuccess()) {
-                handleOpenAICompatibleError(service, credentials, response)
+                DiscoveryHttp.mapOpenAICompatibleFailure(service, credentials, response)
             }
 
             if (response.contentType()?.withoutParameters() != ContentType.Text.EventStream) {
@@ -526,10 +525,10 @@ class Requests(
         tools: List<Tool> = emptyList(),
         requestTimeoutMs: Long? = null,
     ): Result<OpenAIResponsesResponseDto> = try {
-        val apiKey = getApiKeyOrThrow(service, credentials)
+        val apiKey = DiscoveryHttp.apiKeyFor(service, credentials, required = true)
         val responsesUrl = service.responsesUrl
             ?: throw OpenAICompatibleGenericException("Responses URL not configured for ${service.displayName}")
-        val url = resolveUrl(service, credentials, responsesUrl)
+        val url = DiscoveryHttp.resolveUrl(service, credentials, responsesUrl)
         val response: HttpResponse =
             defaultClient.post(url) {
                 applyTimeout(requestTimeoutMs)
@@ -548,7 +547,7 @@ class Requests(
         if (response.status.isSuccess()) {
             Result.success(response.body())
         } else {
-            handleOpenAICompatibleError(service, credentials, response)
+            DiscoveryHttp.mapOpenAICompatibleFailure(service, credentials, response)
         }
     } catch (e: OpenAICompatibleApiException) {
         Result.failure(e)
@@ -567,9 +566,9 @@ class Requests(
         val modelsUrl = service.modelsUrl
             ?: return Result.failure(OpenAICompatibleGenericException("Models URL not configured for ${service.displayName}"))
         val apiKey = if (service == Service.Cloudflare || service == Service.CloudflareAIGateway) {
-            getApiKeyOrThrow(service, credentials)
+            DiscoveryHttp.apiKeyFor(service, credentials, required = true)
         } else {
-            getOptionalApiKey(service, credentials)
+            DiscoveryHttp.apiKeyFor(service, credentials, required = false)
         }
 
         // Cloudflare Workers AI uses the Cloudflare v4 envelope (result/result_info), not
@@ -592,7 +591,7 @@ class Requests(
             var totalPages = 1
             val perPage = 100
             while (page <= totalPages && page <= 20) {
-                val pageUrl = "${resolveUrl(service, credentials, modelsUrl)}?page=$page&per_page=$perPage"
+                val pageUrl = "${DiscoveryHttp.resolveUrl(service, credentials, modelsUrl)}?page=$page&per_page=$perPage"
                 val response = defaultClient.get(pageUrl) {
                     apiKey?.let { bearerAuth(it) }
                     applySessionHeader(service, credentials, sessionId = null)
@@ -605,7 +604,7 @@ class Requests(
                             ?: "HTTP ${response.status.value}"
                         throw OpenAICompatibleGenericException("Cloudflare model discovery failed: $detail")
                     }
-                    handleOpenAICompatibleError(service, credentials, response)
+                    DiscoveryHttp.mapOpenAICompatibleFailure(service, credentials, response)
                 }
                 val parsedPage = try {
                     parseCloudflareModelSearchPage(response.bodyAsText())
@@ -623,7 +622,7 @@ class Requests(
             return Result.success(OpenAICompatibleModelResponseDto(data = allModels.distinctBy { it.id }))
         }
 
-        val url = resolveUrl(service, credentials, modelsUrl)
+        val url = DiscoveryHttp.resolveUrl(service, credentials, modelsUrl)
         val response: HttpResponse = defaultClient.get(url) {
             apiKey?.let { bearerAuth(it) }
             applySessionHeader(service, credentials, sessionId = null)
@@ -636,24 +635,11 @@ class Requests(
                 Result.success(response.body())
             }
         } else {
-            handleOpenAICompatibleError(service, credentials, response)
+            DiscoveryHttp.mapOpenAICompatibleFailure(service, credentials, response)
         }
     }
 
-    suspend fun validateOpenRouterApiKey(credentials: ServiceCredentials): Result<Unit> = openAICompatibleResult {
-        val apiKey = credentials.apiKey.ifEmpty { throw OpenAICompatibleInvalidApiKeyException() }
-        val response: HttpResponse = defaultClient.get("https://openrouter.ai/api/v1/auth/key") {
-            bearerAuth(apiKey)
-        }
-        if (response.status.isSuccess()) {
-            Result.success(Unit)
-        } else {
-            when (response.status.value) {
-                401, 403 -> throw OpenAICompatibleInvalidApiKeyException()
-                else -> throw OpenAICompatibleGenericException("Failed to validate OpenRouter API key: ${response.status}")
-            }
-        }
-    }
+    suspend fun validateOpenRouterApiKey(credentials: ServiceCredentials): Result<Unit> = DiscoveryHttp.validateOpenRouterApiKey(defaultClient, credentials)
 
     /**
      * Requesty answers a bad key on `/models` with 403, which the shared error mapping would
@@ -680,24 +666,7 @@ class Requests(
      * invalid keys return 401/403; a valid key typically yields 400/422 on the empty messages
      * array — which we treat as connected without spending tokens on a real completion.
      */
-    suspend fun validatePerplexityApiKey(credentials: ServiceCredentials): Result<Unit> = openAICompatibleResult {
-        val apiKey = credentials.apiKey.ifEmpty { throw OpenAICompatibleInvalidApiKeyException() }
-        val response: HttpResponse = defaultClient.post(Service.Perplexity.chatUrl) {
-            bearerAuth(apiKey)
-            // TextContent avoids ContentNegotiation re-encoding a raw String as a JSON string.
-            setBody(TextContent("""{"model":"sonar","messages":[]}""", ContentType.Application.Json))
-        }
-        when (response.status.value) {
-            401, 403 -> throw OpenAICompatibleInvalidApiKeyException()
-
-            // A bad request means the key was accepted and the probe payload rejected —
-            // the key itself is valid. Only treat 2xx as success; other 4xx (rate limit,
-            // not found) and 5xx must not silently report "Connected".
-            200, 400, 404, 422 -> Result.success(Unit)
-
-            else -> throw OpenAICompatibleGenericException("Failed to validate Perplexity API key: ${response.status}")
-        }
-    }
+    suspend fun validatePerplexityApiKey(credentials: ServiceCredentials): Result<Unit> = DiscoveryHttp.validatePerplexityApiKey(defaultClient, credentials)
 
     // endregion
 
@@ -794,108 +763,6 @@ class Requests(
 
     // region Helpers
 
-    private fun resolveUrl(service: Service, credentials: ServiceCredentials, path: String): String {
-        val customBase = credentials.baseUrl.trim()
-        if (!Service.acceptsCustomBaseUrl(service)) {
-            // Hosted providers own their canonical endpoints. A custom base URL entered
-            // for one of them must never be spliced into the URL — it would produce a
-            // malformed request like "https://myhost/https://api.groq.com/...". Ignore it
-            // (the settings UI no longer offers the field for these services; this guard
-            // covers stale values persisted before that change and any other writer).
-            return path.replace("{account_id}", "")
-        }
-        if (customBase.isNotEmpty()) {
-            if (path.contains("{account_id}") && customBase.isNotEmpty()) {
-                // Accept either the raw account id or a full dashboard URL containing
-                // "/accounts/<id>/" — extract the id when it is a well-formed 32-hex value,
-                // and otherwise produce a deterministic request Cloudflare rejects instead
-                // of splicing arbitrary user input into the URL path.
-                val accountId = customBase.substringAfter("/accounts/", missingDelimiterValue = customBase)
-                    .substringBefore("/")
-                    .trim()
-                if (isValidCloudflareAccountId(accountId)) {
-                    return path.replace("{account_id}", accountId)
-                }
-                return path.replace("{account_id}", "")
-            }
-            val base = Service.normalizeOpenAICompatibleBaseUrl(customBase)
-            val relPath = if (path.startsWith("/")) path else "/$path"
-            return "$base$relPath"
-        }
-        return path.replace("{account_id}", "")
-    }
-
-    private fun getApiKeyOrThrow(service: Service, credentials: ServiceCredentials): String? {
-        if (!service.requiresApiKey && !service.supportsOptionalApiKey) return null
-        val key = credentials.apiKey
-        if (service.requiresApiKey && key.isEmpty()) throw OpenAICompatibleInvalidApiKeyException()
-        return key.ifEmpty { null }
-    }
-
-    private fun getOptionalApiKey(service: Service, credentials: ServiceCredentials): String? {
-        if (!service.requiresApiKey && !service.supportsOptionalApiKey) return null
-        return credentials.apiKey.ifEmpty { null }
-    }
-
-    private suspend fun handleOpenAICompatibleError(
-        service: Service,
-        credentials: ServiceCredentials,
-        response: HttpResponse,
-    ): Nothing {
-        val responseBody = response.bodyAsText()
-        val parsed = parseOpenAICompatibleErrorDetail(responseBody)
-        val moderationDetail = parsed.moderationDetail()
-        when (response.status.value) {
-            400 -> {
-                if (parsed.looksLikeContentPolicyViolation()) {
-                    throw OpenAICompatibleContentModerationException(moderationDetail)
-                }
-                throw OpenAICompatibleBadRequestException(parsed.message)
-            }
-
-            401 -> throw OpenAICompatibleInvalidApiKeyException()
-
-            402 -> throw OpenAICompatibleQuotaExhaustedException()
-
-            403 -> {
-                // OpenCode answers unauthenticated requests with 403 (not 401), so a missing or
-                // rejected key looks like a moderation block if mapped generically. Surface the
-                // real cause as an invalid-key error so the UI (and the Free fallback) react right.
-                if (service == Service.OpenCode || parsed.looksLikeAuthRejection()) {
-                    throw OpenAICompatibleInvalidApiKeyException()
-                }
-                throw OpenAICompatibleContentModerationException(moderationDetail)
-            }
-
-            404 -> throw OpenAICompatibleModelNotFoundException()
-
-            408, 504 -> throw OpenAICompatibleTimeoutException()
-
-            413 -> throw requestTooLargeException(service, parsed.message)
-
-            429 -> throw OpenAICompatibleRateLimitExceededException(parseRetryAfterSeconds(response.headers["Retry-After"]))
-
-            500, 502 -> throw OpenAICompatibleProviderErrorException(parsed.message)
-
-            503 -> throw OpenAICompatibleServiceUnavailableException()
-
-            else -> {
-                val haystack = parsed.message ?: responseBody
-                if (haystack.contains("credit", ignoreCase = true) ||
-                    haystack.contains("exhausted", ignoreCase = true) ||
-                    haystack.contains("spending limit", ignoreCase = true) ||
-                    haystack.contains("quota", ignoreCase = true) ||
-                    haystack.contains("subscription", ignoreCase = true) ||
-                    haystack.contains("upgrade", ignoreCase = true)
-                ) {
-                    throw OpenAICompatibleQuotaExhaustedException()
-                }
-                val detail = parsed.message ?: "${response.status}"
-                throw OpenAICompatibleGenericException("${service.displayName}: $detail")
-            }
-        }
-    }
-
     // Distinguish genuine network/I/O failures (preserve the "Cannot connect to
     // server" UX and the settings-screen ErrorConnectionFailed status) from
     // client-side exceptions (schema/serialization bugs, etc.) which would
@@ -917,73 +784,6 @@ class Requests(
                 e,
             )
         }
-    }
-
-    private data class OpenAICompatibleErrorDetail(
-        val message: String?,
-        val code: String?,
-        val type: String?,
-        val reasons: List<String>,
-    ) {
-        fun looksLikeContentPolicyViolation(): Boolean {
-            if (code?.equals("content_policy_violation", ignoreCase = true) == true) return true
-            if (type?.contains("content_filter", ignoreCase = true) == true) return true
-            if (type?.contains("content_policy", ignoreCase = true) == true) return true
-            val msg = message ?: return false
-            return msg.contains("content policy", ignoreCase = true) ||
-                msg.contains("moderation", ignoreCase = true) ||
-                msg.contains("flagged", ignoreCase = true)
-        }
-
-        /**
-         * Some gateways answer an invalid/revoked key with 403 instead of 401 (documented
-         * for Requesty, observed elsewhere). Distinguish an auth-shaped 403 from a
-         * moderation one before reporting "content flagged" to the user.
-         */
-        fun looksLikeAuthRejection(): Boolean {
-            if (code?.contains("invalid_api_key", ignoreCase = true) == true) return true
-            if (type?.contains("auth", ignoreCase = true) == true) return true
-            val msg = message ?: return false
-            return msg.contains("api key", ignoreCase = true) ||
-                msg.contains("apikey", ignoreCase = true) ||
-                msg.contains("unauthorized", ignoreCase = true) ||
-                msg.contains("authentication", ignoreCase = true) ||
-                msg.contains("invalid key", ignoreCase = true)
-        }
-
-        fun moderationDetail(): String? {
-            val reasonText = reasons.takeIf { it.isNotEmpty() }
-                ?.joinToString(", ")
-                ?.let { "flagged for '$it'" }
-            return reasonText ?: message
-        }
-    }
-
-    private fun parseOpenAICompatibleErrorDetail(responseBody: String): OpenAICompatibleErrorDetail = try {
-        val error = anthropicJson.parseToJsonElement(responseBody).jsonObject["error"]
-        when {
-            error == null -> OpenAICompatibleErrorDetail(null, null, null, emptyList())
-
-            error is JsonPrimitive -> OpenAICompatibleErrorDetail(
-                message = error.content.takeIf { it.isNotBlank() },
-                code = null,
-                type = null,
-                reasons = emptyList(),
-            )
-
-            else -> {
-                val obj = error.jsonObject
-                val message = obj["message"]?.jsonPrimitive?.content?.takeIf { it.isNotBlank() }
-                val code = (obj["code"] as? JsonPrimitive)?.contentOrNull?.takeIf { it.isNotBlank() }
-                val type = (obj["type"] as? JsonPrimitive)?.contentOrNull?.takeIf { it.isNotBlank() }
-                val reasons = (obj["metadata"] as? JsonObject)?.get("reasons")?.let { it as? JsonArray }
-                    ?.mapNotNull { (it as? JsonPrimitive)?.contentOrNull?.takeIf { s -> s.isNotBlank() } }
-                    .orEmpty()
-                OpenAICompatibleErrorDetail(message, code, type, reasons)
-            }
-        }
-    } catch (_: Exception) {
-        OpenAICompatibleErrorDetail(null, null, null, emptyList())
     }
 
     private fun Tool.toRequestTool(): OpenAICompatibleChatRequestDto.Tool = OpenAICompatibleChatRequestDto.Tool(
