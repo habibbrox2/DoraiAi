@@ -18,6 +18,7 @@
 - **Cloud Vault & Data**: Added helper text for passphrase length (< 8 chars), clear warning banner for API key exports in plain text, and destructive red outlined styling for "Clear all conversations" with confirmation dialog.
 
 ### Fixed
+- **Settings compile errors**: Fixed unresolved `it` references on the TTS sliders in `GeneralSettings.kt` (`onValueChangeFinished` takes no lambda parameter) and the missing `produce` import in `VoiceSettings.kt` (`VoiceModelsTicker` rewritten to a plain effect loop keyed on in-flight downloads).
 - **Bengali Typography Clipping**: Fixed Bengali text line clipping by enforcing a 1.6x line-height multiplier on `bodyLarge`, `bodyMedium`, and `bodySmall`.
 - **Mojibake & Internal Flags**: Removed `"Â· uiV2=on"` artifact from settings version footer, showing clean public app version.
 - **Duplicate Notification Setting**: Removed duplicate "Read notifications" row from Account & Data, preserving the single source of truth in Agent settings.
