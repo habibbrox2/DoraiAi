@@ -17,9 +17,10 @@ class ModelDiscoveryRegistry(
     companion object {
         /**
          * Every service whose model listing speaks the OpenAI-compatible `GET /models` shape
-         * and is therefore served by [OpenAICompatibleModelDiscoveryAdapter]. Bespoke providers
-         * Anthropic, and Perplexity get their own adapters in later tasks; Gemini and the
-         * Cloudflare pair have their own adapters below; Free and LiteRT never list remote models.
+         * and is therefore served by [OpenAICompatibleModelDiscoveryAdapter]. The remaining
+         * bespoke provider Perplexity gets its own adapter in a later task; Anthropic,
+         * Gemini, and the Cloudflare pair have their own adapters below; Free and LiteRT
+         * never list remote models.
          */
         private val openAICompatibleServices = listOf(
             Service.AtlasCloud,
@@ -56,7 +57,8 @@ class ModelDiscoveryRegistry(
          * Builds the production registry. OpenAI-compatible services are wired to
          * [OpenAICompatibleModelDiscoveryAdapter]; Cloudflare/CloudflareAIGateway to
          * [CloudflareModelDiscoveryAdapter]; Gemini to [GeminiModelDiscoveryAdapter];
-         * remaining bespoke adapters are added by later tasks.
+         * Anthropic to [AnthropicModelDiscoveryAdapter]; remaining bespoke adapters are
+         * added by later tasks.
          */
         fun create(httpClient: HttpClient): ModelDiscoveryRegistry = ModelDiscoveryRegistry(
             openAICompatibleServices.map { service ->
@@ -78,6 +80,7 @@ class ModelDiscoveryRegistry(
                 CloudflareModelDiscoveryAdapter(httpClient = httpClient, service = Service.Cloudflare),
                 CloudflareModelDiscoveryAdapter(httpClient = httpClient, service = Service.CloudflareAIGateway),
                 GeminiModelDiscoveryAdapter(httpClient = httpClient),
+                AnthropicModelDiscoveryAdapter(httpClient = httpClient),
             ),
         )
     }
