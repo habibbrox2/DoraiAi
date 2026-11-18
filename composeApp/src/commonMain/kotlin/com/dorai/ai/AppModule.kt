@@ -34,6 +34,7 @@ import com.dorai.ai.source.GitCommandRunner
 import com.dorai.ai.source.GitCredentialBroker
 import com.dorai.ai.source.GitHubAppConfig
 import com.dorai.ai.source.GitHubDeviceFlow
+import com.dorai.ai.source.GitHubOAuthFlow
 import com.dorai.ai.source.GitHubTokenVault
 import com.dorai.ai.source.WorkspaceApiClient
 import com.dorai.ai.source.WorkspaceIntegrationViewModel
@@ -199,6 +200,7 @@ val appModule = module {
     single<GitCredentialBroker> { createGitCredentialBroker() }
     single<GitCommandRunner> { createGitCommandRunner() }
     single<GitHubDeviceFlow> { GitHubDeviceFlow(GitHubAppConfig.clientId) }
+    single<GitHubOAuthFlow> { GitHubOAuthFlow(GitHubAppConfig.clientId, "dorai://oauth/done") }
     single<WorkspaceApiClient> { WorkspaceApiClient(get(), httpClient()) }
     viewModel { WorkspaceIntegrationViewModel(get(), get(), get(), get(), notificationPermissionController = get(permissionQualifier(AppPermission.POST_NOTIFICATIONS))) }
     viewModel { ChatViewModel(get<DataRepository>(), get<TaskScheduler>(), localNetworkPermissionController = get(permissionQualifier(AppPermission.LOCAL_NETWORK)), fileReviewController = getOrNull<FileReviewController>() ?: NoOpFileReviewController()) }
