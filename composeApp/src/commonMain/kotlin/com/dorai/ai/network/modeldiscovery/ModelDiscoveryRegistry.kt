@@ -18,8 +18,8 @@ class ModelDiscoveryRegistry(
         /**
          * Every service whose model listing speaks the OpenAI-compatible `GET /models` shape
          * and is therefore served by [OpenAICompatibleModelDiscoveryAdapter]. Bespoke providers
-         * (Cloudflare, Gemini, Anthropic, Perplexity) get their own adapters in later tasks;
-         * Free and LiteRT never list remote models.
+         * Gemini, Anthropic, and Perplexity get their own adapters in later tasks; Free and
+         * LiteRT never list remote models.
          */
         private val openAICompatibleServices = listOf(
             Service.AtlasCloud,
@@ -54,7 +54,8 @@ class ModelDiscoveryRegistry(
 
         /**
          * Builds the production registry. OpenAI-compatible services are wired to
-         * [OpenAICompatibleModelDiscoveryAdapter]; bespoke adapters are added by later tasks.
+         * [OpenAICompatibleModelDiscoveryAdapter]; Cloudflare/CloudflareAIGateway to
+         * [CloudflareModelDiscoveryAdapter]; remaining bespoke adapters are added by later tasks.
          */
         fun create(httpClient: HttpClient): ModelDiscoveryRegistry = ModelDiscoveryRegistry(
             openAICompatibleServices.map { service ->
@@ -72,7 +73,10 @@ class ModelDiscoveryRegistry(
                     // Requesty answers a bad key on /models with 403; see the adapter's KDoc.
                     forbiddenMeansInvalidKey = service == Service.Requesty,
                 )
-            },
+            } + listOf(
+                CloudflareModelDiscoveryAdapter(httpClient = httpClient, service = Service.Cloudflare),
+                CloudflareModelDiscoveryAdapter(httpClient = httpClient, service = Service.CloudflareAIGateway),
+            ),
         )
     }
 }
