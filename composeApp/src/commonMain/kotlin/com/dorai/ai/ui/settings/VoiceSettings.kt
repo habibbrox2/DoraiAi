@@ -119,17 +119,13 @@ private fun VoiceModelsTicker(uiState: SettingsUiState, onTick: () -> Unit) {
     val inFlight = uiState.voiceModels.any { it.state == VoiceModelState.DOWNLOADING }
     if (!inFlight) return
 
-    // Use aproduce so the loop can be cancelled in structured concurrency
-    val tickChannel = produce<String>(Unit) {
-        while (true) {
+    // Keyed on inFlight so the one-second refresh loop runs only while something is
+    // downloading and cancels itself when the download completes — idle screens cost nothing.
+    LaunchedEffect(inFlight) {
+        while (inFlight) {
             delay(1_000)
             onTick()
         }
-    }
-
-    LaunchedEffect(inFlight) {
-        // Consume one tick immediately, then let the channel drive subsequent ticks
-        tickChannel.awaitClose { }
     }
 }
 
