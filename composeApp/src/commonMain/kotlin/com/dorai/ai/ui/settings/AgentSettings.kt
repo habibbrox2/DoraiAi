@@ -225,9 +225,8 @@ private fun SoulEditor(
     onSaveSoul: (String) -> Unit,
 ) {
     val localizedDefault = stringResource(Res.string.default_soul)
-    val displayText = soulText.ifEmpty { localizedDefault }
-    var editedText by remember(displayText) { mutableStateOf(displayText) }
-    val hasChanges = editedText != displayText
+    var editedText by remember(soulText) { mutableStateOf(soulText.ifEmpty { localizedDefault }) }
+    val hasChanges = editedText != soulText
     val maxChars = 4000
 
     var showResetDialog by remember { mutableStateOf(false) }
@@ -330,8 +329,6 @@ private fun MemoryInstructionsEditor(
     instructions: String,
     onSaveInstructions: (String) -> Unit,
 ) {
-    // Keyed on `instructions` so a save (which trims the value) resyncs the field and the
-    // Save button disappears instead of staying enabled on stale text.
     var editedInstructions by remember(instructions) { mutableStateOf(instructions) }
     val hasChanges = editedInstructions != instructions
     val maxChars = 5000

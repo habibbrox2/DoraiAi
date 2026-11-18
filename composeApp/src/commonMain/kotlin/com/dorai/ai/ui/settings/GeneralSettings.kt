@@ -265,10 +265,6 @@ private fun TtsSettingsSection(appLanguage: AppLanguage) {
     var pitch by remember { mutableFloatStateOf(appSettings.getTtsPitch()) }
     var volume by remember { mutableFloatStateOf(appSettings.getTtsVolume()) }
 
-    LaunchedEffect(rate) { appSettings.setTtsRate(rate) }
-    LaunchedEffect(pitch) { appSettings.setTtsPitch(pitch) }
-    LaunchedEffect(volume) { appSettings.setTtsVolume(volume) }
-
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = stringResource(Res.string.tts_title),
@@ -286,6 +282,7 @@ private fun TtsSettingsSection(appLanguage: AppLanguage) {
         AppSlider(
             value = rate,
             onValueChange = { rate = it },
+            onValueChangeFinished = { appSettings.setTtsRate(rate) },
             valueRange = 0.7f..1.3f,
             valueLabel = "${(rate * 100).roundToInt()}%",
             minRangeLabel = "70%",
@@ -298,6 +295,7 @@ private fun TtsSettingsSection(appLanguage: AppLanguage) {
         AppSlider(
             value = pitch,
             onValueChange = { pitch = it },
+            onValueChangeFinished = { appSettings.setTtsPitch(pitch) },
             valueRange = 0.8f..1.2f,
             valueLabel = "${(pitch * 100).roundToInt()}%",
             minRangeLabel = "80%",
@@ -310,6 +308,7 @@ private fun TtsSettingsSection(appLanguage: AppLanguage) {
         AppSlider(
             value = volume,
             onValueChange = { volume = it },
+            onValueChangeFinished = { appSettings.setTtsVolume(volume) },
             valueRange = 0.0f..1.0f,
             valueLabel = "${(volume * 100).roundToInt()}%",
             minRangeLabel = "0%",

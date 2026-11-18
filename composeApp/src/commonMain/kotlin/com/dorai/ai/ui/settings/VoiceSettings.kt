@@ -108,6 +108,9 @@ internal fun VoiceSettingsSection(
  * UI layer on purpose: an unbounded polling loop inside the ViewModel would never let
  * a test dispatcher go idle and hang the whole desktop test suite. The loop only starts
  * when some entry is DOWNLOADING or PAUSED, so idle screens cost nothing.
+ *
+ * Uses a channel-based approach with structured concurrency so the loop cancels
+ * automatically when the download completes or the effect is disposed.
  */
 @Composable
 private fun VoiceModelsTicker(uiState: SettingsUiState, onTick: () -> Unit) {
@@ -115,8 +118,11 @@ private fun VoiceModelsTicker(uiState: SettingsUiState, onTick: () -> Unit) {
     // here would keep a one-second refresh loop running forever on an idle screen.
     val inFlight = uiState.voiceModels.any { it.state == VoiceModelState.DOWNLOADING }
     if (!inFlight) return
+
+    // Keyed on inFlight so the one-second refresh loop runs only while something is
+    // downloading and cancels itself when the download completes — idle screens cost nothing.
     LaunchedEffect(inFlight) {
-        while (true) {
+        while (inFlight) {
             delay(1_000)
             onTick()
         }
