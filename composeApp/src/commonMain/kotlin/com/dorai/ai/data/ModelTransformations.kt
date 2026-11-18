@@ -85,7 +85,7 @@ internal val newestFirstComparator: Comparator<SettingsModel> = Comparator { a, 
         if (cmp != 0) return@Comparator cmp
     }
 
-    /** 3. Sort by model id ascending (stable tiebreaker). */
+    // 3. Sort by model id ascending (stable tiebreaker).
     a.id.compareTo(b.id)
 }
 
