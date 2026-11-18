@@ -249,8 +249,9 @@ internal fun AndroidUpdateSettingsSection(appSettings: AppSettings) {
         }
     }
 
-    LaunchedEffect(Unit) {
-        // Detect if an update just completed across process recreation
+    LaunchedEffect(Unit, manifest) {
+        // Detect if an update just completed across process recreation.
+        // Only re-run when manifest actually changes, not on every composition.
         val targetVersionCode = AndroidUpdateSessionState.getTargetVersionCode(context)
         val currentCode = context.installedVersionCode()
         if (targetVersionCode > 0L && currentCode >= targetVersionCode) {
@@ -269,9 +270,6 @@ internal fun AndroidUpdateSettingsSection(appSettings: AppSettings) {
             if (manifest != null) {
                 discoveryMessage = "Version ${manifest?.versionName} is available."
             }
-        }
-        if (autoUpdateEnabled && manifest == null) {
-            runCheck(auto = true, force = false)
         }
     }
 
