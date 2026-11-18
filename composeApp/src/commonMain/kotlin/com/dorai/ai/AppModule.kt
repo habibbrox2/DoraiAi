@@ -6,6 +6,7 @@ import com.dorai.ai.data.DataRepository
 import com.dorai.ai.data.EmailStore
 import com.dorai.ai.data.HeartbeatManager
 import com.dorai.ai.data.MemoryStore
+import com.dorai.ai.data.ModelCapabilityPipeline
 import com.dorai.ai.data.NotificationStore
 import com.dorai.ai.data.RemoteDataRepository
 import com.dorai.ai.data.SmsDraftStore
@@ -23,6 +24,7 @@ import com.dorai.ai.inference.createLocalInferenceEngine
 import com.dorai.ai.inference.createLocalRuntimeRegistry
 import com.dorai.ai.mcp.McpServerManager
 import com.dorai.ai.network.Requests
+import com.dorai.ai.network.modeldiscovery.ModelDiscoveryRegistry
 import com.dorai.ai.notifications.NotificationReader
 import com.dorai.ai.skills.SkillManager
 import com.dorai.ai.sms.SmsPoller
@@ -130,6 +132,9 @@ val appModule = module {
         SkillManager(get<SandboxController>())
     }
     single<LocalRuntimeRegistry> { createLocalRuntimeRegistry() }
+    single<ModelDiscoveryRegistry> {
+        ModelDiscoveryRegistry.create(httpClient())
+    }
     single<RemoteDataRepository> {
         RemoteDataRepository(
             requests = get(),
@@ -155,6 +160,7 @@ val appModule = module {
             sandboxController = get(),
             localInferenceEngine = createLocalInferenceEngine(),
             localRuntimeRegistry = get(),
+            modelDiscovery = get(),
         )
     }
     single<DataRepository> { get<RemoteDataRepository>() }

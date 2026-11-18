@@ -115,10 +115,6 @@ sealed class Service(
      */
     val responsesUrl: String? = null,
     val modelsUrl: String? = null,
-    val modelsResponseIsArray: Boolean = false,
-    val filterActiveStrictly: Boolean = false,
-    val filterByModelType: Boolean = false,
-    val sortModelsById: Boolean = false,
     val apiKeyUrl: String? = null,
     val apiKeyUrlDisplay: String? = null,
     val isOnDevice: Boolean = false,
@@ -166,7 +162,6 @@ sealed class Service(
         defaultModels = emptyList(),
         chatUrl = "https://api.groq.com/openai/v1/chat/completions",
         modelsUrl = "https://api.groq.com/openai/v1/models",
-        filterActiveStrictly = true,
         apiKeyUrl = "https://console.groq.com/keys",
         apiKeyUrlDisplay = "console.groq.com/keys",
     )
@@ -265,7 +260,6 @@ sealed class Service(
         defaultModels = emptyList(),
         chatUrl = "https://integrate.api.nvidia.com/v1/chat/completions",
         modelsUrl = "https://integrate.api.nvidia.com/v1/models",
-        sortModelsById = true,
         apiKeyUrl = "https://build.nvidia.com/settings/api-keys",
         apiKeyUrlDisplay = "build.nvidia.com/settings/api-keys",
     )
@@ -397,8 +391,6 @@ sealed class Service(
         settingsKeyPrefix = "together",
         chatUrl = "https://api.together.xyz/v1/chat/completions",
         modelsUrl = "https://api.together.xyz/v1/models",
-        modelsResponseIsArray = true,
-        filterByModelType = true,
         apiKeyUrl = "https://api.together.ai/settings/api-keys",
         apiKeyUrlDisplay = "api.together.ai/settings/api-keys",
     )
@@ -678,7 +670,6 @@ sealed class Service(
         chatUrl = "/chat/completions",
         responsesUrl = "/responses",
         modelsUrl = "/models",
-        sortModelsById = true,
         executionLocation = ExecutionLocation.USER_CONFIGURED,
     )
 

@@ -1,6 +1,6 @@
 ---
 type: Catalog
-title: Popular MCP servers
+title: Connector MCP Server
 description: Curated free Streamable HTTP MCP endpoints for DORAI AI’s one-tap add sheet.
 tags: [mcp, popular-servers]
 status: stable
@@ -13,7 +13,7 @@ sources:
     title: Selection and probe policy
   - id: popular-mcp-playbook
     resource: /refresh-playbook.md
-    title: Refresh popular MCP servers playbook
+    title: Refresh Connector MCP Server playbook
 ---
 
 # Policy
