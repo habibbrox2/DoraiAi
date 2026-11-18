@@ -88,6 +88,10 @@ tasks.matching { it.name == "testDebugUnitTest" }.configureEach {
     } else {
         task.filter.excludeTestsMatching("*.StoreScreenshotTest")
         task.filter.excludeTestsMatching("*.TabletStoreScreenshotTest")
+        // Paparazzi renders each test class in its own worker and snapshot names are
+        // unique per class/device, so forks can run side by side (the store-screenshot
+        // path above already does this). Raise only as far as the host has cores.
+        task.maxParallelForks = 4
     }
 
     if (recordingDoraiUiScreenshots) {

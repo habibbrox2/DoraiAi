@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,10 +29,12 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
@@ -40,7 +43,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.dorai.ai.theme.tokens.DoraiSpacing
 import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.DoraiTypography
@@ -55,13 +57,14 @@ internal fun SettingsSectionCard(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val colors = LocalDoraiColors.current
-    val shape = RoundedCornerShape(14.dp)
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(shape)
-            .background(colors.surface)
-            .border(1.dp, colors.line, shape)
+            // shadow() must precede background/border: it draws behind this node's
+            // content, so applying it last would hide the elevation entirely.
+            .shadow(elevation = 2.dp, shape = SettingsShapes.section)
+            .background(colors.surface, SettingsShapes.section)
+            .border(1.dp, colors.line, SettingsShapes.section)
             .padding(DoraiSpacing.MD),
         content = content,
     )
@@ -146,9 +149,11 @@ internal fun SettingsDetailHeader(
 }
 
 /**
- * A labelled group of settings rows: muted section heading (semantic heading) followed
- * by a [SettingsSectionCard]. [trailing] hosts group-level actions such as an
- * "Add" button.
+ * A labelled group of settings rows: muted section label followed by a
+ * [SettingsSectionCard]. [trailing] hosts group-level actions such as an "Add" button.
+ *
+ * Intentionally carries no `heading()` semantics — [SettingsDetailHeader] owns the one
+ * heading per screen, so screen readers announce the title once and groups in order.
  */
 @Composable
 internal fun SettingsGroup(
@@ -168,12 +173,9 @@ internal fun SettingsGroup(
         ) {
             Text(
                 text = title,
+                style = DoraiTypography.labelLarge,
                 color = colors.muted,
-                fontSize = 12.5.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .weight(1f)
-                    .semantics { heading() },
+                modifier = Modifier.weight(1f),
             )
             trailing?.invoke()
         }
@@ -211,15 +213,14 @@ internal fun SettingsSwitchCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
+                    style = DoraiTypography.titleSmall,
                     color = colors.text,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = description,
+                    style = DoraiTypography.bodySmall,
                     color = colors.muted,
-                    fontSize = 12.5.sp,
                 )
             }
             Spacer(modifier = Modifier.width(DoraiSpacing.SM))
@@ -265,21 +266,39 @@ internal fun SettingsChipRow(
         options.forEach { option ->
             val isSelected = option.id == selectedId
             val shape = CircleShape
+            val interactionSource = remember { MutableInteractionSource() }
+            val pressed by interactionSource.collectIsPressedAsState()
+            // Pressed gets its own tone so a fast tap registers before the
+            // selection flips; selected always wins over it.
+            val chipBackground = when {
+                isSelected -> colors.primary
+                pressed -> colors.surface
+                else -> colors.surface2
+            }
+            val chipBorder = when {
+                isSelected -> colors.primary
+                pressed -> colors.primary.copy(alpha = 0.45f)
+                else -> colors.line
+            }
             Box(
                 modifier = Modifier
                     .defaultMinSize(minHeight = 48.dp)
                     .clip(shape)
-                    .background(if (isSelected) colors.primary else colors.surface2)
-                    .border(1.dp, if (isSelected) colors.primary else colors.line, shape)
-                    .clickable(role = Role.RadioButton) { onSelect(option.id) }
+                    .background(chipBackground)
+                    .border(1.dp, chipBorder, shape)
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        role = Role.RadioButton,
+                    ) { onSelect(option.id) }
                     .semantics { selected = isSelected }
                     .padding(horizontal = 16.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = option.label,
+                    style = DoraiTypography.labelLarge,
                     color = if (isSelected) colors.onPrimary else colors.text,
-                    fontSize = 13.sp,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                     modifier = Modifier.padding(vertical = 12.dp),
                 )
