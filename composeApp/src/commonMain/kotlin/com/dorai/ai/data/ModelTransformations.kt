@@ -49,6 +49,9 @@ private val nonChatPatterns = listOf(
     "shieldgemma",
 )
 
+/** Prefixes that identify OpenAI-capable chat models. */
+private val openAIChatPrefixes = listOf("gpt-", "o1", "o3", "o4", "chatgpt-")
+
 internal fun isChatModel(modelId: String): Boolean {
     val lower = modelId.lowercase()
     return nonChatPatterns.none { lower.contains(it) }
@@ -57,35 +60,32 @@ internal fun isChatModel(modelId: String): Boolean {
 /**
  * Unified "newest first" sort applied to every provider's model list.
  *
- *  1. Release date descending (nulls last)
- *  2. Context window descending (nulls last)
- *  3. Model id ascending (stable tiebreaker)
+ * 1. Release date descending (nulls last)
+ * 2. Context window descending (nulls last)
+ * 3. Model id ascending (stable tiebreaker)
  */
 internal val newestFirstComparator: Comparator<SettingsModel> = Comparator { a, b ->
+    /** 1. Sort by release date descending (nulls last). */
     val dateA = a.releaseDate
     val dateB = b.releaseDate
-    when {
-        dateA != null && dateB == null -> return@Comparator -1
-
-        dateA == null && dateB != null -> return@Comparator 1
-
-        dateA != null && dateB != null -> {
-            val cmp = dateB.compareTo(dateA)
-            if (cmp != 0) return@Comparator cmp
-        }
+    if (dateA != null && dateB == null) return@Comparator -1
+    if (dateA == null && dateB != null) return@Comparator 1
+    if (dateA != null && dateB != null) {
+        val cmp = dateB.compareTo(dateA)
+        if (cmp != 0) return@Comparator cmp
     }
+
+    /** 2. Sort by context window descending (nulls last). */
     val ctxA = a.contextWindow
     val ctxB = b.contextWindow
-    when {
-        ctxA != null && ctxB == null -> return@Comparator -1
-
-        ctxA == null && ctxB != null -> return@Comparator 1
-
-        ctxA != null && ctxB != null -> {
-            val cmp = ctxB.compareTo(ctxA)
-            if (cmp != 0) return@Comparator cmp
-        }
+    if (ctxA != null && ctxB == null) return@Comparator -1
+    if (ctxA == null && ctxB != null) return@Comparator 1
+    if (ctxA != null && ctxB != null) {
+        val cmp = ctxB.compareTo(ctxA)
+        if (cmp != 0) return@Comparator cmp
     }
+
+    /** 3. Sort by model id ascending (stable tiebreaker). */
     a.id.compareTo(b.id)
 }
 
@@ -138,18 +138,40 @@ internal fun mapOpenAICompatibleModels(
     selectedModelId: String,
 ): List<SettingsModel> {
     if (models.isEmpty()) return emptyList()
+    // Map DTO models to DiscoveredModel (only carrying fields the API provides).
+    val discovered = models.map {
+        DiscoveredModel(
+            id = it.id,
+            displayName = it.name,
+            contextWindow = it.context_window ?: it.context_length,
+            releaseDate = it.created?.toIsoDate(),
+            isActive = it.isActive,
+            modelType = it.type,
+        )
+    }
+    // Active filtering: keep models that don't explicitly report inactive.
+    // Groq's strict filter (isActive == true) only applies when at least one model
+    // carries an isActive value, to avoid wholesale emptying.
+    val activeFiltered = if (discovered.any { it.isActive != null }) {
+        discovered.filter { it.isActive != false }
+    } else {
+        discovered
+    }
+    // Type filtering: Together previously filtered by modelType == "chat".
+    // Since filterByModelType is removed from Service, we keep all types
+    // but still apply the OpenAI chat prefix filter when appropriate.
+    val typeFiltered = activeFiltered
+    val filtered = if (service is Service.OpenAI) {
+        typeFiltered.filter { model -> openAIChatPrefixes.any { model.id.startsWith(it) } }
+    } else {
+        typeFiltered
+    }
+    // Delegate remaining pipeline steps (dedupe, catalog merge, sort, ensureSelected)
+    // to ModelCapabilityPipeline, passing the service so it can apply its hardcoded
+    // sort comparator (newestFirstComparator always, since sortModelsById is removed).
     return ModelCapabilityPipeline.toSettingsModels(
         service = service,
-        models = models.map {
-            DiscoveredModel(
-                id = it.id,
-                displayName = it.name,
-                contextWindow = it.context_window ?: it.context_length,
-                releaseDate = it.created?.toIsoDate(),
-                isActive = it.isActive,
-                modelType = it.type,
-            )
-        },
+        models = filtered,
         selectedModelId = selectedModelId,
     )
 }

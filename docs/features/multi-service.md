@@ -1,6 +1,6 @@
 # Multi-Service
 
-**Last verified:** 2026-11-11
+**Last verified:** 2026-11-18
 
 DORAI AI supports 32 user-configurable LLM providers (plus a built-in Free tier). Each provider uses one of three API formats: **OpenAI-compatible** (most services), **Gemini native**, or **Anthropic native** -- plus **LiteRT on-device** for local inference. A handful of OpenAI models additionally require OpenAI's **Responses API**; DORAI AI switches to it per model, transparently. Users can configure multiple service instances, reorder them, and DORAI AI automatically falls back through the chain on failure.
 
@@ -214,8 +214,12 @@ Users manage services through the settings screen:
 | `composeApp/src/commonMain/.../data/ModelTransformations.kt` | Maps provider model DTOs to `SettingsModel`, merges with catalog and free-tier flags |
 | `composeApp/src/commonMain/.../data/AppSettings.kt` | Service instance storage, credential persistence, migration |
 | `composeApp/src/commonMain/.../data/AppSettingsService.kt` | Per-instance settings and service configuration (incl. persisted connection status) |
-| `composeApp/src/commonMain/.../data/RemoteDataRepository.kt` | Fallback chain, request orchestration |
-| `composeApp/src/commonMain/.../network/Requests.kt` | HTTP clients for all API formats |
+| `composeApp/src/commonMain/.../data/RemoteDataRepository.kt` | Fallback chain, request orchestration — rewired to use ModelDiscoveryRegistry + ModelCapabilityPipeline |
+| `composeApp/src/commonMain/.../network/Requests.kt` | HTTP clients for all API formats — modelsResponseIsArray replaced with service==Together |
+| `composeApp/src/commonMain/.../data/ModelCapabilityPipeline.kt` | Unified pipeline: filtering, dedupe, catalog merge, sort, ensureSelected (replaces duplicated mapper logic) |
+| `composeApp/src/commonMain/.../data/ModelTransformations.kt` | Maps provider model DTOs to SettingsModel, delegates to pipeline; removes Service flag dependencies |
+| `composeApp/src/commonMain/.../data/ModelDiscoveryRegistry.kt` | Registry of ModelDiscoveryAdapter per service; wires openai-compatible, Cloudflare, Perplexity, Anthropic, Gemini |
+| `composeApp/src/commonMain/.../data/Service.kt` | Removed legacy boolean flags: modelsResponseIsArray, filterActiveStrictly, filterByModelType, sortModelsById |
 | `composeApp/src/commonMain/.../data/ModelCapabilities.kt` | Per-model gates: tool support, image support, Responses API routing |
 | `composeApp/src/commonMain/.../data/providers/OpenAIResponsesInput.kt` | Translates chat-completions messages into Responses API input items |
 | `composeApp/src/commonMain/.../network/dtos/openairesponses/` | OpenAI Responses API DTOs |

@@ -48,6 +48,8 @@ import com.dorai.ai.network.OpenAICompatibleModelNotFoundException
 import com.dorai.ai.network.OpenAICompatibleQuotaExhaustedException
 import com.dorai.ai.network.OpenAICompatibleRateLimitExceededException
 import com.dorai.ai.network.OpenAICompatibleRequestTooLargeException
+import com.dorai.ai.data.ModelCapabilityPipeline
+import com.dorai.ai.network.modeldiscovery.ModelDiscoveryRegistry
 import com.dorai.ai.network.Requests
 import com.dorai.ai.network.ServiceCredentials
 import com.dorai.ai.network.UiError
@@ -245,6 +247,7 @@ class RemoteDataRepository(
     private val localInferenceEngine: LocalInferenceEngine? = null,
     private val localRuntimeRegistry: LocalRuntimeRegistry? = null,
     private val routingPolicy: RoutingPolicy = RoutingPolicy(),
+    private val modelDiscovery: ModelDiscoveryRegistry = ModelDiscoveryRegistry.create(httpClient()),
     private val supabaseVectorStore: SupabaseVectorStore = SupabaseVectorStore(
         supabaseRestClient = SupabaseRestClient(httpClient()),
         embeddingClient = CloudflareEmbeddingClient(httpClient()),
@@ -595,97 +598,51 @@ class RemoteDataRepository(
             fetchInstanceModels(service, instanceId)
             return
         }
-        val creds = instanceCredentials(instanceId, service)
-        when (service) {
-            Service.Free -> { /* Always valid */ }
-
-            Service.OpenRouter -> {
-                if (creds.apiKey.isNotEmpty()) {
-                    requests.validateOpenRouterApiKey(creds).getOrThrow()
-                }
-                fetchInstanceModels(service, instanceId)
-            }
-
-            Service.Requesty -> {
-                requests.validateRequestyApiKey(creds).getOrThrow()
-                fetchInstanceModels(service, instanceId)
-            }
-
-            Service.Perplexity -> {
-                // No Sonar `/models` list — validate the key, then load the curated defaults.
-                requests.validatePerplexityApiKey(creds).getOrThrow()
-                fetchInstanceModels(service, instanceId)
-            }
-
-            else -> fetchInstanceModels(service, instanceId)
-        }
+        // With adapter-based discovery, key validation happens at discovery time.
+        // Collapse to fetchInstanceModels for all non-Free/LiteRT services.
+        fetchInstanceModels(service, instanceId)
     }
 
     private suspend fun fetchInstanceModels(service: Service, instanceId: String) {
-        when (service) {
-            Service.Gemini -> fetchModelsForInstance(service, instanceId) { creds, selectedModelId ->
-                mapGeminiModels(requests.getGeminiModels(creds).getOrThrow().models, selectedModelId)
+        if (service == Service.LiteRT) {
+            val engine = localInferenceEngine ?: return
+            val selectedModelId = appSettings.getInstanceModelId(instanceId)
+            val downloaded = engine.getDownloadedModels()
+            val models = downloaded.map {
+                SettingsModel(
+                    id = it.id,
+                    subtitle = "${it.displayName} (${formatFileSize(it.sizeBytes)})",
+                    isSelected = it.id == selectedModelId,
+                )
             }
+            updateModelsForInstance(instanceId, models, service)
+            return
+        }
+        if (service == Service.Free) return
 
-            Service.Anthropic -> fetchModelsForInstance(service, instanceId) { creds, selectedModelId ->
-                mapAnthropicModels(requests.getAnthropicModels(creds).getOrThrow().data, selectedModelId)
-            }
-
-            Service.Free -> { /* No model listing */ }
-
-            Service.LiteRT -> {
-                val engine = localInferenceEngine ?: return
+        val adapter = modelDiscovery.adapterFor(service)
+        if (adapter == null) {
+            // No adapter registered — fall back to defaultModels if available
+            if (service.defaultModels.isNotEmpty()) {
                 val selectedModelId = appSettings.getInstanceModelId(instanceId)
-                val downloaded = engine.getDownloadedModels()
-                val models = downloaded.map {
+                val models = service.defaultModels.map {
                     SettingsModel(
                         id = it.id,
-                        subtitle = "${it.displayName} (${formatFileSize(it.sizeBytes)})",
+                        subtitle = it.subtitle,
+                        descriptionRes = it.descriptionRes,
                         isSelected = it.id == selectedModelId,
                     )
                 }
                 updateModelsForInstance(instanceId, models, service)
             }
-
-            else -> {
-                if (service.modelsUrl != null) {
-                    fetchModelsForInstance(service, instanceId) { creds, selectedModelId ->
-                        val remoteModels = if (service == Service.Cloudflare || service == Service.CloudflareAIGateway) {
-                            val discovered = requests.getOpenAICompatibleModels(service, creds).getOrThrow().data
-                            if (discovered.isEmpty()) {
-                                throw IllegalStateException(
-                                    "${service.displayName} returned no models. Check the Account ID, API token permissions, and gateway availability.",
-                                )
-                            }
-                            discovered
-                        } else {
-                            // A failed fetch must surface as a fetch error — never report the
-                            // endpoint as connected-with-zero-models, and never fall back to
-                            // the bundled catalog for providers that expose /models.
-                            requests.getOpenAICompatibleModels(service, creds).getOrThrow().data
-                        }
-                        if (remoteModels.isNotEmpty()) {
-                            mapOpenAICompatibleModels(remoteModels, service, selectedModelId)
-                        } else {
-                            // The provider exposes a /models endpoint, so its response is the
-                            // only source of truth. Never fall back to the hardcoded catalog.
-                            emptyList()
-                        }
-                    }
-                } else if (service.defaultModels.isNotEmpty()) {
-                    val selectedModelId = appSettings.getInstanceModelId(instanceId)
-                    val models = service.defaultModels.map {
-                        SettingsModel(
-                            id = it.id,
-                            subtitle = it.subtitle,
-                            descriptionRes = it.descriptionRes,
-                            isSelected = it.id == selectedModelId,
-                        )
-                    }
-                    updateModelsForInstance(instanceId, models, service)
-                }
-            }
+            return
         }
+
+        val creds = instanceCredentials(instanceId, service)
+        val selectedModelId = appSettings.getInstanceModelId(instanceId)
+        val discovered = adapter.discoverModels(creds)
+        val mapped = ModelCapabilityPipeline.toSettingsModels(service, discovered, selectedModelId)
+        updateModelsForInstance(instanceId, mapped, service)
     }
 
     /**

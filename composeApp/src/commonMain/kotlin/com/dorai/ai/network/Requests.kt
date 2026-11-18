@@ -628,10 +628,12 @@ class Requests(
             applySessionHeader(service, credentials, sessionId = null)
         }
         if (response.status.isSuccess()) {
-            if (service.modelsResponseIsArray) {
+            if (service == Service.Together) {
+                // Together AI returns a JSON array on /models, not the { data: [...] } envelope.
                 val models: List<OpenAICompatibleModelResponseDto.Model> = response.body()
                 Result.success(OpenAICompatibleModelResponseDto(data = models))
             } else {
+                // All other OpenAI-compatible services use the { data: [...] } envelope.
                 Result.success(response.body())
             }
         } else {

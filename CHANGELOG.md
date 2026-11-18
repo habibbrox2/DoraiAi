@@ -4,6 +4,7 @@
 - **Unified Design Tokens**: Centralized token architecture in `DesignTokens.kt` featuring a single WCAG AA primary accent (`#D81B60`), 3 surface elevation tiers (`Background`, `SurfaceCard`, `SurfaceElevated`), 4/8/12/16/24 dp spacing, and motion tokens (150-300ms).
 - **Reusable Component Library (`DoraiDesignSystemComponents.kt`)**: 11 production-ready components including `SettingsCard`, `SettingsRow`, `SectionHeader`, `AppSwitch`, `AppSlider`, `SegmentedPillSelector`, `StatusChip`, `ActionButton`, `AppTextField`, `EmptyState`, and `ErrorLogItem`.
 - **404 & Timeout Friendly Diagnostics**: Added specific error hint mapping for HTTP 404 (`error_hint_model_not_found`) and network timeouts (`error_hint_timeout`) across Gemini, NVIDIA NIM, and background heartbeat logs.
+- **Provider-specific model discovery adapters**: Completed 9-task refactor adding OpenAI-compatible, Gemini, Anthropic, Perplexity, and Cloudflare paged model discovery adapters with `ModelDiscoveryRegistry` and `ModelCapabilityPipeline` unifying filtering/dedupe/catalog-merge/sort/selection logic across all providers. Removed legacy Service boolean flags (`modelsResponseIsArray`, `filterActiveStrictly`, `filterByModelType`, `sortModelsById`) and rewired `RemoteDataRepository` to use adapter-based discovery.
 
 ### Changed
 - **Settings Landing Hero**: Replaced loud yellow/pink hero banner with a compact, bordered dark card with 1dp border and muted tonal surface.

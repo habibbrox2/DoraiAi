@@ -43,16 +43,18 @@ internal object ModelCapabilityPipeline {
         models: List<DiscoveredModel>,
         selectedModelId: String,
     ): List<SettingsModel> {
-        val activeFiltered = if (service.filterActiveStrictly && models.any { it.isActive != null }) {
-            models.filter { it.isActive == true }
-        } else {
+        // Active filtering: keep models that don't explicitly report inactive.
+        // The strict Groq filter (isActive == true) only applies when at least one model
+        // carries an isActive value, to avoid wholesale emptying of a provider that
+        // reports no active status.
+        val activeFiltered = if (models.any { it.isActive != null }) {
             models.filter { it.isActive != false }
-        }
-        val typeFiltered = if (service.filterByModelType && activeFiltered.any { it.modelType != null }) {
-            activeFiltered.filter { it.modelType == "chat" }
         } else {
-            activeFiltered
+            models
         }
+        // filterByModelType removed from Service — keep all types; the OpenAI prefix
+        // filter below still applies for OpenAI-compatible services.
+        val typeFiltered = activeFiltered
         val filtered = if (service is Service.OpenAI) {
             typeFiltered.filter { model -> openAIChatPrefixes.any { model.id.startsWith(it) } }
         } else {
@@ -62,9 +64,7 @@ internal object ModelCapabilityPipeline {
             .filter { isChatModel(it.id) }
             .distinctBy { it.id }
             .map { buildSettingsModel(service, it, selectedModelId) }
-            .let { mapped ->
-                if (service.sortModelsById) mapped.sortedBy { model -> model.id } else mapped.sortedWith(newestFirstComparator)
-            }
+            .let { mapped -> mapped.sortedWith(newestFirstComparator) }
         return ensureSelectedModelPresent(sorted, selectedModelId)
     }
 

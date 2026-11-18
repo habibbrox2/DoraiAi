@@ -65,7 +65,7 @@ class ModelDiscoveryRegistry(
                 OpenAICompatibleModelDiscoveryAdapter(
                     service = service,
                     httpClient = httpClient,
-                    responseIsArray = service.modelsResponseIsArray,
+                    responseIsArray = service == Service.Together,
                     keyProbe = when (service) {
                         // Same pre-discovery check the repository performed before delegating to
                         // the legacy listing path (skipped for a blank key).

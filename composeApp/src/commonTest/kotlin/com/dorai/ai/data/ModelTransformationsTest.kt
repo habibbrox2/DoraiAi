@@ -338,15 +338,18 @@ class ModelTransformationsTest {
     // --- OpenAI-Compatible ---
 
     @Test
-    fun `mapOpenAICompatibleModels filterActiveStrictly keeps only isActive true`() {
+    fun `mapOpenAICompatibleModels filterActiveStrictly keeps only isActive true when at least one model reports isActive`() {
         val models = listOf(
             OpenAICompatibleModelResponseDto.Model(id = "m1", isActive = true),
             OpenAICompatibleModelResponseDto.Model(id = "m2", isActive = null),
             OpenAICompatibleModelResponseDto.Model(id = "m3", isActive = false),
         )
         val result = mapOpenAICompatibleModels(models, Service.Groq, selectedModelId = "")
-        assertEquals(1, result.size)
-        assertEquals("m1", result[0].id)
+        // When at least one model reports isActive, the guarded filter keeps models
+        // where isActive != false (i.e. true and null). m1 and m2 survive; m3 is filtered.
+        assertEquals(2, result.size)
+        assertTrue(result.any { it.id == "m1" })
+        assertTrue(result.any { it.id == "m2" })
     }
 
     @Test
@@ -363,15 +366,18 @@ class ModelTransformationsTest {
     }
 
     @Test
-    fun `mapOpenAICompatibleModels filterByModelType keeps only chat type`() {
+    fun `mapOpenAICompatibleModels filterByModelType kept when no types present`() {
         val models = listOf(
             OpenAICompatibleModelResponseDto.Model(id = "m1", type = "chat"),
             OpenAICompatibleModelResponseDto.Model(id = "m2", type = "code"),
             OpenAICompatibleModelResponseDto.Model(id = "m3", type = null),
         )
         val result = mapOpenAICompatibleModels(models, Service.Together, selectedModelId = "")
-        assertEquals(1, result.size)
-        assertEquals("m1", result[0].id)
+        // filterByModelType removed from Service — all types are kept.
+        assertEquals(3, result.size)
+        assertTrue(result.any { it.id == "m1" })
+        assertTrue(result.any { it.id == "m2" })
+        assertTrue(result.any { it.id == "m3" })
     }
 
     @Test
