@@ -39,6 +39,7 @@ import kotlin.time.Duration.Companion.seconds
 class WorkspaceIntegrationViewModel(
     private val vault: GitHubTokenVault,
     private val deviceFlow: GitHubDeviceFlow,
+    private val oAuthFlow: GitHubOAuthFlow,
     private val apiClient: WorkspaceApiClient = WorkspaceApiClient(vault, httpClient()),
     private val workspaceController: WorkspaceController = NoOpWorkspaceController(),
     private val dispatcher: CoroutineContext = Dispatchers.Main,
@@ -77,28 +78,38 @@ class WorkspaceIntegrationViewModel(
     fun connect() {
         if (_state.value.connectionStatus == GitHubConnectionStatus.Connected) return
         stopPolling()
-        // Fail closed: a build without a client ID must never reach the network or show a
-        // "connecting" state — surface the configuration error immediately.
-        if (!deviceFlow.isConfigured) {
-            _state.value = _state.value.copy(
-                connectionStatus = GitHubConnectionStatus.Error,
-                error = GitHubDeviceFlowError.MissingClientId,
-                isLoading = false,
-                userCode = null,
-                verificationUri = null,
-            )
-            return
-        }
         _state.value = _state.value.copy(
             connectionStatus = GitHubConnectionStatus.NotConnected,
             error = null,
             isLoading = true,
         )
         scope.launch {
-            // The consent happens in a browser, so the app will be in the background when it
-            // completes. Ask for the notification permission now, while the user is still
-            // looking at the app.
             runCatching { notificationPermissionController?.requestPermission() }
+            if (oAuthFlow.isConfigured) {
+                // Default: OAuth authorization-code flow. Show the authorize URL so the user
+                // can open it in a browser; polling below picks up the token once they return.
+                val state = java.util.UUID.randomUUID().toString()
+                val url = oAuthFlow.authorizationUrl(state)
+                _state.value = _state.value.copy(
+                    connectionStatus = GitHubConnectionStatus.WaitingForDevice,
+                    isLoading = false,
+                    userCode = null,
+                    verificationUri = url,
+                )
+                pollOAuthCode(url, state)
+                return@launch
+            }
+            // Fallback: Device Flow when OAuth is not configured.
+            if (!deviceFlow.isConfigured) {
+                _state.value = _state.value.copy(
+                    connectionStatus = GitHubConnectionStatus.Error,
+                    error = GitHubDeviceFlowError.MissingClientId,
+                    isLoading = false,
+                    userCode = null,
+                    verificationUri = null,
+                )
+                return@launch
+            }
             val result = deviceFlow.requestDeviceCode()
             if (result.isFailure) {
                 _state.value = _state.value.copy(
@@ -118,6 +129,63 @@ class WorkspaceIntegrationViewModel(
                 verificationUri = awaiting.verificationUri,
             )
             pollDeviceCode(awaiting.deviceCode, awaiting.verificationUri, awaiting.expiresIn, awaiting.interval)
+        }
+    }
+
+    /**
+     * Polls GitHub to exchange the OAuth authorization code once the user has returned
+     * from GitHub with `?code=...` in the callback URL. Runs once per connect attempt.
+     */
+    private fun pollOAuthCode(authorizeUrl: String, state: String) {
+        val deadlineMs = Clock.System.now().toEpochMilliseconds() + 300_000 // 5 minutes
+        pollingJob = scope.launch {
+            while (coroutineContext.isActive) {
+                if (Clock.System.now().toEpochMilliseconds() >= deadlineMs) {
+                    _state.value = _state.value.copy(
+                        connectionStatus = GitHubConnectionStatus.Error,
+                        error = GitHubDeviceFlowError.ExpiredToken,
+                        userCode = null,
+                        verificationUri = null,
+                    )
+                    return@launch
+                }
+                val result = oAuthFlow.exchangeCode(state)
+                when (result) {
+                    is GitHubAuthResult.Success -> {
+                        vault.store(
+                            accessToken = result.accessToken,
+                            refreshToken = result.refreshToken,
+                            expiresAtEpochMs = null,
+                            refreshExpiresAtEpochMs = null,
+                            login = result.login,
+                            installationIds = emptyList(),
+                        )
+                        _state.value = _state.value.copy(
+                            connectionStatus = GitHubConnectionStatus.Connected,
+                            error = null,
+                            userCode = null,
+                            verificationUri = null,
+                        )
+                        scope.launch { refreshInstallations() }
+                        return@launch
+                    }
+
+                    is GitHubAuthResult.Error -> {
+                        val deviceError = when (result.error) {
+                            is GitHubAuthError.Network -> GitHubDeviceFlowError.Network(result.error.message)
+                            else -> GitHubDeviceFlowError.Network(result.error.toString())
+                        }
+                        _state.value = _state.value.copy(
+                            connectionStatus = GitHubConnectionStatus.Error,
+                            error = deviceError,
+                            userCode = null,
+                            verificationUri = null,
+                        )
+                        return@launch
+                    }
+                }
+                kotlinx.coroutines.delay(2.seconds)
+            }
         }
     }
 

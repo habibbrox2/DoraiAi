@@ -2,6 +2,7 @@ package com.dorai.ai.source
 
 import com.dorai.ai.NoOpWorkspaceController
 import com.dorai.ai.WorkspaceController
+import com.dorai.ai.source.GitHubOAuthFlow
 import com.dorai.ai.workspace.WorkspaceGitError
 import com.dorai.ai.workspace.WorkspaceGitResult
 import kotlinx.coroutines.Dispatchers
@@ -85,6 +86,15 @@ class WorkspaceIntegrationViewModelTest {
             lastPolledDeviceCode = deviceCode
             return pollForTokenResult
         }
+    }
+
+    /** OAuth flow that returns canned states. Not configured by default so existing
+     * device-flow tests keep running; set clientId + exchangeResult to test OAuth. */
+    private class FakeOAuthFlow : GitHubOAuthFlow(clientId = null, redirectUri = "test://callback") {
+        var exchangeResult: GitHubAuthResult =
+            GitHubAuthResult.Success(login = "dorai-user", accessToken = "test-token", refreshToken = null)
+
+        override suspend fun exchangeCode(code: String): GitHubAuthResult = exchangeResult
     }
 
     /** API client that returns canned results. */
@@ -177,9 +187,10 @@ class WorkspaceIntegrationViewModelTest {
     private fun buildVm(
         vault: GitHubTokenVault = FakeVault(),
         deviceFlow: GitHubDeviceFlow = FakeDeviceFlow(),
+        oAuthFlow: GitHubOAuthFlow = FakeOAuthFlow(),
         apiClient: WorkspaceApiClient = FakeApiClient(),
         workspaceController: WorkspaceController = FakeWorkspaceController(),
-    ): WorkspaceIntegrationViewModel = WorkspaceIntegrationViewModel(vault, deviceFlow, apiClient, workspaceController, Dispatchers.Unconfined)
+    ): WorkspaceIntegrationViewModel = WorkspaceIntegrationViewModel(vault, deviceFlow, oAuthFlow, apiClient, workspaceController, Dispatchers.Unconfined)
 
     @Test
     fun `vault initialization failure does not crash settings ViewModel`() {
