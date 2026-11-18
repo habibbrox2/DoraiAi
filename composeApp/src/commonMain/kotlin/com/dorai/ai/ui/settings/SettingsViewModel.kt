@@ -840,7 +840,10 @@ class SettingsViewModel(
     private fun onVoiceModelDownload(modelId: String) {
         val entry = voiceModelRepository.entry(modelId) ?: return
         if (!entry.model.isDownloadable()) return
-        val queued = enqueueVoiceDownload(modelId, dataRepository.isVoiceMobileDataAllowed())
+        // Platforms without a real downloader (desktop/iOS/Wasm) return false; JVM host
+        // tests have no Android Context so the actual throws — treat both as "cannot
+        // download" and keep the entry ABSENT so no phantom Pause button appears.
+        val queued = runCatching { enqueueVoiceDownload(modelId, dataRepository.isVoiceMobileDataAllowed()) }.getOrDefault(false)
         if (queued) {
             // The worker only records its first DOWNLOADING write after ~1 MB (or when a
             // constraint like the default Wi-Fi-only network is unmet, not at all for a
