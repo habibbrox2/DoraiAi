@@ -128,11 +128,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.Platform
 import com.dorai.ai.currentPlatform
-import com.dorai.ai.isPlatformMobile
 import com.dorai.ai.data.Attachment
 import com.dorai.ai.data.SmsDraft
 import com.dorai.ai.decodeToImageBitmap
 import com.dorai.ai.getBackgroundDispatcher
+import com.dorai.ai.isPlatformMobile
 import com.dorai.ai.network.UiError
 import com.dorai.ai.prefersReducedMotion
 import com.dorai.ai.theme.tokens.DoraiSpacing

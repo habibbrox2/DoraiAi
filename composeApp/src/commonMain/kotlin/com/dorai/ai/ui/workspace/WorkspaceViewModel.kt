@@ -13,6 +13,7 @@ import com.dorai.ai.workspace.WorkspaceState
 import com.dorai.ai.workspace.terminal.TerminalKey
 import com.dorai.ai.workspace.terminal.TerminalKeyEncoder
 import com.dorai.ai.workspace.terminal.TerminalModifiers
+import kotlinx.atomicfu.atomic
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableSet
@@ -27,7 +28,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.atomicfu.atomic
 
 @Immutable
 data class WorkspaceUiState(
