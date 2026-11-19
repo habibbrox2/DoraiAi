@@ -63,6 +63,8 @@ actual val isNotificationsSupported: Boolean = false
 
 actual val isSplinterlandsSupported: Boolean = false
 
+actual val isPlatformMobile: Boolean = true
+
 // iOS has no speech recognizer wired up yet.
 actual val isVoiceSupported: Boolean = false
 

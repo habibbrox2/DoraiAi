@@ -115,6 +115,9 @@ expect val isNotificationsSupported: Boolean
 
 expect val isSplinterlandsSupported: Boolean
 
+/** True when running on a mobile platform (Android or iOS). */
+expect val isPlatformMobile: Boolean
+
 /**
  * True only on Android. Voice input needs the platform speech recognizer, which the
  * desktop, iOS and web targets do not have yet. The feature plan scopes this

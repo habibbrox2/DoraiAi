@@ -128,6 +128,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.Platform
 import com.dorai.ai.currentPlatform
+import com.dorai.ai.isPlatformMobile
 import com.dorai.ai.data.Attachment
 import com.dorai.ai.data.SmsDraft
 import com.dorai.ai.decodeToImageBitmap
@@ -457,7 +458,7 @@ internal fun ChatDetailPane(
             .fillMaxSize()
             .background(colors.background)
             .onPreviewKeyEvent { keyEvent ->
-                if (currentPlatform !is Platform.Mobile &&
+                if (!isPlatformMobile &&
                     keyEvent.type == KeyEventType.KeyDown &&
                     (keyEvent.isCtrlPressed || keyEvent.isMetaPressed) &&
                     keyEvent.key == Key.K
@@ -497,7 +498,7 @@ internal fun ChatDetailPane(
                     .border(1.dp, colors.line, CircleShape)
                     .clickable(onClickLabel = stringResource(Res.string.chat_choose_model), role = androidx.compose.ui.semantics.Role.Button) { onOpenModelPicker?.invoke() }
                     .minimumInteractiveComponentSize()
-                    .padding(horizontal = ChatSpacing.md, vertical = 6.dp),
+                    .padding(horizontal = ChatSpacing.md, vertical = ChatSpacing.sm),
                 contentAlignment = Alignment.Center,
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {

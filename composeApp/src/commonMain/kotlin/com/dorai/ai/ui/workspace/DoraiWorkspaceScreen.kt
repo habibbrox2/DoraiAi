@@ -500,9 +500,9 @@ private fun ActiveProjectView(
 ) {
     val colors = LocalDoraiColors.current
     val widthClass = LocalDoraiWindowWidthClass.current
-    // The file explorer opens by default whenever a project opens; on Compact it is
-    // a left slide-in pane (Drawer), on Medium+ a permanent left panel.
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Open)
+    // The file explorer is closed by default on Compact (user opens via the Files button).
+    // On Medium+ it remains a permanent left panel.
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var activeTab by remember { mutableStateOf(WorkspaceProjectTab.Editor) }
 

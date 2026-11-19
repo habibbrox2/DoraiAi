@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.tts.compose)
     testImplementation(libs.kotlinx.collections.immutable)
     testImplementation(libs.kotlinx.serialization.json)
+    testImplementation("org.jetbrains.kotlinx:atomicfu:0.33.0")
     testImplementation(libs.compose.material3)
     testImplementation(libs.compose.components.resources)
     testImplementation(libs.multiplatform.settings.test)

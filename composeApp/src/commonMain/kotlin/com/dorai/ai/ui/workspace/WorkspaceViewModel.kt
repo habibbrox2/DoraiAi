@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.atomicfu.atomic
 
 @Immutable
 data class WorkspaceUiState(
@@ -92,7 +92,7 @@ class WorkspaceViewModel(
         ),
     )
 
-    private val diffRequestId = AtomicInteger(0)
+    private val diffRequestId = atomic(0)
     private val _gitState = MutableStateFlow(WorkspaceGitState())
     val gitState: StateFlow<WorkspaceGitState> = _gitState.asStateFlow()
 
@@ -166,7 +166,7 @@ class WorkspaceViewModel(
                     WorkspaceGitDiff(path = path, error = WorkspaceGitError.Failed)
                 }
             }
-            if (diffRequestId.get() == requestId) {
+            if (diffRequestId.value == requestId) {
                 _gitDiff.value = diff
             }
         }

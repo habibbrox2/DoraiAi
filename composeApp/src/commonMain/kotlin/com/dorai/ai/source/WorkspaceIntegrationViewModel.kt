@@ -22,6 +22,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 import kotlin.coroutines.CoroutineContext
+import kotlin.random.Random
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 
@@ -88,7 +89,7 @@ class WorkspaceIntegrationViewModel(
             if (oAuthFlow.isConfigured) {
                 // Default: OAuth authorization-code flow. Show the authorize URL so the user
                 // can open it in a browser; polling below picks up the token once they return.
-                val state = java.util.UUID.randomUUID().toString()
+                val state = Random.nextLong().toString(36)
                 val url = oAuthFlow.authorizationUrl(state)
                 _state.value = _state.value.copy(
                     connectionStatus = GitHubConnectionStatus.WaitingForDevice,
