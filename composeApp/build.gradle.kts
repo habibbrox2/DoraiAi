@@ -166,6 +166,7 @@ kotlin {
                 implementation(libs.mlkit.text.recognition.devanagari)
                 implementation(libs.mlkit.text.recognition.japanese)
                 implementation(libs.mlkit.text.recognition.korean)
+                implementation("org.jetbrains.kotlinx:atomicfu-jvm:0.28.0")
             }
         }
         getByName("desktopMain") {
@@ -179,6 +180,7 @@ kotlin {
                 implementation(libs.litert.lm.jvm)
                 implementation(libs.sqldelight.sqlite.driver)
                 implementation(libs.jna.core)
+                implementation("org.jetbrains.kotlinx:atomicfu-jvm:0.28.0")
             }
         }
         iosMain.dependencies {

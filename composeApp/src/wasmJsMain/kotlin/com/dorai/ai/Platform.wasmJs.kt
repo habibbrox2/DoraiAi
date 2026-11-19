@@ -57,6 +57,8 @@ actual val isNotificationsSupported: Boolean = false
 
 actual val isSplinterlandsSupported: Boolean = false
 
+actual val isPlatformMobile: Boolean = false
+
 // The browser has no speech recognizer wired up yet.
 actual val isVoiceSupported: Boolean = false
 

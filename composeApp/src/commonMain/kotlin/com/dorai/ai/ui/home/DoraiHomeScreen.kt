@@ -585,37 +585,56 @@ private fun RecentChatsCard(
                 )
             }
         } else {
-            recentChats.take(3).forEach { chat ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .clickable(role = Role.Button) { onOpenConversation(chat.id) }
-                        .padding(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.SM),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = chat.title,
-                            color = colors.text,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Text(
-                            text = chat.snippet ?: stringResource(Res.string.app_updated_recently),
-                            color = LocalDesignColorTokens.current.textSecondary,
-                            fontSize = 12.5.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
+            val displayChats = recentChats.take(3)
+            val hasMore = recentChats.size > 3
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(DoraiSpacing.XS),
+            ) {
+                displayChats.forEach { chat ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .clickable(role = Role.Button) { onOpenConversation(chat.id) }
+                            .padding(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.SM),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = chat.title,
+                                color = colors.text,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            Text(
+                                text = chat.snippet ?: stringResource(Res.string.app_updated_recently),
+                                color = LocalDesignColorTokens.current.textSecondary,
+                                fontSize = 12.5.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = colors.muted,
+                            modifier = Modifier.size(18.dp),
                         )
                     }
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = colors.muted,
-                        modifier = Modifier.size(18.dp),
+                }
+                if (hasMore) {
+                    Text(
+                        text = stringResource(Res.string.home_recent_chats) + " (" + recentChats.size + ")",
+                        color = colors.primary,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = DoraiSpacing.MD, vertical = DoraiSpacing.XS)
+                            .clickable(role = Role.Button) { onOpenConversation(recentChats[3].id) },
                     )
                 }
             }

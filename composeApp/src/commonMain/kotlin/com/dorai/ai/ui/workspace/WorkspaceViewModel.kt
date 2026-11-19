@@ -13,6 +13,7 @@ import com.dorai.ai.workspace.WorkspaceState
 import com.dorai.ai.workspace.terminal.TerminalKey
 import com.dorai.ai.workspace.terminal.TerminalKeyEncoder
 import com.dorai.ai.workspace.terminal.TerminalModifiers
+import kotlinx.atomicfu.atomic
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableSet
@@ -27,7 +28,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.atomic.AtomicInteger
 
 @Immutable
 data class WorkspaceUiState(
@@ -92,7 +92,7 @@ class WorkspaceViewModel(
         ),
     )
 
-    private val diffRequestId = AtomicInteger(0)
+    private val diffRequestId = atomic(0)
     private val _gitState = MutableStateFlow(WorkspaceGitState())
     val gitState: StateFlow<WorkspaceGitState> = _gitState.asStateFlow()
 
@@ -166,7 +166,7 @@ class WorkspaceViewModel(
                     WorkspaceGitDiff(path = path, error = WorkspaceGitError.Failed)
                 }
             }
-            if (diffRequestId.get() == requestId) {
+            if (diffRequestId.value == requestId) {
                 _gitDiff.value = diff
             }
         }

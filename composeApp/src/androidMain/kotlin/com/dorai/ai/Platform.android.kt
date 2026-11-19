@@ -105,6 +105,8 @@ actual val currentPlatform: Platform = Platform.Mobile.Android
 
 actual val defaultUiScale: Float = 1.0f
 
+actual val isPlatformMobile: Boolean = true
+
 actual fun prefersReducedMotion(): Boolean = try {
     val context: Context by inject(Context::class.java)
     android.provider.Settings.Global.getFloat(

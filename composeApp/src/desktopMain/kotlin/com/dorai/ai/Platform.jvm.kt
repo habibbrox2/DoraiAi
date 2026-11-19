@@ -90,6 +90,8 @@ actual val defaultUiScale: Float = run {
     base * envFactor.coerceIn(0.5f, 4f)
 }
 
+actual val isPlatformMobile: Boolean = false
+
 actual fun prefersReducedMotion(): Boolean = false
 
 actual val isEmailSupported: Boolean = true
