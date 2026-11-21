@@ -513,7 +513,7 @@ private fun SettingsHome(
 }
 
 @Composable
-private fun SettingsCategoryListPane(
+internal fun SettingsCategoryListPane(
     selectedCategory: SettingsCategory?,
     onCategorySelected: (SettingsCategory) -> Unit,
 ) {

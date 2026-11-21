@@ -31,6 +31,7 @@ $android = $false
 $desktop = $false
 $common = $false
 $wasmOnly = $false
+$nonWasmPlatformSource = $false
 $frontend = $false
 $locales = $false
 
@@ -43,6 +44,7 @@ foreach ($file in $changed) {
   if ($file -match '^composeApp/src/desktopMain/|^composeApp/src/jvmShared/') { $desktop = $true }
   if ($file -match '^composeApp/src/commonMain/|^composeApp/src/commonTest/|^composeApp/src/iosMain/|^composeApp/src/wasmJsMain/') { $common = $true }
   if ($file -match '^composeApp/src/wasmJsMain/|^composeApp/src/wasmJsTest/') { $wasmOnly = $true }
+  if ($file -match '^composeApp/src/(commonMain|commonTest|androidMain|desktopMain|jvmShared|iosMain)/') { $nonWasmPlatformSource = $true }
   if ($file -match '^(frontend/|hybrid/contracts/|\.github/workflows/|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$)') { $frontend = $true }
   if ($file -match '^composeApp/src/commonMain/composeResources/') { $locales = $true }
 }
@@ -50,7 +52,7 @@ foreach ($file in $changed) {
 if ($Profile -eq 'Auto') {
   if ($docsOnly) { $Profile = 'Docs' }
   elseif ($high) { $Profile = 'Full' }
-  elseif ($wasmOnly) { $Profile = 'Wasm' }
+  elseif ($wasmOnly -and -not $nonWasmPlatformSource) { $Profile = 'Wasm' }
   elseif ($frontend) { $Profile = 'Frontend' }
   elseif ($ui -or $screenshots -or $common -or $android -or $desktop) { $Profile = 'Feature' }
   else { $Profile = 'Fast' }

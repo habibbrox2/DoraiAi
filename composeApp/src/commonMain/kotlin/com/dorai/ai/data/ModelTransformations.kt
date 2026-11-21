@@ -1,10 +1,5 @@
 package com.dorai.ai.data
 
-import com.dorai.ai.network.dtos.anthropic.AnthropicModelsResponseDto
-import com.dorai.ai.network.dtos.gemini.GeminiModelsResponseDto
-import com.dorai.ai.network.dtos.openaicompatible.OpenAICompatibleModelResponseDto
-import com.dorai.ai.network.modeldiscovery.DiscoveredModel
-import com.dorai.ai.toIsoDate
 import com.dorai.ai.ui.settings.SettingsModel
 
 /**
@@ -49,9 +44,6 @@ private val nonChatPatterns = listOf(
     "shieldgemma",
 )
 
-/** Prefixes that identify OpenAI-capable chat models. */
-private val openAIChatPrefixes = listOf("gpt-", "o1", "o3", "o4", "chatgpt-")
-
 internal fun isChatModel(modelId: String): Boolean {
     val lower = modelId.lowercase()
     return nonChatPatterns.none { lower.contains(it) }
@@ -87,93 +79,6 @@ internal val newestFirstComparator: Comparator<SettingsModel> = Comparator { a, 
 
     // 3. Sort by model id ascending (stable tiebreaker).
     a.id.compareTo(b.id)
-}
-
-/**
- * Legacy mappers kept as thin delegates over [ModelCapabilityPipeline.toSettingsModels]:
- * each one first reshapes its provider DTO into the pipeline's [DiscoveredModel] input
- * (only the fields that provider's API actually carries), then hands the list to the
- * unified filtering / dedupe / catalog / sort / selection pipeline. RemoteDataRepository
- * switches to calling the pipeline directly in a later task.
- */
-
-internal fun mapAnthropicModels(
-    models: List<AnthropicModelsResponseDto.ModelInfo>,
-    selectedModelId: String,
-): List<SettingsModel> {
-    // An empty provider response stays empty: the pipeline would otherwise apply
-    // ensureSelectedModelPresent and inject a manual entry for the selected id, which the
-    // legacy mapper never did.
-    if (models.isEmpty()) return emptyList()
-    return ModelCapabilityPipeline.toSettingsModels(
-        service = Service.Anthropic,
-        models = models.map { DiscoveredModel(id = it.id, displayName = it.display_name) },
-        selectedModelId = selectedModelId,
-    )
-}
-
-internal fun mapGeminiModels(
-    models: List<GeminiModelsResponseDto.Model>,
-    selectedModelId: String,
-): List<SettingsModel> {
-    if (models.isEmpty()) return emptyList()
-    return ModelCapabilityPipeline.toSettingsModels(
-        service = Service.Gemini,
-        models = models
-            .filter { it.supportedGenerationMethods?.contains("generateContent") == true }
-            .map {
-                DiscoveredModel(
-                    id = it.name.removePrefix("models/"),
-                    displayName = it.displayName,
-                    contextWindow = it.inputTokenLimit,
-                )
-            },
-        selectedModelId = selectedModelId,
-    )
-}
-
-internal fun mapOpenAICompatibleModels(
-    models: List<OpenAICompatibleModelResponseDto.Model>,
-    service: Service,
-    selectedModelId: String,
-): List<SettingsModel> {
-    if (models.isEmpty()) return emptyList()
-    // Map DTO models to DiscoveredModel (only carrying fields the API provides).
-    val discovered = models.map {
-        DiscoveredModel(
-            id = it.id,
-            displayName = it.name,
-            contextWindow = it.context_window ?: it.context_length,
-            releaseDate = it.created?.toIsoDate(),
-            isActive = it.isActive,
-            modelType = it.type,
-        )
-    }
-    // Active filtering: keep models that don't explicitly report inactive.
-    // Groq's strict filter (isActive == true) only applies when at least one model
-    // carries an isActive value, to avoid wholesale emptying.
-    val activeFiltered = if (discovered.any { it.isActive != null }) {
-        discovered.filter { it.isActive != false }
-    } else {
-        discovered
-    }
-    // Type filtering: Together previously filtered by modelType == "chat".
-    // Since filterByModelType is removed from Service, we keep all types
-    // but still apply the OpenAI chat prefix filter when appropriate.
-    val typeFiltered = activeFiltered
-    val filtered = if (service is Service.OpenAI) {
-        typeFiltered.filter { model -> openAIChatPrefixes.any { model.id.startsWith(it) } }
-    } else {
-        typeFiltered
-    }
-    // Delegate remaining pipeline steps (dedupe, catalog merge, sort, ensureSelected)
-    // to ModelCapabilityPipeline, passing the service so it can apply its hardcoded
-    // sort comparator (newestFirstComparator always, since sortModelsById is removed).
-    return ModelCapabilityPipeline.toSettingsModels(
-        service = service,
-        models = filtered,
-        selectedModelId = selectedModelId,
-    )
 }
 
 /**

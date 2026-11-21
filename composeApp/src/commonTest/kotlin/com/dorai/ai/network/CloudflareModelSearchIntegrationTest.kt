@@ -1,6 +1,6 @@
 package com.dorai.ai.network
 
-import com.dorai.ai.data.Service
+import com.dorai.ai.network.modeldiscovery.CloudflareModelDiscoveryAdapter
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -52,18 +52,17 @@ class CloudflareModelSearchIntegrationTest {
         )
 
         try {
-            val result = Requests(client).getOpenAICompatibleModels(
-                Service.Cloudflare,
-                ServiceCredentials(
-                    apiKey = "test-cloudflare-token",
-                    baseUrl = accountId,
-                ),
-            )
+            val discovered = CloudflareModelDiscoveryAdapter(client)
+                .discoverModels(
+                    ServiceCredentials(
+                        apiKey = "test-cloudflare-token",
+                        baseUrl = accountId,
+                    ),
+                )
 
-            assertTrue(result.isSuccess, result.exceptionOrNull()?.message ?: "Cloudflare model discovery failed")
             assertEquals(
                 listOf("@cf/meta/llama-3.1-8b-instruct", "@cf/mistral/mistral-7b-instruct-v0.2"),
-                result.getOrThrow().data.map { it.id },
+                discovered.map { it.id },
             )
             assertEquals(2, requestedUrls.size)
             assertTrue(
@@ -88,19 +87,16 @@ class CloudflareModelSearchIntegrationTest {
         )
 
         try {
-            val result = Requests(client).getOpenAICompatibleModels(
-                Service.Cloudflare,
-                ServiceCredentials(
-                    apiKey = "test-cloudflare-token",
-                    baseUrl = accountId,
-                ),
-            )
-
-            assertTrue(result.isFailure)
-            assertContains(
-                result.exceptionOrNull()?.message.orEmpty(),
-                "API token lacks Workers AI read permission",
-            )
+            CloudflareModelDiscoveryAdapter(client)
+                .discoverModels(
+                    ServiceCredentials(
+                        apiKey = "test-cloudflare-token",
+                        baseUrl = accountId,
+                    ),
+                )
+            throw AssertionError("expected discoverModels to throw")
+        } catch (e: OpenAICompatibleGenericException) {
+            assertContains(e.message.orEmpty(), "API token lacks Workers AI read permission")
         } finally {
             client.close()
         }

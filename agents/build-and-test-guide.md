@@ -6,6 +6,8 @@
 2. Verify Java with `java -version`. Existing GitHub workflows use Temurin JDK 21; Java 8 is insufficient for the current toolchain.
 3. Use the checked-in Gradle wrapper. Do not upgrade Gradle, Kotlin, AGP, or dependencies just to work around a source error.
 4. Discover tasks first: Windows `.\gradlew.bat tasks --all`; Unix `./gradlew tasks --all`. Confirm exact task names before running.
+5. Record free disk space on the workspace and Gradle-cache volumes, plus available memory. If resources are inadequate, do not start the build or delete caches; report the blocker and prefer CI.
+6. Acquire the workstation single Gradle execution slot before starting a build. Do not run Gradle concurrently from multiple agents or terminals; release the slot after the process exits.
 
 ## Suggested validation ladder
 
@@ -17,6 +19,11 @@ Run from repository root (use `./gradlew` on Unix/macOS, `.\gradlew.bat` on Wind
 4. Shared/Desktop tests: `.\gradlew.bat :composeApp:test` and/or `.\gradlew.bat :composeApp:desktopTest` as relevant.
 5. Android debug build: `.\gradlew.bat :androidApp:assembleFossDebug` (default flavor) or `.\gradlew.bat :androidApp:assemblePlayStoreDebug`; verify flavor/task names in this checkout.
 6. Run targeted screenshot tests only when relevant and when baseline screenshots are protected.
+
+## Local validation versus CI
+
+- Full Local Validation means only the tasks explicitly listed by the local validation script for this checkout.
+- Full CI Merge Gate means all applicable required GitHub Actions jobs/checks for the pull request. A local Full pass is not proof that the CI matrix passed.
 
 ## Existing CI behavior
 
