@@ -77,3 +77,7 @@ frontend/.vite/
 # Local multi-agent runtime metadata and coordination files
 .agent-task.json
 .agent-runtime/
+
+# Audit/plan files — local working artifacts, never commit or push to GitHub
+AUDIT_TRACKER.md
+docs/superpowers/plans/
