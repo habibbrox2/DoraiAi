@@ -200,7 +200,8 @@ sealed class Service(
     )
 
     // OpenAI-compatible gateway; model ids are `vendor/model`. `/models` answers a bad key with
-    // 403, so key validation is special-cased (see Requests.validateRequestyApiKey).
+    // 403, which the shared OpenAI-compatible error mapping reports as content moderation —
+    // the discovery adapter maps it to invalid-key via its `forbiddenMeansInvalidKey` flag.
     data object Requesty : Service(
         id = "requesty",
         displayName = "Requesty",

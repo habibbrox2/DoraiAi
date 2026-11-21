@@ -1,6 +1,6 @@
 # Multi-Service
 
-**Last verified:** 2026-11-18
+**Last verified:** 2026-11-21
 
 DORAI AI supports 32 user-configurable LLM providers (plus a built-in Free tier). Each provider uses one of three API formats: **OpenAI-compatible** (most services), **Gemini native**, or **Anthropic native** -- plus **LiteRT on-device** for local inference. A handful of OpenAI models additionally require OpenAI's **Responses API**; DORAI AI switches to it per model, transparently. Users can configure multiple service instances, reorder them, and DORAI AI automatically falls back through the chain on failure.
 
@@ -90,6 +90,12 @@ OpenCode Zen identifies the client behind a request by an `x-opencode-session` h
 An OpenAI-Compatible service whose base URL points at `opencode.ai` -- the usual way to reach the OpenCode Go subscription gateway -- is sent the header too.
 
 The id is DORAI AI's own random conversation identifier; nothing about the user or the machine is derived from it. No other provider is sent the header.
+
+## Model Discovery
+
+Model lists come from per-provider discovery adapters (`com.dorai.ai.network.modeldiscovery`) instead of per-provider branches in `Requests`. Each adapter implements its provider's wire shape — the OpenAI-compatible envelope (plus a bare-array mode for Together) or Gemini's native `/models` endpoint, Anthropic's Messages API, or Cloudflare's paged v4 search — applies the provider's auth rules, and returns normalized `DiscoveredModel`s. `ModelDiscoveryRegistry` (created in `AppModule`, consumed by `RemoteDataRepository`) resolves the adapter for a `Service`; Free and LiteRT have none.
+
+Discovery feeds `ModelCapabilityPipeline.toSettingsModels`: chat filtering (`isChatModel`, plus OpenAI's chat prefixes for the OpenAI service), dedupe by id, catalog merge (`ModelCatalog.lookup`), free-tier tagging, newest-first sort, and `ensureSelectedModelPresent`. Cloudflare discovery paginates through `fetchAllPages` (page size 100, 20-page cap). Optional-key providers send no `Authorization` header when the key is blank; Requesty maps the 403 its `/models` endpoint returns on a bad key to invalid-key rather than moderation. A provider that answers 200 with an empty list fails discovery instead of reporting "connected, 0 models".
 
 ## Supported Services
 
@@ -215,7 +221,8 @@ Users manage services through the settings screen:
 | `composeApp/src/commonMain/.../data/AppSettings.kt` | Service instance storage, credential persistence, migration |
 | `composeApp/src/commonMain/.../data/AppSettingsService.kt` | Per-instance settings and service configuration (incl. persisted connection status) |
 | `composeApp/src/commonMain/.../data/RemoteDataRepository.kt` | Fallback chain, request orchestration — rewired to use ModelDiscoveryRegistry + ModelCapabilityPipeline |
-| `composeApp/src/commonMain/.../network/Requests.kt` | HTTP clients for all API formats — modelsResponseIsArray replaced with service==Together |
+| `composeApp/src/commonMain/.../network/Requests.kt` | HTTP clients for all API formats — model discovery lives in `network/modeldiscovery/` |
+| `composeApp/src/commonMain/.../network/modeldiscovery/` | Per-provider model discovery adapters (OpenAI-compatible, Cloudflare, Gemini, Anthropic, Perplexity), pagination, and shared discovery HTTP helpers |
 | `composeApp/src/commonMain/.../data/ModelCapabilityPipeline.kt` | Unified pipeline: filtering, dedupe, catalog merge, sort, ensureSelected (replaces duplicated mapper logic) |
 | `composeApp/src/commonMain/.../data/ModelTransformations.kt` | Maps provider model DTOs to SettingsModel, delegates to pipeline; removes Service flag dependencies |
 | `composeApp/src/commonMain/.../data/ModelDiscoveryRegistry.kt` | Registry of ModelDiscoveryAdapter per service; wires openai-compatible, Cloudflare, Perplexity, Anthropic, Gemini |

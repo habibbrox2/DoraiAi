@@ -25,3 +25,18 @@ Current bundles:
 - `docs/knowledge/model-catalog/` — Arena text Elo matching policy, attested snapshot, and provenance. Runtime Elo still comes from `ModelCatalog.kt`; refresh **both** via `/update-model-catalog`.
 - `docs/knowledge/popular-mcp/` — one-tap MCP endpoint policy, last probe snapshot, and provenance. Runtime list still comes from `PopularMcpServers.kt`; refresh **both** via `/update-popular-mcp-servers`.
 - `docs/knowledge/litert/` — on-device model pin policy, attested commit/digest/size snapshot, and provenance. Runtime pins still come from `LocalModelCatalog.kt`; check or bump via `/update-litert-models` (no silent bump).
+
+## Multiplatform Build & Dependency Patterns
+
+**AtomicFu** — Use `kotlinx.atomicfu.atomic()` in commonMain; per-platform artifacts:
+- `org.jetbrains.kotlinx:atomicfu-wasm-js:0.33.0` (wasmJs)
+- `org.jetbrains.kotlinx:atomicfu-jvm:0.28.0` (desktop, Android)
+- Version in `gradle/libs.versions.toml` → `kotlinxAtomicfu = "0.28.0"`
+
+**UUID/Random** — Use `kotlin.random.Random.nextLong().toString(36)` instead of `java.util.UUID.randomUUID()` for multiplatform compatibility.
+
+**Platform checks** — Use `isPlatformMobile` expect/actual (in `Platform.kt`) instead of `currentPlatform !is Platform.Mobile` for multiplatform code.
+
+**Touch targets** — Enforce 48dp minimum via `DesignTokens.MinTouchTarget` (Material 3).
+
+**Desktop hints on mobile** — Remove `Shift+Enter` / `Enter` keyboard hints on touch devices using `isPlatformMobile` guard.

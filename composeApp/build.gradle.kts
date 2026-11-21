@@ -166,7 +166,7 @@ kotlin {
                 implementation(libs.mlkit.text.recognition.devanagari)
                 implementation(libs.mlkit.text.recognition.japanese)
                 implementation(libs.mlkit.text.recognition.korean)
-                implementation("org.jetbrains.kotlinx:atomicfu:0.33.0")
+                implementation("org.jetbrains.kotlinx:atomicfu-jvm:0.28.0")
             }
         }
         getByName("desktopMain") {

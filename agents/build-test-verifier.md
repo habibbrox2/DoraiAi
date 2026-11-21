@@ -17,6 +17,8 @@ Read `AGENTS.md`, `skills/cross-platform-validation/SKILL.md`, and `agents/build
 5. Distinguish code failure from JDK, SDK, dependency download, network, memory, or host-OS blockers.
 6. Never claim a build passed if the process is still running or output is partial.
 7. Avoid destructive clean/cache operations unless evidence requires them and approval is granted.
+8. Treat shell access as constrained despite the availability of Bash: allow only read-only Git inspection, Java/JDK and SDK version checks, Gradle task discovery, and exact targeted validation commands approved for the task. Do not run clean, --stop, cache deletion, filesystem deletion/moves, package installation, Git mutation, commit/push/tag/release/deploy, or arbitrary scripts. If a command is not clearly within this allowlist, stop and request approval.
+9. Serialize Gradle execution: do not start a build while another agent or terminal owns the workstation Gradle slot. Check memory and disk headroom first; never clear caches to recover space.
 
 ## CI safety
 - Inspect workflow behavior before triggering anything.
