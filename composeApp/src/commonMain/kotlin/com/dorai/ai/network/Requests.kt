@@ -9,19 +9,16 @@ import com.dorai.ai.httpClient
 import com.dorai.ai.isDebugBuild
 import com.dorai.ai.network.dtos.anthropic.AnthropicChatRequestDto
 import com.dorai.ai.network.dtos.anthropic.AnthropicChatResponseDto
-import com.dorai.ai.network.dtos.anthropic.AnthropicModelsResponseDto
 import com.dorai.ai.network.dtos.gemini.FunctionDeclaration
 import com.dorai.ai.network.dtos.gemini.FunctionParameters
 import com.dorai.ai.network.dtos.gemini.GeminiChatRequestDto
 import com.dorai.ai.network.dtos.gemini.GeminiChatResponseDto
-import com.dorai.ai.network.dtos.gemini.GeminiModelsResponseDto
 import com.dorai.ai.network.dtos.gemini.GeminiTool
 import com.dorai.ai.network.dtos.gemini.PropertySchema
 import com.dorai.ai.network.dtos.openaicompatible.OpenAICompatibleChatChunkDto
 import com.dorai.ai.network.dtos.openaicompatible.OpenAICompatibleChatRequestDto
 import com.dorai.ai.network.dtos.openaicompatible.OpenAICompatibleChatResponseDto
 import com.dorai.ai.network.dtos.openaicompatible.OpenAICompatibleCompletion
-import com.dorai.ai.network.dtos.openaicompatible.OpenAICompatibleModelResponseDto
 import com.dorai.ai.network.dtos.openairesponses.OpenAIResponsesRequestDto
 import com.dorai.ai.network.dtos.openairesponses.OpenAIResponsesResponseDto
 import com.dorai.ai.network.modeldiscovery.DiscoveryHttp
@@ -208,28 +205,6 @@ class Requests(
     }
 
     // region Gemini
-
-    suspend fun getGeminiModels(credentials: ServiceCredentials): Result<GeminiModelsResponseDto> = try {
-        val apiKey = credentials.apiKey.ifEmpty { throw GeminiInvalidApiKeyException() }
-        val response: HttpResponse =
-            defaultClient.get("https://generativelanguage.googleapis.com/v1beta/models") {
-                header("x-goog-api-key", apiKey)
-            }
-        if (response.status.isSuccess()) {
-            Result.success(response.body())
-        } else {
-            when (response.status.value) {
-                400, 403 -> throw GeminiInvalidApiKeyException()
-                else -> throw GeminiGenericException("Failed to fetch models: ${response.status}")
-            }
-        }
-    } catch (e: GeminiApiException) {
-        Result.failure(e)
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: Exception) {
-        Result.failure(GeminiGenericException("Connection failed", e))
-    }
 
     suspend fun geminiChat(
         credentials: ServiceCredentials,
@@ -559,117 +534,6 @@ class Requests(
         Result.failure(mapOpenAICompatibleException(e))
     }
 
-    suspend fun getOpenAICompatibleModels(
-        service: Service,
-        credentials: ServiceCredentials,
-    ): Result<OpenAICompatibleModelResponseDto> = openAICompatibleResult {
-        val modelsUrl = service.modelsUrl
-            ?: return Result.failure(OpenAICompatibleGenericException("Models URL not configured for ${service.displayName}"))
-        val apiKey = if (service == Service.Cloudflare || service == Service.CloudflareAIGateway) {
-            DiscoveryHttp.apiKeyFor(service, credentials, required = true)
-        } else {
-            DiscoveryHttp.apiKeyFor(service, credentials, required = false)
-        }
-
-        // Cloudflare Workers AI uses the Cloudflare v4 envelope (result/result_info), not
-        // the OpenAI-compatible { data: [...] } model-list response. Fetch all pages explicitly.
-        if (service == Service.Cloudflare || service == Service.CloudflareAIGateway) {
-            if (credentials.baseUrl.isBlank()) {
-                return Result.failure(
-                    OpenAICompatibleGenericException("Cloudflare Account ID is required to discover Workers AI models."),
-                )
-            }
-            val accountId = credentials.baseUrl.trim()
-                .substringAfter("/accounts/", missingDelimiterValue = credentials.baseUrl.trim())
-                .substringBefore("/")
-            if (!isValidCloudflareAccountId(accountId)) {
-                return Result.failure(OpenAICompatibleGenericException("Enter a valid 32-character Cloudflare Account ID."))
-            }
-
-            val allModels = mutableListOf<OpenAICompatibleModelResponseDto.Model>()
-            var page = 1
-            var totalPages = 1
-            val perPage = 100
-            while (page <= totalPages && page <= 20) {
-                val pageUrl = "${DiscoveryHttp.resolveUrl(service, credentials, modelsUrl)}?page=$page&per_page=$perPage"
-                val response = defaultClient.get(pageUrl) {
-                    apiKey?.let { bearerAuth(it) }
-                    applySessionHeader(service, credentials, sessionId = null)
-                    applyCloudflareGatewayHeader(service, credentials)
-                }
-                if (!response.status.isSuccess()) {
-                    if (service == Service.Cloudflare || service == Service.CloudflareAIGateway) {
-                        val responseBody = response.bodyAsText()
-                        val detail = parseCloudflareModelSearchError(responseBody)
-                            ?: "HTTP ${response.status.value}"
-                        throw OpenAICompatibleGenericException("Cloudflare model discovery failed: $detail")
-                    }
-                    DiscoveryHttp.mapOpenAICompatibleFailure(service, credentials, response)
-                }
-                val parsedPage = try {
-                    parseCloudflareModelSearchPage(response.bodyAsText())
-                } catch (e: Exception) {
-                    throw OpenAICompatibleGenericException(
-                        e.message?.takeIf { it.isNotBlank() } ?: "Cloudflare model search returned invalid data.",
-                        e,
-                    )
-                }
-                allModels += parsedPage.models
-                totalPages = parsedPage.totalPages
-                    ?: if (parsedPage.models.size == perPage) page + 1 else page
-                page++
-            }
-            return Result.success(OpenAICompatibleModelResponseDto(data = allModels.distinctBy { it.id }))
-        }
-
-        val url = DiscoveryHttp.resolveUrl(service, credentials, modelsUrl)
-        val response: HttpResponse = defaultClient.get(url) {
-            apiKey?.let { bearerAuth(it) }
-            applySessionHeader(service, credentials, sessionId = null)
-        }
-        if (response.status.isSuccess()) {
-            if (service == Service.Together) {
-                // Together AI returns a JSON array on /models, not the { data: [...] } envelope.
-                val models: List<OpenAICompatibleModelResponseDto.Model> = response.body()
-                Result.success(OpenAICompatibleModelResponseDto(data = models))
-            } else {
-                // All other OpenAI-compatible services use the { data: [...] } envelope.
-                Result.success(response.body())
-            }
-        } else {
-            DiscoveryHttp.mapOpenAICompatibleFailure(service, credentials, response)
-        }
-    }
-
-    suspend fun validateOpenRouterApiKey(credentials: ServiceCredentials): Result<Unit> = DiscoveryHttp.validateOpenRouterApiKey(defaultClient, credentials)
-
-    /**
-     * Requesty answers a bad key on `/models` with 403, which the shared error mapping would
-     * report as content moderation. Check the key here so the settings screen shows "invalid key".
-     */
-    suspend fun validateRequestyApiKey(credentials: ServiceCredentials): Result<Unit> = openAICompatibleResult {
-        val apiKey = credentials.apiKey.ifEmpty { throw OpenAICompatibleInvalidApiKeyException() }
-        val response: HttpResponse = defaultClient.get("https://router.requesty.ai/v1/models") {
-            bearerAuth(apiKey)
-        }
-        if (response.status.isSuccess()) {
-            Result.success(Unit)
-        } else {
-            when (response.status.value) {
-                401, 403 -> throw OpenAICompatibleInvalidApiKeyException()
-                else -> throw OpenAICompatibleGenericException("Failed to validate Requesty API key: ${response.status}")
-            }
-        }
-    }
-
-    /**
-     * Perplexity Sonar has no authenticated models endpoint, so key checks go through the
-     * chat completions URL with an intentionally incomplete body. Auth is evaluated first:
-     * invalid keys return 401/403; a valid key typically yields 400/422 on the empty messages
-     * array — which we treat as connected without spending tokens on a real completion.
-     */
-    suspend fun validatePerplexityApiKey(credentials: ServiceCredentials): Result<Unit> = DiscoveryHttp.validatePerplexityApiKey(defaultClient, credentials)
-
     // endregion
 
     private val anthropicJson = Json {
@@ -678,28 +542,6 @@ class Requests(
     }
 
     // region Anthropic
-
-    suspend fun getAnthropicModels(credentials: ServiceCredentials): Result<AnthropicModelsResponseDto> = try {
-        val apiKey = credentials.apiKey.ifEmpty { throw AnthropicInvalidApiKeyException() }
-        val response: HttpResponse =
-            defaultClient.get("https://api.anthropic.com/v1/models") {
-                header("x-api-key", apiKey)
-                header("anthropic-version", "2023-06-01")
-            }
-        val responseBody = response.bodyAsText()
-        if (response.status.isSuccess()) {
-            val dto = anthropicJson.decodeFromString(AnthropicModelsResponseDto.serializer(), responseBody)
-            Result.success(dto)
-        } else {
-            throwAnthropicError(response.status.value, responseBody, response.headers["Retry-After"])
-        }
-    } catch (e: AnthropicApiException) {
-        Result.failure(e)
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: Exception) {
-        Result.failure(AnthropicGenericException("Anthropic: ${e.message}", e))
-    }
 
     suspend fun anthropicChat(
         credentials: ServiceCredentials,

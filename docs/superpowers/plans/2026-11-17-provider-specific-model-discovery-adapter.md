@@ -568,11 +568,11 @@ git commit -m "feat(network): add Perplexity adapter and unified capability pipe
 - Consumes: `ModelDiscoveryRegistry`, `ModelCapabilityPipeline`.
 - Produces: repository resolves adapter; `ServiceDiscoveryCoverageTest` asserts every `Service.all` entry resolves to an adapter except `Service.Free` and `Service.LiteRT`.
 
-- [ ] **Step 1: Add registry to repository constructor**
+- [x] **Step 1: Add registry to repository constructor**
 
 Add `private val modelDiscovery: ModelDiscoveryRegistry` (default `ModelDiscoveryRegistry.create(httpClient())` for test convenience) to `RemoteDataRepository` constructor. Add `single<ModelDiscoveryRegistry> { ModelDiscoveryRegistry.create(get()) }`? Simpler: create from a shared `HttpClient` in `AppModule`. Add in `AppModule`: `single<ModelDiscoveryRegistry> { ModelDiscoveryRegistry.create(httpClient { ... }) }` — reuse the same `httpClient()` factory used elsewhere. (Note: `Requests()` keeps its own client; adapters use the registry's client.)
 
-- [ ] **Step 2: Rewrite `fetchInstanceModels`**
+- [x] **Step 2: Rewrite `fetchInstanceModels`**
 
 Replace the `when (service)` block with:
 
@@ -591,11 +591,11 @@ private suspend fun fetchInstanceModels(service: Service, instanceId: String) {
 
 Keep `fetchModelsForInstance`? Delete it if no longer used (check callers). Keep `updateModelsForInstance`, `pickDefaultModel`. Keep `validateConnection` branching for OpenRouter/Requesty/Perplexity? With adapters, validation is the discovery call itself; collapse to `fetchInstanceModels(service, instanceId)` for all non-Free/LiteRT. Keep `Service.OpenRouter` optional-key note: discovery with blank key still works (adapter handles it).
 
-- [ ] **Step 3: Remove Service flags**
+- [x] **Step 3: Remove Service flags**
 
 Delete `modelsResponseIsArray`, `filterActiveStrictly`, `filterByModelType`, `sortModelsById` from `Service`. Remove their usages (now in pipeline). Update `Service.all` unchanged.
 
-- [ ] **Step 4: Remove legacy Requests methods and ModelTransformations map functions**
+- [x] **Step 4: Remove legacy Requests methods and ModelTransformations map functions**
 
 Delete `Requests.getGeminiModels`, `getAnthropicModels`, `getOpenAICompatibleModels`, `validateOpenRouterApiKey`, `validateRequestyApiKey`, `validatePerplexityApiKey`. Delete `ModelTransformations.mapAnthropicModels`, `mapGeminiModels`, `mapOpenAICompatibleModels` (pipeline replaces). Keep `buildSettingsModel` (move into pipeline or keep internal). Update `CloudflareModelSearchIntegrationTest.kt` to construct `CloudflareModelDiscoveryAdapter(HttpClient(engine))` and call `discoverModels(...)`.
 
@@ -624,7 +624,7 @@ class ServiceDiscoveryCoverageTest {
 }
 ```
 
-- [ ] **Step 6: Run tests**
+- [x] **Step 6: Run tests**
 
 Run: `gradlew.bat :composeApp:test --tests "com.dorai.ai.network.modeldiscovery.ServiceDiscoveryCoverageTest" --tests "com.dorai.ai.network.CloudflareModelSearchIntegrationTest" --tests "com.dorai.ai.ui.settings.SettingsViewModelTest"`
 Expected: PASS.
@@ -644,11 +644,11 @@ git commit -m "refactor(data): rewire model discovery to adapters and drop legac
 - Modify: `docs/features/multi-service.md` (add "Model Discovery" section, update "Last verified", Key Files)
 - Modify: `CHANGELOG.md`
 
-- [ ] **Step 1: Update `docs/features/multi-service.md`**
+- [x] **Step 1: Update `docs/features/multi-service.md`**
 
 Add a "Model Discovery" subsection describing the adapter architecture (adapter per provider, registry by Service, capability pipeline, pagination for Cloudflare, optional-key handling, bad-key mapping). Update "Last verified" to 2026-11-17. Add to Key Files table: `network/modeldiscovery/*.kt`, `data/ModelCapabilityPipeline.kt`, `data/ModelTransformations.kt`.
 
-- [ ] **Step 2: Update `CHANGELOG.md`**
+- [x] **Step 2: Update `CHANGELOG.md`**
 
 Add an entry under the unreleased section: "Refactored provider model discovery into per-provider adapters (auth, pagination, response schema, error handling, capability mapping); no user-facing behavior change."
 
