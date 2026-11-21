@@ -128,7 +128,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.Platform
 import com.dorai.ai.currentPlatform
-import com.dorai.ai.isPlatformMobile
 import com.dorai.ai.data.Attachment
 import com.dorai.ai.data.SmsDraft
 import com.dorai.ai.decodeToImageBitmap
