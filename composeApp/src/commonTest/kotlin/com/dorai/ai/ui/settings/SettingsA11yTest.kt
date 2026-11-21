@@ -1,5 +1,7 @@
 package com.dorai.ai.ui.settings
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -20,8 +22,11 @@ class SettingsA11yTest {
 
     @Test
     fun `settings section header exposes heading semantics`() {
-        // SettingsSectionHeader adds semantics { heading() } - only for section labels
-        assertTrue(::SettingsSectionHeader.toString().contains("SettingsSectionHeader"))
+        // The composable function type selects the internal count/description overload in
+        // ConnectorLibraryComponents.kt; the public subtitle/trailing overload in
+        // SettingsSectionHeader.kt adds semantics { heading() } for section labels.
+        val reference: @Composable (String, Modifier, Int?, String?) -> Unit = ::SettingsSectionHeader
+        assertTrue(reference.toString().contains("SettingsSectionHeader"))
     }
 
     @Test
