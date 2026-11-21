@@ -84,6 +84,16 @@
     <string name="tool_get_local_time_description">Get the current local date and time for interpreting relative dates</string>
     <string name="tool_get_location_name">Get Location</string>
     <string name="tool_get_location_description">Get estimated location from IP address</string>
+    <string name="tool_dial_phone_name">Dial Phone</string>
+    <string name="tool_dial_phone_description">Open the phone dialer with a given number</string>
+    <string name="tool_dial_ussd_name">Dial USSD</string>
+    <string name="tool_dial_ussd_description">Dial a USSD code to check SIM balance</string>
+    <string name="tool_check_bd_sim_balance_name">Check BD SIM Balance</string>
+    <string name="tool_check_bd_sim_balance_description">Check Bangladesh SIM operator balance via USSD</string>
+    <string name="tool_detect_sim_operator_name">Detect SIM Operator</string>
+    <string name="tool_detect_sim_operator_description">Detect the SIM operator on the device</string>
+    <string name="tool_device_info_name">Device Info</string>
+    <string name="tool_device_info_description">Get device and app information</string>
     <string name="tool_send_notification_name">Send Notification</string>
     <string name="tool_send_notification_description">Send a push notification to the device</string>
     <string name="tool_create_calendar_event_name">Create Calendar Event</string>
@@ -391,6 +401,9 @@
     <string name="settings_skills_no_match">No skills match your search.</string>
     <string name="settings_plugins">Plugins</string>
     <string name="settings_plugins_description">Enable or disable the tools your agent can run.</string>
+    <string name="settings_plugin_enable_title">Enable %1$s?</string>
+    <string name="settings_plugin_enable_message">This tool can access telephony, location, or device details on your behalf. Enable it only if you trust it. You can turn it off later in Settings.</string>
+    <string name="settings_plugin_enable_confirm">Enable</string>
     <string name="settings_plugins_search">Search plugins</string>
     <string name="settings_plugins_no_match">No plugins match your search.</string>
     <string name="snackbar_skill_removed">Skill removed</string>

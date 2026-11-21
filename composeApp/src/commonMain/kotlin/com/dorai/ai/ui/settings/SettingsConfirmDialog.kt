@@ -46,6 +46,8 @@ fun SettingsConfirmationDialog(
     modifier: Modifier = Modifier,
     dismissLabel: String? = null,
     enabled: Boolean = true,
+    /** Override for non-destructive confirmations (e.g. opting into a plugin). */
+    confirmColor: Color = DangerAlert,
 ) {
     val resolvedDismissLabel = dismissLabel ?: stringResource(Res.string.settings_confirm_dialog_cancel)
     AlertDialog(
@@ -58,8 +60,8 @@ fun SettingsConfirmationDialog(
                 onClick = onConfirm,
                 enabled = enabled,
                 colors = ButtonDefaults.textButtonColors(
-                    contentColor = confirmationConfirmColor(enabled, DangerAlert),
-                    disabledContentColor = confirmationConfirmColor(false, DangerAlert),
+                    contentColor = confirmationConfirmColor(enabled, confirmColor),
+                    disabledContentColor = confirmationConfirmColor(false, confirmColor),
                 ),
                 modifier = Modifier.defaultMinSize(minHeight = DesignTokens.MinTouchTarget),
             ) {

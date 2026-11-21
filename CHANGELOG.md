@@ -1,3 +1,14 @@
+## DORAI AI - Plugin opt-in safety (Unreleased)
+
+### Added
+- **High-risk plugin opt-in**: Dial Phone, Dial USSD, Check BD SIM Balance, Detect SIM Operator, Get Location and Device Info now start **disabled on fresh installs** and require an explicit confirmation dialog before being enabled. Existing saved preferences are never overwritten; ordinary plugins (Web Search, Open URL, Fetch URL, Local Time) keep their previous defaults. The opt-in gate is applied to both the Tools settings list and actual tool registration, so a tool shown as OFF cannot still execute.
+- **Localized plugin names**: English and Bengali resource keys added for all six high-risk plugins and the opt-in confirmation copy.
+
+### Changed
+- **Confirmation dialog**: `SettingsConfirmationDialog` accepts a configurable confirm color so opt-in actions are not styled as destructive.
+
+---
+
 ## DORAI AI - Unified Design System, Accessibility & Bug Fixes (Unreleased)
 
 ### Added

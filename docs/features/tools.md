@@ -1,6 +1,6 @@
 # Tools
 
-**Last verified:** 2026-11-14
+**Last verified:** 2026-11-22
 
 DORAI AI's tools feature allows the AI to execute external functions during conversations — web search, notifications, calendar events, device actions, shell commands, memory operations, and more. Tools are defined with a schema, executed with safety guards, and managed through per-tool toggles in settings.
 
@@ -16,7 +16,7 @@ The machine-readable definition sent to the AI provider so it knows which tools 
 
 ### Tool Info
 
-Display metadata used in the settings UI. Contains an id, human-readable name and description (with optional localized string resources), the current enabled state, and a flag for whether the tool gets its own switch in the Tools tab. Returned by the platform layer for all tools regardless of whether they are currently enabled.
+Display metadata used in the settings UI. Contains an id, human-readable name and description (with optional localized string resources), the current enabled state, an `isHighRisk` opt-in flag, and a flag for whether the tool gets its own switch in the Tools tab. Returned by the platform layer for all tools regardless of whether they are currently enabled.
 
 Every tool a platform can execute must have a definition, including tools no per-tool switch controls. Chat resolves a tool's display name by looking its id up in this list, so a missing definition surfaces the raw id (`check_notifications`) instead of a name. Tools whose availability is decided elsewhere — a master toggle in Settings → Agent, or a platform capability — are marked as not user-toggleable at their declaration, which is what keeps them out of the Tools tab without hiding them from the name lookup.
 
@@ -34,7 +34,7 @@ An argument explicitly sent as JSON `null` is treated as not provided, so the to
 |---|---|---|
 | `web_search` | Search the web for current information | Enabled |
 | `get_local_time` | Get the current local date and time | Enabled |
-| `get_location_from_ip` | Get estimated location from IP address | Enabled |
+| `get_location_from_ip` | Get estimated location from IP address | Disabled on fresh install (opt-in) |
 | `open_url` | Open a URL, link, or local file on the device | Enabled |
 | `fetch_url` | Fetch an http(s) URL and return the response body to the agent (GET, POST, HEAD). Blocks loopback, private, link-local and CGNAT addresses (including IPv4-mapped IPv6 and numeric shorthands like `2130706433`), checked again on every redirect hop (GET/HEAD follow up to 5 redirects; POST never redirects). Hostnames that only resolve to private addresses are not detected. Reads at most 512 KB of the body, which is then subject to the global 20K tool-result truncation. Used for reading pages and acting on links from emails (e.g. RFC 8058 one-click unsubscribe). | Enabled |
 
@@ -46,6 +46,21 @@ The `open_url` tool accepts both web URLs and `file://` URIs. Each platform open
 - **Desktop** — Uses `java.awt.Desktop.browse()`.
 - **iOS** — Uses `UIApplication.openURL()`.
 - **Web** — Uses `window.open()` with `_blank` target.
+
+### High-risk tools (opt-in)
+
+These tools can reach telephony, SIM/USSD, approximate location, or device identity. On a **fresh install** they are disabled and must be explicitly enabled from Settings → Tools; turning one on shows a confirmation dialog. Saved preferences are never overwritten — users who already enabled a tool keep their choice. The same default drives both the settings list and actual tool registration, so a tool shown as OFF cannot still execute. Ordinary tools (web search, local time, open URL, fetch URL) keep their previous Enabled default.
+
+| Tool | Description | Fresh-install default |
+|---|---|---|
+| `dial_phone` | Open the phone dialer with a given number | Disabled (opt-in) |
+| `dial_ussd` | Dial a USSD code (e.g. SIM balance) | Disabled (opt-in) |
+| `check_bd_sim_balance` | Check Bangladesh SIM balance via USSD | Disabled (opt-in) |
+| `detect_sim_operator` | Detect the device's SIM operator | Disabled (opt-in) |
+| `get_location_from_ip` | Get estimated location from IP address | Disabled (opt-in) |
+| `get_device_info` | Get device and app information | Disabled (opt-in) |
+
+This is a settings-level gate only: it does not add per-call approval prompts in chat, and heartbeat/background runs inherit the same enabled state.
 
 ### Memory
 
@@ -359,7 +374,12 @@ The interactive-mode top bar shows only the static title — loading is surfaced
 | `composeApp/src/commonMain/.../ui/sandbox/SandboxTabsContent.kt` | Terminal/Files/Packages sub-tab UI rendered inline inside the chat screen body |
 | `composeApp/src/commonMain/.../ui/sandbox/SandboxFileBrowserScreen.kt` | User-facing file browser UI, pointed at either Linux environment |
 | `composeApp/src/commonMain/.../ui/sandbox/SandboxFileBrowserViewModel.kt` | State for browsing and editing sandbox files |
-| `composeApp/src/commonMain/.../ui/settings/ToolsSettings.kt` | Merged Tools tab: Connectors / Skills / Plugins shell plus the Plugins toggle grid |
+| `composeApp/src/commonMain/.../network/tools/ToolInfo.kt` | Tool display metadata including `isHighRisk` opt-in flag |
+| `composeApp/src/commonMain/.../tools/CommonTools.kt` | Common tool definitions and `getCommonTools()` default-aware gating |
+| `composeApp/src/commonMain/.../ui/settings/ToolsSettings.kt` | Merged Tools tab: Connectors / Skills / Plugins shell plus the Plugins toggle grid and opt-in dialog |
+| `composeApp/src/commonMain/.../ui/settings/SettingsConfirmDialog.kt` | Shared confirmation dialog (configurable confirm color for opt-in) |
+| `composeApp/src/commonMain/.../data/AppSettingsImportExport.kt` | Settings export/import with high-risk-aware defaults |
+| `composeApp/src/commonTest/.../tools/HighRiskToolDefaultsTest.kt` | Fresh-install default and stored-preference regression tests |
 | `composeApp/src/commonMain/.../ui/settings/SandboxSettings.kt` | Linux Sandbox settings card |
 | `composeApp/src/commonMain/.../ui/chat/composables/ToolMessage.kt` | Executing/completed UI indicators |
 | `composeApp/src/commonMain/.../data/AppSettings.kt` | Tool enabled state persistence |

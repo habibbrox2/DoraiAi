@@ -17,6 +17,13 @@ data class ToolInfo(
     val descriptionRes: StringResource? = null,
     val isEnabled: Boolean = true,
     /**
+     * High-risk tools (telephony, SIM/USSD, location, device identity) start disabled
+     * on a fresh install and require an explicit opt-in before they can run. Existing
+     * stored preferences are never overwritten — this only changes the fallback used
+     * when no preference exists.
+     */
+    val isHighRisk: Boolean = false,
+    /**
      * Whether the Tools tab shows a per-tool switch for this tool.
      *
      * False for tools whose availability is decided somewhere else — a master toggle in
