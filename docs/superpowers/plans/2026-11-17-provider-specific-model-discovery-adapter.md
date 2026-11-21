@@ -599,7 +599,7 @@ Delete `modelsResponseIsArray`, `filterActiveStrictly`, `filterByModelType`, `so
 
 Delete `Requests.getGeminiModels`, `getAnthropicModels`, `getOpenAICompatibleModels`, `validateOpenRouterApiKey`, `validateRequestyApiKey`, `validatePerplexityApiKey`. Delete `ModelTransformations.mapAnthropicModels`, `mapGeminiModels`, `mapOpenAICompatibleModels` (pipeline replaces). Keep `buildSettingsModel` (move into pipeline or keep internal). Update `CloudflareModelSearchIntegrationTest.kt` to construct `CloudflareModelDiscoveryAdapter(HttpClient(engine))` and call `discoverModels(...)`.
 
-- [ ] **Step 5: Write coverage test**
+- [x] **Step 5: Write coverage test**
 
 ```kotlin
 package com.dorai.ai.network.modeldiscovery
