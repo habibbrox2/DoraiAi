@@ -89,14 +89,17 @@ import dorai.composeapp.generated.resources.settings_mcp_add_header
 import dorai.composeapp.generated.resources.settings_mcp_add_server
 import dorai.composeapp.generated.resources.settings_mcp_api_key
 import dorai.composeapp.generated.resources.settings_mcp_api_key_help
+import dorai.composeapp.generated.resources.settings_mcp_auth_failed
 import dorai.composeapp.generated.resources.settings_mcp_auth_headers
 import dorai.composeapp.generated.resources.settings_mcp_auth_oauth
 import dorai.composeapp.generated.resources.settings_mcp_authorize
 import dorai.composeapp.generated.resources.settings_mcp_authorized
+import dorai.composeapp.generated.resources.settings_mcp_error_endpoint
 import dorai.composeapp.generated.resources.settings_mcp_header_key
 import dorai.composeapp.generated.resources.settings_mcp_header_value
 import dorai.composeapp.generated.resources.settings_mcp_no_tools
 import dorai.composeapp.generated.resources.settings_mcp_popular_servers
+import dorai.composeapp.generated.resources.settings_mcp_reconnect
 import dorai.composeapp.generated.resources.settings_mcp_refresh
 import dorai.composeapp.generated.resources.settings_mcp_remove
 import dorai.composeapp.generated.resources.settings_mcp_revoke
@@ -441,7 +444,11 @@ private fun McpServerCard(
                                 fontWeight = FontWeight.SemiBold,
                             )
                             Text(
-                                text = if (!server.oauthAuthorized) "Auth failed / token required" else "Endpoint unreachable or timed out",
+                                text = if (!server.oauthAuthorized) {
+                                    stringResource(Res.string.settings_mcp_auth_failed)
+                                } else {
+                                    stringResource(Res.string.settings_mcp_error_endpoint)
+                                },
                                 style = DoraiTypography.bodySmall,
                                 color = LocalDesignColorTokens.current.textSecondary,
                             )
@@ -449,7 +456,7 @@ private fun McpServerCard(
                     }
                     Spacer(Modifier.width(8.dp))
                     ActionButton(
-                        text = "Reconnect",
+                        text = stringResource(Res.string.settings_mcp_reconnect),
                         onClick = onRefresh,
                         variant = ActionButtonVariant.OUTLINED,
                     )

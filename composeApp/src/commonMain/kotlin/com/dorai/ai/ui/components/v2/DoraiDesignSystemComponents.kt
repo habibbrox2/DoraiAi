@@ -78,6 +78,14 @@ import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.DesignTokens
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_copy_details
+import dorai.composeapp.generated.resources.action_retry
+import dorai.composeapp.generated.resources.agent_activity_details
+import dorai.composeapp.generated.resources.agent_activity_hide_details
+import dorai.composeapp.generated.resources.chat_action_copied
+import dorai.composeapp.generated.resources.status_error
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * 1. SettingsCard:
@@ -802,7 +810,7 @@ fun ErrorLogItem(
         ) {
             Icon(
                 imageVector = Icons.Default.ErrorOutline,
-                contentDescription = "Error",
+                contentDescription = stringResource(Res.string.status_error),
                 tint = colors.err,
                 modifier = Modifier.size(20.dp),
             )
@@ -886,7 +894,7 @@ fun ErrorLogItem(
                     modifier = Modifier.handCursor(),
                 ) {
                     Text(
-                        text = if (isExpanded) "Hide details" else "Details",
+                        text = stringResource(if (isExpanded) Res.string.agent_activity_hide_details else Res.string.agent_activity_details),
                         color = colors.muted,
                         style = DoraiTypography.labelMedium,
                     )
@@ -905,7 +913,7 @@ fun ErrorLogItem(
             Row(horizontalArrangement = Arrangement.spacedBy(DoraiSpacing.XS)) {
                 if (!detailsText.isNullOrBlank()) {
                     ActionButton(
-                        text = if (copied) "Copied" else "Copy details",
+                        text = stringResource(if (copied) Res.string.chat_action_copied else Res.string.a11y_copy_details),
                         icon = Icons.Default.ContentCopy,
                         onClick = {
                             clipboardManager.setText(AnnotatedString(detailsText))
@@ -918,7 +926,7 @@ fun ErrorLogItem(
 
                 if (onRetry != null) {
                     ActionButton(
-                        text = "Retry",
+                        text = stringResource(Res.string.action_retry),
                         icon = Icons.Default.Refresh,
                         onClick = onRetry,
                         variant = ActionButtonVariant.PRIMARY,

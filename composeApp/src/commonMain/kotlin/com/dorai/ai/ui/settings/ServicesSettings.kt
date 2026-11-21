@@ -1121,6 +1121,7 @@ private fun ConfiguredServiceCardContent(
                         onSelectModel = onSelectModel,
                         isFetchingModels = entry.isFetchingModels,
                         modelFetchError = entry.modelFetchError,
+                        modelFetchErrorText = entry.modelFetchErrorText,
                         onRetryFetchModels = onRetryFetchModels,
                         useCustomModel = entry.useCustomModel,
                         customModelId = entry.customModelId,
@@ -1142,6 +1143,7 @@ private fun ConfiguredServiceCardContent(
                         connectionStatus = entry.connectionStatus,
                         isFetchingModels = entry.isFetchingModels,
                         modelFetchError = entry.modelFetchError,
+                        modelFetchErrorText = entry.modelFetchErrorText,
                         onRetryFetchModels = onRetryFetchModels,
                         onOpenAppPermissionSettings = onOpenAppPermissionSettings,
                     )
@@ -1197,11 +1199,13 @@ private fun ServiceSettings(
     onSelectModel: (String) -> Unit,
     connectionStatus: ConnectionStatus,
     isFetchingModels: Boolean = false,
-    modelFetchError: String? = null,
+    modelFetchError: StringResource? = null,
+    modelFetchErrorText: String? = null,
     onRetryFetchModels: () -> Unit = {},
     testTag: String? = null,
     onOpenAppPermissionSettings: () -> Unit = {},
 ) {
+    val modelFetchErrorMessage = modelFetchErrorText ?: modelFetchError?.let { stringResource(it) }
     ApiKeyField(
         apiKey = apiKey,
         onChangeApiKey = onChangeApiKey,
@@ -1241,7 +1245,7 @@ private fun ServiceSettings(
     if (models.isNotEmpty()) {
         ModelFetchFeedback(
             isFetchingModels = isFetchingModels,
-            error = modelFetchError,
+            error = modelFetchErrorMessage,
             canRetry = apiKey.isNotBlank(),
             onRetry = onRetryFetchModels,
             showEmpty = false,
@@ -1253,7 +1257,7 @@ private fun ServiceSettings(
             models = models,
             onClick = onSelectModel,
             isLoading = isFetchingModels,
-            errorMessage = modelFetchError,
+            errorMessage = modelFetchErrorMessage,
             onRetry = onRetryFetchModels,
             canRetry = apiKey.isNotBlank(),
         )
@@ -1341,10 +1345,12 @@ private fun OpenAICompatibleSettings(
     onChangeCustomModelId: (String) -> Unit,
     connectionStatus: ConnectionStatus,
     isFetchingModels: Boolean = false,
-    modelFetchError: String? = null,
+    modelFetchError: StringResource? = null,
+    modelFetchErrorText: String? = null,
     onRetryFetchModels: () -> Unit = {},
     onOpenAppPermissionSettings: () -> Unit = {},
 ) {
+    val modelFetchErrorMessage = modelFetchErrorText ?: modelFetchError?.let { stringResource(it) }
     if (!isCloudflare) {
         DoraiClearableTextField(
             value = displayName,
@@ -1495,7 +1501,7 @@ private fun OpenAICompatibleSettings(
     if (models.isNotEmpty()) {
         ModelFetchFeedback(
             isFetchingModels = isFetchingModels,
-            error = modelFetchError,
+            error = modelFetchErrorMessage,
             canRetry = apiKey.isNotBlank() || !isCloudflare,
             onRetry = onRetryFetchModels,
             showEmpty = false,
@@ -1507,7 +1513,7 @@ private fun OpenAICompatibleSettings(
             models = models,
             onClick = onSelectModel,
             isLoading = isFetchingModels,
-            errorMessage = modelFetchError,
+            errorMessage = modelFetchErrorMessage,
             onRetry = onRetryFetchModels,
             canRetry = apiKey.isNotBlank() || !isCloudflare,
         )

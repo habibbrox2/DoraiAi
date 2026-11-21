@@ -1,3 +1,19 @@
+## DORAI AI - Localized provider model-fetch errors (Unreleased)
+
+### Fixed
+- **Hardcoded English provider-model errors now localized**: "Enter an API key to fetch this provider's models.", "Enter the custom endpoint's base URL to fetch its models.", and the fallback "Unable to fetch provider models. Check the endpoint and credentials, then retry." now use `settings_provider_api_key_missing`, `settings_provider_base_url_missing`, and `settings_provider_models_fetch_failed`. `modelFetchError` state is `StringResource?`; `SettingsViewModel` stores the resource and `ServicesSettings` / `ModelSelectionSheet` render it with `stringResource`, so Bengali mode shows translated text. Raw exception messages are preserved separately in `modelFetchErrorText` for diagnostics.
+- Added English and Bengali strings for the three provider-model-fetch keys; locale baseline parity is 1,528 keys per locale.
+
+---
+
+## DORAI AI - Localized error states & user-facing string fixes (Unreleased)
+
+### Added
+- **Localized Bengali error copy**: New strings for heartbeat error summaries (`settings_heartbeat_error_unknown/not_found/timeout/failed`), MCP connector errors (`settings_mcp_auth_failed`, `settings_mcp_error_endpoint`, `settings_mcp_reconnect`), and wired the existing localized Bengali strings into the shared `ErrorLogItem` action labels ("Details"/"Copy details"/"Copied"/"Retry" via `agent_activity_details`, `a11y_copy_details`, `chat_action_copied`, `action_retry`, and the "Error" content description via `status_error`). Added a Bengali-mode `ErrorStatesLocalizationScreenshotTest` screenshot (`error_states_bn`).
+- **Locale coverage baseline updated** for the new `values`/`values-bn` keys (EN/BN parity: 1,528 keys each).
+
+---
+
 ## DORAI AI - Unified Design System, Accessibility & Bug Fixes (Unreleased)
 
 ### Added
