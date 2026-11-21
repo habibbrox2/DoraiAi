@@ -14,8 +14,11 @@ class AndroidProjectFileReviewFileSystemTest {
         val root = Files.createTempDirectory("android-file-review-root").toFile()
         try {
             val fileSystem = AndroidProjectFileReviewFileSystem(root)
+            // Compare canonical forms: on Windows, Files.createTempDirectory can return
+            // the 8.3 short path (HRHABI~1) while the filesystem resolves the canonical long
+            // form (Hr Habib); both refer to the same location.
             assertEquals(
-                File(root, "src/Main.kt"),
+                File(root, "src/Main.kt").canonicalFile,
                 fileSystem.resolve(FileReviewWorkspace.PROJECT, "src/Main.kt"),
             )
             listOf(

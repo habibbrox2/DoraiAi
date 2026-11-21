@@ -471,7 +471,7 @@ class SettingsViewModelTest {
             val failed = viewModel.state.value.configuredServices.first()
             assertEquals(ConnectionStatus.Error, failed.connectionStatus)
             assertFalse(failed.isFetchingModels)
-            assertEquals("Cloudflare token permission denied", failed.modelFetchError)
+            assertEquals("Cloudflare token permission denied", failed.modelFetchErrorText)
 
             fakeRepository.validateConnectionException = null
             viewModel.actions.onRetryFetchModels("cloudflare")
@@ -481,6 +481,7 @@ class SettingsViewModelTest {
             assertEquals(ConnectionStatus.Connected, retried.connectionStatus)
             assertFalse(retried.isFetchingModels)
             assertEquals(null, retried.modelFetchError)
+            assertEquals(null, retried.modelFetchErrorText)
             cancelAndIgnoreRemainingEvents()
         }
     }

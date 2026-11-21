@@ -48,6 +48,9 @@ import com.dorai.ai.voice.isDownloadable
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.error_unknown
 import dorai.composeapp.generated.resources.error_unrecognized_github_repo
+import dorai.composeapp.generated.resources.settings_provider_api_key_missing
+import dorai.composeapp.generated.resources.settings_provider_base_url_missing
+import dorai.composeapp.generated.resources.settings_provider_models_fetch_failed
 import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -71,6 +74,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.milliseconds
@@ -513,6 +517,7 @@ class SettingsViewModel(
                             connectionStatus = ConnectionStatus.Unknown,
                             isFetchingModels = false,
                             modelFetchError = null,
+                            modelFetchErrorText = null,
                             // The old provider's list no longer applies to the new
                             // credentials — don't keep showing it while re-validating.
                             models = persistentListOf(),
@@ -573,6 +578,7 @@ class SettingsViewModel(
                             connectionStatus = ConnectionStatus.Unknown,
                             isFetchingModels = false,
                             modelFetchError = null,
+                            modelFetchErrorText = null,
                             // A different endpoint means a different provider behind it —
                             // the previous model list/selection is not applicable.
                             models = persistentListOf(),
@@ -603,12 +609,21 @@ class SettingsViewModel(
         checkConnection(instanceId, entry.service)
     }
 
-    private fun updateModelFetchState(instanceId: String, isFetching: Boolean, error: String? = null) {
+    private fun updateModelFetchState(
+        instanceId: String,
+        isFetching: Boolean,
+        error: StringResource? = null,
+        errorText: String? = null,
+    ) {
         _state.update { state ->
             state.copy(
                 configuredServices = state.configuredServices.map { entry ->
                     if (entry.instanceId == instanceId) {
-                        entry.copy(isFetchingModels = isFetching, modelFetchError = error)
+                        entry.copy(
+                            isFetchingModels = isFetching,
+                            modelFetchError = error,
+                            modelFetchErrorText = errorText,
+                        )
                     } else {
                         entry
                     }
@@ -1427,7 +1442,7 @@ class SettingsViewModel(
         if (service.requiresApiKey && dataRepository.getInstanceApiKey(instanceId).isBlank()) {
             updateConnectionStatus(instanceId, ConnectionStatus.Unknown)
             if (service.modelsUrl != null) {
-                updateModelFetchState(instanceId, isFetching = false, error = "Enter an API key to fetch this provider's models.")
+                updateModelFetchState(instanceId, isFetching = false, error = Res.string.settings_provider_api_key_missing)
             }
             return
         }
@@ -1435,7 +1450,7 @@ class SettingsViewModel(
         // at the Ollama default — tell the user to enter the endpoint's base URL instead.
         if (service is Service.OpenAICompatible && dataRepository.getInstanceBaseUrlRaw(instanceId).isBlank()) {
             updateConnectionStatus(instanceId, ConnectionStatus.Unknown)
-            updateModelFetchState(instanceId, isFetching = false, error = "Enter the custom endpoint's base URL to fetch its models.")
+            updateModelFetchState(instanceId, isFetching = false, error = Res.string.settings_provider_base_url_missing)
             return
         }
         validateConnectionWithStatus(instanceId, service)
@@ -1522,7 +1537,8 @@ class SettingsViewModel(
                         updateModelFetchState(
                             instanceId,
                             isFetching = false,
-                            error = e.message?.takeIf { it.isNotBlank() } ?: "Unable to fetch provider models. Check the endpoint and credentials, then retry.",
+                            error = Res.string.settings_provider_models_fetch_failed,
+                            errorText = e.message?.takeIf { it.isNotBlank() },
                         )
                     }
                 }
