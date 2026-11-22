@@ -89,6 +89,8 @@
 - **Settings now opens on a Home landing page**: hero banner plus one card per category (icon, title, subtitle, chevron), matching the product concept. Category pages keep a back arrow to Home.
 - **Fixed a duplicated "Default mode" section** in the Agent preview/screenshot fallback.
 
+- **OAuth scope migrated from classic `repo` to GitHub App Device Flow**: the Required Permissions card now describes `Contents: Read` + `Pull requests: Read` via the Device-Flow GitHub App path instead of the classic `read:user repo` scope. This is the largest least-privilege gain — `repo` grants read/write on all repositories, while the App path grants read access only on repositories the owner installs it on. When PR creation ships, `Pull requests: Write` will be added selectively (plus `Contents: Write` only if in-app `git push` ships). No classic `repo` scope is requested. Bengali copy updated in lockstep.
+
 ---
 
 ## DORAI AI - Runtime Settings UI redesign (Unreleased)
