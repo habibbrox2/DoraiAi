@@ -66,9 +66,11 @@ import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.ic_arrow_drop_down
+import dorai.composeapp.generated.resources.model_collapse_description
 import dorai.composeapp.generated.resources.model_discovery_empty
 import dorai.composeapp.generated.resources.model_discovery_fetching
 import dorai.composeapp.generated.resources.model_discovery_retry
+import dorai.composeapp.generated.resources.model_expand_description
 import dorai.composeapp.generated.resources.model_filter_free
 import dorai.composeapp.generated.resources.model_free_badge
 import dorai.composeapp.generated.resources.model_free_empty
@@ -320,13 +322,14 @@ private fun ModelCard(model: SettingsModel, isSelected: Boolean, onClick: () -> 
     val detailText = listOfNotNull(releaseText, model.parameterCount, contextText)
         .joinToString("  Â·  ").ifEmpty { null }
 
+    // Selected-state rule (D1): cyan = user selection
     val primaryColor = if (isSelected) {
-        LocalDesignColorTokens.current.textPrimary
+        LocalDesignColorTokens.current.primary
     } else {
         LocalDesignColorTokens.current.textSecondary
     }
     val secondaryColor = if (isSelected) {
-        LocalDesignColorTokens.current.textPrimary.copy(alpha = 0.7f)
+        LocalDesignColorTokens.current.primary.copy(alpha = 0.7f)
     } else {
         LocalDesignColorTokens.current.textSecondary
     }
@@ -370,20 +373,30 @@ private fun ModelCard(model: SettingsModel, isSelected: Boolean, onClick: () -> 
                     )
                 }
             }
-            secondary?.let {
-                TooltipBox(
-                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                    tooltip = { Text(text = it, style = DoraiTypography.bodyMedium) },
-                    state = rememberTooltipState(),
-                ) {
-                    Text(
-                        text = it,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = DoraiTypography.bodySmall,
-                        color = secondaryColor,
-                    )
-                }
+            secondary?.let { description ->
+                // F24: catalog descriptions can be expanded in place instead of being
+                // permanently truncated. The inner clickable wins over the card selection.
+                var descriptionExpanded by remember { mutableStateOf(false) }
+                Text(
+                    text = description,
+                    maxLines = if (descriptionExpanded) Int.MAX_VALUE else 1,
+                    overflow = if (descriptionExpanded) TextOverflow.Clip else TextOverflow.Ellipsis,
+                    style = DoraiTypography.bodySmall,
+                    color = secondaryColor,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(
+                            role = Role.Button,
+                            onClickLabel = stringResource(
+                                if (descriptionExpanded) {
+                                    Res.string.model_collapse_description
+                                } else {
+                                    Res.string.model_expand_description
+                                },
+                            ),
+                            onClick = { descriptionExpanded = !descriptionExpanded },
+                        ),
+                )
             }
             detailText?.let {
                 Spacer(Modifier.height(6.dp))

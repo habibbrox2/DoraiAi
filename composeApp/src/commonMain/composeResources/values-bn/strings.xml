@@ -699,6 +699,7 @@
     <string name="chat_manage_providers">প্রোভাইডার পরিচালনা করুন</string>
     <string name="chat_active_badge">সক্রিয়</string>
     <string name="chat_auto_model">অটো</string>
+    <string name="chat_auto_model_label">অটো (সব মডেল চেষ্টা করবে)</string>
     <string name="chat_auto_model_hint">একটি উত্তর পাওয়া পর্যন্ত তালিকার প্রতিটি মডেল চেষ্টা করে</string>
     <string name="chat_voice_unavailable">ভয়েস ইনপুট এখনো চালু নয়। অনুগ্রহ করে টাইপ করুন।</string>
     <string name="chat_voice_listening">শুনছি…</string>
@@ -952,7 +953,7 @@
     <string name="settings_workspace_loading">লোড হচ্ছে…</string>
     <string name="settings_workspace_no_repositories">কোনো রিপোজিটরি পাওয়া যায়নি।</string>
     <string name="settings_workspace_repositories_not_connected">রিপোজিটরি দেখতে ওয়ার্কস্পেস-এ সংযুক্ত করুন।</string>
-    <string name="settings_workspace_repositories_error">রিপোজিটরি লোড করা যায়নি। উপরের "পুনরায় চেষ্টা করুন" দিয়ে আবার চেষ্টা করুন।</string>
+    <string name="settings_workspace_repositories_error">রিপোজিটরি লোড করা যায়নি। সংযোগ যাচাই করে আবার চেষ্টা করুন।</string>
     <string name="settings_workspace_refresh_repositories">রিফ্রেশ</string>
     <string name="settings_workspace_clear_selection">নির্বাচন মুছুন</string>
     <string name="settings_workspace_retry">পুনরায় চেষ্টা করুন</string>
@@ -1357,7 +1358,7 @@
     <string name="tts_value_format">%1$s: %2$d</string>
     <string name="tts_voice_pitch">কণ্ঠের স্বর</string>
     <string name="tts_volume">শব্দের মাত্রা</string>
-    <string name="tts_tip">পরামর্শ: কথার গতি 0.70–1.30, কণ্ঠের স্বর 0.80–1.20 এবং প্রয়োজন অনুযায়ী ভলিউম রাখুন।</string>
+    <string name="tts_tip">পরামর্শ: কথার গতি 70%–130%, কণ্ঠের স্বর 80%–120% এবং প্রয়োজন অনুযায়ী ভলিউম রাখুন।</string>
     <string name="settings_voice_mode">ভয়েস মোড</string>
     <string name="settings_voice_mode_description">DORAI AI-এর সাথে কথা বলুন ও উত্তর শুনুন। ডিভাইসের নিজস্ব স্পিচ রিকগনাইজার ব্যবহার হয়; অফলাইন ল্যাঙ্গুয়েজ মডেল ইনস্টল থাকলে এটি অফলাইনেও কাজ করে।</string>
     <string name="settings_voice_models_title">অফলাইন ভয়েস মডেল</string>
@@ -1544,7 +1545,7 @@
     <string name="settings_provider_remove_title">প্রোভাইডার অপসারণ করবেন?</string>
     <string name="settings_provider_remove_message">আপনি কি নিশ্চিত যে আপনি এই প্রোভাইডার এবং এর সংরক্ষিত API তথ্য অপসারণ করতে চান?</string>
     <string name="settings_provider_remove_confirm">অপসারণ করুন</string>
-    <string name="settings_fallback_privacy_note">সক্রিয় থাকলে, প্রাইমারি ব্যর্থ হলে এই প্রোভাইডারে অনুরোধ পাঠানো হতে পারে। অনুরোধগুলো স্থানীয় ডিভাইস ত্যাগ করবে।</string>
+    <string name="settings_fallback_privacy_note">ব্যর্থ চ্যাটগুলো অন্তর্নির্মিত বিনামূল্যে পরিষেবায় পাঠানো হতে পারে এবং এগুলো এই ডিভাইস ত্যাগ করবে।</string>
     <string name="settings_workspace_scopes_title">প্রয়োজনীয় অনুমতিসমূহ</string>
     <string name="settings_workspace_scopes_desc">রিপোজিটরি পরিদর্শন এবং পুল রিকোয়েস্ট তৈরি করতে DORAI AI-এর রিপোজিটরি রিড/রাইট অ্যাক্সেস (repo) এবং মৌলিক ব্যবহারকারী প্রোফাইল (read:user) প্রয়োজন।</string>
     <string name="settings_local_storage_cloud_conflict">শুধুমাত্র স্থানীয় সঞ্চয়স্থান সক্রিয় রয়েছে। সম্পূর্ণ অন-ডিভাইস গোপনীয়তা বজায় রাখতে ক্লাউড ভল্ট সিঙ্ক নিষ্ক্রিয় রাখা হয়েছে।</string>
@@ -1561,4 +1562,14 @@
     <string name="settings_mcp_auth_failed">লগইন ব্যর্থ বা টোকেন দরকার</string>
     <string name="settings_mcp_error_endpoint">সার্ভার পাওয়া যায়নি বা অনুপলব্ধ</string>
     <string name="settings_mcp_reconnect">আবার সংযোগ করুন</string>
+
+    <!-- UI/UX migration follow-ups (keyboard hints, labeled counters, explicit actions) -->
+    <string name="composer_key_enter">Enter</string>
+    <string name="composer_key_shift_enter">Shift+Enter</string>
+    <string name="settings_chars_used">অক্ষর: %1$d/%2$d</string>
+    <string name="settings_email_connect">"আমার ইমেইল সংযুক্ত করুন" কমান্ড কপি করুন</string>
+    <string name="voice_license_label">MPL-2.0</string>
+    <string name="model_expand_description">বিবরণ প্রসারিত করুন</string>
+    <string name="model_collapse_description">বিবরণ সংকুচিত করুন</string>
+    <string name="chat_empty_build_guidance">বিল্ড মোড আপনার ওয়ার্কস্পেসে ফাইল তৈরি ও সম্পাদনা করতে পারে। শুরু করতে একটি ফাইল সংযুক্ত করুন বা ওয়ার্কস্পেস খুলুন।</string>
 </resources>

@@ -81,6 +81,36 @@ Theme state is managed reactively and multiplatform-wide without restarting the 
    - `LocalDesignColorTokens` — Scheme-aware semantic tokens (`from(ColorScheme)`).
    - `LocalDesignTokens` — Static Aurora constants for backward compatibility.
 
+## Semantic Status & Selection Tokens (D1 / D2)
+
+The design system defines one selected-state rule and one semantic status palette. These tokens live in
+`DesignTokens.kt` (static tokens) and `DesignColorTokens` / `DoraiSemanticColors` (theme-aware tokens),
+and are consumed through `LocalDesignColorTokens` in Compose surfaces.
+
+### D1 — Selected-state rule
+
+- **Cyan (`#25CDE2`) is the single user-selection color** — active pills, selected model cards, selected
+  chips, toggles and sliders (exposed as `DesignTokens.SelectedChip` and `DesignColorTokens.primary`).
+- **Green (`#10B981`) is reserved for success / connected state** (`DesignTokens.SuccessChip`).
+- **Magenta (`#D81B60`) is no longer a general-purpose selected-state color.** `DesignTokens.PrimaryMagenta`
+  remains only as a legacy constant for references that have not yet migrated; do not use it for new UI.
+- Exactly one "Active" badge is rendered per single-select surface; success and selection never share a
+  color for the same value.
+
+### D2 — Formalized semantic status palette
+
+| Token | Hex (dark default) | Role | Validated contrast on `#050A1C` / `#0D1933` |
+|---|---|---|---|
+| `danger` / `error` | `#FB7185` | Errors, destructive actions, invalid input | ≥ 6.4:1 / ≥ 6.4:1 |
+| `success` | `#10B981` (`SuccessChip`), `#34D399` (`Success`) | Success, connected, completed | ≥ 6.8:1 / ≥ 9.0:1 |
+| `warning` | `#FBBF24` | Warnings, fallback routing, cautions | ≥ 10.4:1 / ≥ 10.4:1 |
+| `info` | `#22D3EE` | Informational hints | ≥ 9.6:1 / ≥ 9.6:1 |
+
+The theme-aware variants are resolved by `DoraiSemanticColors.from(palette)` for custom presets, falling
+back to the dark/light tokens above. `PresetContrastTest` asserts that every semantic token clears WCAG AA
+normal-text contrast (≥ 4.5:1) against both the base background and the surface card, and that the D1
+selected/success colors remain distinct.
+
 ---
 
 ## WCAG 2.1 AA Accessibility & Contrast Rules

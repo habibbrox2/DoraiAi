@@ -1202,10 +1202,12 @@ private fun AgentPolicyHeader(
         Triple("review", stringResource(Res.string.mode_review), stringResource(Res.string.mode_review_desc)),
     )
 
+    // F5: "auto-run read-only tools" is an independent toggle (Card 4 below), so it must
+    // not also appear as an approval-policy mode. Keeping one control + one caption avoids
+    // three representations of the same concept.
     val policies = listOf(
         "all" to stringResource(Res.string.settings_approval_ask_all),
         "edits" to stringResource(Res.string.settings_approval_ask_edits),
-        "read" to stringResource(Res.string.settings_approval_auto_read),
     )
 
     // Card 1: Default Mode

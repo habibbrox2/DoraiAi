@@ -6,6 +6,7 @@ import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.data.contrastRatio
 import com.dorai.ai.ui.DarkColorScheme
 import com.dorai.ai.ui.LightColorScheme
+import com.dorai.ai.ui.theme.DesignTokens
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -185,5 +186,38 @@ class PresetContrastTest {
 
         val lightRatio = contrastRatio(LightColorScheme.onPrimary, LightColorScheme.primary)
         assertTrue(lightRatio >= 4.5, "LightColorScheme onPrimary contrast ratio $lightRatio is below 4.5:1")
+    }
+
+    // --- D1/D2 semantic token contract ---------------------------------------------------
+
+    @Test
+    fun `selected state token is cyan and success state token is green`() {
+        // D1: exactly one selected-state color (cyan); green is reserved for success/connected.
+        assertEquals(DesignTokens.PrimaryCyan, DesignTokens.SelectedChip)
+        assertTrue(DesignTokens.SuccessChip != DesignTokens.SelectedChip)
+        assertTrue(DesignTokens.SelectedChip != DesignTokens.PrimaryMagenta)
+    }
+
+    @Test
+    fun `semantic status tokens meet WCAG AA normal text contrast on dark surfaces`() {
+        val semanticTokens = listOf(
+            "selected" to DesignTokens.SelectedChip,
+            "success" to DesignTokens.SuccessChip,
+            "warning" to DesignTokens.Warning,
+            "error" to DesignTokens.Error,
+            "info" to DesignTokens.Info,
+        )
+        semanticTokens.forEach { (name, color) ->
+            val bgRatio = contrastRatio(color, DesignTokens.Background)
+            val surfaceRatio = contrastRatio(color, DesignTokens.SurfaceCard)
+            assertTrue(
+                bgRatio >= 4.5,
+                "$name token contrast on background is $bgRatio, below 4.5:1",
+            )
+            assertTrue(
+                surfaceRatio >= 4.5,
+                "$name token contrast on surface card is $surfaceRatio, below 4.5:1",
+            )
+        }
     }
 }

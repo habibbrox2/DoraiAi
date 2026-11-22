@@ -343,7 +343,7 @@
     <string name="settings_workspace_loading">Loading…</string>
     <string name="settings_workspace_no_repositories">No repositories available.</string>
     <string name="settings_workspace_repositories_not_connected">Connect to Workspace to see your repositories here.</string>
-    <string name="settings_workspace_repositories_error">Repositories could not be loaded. Use Retry above to reconnect.</string>
+    <string name="settings_workspace_repositories_error">Repositories could not be loaded. Check the connection and try again.</string>
     <string name="settings_workspace_refresh_repositories">Refresh</string>
     <string name="settings_workspace_clear_selection">Clear selection</string>
     <string name="settings_workspace_retry">Retry</string>
@@ -983,6 +983,7 @@
     <string name="chat_manage_providers">Manage providers</string>
     <string name="chat_active_badge">Active</string>
     <string name="chat_auto_model">Auto</string>
+    <string name="chat_auto_model_label">Auto (try all)</string>
     <string name="chat_auto_model_hint">Tries every model in the list until one answers</string>
     <string name="chat_voice_unavailable">Voice input is not available yet. Please type instead.</string>
     <string name="chat_voice_listening">Listening…</string>
@@ -1387,7 +1388,7 @@
     <string name="tts_value_format">%1$s: %2$d</string>
     <string name="tts_voice_pitch">Voice pitch</string>
     <string name="tts_volume">Volume</string>
-    <string name="tts_tip">Tip: Keep speed between 0.70–1.30, pitch between 0.80–1.20, and adjust volume to your preference.</string>
+    <string name="tts_tip">Tip: Keep speed between 70%–130%, pitch between 80%–120%, and adjust volume to your preference.</string>
     <string name="settings_voice_mode">Voice Mode</string>
     <string name="settings_voice_mode_description">Talk to DORAI AI and hear the answer read back. Uses the device&#39;s own speech recognizer, which works offline when an offline language model is installed.</string>
     <string name="settings_voice_models_title">Offline voice models</string>
@@ -1574,7 +1575,7 @@
     <string name="settings_provider_remove_title">Remove Provider?</string>
     <string name="settings_provider_remove_message">Are you sure you want to remove this provider and its saved API credentials?</string>
     <string name="settings_provider_remove_confirm">Remove</string>
-    <string name="settings_fallback_privacy_note">When enabled, requests may be routed to this provider if primary fails. Queries will leave local device.</string>
+    <string name="settings_fallback_privacy_note">Failed chats may be routed to the built-in free service and will leave this device.</string>
     <string name="settings_workspace_scopes_title">Required Permissions</string>
     <string name="settings_workspace_scopes_desc">DORAI AI requires repository read/write access (repo) and basic user profile (read:user) to inspect repositories and open pull requests.</string>
     <string name="settings_local_storage_cloud_conflict">Local-only storage is enabled. Cloud Vault sync is disabled to preserve complete on-device privacy.</string>
@@ -1591,5 +1592,15 @@
     <string name="settings_mcp_auth_failed">Auth failed / token required</string>
     <string name="settings_mcp_error_endpoint">Endpoint unreachable or timed out</string>
     <string name="settings_mcp_reconnect">Reconnect</string>
+
+    <!-- UI/UX migration follow-ups (keyboard hints, labeled counters, explicit actions) -->
+    <string name="composer_key_enter">Enter</string>
+    <string name="composer_key_shift_enter">Shift+Enter</string>
+    <string name="settings_chars_used">Characters: %1$d/%2$d</string>
+    <string name="settings_email_connect">Copy "connect my email" command</string>
+    <string name="voice_license_label">MPL-2.0</string>
+    <string name="model_expand_description">Expand description</string>
+    <string name="model_collapse_description">Collapse description</string>
+    <string name="chat_empty_build_guidance">Build mode can create and edit files in your workspace. Attach a file or open Workspace to begin.</string>
 </resources>
 

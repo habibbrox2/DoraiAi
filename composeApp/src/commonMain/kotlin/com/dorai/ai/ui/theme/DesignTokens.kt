@@ -40,12 +40,18 @@ object DesignTokens {
     val BrandWhite: Color = Color(0xFFF1F8FF)
     val BrandInk: Color = Color(0xFF10213D)
 
-    // Accents - Primary magenta/pink for toggles, buttons, selected states, sliders.
-    // Cyan is strictly secondary/info accent, NEVER used for toggles.
-    val PrimaryMagenta: Color = Color(0xFFD81B60)
+    // Brand accent palette. Declaration order matters: constants referenced by
+    // other constants must be declared first (Kotlin object init is ordered).
     val PrimaryCyan: Color = Color(0xFF25CDE2)
+    val PrimaryMagenta: Color = Color(0xFFD81B60) // legacy only; do NOT use for new selected-state UI
     val AgentViolet: Color = Color(0xFF8B78FF)
-    val AccentPrimary: Color = PrimaryMagenta
+
+    // Selected-state rule (per design-system drift D1):
+    //   green = success / connected state
+    //   cyan  = user selection / active pill
+    val SelectedChip: Color = PrimaryCyan
+    val SuccessChip: Color = Color(0xFF10B981) // green-500 — success / connected
+    val AccentPrimary: Color = SelectedChip
     val AccentSecondary: Color = PrimaryCyan
     val AccentAgent: Color = AgentViolet
 
@@ -100,8 +106,8 @@ data class DesignColorTokens(
     val borderSubtle: Color,
     val borderSoft: Color,
     val borderStrong: Color,
-    val primary: Color = DesignTokens.AccentPrimary,
-    val accent: Color = DesignTokens.AgentViolet,
+    val primary: Color = DesignTokens.SelectedChip,
+    val accent: Color = DesignTokens.SelectedChip,
     val background: Color = DesignTokens.Background,
     val surface: Color = DesignTokens.SurfaceDark,
     val line: Color = DesignTokens.BorderSoft,

@@ -91,8 +91,17 @@ internal fun GeneralContent(
                 TtsSettingsSection(appLanguage = uiState.appLanguage)
             }
             if (uiState.showVoiceSection) {
+                // F12: three independent cards instead of one bundled Voice block.
                 SettingsCard {
-                    VoiceSettingsSection(uiState = uiState, actions = actions)
+                    VoiceModeSection(uiState = uiState, actions = actions)
+                }
+                SettingsCard {
+                    VoiceModelsSection(uiState = uiState, actions = actions)
+                }
+                if (uiState.voiceModels.isNotEmpty()) {
+                    SettingsCard {
+                        VoiceMobileDataSection(uiState = uiState, actions = actions)
+                    }
                 }
             }
             GeneralSectionHeading(stringResource(Res.string.settings_general_behavior))

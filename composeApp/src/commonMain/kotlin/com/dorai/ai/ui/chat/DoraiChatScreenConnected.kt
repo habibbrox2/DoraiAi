@@ -76,6 +76,7 @@ import dorai.composeapp.generated.resources.chat_attach_photo
 import dorai.composeapp.generated.resources.chat_attach_title
 import dorai.composeapp.generated.resources.chat_auto_model
 import dorai.composeapp.generated.resources.chat_auto_model_hint
+import dorai.composeapp.generated.resources.chat_auto_model_label
 import dorai.composeapp.generated.resources.chat_manage_providers
 import dorai.composeapp.generated.resources.chat_model_picker_empty
 import dorai.composeapp.generated.resources.chat_model_picker_title
@@ -197,9 +198,10 @@ fun DoraiChatScreenConnected(
     }
 
     val activeService = uiState.availableServices.firstOrNull()
-    // "Auto" replaces the pinned model selection, so the pill names the mode the user picked.
+    // Single source of truth for the header pill: it uses the exact same localized label as
+    // the "Auto" row in the picker, so the pill always mirrors the sheet (F2).
     val currentModelName = if (uiState.isAutoModelSelected) {
-        stringResource(Res.string.chat_auto_model)
+        stringResource(Res.string.chat_auto_model_label)
     } else {
         activeService?.serviceName ?: stringResource(Res.string.model_not_configured)
     }
@@ -493,6 +495,15 @@ fun DoraiChatScreenConnected(
 
     if (showModelPicker) {
         val colors = LocalDoraiColors.current
+        // F2: curated "auto" aliases duplicate the synthetic try-all row below. Hide them so
+        // the picker exposes exactly one "Auto" entry with one unambiguous label.
+        val pickerModels = remember(uiState.availableModels) {
+            uiState.availableModels.filterNot { model ->
+                model.id.equals("auto", ignoreCase = true) ||
+                    model.id.equals("openrouter/auto", ignoreCase = true)
+            }
+        }
+        val autoSelected = uiState.isAutoModelSelected
         DoraiModalSheet(onDismissRequest = {
             showModelPicker = false
             refocusComposer()
@@ -565,7 +576,11 @@ fun DoraiChatScreenConnected(
                                     fontSize = 12.sp,
                                 )
                             }
-                            if (isSelected) {
+                            // Single "Active" ownership (F2): the provider badge is shown only
+                            // when no concrete model row can own it and Auto is off.
+                            if (isSelected && !autoSelected &&
+                                pickerModels.none { it.id == activeService?.modelId }
+                            ) {
                                 DoraiStatusBadge(text = stringResource(Res.string.chat_active_badge), color = colors.ok)
                             }
                         }
@@ -573,10 +588,10 @@ fun DoraiChatScreenConnected(
 
                     // "Auto" walks every model of the active provider instead of pinning
                     // one, so it only makes sense once the provider has a Model List.
-                    if (uiState.availableModels.isNotEmpty()) {
+                    if (pickerModels.isNotEmpty()) {
                         item(key = "model-auto") {
                             val autoShape = RoundedCornerShape(12.dp)
-                            val isAutoActive = uiState.isAutoModelSelected
+                            val isAutoActive = autoSelected
 
                             Column(
                                 modifier = Modifier
@@ -586,7 +601,7 @@ fun DoraiChatScreenConnected(
                                     .border(1.dp, if (isAutoActive) colors.primary else colors.line, autoShape)
                                     .clickable(
                                         role = Role.Button,
-                                        onClickLabel = stringResource(Res.string.chat_auto_model),
+                                        onClickLabel = stringResource(Res.string.chat_auto_model_label),
                                     ) {
                                         uiState.actions.selectModel(AutoModelSelection.ID)
                                         showModelPicker = false
@@ -611,7 +626,7 @@ fun DoraiChatScreenConnected(
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Text(
-                                            text = stringResource(Res.string.chat_auto_model),
+                                            text = stringResource(Res.string.chat_auto_model_label),
                                             color = colors.text,
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.SemiBold,
@@ -644,7 +659,7 @@ fun DoraiChatScreenConnected(
                                 fontWeight = FontWeight.SemiBold,
                             )
                         }
-                        items(uiState.availableModels, key = { "model-" + it.id }) { model ->
+                        items(pickerModels, key = { "model-" + it.id }) { model ->
                             val isActiveModel = model.id == activeService?.modelId
                             val shape = RoundedCornerShape(12.dp)
 
@@ -678,7 +693,8 @@ fun DoraiChatScreenConnected(
                                         )
                                     }
                                 }
-                                if (isActiveModel) {
+                                // Auto owns the single "Active" badge while it is selected (F2).
+                                if (isActiveModel && !autoSelected) {
                                     DoraiStatusBadge(text = stringResource(Res.string.chat_active_badge), color = colors.ok)
                                 }
                             }

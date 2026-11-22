@@ -229,6 +229,7 @@ internal fun ConnectorSearchBar(
             } else {
                 LocalDesignColorTokens.current.textSecondary
             }
+            val filterDescription = stringResource(Res.string.settings_library_filter_no_setup)
             IconToggleButton(
                 checked = isFilterActive,
                 onCheckedChange = { onToggleFilter() },
@@ -236,7 +237,7 @@ internal fun ConnectorSearchBar(
             ) {
                 Icon(
                     imageVector = Icons.Default.FilterList,
-                    contentDescription = stringResource(Res.string.settings_library_filter_no_setup),
+                    contentDescription = filterDescription,
                     tint = filterTint,
                 )
             }

@@ -1,6 +1,6 @@
 # Chat & Conversations
 
-**Last verified:** 2026-11-17
+**Last verified:** 2026-11-22
 
 DORAI AI's chat system manages the message history, conversation persistence, file attachments, and speech output. Conversations are service-independent — switching providers does not affect which conversation is loaded or restored. Multiple conversations are persisted and browsable via the chat drawer (compact) or an inline history pane (expanded).
 
@@ -156,6 +156,7 @@ Multiple files can be attached to a single prompt. Each file is added one at a t
 - **Empty state**: animated logo centered above the Meridian-style hero, followed by a full-width list of quick-start suggestion rows (leading icon + prompt text + hairline divider), then a wrapping row of Image/File/Workspace shortcuts. The hero is localized ("What would you like to work on today?" / "আজ কী নিয়ে কাজ করবেন?") and follows the active preset theme.
 - **Drag-and-drop**: supported for file attachments
 - **Drawer / history pane**: compact drawers and the expanded inline list show saved conversations with title, date, active highlight, and delete. Every interactive row in the chat surfaces (history rows, command-palette rows, heartbeat banner, tool-card copy buttons) meets the 48dp minimum touch target and carries an accessible action label, so a screen reader announces what a tap does
+- **UX consistency fixes (2026-11-22)**: the model picker exposes exactly one labelled `Auto (try all)` entry and a single `Active` badge (the header pill mirrors that exact label). The user-message copy button now sits in an attached action row under the bubble instead of floating beside it. Image attachments use the file name as alt text where available and open the full-screen viewer on tap. Build mode's empty state adds explicit workspace/file guidance for first-time users
 
 ## Navigation Sidebar / Drawer
 

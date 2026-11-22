@@ -56,6 +56,7 @@ import dorai.composeapp.generated.resources.execution_log_status_ok
 import dorai.composeapp.generated.resources.settings_agent_memory
 import dorai.composeapp.generated.resources.settings_agent_notifications
 import dorai.composeapp.generated.resources.settings_agent_tasks
+import dorai.composeapp.generated.resources.settings_chars_used
 import dorai.composeapp.generated.resources.settings_heartbeat_recent
 import dorai.composeapp.generated.resources.settings_memories
 import dorai.composeapp.generated.resources.settings_memories_all_title
@@ -276,8 +277,9 @@ private fun SoulEditor(
             },
         )
 
+        // F10: labeled counter instead of bare numbers.
         Text(
-            text = "${editedText.length}/$maxChars",
+            text = stringResource(Res.string.settings_chars_used, editedText.length, maxChars),
             style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.fillMaxWidth(),
@@ -372,8 +374,9 @@ private fun MemoryInstructionsEditor(
             },
         )
 
+        // F10: labeled counter instead of bare numbers.
         Text(
-            text = "${editedInstructions.length}/$maxChars",
+            text = stringResource(Res.string.settings_chars_used, editedInstructions.length, maxChars),
             style = DoraiTypography.bodySmall,
             color = LocalDesignColorTokens.current.textSecondary,
             modifier = Modifier.fillMaxWidth(),

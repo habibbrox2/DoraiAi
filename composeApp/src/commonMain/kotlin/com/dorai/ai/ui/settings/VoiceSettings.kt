@@ -3,7 +3,6 @@ package com.dorai.ai.ui.settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -38,32 +37,33 @@ import dorai.composeapp.generated.resources.settings_voice_queued
 import dorai.composeapp.generated.resources.settings_voice_ready
 import dorai.composeapp.generated.resources.settings_voice_redownload
 import dorai.composeapp.generated.resources.settings_voice_resume
+import dorai.composeapp.generated.resources.voice_license_label
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * The Voice section of Settings.
+ * Voice Mode card. Voice Mode is off by default: the feature plan keeps it behind the
+ * toggle until the on-device measurement gate has been signed off. The description says
+ * plainly which recognizer is used.
  *
- * Voice Mode is off by default: the feature plan keeps it behind the toggle until the
- * on-device measurement gate has been signed off. The description says plainly which
- * recognizer is used. Below it, the downloadable model catalog is listed — each entry
- * shows its state, and stays undownloadable until its license is signed off.
+ * F12: Voice Mode, the offline model catalog and the mobile-data toggle are now three
+ * independent cards instead of one bundled block. Each is rendered in its own
+ * [com.dorai.ai.ui.components.v2.SettingsCard] by GeneralSettings.
  */
 @Composable
-internal fun VoiceSettingsSection(
-    uiState: SettingsUiState,
-    actions: SettingsActions,
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        ToggleableHeadline(
-            title = stringResource(Res.string.settings_voice_mode),
-            description = stringResource(Res.string.settings_voice_mode_description),
-            checked = uiState.isVoiceModeEnabled,
-            onCheckedChange = actions.onToggleVoiceMode,
-        )
+internal fun VoiceModeSection(uiState: SettingsUiState, actions: SettingsActions) {
+    ToggleableHeadline(
+        title = stringResource(Res.string.settings_voice_mode),
+        description = stringResource(Res.string.settings_voice_mode_description),
+        checked = uiState.isVoiceModeEnabled,
+        onCheckedChange = actions.onToggleVoiceMode,
+    )
+}
 
+@Composable
+internal fun VoiceModelsSection(uiState: SettingsUiState, actions: SettingsActions) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         if (uiState.voiceModels.isNotEmpty()) {
-            Spacer(Modifier.height(12.dp))
             VoiceModelsTicker(uiState = uiState, onTick = actions.onVoiceModelsTick)
             Text(
                 text = stringResource(Res.string.settings_voice_models_title),
@@ -79,16 +79,7 @@ internal fun VoiceSettingsSection(
                     onReDownload = { actions.onVoiceModelReDownload(entry.model.id) },
                 )
             }
-
-            Spacer(Modifier.height(12.dp))
-            ToggleableHeadline(
-                title = stringResource(Res.string.settings_voice_mobile_data),
-                description = stringResource(Res.string.settings_voice_mobile_data_description),
-                checked = uiState.isVoiceMobileDataAllowed,
-                onCheckedChange = actions.onToggleVoiceMobileData,
-            )
         } else {
-            Spacer(Modifier.height(12.dp))
             Text(
                 text = stringResource(Res.string.settings_voice_models_empty_title),
                 style = DoraiTypography.bodyMedium,
@@ -101,6 +92,16 @@ internal fun VoiceSettingsSection(
             )
         }
     }
+}
+
+@Composable
+internal fun VoiceMobileDataSection(uiState: SettingsUiState, actions: SettingsActions) {
+    ToggleableHeadline(
+        title = stringResource(Res.string.settings_voice_mobile_data),
+        description = stringResource(Res.string.settings_voice_mobile_data_description),
+        checked = uiState.isVoiceMobileDataAllowed,
+        onCheckedChange = actions.onToggleVoiceMobileData,
+    )
 }
 
 /**
@@ -153,7 +154,9 @@ internal fun VoiceModelRow(
                     color = colors.textPrimary,
                 )
                 Text(
-                    text = "${model.totalSizeBytes / 1024 / 1024} MB · ${model.licenseId}",
+                    // F21: show only the concise public license label. The internal
+                    // provenance/sign-off note stays in VoiceCatalog, out of consumer UI.
+                    text = "${model.totalSizeBytes / 1024 / 1024} MB · ${stringResource(Res.string.voice_license_label)}",
                     style = DoraiTypography.bodySmall,
                     color = colors.textSecondary,
                 )
