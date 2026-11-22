@@ -74,6 +74,17 @@ These are third-party content, not repository-authored skills: they are **not** 
 To refresh them, re-vendor from upstream and re-apply the scope note — do not hand-edit the upstream
 body.
 
+### Vendored Kotlin skills
+
+`.agents/skills/` also carries one skill vendored from [Kotlin/kotlin-agent-skills](https://github.com/Kotlin/kotlin-agent-skills)
+(Apache-2.0, JetBrains — terms in `.agents/skills/kotlin-agent-skills-LICENSE.txt`). The upstream body is
+kept verbatim and the `SKILL.md` ends with a **DORAI AI scope note**. As with the Android skills, it is
+not mirrored into `skills/` or `.claude/skills/`; refresh it by re-vendoring and re-applying the note.
+
+| Skill | Use for |
+|---|---|
+| `kotlin-tooling-native-build-performance` | Slow Kotlin/Native iOS and shared-framework builds; read-only audit and measured fixes |
+
 ## Repository-specific notes
 - Gradle modules: `:composeApp` (shared KMP library/UI), `:androidApp` (Android app, `playStore`/`foss` flavors), `:screenshotTests`. `iosApp/` contains the iOS Xcode project.
 - `composeApp` configures Android, iOS arm64/simulator arm64, JVM desktop (`desktop` target), and browser `wasmJs` (target exists; Web/Wasm distribution is not release-ready).

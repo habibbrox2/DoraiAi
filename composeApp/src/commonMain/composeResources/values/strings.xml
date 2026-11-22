@@ -1594,5 +1594,15 @@
     <string name="error_hint_model_not_found">Model endpoint not found (404) – check provider and model ID</string>
     <string name="error_hint_timeout">Connection timed out – check network connection or retry</string>
     <string name="permission_settings_button">Open System Settings</string>
+    <string name="settings_provider_api_key_missing">Enter an API key to fetch this provider's models.</string>
+    <string name="settings_provider_base_url_missing">Enter the custom endpoint's base URL to fetch its models.</string>
+    <string name="settings_provider_models_fetch_failed">Unable to fetch provider models. Check the endpoint and credentials, then retry.</string>
+    <string name="settings_heartbeat_error_unknown">Unknown error</string>
+    <string name="settings_heartbeat_error_not_found">Model endpoint not found (HTTP 404)</string>
+    <string name="settings_heartbeat_error_timeout">Connection timed out</string>
+    <string name="settings_heartbeat_error_failed">Heartbeat failed</string>
+    <string name="settings_mcp_auth_failed">Auth failed / token required</string>
+    <string name="settings_mcp_error_endpoint">Endpoint unreachable or timed out</string>
+    <string name="settings_mcp_reconnect">Reconnect</string>
 </resources>
 

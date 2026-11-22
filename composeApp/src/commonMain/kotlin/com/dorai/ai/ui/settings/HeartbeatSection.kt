@@ -96,6 +96,10 @@ import dorai.composeapp.generated.resources.settings_heartbeat
 import dorai.composeapp.generated.resources.settings_heartbeat_active_hours
 import dorai.composeapp.generated.resources.settings_heartbeat_default_prompt
 import dorai.composeapp.generated.resources.settings_heartbeat_description
+import dorai.composeapp.generated.resources.settings_heartbeat_error_failed
+import dorai.composeapp.generated.resources.settings_heartbeat_error_not_found
+import dorai.composeapp.generated.resources.settings_heartbeat_error_timeout
+import dorai.composeapp.generated.resources.settings_heartbeat_error_unknown
 import dorai.composeapp.generated.resources.settings_heartbeat_interval
 import dorai.composeapp.generated.resources.settings_heartbeat_model
 import dorai.composeapp.generated.resources.settings_heartbeat_model_default
@@ -465,16 +469,16 @@ internal fun HeartbeatSection(
                                 )
                             }
                         } else {
-                            val rawError = entry.error ?: "Unknown error"
+                            val rawError = entry.error ?: stringResource(Res.string.settings_heartbeat_error_unknown)
                             val hintText = when {
                                 rawError.contains("404") -> stringResource(Res.string.error_hint_model_not_found)
                                 rawError.contains("timeout", ignoreCase = true) -> stringResource(Res.string.error_hint_timeout)
                                 else -> null
                             }
                             val shortMessage = when {
-                                rawError.contains("404") -> "Model endpoint not found (HTTP 404)"
-                                rawError.contains("timeout", ignoreCase = true) -> "Connection timed out"
-                                else -> rawError.lineSequence().firstOrNull()?.take(80) ?: "Heartbeat failed"
+                                rawError.contains("404") -> stringResource(Res.string.settings_heartbeat_error_not_found)
+                                rawError.contains("timeout", ignoreCase = true) -> stringResource(Res.string.settings_heartbeat_error_timeout)
+                                else -> rawError.lineSequence().firstOrNull()?.take(80) ?: stringResource(Res.string.settings_heartbeat_error_failed)
                             }
                             ErrorLogItem(
                                 title = stringResource(Res.string.settings_heartbeat),
