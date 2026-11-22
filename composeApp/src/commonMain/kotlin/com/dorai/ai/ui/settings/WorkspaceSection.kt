@@ -356,11 +356,9 @@ internal fun WorkspaceSection() {
                     .padding(DoraiSpacing.MD),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(
-                    text = stringResource(Res.string.settings_workspace_error_section_title),
-                    style = DoraiTypography.titleSmall,
-                    color = colors.error,
-                )
+                // F8: the hero card already owns the "Connection failed" status badge.
+                // This banner is the single authoritative error detail + inline Retry surface,
+                // so it must not repeat the same title a second time.
                 Text(
                     text = githubErrorMessage(state.error!!),
                     style = DoraiTypography.bodySmall,

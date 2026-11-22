@@ -143,7 +143,9 @@ class ThemeColorSchemeTest {
         assertEquals(Color(0xFF6F5BFF), DesignTokens.BrandViolet)
         assertEquals(Color(0xFF25CDE2), DesignTokens.PrimaryCyan)
         assertEquals(Color(0xFF8B78FF), DesignTokens.AgentViolet)
-        assertEquals(DesignTokens.PrimaryMagenta, DesignTokens.AccentPrimary)
+        // D1: cyan owns user selection; magenta is legacy-only and must not be the accent.
+        assertEquals(DesignTokens.SelectedChip, DesignTokens.AccentPrimary)
+        assertEquals(DesignTokens.PrimaryCyan, DesignTokens.AccentPrimary)
         assertEquals(DesignTokens.PrimaryCyan, DesignTokens.AccentSecondary)
         assertEquals(DesignTokens.AgentViolet, DesignTokens.AccentAgent)
     }

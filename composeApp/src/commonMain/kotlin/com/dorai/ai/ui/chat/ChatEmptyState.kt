@@ -122,6 +122,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -174,6 +175,7 @@ import dorai.composeapp.generated.resources.chat_copy_message
 import dorai.composeapp.generated.resources.chat_copy_thoughts
 import dorai.composeapp.generated.resources.chat_delete_cd
 import dorai.composeapp.generated.resources.chat_dismiss
+import dorai.composeapp.generated.resources.chat_empty_build_guidance
 import dorai.composeapp.generated.resources.chat_empty_file
 import dorai.composeapp.generated.resources.chat_empty_image
 import dorai.composeapp.generated.resources.chat_empty_subtitle
@@ -522,6 +524,20 @@ internal fun ChatEmptyState(
                     .border(1.dp, colors.primary.copy(alpha = 0.25f), RoundedCornerShape(12.dp))
                     .padding(horizontal = 10.dp, vertical = 4.dp),
             )
+
+            // F14: build mode needs explicit guidance — the quick prompts alone did
+            // not explain that files are created/edited in the workspace.
+            if (selectedModeId == "build") {
+                Spacer(modifier = Modifier.height(ChatSpacing.xs))
+                Text(
+                    text = stringResource(Res.string.chat_empty_build_guidance),
+                    color = colors.muted,
+                    fontSize = 12.5.sp,
+                    lineHeight = 18.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
             Spacer(modifier = Modifier.height(ChatSpacing.lg))
 

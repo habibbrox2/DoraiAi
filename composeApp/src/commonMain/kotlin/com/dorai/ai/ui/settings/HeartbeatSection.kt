@@ -37,7 +37,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -82,7 +84,9 @@ import dorai.composeapp.generated.resources.relative_time_days
 import dorai.composeapp.generated.resources.relative_time_hours
 import dorai.composeapp.generated.resources.relative_time_just_now
 import dorai.composeapp.generated.resources.relative_time_minutes
+import dorai.composeapp.generated.resources.settings_chars_used
 import dorai.composeapp.generated.resources.settings_email
+import dorai.composeapp.generated.resources.settings_email_connect
 import dorai.composeapp.generated.resources.settings_email_description
 import dorai.composeapp.generated.resources.settings_email_empty
 import dorai.composeapp.generated.resources.settings_email_last_poll
@@ -395,8 +399,13 @@ internal fun HeartbeatSection(
                 },
             )
 
+            // F10: labeled counter — the bare numbers did not say what was being counted.
             Text(
-                text = "${editedText.length}/$maxChars",
+                text = stringResource(
+                    Res.string.settings_chars_used,
+                    editedText.length,
+                    maxChars,
+                ),
                 style = DoraiTypography.bodySmall,
                 color = LocalDesignColorTokens.current.textSecondary,
                 modifier = Modifier.fillMaxWidth(),
@@ -549,10 +558,20 @@ internal fun EmailSection(
             Spacer(Modifier.height(12.dp))
 
             if (emailAccounts.isEmpty()) {
+                // F13/F23: an enabled-but-unconfigured section is no longer a dead end.
+                // Offer an explicit action that copies the exact chat command, so the
+                // toggle's ON state has a clear, actionable next step.
+                val clipboard = LocalClipboardManager.current
                 Text(
                     text = stringResource(Res.string.settings_email_empty),
                     style = DoraiTypography.bodySmall,
                     color = LocalDesignColorTokens.current.textSecondary,
+                )
+                Spacer(Modifier.height(8.dp))
+                ActionButton(
+                    text = stringResource(Res.string.settings_email_connect),
+                    onClick = { clipboard.setText(AnnotatedString("connect my email")) },
+                    variant = ActionButtonVariant.OUTLINED,
                 )
             } else {
                 if (pendingCount > 0) {

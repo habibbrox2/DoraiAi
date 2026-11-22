@@ -67,6 +67,8 @@ import dorai.composeapp.generated.resources.composer_attach_content_description
 import dorai.composeapp.generated.resources.composer_hint_newline
 import dorai.composeapp.generated.resources.composer_hint_send
 import dorai.composeapp.generated.resources.composer_input_hint
+import dorai.composeapp.generated.resources.composer_key_enter
+import dorai.composeapp.generated.resources.composer_key_shift_enter
 import dorai.composeapp.generated.resources.composer_mic_content_description
 import dorai.composeapp.generated.resources.composer_remove_file
 import dorai.composeapp.generated.resources.composer_send_content_description
@@ -386,7 +388,7 @@ fun DoraiComposer(
                     border = BorderStroke(1.dp, colors.line),
                 ) {
                     Text(
-                        text = "Enter",
+                        text = stringResource(Res.string.composer_key_enter),
                         color = colors.muted,
                         fontSize = 10.sp,
                         fontFamily = FontFamily.Monospace,
@@ -409,7 +411,7 @@ fun DoraiComposer(
                     border = BorderStroke(1.dp, colors.line),
                 ) {
                     Text(
-                        text = "Shift+Enter",
+                        text = stringResource(Res.string.composer_key_shift_enter),
                         color = colors.muted,
                         fontSize = 10.sp,
                         fontFamily = FontFamily.Monospace,

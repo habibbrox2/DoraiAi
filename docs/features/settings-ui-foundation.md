@@ -1,6 +1,6 @@
 # Settings UI/UX Foundation
 
-**Last verified:** 2026-11-18
+**Last verified:** 2026-11-22
 
 DOR AI settings screens share one consistent, accessible, reusable foundation so every detail page (General, Agent, Providers, Tools, MCP) fills in content instead of reinventing UI.
 
@@ -44,6 +44,20 @@ A category heading and the card beneath it never repeat the same title. The titl
 ### Interaction states
 
 Buttons, switches, and rows show pressed, focused, disabled, loading, error, and success states through color and semantics, not color alone. Destructive actions use the error tone and require a confirmation dialog with undo where data is removed.
+
+### UX consistency fixes (2026-11-22)
+
+A follow-up pass removed duplicated or ambiguous controls:
+
+- The model picker shows exactly one **Active** badge and one labelled **Auto (try all)** entry; the header pill uses the same label as the picker. Curated `auto` aliases are filtered out of the list.
+- "Auto-run read-only tools" has a single control (the switch); it is no longer also offered as an approval-policy mode.
+- Workspace errors expose one authoritative **Connection failed** title plus a single detail banner with inline Retry; repository-empty copy no longer points at a Retry that may be hidden.
+- Character counters are labelled ("Characters: n/max") instead of bare numbers, and long catalog descriptions expand in place.
+- The Voice settings are three independent cards (Voice Mode, offline models, mobile data) instead of one bundled card.
+- The empty email section offers an explicit action that copies the "connect my email" chat command.
+- The free-service fallback privacy note names the built-in free service instead of the vague "this provider".
+- The TTS tip uses the same percent units as the sliders, and the voice model row shows only the public license label; internal provenance notes stay out of the UI.
+- Keyboard hints use localized resource strings; Bengali keys keep the physical key names.
 
 ## Accessibility
 

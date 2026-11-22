@@ -336,28 +336,12 @@ internal fun ChatMessageRow(
     }
 
     if (message.isUser) {
-        // User message bubble on right, with a trailing copy affordance
-        Row(
+        // F7: bubble and action row are stacked, so the copy button is attached to the
+        // message instead of floating orphaned to the left of the bubble.
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically,
+            horizontalAlignment = Alignment.End,
         ) {
-            if (message.text.isNotEmpty()) {
-                IconButton(
-                    onClick = {
-                        copyToClipboard(message.text)
-                        isUserCopied = true
-                    },
-                    modifier = Modifier.size(48.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ContentCopy,
-                        contentDescription = stringResource(Res.string.chat_copy_message),
-                        tint = if (isUserCopied) colors.ok else colors.muted,
-                        modifier = Modifier.size(18.dp),
-                    )
-                }
-            }
             Box(
                 modifier = Modifier
                     .widthIn(max = 520.dp)
@@ -371,9 +355,13 @@ internal fun ChatMessageRow(
                     val images = message.attachments.filter { it.mimeType.startsWith("image/") }
                     val otherFiles = message.attachments.filter { !it.mimeType.startsWith("image/") }
                     for (att in images) {
+                        // F20: prefer the real file name as alt text; fall back to the
+                        // generic label only when the attachment has no name.
+                        val imageAlt = att.fileName?.takeIf { it.isNotBlank() }
+                            ?: stringResource(Res.string.chat_attachment_image)
                         AttachmentImage(
                             data = att.data,
-                            contentDescription = stringResource(Res.string.chat_attachment_image),
+                            contentDescription = imageAlt,
                         )
                     }
                     if (otherFiles.isNotEmpty()) {
@@ -429,6 +417,29 @@ internal fun ChatMessageRow(
                                 .align(Alignment.End)
                                 .padding(top = ChatSpacing.xs)
                                 .semantics { if (sentAtCd != null) contentDescription = sentAtCd },
+                        )
+                    }
+                }
+            }
+            // Message action row — copy lives with the bubble and keeps a 48dp hit target.
+            if (message.text.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.padding(top = ChatSpacing.xs),
+                    horizontalArrangement = Arrangement.spacedBy(ChatSpacing.sm),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IconButton(
+                        onClick = {
+                            copyToClipboard(message.text)
+                            isUserCopied = true
+                        },
+                        modifier = Modifier.size(48.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ContentCopy,
+                            contentDescription = stringResource(Res.string.chat_copy_message),
+                            tint = if (isUserCopied) colors.ok else colors.muted,
+                            modifier = Modifier.size(18.dp),
                         )
                     }
                 }
@@ -782,6 +793,9 @@ private fun AttachmentImage(
         }
     }
     val image = bitmap ?: return
+    // F20: tapping an attachment opens the same full-screen viewer used by markdown
+    // images, instead of leaving a generic, non-interactive thumbnail.
+    val showFullScreen = LocalShowFullScreenImage.current
     Image(
         bitmap = image,
         contentDescription = contentDescription,
@@ -789,6 +803,11 @@ private fun AttachmentImage(
             .widthIn(max = 200.dp)
             .heightIn(max = 360.dp)
             .clip(RoundedCornerShape(10.dp))
+            .clickable(
+                role = Role.Button,
+                onClickLabel = contentDescription,
+                onClick = { showFullScreen(image) },
+            )
             .padding(bottom = 6.dp),
         contentScale = ContentScale.Fit,
     )
