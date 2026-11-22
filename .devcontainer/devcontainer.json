@@ -1,0 +1,43 @@
+{
+  "name": "DORAI AI Cloud Development Sandbox",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22",
+      "pnpmVersion": "latest"
+    },
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "21",
+      "installMaven": true,
+      "installGradle": false
+    },
+    "ghcr.io/devcontainers/features/php:1": {
+      "version": "8.3",
+      "installComposer": true
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.vscode-pull-request-github",
+        "bmewburn.vscode-intelephense-client",
+        "fwcd.kotlin",
+        "vscjava.vscode-gradle"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "files.eol": "\\n",
+        "git.autofetch": true
+      }
+    }
+  },
+  "forwardPorts": [3000, 5173, 8080, 8081],
+  "portsAttributes": {
+    "3000": { "label": "Web preview" },
+    "5173": { "label": "Vite preview" },
+    "8080": { "label": "Backend/API" },
+    "8081": { "label": "Secondary service" }
+  },
+  "shutdownAction": "stopContainer"
+}
