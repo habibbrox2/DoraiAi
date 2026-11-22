@@ -33,6 +33,7 @@ import com.dorai.ai.mcp.PopularMcpServer
 import com.dorai.ai.network.tools.ToolInfo
 import com.dorai.ai.skills.RegistrySkillEntry
 import com.dorai.ai.skills.SkillManifest
+import com.dorai.ai.theme.tokens.LocalDoraiColors
 import com.dorai.ai.ui.BorderSoft
 import com.dorai.ai.ui.DoraiTypography
 import com.dorai.ai.ui.SurfaceRaised
@@ -40,6 +41,9 @@ import com.dorai.ai.ui.components.DoraiSearchField
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.settings_plugin_enable_confirm
+import dorai.composeapp.generated.resources.settings_plugin_enable_message
+import dorai.composeapp.generated.resources.settings_plugin_enable_title
 import dorai.composeapp.generated.resources.settings_plugins
 import dorai.composeapp.generated.resources.settings_plugins_description
 import dorai.composeapp.generated.resources.settings_plugins_no_match
@@ -61,6 +65,7 @@ internal fun PluginsSection(
     onToggleTool: (String, Boolean) -> Unit,
 ) {
     var toolFilter by remember { mutableStateOf("") }
+    var pendingHighRiskTool by remember { mutableStateOf<ToolInfo?>(null) }
     val resolvedTools = tools.map { tool ->
         Triple(
             tool,
@@ -123,7 +128,13 @@ internal fun PluginsSection(
                                     ToolItem(
                                         modifier = Modifier.weight(1f).fillMaxHeight(),
                                         tool = tool,
-                                        onToggle = { enabled -> onToggleTool(tool.id, enabled) },
+                                        onToggle = { enabled ->
+                                            if (enabled && tool.isHighRisk) {
+                                                pendingHighRiskTool = tool
+                                            } else {
+                                                onToggleTool(tool.id, enabled)
+                                            }
+                                        },
                                     )
                                 }
                                 repeat(columns - rowTools.size) {
@@ -134,6 +145,22 @@ internal fun PluginsSection(
                     }
                 }
             }
+        }
+
+        pendingHighRiskTool?.let { tool ->
+            val colors = LocalDoraiColors.current
+            val displayName = tool.nameRes?.let { stringResource(it) } ?: tool.name
+            SettingsConfirmationDialog(
+                title = stringResource(Res.string.settings_plugin_enable_title, displayName),
+                message = stringResource(Res.string.settings_plugin_enable_message),
+                confirmLabel = stringResource(Res.string.settings_plugin_enable_confirm),
+                confirmColor = colors.primary,
+                onConfirm = {
+                    onToggleTool(tool.id, true)
+                    pendingHighRiskTool = null
+                },
+                onDismiss = { pendingHighRiskTool = null },
+            )
         }
     }
 }

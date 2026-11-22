@@ -12,6 +12,16 @@ import com.dorai.ai.network.tools.ToolInfo
 import com.dorai.ai.network.tools.ToolSchema
 import com.dorai.ai.openUrl
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.tool_check_bd_sim_balance_description
+import dorai.composeapp.generated.resources.tool_check_bd_sim_balance_name
+import dorai.composeapp.generated.resources.tool_detect_sim_operator_description
+import dorai.composeapp.generated.resources.tool_detect_sim_operator_name
+import dorai.composeapp.generated.resources.tool_device_info_description
+import dorai.composeapp.generated.resources.tool_device_info_name
+import dorai.composeapp.generated.resources.tool_dial_phone_description
+import dorai.composeapp.generated.resources.tool_dial_phone_name
+import dorai.composeapp.generated.resources.tool_dial_ussd_description
+import dorai.composeapp.generated.resources.tool_dial_ussd_name
 import dorai.composeapp.generated.resources.tool_get_local_time_description
 import dorai.composeapp.generated.resources.tool_get_local_time_name
 import dorai.composeapp.generated.resources.tool_get_location_description
@@ -187,6 +197,7 @@ object CommonTools {
         description = "Get estimated location from IP address",
         nameRes = Res.string.tool_get_location_name,
         descriptionRes = Res.string.tool_get_location_description,
+        isHighRisk = true,
     )
 
     val localTimeTool = object : Tool {
@@ -341,6 +352,9 @@ object CommonTools {
         id = "dial_phone",
         name = "Dial Phone",
         description = "Open the phone dialer with a given number",
+        nameRes = Res.string.tool_dial_phone_name,
+        descriptionRes = Res.string.tool_dial_phone_description,
+        isHighRisk = true,
     )
 
     val dialUssdTool = object : Tool {
@@ -384,6 +398,9 @@ object CommonTools {
         id = "dial_ussd",
         name = "Dial USSD",
         description = "Dial a USSD code to check SIM balance",
+        nameRes = Res.string.tool_dial_ussd_name,
+        descriptionRes = Res.string.tool_dial_ussd_description,
+        isHighRisk = true,
     )
 
     private val bdOperatorBalanceCodes = mapOf(
@@ -430,6 +447,9 @@ object CommonTools {
         id = "detect_sim_operator",
         name = "Detect SIM Operator",
         description = "Detect the SIM operator on the device",
+        nameRes = Res.string.tool_detect_sim_operator_name,
+        descriptionRes = Res.string.tool_detect_sim_operator_description,
+        isHighRisk = true,
     )
 
     val checkBdSimBalanceTool = object : Tool {
@@ -470,6 +490,9 @@ object CommonTools {
         id = "check_bd_sim_balance",
         name = "Check BD SIM Balance",
         description = "Check Bangladesh SIM operator balance via USSD",
+        nameRes = Res.string.tool_check_bd_sim_balance_name,
+        descriptionRes = Res.string.tool_check_bd_sim_balance_description,
+        isHighRisk = true,
     )
 
     val deviceInfoTool = object : Tool {
@@ -490,6 +513,9 @@ object CommonTools {
         id = "get_device_info",
         name = "Device Info",
         description = "Get device and app information",
+        nameRes = Res.string.tool_device_info_name,
+        descriptionRes = Res.string.tool_device_info_description,
+        isHighRisk = true,
     )
 
     // Every tool the chat UI may have to name, on every platform. Entries whose availability is
@@ -516,35 +542,38 @@ object CommonTools {
         SmsTools.smsToolDefinitions +
         NotificationTools.notificationToolDefinitions
 
+    /** Resolve the effective state from the same default the Tools tab shows. */
+    private fun isToolEnabled(appSettings: AppSettings, info: ToolInfo): Boolean = appSettings.isToolEnabled(info.id, defaultEnabled = !info.isHighRisk)
+
     fun getCommonTools(appSettings: AppSettings): List<Tool> = buildList {
-        if (appSettings.isToolEnabled(localTimeTool.schema.name)) {
+        if (isToolEnabled(appSettings, localTimeToolInfo)) {
             add(localTimeTool)
         }
-        if (appSettings.isToolEnabled(ipLocationTool.schema.name)) {
+        if (isToolEnabled(appSettings, ipLocationToolInfo)) {
             add(ipLocationTool)
         }
-        if (appSettings.isToolEnabled(WebSearchTool.schema.name)) {
+        if (isToolEnabled(appSettings, WebSearchTool.toolInfo)) {
             add(WebSearchTool)
         }
-        if (appSettings.isToolEnabled(openUrlTool.schema.name)) {
+        if (isToolEnabled(appSettings, openUrlToolInfo)) {
             add(openUrlTool)
         }
-        if (appSettings.isToolEnabled(FetchUrlTool.schema.name)) {
+        if (isToolEnabled(appSettings, FetchUrlTool.toolInfo)) {
             add(FetchUrlTool)
         }
-        if (appSettings.isToolEnabled(deviceInfoTool.schema.name)) {
+        if (isToolEnabled(appSettings, deviceInfoToolInfo)) {
             add(deviceInfoTool)
         }
-        if (appSettings.isToolEnabled(dialPhoneTool.schema.name)) {
+        if (isToolEnabled(appSettings, dialPhoneToolInfo)) {
             add(dialPhoneTool)
         }
-        if (appSettings.isToolEnabled(dialUssdTool.schema.name)) {
+        if (isToolEnabled(appSettings, dialUssdToolInfo)) {
             add(dialUssdTool)
         }
-        if (appSettings.isToolEnabled(checkBdSimBalanceTool.schema.name)) {
+        if (isToolEnabled(appSettings, checkBdSimBalanceToolInfo)) {
             add(checkBdSimBalanceTool)
         }
-        if (appSettings.isToolEnabled(detectSimOperatorTool.schema.name)) {
+        if (isToolEnabled(appSettings, detectSimOperatorToolInfo)) {
             add(detectSimOperatorTool)
         }
     }

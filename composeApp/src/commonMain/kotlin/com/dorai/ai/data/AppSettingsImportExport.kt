@@ -21,6 +21,7 @@ fun AppSettings.exportToJson(
     toolIds: List<String>,
     sections: Set<ImportSection> = ImportSection.entries.toSet(),
     conversations: List<Conversation> = emptyList(),
+    defaultEnabledByTool: (String) -> Boolean = { true },
 ): JsonObject {
     val map = mutableMapOf<String, JsonElement>()
     map["version"] = JsonPrimitive(1)
@@ -149,7 +150,7 @@ fun AppSettings.exportToJson(
     if (ImportSection.TOOLS in sections) {
         val toolStates = mutableMapOf<String, JsonElement>()
         for (toolId in toolIds) {
-            toolStates[toolId] = JsonPrimitive(isToolEnabled(toolId))
+            toolStates[toolId] = JsonPrimitive(isToolEnabled(toolId, defaultEnabled = defaultEnabledByTool(toolId)))
         }
         if (toolStates.isNotEmpty()) map["tool_overrides"] = JsonObject(toolStates)
     }
@@ -176,6 +177,7 @@ fun AppSettings.importFromJson(
     toolIds: List<String>,
     sections: Set<ImportSection> = ImportSection.entries.toSet(),
     replace: Boolean = true,
+    defaultEnabledByTool: (String) -> Boolean = { true },
 ): Int {
     var errors = 0
 
@@ -336,6 +338,7 @@ fun AppSettings.importFromJson(
         try {
             for (toolId in toolIds) {
                 settings.remove("$KEY_TOOL_PREFIX$toolId")
+                if (!defaultEnabledByTool(toolId)) setToolEnabled(toolId, false)
             }
             json["tool_overrides"]?.jsonObject?.forEach { (toolId, enabled) ->
                 setToolEnabled(toolId, enabled.jsonPrimitive.content.toBoolean())
@@ -346,6 +349,7 @@ fun AppSettings.importFromJson(
     } else if (replace) {
         for (toolId in toolIds) {
             settings.remove("$KEY_TOOL_PREFIX$toolId")
+            if (!defaultEnabledByTool(toolId)) setToolEnabled(toolId, false)
         }
     }
 

@@ -2643,7 +2643,7 @@ class RemoteDataRepository(
     // Tool management
     override fun getToolDefinitions(): List<ToolInfo> = getPlatformToolDefinitions()
         .filter { it.userToggleable }
-        .map { it.copy(isEnabled = appSettings.isToolEnabled(it.id, defaultEnabled = it.isEnabled)) }
+        .map { it.copy(isEnabled = appSettings.isToolEnabled(it.id, defaultEnabled = !it.isHighRisk)) }
 
     override fun setToolEnabled(toolId: String, enabled: Boolean) {
         appSettings.setToolEnabled(toolId, enabled)
@@ -3091,22 +3091,28 @@ class RemoteDataRepository(
         appSettings.setUiScale(scale)
     }
 
+    /** Fresh-install defaults for tools, used by settings export/import and reset. */
+    private fun defaultEnabledByTool(): (String) -> Boolean {
+        val highRiskIds = getPlatformToolDefinitions().filter { it.isHighRisk }.map { it.id }.toSet()
+        return { it !in highRiskIds }
+    }
+
     override fun exportSettingsToJson(sections: Set<ImportSection>): String {
         val toolIds = getPlatformToolDefinitions().map { it.id }
-        val jsonObject = appSettings.exportToJson(toolIds, sections, conversationStorage.conversations.value)
+        val jsonObject = appSettings.exportToJson(toolIds, sections, conversationStorage.conversations.value, defaultEnabledByTool())
         return prettyJson.encodeToString(JsonObject.serializer(), jsonObject)
     }
 
     override fun getExportPreview(): Map<ImportSection, String?> {
         val toolIds = getPlatformToolDefinitions().map { it.id }
-        val jsonObject = appSettings.exportToJson(toolIds, conversations = conversationStorage.conversations.value)
+        val jsonObject = appSettings.exportToJson(toolIds, conversations = conversationStorage.conversations.value, defaultEnabledByTool = defaultEnabledByTool())
         return detectExportableSections(jsonObject)
     }
 
     override fun importSettingsFromJson(json: String, sections: Set<ImportSection>, replace: Boolean): Int {
         val jsonObject = SharedJson.parseToJsonElement(json).jsonObject
         val toolIds = getPlatformToolDefinitions().map { it.id }
-        return appSettings.importFromJson(jsonObject, toolIds, sections, replace)
+        return appSettings.importFromJson(jsonObject, toolIds, sections, replace, defaultEnabledByTool())
     }
 
     override suspend fun askWithTools(prompt: String, instanceId: String?, conversationIdOverride: String?): String {
