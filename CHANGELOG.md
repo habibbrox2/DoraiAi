@@ -4,7 +4,7 @@
 - **Semantic selection/status tokens**: cyan is now the single selection color (`SelectedChip = PrimaryCyan`) and green is reserved for success/connected states; magenta is no longer used for generic selection. Documented in `theme-contract.md` and asserted by `PresetContrastTest`.
 - **Single, unambiguous selection UI**: the model picker shows one `Active` badge and one labelled `Auto (try all)` entry (curated `auto` aliases hidden), and the chat header pill mirrors that exact label. "Auto-run read-only tools" now has a single control (the switch).
 - **Clearer settings**: Workspace errors show one `Connection failed` title plus a single detail banner; repository-empty copy no longer points at a possibly hidden Retry. Character counters are labelled, long catalog descriptions expand in place, and Voice settings are three cards instead of one. The fallback privacy note names the built-in free service, and the TTS tip uses the same percent units as its sliders.
-- **Bengali parity**: keyboard hints, character counters, model-expand labels, build-mode guidance and the email-connect action are localized; EN/BN baseline parity is now 1,537 keys each.
+- **Bengali parity**: keyboard hints, character counters, model-expand labels, build-mode guidance and the email-connect action are localized; EN/BN baseline parity is now 1,550 keys each after integration with the plugin opt-in keys.
 
 ### Fixed
 - **Detached message copy button**: the user-message copy action now sits in an attached action row under the bubble.
@@ -12,6 +12,17 @@
 - **Internal license note leak**: voice model rows show only the public `MPL-2.0` label; upstream verification/sign-off notes stay internal.
 - **Email empty-state dead end**: enabled-but-unconfigured email now offers an explicit action to copy the "connect my email" chat command.
 - **Build-mode empty state**: added explicit workspace/file guidance for first-time users.
+
+---
+
+## DORAI AI - Plugin opt-in safety (Unreleased)
+
+### Added
+- **High-risk plugin opt-in**: Dial Phone, Dial USSD, Check BD SIM Balance, Detect SIM Operator, Get Location and Device Info now start **disabled on fresh installs** and require an explicit confirmation dialog before being enabled. Existing saved preferences are never overwritten; ordinary plugins (Web Search, Open URL, Fetch URL, Local Time) keep their previous defaults. The opt-in gate is applied to both the Tools settings list and actual tool registration, so a tool shown as OFF cannot still execute.
+- **Localized plugin names**: English and Bengali resource keys added for all six high-risk plugins and the opt-in confirmation copy.
+
+### Changed
+- **Confirmation dialog**: `SettingsConfirmationDialog` accepts a configurable confirm color so opt-in actions are not styled as destructive.
 
 ---
 

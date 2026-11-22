@@ -39,6 +39,16 @@
     <string name="tool_get_local_time_description">আপেক্ষিক তারিখ ব্যাখ্যা করতে বর্তমান স্থানীয় তারিখ এবং সময় পান</string>
     <string name="tool_get_location_name">অবস্থান পান</string>
     <string name="tool_get_location_description">IP ঠিকানা থেকে আনুমানিক অবস্থান পান</string>
+    <string name="tool_dial_phone_name">ফোন নম্বরে কল করুন</string>
+    <string name="tool_dial_phone_description">নির্দিষ্ট নম্বরে কল শুরু করুন</string>
+    <string name="tool_dial_ussd_name">USSD কোড চালান</string>
+    <string name="tool_dial_ussd_description">SIM-এর বাকি টাকা চেক করতে USSD কোড চালান</string>
+    <string name="tool_check_bd_sim_balance_name">বাংলাদেশি SIM-এর বাকি টাকা চেক করুন</string>
+    <string name="tool_check_bd_sim_balance_description">USSD কোড দ্বারা বাংলাদেশি SIM অপারেটরের বাকি টাকা চেক করুন</string>
+    <string name="tool_detect_sim_operator_name">SIM অপারেটর শনাক্ত করুন</string>
+    <string name="tool_detect_sim_operator_description">ডিভাইসের SIM অপারেটর শনাক্ত করুন</string>
+    <string name="tool_device_info_name">ডিভাইস বিবরণ</string>
+    <string name="tool_device_info_description">ডিভাইস ও অ্যাপের বিবরণ দেখুন</string>
     <string name="tool_send_notification_name">বিজ্ঞপ্তি পাঠান</string>
     <string name="tool_send_notification_description">ডিভাইসে একটি পুশ বিজ্ঞপ্তি পাঠান</string>
     <string name="tool_create_calendar_event_name">ক্যালেন্ডার ইভেন্ট তৈরি করুন</string>
@@ -997,6 +1007,9 @@
     <string name="settings_skills_no_match">আপনার অনুসন্ধানের সঙ্গে মেলে এমন কোনো স্কিল নেই।</string>
     <string name="settings_plugins">প্লাগইন</string>
     <string name="settings_plugins_description">আপনার এজেন্ট কোন টুলগুলো চালাতে পারবে তা চালু বা বন্ধ করুন।</string>
+    <string name="settings_plugin_enable_title">%1$s চালু করবেন?</string>
+    <string name="settings_plugin_enable_message">এই টুল আপনার পক্ষ থেকে ফোন, অবস্থান বা ডিভাইস বিবরণে প্রবেশ করতে পারে। শুধু তখনই চালু করুন যখন আপনি এটি বিশ্বাস করেন। পরে Settings-এ বন্ধ করা যাবে।</string>
+    <string name="settings_plugin_enable_confirm">চালু করুন</string>
     <string name="settings_plugins_search">প্লাগইন খুঁজুন</string>
     <string name="settings_plugins_no_match">আপনার অনুসন্ধানের সঙ্গে মেলে এমন কোনো প্লাগইন নেই।</string>
     <string name="workspace_projects_cancel_uninstall">আনইনস্টল বাতিল করুন</string>

@@ -182,7 +182,11 @@ object ScreenshotTestData {
     )
 
     val settingsTools = SettingsUiState(
-        tools = getPlatformToolDefinitions().toImmutableList(),
+        // Mirror the production fresh-install state: high-risk plugins start OFF.
+        tools = getPlatformToolDefinitions()
+            .filter { it.userToggleable }
+            .map { it.copy(isEnabled = !it.isHighRisk) }
+            .toImmutableList(),
         mcpServers = persistentListOf(
             McpServerUiState(
                 id = "context7",
