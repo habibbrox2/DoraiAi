@@ -40,13 +40,12 @@ import org.koin.android.ext.android.get
 class MainActivity : ComponentActivity() {
 
     override fun attachBaseContext(newBase: Context) {
-        val languageCode = newBase.applicationContext
-            .getSharedPreferences("dorai_locale", Context.MODE_PRIVATE)
-            .getString("app_language", null)
+        // Resolves from LocaleManager on API 33+ (the system applies those locales to Resources
+        // before this call) and falls back to the persisted preference on older devices.
+        val languageCode = resolveAndroidColdStartLanguage(newBase)
         val wrapped = if (languageCode != null) {
-            // Cold start in the app-selected language. Compose Resources resolves against the
-            // context configuration, so wrapping with createConfigurationContext is enough for
-            // the whole UI (attachBaseContext runs before any inflation/composition).
+            // Belt-and-braces wrap for the pre-API-33 path and for upgrades where LocaleManager
+            // has not been populated yet. On API 33+ the system already applied the app locale.
             val config = android.content.res.Configuration(newBase.resources.configuration)
             config.setLocale(java.util.Locale.forLanguageTag(languageCode))
             newBase.createConfigurationContext(config)
@@ -60,6 +59,9 @@ class MainActivity : ComponentActivity() {
         DoraiLocaleActivityHolder.activity = this
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        // Existing installs may only have the legacy preference. Publish it to LocaleManager so
+        // the next cold start (and the current Resources) resolve every string in one language.
+        syncAndroidAppLocale(this)
         FileKit.init(this)
         handleDeepLinkIntent(intent)
 

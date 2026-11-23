@@ -856,6 +856,50 @@ class AppSettings(internal val settings: Settings) {
         settings.putString(KEY_NOTIFICATIONS_SYNC_STATE, json)
     }
 
+    // Supabase
+    fun getSupabaseUrl(): String = settings.getString(KEY_SUPABASE_URL, "")
+
+    fun setSupabaseUrl(url: String) {
+        settings.putString(KEY_SUPABASE_URL, url)
+    }
+
+    fun getSupabaseAnonKey(): String = settings.getString(KEY_SUPABASE_ANON_KEY, "")
+
+    fun setSupabaseAnonKey(key: String) {
+        settings.putString(KEY_SUPABASE_ANON_KEY, key)
+    }
+
+    // Auth
+    fun isUserLoggedIn(): Boolean = settings.getBoolean(KEY_IS_LOGGED_IN, false)
+
+    fun setUserLoggedIn(loggedIn: Boolean) {
+        settings.putBoolean(KEY_IS_LOGGED_IN, loggedIn)
+    }
+
+    fun getUserId(): String = settings.getString(KEY_USER_ID, "")
+
+    fun setUserId(userId: String) {
+        settings.putString(KEY_USER_ID, userId)
+    }
+
+    fun getUserEmail(): String = settings.getString(KEY_USER_EMAIL, "")
+
+    fun setUserEmail(userEmail: String) {
+        settings.putString(KEY_USER_EMAIL, userEmail)
+    }
+
+    fun getUserDisplayName(): String = settings.getString(KEY_USER_DISPLAY_NAME, "")
+
+    fun setUserDisplayName(userDisplayName: String) {
+        settings.putString(KEY_USER_DISPLAY_NAME, userDisplayName)
+    }
+
+    fun getSupabaseAccessToken(): String = settings.getString(KEY_SUPABASE_ACCESS_TOKEN, "")
+
+    fun setSupabaseAccessToken(token: String) {
+        settings.putString(KEY_SUPABASE_ACCESS_TOKEN, token)
+    }
+
     // Local model context size
     fun getModelContextTokens(modelId: String): Int = settings.getInt("$KEY_MODEL_CONTEXT_PREFIX$modelId", 0)
 
@@ -961,6 +1005,19 @@ class AppSettings(internal val settings: Settings) {
         const val KEY_NOTIFICATIONS_PENDING = "notifications_pending"
         const val KEY_NOTIFICATIONS_STORE = "notifications_store"
         const val KEY_NOTIFICATIONS_SYNC_STATE = "notifications_sync_state"
+
+        // Auth
+        const val KEY_IS_LOGGED_IN = "is_logged_in"
+        const val KEY_USER_ID = "user_id"
+        const val KEY_USER_EMAIL = "user_email"
+        const val KEY_USER_DISPLAY_NAME = "user_display_name"
+
+// Supabase Auth token (for Dorai Cloud API calls)
+        const val KEY_SUPABASE_ACCESS_TOKEN = "supabase_access_token"
+
+        // Supabase
+        const val KEY_SUPABASE_URL = "supabase_url"
+        const val KEY_SUPABASE_ANON_KEY = "supabase_anon_key"
         const val KEY_CONFIGURED_SERVICES = "configured_services"
         const val KEY_DEFAULT_SERVICES_SEEDED = "default_services_seeded_v1"
         const val KEY_FREE_FALLBACK_ENABLED = "free_fallback_enabled"

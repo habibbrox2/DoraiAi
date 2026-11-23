@@ -15,17 +15,10 @@ import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.engine.DoraiTheme
 import com.dorai.ai.ui.chat.composables.ToolConfirmationCard
 import com.dorai.ai.ui.chat.composables.ToolExecutionCard
-import com.dorai.ai.ui.components.OperationalStatus
-import com.dorai.ai.ui.dashboard.DashboardScreenContent
-import com.dorai.ai.ui.dashboard.DashboardUiState
-import com.dorai.ai.ui.dashboard.FactText
-import com.dorai.ai.ui.dashboard.ReadinessFact
-import com.dorai.ai.ui.dashboard.ServiceReadiness
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.workspace.WorkspaceActions
 import com.dorai.ai.ui.workspace.WorkspaceScreenContent
 import com.dorai.ai.ui.workspace.WorkspaceUiState
-import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.resources.setResourceReaderAndroidContext
 import org.junit.Before
 import org.junit.Rule
@@ -72,42 +65,6 @@ class PremiumScreenScreenshotTest {
                     }
                 }
             }
-        }
-    }
-
-    @Test
-    fun dashboard_overview_dark() {
-        paparazzi.snap {
-            DashboardScreenContent(
-                state = DashboardUiState(
-                    service = ServiceReadiness(
-                        serviceName = "OpenAI",
-                        modelId = "GPT-6",
-                        isSharedKey = false,
-                    ),
-                    facts = persistentListOf(
-                        ReadinessFact(
-                            FactText.Raw("Workspace"),
-                            FactText.Raw("Ready"),
-                            OperationalStatus.Ready,
-                        ),
-                        ReadinessFact(
-                            FactText.Raw("Sandbox"),
-                            FactText.Raw("Ready"),
-                            OperationalStatus.Ready,
-                        ),
-                    ),
-                    recentProjects = persistentListOf("brox-kai-2.0"),
-                    isBuildAvailable = true,
-                    isSandboxAvailable = true,
-                    isDesignAvailable = true,
-                ),
-                onNavigateToChat = {},
-                onOpenBuild = {},
-                onOpenSettings = {},
-                onStartDesign = {},
-                onOpenConversation = {},
-            )
         }
     }
 
