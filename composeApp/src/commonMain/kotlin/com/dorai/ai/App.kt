@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Density
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil3.ImageLoader
@@ -185,7 +186,7 @@ private fun AppContent(
 
     val authViewModel = AuthViewModel(appSettings)
 
-    val isUserLoggedIn by remember { authViewModel.isLoggedIn.value }
+    val isUserLoggedIn by authViewModel.isLoggedIn.collectAsState()
 
     LaunchedEffect(appLanguage) {
         try {

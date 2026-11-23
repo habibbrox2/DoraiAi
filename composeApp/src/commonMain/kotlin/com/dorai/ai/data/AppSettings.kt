@@ -856,19 +856,6 @@ class AppSettings(internal val settings: Settings) {
         settings.putString(KEY_NOTIFICATIONS_SYNC_STATE, json)
     }
 
-    // Supabase
-    fun getSupabaseUrl(): String = settings.getString(KEY_SUPABASE_URL, "")
-
-    fun setSupabaseUrl(url: String) {
-        settings.putString(KEY_SUPABASE_URL, url)
-    }
-
-    fun getSupabaseAnonKey(): String = settings.getString(KEY_SUPABASE_ANON_KEY, "")
-
-    fun setSupabaseAnonKey(key: String) {
-        settings.putString(KEY_SUPABASE_ANON_KEY, key)
-    }
-
     // Auth
     fun isUserLoggedIn(): Boolean = settings.getBoolean(KEY_IS_LOGGED_IN, false)
 
@@ -1014,10 +1001,6 @@ class AppSettings(internal val settings: Settings) {
 
 // Supabase Auth token (for Dorai Cloud API calls)
         const val KEY_SUPABASE_ACCESS_TOKEN = "supabase_access_token"
-
-        // Supabase
-        const val KEY_SUPABASE_URL = "supabase_url"
-        const val KEY_SUPABASE_ANON_KEY = "supabase_anon_key"
         const val KEY_CONFIGURED_SERVICES = "configured_services"
         const val KEY_DEFAULT_SERVICES_SEEDED = "default_services_seeded_v1"
         const val KEY_FREE_FALLBACK_ENABLED = "free_fallback_enabled"

@@ -1,8 +1,13 @@
 package com.dorai.ai.ui.settings
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.dorai.ai.data.AppSettings
-import kotlin.result.Result
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * ViewModel that exposes auth state from [AppSettings] as [StateFlow]s for Compose.
@@ -11,14 +16,14 @@ import kotlin.result.Result
  */
 class AuthViewModel(private val settings: AppSettings) : ViewModel() {
 
-    private val _isLoggedIn = androidx.lifecycle.MutableStateFlow(settings.isUserLoggedIn())
-    val isLoggedIn: androidx.lifecycle.StateFlow<Boolean> = _isLoggedIn
+    private val _isLoggedIn = MutableStateFlow(settings.isUserLoggedIn())
+    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
 
-    private val _userEmail = androidx.lifecycle.MutableStateFlow(settings.getUserEmail())
-    val userEmail: androidx.lifecycle.StateFlow<String> = _userEmail
+    private val _userEmail = MutableStateFlow(settings.getUserEmail())
+    val userEmail: StateFlow<String> = _userEmail
 
-    private val _userDisplayName = androidx.lifecycle.MutableStateFlow(settings.getUserDisplayName())
-    val userDisplayName: androidx.lifecycle.StateFlow<String> = _userDisplayName
+    private val _userDisplayName = MutableStateFlow(settings.getUserDisplayName())
+    val userDisplayName: StateFlow<String> = _userDisplayName
 
     fun login(email: String, displayName: String) {
         settings.setUserLoggedIn(true)

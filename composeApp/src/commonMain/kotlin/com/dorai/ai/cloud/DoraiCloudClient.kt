@@ -20,9 +20,6 @@ import kotlinx.serialization.json.Json
 /** Default first-party façade endpoint (Cloudflare Worker). */
 const val DORAI_CLOUD_DEFAULT_URL = "https://dorai-cloud-api.hrhabib.workers.dev"
 
-/** Extension to get current Supabase access token from AppSettings. */
-fun AppSettings.getSupabaseAccessToken(): String = getString("supabase_access_token", "")
-
 @Serializable
 data class DoraiCloudUsageDto(
     val embedding: Int = 0,
@@ -178,7 +175,6 @@ class DoraiCloudClient(
 ) {
 
     /** Factory creates a client that automatically uses the token from [AppSettings]. */
-    @JvmOverloads
     data class ClientParams(
         val httpClient: HttpClient,
         val baseUrl: String = DORAI_CLOUD_DEFAULT_URL,

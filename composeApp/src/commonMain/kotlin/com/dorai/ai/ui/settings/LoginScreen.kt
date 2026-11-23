@@ -1,17 +1,30 @@
 package com.dorai.ai.ui.settings
 
-import androidx.compose.foundation.text.TextField
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.dorai.ai.data.AppSettings
-import com.dorai.ai.ui.settings.AuthViewModel.*
+import com.dorai.ai.ui.settings.AuthViewModel
 
 @Composable
 fun LoginScreen(
@@ -38,9 +51,9 @@ fun LoginScreen(
             style = TextStyle(
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Primary,
+                color = Color.Blue,
             ),
-            modifier = Modifier.align(Alignment.TopCenter),
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -59,7 +72,7 @@ fun LoginScreen(
             label = { Text("Password") },
             placeholder = { Text("enter your password") },
             modifier = Modifier.fillMaxWidth(),
-            isPassword = true,
+            visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
         )
 
         OutlinedTextField(
@@ -74,7 +87,7 @@ fun LoginScreen(
             Text(
                 text = error,
                 style = TextStyle(
-                    color = Color.Error,
+                    color = Color.Red,
                 ),
                 modifier = Modifier.padding(8.dp),
             )
@@ -83,20 +96,22 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = try {
-                if (email.isNotBlank() && password.isNotBlank()) {
-                    viewModel.login(email, displayName)
-                    onLoginSuccess()
-                } else {
-                    error = "Please enter email and password"
+            onClick = {
+                try {
+                    if (email.isNotBlank() && password.isNotBlank()) {
+                        viewModel.login(email, displayName)
+                        onLoginSuccess()
+                    } else {
+                        error = "Please enter email and password"
+                    }
+                } catch (e: Exception) {
+                    error = "Login failed: ${e.message}"
                 }
-            } catch (e: Exception) {
-                error = "Login failed: ${e.message}"
             },
             enabled = error.isEmpty(),
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("Sign In", modifier = Modifier.align(Alignment.CenterHorizontal))
+            Text("Sign In")
         }
 
         Spacer(modifier = Modifier.height(24.dp))

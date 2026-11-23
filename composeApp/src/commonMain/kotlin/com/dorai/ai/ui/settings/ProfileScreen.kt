@@ -1,36 +1,45 @@
 package com.dorai.ai.ui.settings
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.TextField
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.dorai.ai.data.AppSettings
+import com.dorai.ai.ui.settings.AuthViewModel
 
 @Composable
 fun ProfileScreen(
     viewModel: AuthViewModel,
     onSignOut: () -> Unit,
 ) {
-    var displayName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-
-    // Initialize from view model state
     val isLoggedIn by viewModel.isLoggedIn.collectAsState()
     val userEmail by viewModel.userEmail.collectAsState()
     val userDisplayName by viewModel.userDisplayName.collectAsState()
 
-    // Sync local state with view model on composition start
-    DisposableEffect(isLoggedIn) {
-        if (isLoggedIn != null) {
-            displayName = userDisplayName.valueOrNull() ?: ""
-            email = userEmail.valueOrNull() ?: ""
-        }
-    }
+    var displayName by remember { mutableStateOf(userDisplayName) }
+    var email by remember { mutableStateOf(userEmail) }
 
     Column(
         modifier = Modifier
@@ -39,38 +48,22 @@ fun ProfileScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        topAppBar = topAppBar {
-            MaterialTheme.topAppBar(
-                elevation = 4.dp,
-                colors = MaterialTheme.colors,
-                title = {
-                    Text(
-                        text = "Profile",
-                        style = TextStyle(
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
-                        ),
-                    )
-                },
-                supportingIcon = {
-                    Icon(
-                        imageVector = androidx.compose.material.icons.Filled.Person,
-                        contentDescription = stringResource(
-                            R.string.user_profile_content_description
-                        ),
-                    )
-                },
-            )
-        }
+        Text(
+            text = "Profile",
+            style = TextStyle(
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+            ),
+            modifier = Modifier.padding(vertical = 8.dp),
+        )
 
         Text(
-            text = "Welcome, ${displayName.capitalize() or "User"}",
+            text = "Welcome, ${if (displayName.isNotBlank()) displayName else "User"}",
             style = TextStyle(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
             ),
             modifier = Modifier.padding(vertical = 8.dp),
-            alignment = Alignment.CenterHorizontally,
         )
 
         OutlinedTextField(
@@ -87,22 +80,22 @@ fun ProfileScreen(
             label = { Text("Email address") },
             placeholder = { Text("Enter your email") },
             modifier = Modifier.fillMaxWidth(),
-            enabled = false, // email is read‑only
+            enabled = false, // email is read-only
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Row(
-            arrangement = Arrangement.End,
+            horizontalArrangement = Arrangement.End,
             modifier = Modifier.padding(horizontal = 16.dp),
         ) {
             OutlinedButton(
                 onClick = onSignOut,
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color.Error,
+                    contentColor = Color.Red,
                 ),
             ) {
-                Text("Sign Out", modifier = Modifier.align(Alignment.CenterHorizontal))
+                Text("Sign Out")
             }
         }
     }
