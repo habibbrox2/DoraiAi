@@ -152,6 +152,10 @@ class SettingsViewModel(
         smsSendPermissionGranted = dataRepository.hasSmsSendPermission(),
         showNotificationsSection = isNotificationsSupported,
         isNotificationsEnabled = dataRepository.isNotificationsEnabled(),
+        isFirebaseAlertsEnabled = dataRepository.isFirebaseAlertsEnabled(),
+        fcmDeviceToken = dataRepository.getFcmDeviceToken().takeIf { it.isNotBlank() },
+        firebaseProjectId = dataRepository.getFirebaseProjectId(),
+        firebaseApiKey = dataRepository.getFirebaseApiKey(),
         notificationListenerAccessGranted = dataRepository.isNotificationListenerAccessGranted(),
         notificationListenerBound = dataRepository.getNotificationSyncState().listenerBound,
         notificationPendingCount = dataRepository.getPendingNotificationCount(),
@@ -220,6 +224,10 @@ class SettingsViewModel(
         onRefreshSms = ::onRefreshSms,
         onToggleSmsSend = ::onToggleSmsSend,
         onToggleNotifications = ::onToggleNotifications,
+        onToggleFirebaseAlerts = ::onToggleFirebaseAlerts,
+        onChangeFirebaseProjectId = ::onChangeFirebaseProjectId,
+        onChangeFirebaseApiKey = ::onChangeFirebaseApiKey,
+        onSendTestAlert = ::onSendTestAlert,
         onOpenNotificationListenerSettings = ::onOpenNotificationListenerSettings,
         onOpenAppPermissionSettings = ::onOpenAppPermissionSettings,
         onRecheckLocalNetworkPermission = ::onRecheckLocalNetworkPermission,
@@ -950,6 +958,30 @@ class SettingsViewModel(
         }
         if (enabled && !dataRepository.isNotificationListenerAccessGranted()) {
             dataRepository.openNotificationListenerSettings()
+        }
+    }
+
+    private fun onToggleFirebaseAlerts(enabled: Boolean) {
+        dataRepository.setFirebaseAlertsEnabled(enabled)
+        _state.update { it.copy(isFirebaseAlertsEnabled = enabled, testAlertResult = null) }
+    }
+
+    private fun onChangeFirebaseProjectId(id: String) {
+        dataRepository.setFirebaseProjectId(id)
+        _state.update { it.copy(firebaseProjectId = id) }
+    }
+
+    private fun onChangeFirebaseApiKey(key: String) {
+        dataRepository.setFirebaseApiKey(key)
+        _state.update { it.copy(firebaseApiKey = key) }
+    }
+
+    private fun onSendTestAlert() {
+        if (_state.value.isSendingTestAlert) return
+        _state.update { it.copy(isSendingTestAlert = true, testAlertResult = null) }
+        viewModelScope.launch(backgroundDispatcher) {
+            val result = dataRepository.sendTestFirebaseAlert()
+            _state.update { it.copy(isSendingTestAlert = false, testAlertResult = result) }
         }
     }
 

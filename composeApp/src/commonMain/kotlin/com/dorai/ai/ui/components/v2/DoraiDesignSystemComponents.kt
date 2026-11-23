@@ -609,6 +609,9 @@ fun ActionButton(
                 shape = shape,
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = colors.text,
+                    // Material's default disabled content alpha (0.38) made "Starting…"
+                    // effectively unreadable on dark surfaces.
+                    disabledContentColor = colors.text.copy(alpha = 0.7f),
                 ),
                 border = ButtonDefaults.outlinedButtonBorder.copy(
                     brush = androidx.compose.ui.graphics.SolidColor(colors.line),

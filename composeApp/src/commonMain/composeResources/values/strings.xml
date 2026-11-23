@@ -1615,5 +1615,22 @@
     <string name="model_expand_description">Expand description</string>
     <string name="model_collapse_description">Collapse description</string>
     <string name="chat_empty_build_guidance">Build mode can create and edit files in your workspace. Attach a file or open Workspace to begin.</string>
+    <string name="home_project_changes">%1$s · %2$d changes</string>
+    <string name="home_start_sandbox">Start</string>
+    <string name="home_starting_sandbox">Starting…</string>
+    <string name="firebase_device_token_label">Device Token: %1$s</string>
+    <string name="firebase_send_test_alert">Send Test Alert</string>
+    <string name="a11y_paste_from_clipboard">Paste from clipboard</string>
+    <string name="a11y_permission_required">Permission Required</string>
+    <string name="a11y_warning">Warning</string>
+    <string name="splinterlands_versus">vs %1$s</string>
+    <string name="settings_heartbeat_error_no_service">No service configured</string>
+    <string name="home_cancel_sandbox">Cancel</string>
+    <string name="firebase_project_id_label">Firebase Project ID</string>
+    <string name="firebase_server_token_label">Server token (OAuth2 access token)</string>
+    <string name="firebase_test_alert_sending">Sending test alert…</string>
+    <string name="firebase_test_alert_sent">Test alert sent.</string>
+    <string name="firebase_test_alert_failed">Could not send test alert: %1$s</string>
+    <string name="firebase_config_missing">Set the project ID, server token and device token first.</string>
 </resources>
 

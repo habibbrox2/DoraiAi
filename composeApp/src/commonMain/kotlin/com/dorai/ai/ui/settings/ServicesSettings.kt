@@ -138,6 +138,8 @@ import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.a11y_delete_downloaded_model
 import dorai.composeapp.generated.resources.a11y_open_on_github
+import dorai.composeapp.generated.resources.a11y_paste_from_clipboard
+import dorai.composeapp.generated.resources.action_clear
 import dorai.composeapp.generated.resources.ic_arrow_drop_down
 import dorai.composeapp.generated.resources.litert_cancel
 import dorai.composeapp.generated.resources.litert_context_size
@@ -2103,7 +2105,7 @@ private fun ApiKeyField(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ContentPaste,
-                        contentDescription = "Paste from clipboard",
+                        contentDescription = stringResource(Res.string.a11y_paste_from_clipboard),
                         tint = colors.textSecondary,
                         modifier = Modifier.size(20.dp),
                     )
@@ -2115,7 +2117,7 @@ private fun ApiKeyField(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Clear,
-                            contentDescription = "Clear",
+                            contentDescription = stringResource(Res.string.action_clear),
                             tint = colors.textSecondary,
                             modifier = Modifier.size(20.dp),
                         )

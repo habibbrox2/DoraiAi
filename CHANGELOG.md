@@ -1,10 +1,39 @@
+## DORAI AI - Emulator review follow-ups (Unreleased)
+
+### Added
+- **Android 13+ per-app locale**: the selected app language is published through `LocaleManager.setApplicationLocales` (API 33+), with the legacy `attachBaseContext` wrap kept as a fallback. A pure `AppLocalePolicy` pins the cold-start resolution and is covered by `AppLocalePolicyTest` (API threshold, tag sanitization and platform-vs-preference precedence).
+- **Firebase alert controls are real**: the toggle persists through `AppSettings`, and the Project ID / OAuth2 server token fields plus the test button are wired through `SettingsActions` → `SettingsViewModel` → `DataRepository.sendTestFirebaseAlert()` (FCM v1). Inline sending/success/failure feedback is localized.
+- **Sandbox Cancel on Home**: a localized Cancel action next to the disabled "Starting…" button calls `SandboxViewModel.onCancelSandbox`, so a long setup can be aborted without leaving Home.
+
+### Fixed
+- **Mixed-language cold start**: Compose Resources now resolve from one authoritative locale at startup instead of mixing English and Bengali strings within a screen — verified on an API 37 emulator after publishing the per-app locale.
+- **Heartbeat log error**: the hardcoded "No configured service" sentinel is now rendered through a localized resource (`settings_heartbeat_error_no_service`), including the expanded detail view.
+- **Disabled control contrast**: `ActionButtonVariant.OUTLINED` now uses a readable disabled content color instead of Material's 0.38 alpha default.
+- New EN/BN keys for the above; EN/BN baseline parity is now 1,567 keys each.
+
+---
+
+## DORAI AI - UI/UX review fixes (Unreleased)
+
+### Added
+- **Home sandbox start**: the Home "Start" button now runs the real sandbox setup (`SandboxViewModel.onSetupSandbox`) instead of a no-op, shows a localized "Starting…" state, and disables while setup is in progress. `HomeUiState` gains `isSandboxStarting`.
+- **New localized strings**: `home_project_changes`, `home_start_sandbox`, `home_starting_sandbox`, `firebase_device_token_label`, `firebase_send_test_alert`, `a11y_paste_from_clipboard`, `a11y_permission_required`, `a11y_warning`, and `splinterlands_versus` in English and Bengali; EN/BN baseline parity is now 1,567 keys each.
+
+### Changed
+- **Removed dual-Home drift**: deleted the runtime-unused legacy `ui.dashboard` screen, its models, and its unit test; the shipped `DoraiHomeScreen` is now the single Home implementation, and the two obsolete dashboard screenshot tests and goldens were removed.
+
+### Fixed
+- **Remaining hardcoded English**: Firebase "Send Test Alert" and "Device Token", the Home "… changes" and "Start" labels, the Splinterlands "vs …" label, and the paste/clear/permission/warning accessibility descriptions now resolve through Compose Resources in Bengali mode.
+
+---
+
 ## DORAI AI - UI/UX migration follow-ups (Unreleased)
 
 ### Changed
 - **Semantic selection/status tokens**: cyan is now the single selection color (`SelectedChip = PrimaryCyan`) and green is reserved for success/connected states; magenta is no longer used for generic selection. Documented in `theme-contract.md` and asserted by `PresetContrastTest`.
 - **Single, unambiguous selection UI**: the model picker shows one `Active` badge and one labelled `Auto (try all)` entry (curated `auto` aliases hidden), and the chat header pill mirrors that exact label. "Auto-run read-only tools" now has a single control (the switch).
 - **Clearer settings**: Workspace errors show one `Connection failed` title plus a single detail banner; repository-empty copy no longer points at a possibly hidden Retry. Character counters are labelled, long catalog descriptions expand in place, and Voice settings are three cards instead of one. The fallback privacy note names the built-in free service, and the TTS tip uses the same percent units as its sliders.
-- **Bengali parity**: keyboard hints, character counters, model-expand labels, build-mode guidance and the email-connect action are localized; EN/BN baseline parity is now 1,550 keys each after integration with the plugin opt-in keys.
+- **Bengali parity**: keyboard hints, character counters, model-expand labels, build-mode guidance and the email-connect action are localized; EN/BN baseline parity is now 1,559 keys each.
 
 ### Fixed
 - **Detached message copy button**: the user-message copy action now sits in an attached action row under the bubble.

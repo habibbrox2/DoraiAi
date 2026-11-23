@@ -262,6 +262,7 @@ private fun AppContent(
                         currentModelName = currentModelName,
                         isModelLocal = isModelLocal,
                         isSandboxRunning = sandboxState.sandboxReady,
+                        isSandboxStarting = sandboxState.isWorking,
                         recentChats = chatUiState.savedConversations.take(3).map {
                             // null snippet → localized "Updated recently" placeholder
                             HomeChatSummary(it.id, it.title)
@@ -289,6 +290,8 @@ private fun AppContent(
                                 currentSettingsCategory = SettingsCategory.Providers
                                 shellState.navigateTo(DoraiDestination.Settings)
                             },
+                            onStartSandbox = { sandboxViewModel.onSetupSandbox() },
+                            onCancelSandbox = { sandboxViewModel.onCancelSandbox() },
                         )
                     },
                     chatContent = {

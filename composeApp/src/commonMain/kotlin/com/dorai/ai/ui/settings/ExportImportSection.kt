@@ -59,6 +59,7 @@ import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.DesignTokens
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_warning
 import dorai.composeapp.generated.resources.export_import_restore_backup_subtitle
 import dorai.composeapp.generated.resources.export_import_save_backup_subtitle
 import dorai.composeapp.generated.resources.export_warning_message
@@ -504,7 +505,7 @@ private fun ExportPreviewDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.WarningAmber,
-                            contentDescription = "Warning",
+                            contentDescription = stringResource(Res.string.a11y_warning),
                             tint = LocalDesignColorTokens.current.warning,
                             modifier = Modifier.size(20.dp),
                         )

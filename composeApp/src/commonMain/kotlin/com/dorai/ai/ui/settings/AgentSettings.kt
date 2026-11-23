@@ -168,6 +168,13 @@ internal fun AgentContent(uiState: SettingsUiState, actions: SettingsActions) {
                 enabled = uiState.isFirebaseAlertsEnabled,
                 onToggleEnabled = actions.onToggleFirebaseAlerts,
                 deviceToken = uiState.fcmDeviceToken,
+                projectId = uiState.firebaseProjectId,
+                apiKey = uiState.firebaseApiKey,
+                onChangeProjectId = actions.onChangeFirebaseProjectId,
+                onChangeApiKey = actions.onChangeFirebaseApiKey,
+                onSendTestAlert = actions.onSendTestAlert,
+                isSending = uiState.isSendingTestAlert,
+                testResult = uiState.testAlertResult,
             )
             if (uiState.showEmailToggle) {
                 SettingsCard {

@@ -1585,4 +1585,21 @@
     <string name="model_expand_description">বিবরণ প্রসারিত করুন</string>
     <string name="model_collapse_description">বিবরণ সংকুচিত করুন</string>
     <string name="chat_empty_build_guidance">বিল্ড মোড আপনার ওয়ার্কস্পেসে ফাইল তৈরি ও সম্পাদনা করতে পারে। শুরু করতে একটি ফাইল সংযুক্ত করুন বা ওয়ার্কস্পেস খুলুন।</string>
+    <string name="home_project_changes">%1$s · %2$dটি পরিবর্তন</string>
+    <string name="home_start_sandbox">শুরু করুন</string>
+    <string name="home_starting_sandbox">শুরু হচ্ছে…</string>
+    <string name="firebase_device_token_label">ডিভাইস টোকেন: %1$s</string>
+    <string name="firebase_send_test_alert">টেস্ট অ্যালার্ট পাঠান</string>
+    <string name="a11y_paste_from_clipboard">ক্লিপবোর্ড থেকে পেস্ট করুন</string>
+    <string name="a11y_permission_required">অনুমতি প্রয়োজন</string>
+    <string name="a11y_warning">সতর্কতা</string>
+    <string name="splinterlands_versus">বনাম %1$s</string>
+    <string name="settings_heartbeat_error_no_service">কোনো পরিষেবা কনফিগার করা নেই</string>
+    <string name="home_cancel_sandbox">বাতিল</string>
+    <string name="firebase_project_id_label">Firebase প্রজেক্ট আইডি</string>
+    <string name="firebase_server_token_label">সার্ভার টোকেন (OAuth2 অ্যাক্সেস টোকেন)</string>
+    <string name="firebase_test_alert_sending">টেস্ট অ্যালার্ট পাঠানো হচ্ছে…</string>
+    <string name="firebase_test_alert_sent">টেস্ট অ্যালার্ট পাঠানো হয়েছে।</string>
+    <string name="firebase_test_alert_failed">টেস্ট অ্যালার্ট পাঠানো যায়নি: %1$s</string>
+    <string name="firebase_config_missing">আগে প্রজেক্ট আইডি, সার্ভার টোকেন এবং ডিভাইস টোকেন সেট করুন।</string>
 </resources>
