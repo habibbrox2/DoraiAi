@@ -205,7 +205,10 @@ jobs:
         with:
           packages: platform-tools
       - name: Run Android FOSS compile and unit tests
-        run: ./gradlew :androidApp:compileFossDebugKotlin :androidApp:testFossDebugUnitTest --no-daemon --stacktrace
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: ./gradlew :androidApp:compileFossDebugKotlin :androidApp:testFossDebugUnitTest --no-daemon --stacktrace -DSUPABASE_URL="${{ secrets.SUPABASE_URL }}" -DSUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
 
   screenshots:
     name: Screenshot Regression
