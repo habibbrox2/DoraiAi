@@ -1285,6 +1285,19 @@
 
     <!-- I18N. UI strings migrated out of Kotlin hardcodes (en/bn; other locales fall back). -->
     <string name="action_cancel">Cancel</string>
+
+    <!-- Auth -->
+    <string name="auth_login">Sign In</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_full_name">Full name</string>
+    <string name="auth_welcome_back">Welcome back!</string>
+    <string name="auth_signed_in_as">Signed in as %s</string>
+    <string name="auth_sign_out">Sign Out</string>
+    <string name="auth_profile">Profile</string>
+    <string name="auth_edit_profile">Edit Profile</string>
+    <string name="auth_save">Save</string>
+    <string name="auth_cancel">Cancel</string>
     <string name="action_save">Save</string>
     <string name="action_clear">Clear</string>
     <string name="action_rename">Rename</string>

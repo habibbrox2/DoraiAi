@@ -2987,6 +2987,96 @@ class RemoteDataRepository(
         appSettings.setFcmDeviceToken(token.trim())
     }
 
+    // Supabase Auth via REST API
+    private val supabaseUrl = appSettings.getSupabaseUrl()
+    private val supabaseAnonKey = appSettings.getSupabaseAnonKey()
+    private val supabaseHeaders = mapOf(
+        "apikey" to supabaseAnonKey,
+        "Content-Type" to "application/json",
+    )
+
+    override fun isUserLoggedIn(): Boolean {
+        val user = supabaseCurrentUser()
+        return user != null && user.accessToken != null
+    }
+
+    override fun getUserEmail(): String = supabaseCurrentUser()?.let { user ->
+        user.email ?: ""
+    } ?: ""
+
+    override fun getUserDisplayName(): String = supabaseCurrentUser()?.let { user ->
+        user.userMetadata?.get("name") ?: user.email.split("@").firstOrNull()?.capitalize() ?: "User"
+    } ?: ""
+
+    private suspend fun <T> supabaseRequest(block: suspend () -> Result<T>): Result<T> = try {
+        block()
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    private suspend fun supabaseCurrentUser(): com.dorai.ai.data.dto.SupabaseUser? = supabaseRequest {
+        val response = httpClient().runBlocking {
+            url("$supabaseUrl/auth/v1/user").header("apikey", supabaseAnonKey).get()
+        }
+        if (response.statusCode == 200) {
+            parseSupabaseUser(response.body?.string() ?: "")
+        } else {
+            null
+        }
+    }
+
+    private fun parseSupabaseUser(json: String?): com.dorai.ai.data.dto.SupabaseUser? {
+        return try {
+            Json.decodeFromString<SupabaseUser>(json ?: "")
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    override suspend fun login(email: String, password: String): Result<Unit> = try {
+        supabaseRequest {
+            val tokenResponse = httpClient().runBlocking {
+                url("$supabaseUrl/auth/v1/token?grant_type=password").header("apikey", supabaseAnonKey)
+                    .contentType("application/json")
+                    .post(mapOf("email" to email, "password" to password))
+            }
+            // Store Supabase access token for Dorai Cloud API calls
+            // Response format: {"access_token": "...", "refresh_token": "...", ...}
+            val accessToken = tokenResponse.body?.string()?.let { body ->
+                Json.decodeFromString<Map<String, Any>>(body)["access_token"]
+                    ?: ""
+            } ?: ""
+            appSettings.setSupabaseAccessToken(accessToken)
+            appSettings.setUserLoggedIn(true)
+            // Fetch user info after login
+            val user = supabaseCurrentUser()!!
+            appSettings.setUserId(user.id)
+            appSettings.setUserEmail(user.email!!
+            )
+            appSettings.setUserDisplayName(
+                user.userMetadata?.get("name") ?: user.email.split("@").firstOrNull()?.capitalize() ?: "User"
+            )
+            Result.success(Unit)
+        }
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    override suspend fun logout(): Result<Unit> = try {
+        supabaseRequest {
+            httpClient().runBlocking {
+                url("$supabaseUrl/auth/v1/logout").header("apikey", supabaseAnonKey).post("")
+            }
+            appSettings.setUserLoggedIn(false)
+            appSettings.setUserId("")
+            appSettings.setUserEmail("")
+            appSettings.setUserDisplayName("")
+            Result.success(Unit)
+        }
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
     override suspend fun sendTestFirebaseAlert(): Result<String?> {
         val config = FirebaseConfig(
             projectId = appSettings.getFirebaseProjectId(),
@@ -3436,6 +3526,17 @@ class RemoteDataRepository(
         localInferenceEngine?.deleteModel(modelId)
     }
 }
+
+/** Data class representing a Supabase user, matching the Supabase REST API response format. */
+@Serializable
+data class SupabaseUser(
+    val id: String,
+    val email: String?,
+    val userMetadata: Map<String, String>?,
+    val accessToken: String?,
+    val createdAt: String?,
+    val updatedAt: String?
+)
 
 /**
  * Streams assistant text into a single in-place [History] row so the chat timeline renders the

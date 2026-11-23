@@ -1601,5 +1601,17 @@
     <string name="firebase_test_alert_sending">টেস্ট অ্যালার্ট পাঠানো হচ্ছে…</string>
     <string name="firebase_test_alert_sent">টেস্ট অ্যালার্ট পাঠানো হয়েছে।</string>
     <string name="firebase_test_alert_failed">টেস্ট অ্যালার্ট পাঠানো যায়নি: %1$s</string>
+    <!-- Auth -->
+    <string name="auth_login">সাইন ইন</string>
+    <string name="auth_email">ইমেইল</string>
+    <string name="auth_password">পাসওয়ার্ড</string>
+    <string name="auth_full_name">পূর্ণ নাম</string>
+    <string name="auth_welcome_back">বারবার স্বাগতম!</string>
+    <string name="auth_signed_in_as">%s sebagai signed in</string>
+    <string name="auth_sign_out">সাইন আউট</string>
+    <string name="auth_profile">প্রোফাইল</string>
+    <string name="auth_edit_profile">প্রোফাইল edit</string>
+    <string name="auth_save">সংরক্ষণ করুন</string>
+    <string name="auth_cancel">বাতিল</string>
     <string name="firebase_config_missing">আগে প্রজেক্ট আইডি, সার্ভার টোকেন এবং ডিভাইস টোকেন সেট করুন।</string>
 </resources>

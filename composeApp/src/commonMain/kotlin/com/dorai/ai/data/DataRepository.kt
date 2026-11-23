@@ -212,6 +212,13 @@ interface DataRepository {
     fun setFcmDeviceToken(token: String) = Unit
     suspend fun sendTestFirebaseAlert(): Result<String?> = Result.failure(IllegalStateException("Firebase remote alerts are not configured"))
 
+    // Auth
+    fun isUserLoggedIn(): Boolean
+    fun getUserEmail(): String
+    fun getUserDisplayName(): String
+    suspend fun login(email: String, password: String): Result<Unit>
+    suspend fun logout(): Result<Unit>
+
     // Email
     fun isEmailEnabled(): Boolean
     fun setEmailEnabled(enabled: Boolean)
