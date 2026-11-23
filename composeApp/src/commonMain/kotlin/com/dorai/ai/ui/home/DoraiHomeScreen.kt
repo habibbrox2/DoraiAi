@@ -33,6 +33,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,6 +62,7 @@ import com.dorai.ai.ui.components.v2.StatusType
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.app_updated_recently
+import dorai.composeapp.generated.resources.home_cancel_sandbox
 import dorai.composeapp.generated.resources.home_continue_project
 import dorai.composeapp.generated.resources.home_model_label
 import dorai.composeapp.generated.resources.home_models
@@ -69,6 +71,7 @@ import dorai.composeapp.generated.resources.home_new_chat
 import dorai.composeapp.generated.resources.home_no_approvals
 import dorai.composeapp.generated.resources.home_no_recent_chats
 import dorai.composeapp.generated.resources.home_open_project
+import dorai.composeapp.generated.resources.home_project_changes
 import dorai.composeapp.generated.resources.home_quick_start
 import dorai.composeapp.generated.resources.home_recent_chats
 import dorai.composeapp.generated.resources.home_review_approvals
@@ -77,7 +80,9 @@ import dorai.composeapp.generated.resources.home_running_count
 import dorai.composeapp.generated.resources.home_sandbox_label
 import dorai.composeapp.generated.resources.home_setup_workspace
 import dorai.composeapp.generated.resources.home_setup_workspace_desc
+import dorai.composeapp.generated.resources.home_start_sandbox
 import dorai.composeapp.generated.resources.home_start_setup
+import dorai.composeapp.generated.resources.home_starting_sandbox
 import dorai.composeapp.generated.resources.home_status
 import dorai.composeapp.generated.resources.home_stopped
 import dorai.composeapp.generated.resources.home_storage_label
@@ -112,6 +117,7 @@ data class HomeUiState(
     val currentModelName: String = "",
     val isModelLocal: Boolean = false,
     val isSandboxRunning: Boolean = false,
+    val isSandboxStarting: Boolean = false,
     val recentChats: List<HomeChatSummary> = emptyList(),
 )
 
@@ -127,6 +133,8 @@ fun DoraiHomeScreen(
     onNavigateToWorkspace: () -> Unit,
     onOpenConversation: (String) -> Unit,
     onOpenModels: () -> Unit,
+    onStartSandbox: () -> Unit,
+    onCancelSandbox: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalDoraiColors.current
@@ -187,7 +195,7 @@ fun DoraiHomeScreen(
                         ContinueOrSetupCard(state, onNavigateToWorkspace)
                         AgentActivityCard(state, onNavigateToWorkspace)
                         QuickStartCard(onNavigateToChat, onNavigateToWorkspace, onOpenModels)
-                        StatusCard(state)
+                        StatusCard(state, onStartSandbox, onCancelSandbox)
                     }
                 } else {
                     Column(verticalArrangement = Arrangement.spacedBy(DoraiSpacing.MD)) {
@@ -210,7 +218,7 @@ fun DoraiHomeScreen(
                                 QuickStartCard(onNavigateToChat, onNavigateToWorkspace, onOpenModels)
                             }
                             Box(modifier = Modifier.weight(1f)) {
-                                StatusCard(state)
+                                StatusCard(state, onStartSandbox, onCancelSandbox)
                             }
                         }
                     }
@@ -299,7 +307,7 @@ private fun ContinueOrSetupCard(
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        text = "${proj.branch} · ${proj.changesCount} changes",
+                        text = stringResource(Res.string.home_project_changes, proj.branch, proj.changesCount),
                         color = colors.muted,
                         fontSize = 13.sp,
                     )
@@ -488,7 +496,11 @@ private fun QuickChip(
 }
 
 @Composable
-private fun StatusCard(state: HomeUiState) {
+private fun StatusCard(
+    state: HomeUiState,
+    onStartSandbox: () -> Unit,
+    onCancelSandbox: () -> Unit,
+) {
     val colors = LocalDoraiColors.current
     val shape = RoundedCornerShape(16.dp)
 
@@ -520,7 +532,7 @@ private fun StatusCard(state: HomeUiState) {
                 Text(state.currentModelName, color = colors.text, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 Spacer(modifier = Modifier.width(6.dp))
                 if (state.currentModelName.equals("Auto", ignoreCase = true)) {
-                    StatusChip(text = "Auto", type = StatusType.INFO)
+                    StatusChip(text = state.currentModelName, type = StatusType.INFO)
                 } else {
                     DoraiProviderBadge(isLocal = state.isModelLocal, iconOnly = true)
                 }
@@ -543,11 +555,28 @@ private fun StatusCard(state: HomeUiState) {
                     color = if (state.isSandboxRunning) colors.ok else colors.muted,
                 )
                 if (!state.isSandboxRunning) {
-                    ActionButton(
-                        text = "Start",
-                        onClick = { /* Start sandbox */ },
-                        variant = ActionButtonVariant.OUTLINED,
-                    )
+                    if (state.isSandboxStarting) {
+                        // Keep the progress label visible, but give the user a way out: setup can
+                        // take minutes on a fresh install and the controller supports cancel.
+                        ActionButton(
+                            text = stringResource(Res.string.home_starting_sandbox),
+                            onClick = onStartSandbox,
+                            enabled = false,
+                            variant = ActionButtonVariant.OUTLINED,
+                        )
+                        TextButton(
+                            onClick = onCancelSandbox,
+                            colors = ButtonDefaults.textButtonColors(contentColor = colors.err),
+                        ) {
+                            Text(stringResource(Res.string.home_cancel_sandbox))
+                        }
+                    } else {
+                        ActionButton(
+                            text = stringResource(Res.string.home_start_sandbox),
+                            onClick = onStartSandbox,
+                            variant = ActionButtonVariant.OUTLINED,
+                        )
+                    }
                 }
             }
         }

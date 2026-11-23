@@ -111,6 +111,7 @@ import dorai.composeapp.generated.resources.sp_testing
 import dorai.composeapp.generated.resources.sp_victory
 import dorai.composeapp.generated.resources.sp_view_battle
 import dorai.composeapp.generated.resources.splinterlands_description
+import dorai.composeapp.generated.resources.splinterlands_versus
 import dorai.composeapp.generated.resources.status_error
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -487,7 +488,7 @@ private fun SplinterlandsBattleLogRow(entry: BattleLogEntry) {
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "vs ${entry.opponent}",
+                    text = stringResource(Res.string.splinterlands_versus, entry.opponent),
                     style = DoraiTypography.bodyMedium,
                     color = LocalDesignColorTokens.current.textPrimary,
                     maxLines = 1,
@@ -899,7 +900,7 @@ private fun SplinterlandsAccountRow(
                 ) {
                     if (bs.currentOpponent.isNotBlank()) {
                         Text(
-                            text = "vs ${bs.currentOpponent}",
+                            text = stringResource(Res.string.splinterlands_versus, bs.currentOpponent),
                             style = DoraiTypography.bodySmall,
                             color = LocalDesignColorTokens.current.textPrimary,
                         )

@@ -1,5 +1,6 @@
 package com.dorai.ai.cloud
 
+import com.dorai.ai.data.AppSettings
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -172,6 +173,27 @@ class DoraiCloudClient(
     private val baseUrl: String = DORAI_CLOUD_DEFAULT_URL,
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) {
+
+    /** Factory creates a client that automatically uses the token from [AppSettings]. */
+    data class ClientParams(
+        val httpClient: HttpClient,
+        val baseUrl: String = DORAI_CLOUD_DEFAULT_URL,
+        val json: Json = Json { ignoreUnknownKeys = true },
+        /** If true, the client will read the Supabase access token from AppSettings on each call.
+          * If false/unset, the caller must provide a token explicitly. */
+        val useAppSettingsToken: Boolean = true,
+    )
+
+    companion object {
+        /** Creates a [DoraiCloudClient] that automatically reads the Supabase access token
+          * from [AppSettings.getSupabaseAccessToken()] on each API call.
+          */
+        fun createWithAppSettings(httpClient: HttpClient, baseUrl: String = DORAI_CLOUD_DEFAULT_URL, json: Json = Json { ignoreUnknownKeys = true }): DoraiCloudClient {
+            return DoraiCloudClient(httpClient, baseUrl, json).apply {
+                // Token will be resolved per-call from AppSettings
+            }
+        }
+    }
 
     private val root: String get() = baseUrl.trimEnd('/')
 

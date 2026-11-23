@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Density
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil3.ImageLoader
@@ -47,7 +48,9 @@ import com.dorai.ai.ui.home.HomeChatSummary
 import com.dorai.ai.ui.home.HomeUiState
 import com.dorai.ai.ui.rememberSandboxAwareUriHandler
 import com.dorai.ai.ui.settings.AppearanceSettingsActions
+import com.dorai.ai.ui.settings.AuthViewModel
 import com.dorai.ai.ui.settings.DoraiSettingsScreenConnected
+import com.dorai.ai.ui.settings.LoginScreen
 import com.dorai.ai.ui.settings.SettingsCategory
 import com.dorai.ai.ui.workspace.DoraiWorkspaceScreenConnected
 import dorai.composeapp.generated.resources.Res
@@ -181,6 +184,10 @@ private fun AppContent(
 
     val appLanguage by appSettings.appLanguageFlow.collectAsStateWithLifecycle()
 
+    val authViewModel = AuthViewModel(appSettings)
+
+    val isUserLoggedIn by authViewModel.isLoggedIn.collectAsState()
+
     LaunchedEffect(appLanguage) {
         try {
             applyAppLanguage(appLanguage.code)
@@ -262,6 +269,7 @@ private fun AppContent(
                         currentModelName = currentModelName,
                         isModelLocal = isModelLocal,
                         isSandboxRunning = sandboxState.sandboxReady,
+                        isSandboxStarting = sandboxState.isWorking,
                         recentChats = chatUiState.savedConversations.take(3).map {
                             // null snippet → localized "Updated recently" placeholder
                             HomeChatSummary(it.id, it.title)
@@ -269,63 +277,82 @@ private fun AppContent(
                     )
                 }
 
-                DoraiAppShell(
-                    waitingApprovalsCount = pendingApprovalsCount,
-                    shellState = shellState,
-                    homeContent = {
-                        DoraiHomeScreen(
-                            state = homeState,
-                            onNavigateToChat = {
-                                shellState.navigateTo(DoraiDestination.Chat)
-                            },
-                            onNavigateToWorkspace = {
-                                shellState.navigateTo(DoraiDestination.Workspace)
-                            },
-                            onOpenConversation = { id ->
-                                chatViewModel.loadConversation(id)
-                                shellState.navigateTo(DoraiDestination.Chat)
-                            },
-                            onOpenModels = {
-                                currentSettingsCategory = SettingsCategory.Providers
-                                shellState.navigateTo(DoraiDestination.Settings)
-                            },
-                        )
-                    },
-                    chatContent = {
-                        DoraiChatScreenConnected(
-                            viewModel = chatViewModel,
-                            textToSpeech = textToSpeech,
-                            onNavigateToDashboard = {
-                                shellState.navigateTo(DoraiDestination.Home)
-                            },
-                            onNavigateToSettings = {
-                                shellState.navigateTo(DoraiDestination.Settings)
-                            },
-                            onNavigateToWorkspace = {
-                                shellState.navigateTo(DoraiDestination.Workspace)
-                            },
-                        )
-                    },
-                    workspaceContent = {
-                        DoraiWorkspaceScreenConnected()
-                    },
-                    settingsContent = {
-                        DoraiSettingsScreenConnected(
-                            activeCategory = currentSettingsCategory,
-                            onCategoryChanged = { currentSettingsCategory = it },
-                            selectedThemeId = themeState.selectedThemeId,
-                            onThemeSelected = { themeViewModel.selectTheme(it) },
-                            appearanceActions = AppearanceSettingsActions(
-                                matchDevice = themeState.matchDevice,
-                                onMatchDeviceChanged = { themeViewModel.setMatchDevice(it) },
-                            ),
-                            androidUpdateContent = androidUpdateContent,
-                            onNavigateToWorkspace = {
-                                shellState.navigateTo(DoraiDestination.Workspace)
-                            },
-                        )
-                    },
-                )
+                // Conditionally show login screen or home shell based on auth state
+                val authViewModel = AuthViewModel(appSettings)
+
+                if (isUserLoggedIn) {
+                    DoraiAppShell(
+                        waitingApprovalsCount = pendingApprovalsCount,
+                        shellState = shellState,
+                        homeContent = {
+                            DoraiHomeScreen(
+                                state = homeState,
+                                onNavigateToChat = {
+                                    shellState.navigateTo(DoraiDestination.Chat)
+                                },
+                                onNavigateToWorkspace = {
+                                    shellState.navigateTo(DoraiDestination.Workspace)
+                                },
+                                onOpenConversation = { id ->
+                                    chatViewModel.loadConversation(id)
+                                    shellState.navigateTo(DoraiDestination.Chat)
+                                },
+                                onOpenModels = {
+                                    currentSettingsCategory = SettingsCategory.Providers
+                                    shellState.navigateTo(DoraiDestination.Settings)
+                                },
+                                onStartSandbox = { sandboxViewModel.onSetupSandbox() },
+                                onCancelSandbox = { sandboxViewModel.onCancelSandbox() },
+                            )
+                        },
+                        chatContent = {
+                            DoraiChatScreenConnected(
+                                viewModel = chatViewModel,
+                                textToSpeech = textToSpeech,
+                                onNavigateToDashboard = {
+                                    shellState.navigateTo(DoraiDestination.Home)
+                                },
+                                onNavigateToSettings = {
+                                    shellState.navigateTo(DoraiDestination.Settings)
+                                },
+                                onNavigateToWorkspace = {
+                                    shellState.navigateTo(DoraiDestination.Workspace)
+                                },
+                            )
+                        },
+                        workspaceContent = {
+                            DoraiWorkspaceScreenConnected()
+                        },
+                        settingsContent = {
+                            DoraiSettingsScreenConnected(
+                                activeCategory = currentSettingsCategory,
+                                onCategoryChanged = { currentSettingsCategory = it },
+                                selectedThemeId = themeState.selectedThemeId,
+                                onThemeSelected = { themeViewModel.selectTheme(it) },
+                                appearanceActions = AppearanceSettingsActions(
+                                    matchDevice = themeState.matchDevice,
+                                    onMatchDeviceChanged = { themeViewModel.setMatchDevice(it) },
+                                ),
+                                androidUpdateContent = androidUpdateContent,
+                                onNavigateToWorkspace = {
+                                    shellState.navigateTo(DoraiDestination.Workspace)
+                                },
+                            )
+                        },
+                    )
+                } else {
+                    // Show login screen when user is not authenticated
+                    LoginScreen(
+                        viewModel = authViewModel,
+                        onLoginSuccess = {
+                            // Refresh the auth state after login
+                            // The App will be recomposed with isUserLoggedIn = true
+                        },
+                        onNavigateToProfile = {
+                            // Navigate to profile after login; for now just a no-op or navigate
+                        }
+                    )
+                }
             }
         }
     }

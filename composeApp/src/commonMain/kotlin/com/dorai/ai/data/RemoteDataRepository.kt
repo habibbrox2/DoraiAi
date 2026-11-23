@@ -58,6 +58,8 @@ import com.dorai.ai.network.dtos.gemini.extractText
 import com.dorai.ai.network.dtos.openaicompatible.extractInlineToolCalls
 import com.dorai.ai.network.dtos.openairesponses.OpenAIResponsesResponseDto
 import com.dorai.ai.network.dtos.supabase.SupabaseMatchMemoryResultDto
+import com.dorai.ai.network.firebase.FirebaseConfig
+import com.dorai.ai.network.firebase.FirebaseMessagingClient
 import com.dorai.ai.network.modeldiscovery.ModelDiscoveryRegistry
 import com.dorai.ai.network.supabase.SupabaseConfig
 import com.dorai.ai.network.supabase.SupabaseRestClient
@@ -2959,6 +2961,76 @@ class RemoteDataRepository(
     override fun setHeartbeatInstanceId(instanceId: String?) {
         val config = heartbeatManager.getConfig()
         heartbeatManager.saveConfig(config.copy(heartbeatInstanceId = instanceId))
+    }
+
+    override fun isFirebaseAlertsEnabled(): Boolean = appSettings.isFirebaseAlertsEnabled()
+
+    override fun setFirebaseAlertsEnabled(enabled: Boolean) {
+        appSettings.setFirebaseAlertsEnabled(enabled)
+    }
+
+    override fun getFirebaseProjectId(): String = appSettings.getFirebaseProjectId()
+
+    override fun setFirebaseProjectId(id: String) {
+        appSettings.setFirebaseProjectId(id.trim())
+    }
+
+    override fun getFirebaseApiKey(): String = appSettings.getFirebaseApiKey()
+
+    override fun setFirebaseApiKey(key: String) {
+        appSettings.setFirebaseApiKey(key.trim())
+    }
+
+    override fun getFcmDeviceToken(): String = appSettings.getFcmDeviceToken()
+
+    override fun setFcmDeviceToken(token: String) {
+        appSettings.setFcmDeviceToken(token.trim())
+    }
+
+    // Auth (backed by AppSettings shared preferences; Supabase Auth can be wired via DoraiAuthClient in UI layer)
+    override fun isUserLoggedIn(): Boolean = appSettings.isUserLoggedIn()
+
+    override fun getUserEmail(): String = appSettings.getUserEmail()
+
+    override fun getUserDisplayName(): String = appSettings.getUserDisplayName()
+
+    override suspend fun login(email: String, password: String): Result<Unit> = try {
+        // Persist credentials via AppSettings; real Supabase Auth can be wired via DoraiAuthClient
+        appSettings.setUserLoggedIn(true)
+        appSettings.setUserId(java.util.UUID.randomUUID().toString())
+        appSettings.setUserEmail(email)
+        appSettings.setUserDisplayName(email.split("@").firstOrNull()?.capitalize() ?: "User")
+        appSettings.setSupabaseAccessToken("")
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    override suspend fun logout(): Result<Unit> = try {
+        appSettings.setUserLoggedIn(false)
+        appSettings.setUserId("")
+        appSettings.setUserEmail("")
+        appSettings.setUserDisplayName("")
+        appSettings.setSupabaseAccessToken("")
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
+    override suspend fun sendTestFirebaseAlert(): Result<String?> {
+        val config = FirebaseConfig(
+            projectId = appSettings.getFirebaseProjectId(),
+            apiKey = appSettings.getFirebaseApiKey(),
+        )
+        val deviceToken = appSettings.getFcmDeviceToken()
+        return FirebaseMessagingClient(httpClient()).sendTaskCompletionNotification(
+            config = config,
+            oauthAccessToken = config.apiKey,
+            deviceToken = deviceToken,
+            taskId = "test-alert",
+            taskTitle = "Test Alert",
+            taskSummary = "DORAI AI test alert",
+        )
     }
 
     override fun isEmailEnabled(): Boolean = appSettings.isEmailEnabled()

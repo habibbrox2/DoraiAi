@@ -77,6 +77,8 @@ class DoraiUiV2ScreenshotTest {
             onNavigateToWorkspace = {},
             onOpenConversation = {},
             onOpenModels = {},
+            onStartSandbox = {},
+            onCancelSandbox = {},
         )
     }
 
@@ -92,6 +94,8 @@ class DoraiUiV2ScreenshotTest {
             onNavigateToWorkspace = {},
             onOpenConversation = {},
             onOpenModels = {},
+            onStartSandbox = {},
+            onCancelSandbox = {},
         )
     }
 
@@ -107,6 +111,8 @@ class DoraiUiV2ScreenshotTest {
             onNavigateToWorkspace = {},
             onOpenConversation = {},
             onOpenModels = {},
+            onStartSandbox = {},
+            onCancelSandbox = {},
         )
     }
 

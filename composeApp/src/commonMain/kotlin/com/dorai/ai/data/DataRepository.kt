@@ -200,6 +200,25 @@ interface DataRepository {
     fun getHeartbeatInstanceId(): String?
     fun setHeartbeatInstanceId(instanceId: String?)
 
+    // Firebase remote alerts. Defaults keep stubs/fakes harmless; the real repository delegates
+    // these to AppSettings and performs a genuine FCM v1 send for the test action.
+    fun isFirebaseAlertsEnabled(): Boolean = false
+    fun setFirebaseAlertsEnabled(enabled: Boolean) = Unit
+    fun getFirebaseProjectId(): String = ""
+    fun setFirebaseProjectId(id: String) = Unit
+    fun getFirebaseApiKey(): String = ""
+    fun setFirebaseApiKey(key: String) = Unit
+    fun getFcmDeviceToken(): String = ""
+    fun setFcmDeviceToken(token: String) = Unit
+    suspend fun sendTestFirebaseAlert(): Result<String?> = Result.failure(IllegalStateException("Firebase remote alerts are not configured"))
+
+    // Auth
+    fun isUserLoggedIn(): Boolean
+    fun getUserEmail(): String
+    fun getUserDisplayName(): String
+    suspend fun login(email: String, password: String): Result<Unit>
+    suspend fun logout(): Result<Unit>
+
     // Email
     fun isEmailEnabled(): Boolean
     fun setEmailEnabled(enabled: Boolean)

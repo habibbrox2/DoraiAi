@@ -16,17 +16,10 @@ import androidx.navigation.toRoute
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.dorai.ai.Build
-import com.dorai.ai.Dashboard
 import com.dorai.ai.Home
 import com.dorai.ai.Settings
 import com.dorai.ai.theme.data.ThemePresets
 import com.dorai.ai.theme.engine.DoraiTheme
-import com.dorai.ai.ui.components.OperationalStatus
-import com.dorai.ai.ui.dashboard.DashboardScreenContent
-import com.dorai.ai.ui.dashboard.DashboardUiState
-import com.dorai.ai.ui.dashboard.FactText
-import com.dorai.ai.ui.dashboard.ReadinessFact
-import com.dorai.ai.ui.dashboard.ServiceReadiness
 import com.dorai.ai.ui.settings.DoraiSettingsScreen
 import com.dorai.ai.ui.settings.SettingsActions
 import com.dorai.ai.ui.settings.SettingsCategory
@@ -52,9 +45,6 @@ class AppNavigationScreenshotTest {
     fun setup() {
         setResourceReaderAndroidContext(paparazzi.context)
     }
-
-    @Test
-    fun dashboard_destination_dark() = paparazzi.snapDestination(Dashboard)
 
     @Test
     fun chat_destination_dark() = paparazzi.snapDestination(Home)
@@ -103,38 +93,6 @@ private fun AppNavigationGraph(startDestination: Any) {
         startDestination = startDestination,
         modifier = Modifier.fillMaxSize(),
     ) {
-        composable<Dashboard> {
-            DashboardScreenContent(
-                state = DashboardUiState(
-                    service = ServiceReadiness(
-                        serviceName = "OpenAI",
-                        modelId = "GPT-6",
-                        isSharedKey = false,
-                    ),
-                    facts = kotlinx.collections.immutable.persistentListOf(
-                        ReadinessFact(
-                            FactText.Raw("Workspace"),
-                            FactText.Raw("Ready"),
-                            OperationalStatus.Ready,
-                        ),
-                        ReadinessFact(
-                            FactText.Raw("Sandbox"),
-                            FactText.Raw("Ready"),
-                            OperationalStatus.Ready,
-                        ),
-                    ),
-                    recentProjects = kotlinx.collections.immutable.persistentListOf("brox-kai-2.0"),
-                    isBuildAvailable = true,
-                    isSandboxAvailable = true,
-                    isDesignAvailable = true,
-                ),
-                onNavigateToChat = { navController.navigate(Home) },
-                onOpenBuild = { project -> navController.navigate(Build(project)) },
-                onOpenSettings = { tab -> navController.navigate(Settings.of(tab)) },
-                onStartDesign = { navController.navigate(Home) },
-                onOpenConversation = { navController.navigate(Home) },
-            )
-        }
         composable<Home> {
             DoraiChatScreenV2(
                 messages = ScreenshotTestData.v2Messages,

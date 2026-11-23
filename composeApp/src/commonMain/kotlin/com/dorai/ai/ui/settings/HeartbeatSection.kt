@@ -66,6 +66,7 @@ import com.dorai.ai.ui.components.v2.StatusType
 import com.dorai.ai.ui.handCursor
 import com.dorai.ai.ui.theme.LocalDesignColorTokens
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.a11y_permission_required
 import dorai.composeapp.generated.resources.cron_daily_at
 import dorai.composeapp.generated.resources.cron_day_friday
 import dorai.composeapp.generated.resources.cron_day_monday
@@ -101,6 +102,7 @@ import dorai.composeapp.generated.resources.settings_heartbeat_active_hours
 import dorai.composeapp.generated.resources.settings_heartbeat_default_prompt
 import dorai.composeapp.generated.resources.settings_heartbeat_description
 import dorai.composeapp.generated.resources.settings_heartbeat_error_failed
+import dorai.composeapp.generated.resources.settings_heartbeat_error_no_service
 import dorai.composeapp.generated.resources.settings_heartbeat_error_not_found
 import dorai.composeapp.generated.resources.settings_heartbeat_error_timeout
 import dorai.composeapp.generated.resources.settings_heartbeat_error_unknown
@@ -479,12 +481,15 @@ internal fun HeartbeatSection(
                             }
                         } else {
                             val rawError = entry.error ?: stringResource(Res.string.settings_heartbeat_error_unknown)
+                            val isNoServiceError = rawError.contains("No configured service", ignoreCase = true)
                             val hintText = when {
+                                isNoServiceError -> null
                                 rawError.contains("404") -> stringResource(Res.string.error_hint_model_not_found)
                                 rawError.contains("timeout", ignoreCase = true) -> stringResource(Res.string.error_hint_timeout)
                                 else -> null
                             }
                             val shortMessage = when {
+                                isNoServiceError -> stringResource(Res.string.settings_heartbeat_error_no_service)
                                 rawError.contains("404") -> stringResource(Res.string.settings_heartbeat_error_not_found)
                                 rawError.contains("timeout", ignoreCase = true) -> stringResource(Res.string.settings_heartbeat_error_timeout)
                                 else -> rawError.lineSequence().firstOrNull()?.take(80) ?: stringResource(Res.string.settings_heartbeat_error_failed)
@@ -493,7 +498,7 @@ internal fun HeartbeatSection(
                                 title = stringResource(Res.string.settings_heartbeat),
                                 timeText = formatHeartbeatTime(entry.timestampEpochMs),
                                 shortMessage = shortMessage,
-                                detailsText = rawError,
+                                detailsText = if (isNoServiceError) shortMessage else rawError,
                                 hintText = hintText,
                                 onRetry = onRefresh,
                             )
@@ -759,7 +764,7 @@ private fun PermissionRequiredRow(
         ) {
             Icon(
                 imageVector = Icons.Default.WarningAmber,
-                contentDescription = "Permission Required",
+                contentDescription = stringResource(Res.string.a11y_permission_required),
                 tint = tokens.warning,
                 modifier = Modifier.size(20.dp),
             )
