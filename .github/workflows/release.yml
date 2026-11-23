@@ -45,10 +45,6 @@ env:
   # it from the environment; when the secret is absent the generated constant stays null and
   # the integration fails closed. It is a public identifier (no client secret is used).
   DORAI_GITHUB_CLIENT_ID: ${{ secrets.DORAI_GITHUB_CLIENT_ID }}
-  # Supabase credentials for DORAI Cloud authentication. Injected at build time via Gradle
-  # properties; the app reads them from BuildConfig or AppSettings on first launch.
-  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-  SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
 jobs:
   ###############################################################################
@@ -306,7 +302,7 @@ jobs:
           echo "KEYSTORE_FILE=$KEYSTORE_PATH" >> "$GITHUB_ENV"
 
       - name: Build production-signed Foss APK
-        run: ./gradlew :androidApp:assembleFossRelease --stacktrace -DSUPABASE_URL="${{ secrets.SUPABASE_URL }}" -DSUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+        run: ./gradlew :androidApp:assembleFossRelease --stacktrace
 
       - name: Verify APK signature and extract digests
         id: apk-digest
@@ -417,7 +413,7 @@ jobs:
           echo "KEYSTORE_FILE=$KEYSTORE_PATH" >> "$GITHUB_ENV"
 
       - name: Build production-signed Standard APK
-        run: ./gradlew :androidApp:assemblePlayStoreRelease --stacktrace -DSUPABASE_URL="${{ secrets.SUPABASE_URL }}" -DSUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}"
+        run: ./gradlew :androidApp:assemblePlayStoreRelease --stacktrace
 
       - name: Upload Standard APK Artifact
         uses: actions/upload-artifact@v4
