@@ -277,82 +277,69 @@ private fun AppContent(
                     )
                 }
 
-                // Conditionally show login screen or home shell based on auth state
+                // Auth is optional - app is usable without login.
+                // Login/profile screens are accessible from settings when needed.
                 val authViewModel = AuthViewModel(appSettings)
 
-                if (isUserLoggedIn) {
-                    DoraiAppShell(
-                        waitingApprovalsCount = pendingApprovalsCount,
-                        shellState = shellState,
-                        homeContent = {
-                            DoraiHomeScreen(
-                                state = homeState,
-                                onNavigateToChat = {
-                                    shellState.navigateTo(DoraiDestination.Chat)
-                                },
-                                onNavigateToWorkspace = {
-                                    shellState.navigateTo(DoraiDestination.Workspace)
-                                },
-                                onOpenConversation = { id ->
-                                    chatViewModel.loadConversation(id)
-                                    shellState.navigateTo(DoraiDestination.Chat)
-                                },
-                                onOpenModels = {
-                                    currentSettingsCategory = SettingsCategory.Providers
-                                    shellState.navigateTo(DoraiDestination.Settings)
-                                },
-                                onStartSandbox = { sandboxViewModel.onSetupSandbox() },
-                                onCancelSandbox = { sandboxViewModel.onCancelSandbox() },
-                            )
-                        },
-                        chatContent = {
-                            DoraiChatScreenConnected(
-                                viewModel = chatViewModel,
-                                textToSpeech = textToSpeech,
-                                onNavigateToDashboard = {
-                                    shellState.navigateTo(DoraiDestination.Home)
-                                },
-                                onNavigateToSettings = {
-                                    shellState.navigateTo(DoraiDestination.Settings)
-                                },
-                                onNavigateToWorkspace = {
-                                    shellState.navigateTo(DoraiDestination.Workspace)
-                                },
-                            )
-                        },
-                        workspaceContent = {
-                            DoraiWorkspaceScreenConnected()
-                        },
-                        settingsContent = {
-                            DoraiSettingsScreenConnected(
-                                activeCategory = currentSettingsCategory,
-                                onCategoryChanged = { currentSettingsCategory = it },
-                                selectedThemeId = themeState.selectedThemeId,
-                                onThemeSelected = { themeViewModel.selectTheme(it) },
-                                appearanceActions = AppearanceSettingsActions(
-                                    matchDevice = themeState.matchDevice,
-                                    onMatchDeviceChanged = { themeViewModel.setMatchDevice(it) },
-                                ),
-                                androidUpdateContent = androidUpdateContent,
-                                onNavigateToWorkspace = {
-                                    shellState.navigateTo(DoraiDestination.Workspace)
-                                },
-                            )
-                        },
-                    )
-                } else {
-                    // Show login screen when user is not authenticated
-                    LoginScreen(
-                        viewModel = authViewModel,
-                        onLoginSuccess = {
-                            // Refresh the auth state after login
-                            // The App will be recomposed with isUserLoggedIn = true
-                        },
-                        onNavigateToProfile = {
-                            // Navigate to profile after login; for now just a no-op or navigate
-                        }
-                    )
-                }
+                DoraiAppShell(
+                    waitingApprovalsCount = pendingApprovalsCount,
+                    shellState = shellState,
+                    homeContent = {
+                        DoraiHomeScreen(
+                            state = homeState,
+                            onNavigateToChat = {
+                                shellState.navigateTo(DoraiDestination.Chat)
+                            },
+                            onNavigateToWorkspace = {
+                                shellState.navigateTo(DoraiDestination.Workspace)
+                            },
+                            onOpenConversation = { id ->
+                                chatViewModel.loadConversation(id)
+                                shellState.navigateTo(DoraiDestination.Chat)
+                            },
+                            onOpenModels = {
+                                currentSettingsCategory = SettingsCategory.Providers
+                                shellState.navigateTo(DoraiDestination.Settings)
+                            },
+                            onStartSandbox = { sandboxViewModel.onSetupSandbox() },
+                            onCancelSandbox = { sandboxViewModel.onCancelSandbox() },
+                        )
+                    },
+                    chatContent = {
+                        DoraiChatScreenConnected(
+                            viewModel = chatViewModel,
+                            textToSpeech = textToSpeech,
+                            onNavigateToDashboard = {
+                                shellState.navigateTo(DoraiDestination.Home)
+                            },
+                            onNavigateToSettings = {
+                                shellState.navigateTo(DoraiDestination.Settings)
+                            },
+                            onNavigateToWorkspace = {
+                                shellState.navigateTo(DoraiDestination.Workspace)
+                            },
+                        )
+                    },
+                    workspaceContent = {
+                        DoraiWorkspaceScreenConnected()
+                    },
+                    settingsContent = {
+                        DoraiSettingsScreenConnected(
+                            activeCategory = currentSettingsCategory,
+                            onCategoryChanged = { currentSettingsCategory = it },
+                            selectedThemeId = themeState.selectedThemeId,
+                            onThemeSelected = { themeViewModel.selectTheme(it) },
+                            appearanceActions = AppearanceSettingsActions(
+                                matchDevice = themeState.matchDevice,
+                                onMatchDeviceChanged = { themeViewModel.setMatchDevice(it) },
+                            ),
+                            androidUpdateContent = androidUpdateContent,
+                            onNavigateToWorkspace = {
+                                shellState.navigateTo(DoraiDestination.Workspace)
+                            },
+                        )
+                    },
+                )
             }
         }
     }

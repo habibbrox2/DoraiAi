@@ -28,6 +28,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.data.AppSettings
 import com.dorai.ai.ui.settings.AuthViewModel
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.auth_edit_profile
+import dorai.composeapp.generated.resources.auth_email
+import dorai.composeapp.generated.resources.auth_full_name
+import dorai.composeapp.generated.resources.auth_profile
+import dorai.composeapp.generated.resources.auth_save
+import dorai.composeapp.generated.resources.auth_sign_out
+import dorai.composeapp.generated.resources.auth_welcome_back
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ProfileScreen(
@@ -49,7 +58,7 @@ fun ProfileScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "Profile",
+            text = stringResource(Res.string.auth_profile),
             style = TextStyle(
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
@@ -58,7 +67,7 @@ fun ProfileScreen(
         )
 
         Text(
-            text = "Welcome, ${if (displayName.isNotBlank()) displayName else "User"}",
+            text = "${stringResource(Res.string.auth_welcome_back)}, ${if (displayName.isNotBlank()) displayName else "User"}",
             style = TextStyle(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -69,16 +78,16 @@ fun ProfileScreen(
         OutlinedTextField(
             value = displayName,
             onValueChange = { displayName = it },
-            label = { Text("Full name") },
-            placeholder = { Text("Enter your full name") },
+            label = { Text(stringResource(Res.string.auth_full_name)) },
+            placeholder = { Text(stringResource(Res.string.auth_full_name)) },
             modifier = Modifier.fillMaxWidth(),
         )
 
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email address") },
-            placeholder = { Text("Enter your email") },
+            label = { Text(stringResource(Res.string.auth_email)) },
+            placeholder = { Text(stringResource(Res.string.auth_email)) },
             modifier = Modifier.fillMaxWidth(),
             enabled = false, // email is read-only
         )
@@ -95,7 +104,7 @@ fun ProfileScreen(
                     contentColor = Color.Red,
                 ),
             ) {
-                Text("Sign Out")
+                Text(stringResource(Res.string.auth_sign_out))
             }
         }
     }

@@ -25,6 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dorai.ai.data.AppSettings
 import com.dorai.ai.ui.settings.AuthViewModel
+import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.auth_email
+import dorai.composeapp.generated.resources.auth_full_name
+import dorai.composeapp.generated.resources.auth_login
+import dorai.composeapp.generated.resources.auth_password
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LoginScreen(
@@ -61,16 +67,16 @@ fun LoginScreen(
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email") },
-            placeholder = { Text("enter your email") },
+            label = { Text(stringResource(Res.string.auth_email)) },
+            placeholder = { Text(stringResource(Res.string.auth_email)) },
             modifier = Modifier.fillMaxWidth(),
         )
 
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
-            placeholder = { Text("enter your password") },
+            label = { Text(stringResource(Res.string.auth_password)) },
+            placeholder = { Text(stringResource(Res.string.auth_password)) },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
         )
@@ -78,8 +84,8 @@ fun LoginScreen(
         OutlinedTextField(
             value = displayName,
             onValueChange = { displayName = it },
-            label = { Text("Full name (optional)") },
-            placeholder = { Text("your name") },
+            label = { Text(stringResource(Res.string.auth_full_name)) },
+            placeholder = { Text(stringResource(Res.string.auth_full_name)) },
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -111,7 +117,7 @@ fun LoginScreen(
             enabled = error.isEmpty(),
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("Sign In")
+            Text(stringResource(Res.string.auth_login))
         }
 
         Spacer(modifier = Modifier.height(24.dp))
