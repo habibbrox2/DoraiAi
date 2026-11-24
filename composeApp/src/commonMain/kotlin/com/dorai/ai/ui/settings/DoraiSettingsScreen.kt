@@ -114,6 +114,8 @@ import dorai.composeapp.generated.resources.agent_local_only_storage
 import dorai.composeapp.generated.resources.agent_local_only_storage_desc
 import dorai.composeapp.generated.resources.appearance_match_device
 import dorai.composeapp.generated.resources.appearance_match_device_desc
+import dorai.composeapp.generated.resources.auth_open_account
+import dorai.composeapp.generated.resources.auth_open_account_subtitle
 import dorai.composeapp.generated.resources.mode_ask
 import dorai.composeapp.generated.resources.mode_ask_desc
 import dorai.composeapp.generated.resources.mode_build
@@ -247,6 +249,8 @@ fun DoraiSettingsScreen(
     debugBuildStamp: String? = null,
     /** Navigates to the Workspace screen's Linux Sandbox section (skills CTA); null hides the CTA. */
     onNavigateToWorkspace: (() -> Unit)? = null,
+    /** Opens the optional sign-in / profile flow from the Account category; null hides the entry. */
+    onOpenAccountAuth: (() -> Unit)? = null,
 ) {
     val widthClass = LocalDoraiWindowWidthClass.current
     val colors = LocalDoraiColors.current
@@ -285,6 +289,7 @@ fun DoraiSettingsScreen(
                         androidUpdateContent = androidUpdateContent,
                         debugBuildStamp = debugBuildStamp,
                         onNavigateToWorkspace = onNavigateToWorkspace,
+                        onOpenAccountAuth = onOpenAccountAuth,
                         onNavigateToCategory = {
                             selectedCat = it
                             onCategoryChanged(it)
@@ -331,6 +336,7 @@ fun DoraiSettingsScreen(
                         androidUpdateContent = androidUpdateContent,
                         debugBuildStamp = debugBuildStamp,
                         onNavigateToWorkspace = onNavigateToWorkspace,
+                        onOpenAccountAuth = onOpenAccountAuth,
                         onNavigateToCategory = {
                             selectedCat = it
                             onCategoryChanged(it)
@@ -364,6 +370,7 @@ fun DoraiSettingsScreenConnected(
     sandboxViewModel: SandboxViewModel = koinViewModel(),
     androidUpdateContent: (@Composable () -> Unit)? = null,
     onNavigateToWorkspace: (() -> Unit)? = null,
+    onOpenAccountAuth: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val uiState by settingsViewModel.state.collectAsStateWithLifecycle()
@@ -386,6 +393,7 @@ fun DoraiSettingsScreenConnected(
         androidUpdateContent = androidUpdateContent,
         debugBuildStamp = "v${Version.appVersion}",
         onNavigateToWorkspace = onNavigateToWorkspace,
+        onOpenAccountAuth = onOpenAccountAuth,
         modifier = modifier,
     )
 }
@@ -590,6 +598,7 @@ private fun SettingsCategoryContent(
     androidUpdateContent: (@Composable () -> Unit)? = null,
     debugBuildStamp: String? = null,
     onNavigateToWorkspace: (() -> Unit)? = null,
+    onOpenAccountAuth: (() -> Unit)? = null,
     onNavigateToCategory: (SettingsCategory) -> Unit = {},
     onNavigateHome: () -> Unit = {},
 ) {
@@ -699,7 +708,11 @@ private fun SettingsCategoryContent(
                     }
 
                     SettingsCategory.Account -> {
-                        AccountFlowContent(uiState = uiState, actions = actions)
+                        AccountFlowContent(
+                            uiState = uiState,
+                            actions = actions,
+                            onOpenAccountAuth = onOpenAccountAuth,
+                        )
                     }
                 }
             } else {
@@ -741,6 +754,7 @@ private fun SettingsCategoryContent(
                         AccountFlowContent(
                             uiState = SettingsUiState(),
                             actions = SettingsActions.NoOp,
+                            onOpenAccountAuth = onOpenAccountAuth,
                         )
                     }
                 }
@@ -1279,9 +1293,25 @@ internal fun SettingsDetailSectionHeading(text: String) {
 
 /** Account page arranged to the product flow: Profile → Privacy & Security → Data Controls → About. */
 @Composable
-private fun AccountFlowContent(uiState: SettingsUiState, actions: SettingsActions) {
+private fun AccountFlowContent(
+    uiState: SettingsUiState,
+    actions: SettingsActions,
+    onOpenAccountAuth: (() -> Unit)? = null,
+) {
     // Profile
     AccountProfileCard()
+
+    // Optional sign-in / profile entry — the rest of the app stays usable without it.
+    if (onOpenAccountAuth != null) {
+        SettingsSectionCard {
+            SettingsPreferenceRow(
+                title = stringResource(Res.string.auth_open_account),
+                subtitle = stringResource(Res.string.auth_open_account_subtitle),
+                leadingIcon = Icons.Default.AccountCircle,
+                onClick = onOpenAccountAuth,
+            )
+        }
+    }
 
     // Privacy & Security — Authentication & Sessions
     SettingsDetailSectionHeading(stringResource(Res.string.account_section_privacy))

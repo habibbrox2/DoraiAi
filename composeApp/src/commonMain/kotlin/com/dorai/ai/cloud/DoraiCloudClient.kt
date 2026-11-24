@@ -180,18 +180,16 @@ class DoraiCloudClient(
         val baseUrl: String = DORAI_CLOUD_DEFAULT_URL,
         val json: Json = Json { ignoreUnknownKeys = true },
         /** If true, the client will read the Supabase access token from AppSettings on each call.
-          * If false/unset, the caller must provide a token explicitly. */
+         * If false/unset, the caller must provide a token explicitly. */
         val useAppSettingsToken: Boolean = true,
     )
 
     companion object {
         /** Creates a [DoraiCloudClient] that automatically reads the Supabase access token
-          * from [AppSettings.getSupabaseAccessToken()] on each API call.
-          */
-        fun createWithAppSettings(httpClient: HttpClient, baseUrl: String = DORAI_CLOUD_DEFAULT_URL, json: Json = Json { ignoreUnknownKeys = true }): DoraiCloudClient {
-            return DoraiCloudClient(httpClient, baseUrl, json).apply {
-                // Token will be resolved per-call from AppSettings
-            }
+         * from [AppSettings.getSupabaseAccessToken()] on each API call.
+         */
+        fun createWithAppSettings(httpClient: HttpClient, baseUrl: String = DORAI_CLOUD_DEFAULT_URL, json: Json = Json { ignoreUnknownKeys = true }): DoraiCloudClient = DoraiCloudClient(httpClient, baseUrl, json).apply {
+            // Token will be resolved per-call from AppSettings
         }
     }
 

@@ -1298,6 +1298,15 @@
     <string name="auth_edit_profile">Edit Profile</string>
     <string name="auth_save">Save</string>
     <string name="auth_cancel">Cancel</string>
+    <string name="auth_error_credentials_required">Enter your email and password.</string>
+    <string name="auth_error_invalid_credentials">Sign-in failed. Check your email and password.</string>
+    <string name="auth_error_network">Sign-in failed. Check your connection and try again.</string>
+    <string name="auth_error_sign_out">Sign-out failed. Please try again.</string>
+    <string name="auth_view_profile">View profile</string>
+    <string name="auth_default_user">User</string>
+    <string name="auth_welcome_user">Welcome back, %1$s</string>
+    <string name="auth_open_account">Account &amp; profile</string>
+    <string name="auth_open_account_subtitle">Sign in, manage your profile, or sign out</string>
     <string name="action_save">Save</string>
     <string name="action_clear">Clear</string>
     <string name="action_rename">Rename</string>
