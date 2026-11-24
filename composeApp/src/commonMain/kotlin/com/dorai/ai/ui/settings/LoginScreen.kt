@@ -12,26 +12,33 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dorai.ai.data.AppSettings
-import com.dorai.ai.ui.settings.AuthViewModel
 import dorai.composeapp.generated.resources.Res
 import dorai.composeapp.generated.resources.auth_email
+import dorai.composeapp.generated.resources.auth_error_credentials_required
+import dorai.composeapp.generated.resources.auth_error_invalid_credentials
+import dorai.composeapp.generated.resources.auth_error_network
 import dorai.composeapp.generated.resources.auth_full_name
 import dorai.composeapp.generated.resources.auth_login
 import dorai.composeapp.generated.resources.auth_password
+import dorai.composeapp.generated.resources.auth_view_profile
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
+/** Optional sign-in screen: the rest of the app remains usable without an account. */
 @Composable
 fun LoginScreen(
     viewModel: AuthViewModel,
@@ -41,7 +48,13 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var displayName by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+    val isBusy by viewModel.isBusy.collectAsState()
+
+    val credentialsError = stringResource(Res.string.auth_error_credentials_required)
+    val invalidCredentialsError = stringResource(Res.string.auth_error_invalid_credentials)
+    val networkError = stringResource(Res.string.auth_error_network)
 
     Column(
         modifier = Modifier
@@ -70,6 +83,7 @@ fun LoginScreen(
             label = { Text(stringResource(Res.string.auth_email)) },
             placeholder = { Text(stringResource(Res.string.auth_email)) },
             modifier = Modifier.fillMaxWidth(),
+            enabled = !isBusy,
         )
 
         OutlinedTextField(
@@ -78,7 +92,8 @@ fun LoginScreen(
             label = { Text(stringResource(Res.string.auth_password)) },
             placeholder = { Text(stringResource(Res.string.auth_password)) },
             modifier = Modifier.fillMaxWidth(),
-            visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+            enabled = !isBusy,
+            visualTransformation = PasswordVisualTransformation(),
         )
 
         OutlinedTextField(
@@ -87,14 +102,13 @@ fun LoginScreen(
             label = { Text(stringResource(Res.string.auth_full_name)) },
             placeholder = { Text(stringResource(Res.string.auth_full_name)) },
             modifier = Modifier.fillMaxWidth(),
+            enabled = !isBusy,
         )
 
-        if (error.isNotEmpty()) {
+        if (message != null) {
             Text(
-                text = error,
-                style = TextStyle(
-                    color = Color.Red,
-                ),
+                text = message!!,
+                style = TextStyle(color = Color.Red),
                 modifier = Modifier.padding(8.dp),
             )
         }
@@ -103,18 +117,24 @@ fun LoginScreen(
 
         Button(
             onClick = {
-                try {
-                    if (email.isNotBlank() && password.isNotBlank()) {
-                        viewModel.login(email, displayName)
-                        onLoginSuccess()
-                    } else {
-                        error = "Please enter email and password"
+                if (email.isBlank() || password.isBlank()) {
+                    message = credentialsError
+                } else {
+                    scope.launch {
+                        viewModel.signIn(email, password, displayName)
+                            .onSuccess { onLoginSuccess() }
+                            .onFailure { error ->
+                                val text = error.message.orEmpty()
+                                message = if (text.contains("[401") || text.contains("[400")) {
+                                    invalidCredentialsError
+                                } else {
+                                    networkError
+                                }
+                            }
                     }
-                } catch (e: Exception) {
-                    error = "Login failed: ${e.message}"
                 }
             },
-            enabled = error.isEmpty(),
+            enabled = !isBusy,
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(stringResource(Res.string.auth_login))
@@ -124,9 +144,10 @@ fun LoginScreen(
 
         OutlinedButton(
             onClick = onNavigateToProfile,
+            enabled = !isBusy,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("Create account / Profile")
+            Text(stringResource(Res.string.auth_view_profile))
         }
     }
 }

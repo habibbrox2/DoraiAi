@@ -45,6 +45,28 @@ class FakeDataRepository : DataRepository {
 
     private var currentService: Service = Service.Free
 
+    private var loggedIn = false
+    private var signedInEmail = ""
+    private var signedInDisplayName = ""
+
+    override fun isUserLoggedIn(): Boolean = loggedIn
+    override fun getUserEmail(): String = signedInEmail
+    override fun getUserDisplayName(): String = signedInDisplayName
+
+    override suspend fun login(email: String, password: String): Result<Unit> {
+        loggedIn = true
+        signedInEmail = email
+        signedInDisplayName = email.substringBefore("@")
+        return Result.success(Unit)
+    }
+
+    override suspend fun logout(): Result<Unit> {
+        loggedIn = false
+        signedInEmail = ""
+        signedInDisplayName = ""
+        return Result.success(Unit)
+    }
+
     override val chatHistory: MutableStateFlow<List<History>> = MutableStateFlow(emptyList())
     override val currentConversationId: MutableStateFlow<String?> = MutableStateFlow(null)
     override val fallbackStatus: MutableStateFlow<FallbackStatus?> = MutableStateFlow(null)

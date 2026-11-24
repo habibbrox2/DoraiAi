@@ -3,13 +3,23 @@
 package com.dorai.ai
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,8 +29,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil3.ImageLoader
@@ -28,6 +38,7 @@ import coil3.PlatformContext
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.svg.SvgDecoder
+import com.dorai.ai.PlatformBackHandler
 import com.dorai.ai.data.AppSettings
 import com.dorai.ai.data.DataRepository
 import com.dorai.ai.data.ExecutionLocation
@@ -51,9 +62,11 @@ import com.dorai.ai.ui.settings.AppearanceSettingsActions
 import com.dorai.ai.ui.settings.AuthViewModel
 import com.dorai.ai.ui.settings.DoraiSettingsScreenConnected
 import com.dorai.ai.ui.settings.LoginScreen
+import com.dorai.ai.ui.settings.ProfileScreen
 import com.dorai.ai.ui.settings.SettingsCategory
 import com.dorai.ai.ui.workspace.DoraiWorkspaceScreenConnected
 import dorai.composeapp.generated.resources.Res
+import dorai.composeapp.generated.resources.auth_cancel
 import dorai.composeapp.generated.resources.model_not_configured
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -64,6 +77,12 @@ import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.dsl.koinConfiguration
+
+/** Optional auth surfaces shown over the shell when opened from Settings → Account. */
+private sealed interface AuthOverlay {
+    data object SignIn : AuthOverlay
+    data object Profile : AuthOverlay
+}
 
 @Serializable
 @SerialName("dashboard")
@@ -220,6 +239,12 @@ private fun AppContent(
                 }
                 val pendingApprovalsCount = chatUiState.pendingToolConfirmations.size
                 var currentSettingsCategory by remember { mutableStateOf<SettingsCategory?>(null) }
+                var authOverlay by remember { mutableStateOf<AuthOverlay?>(null) }
+
+                // Keep an expired Supabase session usable without forcing a new sign-in.
+                LaunchedEffect(Unit) {
+                    if (authViewModel.isSessionExpired()) authViewModel.refreshSession()
+                }
 
                 // The MCP OAuth hand-off page links back into the app; land on the
                 // Integrations / MCP category so the authorized connector is in view.
@@ -277,69 +302,110 @@ private fun AppContent(
                     )
                 }
 
-                // Auth is optional - app is usable without login.
-                // Login/profile screens are accessible from settings when needed.
-                val authViewModel = AuthViewModel(appSettings)
+                // Auth is optional — the single ViewModel above is shared by the
+                // Account overlay and the automatic session refresh below.
+                Box(Modifier.fillMaxSize()) {
+                    DoraiAppShell(
+                        waitingApprovalsCount = pendingApprovalsCount,
+                        shellState = shellState,
+                        homeContent = {
+                            DoraiHomeScreen(
+                                state = homeState,
+                                onNavigateToChat = {
+                                    shellState.navigateTo(DoraiDestination.Chat)
+                                },
+                                onNavigateToWorkspace = {
+                                    shellState.navigateTo(DoraiDestination.Workspace)
+                                },
+                                onOpenConversation = { id ->
+                                    chatViewModel.loadConversation(id)
+                                    shellState.navigateTo(DoraiDestination.Chat)
+                                },
+                                onOpenModels = {
+                                    currentSettingsCategory = SettingsCategory.Providers
+                                    shellState.navigateTo(DoraiDestination.Settings)
+                                },
+                                onStartSandbox = { sandboxViewModel.onSetupSandbox() },
+                                onCancelSandbox = { sandboxViewModel.onCancelSandbox() },
+                            )
+                        },
+                        chatContent = {
+                            DoraiChatScreenConnected(
+                                viewModel = chatViewModel,
+                                textToSpeech = textToSpeech,
+                                onNavigateToDashboard = {
+                                    shellState.navigateTo(DoraiDestination.Home)
+                                },
+                                onNavigateToSettings = {
+                                    shellState.navigateTo(DoraiDestination.Settings)
+                                },
+                                onNavigateToWorkspace = {
+                                    shellState.navigateTo(DoraiDestination.Workspace)
+                                },
+                            )
+                        },
+                        workspaceContent = {
+                            DoraiWorkspaceScreenConnected()
+                        },
+                        settingsContent = {
+                            DoraiSettingsScreenConnected(
+                                activeCategory = currentSettingsCategory,
+                                onCategoryChanged = { currentSettingsCategory = it },
+                                selectedThemeId = themeState.selectedThemeId,
+                                onThemeSelected = { themeViewModel.selectTheme(it) },
+                                appearanceActions = AppearanceSettingsActions(
+                                    matchDevice = themeState.matchDevice,
+                                    onMatchDeviceChanged = { themeViewModel.setMatchDevice(it) },
+                                ),
+                                androidUpdateContent = androidUpdateContent,
+                                onNavigateToWorkspace = {
+                                    shellState.navigateTo(DoraiDestination.Workspace)
+                                },
+                                onOpenAccountAuth = {
+                                    authOverlay = if (isUserLoggedIn) {
+                                        AuthOverlay.Profile
+                                    } else {
+                                        AuthOverlay.SignIn
+                                    }
+                                },
+                            )
+                        },
+                    )
 
-                DoraiAppShell(
-                    waitingApprovalsCount = pendingApprovalsCount,
-                    shellState = shellState,
-                    homeContent = {
-                        DoraiHomeScreen(
-                            state = homeState,
-                            onNavigateToChat = {
-                                shellState.navigateTo(DoraiDestination.Chat)
-                            },
-                            onNavigateToWorkspace = {
-                                shellState.navigateTo(DoraiDestination.Workspace)
-                            },
-                            onOpenConversation = { id ->
-                                chatViewModel.loadConversation(id)
-                                shellState.navigateTo(DoraiDestination.Chat)
-                            },
-                            onOpenModels = {
-                                currentSettingsCategory = SettingsCategory.Providers
-                                shellState.navigateTo(DoraiDestination.Settings)
-                            },
-                            onStartSandbox = { sandboxViewModel.onSetupSandbox() },
-                            onCancelSandbox = { sandboxViewModel.onCancelSandbox() },
-                        )
-                    },
-                    chatContent = {
-                        DoraiChatScreenConnected(
-                            viewModel = chatViewModel,
-                            textToSpeech = textToSpeech,
-                            onNavigateToDashboard = {
-                                shellState.navigateTo(DoraiDestination.Home)
-                            },
-                            onNavigateToSettings = {
-                                shellState.navigateTo(DoraiDestination.Settings)
-                            },
-                            onNavigateToWorkspace = {
-                                shellState.navigateTo(DoraiDestination.Workspace)
-                            },
-                        )
-                    },
-                    workspaceContent = {
-                        DoraiWorkspaceScreenConnected()
-                    },
-                    settingsContent = {
-                        DoraiSettingsScreenConnected(
-                            activeCategory = currentSettingsCategory,
-                            onCategoryChanged = { currentSettingsCategory = it },
-                            selectedThemeId = themeState.selectedThemeId,
-                            onThemeSelected = { themeViewModel.selectTheme(it) },
-                            appearanceActions = AppearanceSettingsActions(
-                                matchDevice = themeState.matchDevice,
-                                onMatchDeviceChanged = { themeViewModel.setMatchDevice(it) },
-                            ),
-                            androidUpdateContent = androidUpdateContent,
-                            onNavigateToWorkspace = {
-                                shellState.navigateTo(DoraiDestination.Workspace)
-                            },
-                        )
-                    },
-                )
+                    authOverlay?.let { overlay ->
+                        PlatformBackHandler(enabled = true) { authOverlay = null }
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.background)
+                                // Consume taps in empty areas so the shell behind stays inert.
+                                .clickable(enabled = true, onClick = {}),
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                horizontalArrangement = Arrangement.End,
+                            ) {
+                                TextButton(onClick = { authOverlay = null }) {
+                                    Text(stringResource(Res.string.auth_cancel))
+                                }
+                            }
+                            when (overlay) {
+                                AuthOverlay.SignIn -> LoginScreen(
+                                    viewModel = authViewModel,
+                                    onLoginSuccess = { authOverlay = null },
+                                    onNavigateToProfile = { authOverlay = AuthOverlay.Profile },
+                                )
+
+                                AuthOverlay.Profile -> ProfileScreen(
+                                    viewModel = authViewModel,
+                                    onSignOut = { authOverlay = null },
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }

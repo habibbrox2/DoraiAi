@@ -1607,11 +1607,20 @@
     <string name="auth_password">পাসওয়ার্ড</string>
     <string name="auth_full_name">পূর্ণ নাম</string>
     <string name="auth_welcome_back">বারবার স্বাগতম!</string>
-    <string name="auth_signed_in_as">%s sebagai signed in</string>
+    <string name="auth_signed_in_as">%s হিসেবে সাইন ইন করা আছে</string>
     <string name="auth_sign_out">সাইন আউট</string>
     <string name="auth_profile">প্রোফাইল</string>
-    <string name="auth_edit_profile">প্রোফাইল edit</string>
+    <string name="auth_edit_profile">প্রোফাইল সম্পাদনা করুন</string>
     <string name="auth_save">সংরক্ষণ করুন</string>
     <string name="auth_cancel">বাতিল</string>
+    <string name="auth_error_credentials_required">ইমেইল ও পাসওয়ার্ড দিন।</string>
+    <string name="auth_error_invalid_credentials">সাইন ইন ব্যর্থ। ইমেইল ও পাসওয়ার্ড যাচাই করুন।</string>
+    <string name="auth_error_network">সাইন ইন ব্যর্থ। সংযোগ যাচাই করে আবার চেষ্টা করুন।</string>
+    <string name="auth_error_sign_out">সাইন আউট ব্যর্থ। আবার চেষ্টা করুন।</string>
+    <string name="auth_view_profile">প্রোফাইল দেখুন</string>
+    <string name="auth_default_user">ব্যবহারকারী</string>
+    <string name="auth_welcome_user">আবার স্বাগতম, %1$s</string>
+    <string name="auth_open_account">অ্যাকাউন্ট ও প্রোফাইল</string>
+    <string name="auth_open_account_subtitle">সাইন ইন করুন, প্রোফাইল পরিচালনা করুন বা সাইন আউট করুন</string>
     <string name="firebase_config_missing">আগে প্রজেক্ট আইডি, সার্ভার টোকেন এবং ডিভাইস টোকেন সেট করুন।</string>
 </resources>
