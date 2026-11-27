@@ -2987,7 +2987,7 @@ class RemoteDataRepository(
         appSettings.setFcmDeviceToken(token.trim())
     }
 
-    // Auth (backed by AppSettings shared preferences; Supabase Auth can be wired via DoraiAuthClient in UI layer)
+    // Auth state is mirrored into AppSettings by the Firebase-backed Dorai Cloud settings UI.
     override fun isUserLoggedIn(): Boolean = appSettings.isUserLoggedIn()
 
     override fun getUserEmail(): String = appSettings.getUserEmail()
@@ -2995,7 +2995,7 @@ class RemoteDataRepository(
     override fun getUserDisplayName(): String = appSettings.getUserDisplayName()
 
     override suspend fun login(email: String, password: String): Result<Unit> = try {
-        // Persist credentials via AppSettings; real Supabase Auth can be wired via DoraiAuthClient
+        // Legacy local profile fields; Dorai Cloud sign-in uses Firebase Auth in the settings UI.
         appSettings.setUserLoggedIn(true)
         appSettings.setUserId(java.util.UUID.randomUUID().toString())
         appSettings.setUserEmail(email)

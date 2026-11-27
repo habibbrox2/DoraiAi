@@ -12,3 +12,6 @@ const val DORAI_CLOUD_SUPABASE_URL = "https://rbzlvvrmihmvbbiomoqe.supabase.co"
  * substitute for user authentication.
  */
 const val DORAI_CLOUD_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_DIjAop6LGA_TaPZbDzNkLA_9BUgZfga"
+
+/** Firebase Web API key (public client identifier, restricted by Firebase project rules). */
+const val DORAI_FIREBASE_WEB_API_KEY = "AIzaSyBoocbXUacJ8fNODJVG63k3Z3Irm9tYco0"

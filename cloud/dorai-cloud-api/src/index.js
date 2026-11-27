@@ -17,6 +17,7 @@
 const API_VERSION = "v1";
 const EMBEDDING_MODEL = "@cf/baai/bge-small-en-v1.5";
 const EMBEDDING_DIMENSIONS = 384;
+const FIREBASE_PROJECT_ID = "dorai-ai-app";
 
 /** Free-tier guardrails (per user, rolling 24h). */
 const QUOTA = {
@@ -53,6 +54,7 @@ export default {
     try {
       const token = extractBearerToken(request);
       session = await verifyJwt(token, env);
+      await ensureFirebaseAuthenticatedRole(session, env);
     } catch (error) {
       return json({ error: "unauthorized", message: String(error.message || error) }, 401);
     }
@@ -111,7 +113,7 @@ function extractBearerToken(request) {
   return match[1];
 }
 
-let jwksCache = { keys: null, expiresAt: 0 };
+const jwksCache = new Map();
 
 async function verifyJwt(token, env) {
   const parts = token.split(".");
@@ -119,9 +121,17 @@ async function verifyJwt(token, env) {
 
   const header = JSON.parse(base64UrlDecode(parts[0]));
   const claims = JSON.parse(base64UrlDecode(parts[1]));
-  const key = await resolveKey(header.kid, header.alg, env);
+  const firebaseProject = env.FIREBASE_PROJECT_ID || FIREBASE_PROJECT_ID;
+  const firebaseIssuer = `https://securetoken.google.com/${firebaseProject}`;
+  const supabaseIssuer = `${env.SUPABASE_URL}/auth/v1`;
+  const isFirebase = String(claims.iss || "") === firebaseIssuer;
+  const isSupabase = String(claims.iss || "").startsWith(supabaseIssuer);
+  if (!isFirebase && !isSupabase) throw new Error("invalid issuer");
+  if (isFirebase && claims.aud !== firebaseProject) throw new Error("invalid audience");
 
-  // Supabase issues ES256 (ECDSA P-256) by default; older projects use RS256.
+  const key = await resolveKey(header.kid, header.alg, env, isFirebase ? "firebase" : "supabase");
+
+  // Supabase may issue ES256 (ECDSA P-256) or RS256; Firebase issues RS256.
   const algorithm =
     header.alg === "ES256"
       ? { name: "ECDSA", hash: "SHA-256" }
@@ -140,23 +150,36 @@ async function verifyJwt(token, env) {
 
   const now = Math.floor(Date.now() / 1000);
   if (typeof claims.exp === "number" && claims.exp < now) throw new Error("token expired");
-  const issuer = `${env.SUPABASE_URL}/auth/v1`;
-  if (claims.iss && !String(claims.iss).startsWith(issuer)) throw new Error("invalid issuer");
+  if (typeof claims.iat === "number" && claims.iat > now + 300) throw new Error("token issued in future");
+  if (isFirebase && claims.auth_time && Number(claims.auth_time) > now + 300) throw new Error("invalid auth_time");
   if (!claims.sub) throw new Error("token has no subject");
-  return { sub: claims.sub, token, email: claims.email || null };
+  return {
+    sub: String(claims.sub),
+    token,
+    email: claims.email || null,
+    provider: isFirebase ? "firebase" : "supabase",
+    role: claims.role || null,
+  };
 }
 
-async function resolveKey(kid, alg, env) {
+async function resolveKey(kid, alg, env, provider) {
+  const cacheKey = provider;
   const now = Date.now();
-  if (!jwksCache.keys || now > jwksCache.expiresAt) {
-    const response = await fetch(`${env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`, {
-      headers: { apikey: env.SUPABASE_ANON_KEY || "" },
+  const cached = jwksCache.get(cacheKey);
+  if (!cached || now > cached.expiresAt) {
+    const url =
+      provider === "firebase"
+        ? "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"
+        : `${env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`;
+    const response = await fetch(url, {
+      headers: provider === "firebase" ? {} : { apikey: env.SUPABASE_ANON_KEY || "" },
     });
     if (!response.ok) throw new Error("jwks fetch failed");
     const body = await response.json();
-    jwksCache = { keys: body.keys || [], expiresAt: now + 10 * 60 * 1000 };
+    jwksCache.set(cacheKey, { keys: body.keys || [], expiresAt: now + 10 * 60 * 1000 });
   }
-  const jwk = jwksCache.keys.find((k) => k.kid === kid) || jwksCache.keys[0];
+  const entry = jwksCache.get(cacheKey);
+  const jwk = entry.keys.find((k) => k.kid === kid) || (provider === "firebase" ? null : entry.keys[0]);
   if (!jwk) throw new Error("signing key not found");
   const importAlgorithm =
     alg === "ES256"
@@ -491,6 +514,71 @@ function json(payload, status) {
     status,
     headers: { "content-type": "application/json", ...CORS_HEADERS },
   });
+}
+
+async function ensureFirebaseAuthenticatedRole(session, env) {
+  if (session.provider !== "firebase" || session.role === "authenticated") return;
+  const raw = env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  if (!raw) return;
+  try {
+    const sa = JSON.parse(raw);
+    const accessToken = await getGoogleAccessToken(sa);
+    const body = JSON.stringify({ localId: session.sub, customAttributes: JSON.stringify({ role: "authenticated" }) });
+    await fetch(`https://identitytoolkit.googleapis.com/v1/projects/${sa.project_id}/accounts:update`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${accessToken}`, "content-type": "application/json" },
+      body,
+    });
+  } catch {
+    // Provisioning is best-effort; request should still proceed.
+  }
+}
+
+let googleAccessTokenCache = { token: null, expiresAt: 0 };
+
+async function getGoogleAccessToken(sa) {
+  const now = Math.floor(Date.now() / 1000);
+  if (googleAccessTokenCache.token && now < googleAccessTokenCache.expiresAt - 60) return googleAccessTokenCache.token;
+  const header = base64UrlEncodeBytes(new TextEncoder().encode(JSON.stringify({ alg: "RS256", typ: "JWT" })));
+  const payload = base64UrlEncodeBytes(new TextEncoder().encode(JSON.stringify({
+    iss: sa.client_email,
+    scope: "https://www.googleapis.com/auth/identitytoolkit https://www.googleapis.com/auth/cloud-platform",
+    aud: "https://oauth2.googleapis.com/token",
+    iat: now,
+    exp: now + 3600,
+  })));
+  const key = await crypto.subtle.importKey(
+    "pkcs8",
+    pemToArrayBuffer(sa.private_key),
+    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(`${header}.${payload}`));
+  const jwt = `${header}.${payload}.${base64UrlEncodeBytes(new Uint8Array(sig))}`;
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
+  });
+  if (!res.ok) throw new Error("google token failed");
+  const data = await res.json();
+  googleAccessTokenCache = { token: data.access_token, expiresAt: now + Number(data.expires_in || 3600) };
+  return data.access_token;
+}
+
+function base64UrlEncodeBytes(bytes) {
+  let binary = "";
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function pemToArrayBuffer(pem) {
+  const b64 = String(pem).replace(/-----[^-]+-----/g, "").replace(/\s+/g, "");
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
 }
 
 function log(entry) {

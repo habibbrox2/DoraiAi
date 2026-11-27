@@ -1,9 +1,11 @@
 package com.dorai.ai.data
 
+import com.dorai.ai.cloud.DoraiCloudSession
 import com.russhwolf.settings.MapSettings
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class AppSettingsTest {
@@ -311,6 +313,68 @@ class AppSettingsTest {
         val instances = appSettings.getConfiguredServiceInstances()
         assertEquals(1, instances.size)
         assertEquals(Service.OpenCode.id, instances.first().serviceId)
+    }
+
+    @Test
+    fun `dorai cloud session round-trips and clears`() {
+        val appSettings = AppSettings(MapSettings())
+        assertNull(appSettings.getDoraiCloudSession())
+
+        val session = DoraiCloudSession(
+            userId = "firebase-uid-123",
+            email = "user@example.test",
+            accessToken = "id-token",
+            refreshToken = null,
+            expiresAtEpochSeconds = 1_900_000_000L,
+        )
+        appSettings.setDoraiCloudSession(session)
+        val restored = appSettings.getDoraiCloudSession()
+        assertEquals(session.userId, restored?.userId)
+        assertEquals(session.email, restored?.email)
+        assertEquals(session.accessToken, restored?.accessToken)
+        assertEquals(session.expiresAtEpochSeconds, restored?.expiresAtEpochSeconds)
+
+        appSettings.setDoraiCloudSession(null)
+        assertNull(appSettings.getDoraiCloudSession())
+    }
+
+    @Test
+    fun `dorai cloud session expiry respects leeway`() {
+        val session = DoraiCloudSession(
+            userId = "u",
+            email = null,
+            accessToken = "t",
+            refreshToken = null,
+            expiresAtEpochSeconds = 1_000L,
+        )
+        assertFalse(session.isExpired(nowEpochSeconds = 900L, leewaySeconds = 60))
+        assertTrue(session.isExpired(nowEpochSeconds = 950L, leewaySeconds = 60))
+        assertTrue(session.isExpired(nowEpochSeconds = 1001L, leewaySeconds = 0))
+    }
+
+    @Test
+    fun `dorai cloud session migration compatibility parses legacy supabase-shaped json`() {
+        val settings = MapSettings()
+        // Legacy Supabase-shaped session payload (same DTO fields).
+        settings.putString(
+            "dorai_cloud_session",
+            """{"user_id":"legacy-uuid","email":"old@example.test","access_token":"old-access","refresh_token":"old-refresh","expires_at":1900000000}""",
+        )
+        val appSettings = AppSettings(settings)
+        val restored = appSettings.getDoraiCloudSession()
+        assertEquals("legacy-uuid", restored?.userId)
+        assertEquals("old@example.test", restored?.email)
+        assertEquals("old-access", restored?.accessToken)
+        assertEquals("old-refresh", restored?.refreshToken)
+        assertEquals(1_900_000_000L, restored?.expiresAtEpochSeconds)
+    }
+
+    @Test
+    fun `dorai cloud session invalid json returns null`() {
+        val settings = MapSettings()
+        settings.putString("dorai_cloud_session", "{not-json")
+        val appSettings = AppSettings(settings)
+        assertNull(appSettings.getDoraiCloudSession())
     }
 
     // endregion

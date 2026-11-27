@@ -1546,10 +1546,10 @@
     <string name="settings_dorai_cloud_social_title">সোশ্যাল অ্যাকাউন্টে সাইন ইন করুন</string>
     <string name="settings_dorai_cloud_or_email">অথবা ইমেইল দিয়ে সাইন ইন করুন</string>
     <string name="settings_dorai_cloud_sign_in_with_email">ইমেল দিয়ে সাইন ইন করুন</string>
-    <string name="settings_dorai_cloud_provider_google">Google দিয়ে সরতর করুন</string>
-    <string name="settings_dorai_cloud_provider_facebook">Facebook দিয়ে সরতর করুন</string>
-    <string name="settings_dorai_cloud_provider_github">GitHub দিয়ে সরতর করুন</string>
-    <string name="settings_dorai_cloud_oauth_failed">সাইন ইন পেড খোলা সমর্বে সমর্বেন পরসেলিন।</string>
+    <string name="settings_dorai_cloud_provider_google">Google দিয়ে চালিয়ে যান</string>
+    <string name="settings_dorai_cloud_provider_facebook">Facebook দিয়ে চালিয়ে যান</string>
+    <string name="settings_dorai_cloud_provider_github">GitHub দিয়ে চালিয়ে যান</string>
+    <string name="settings_dorai_cloud_oauth_failed">সাইন-ইন পৃষ্ঠাটি খোলা যায়নি।</string>
     <string name="settings_page_mcp_description">মডেল কনটেক্সট প্রোটোকল (MCP) সার্ভার এবং ডেভেলপার ইন্টিগ্রেশন</string>
     <string name="export_warning_title">নিরাপত্তা সতর্কতা: প্লেইনটেক্সট কি</string>
     <string name="export_warning_message">এই এক্সপোর্ট ফাইলের মধ্যে সংরক্ষিত API কী এবং প্রমাণপত্রাদি সাধারণ পাঠ্য হিসেবে অন্তর্ভুক্ত রয়েছে। ব্যাকআপ ফাইলটি নিরাপদ স্থানে সংরক্ষণ করুন।</string>

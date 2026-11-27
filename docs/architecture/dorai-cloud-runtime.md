@@ -21,7 +21,7 @@ The MCP side is already wired (`.opencode/opencode.json`). This document covers 
 
 | Decision | Choice | Why |
 |---|---|---|
-| Identity | **Supabase Auth** (email + password, magic link) | Managed, proven, emits JWTs that RLS can consume directly |
+| Identity | **Firebase Auth** (email/password + Google/Facebook/GitHub credential support) with Firebase ID token sent to Dorai Cloud API/Supabase | KMP-friendly auth for runtime app; Supabase remains the data store |
 | API surface | **Dorai Cloud API façade** (versioned `/v1/*`, edge-hosted) | Key rotation, quotas, rate limiting, observability, and the freedom to move the store later |
 | v1 data | **Memories + E2EE Vault + Settings snapshot** | Conversation sync stays in the encrypted vault archive for v1 (largest privacy surface) |
 | Cryptography | **Zero-knowledge** | The server never holds plaintext user content |
@@ -40,50 +40,53 @@ Consequence: the server can rank matches but cannot read a single memory. Metada
 
 ```text
 Dorai AI app (KMP)
-  ├─ DoraiCloudClient (Ktor, commonMain)          ── bearer: end-user JWT
+  ├─ DoraiFirebaseAuth (GitLive KMP on Android/iOS/Desktop, REST fallback on wasmJs)
+  ├─ DoraiCloudClient (Ktor, commonMain)          ── bearer: Firebase ID token
   │     ├─ /v1/me                                   profile + quota
   │     ├─ /v1/embeddings                           query vector (server holds Workers AI token)
   │     ├─ /v1/memories (POST/GET/DELETE)           ciphertext + embedding
   │     ├─ /v1/vault                                encrypted backup envelope
   │     ├─ /v1/settings                             encrypted snapshot
   │     └─ /v1/devices                              device registry / push tokens
-  └─ Supabase Auth (sign-in, refresh, magic link)
+  └─ Firebase Auth (email/password + provider credentials)
 
 Dorai Cloud API (edge façade, Cloudflare Worker)
-  ├─ verify Supabase JWT (JWKS)
+  ├─ verify Firebase JWT (Google JWKS) and/or Supabase JWT (JWKS)
   ├─ enforce quota + rate limit per user
-  ├─ service-role calls to Supabase PostgREST (server-side only)
+  ├─ forward caller token to Supabase PostgREST (no service-role key)
   └─ never log plaintext bodies, tokens or ciphertext
 
 Supabase (authoritative store, project "dorai-ai-app")
-  └─ Postgres + RLS: every row scoped to auth.uid()
+  └─ Postgres + RLS: every row scoped to auth.jwt()->>'sub' (authenticated)
 ```
 
 ## 4. Data model (Supabase, project `dorai-ai-app`)
 
 All tables are `user_id`-scoped with RLS policies of the form
-`using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id)`.
+`using ((select auth.jwt()->>'sub') = user_id) with check ((select auth.jwt()->>'sub') = user_id)`.
+User identity columns are `text` to support Firebase UID subjects.
 
 | Table | Purpose | Notable columns |
 |---|---|---|
-| `profiles` | One row per account | `id` (= `auth.users.id`), `plan`, `display_name`, timestamps |
-| `devices` | Device registry and push tokens | `platform`, `label`, `push_token`, `last_seen_at` |
-| `memories` | Long-term semantic memory | `key`, `category`, `content_ciphertext`, `content_iv`, `embedding vector(384)`, `hit_count` |
-| `vault_records` | E2EE backup envelopes | `device_id`, `payload_version`, `iv`, `ciphertext`, `checksum`, `updated_at` |
-| `settings_snapshots` | E2EE settings snapshot | `iv`, `ciphertext`, `checksum`, `updated_at` (one row per user) |
-| `usage_events` | Quota accounting | `kind`, `units`, `created_at` |
+| `profiles` | One row per account | `id` (text, JWT subject), `plan`, `display_name`, timestamps |
+| `devices` | Device registry and push tokens | `user_id` text, `platform`, `label`, `push_token`, `last_seen_at` |
+| `memories` | Long-term semantic memory | `user_id` text, `key`, `category`, `content_ciphertext`, `content_iv`, `embedding vector(384)`, `hit_count` |
+| `vault_records` | E2EE backup envelopes | `user_id` text, `device_id`, `payload_version`, `iv`, `ciphertext`, `checksum`, `updated_at` |
+| `settings_snapshots` | E2EE settings snapshot | `user_id` text, `iv`, `ciphertext`, `checksum`, `updated_at` (one row per user) |
+| `usage_events` | Quota accounting | `user_id` text, `kind`, `units`, `created_at` |
 
 Server-side tables never receive plaintext end-user content; the pre-existing permissive
 `dorai_memories` / `dorai_sync_vault` tables (BYO-key era) are removed from the first-party project.
 
 ## 5. Security model
 
-- **Auth**: Supabase Auth issues the JWT; the façade verifies signature, expiry and audience.
-- **Isolation**: RLS is the isolation boundary. The service role exists only inside the façade.
-- **Transport**: TLS everywhere; the façade strips and never forwards client-supplied auth headers.
-- **Secrets**: Workers AI token, service-role key live only in Worker secrets / Supabase env — never in the app, never in the repo.
-- **Build/CI**: release builds receive public endpoints and keys via GitHub Secrets, never committed.
-- **Logging**: request metadata only (route, status, latency, user id hash). No bodies, no ciphertext, no tokens.
+- **Auth**: Firebase Auth issues the ID token; the façade verifies signature, expiry, issuer, and audience against Firebase/Google JWKS. Supabase third-party Firebase auth must be enabled so PostgREST accepts the same token.
+- **Role mapping**: Supabase RLS policies target `authenticated`. Ensure Firebase JWTs carry a `role=authenticated` claim or Supabase third-party auth maps the token to `authenticated`. Missing role mapping causes PostgREST RLS rejection.
+- **Isolation**: RLS is the isolation boundary. The façade forwards the caller's token to PostgREST and does not hold a Supabase service-role key.
+- **Transport**: TLS everywhere.
+- **Secrets**: Workers AI token lives only in Worker secrets/env — never in the app, never in the repo. Firebase web API keys and Supabase publishable keys are public client identifiers, but should still be restricted by provider rules.
+- **Build/CI**: release builds receive public endpoints and keys via GitHub Secrets/local build config, never committed as private secrets.
+- **Logging**: request metadata only (route, status, latency, user id). No bodies, no ciphertext, no tokens.
 
 ## 6. Deployment status (2026-11-16)
 
@@ -111,9 +114,20 @@ Façade notes proven during the smoke test:
 5. **Vault + settings**: encrypted backup/restore through the façade instead of direct PostgREST.
 6. **Devices**: registration and push-token storage for background alerts.
 
-## 8. Open items
+## 8. Firebase/Supabase production checklist
 
-- Email provider configuration (console or SQL) and magic-link redirect URLs per platform.
+- [ ] **Supabase third-party Firebase auth:** Enable Firebase as a third-party auth provider in Supabase project settings for `dorai-ai-app`; verify JWKS/issuer/audience and that PostgREST accepts Firebase ID tokens.
+- [ ] **Role mapping:** Ensure Firebase JWTs are mapped to Supabase `authenticated` role. If Supabase does not map automatically, provision `role=authenticated` custom claim for all Firebase users (signup trigger/admin flow) and verify with PostgREST RLS.
+- [ ] **Firebase Auth providers:** Email/Password and Google enabled. For Facebook and GitHub, create provider apps, set OAuth redirect URIs/callbacks in Firebase Console, and store app secrets only in Firebase Console/secret manager (never in repo).
+- [ ] **Google sign-in config:** Configure Firebase Android OAuth client (`google-services.json`), Web OAuth client, and any platform-specific reverse-client-ID / SHA-1 requirements.
+- [ ] **Facebook/GitHub config:** Configure Firebase provider app IDs/secrets, valid OAuth redirect URIs, and app review/privacy requirements before production.
+- [ ] **Cloud worker deploy:** Deploy updated `cloud/dorai-cloud-api` with Firebase JWT verification and verify `/v1/me` with a Firebase ID token.
+- [ ] **RLS E2E:** Run select/insert/delete RLS tests for `profiles`, `devices`, `memories`, `vault_records`, `settings_snapshots`, `usage_events` with a Firebase-authenticated user.
+- [ ] **Secrets hygiene:** Keep service account JSON, OAuth secrets, keystore files, and env secrets out of git; rotate any accidentally exposed keys.
+
+## 9. Open items
+
 - Quota policy per plan (free tier: e.g. N memories, M syncs/day) and abuse handling.
 - Whether the FOSS flavor may talk to the first-party backend at all (policy decision).
 - Migration path for users who already entered their own Supabase/Cloudflare keys (BYO mode stays as an expert option).
+- Platform-native social OAuth acquisition in KMP (Android Credential Manager for Google; secure browser redirect/code exchange for Facebook/GitHub) with `dorai://cloud/auth` callback.

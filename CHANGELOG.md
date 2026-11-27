@@ -34,8 +34,10 @@
 - **Single, unambiguous selection UI**: the model picker shows one `Active` badge and one labelled `Auto (try all)` entry (curated `auto` aliases hidden), and the chat header pill mirrors that exact label. "Auto-run read-only tools" now has a single control (the switch).
 - **Clearer settings**: Workspace errors show one `Connection failed` title plus a single detail banner; repository-empty copy no longer points at a possibly hidden Retry. Character counters are labelled, long catalog descriptions expand in place, and Voice settings are three cards instead of one. The fallback privacy note names the built-in free service, and the TTS tip uses the same percent units as its sliders.
 - **Bengali parity**: keyboard hints, character counters, model-expand labels, build-mode guidance and the email-connect action are localized; EN/BN baseline parity is now 1,559 keys each.
+- **Production-ready cloud auth UI**: the Dorai Cloud account card now shows an explicit session status chip, full-width labelled Google/Facebook/GitHub sign-in actions, a password visibility toggle, inline localized auth errors and clear usage/progress states. Cloud Vault visibility labels and the Firebase test-alert action no longer use hardcoded English.
 
 ### Fixed
+- **Cloud token refresh**: a 401 response now retries once with a forced Firebase token refresh, so a newly provisioned `role=authenticated` claim can be used without reopening Settings.
 - **Detached message copy button**: the user-message copy action now sits in an attached action row under the bubble.
 - **Image attachments**: use the file name as alt text where available and open the full-screen viewer on tap (previously a non-interactive thumbnail).
 - **Internal license note leak**: voice model rows show only the public `MPL-2.0` label; upstream verification/sign-off notes stay internal.

@@ -50,6 +50,8 @@ import dorai.composeapp.generated.resources.cloud_sync_restore_button
 import dorai.composeapp.generated.resources.cloud_sync_security_notice
 import dorai.composeapp.generated.resources.cloud_sync_vault_description
 import dorai.composeapp.generated.resources.cloud_sync_vault_title
+import dorai.composeapp.generated.resources.sp_hide_password
+import dorai.composeapp.generated.resources.sp_show_password
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -129,7 +131,9 @@ fun CloudVaultCard(
                     ) {
                         Icon(
                             imageVector = if (showPassphrase) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                            contentDescription = if (showPassphrase) "Hide" else "Show",
+                            contentDescription = stringResource(
+                                if (showPassphrase) Res.string.sp_hide_password else Res.string.sp_show_password,
+                            ),
                         )
                     }
                 },
