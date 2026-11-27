@@ -158,6 +158,8 @@ kotlin {
                 implementation(libs.litert.lm)
                 implementation(libs.sqldelight.android.driver)
                 implementation(libs.xz)
+                implementation(libs.gitlive.firebase.app)
+                implementation(libs.gitlive.firebase.auth)
                 // Voice model download worker (Phase 2): WorkManager + foreground service.
                 implementation(libs.androidx.work.runtime)
                 // ML Kit Text Recognition v2 - OCR support
@@ -180,6 +182,8 @@ kotlin {
                 implementation(libs.litert.lm.jvm)
                 implementation(libs.sqldelight.sqlite.driver)
                 implementation(libs.jna.core)
+                implementation(libs.gitlive.firebase.app)
+                implementation(libs.gitlive.firebase.auth)
                 implementation("org.jetbrains.kotlinx:atomicfu-jvm:0.28.0")
             }
         }
@@ -188,6 +192,8 @@ kotlin {
             implementation(libs.ktor.network)
             implementation(libs.ktor.network.tls)
             implementation(libs.sqldelight.native.driver)
+            implementation(libs.gitlive.firebase.app)
+            implementation(libs.gitlive.firebase.auth)
         }
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)

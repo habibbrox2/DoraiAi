@@ -95,9 +95,11 @@ class DoraiCloudClientTest {
     }
 
     @Test
-    fun `unauthorized responses surface as failures`() = runTest {
+    fun `unauthorized responses surface as failures without a refresher`() = runTest {
+        var requests = 0
         val httpClient = HttpClient(
             MockEngine {
+                requests++
                 respond(content = """{"error":"unauthorized"}""", status = HttpStatusCode.Unauthorized)
             },
         )
@@ -107,6 +109,70 @@ class DoraiCloudClientTest {
 
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull()?.message?.contains("401") == true)
+        assertEquals(1, requests)
+        httpClient.close()
+    }
+
+    @Test
+    fun `unauthorized response does not retry when refresher returns null`() = runTest {
+        var requests = 0
+        var refresherCalls = 0
+        val httpClient = HttpClient(
+            MockEngine {
+                requests++
+                respond(content = """{"error":"unauthorized"}""", status = HttpStatusCode.Unauthorized)
+            },
+        )
+        val cloud = DoraiCloudClient(
+            httpClient = httpClient,
+            baseUrl = "https://cloud.test",
+            tokenRefresher = {
+                refresherCalls++
+                null
+            },
+        )
+
+        val result = cloud.me("expired-token")
+
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull()?.message?.contains("401") == true)
+        assertEquals(1, refresherCalls)
+        assertEquals(1, requests)
+        httpClient.close()
+    }
+
+    @Test
+    fun `unauthorized response retries once with refreshed token`() = runTest {
+        val tokens = mutableListOf<String>()
+        var refresherCalls = 0
+        val httpClient = HttpClient(
+            MockEngine { request ->
+                tokens += request.headers["Authorization"].orEmpty()
+                if (tokens.size == 1) {
+                    respond(content = """{"error":"unauthorized"}""", status = HttpStatusCode.Unauthorized)
+                } else {
+                    respond(
+                        content = """{"user_id":"u-1","email":"a@b.c","plan":"free"}""",
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                    )
+                }
+            },
+        )
+        val cloud = DoraiCloudClient(
+            httpClient = httpClient,
+            baseUrl = "https://cloud.test",
+            tokenRefresher = {
+                refresherCalls++
+                "fresh-token"
+            },
+        )
+
+        val profile = cloud.me("stale-token").getOrThrow()
+
+        assertEquals("u-1", profile.userId)
+        assertEquals(1, refresherCalls)
+        assertEquals(listOf("Bearer stale-token", "Bearer fresh-token"), tokens)
         httpClient.close()
     }
 

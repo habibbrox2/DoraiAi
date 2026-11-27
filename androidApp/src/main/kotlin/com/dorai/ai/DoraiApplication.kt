@@ -9,6 +9,7 @@ import com.dorai.ai.inference.LocalRuntimeRegistry
 import com.dorai.ai.inference.registerFlavorRuntimes
 import com.dorai.ai.sandbox.sandboxModule
 import com.dorai.ai.tools.androidToolsModule
+import com.google.firebase.appcheck.FirebaseAppCheck
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -21,6 +22,7 @@ class DoraiApplication : Application() {
     override fun onCreate() {
         com.dorai.ai.AppContextHolder.context = this
         super.onCreate()
+        initFirebaseAppCheck()
         startKoin {
             androidContext(this@DoraiApplication)
             modules(appModule, sandboxModule, androidToolsModule)
@@ -37,5 +39,23 @@ class DoraiApplication : Application() {
                 taskScheduler.appInForeground = false
             }
         })
+    }
+
+    private fun initFirebaseAppCheck() {
+        runCatching {
+            val appCheck = FirebaseAppCheck.getInstance()
+            val providerClassName = if (BuildConfig.DEBUG) {
+                "com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory"
+            } else {
+                "com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory"
+            }
+            val cls = Class.forName(providerClassName)
+            val factory = cls.getMethod("getInstance").invoke(null)
+            val install = appCheck.javaClass.getMethod(
+                "installAppCheckProviderFactory",
+                Class.forName("com.google.firebase.appcheck.AppCheckProviderFactory"),
+            )
+            install.invoke(appCheck, factory)
+        }
     }
 }

@@ -59,14 +59,10 @@ import com.dorai.ai.ui.home.HomeChatSummary
 import com.dorai.ai.ui.home.HomeUiState
 import com.dorai.ai.ui.rememberSandboxAwareUriHandler
 import com.dorai.ai.ui.settings.AppearanceSettingsActions
-import com.dorai.ai.ui.settings.AuthViewModel
 import com.dorai.ai.ui.settings.DoraiSettingsScreenConnected
-import com.dorai.ai.ui.settings.LoginScreen
-import com.dorai.ai.ui.settings.ProfileScreen
 import com.dorai.ai.ui.settings.SettingsCategory
 import com.dorai.ai.ui.workspace.DoraiWorkspaceScreenConnected
 import dorai.composeapp.generated.resources.Res
-import dorai.composeapp.generated.resources.auth_cancel
 import dorai.composeapp.generated.resources.model_not_configured
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -77,12 +73,6 @@ import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.dsl.koinConfiguration
-
-/** Optional auth surfaces shown over the shell when opened from Settings → Account. */
-private sealed interface AuthOverlay {
-    data object SignIn : AuthOverlay
-    data object Profile : AuthOverlay
-}
 
 @Serializable
 @SerialName("dashboard")
@@ -203,10 +193,6 @@ private fun AppContent(
 
     val appLanguage by appSettings.appLanguageFlow.collectAsStateWithLifecycle()
 
-    val authViewModel = AuthViewModel(appSettings)
-
-    val isUserLoggedIn by authViewModel.isLoggedIn.collectAsState()
-
     LaunchedEffect(appLanguage) {
         try {
             applyAppLanguage(appLanguage.code)
@@ -239,12 +225,6 @@ private fun AppContent(
                 }
                 val pendingApprovalsCount = chatUiState.pendingToolConfirmations.size
                 var currentSettingsCategory by remember { mutableStateOf<SettingsCategory?>(null) }
-                var authOverlay by remember { mutableStateOf<AuthOverlay?>(null) }
-
-                // Keep an expired Supabase session usable without forcing a new sign-in.
-                LaunchedEffect(Unit) {
-                    if (authViewModel.isSessionExpired()) authViewModel.refreshSession()
-                }
 
                 // The MCP OAuth hand-off page links back into the app; land on the
                 // Integrations / MCP category so the authorized connector is in view.
@@ -361,50 +341,9 @@ private fun AppContent(
                                 onNavigateToWorkspace = {
                                     shellState.navigateTo(DoraiDestination.Workspace)
                                 },
-                                onOpenAccountAuth = {
-                                    authOverlay = if (isUserLoggedIn) {
-                                        AuthOverlay.Profile
-                                    } else {
-                                        AuthOverlay.SignIn
-                                    }
-                                },
                             )
                         },
                     )
-
-                    authOverlay?.let { overlay ->
-                        PlatformBackHandler(enabled = true) { authOverlay = null }
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.background)
-                                // Consume taps in empty areas so the shell behind stays inert.
-                                .clickable(enabled = true, onClick = {}),
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp),
-                                horizontalArrangement = Arrangement.End,
-                            ) {
-                                TextButton(onClick = { authOverlay = null }) {
-                                    Text(stringResource(Res.string.auth_cancel))
-                                }
-                            }
-                            when (overlay) {
-                                AuthOverlay.SignIn -> LoginScreen(
-                                    viewModel = authViewModel,
-                                    onLoginSuccess = { authOverlay = null },
-                                    onNavigateToProfile = { authOverlay = AuthOverlay.Profile },
-                                )
-
-                                AuthOverlay.Profile -> ProfileScreen(
-                                    viewModel = authViewModel,
-                                    onSignOut = { authOverlay = null },
-                                )
-                            }
-                        }
-                    }
                 }
             }
         }

@@ -81,3 +81,16 @@ frontend/.vite/
 # Audit/plan files — local working artifacts, never commit or push to GitHub
 AUDIT_TRACKER.md
 docs/superpowers/plans/
+
+# Secrets / local credentials (do not commit)
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+keystore.properties
+google-services.json
+GoogleService-Info.plist
+firebase-service-account*.json
+service-account*.json
+supabase/.temp/

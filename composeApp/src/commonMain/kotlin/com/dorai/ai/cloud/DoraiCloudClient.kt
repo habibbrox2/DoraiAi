@@ -163,15 +163,16 @@ private data class DeviceRegisterRequestDto(
 /**
  * Client for the first-party Dorai Cloud API façade.
  *
- * Every call carries the end-user's Supabase access token; the façade verifies
- * it and forwards it to Supabase, so RLS stays the isolation boundary. The
- * client never holds a service-role key and never sends plaintext content —
- * memory, vault and settings bodies are already encrypted on the device.
+ * Every call carries the end-user's Firebase ID token; the façade verifies it
+ * and forwards it to Supabase, so RLS stays the isolation boundary. The client
+ * never holds a service-role key and never sends plaintext content — memory,
+ * vault and settings bodies are already encrypted on the device.
  */
 class DoraiCloudClient(
     private val httpClient: HttpClient,
     private val baseUrl: String = DORAI_CLOUD_DEFAULT_URL,
     private val json: Json = Json { ignoreUnknownKeys = true },
+    private val tokenRefresher: (suspend () -> String?)? = null,
 ) {
 
     /** Factory creates a client that automatically uses the token from [AppSettings]. */
@@ -323,8 +324,50 @@ class DoraiCloudClient(
         serializer: kotlinx.serialization.KSerializer<T>,
         method: HttpMethod,
     ): Result<T> = runCatching {
+        val (status, text) = execute(path, token, body, method)
+        if (status == 401) {
+            val refreshed = tokenRefresher?.invoke()
+            if (!refreshed.isNullOrBlank()) {
+                val retry = execute(path, refreshed, body, method)
+                if (!retry.first.isSuccessStatus()) {
+                    throw IllegalStateException("Dorai Cloud request failed [${retry.first}]: ${retry.second.take(200)}")
+                }
+                return@runCatching json.decodeFromString(serializer, retry.second)
+            }
+        }
+        if (!status.isSuccessStatus()) {
+            throw IllegalStateException("Dorai Cloud request failed [$status]: ${text.take(200)}")
+        }
+        json.decodeFromString(serializer, text)
+    }
+
+    private suspend fun delete(path: String, token: String): Result<Unit> = runCatching {
+        val (status, text) = execute(path, token, null, HttpMethod.Delete)
+        if (status == 401) {
+            val refreshed = tokenRefresher?.invoke()
+            if (!refreshed.isNullOrBlank()) {
+                val retry = execute(path, refreshed, null, HttpMethod.Delete)
+                if (!retry.first.isSuccessStatus()) {
+                    throw IllegalStateException("Dorai Cloud delete failed [${retry.first}]: ${retry.second.take(200)}")
+                }
+                return@runCatching
+            }
+        }
+        if (!status.isSuccessStatus()) {
+            throw IllegalStateException("Dorai Cloud delete failed [$status]: ${text.take(200)}")
+        }
+    }
+
+    private suspend fun execute(
+        path: String,
+        token: String,
+        body: String?,
+        method: HttpMethod,
+    ): Pair<Int, String> {
         val response = when {
-            body == null -> httpClient.get(path) { authorize(token) }
+            method == HttpMethod.Get -> httpClient.get(path) { authorize(token) }
+
+            method == HttpMethod.Delete -> httpClient.delete(path) { authorize(token) }
 
             method == HttpMethod.Put -> httpClient.put(path) {
                 authorize(token)
@@ -338,20 +381,10 @@ class DoraiCloudClient(
                 setBody(body)
             }
         }
-        val text = response.bodyAsText()
-        if (!response.status.isSuccess()) {
-            throw IllegalStateException("Dorai Cloud request failed [${response.status.value}]: ${text.take(200)}")
-        }
-        json.decodeFromString(serializer, text)
+        return response.status.value to response.bodyAsText()
     }
 
-    private suspend fun delete(path: String, token: String): Result<Unit> = runCatching {
-        val response = httpClient.delete(path) { authorize(token) }
-        if (!response.status.isSuccess()) {
-            val text = response.bodyAsText()
-            throw IllegalStateException("Dorai Cloud delete failed [${response.status.value}]: ${text.take(200)}")
-        }
-    }
+    private fun Int.isSuccessStatus(): Boolean = this in 200..299
 
     private fun io.ktor.client.request.HttpRequestBuilder.authorize(token: String) {
         header("Authorization", "Bearer $token")
