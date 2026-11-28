@@ -129,7 +129,9 @@ fun DoraiCloudSection(modifier: Modifier = Modifier) {
     var showPassword by remember { mutableStateOf(false) }
     var usage by remember { mutableStateOf(DoraiCloudUsageDto()) }
     var isBusy by remember { mutableStateOf(false) }
-    var isRestoringSession by remember { mutableStateOf(true) }
+    // Screenshot/Paparazzi tests render in inspection mode. Avoid an async restore race
+    // there so the not-signed-in state is deterministic across local and CI rendering.
+    var isRestoringSession by remember { mutableStateOf(!inspectionMode) }
     var isRefreshingUsage by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var showEmailSignIn by remember { mutableStateOf(false) }
@@ -178,6 +180,10 @@ fun DoraiCloudSection(modifier: Modifier = Modifier) {
     }
 
     LaunchedEffect(Unit) {
+        if (inspectionMode) {
+            isRestoringSession = false
+            return@LaunchedEffect
+        }
         authClient.getSession(forceRefresh = false)
             .onSuccess { refreshed ->
                 if (refreshed != null) {
