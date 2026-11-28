@@ -538,8 +538,249 @@ class DoraiUiV2ScreenshotTest {
         )
     }
 
+    // 5. Bengali Font-Scale Stress Tests (default + 200%)
     // -------------------------------------------------------------------------
-    // Helper snapshot renderer
+    @Test
+    fun settings_general_compact_bn_default() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 1.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.General,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_general_compact_bn_200pct() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 2.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.General,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_appearance_compact_bn_default() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 1.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Appearance,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_appearance_compact_bn_200pct() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 2.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Appearance,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_agent_compact_bn_default() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 1.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Agent,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_agent_compact_bn_200pct() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 2.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Agent,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_providers_compact_bn_default() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 1.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Providers,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_providers_compact_bn_200pct() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 2.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Providers,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_tools_compact_bn_default() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 1.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Tools,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_tools_compact_bn_200pct() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 2.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Tools,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_mcp_compact_bn_default() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 1.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Mcp,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_mcp_compact_bn_200pct() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 2.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Mcp,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_account_compact_bn_default() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 1.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Account,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_account_compact_bn_200pct() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 2.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = SettingsCategory.Account,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_home_compact_bn_default() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 1.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = null,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    @Test
+    fun settings_home_compact_bn_200pct() = snap(
+        destination = DoraiDestination.Settings,
+        device = DeviceConfig.PIXEL_9A,
+        palette = ThemePresets.ogShine,
+        fontScale = 2.0f,
+    ) {
+        DoraiSettingsScreen(
+            activeCategory = null,
+            onCategoryChanged = {},
+            selectedThemeId = "og_shine",
+            onThemeSelected = {},
+        )
+    }
+
+    // -------------------------------------------------------------------------
     // -------------------------------------------------------------------------
 
     private fun snap(

@@ -320,7 +320,7 @@
     <string name="settings_skills_github_hint">e.g. anthropics/skills/skills/pdf or a full github.com URL</string>
     <string name="error_unrecognized_github_repo">Unrecognized GitHub repo or URL.</string>
     <string name="settings_workspace_section_title">Workspace</string>
-    <string name="settings_workspace_description">Clone public repositories from GitHub into your Workspace (read-only by default).</string>
+    <string name="settings_workspace_description">Clone repositories from GitHub into your Workspace using a GitHub App with read access. DORAI AI can browse and sync your repositories read-only.</string>
     <string name="settings_workspace_hero_title">Connect your Workspace account</string>
     <string name="settings_workspace_account_connected">Workspace account connected</string>
     <string name="notification_workspace_connected_title">Workspace connected</string>

@@ -931,7 +931,7 @@
     <string name="settings_cat_workspace">ওয়ার্কস্পেস</string>
     <string name="settings_workspace_not_supported">ওয়ার্কস্পেস ইন্টিগ্রেশন শুধুমাত্র অ্যান্ড্রয়েড এবং ডেস্কটপে উপলব্ধ।</string>
     <string name="settings_workspace_section_title">ওয়ার্কস্পেস</string>
-    <string name="settings_workspace_description">GitHub থেকে রিপোজিটরি ক্লোন করে আপনার ওয়ার্কস্পেসে রাখুন (ডিফল্টভাবে শুধুমাত্র পঠনযোগ্য)।</string>
+    <string name="settings_workspace_description">GitHub থেকে রিপোজিটরি clone করে আপনার ওয়ার্কস্পেসে রাখুন গিটহাব অ্যাপ রিড অ্যাক্সেস ব্যবহার করে। DORAI AI রিপোজিটরি ব্রাউজ ও সিঙ্ক কর(read-only) thể।</string>
     <string name="settings_workspace_hero_title">আপনার ওয়ার্কস্পেস অ্যাকাউন্ট সংযুক্ত করুন</string>
     <string name="settings_workspace_account_connected">ওয়ার্কস্পেস অ্যাকাউন্ট সংযুক্ত</string>
     <string name="notification_workspace_connected_title">ওয়ার্কস্পেস সংযুক্ত হয়েছে</string>
